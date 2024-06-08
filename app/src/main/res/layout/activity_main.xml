@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#131313"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:theme="@style/Theme.MaterialComponents">
+
+    <Switch
+        style="@style/Switch"
+        android:id="@+id/enableService"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#1c1c1c"
+        android:checked="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:paddingVertical="8dp"
+        android:text="@string/enabled"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        style="@style/SingleLineEditText"
+        android:id="@+id/gitRepoUrl"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#1c1c1c"
+        android:hint="@string/git_repo_url_hint"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:layout_constraintEnd_toStartOf="@id/gitAuthButton"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableService" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/gitAuthButton"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/auth"
+        android:backgroundTint="#1c1c1c"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/circle_check"
+        app:iconSize="20dp"
+        app:iconTint="@color/auth_green"
+        app:layout_constraintBottom_toBottomOf="@+id/gitRepoUrl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/gitRepoUrl"
+        app:layout_constraintTop_toTopOf="@id/gitRepoUrl" />
+
+    <EditText
+        style="@style/SingleLineEditText"
+        android:id="@+id/gitDirPath"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#1c1c1c"
+        android:hint="@string/git_dir_path_hint"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:layout_constraintEnd_toStartOf="@id/selectFileButton"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gitRepoUrl" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/selectFileButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="start"
+        android:layout_marginStart="16dp"
+        android:backgroundTint="#1c1c1c"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/folder_open"
+        app:iconGravity="textEnd"
+        app:iconPadding="0dp"
+        app:cornerRadius="16dp"
+        app:iconSize="20dp"
+        app:iconTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/gitDirPath"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toTopOf="@+id/gitDirPath" />
+
+    <Switch
+        style="@style/Switch"
+        android:id="@+id/enableFileObserver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#1c1c1c"
+        android:checked="true"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:text="Sync on file changes"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gitDirPath"
+        app:switchPadding="16dp" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        android:layout_marginHorizontal="8dp"
+        app:layout_constraintTop_toBottomOf="@id/enableFileObserver"/>
+
+    <include
+        android:id="@+id/applicationObserverPanel"
+        layout="@layout/application_observer_min"
+        android:layout_marginTop="16dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+    />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

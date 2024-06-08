@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.GitSync" parent="android:Theme.Material.Light.NoActionBar">
+    </style>
+
+        <style name="Switch" parent="@android:style/Widget.Material.Light.CompoundButton.Switch">
+            <item name="android:track">@drawable/track_material</item>
+            <item name="android:thumb">@drawable/thumb_material</item>
+            <item name="android:switchPadding">16dp</item>
+        </style>
+
+        <style name="SingleLineEditText" parent="@android:style/Widget.Material.Light.EditText">
+            <item name="android:singleLine">true</item>
+            <item name="android:maxLines">1</item>
+            <item name="android:ellipsize">end</item>
+            <item name="android:scrollHorizontally">true</item>
+        </style>
+
+        <style name="ApplicationSelectButton" parent="ThemeOverlay.Material3.Button">
+            <item name="android:textColor">@color/application_select_text_color</item>
+            <item name="iconTint">@color/application_select_icon_tint</item>
+        </style>
+</resources>

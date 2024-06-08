@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Git Sync</string>
+    <string name="enabled">Enabled</string>
+    <string name="auth">AUTH</string>
+    <string name="git_repo_url_hint">https://github.com/xyz.git</string>
+    <string name="git_dir_path_hint">/storage/emulated/0/...</string>
+    <string name="enable_application_observer">Enable Application Observer</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffffff</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="auth_green">#ff85f48e</color>
+    <color name="auth_green_secondary">#ff4f7051</color>
+    <color name="auth_red">#ffaa2223</color>
+
+    <color name="switch_color_control_activated">#FFFFFF</color>
+    <color name="switch_thumb_normal">#000000</color>
+</resources>

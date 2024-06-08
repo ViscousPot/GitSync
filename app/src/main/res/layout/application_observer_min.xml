@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:animateLayoutChanges="true"
+    android:background="@drawable/input_bg"
+    android:backgroundTint="#1c1c1c"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="16dp"
+    android:theme="@style/Theme.MaterialComponents">
+
+    <Switch
+        style="@style/Switch"
+        android:id="@+id/enableApplicationObserver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:checked="false"
+        android:enabled="true"
+        android:text="@string/enable_application_observer"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider" />
+
+    <EditText
+        style="@style/SingleLineEditText"
+        android:id="@+id/dummy0"
+        android:layout_width="1px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:enabled="false"
+        android:visibility="gone"
+        android:paddingVertical="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableApplicationObserver"/>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/ApplicationSelectButton"
+        android:id="@+id/selectApplication"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:backgroundTint="#292929"
+        android:enabled="true"
+        android:visibility="gone"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:shadowColor="#7A7A7A"
+        android:text="Obsidian"
+        app:iconTintMode="multiply"
+        android:textSize="14sp"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/obsidian"
+        app:iconSize="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/dummy0"
+        app:layout_constraintStart_toEndOf="@+id/dummy0"
+        app:layout_constraintTop_toTopOf="@+id/dummy0" />
+
+    <Switch
+        style="@style/Switch"
+        android:id="@+id/syncAppOpened"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#2b2b2b"
+        android:checked="true"
+        android:enabled="true"
+        android:visibility="gone"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:text="Sync on app opened"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectApplication" />
+
+    <Switch
+        style="@style/Switch"
+        android:id="@+id/syncAppClosed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="#2b2b2b"
+        android:visibility="gone"
+        android:checked="true"
+        android:enabled="true"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:text="Sync on app closed"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/syncAppOpened"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

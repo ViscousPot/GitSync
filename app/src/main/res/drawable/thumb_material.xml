@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="true" android:state_checked="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/auth_green" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+    <item android:state_enabled="true" android:state_checked="false">
+        <shape android:shape="oval">
+            <solid android:color="#FFB8B8B8" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+    <item android:state_enabled="false" android:state_checked="true">
+        <shape android:shape="oval">
+            <solid android:color="#FF5F5F5F" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+    <item android:state_enabled="false" android:state_checked="false">
+        <shape android:shape="oval">
+            <solid android:color="#FF5F5F5F" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+</selector>
