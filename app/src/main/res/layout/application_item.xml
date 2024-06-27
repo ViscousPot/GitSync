@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/applicationItem"
+    android:layout_width="match_parent"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    app:icon="@drawable/bug"
+    app:iconGravity="textTop"
+    app:iconPadding="@dimen/space_md"
+    android:padding="@dimen/space_md"
+    app:backgroundTint="@color/card_secondary_bg"
+    android:text="example"
+    android:layout_marginHorizontal="@dimen/space_sm"
+    android:layout_marginVertical="@dimen/space_sm"
+    android:textSize="@dimen/text_size_sm"
+    android:textColor="@color/textPrimary"
+    app:iconTint="@color/textPrimary"
+    app:iconSize="@dimen/application_icon_size"
+    app:iconTintMode="multiply"
+    android:layout_height="wrap_content">
+
+</com.google.android.material.button.MaterialButton>

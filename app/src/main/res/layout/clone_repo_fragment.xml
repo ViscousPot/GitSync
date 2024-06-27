@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingHorizontal="16dp"
+    android:theme="@style/Theme.MaterialComponents">
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/clone_repo"
+        android:textColor="@color/textPrimary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/repoList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="@color/card_bg"
+        android:padding="16dp"
+        tools:listitem="@layout/repo_recycler_item"
+        app:layout_constraintBottom_toTopOf="@+id/repoUrlEditText"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        android:requiresFadingEdge="vertical"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <EditText
+        android:id="@+id/repoUrlEditText"
+        style="@style/SingleLineEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/input_bg"
+        android:backgroundTint="@color/card_bg"
+        android:hint="@string/git_repo_url_hint"
+        android:inputType="none"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        app:layout_constraintEnd_toStartOf="@id/pullButton"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/repoList" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pullButton"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/pull"
+        android:backgroundTint="@color/card_bg"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:textColor="@color/textPrimary"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/pull"
+        app:iconSize="20dp"
+        app:iconTint="@color/auth_green"
+        app:layout_constraintBottom_toBottomOf="@+id/repoUrlEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/repoUrlEditText"
+        app:layout_constraintTop_toTopOf="@id/repoUrlEditText" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="64dp"
+        android:background="@color/card_bg"
+        app:layout_constraintBottom_toTopOf="@+id/localRepo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/localRepo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:backgroundTint="@color/card_bg"
+        android:textColor="@color/textPrimary"
+        android:text="I already have a local repository"
+        android:textSize="14sp"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:iconSize="14sp"
+        app:iconGravity="end"
+        app:iconTint="@color/textPrimary"
+        app:icon="@drawable/folder_open"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

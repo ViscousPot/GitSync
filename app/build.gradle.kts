@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.viscouspot.gitsync"
-        minSdk = 23
+        minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 1100
+        versionName  = "1.100"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,7 +50,9 @@ android {
 }
 
 dependencies {
-    implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.3.202401111512-r")
+    implementation(libs.security.crypto)
+    implementation(libs.squareup.okhttp3)
+    implementation(libs.eclipse.jgit)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#ffffffff</color>
+    <color name="textPrimary">#ffffffff</color>
+    <color name="textSecondary">#898989</color>
     <color name="transparent">#00ffffff</color>
+
+    <color name="app_bg">#131313</color>
+    <color name="card_bg">#1c1c1c</color>
+    <color name="card_secondary_bg">#2b2b2b</color>
+
     <color name="auth_green">#ff85f48e</color>
     <color name="auth_green_secondary">#ff4f7051</color>
-    <color name="auth_red">#ffaa2223</color>
+    <color name="auth_red">#ffc22424</color>
 
     <color name="switch_color_control_activated">#FFFFFF</color>
     <color name="switch_thumb_normal">#000000</color>

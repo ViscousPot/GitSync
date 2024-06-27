@@ -1,79 +1,185 @@
 package com.viscouspot.gitsync
 
 import android.app.Service
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.os.Build
-import android.os.Environment
 import android.os.FileObserver
 import android.os.IBinder
-import android.util.Log
+import android.os.Looper
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.Helper.log
+import com.viscouspot.gitsync.util.SettingsManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.io.File
 
 class GitSyncService : Service() {
-
+    private val channelId = "git_sync_service_channel"
     private lateinit var fileObserver: FileObserver
+    private lateinit var gitManager: GitManager
+    private lateinit var settingsManager: SettingsManager
+
+    private var lastRunTime: Long = 0
+    private var isScheduled: Boolean = false
+    private val delay: Long = 10000
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent == null || intent.action == null) {
+            return START_STICKY
+        }
+
+        when (intent.action) {
+            "FORCE_SYNC" -> {
+                log(this, "ToServiceCommand", "Force Sync")
+                sync()
+            }
+            "APPLICATION_SYNC" -> {
+                log(this, "ToServiceCommand", "AccessibilityService Sync")
+                sync()
+            }
+        }
+
+        return START_STICKY
+    }
+
 
     override fun onCreate() {
         super.onCreate()
+        gitManager = GitManager(this)
+        settingsManager = SettingsManager(this)
+
         startForegroundService()
-        startFileObserver()
+
+        if (settingsManager.getSyncOnFileChanges()) {
+            startFileObserver()
+        }
     }
 
     private fun startForegroundService() {
-        val channelId = "git_sync_service_channel"
-        val channelName = "Git Sync Service"
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(notificationChannel)
+            val channel = NotificationChannel(
+                channelId,
+                "Git Sync Service",
+                NotificationManager.IMPORTANCE_MIN
+            )
+            val manager = this.getSystemService(
+                NotificationManager::class.java
+            )
+            manager?.createNotificationChannel(channel)
         }
 
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Git Sync")
-//            .setContentText("Monitoring folder changes...")
-            .setSmallIcon(android.R.drawable.ic_menu_view)
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .build()
 
         startForeground(1, notification)
     }
 
     private fun startFileObserver() {
-        Log.d("////", "test")
-        val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/Obsidian-TestingOnly" // Change this to your folder path
-
-        fileObserver = object : FileObserver(folderPath, ALL_EVENTS) {
+        log(applicationContext, "FileObserver", "Observer Created")
+        fileObserver = object : FileObserver(File(settingsManager.getGitDirPath()), ALL_EVENTS) {
             override fun onEvent(event: Int, path: String?) {
+                val eventMap = hashMapOf(
+                    1 to "ACCESS",
+                    4095 to "ALL_EVENTS",
+                    4 to "ATTRIB",
+                    16 to "CLOSE_NOWRITE",
+                    8 to "CLOSE_WRITE",
+                    256 to "CREATE",
+                    512 to "DELETE",
+                    1024 to "DELETE_SELF",
+                    2 to "MODIFY",
+                    64 to "MOVED_FROM",
+                    128 to "MOVED_TO",
+                    2048 to "MOVE_SELF",
+                    32 to "OPEN"
+                )
                 path?.let {
                     when (event) {
-                        CREATE -> onFileCreated(it)
-                        DELETE -> onFileDeleted(it)
-                        MODIFY -> onFileModified(it)
-                        // Handle other events as needed
+                        OPEN, CREATE, DELETE, MODIFY, MOVED_FROM, MOVED_TO -> {
+                            log(applicationContext, "FileObserverEvent", eventMap[event].toString())
+                            debouncedSync()
+                        }
                     }
                 }
             }
         }
-        Log.d("////", "test")
+
+        log(applicationContext, "FileObserver", "Watching Started")
         fileObserver.startWatching()
     }
 
-    private fun onFileCreated(path: String) {
-        // Your code for handling file creation
-        Log.d("////", "File created: $path")
+    fun debouncedSync() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastRunTime >= delay) {
+            sync()
+            lastRunTime = currentTime
+            isScheduled = false
+        } else if (!isScheduled) {
+            isScheduled = true
+            log(applicationContext, "Sync", "Sync Scheduled")
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(delay - (currentTime - lastRunTime))
+                sync()
+                lastRunTime = System.currentTimeMillis()
+                isScheduled = false
+            }
+        }
     }
 
-    private fun onFileDeleted(path: String) {
-        // Your code for handling file deletion
-        Log.d("////", "File deleted: $path")
-    }
+    private fun sync() {
+        log(applicationContext, "Sync", "Start Sync")
 
-    private fun onFileModified(path: String) {
-        // Your code for handling file modification
-        Log.d("////", "File modified: $path")
+        CoroutineScope(Dispatchers.Default).launch {
+            if (Looper.myLooper() == null) {
+                Looper.prepare()
+            }
+
+            val authCredentials = settingsManager.getGitAuthCredentials()
+            val gitDirPath = settingsManager.getGitDirPath()
+
+            val file = File("${gitDirPath}/.git/config")
+
+            if (!file.exists()) {
+                log(applicationContext, "Sync", "Repository Not Found")
+                Toast.makeText(applicationContext, "Repository not found!", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            val fileContents = file.readText()
+
+            val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+            var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+            val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value
+
+            log(applicationContext, "Sync", "Start Pull Repo")
+            val pullResult = gitManager.pullRepository(gitDirPath, authCredentials.first, authCredentials.second)
+
+            when (pullResult) {
+                null -> log(applicationContext, "Sync", "Pull Repo Failed")
+                true -> log(applicationContext, "Sync", "Pull Complete")
+                false -> log(applicationContext, "Sync", "Pull Not Required")
+            }
+
+            log(applicationContext, "Sync", "Start Push Repo")
+            val pushResult = gitManager.pushAllToRepository(repoUrl.toString(), gitDirPath, authCredentials.first, authCredentials.second)
+
+            when (pushResult) {
+                null -> log(applicationContext, "Sync", "Push Repo Failed")
+                true -> log(applicationContext, "Sync", "Push Complete")
+                false -> log(applicationContext, "Sync", "Push Not Required")
+            }
+
+            if (settingsManager.getSyncMessageEnabled() && (pushResult == true || pullResult == true)) {
+                Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -82,6 +188,8 @@ class GitSyncService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        fileObserver.stopWatching()
+        try {
+            fileObserver.stopWatching()
+        } catch (e: Exception) { e.printStackTrace() }
     }
 }
