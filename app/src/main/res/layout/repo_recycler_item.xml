@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/input_bg"
+    android:background="@drawable/input_bg_md"
     android:backgroundTint="@color/card_secondary_bg"
     android:orientation="vertical"
     android:paddingVertical="8dp"

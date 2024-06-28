@@ -11,15 +11,30 @@
     android:paddingTop="?android:attr/actionBarSize"
     android:theme="@style/Theme.MaterialComponents">
 
-<!--    Add Recent commits recyclerview with segmented scroll-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recentCommitsRecycler"
+        android:layout_width="match_parent"
+        android:background="@drawable/input_bg_top"
+        android:backgroundTint="@color/card_bg"
+        android:paddingVertical="@dimen/space_sm"
+        android:paddingHorizontal="@dimen/space_sm"
+        android:layout_height="@dimen/recent_commits_height"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/recent_commit"
+        app:spanCount="1"
+        android:layout_marginTop="@dimen/space_md"
+        android:requiresFadingEdge="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/forceSyncButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_sm"
         android:layout_marginEnd="@dimen/space_sm"
-        android:backgroundTint="@color/card_bg"
+        android:background="@drawable/input_bg__bottom_left"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:minHeight="1dp"
@@ -29,8 +44,9 @@
         android:textAlignment="viewStart"
         android:textColor="@color/textPrimary"
         android:textSize="@dimen/text_size_md"
-        app:backgroundTint="@null"
-        android:background="@drawable/input_bg_left"
+        app:backgroundTint="@color/card_bg"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clipToOutline="true"
         app:icon="@drawable/pull"
         app:iconGravity="end"
         app:iconSize="@dimen/text_size_lg"
@@ -38,7 +54,7 @@
         app:layout_constraintEnd_toStartOf="@id/syncMessageButton"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/recentCommitsRecycler"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/syncMessageButton"
@@ -52,9 +68,11 @@
         app:iconGravity="textEnd"
         app:iconPadding="0dp"
         app:backgroundTint="@null"
-        android:background="@drawable/input_bg_right"
+        android:background="@drawable/input_bg_bottom_right"
         app:iconSize="@dimen/text_size_lg"
         app:iconTint="@color/textPrimary"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="@+id/forceSyncButton"
         app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -67,7 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/space_lg"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:editable="false"
         android:ellipsize="end"
@@ -95,7 +113,7 @@
         android:id="@+id/cloneRepoButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -109,6 +127,8 @@
         android:visibility="visible"
         app:iconSize="@dimen/text_size_lg"
         app:iconTint="@color/material_button_icon_color"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="@id/gitRepoName"
         app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintStart_toStartOf="@id/cloneRepoButtonBarrier"
@@ -127,7 +147,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/space_md"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -139,6 +159,8 @@
         app:iconPadding="@dimen/space_sm"
         app:iconSize="@dimen/text_size_lg"
         app:iconTint="@color/auth_red"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="@id/gitRepoName"
         app:layout_constraintStart_toStartOf="@id/gitAuthButtonBarrier"
         app:layout_constraintBottom_toBottomOf="@id/gitRepoName"
@@ -152,7 +174,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_md"
         android:layout_marginEnd="@dimen/space_md"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:textSize="@dimen/text_size_md"
         android:hint="@string/git_dir_path_hint"
@@ -175,12 +197,14 @@
         app:iconGravity="textEnd"
         app:iconPadding="3dp"
         app:backgroundTint="@null"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         app:iconSize="@dimen/text_size_md"
         app:iconTint="@color/textPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/gitDirPath"
         app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintEnd_toEndOf="parent"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="@+id/gitDirPath" />
 
     <Switch
@@ -189,7 +213,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_md"
-        android:background="@drawable/input_bg"
+        android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:checked="false"
         android:paddingHorizontal="@dimen/space_md"
@@ -200,24 +224,13 @@
         app:layout_constraintTop_toBottomOf="@id/gitDirPath"
         app:switchPadding="16dp" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/divider_height"
-        android:layout_marginHorizontal="@dimen/space_sm"
-        android:layout_marginTop="@dimen/space_md"
-        android:background="@color/card_bg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/enableFileObserver" />
-
     <include
         android:id="@+id/applicationObserverPanel"
         layout="@layout/application_observer_max"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_lg"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintTop_toBottomOf="@id/enableFileObserver"
     />
 
     <com.google.android.material.button.MaterialButton
@@ -225,11 +238,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/space_md"
-        android:backgroundTint="@color/card_bg"
+        android:backgroundTint="@color/card_secondary_bg"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/view_logs"
-        android:textColor="@color/textPrimary"
         android:textSize="@dimen/text_size_md"
         app:cornerRadius="@dimen/corner_radius_md"
         app:icon="@drawable/logs"
