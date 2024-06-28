@@ -21,4 +21,5 @@
     <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
     <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
     <string name="application_not_set">Select App...</string>
+    <string name="committed">committed</string>
 </resources>

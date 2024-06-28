@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/input_bg_sm"
+    android:backgroundTint="@color/card_secondary_bg"
+    android:paddingStart="@dimen/space_md"
+    android:paddingEnd="@dimen/space_sm"
+    android:paddingVertical="@dimen/space_sm"
+    android:layout_marginTop="@dimen/space_sm"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/commitMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textPrimary"
+        android:textSize="@dimen/text_size_md"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="@dimen/space_xs"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:lines="1"
+        android:ellipsize="none"
+        android:requiresFadingEdge="horizontal"
+        android:scrollHorizontally="true"
+        app:layout_constraintEnd_toStartOf="@id/commitRef"
+        android:text="Update README.md"/>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:text="ViscousPotential"
+        android:textColor="@color/textSecondary"
+        android:textSize="@dimen/text_size_sm"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/commitMessage" />
+
+    <TextView
+        android:id="@+id/committed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/committed"
+        android:textColor="@color/textSecondary"
+        android:textSize="@dimen/text_size_sm"
+        android:layout_marginLeft="@dimen/space_xs"
+        app:layout_constraintBottom_toBottomOf="@id/author"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/author"
+        app:layout_constraintTop_toTopOf="@id/author" />
+
+    <TextView
+        android:id="@+id/commitDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="last year"
+        android:textColor="@color/textSecondary"
+        android:textSize="@dimen/text_size_sm"
+        android:layout_marginLeft="@dimen/space_xs"
+        app:layout_constraintBottom_toBottomOf="@id/author"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/committed"
+        app:layout_constraintTop_toTopOf="@id/author" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/commitRef"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6c4d1f5"
+        android:textSize="@dimen/text_size_xs"
+        app:layout_constraintTop_toTopOf="parent"
+        android:insetTop="0dp"
+        android:paddingHorizontal="@dimen/space_xs"
+        android:paddingVertical="@dimen/space_xs"
+        android:textColor="@color/card_secondary_bg"
+        android:enabled="false"
+        android:textStyle="bold"
+        android:backgroundTint="@color/textSecondary"
+        android:insetBottom="0dp"
+        android:minHeight="1dp"
+        android:minWidth="1dp"
+        app:cornerRadius="@dimen/corner_radius_xs"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

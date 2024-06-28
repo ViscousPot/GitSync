@@ -7,6 +7,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.viscouspot.gitsync.Secrets
+import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.util.Helper.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.storage.file.FileRepository
+import org.eclipse.jgit.revwalk.RevSort
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.json.JSONArray
 import org.json.JSONObject
@@ -255,5 +259,41 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         log(context, "GitStatus.UncommittedChanges", status.uncommittedChanges.toString())
     }
 
+    fun getRecentCommits(storageDir: String): List<Commit> {
+        try {
+            if (!File("$storageDir/.git").exists()) return listOf()
 
+            val repo = FileRepository("$storageDir/.git")
+            val revWalk = RevWalk(repo)
+
+            val head = repo.resolve("refs/heads/master")
+            revWalk.markStart(revWalk.parseCommit(head))
+            revWalk.sort(RevSort.COMMIT_TIME_DESC)
+            revWalk.setRevFilter(RevFilter.NO_MERGES)
+
+            val commits = mutableListOf<Commit>()
+            var count = 0
+            val iterator = revWalk.iterator()
+
+            while (iterator.hasNext() && count < 10) {
+                val commit = iterator.next()
+                commits.add(
+                    Commit(
+                        commit.shortMessage,
+                        commit.authorIdent.name,
+                        commit.authorIdent.`when`.time,
+                        commit.name.substring(0, 7)
+                    )
+                )
+                count++
+            }
+
+            repo.close()
+
+            return commits
+        } catch (e: java.lang.Exception) {
+            log(context, "RecentCommits", e)
+        }
+        return listOf()
+    }
 }
