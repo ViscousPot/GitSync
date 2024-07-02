@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.app.Service
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.FileObserver
@@ -24,6 +25,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import java.io.File
+import kotlin.random.Random
 
 class GitSyncService : Service() {
     private val channelId = "git_sync_service_channel"
@@ -81,8 +83,14 @@ class GitSyncService : Service() {
             manager?.createNotificationChannel(channel)
         }
 
+        val buttonIntent = Intent(this, GitSyncService::class.java).apply {
+            action = "FORCE_SYNC"
+        }
+        val buttonPendingIntent = PendingIntent.getService(this, Random.nextInt(0, 100), buttonIntent, PendingIntent.FLAG_IMMUTABLE)
+
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .addAction(NotificationCompat.Action(null, "Force Sync", buttonPendingIntent))
             .build()
 
         startForeground(1, notification)
