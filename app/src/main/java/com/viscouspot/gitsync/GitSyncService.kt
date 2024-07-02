@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import java.io.File
 
 class GitSyncService : Service() {
@@ -160,7 +161,7 @@ class GitSyncService : Service() {
                 return@launch
             }
 
-            if (!isActive) return@launch
+            yield()
 
             val fileContents = file.readText()
 
@@ -181,9 +182,9 @@ class GitSyncService : Service() {
                 false -> log(applicationContext, "Sync", "Pull Not Required")
             }
 
-            if (!isActive) return@launch
+            yield()
 
-            while (File("$gitDirPath/.git", "index.lock").exists()) {
+            while (File("$gitDirPath/.git/index.lock").exists()) {
                 delay(1000)
             }
 
@@ -200,7 +201,7 @@ class GitSyncService : Service() {
                 false -> log(applicationContext, "Sync", "Push Not Required")
             }
 
-            while (File("$gitDirPath/.git", "index.lock").exists()) {
+            while (File("$gitDirPath/.git/index.lock").exists()) {
                 delay(1000)
             }
 
