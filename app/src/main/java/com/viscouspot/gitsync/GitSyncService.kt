@@ -18,7 +18,9 @@ import com.viscouspot.gitsync.util.Helper.log
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -30,6 +32,7 @@ class GitSyncService : Service() {
 
     private var lastRunTime: Long = 0
     private var isScheduled: Boolean = false
+    private var currentSyncJob: Job? = null
     private val delay: Long = 10000
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -139,7 +142,9 @@ class GitSyncService : Service() {
     private fun sync() {
         log(applicationContext, "Sync", "Start Sync")
 
-        CoroutineScope(Dispatchers.Default).launch {
+        currentSyncJob?.cancel()
+
+        currentSyncJob = CoroutineScope(Dispatchers.Default).launch {
             if (Looper.myLooper() == null) {
                 Looper.prepare()
             }
@@ -155,6 +160,8 @@ class GitSyncService : Service() {
                 return@launch
             }
 
+            if (!isActive) return@launch
+
             val fileContents = file.readText()
 
             val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
@@ -165,29 +172,42 @@ class GitSyncService : Service() {
             val pullResult = gitManager.pullRepository(gitDirPath, authCredentials.first, authCredentials.second)
 
             when (pullResult) {
-                null -> log(applicationContext, "Sync", "Pull Repo Failed")
+                null -> {
+                    lastRunTime -= delay
+                    log(applicationContext, "Sync", "Pull Repo Failed")
+                    return@launch
+                }
                 true -> log(applicationContext, "Sync", "Pull Complete")
                 false -> log(applicationContext, "Sync", "Pull Not Required")
             }
+
+            if (!isActive) return@launch
 
             log(applicationContext, "Sync", "Start Push Repo")
             val pushResult = gitManager.pushAllToRepository(repoUrl.toString(), gitDirPath, authCredentials.first, authCredentials.second)
 
             when (pushResult) {
-                null -> log(applicationContext, "Sync", "Push Repo Failed")
+                null -> {
+                    lastRunTime -= delay
+                    log(applicationContext, "Sync", "Push Repo Failed")
+                    return@launch
+                }
                 true -> log(applicationContext, "Sync", "Push Complete")
                 false -> log(applicationContext, "Sync", "Push Not Required")
             }
 
-            if ((pushResult == true || pullResult == true)) {
-                if (isForeground()) {
-                    val intent = Intent("REFRESH")
-                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
-                }
+            if (!(pushResult == true || pullResult == true)) {
+                lastRunTime -= delay
+                return@launch
+            }
 
-                if (settingsManager.getSyncMessageEnabled()) {
-                    Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT).show()
-                }
+            if (isForeground()) {
+                val intent = Intent("REFRESH")
+                LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
+            }
+
+            if (settingsManager.getSyncMessageEnabled()) {
+                Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT).show()
             }
         }
     }
