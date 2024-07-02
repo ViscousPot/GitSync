@@ -183,6 +183,10 @@ class GitSyncService : Service() {
 
             if (!isActive) return@launch
 
+            while (File("$gitDirPath/.git", "index.lock").exists()) {
+                delay(1000)
+            }
+
             log(applicationContext, "Sync", "Start Push Repo")
             val pushResult = gitManager.pushAllToRepository(repoUrl.toString(), gitDirPath, authCredentials.first, authCredentials.second)
 
@@ -194,6 +198,10 @@ class GitSyncService : Service() {
                 }
                 true -> log(applicationContext, "Sync", "Push Complete")
                 false -> log(applicationContext, "Sync", "Push Not Required")
+            }
+
+            while (File("$gitDirPath/.git", "index.lock").exists()) {
+                delay(1000)
             }
 
             if (!(pushResult == true || pullResult == true)) {

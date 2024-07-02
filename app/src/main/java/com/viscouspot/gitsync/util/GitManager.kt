@@ -163,7 +163,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
     fun pullRepository(storageDir: String, username: String, token: String): Boolean? {
         try {
-            var returnResult = false
+            var returnResult: Boolean? = false
             log(context, "PullFromRepo", "Getting local directory")
             val repo = FileRepository("$storageDir/.git")
             val git = Git(repo)
@@ -181,7 +181,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
                 if (result.isSuccessful()) {
                     returnResult = true
                 } else {
-                    return null
+                    returnResult = null
                 }
             }
 
