@@ -192,7 +192,7 @@ class GitSyncService : Service() {
 
             yield()
 
-            while (File("$gitDirPath/.git/index.lock").exists()) {
+            while (File(gitDirPath, ".git/index.lock").exists()) {
                 delay(1000)
             }
 
@@ -209,7 +209,7 @@ class GitSyncService : Service() {
                 false -> log(applicationContext, "Sync", "Push Not Required")
             }
 
-            while (File("$gitDirPath/.git/index.lock").exists()) {
+            while (File(gitDirPath, ".git/index.lock").exists()) {
                 delay(1000)
             }
 
