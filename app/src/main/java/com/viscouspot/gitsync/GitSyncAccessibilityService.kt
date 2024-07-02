@@ -1,18 +1,26 @@
 package com.viscouspot.gitsync
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Context
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
+import android.view.inputmethod.InputMethodManager
 import com.viscouspot.gitsync.util.Helper.log
 import com.viscouspot.gitsync.util.SettingsManager
 
+
 class GitSyncAccessibilityService: AccessibilityService() {
     private lateinit var settingsManager: SettingsManager
-    private var open = false
+    private lateinit var enabledInputMethods: List<String>
+    private var lastPackageName = ""
 
     override fun onCreate() {
         super.onCreate()
+
         settingsManager = SettingsManager(this)
+
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        enabledInputMethods = imm.enabledInputMethodList.map { it.packageName }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -20,21 +28,25 @@ class GitSyncAccessibilityService: AccessibilityService() {
 
         if (!(settingsManager.getApplicationObserverEnabled() && appPackageName.isNotEmpty() && (settingsManager.getSyncOnAppClosed() || settingsManager.getSyncOnAppOpened()))) return
 
-        event?.takeIf { it.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED }?.let {
-            val packageName = it.packageName?.toString().orEmpty()
+        event?.takeIf { it.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
+                it.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED  }?.let {
+            val packageName = it.packageName
 
-            if (packageName == appPackageName) {
-                if (!open && settingsManager.getSyncOnAppOpened()) {
-                    log(this, "AccessibilityService", "Application Opened")
-                    sync()
+            if (packageName != null && !enabledInputMethods.contains(packageName)) {
+                val currentApp = packageName.toString()
+                if (currentApp != lastPackageName) {
+                    if (packageName == appPackageName) {
+                        log(this, "AccessibilityService", "Application Opened")
+                        sync()
+                        lastPackageName = currentApp
+                    } else {
+                        if (lastPackageName.isNotEmpty()) {
+                            log(this, "AccessibilityService", "Application Closed")
+                            sync()
+                            lastPackageName = ""
+                        }
+                    }
                 }
-                open = true
-            } else {
-                if (open && settingsManager.getSyncOnAppClosed()) {
-                    log(this, "AccessibilityService", "Application Closed")
-                    sync()
-                }
-                open = false
             }
         }
     }
