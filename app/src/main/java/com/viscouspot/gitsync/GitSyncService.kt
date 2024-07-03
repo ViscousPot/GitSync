@@ -91,7 +91,7 @@ class GitSyncService : Service() {
         val buttonPendingIntent = PendingIntent.getService(this, Random.nextInt(0, 100), buttonIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.gitsync_notif)
             .addAction(NotificationCompat.Action(null, "Force Sync", buttonPendingIntent))
             .build()
 
