@@ -46,11 +46,11 @@ class GitSyncService : Service() {
         when (intent.action) {
             "FORCE_SYNC" -> {
                 log(this, "ToServiceCommand", "Force Sync")
-                sync()
+                debouncedSync()
             }
             "APPLICATION_SYNC" -> {
                 log(this, "ToServiceCommand", "AccessibilityService Sync")
-                sync()
+                debouncedSync()
             }
         }
 
