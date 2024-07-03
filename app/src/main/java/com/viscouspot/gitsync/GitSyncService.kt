@@ -9,20 +9,20 @@ import android.content.Intent
 import android.os.Build
 import android.os.FileObserver
 import android.os.IBinder
-import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.viscouspot.gitsync.util.GitManager
-import com.viscouspot.gitsync.util.Helper.log
+import com.viscouspot.gitsync.util.Logger.flushLogs
+import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.io.File
 import kotlin.random.Random
@@ -53,6 +53,8 @@ class GitSyncService : Service() {
                 sync()
             }
         }
+
+        flushLogs(this)
 
         return START_STICKY
     }
@@ -151,80 +153,112 @@ class GitSyncService : Service() {
     private fun sync() {
         log(applicationContext, "Sync", "Start Sync")
 
-        currentSyncJob?.cancel()
+        CoroutineScope(Dispatchers.Default).launch {
+            currentSyncJob?.cancelAndJoin()
 
-        currentSyncJob = CoroutineScope(Dispatchers.Default).launch {
-            if (Looper.myLooper() == null) {
-                Looper.prepare()
-            }
+            currentSyncJob = launch {
+                val authCredentials = settingsManager.getGitAuthCredentials()
+                val gitDirPath = settingsManager.getGitDirPath()
 
-            val authCredentials = settingsManager.getGitAuthCredentials()
-            val gitDirPath = settingsManager.getGitDirPath()
+                val file = File("${gitDirPath}/.git/config")
 
-            val file = File("${gitDirPath}/.git/config")
-
-            if (!file.exists()) {
-                log(applicationContext, "Sync", "Repository Not Found")
-                Toast.makeText(applicationContext, "Repository not found!", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            yield()
-
-            val fileContents = file.readText()
-
-            val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-            var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-            val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value
-
-            log(applicationContext, "Sync", "Start Pull Repo")
-            val pullResult = gitManager.pullRepository(gitDirPath, authCredentials.first, authCredentials.second)
-
-            when (pullResult) {
-                null -> {
-                    lastRunTime -= delay
-                    log(applicationContext, "Sync", "Pull Repo Failed")
+                if (!file.exists()) {
+                    withContext(Dispatchers.Main) {
+                        log(applicationContext, "Sync", "Repository Not Found")
+                        Toast.makeText(
+                            applicationContext,
+                            "Repository not found!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     return@launch
                 }
-                true -> log(applicationContext, "Sync", "Pull Complete")
-                false -> log(applicationContext, "Sync", "Pull Not Required")
-            }
 
-            yield()
+                yield()
 
-            while (File(gitDirPath, ".git/index.lock").exists()) {
-                delay(1000)
-            }
+                val fileContents = file.readText()
 
-            log(applicationContext, "Sync", "Start Push Repo")
-            val pushResult = gitManager.pushAllToRepository(repoUrl.toString(), gitDirPath, authCredentials.first, authCredentials.second)
-
-            when (pushResult) {
-                null -> {
-                    lastRunTime -= delay
-                    log(applicationContext, "Sync", "Push Repo Failed")
+                val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+                var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+                val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value ?: run {
+                    withContext(Dispatchers.Main) {
+                        log(applicationContext, "Sync", "Invalid Repository URL")
+                        Toast.makeText(
+                            applicationContext,
+                            "Invalid repository URL!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     return@launch
                 }
-                true -> log(applicationContext, "Sync", "Push Complete")
-                false -> log(applicationContext, "Sync", "Push Not Required")
+
+                log(applicationContext, "Sync", "Start Pull Repo")
+                val pullResult = gitManager.pullRepository(
+                    gitDirPath,
+                    authCredentials.first,
+                    authCredentials.second
+                )
+
+                when (pullResult) {
+                    null -> {
+                        log(applicationContext, "Sync", "Pull Repo Failed")
+                        return@launch
+                    }
+
+                    true -> log(applicationContext, "Sync", "Pull Complete")
+                    false -> log(applicationContext, "Sync", "Pull Not Required")
+                }
+
+                yield()
+
+                while (File(gitDirPath, ".git/index.lock").exists()) {
+                    delay(1000)
+                }
+
+                log(applicationContext, "Sync", "Start Push Repo")
+                val pushResult = gitManager.pushAllToRepository(
+                    repoUrl,
+                    gitDirPath,
+                    authCredentials.first,
+                    authCredentials.second
+                )
+
+                when (pushResult) {
+                    null -> {
+                        log(applicationContext, "Sync", "Push Repo Failed")
+                        return@launch
+                    }
+
+                    true -> log(applicationContext, "Sync", "Push Complete")
+                    false -> log(applicationContext, "Sync", "Push Not Required")
+                }
+
+                while (File(gitDirPath, ".git/index.lock").exists()) {
+                    delay(1000)
+                }
+
+                if (!(pushResult == true || pullResult == true)) {
+                    return@launch
+                }
+
+                if (isForeground()) {
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent("REFRESH")
+                        LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
+                    }
+                }
+
+                if (settingsManager.getSyncMessageEnabled()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
             }
 
-            while (File(gitDirPath, ".git/index.lock").exists()) {
-                delay(1000)
-            }
-
-            if (!(pushResult == true || pullResult == true)) {
+            currentSyncJob?.invokeOnCompletion {
                 lastRunTime -= delay
-                return@launch
-            }
-
-            if (isForeground()) {
-                val intent = Intent("REFRESH")
-                LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
-            }
-
-            if (settingsManager.getSyncMessageEnabled()) {
-                Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT).show()
+                flushLogs(this@GitSyncService)
             }
         }
     }
@@ -245,6 +279,7 @@ class GitSyncService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        flushLogs(this)
         try {
             fileObserver.stopWatching()
         } catch (e: Exception) { e.printStackTrace() }
