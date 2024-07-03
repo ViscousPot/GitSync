@@ -17,7 +17,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.Settings
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +41,8 @@ import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
-import com.viscouspot.gitsync.util.Helper.log
+import com.viscouspot.gitsync.util.Logger
+import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.rightDrawable
 import kotlinx.coroutines.CoroutineScope
@@ -341,7 +341,7 @@ class MainActivity : AppCompatActivity() {
                 clipboardManager.setPrimaryClip(clip)
 
                 Toast.makeText(applicationContext, "Logs have been copied to clipboard!", Toast.LENGTH_SHORT).show()
-                Helper.deleteLogs(this)
+                Logger.deleteLogs(this)
             }
         }
 
