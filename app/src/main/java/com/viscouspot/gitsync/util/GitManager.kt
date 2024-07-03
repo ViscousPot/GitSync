@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.viscouspot.gitsync.Secrets
 import com.viscouspot.gitsync.ui.adapter.Commit
-import com.viscouspot.gitsync.util.Helper.log
+import com.viscouspot.gitsync.util.Logger.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +21,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.storage.file.FileRepository
+import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
@@ -186,7 +187,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             }
 
             log(context, "PullFromRepo", "Closing repository")
-            repo.close()
+            closeRepo(repo)
 
             return returnResult
         } catch (e: Exception) {
@@ -236,7 +237,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             logStatus(git)
 
             log(context, "PushToRepo", "Closing repository")
-            repo.close()
+            closeRepo(repo)
 
             return returnResult
         } catch (e: Exception) {
@@ -288,12 +289,18 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
                 count++
             }
 
-            repo.close()
+            closeRepo(repo)
 
             return commits
         } catch (e: java.lang.Exception) {
             log(context, "RecentCommits", e)
         }
         return listOf()
+    }
+
+    private fun closeRepo(repo: Repository) {
+        repo.close()
+        val lockFile = File(repo.directory, "index.lock")
+        if (lockFile.exists()) lockFile.delete()
     }
 }
