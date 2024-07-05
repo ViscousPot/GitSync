@@ -8,7 +8,9 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.FileObserver
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -18,12 +20,9 @@ import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import java.io.File
 import kotlin.random.Random
 
@@ -33,10 +32,9 @@ class GitSyncService : Service() {
     private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
 
-    private var lastRunTime: Long = 0
     private var isScheduled: Boolean = false
-    private var currentSyncJob: Job? = null
-    private val delay: Long = 10000
+    private var isSyncing: Boolean = false
+    private val debouncePeriod: Long = 10 * 1000
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null || intent.action == null) {
@@ -133,142 +131,141 @@ class GitSyncService : Service() {
     }
 
     fun debouncedSync() {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastRunTime >= delay) {
-            sync()
-            lastRunTime = currentTime
-            isScheduled = false
-        } else if (!isScheduled) {
-            isScheduled = true
-            log(applicationContext, "Sync", "Sync Scheduled")
-            CoroutineScope(Dispatchers.Default).launch {
-                delay(delay - (currentTime - lastRunTime))
+        if (isScheduled) {
+            return
+        } else {
+            if (isSyncing) {
+                isScheduled = true
+                log(applicationContext, "Sync", "Sync Scheduled")
+                return
+            } else {
                 sync()
-                lastRunTime = System.currentTimeMillis()
-                isScheduled = false
             }
         }
     }
 
     private fun sync() {
         log(applicationContext, "Sync", "Start Sync")
+        isSyncing = true
 
-        CoroutineScope(Dispatchers.Default).launch {
-            currentSyncJob?.cancelAndJoin()
+        val job = CoroutineScope(Dispatchers.Default).launch {
+            val authCredentials = settingsManager.getGitAuthCredentials()
+            val gitDirPath = settingsManager.getGitDirPath()
 
-            currentSyncJob = launch {
-                val authCredentials = settingsManager.getGitAuthCredentials()
-                val gitDirPath = settingsManager.getGitDirPath()
+            val file = File("${gitDirPath}/.git/config")
 
-                val file = File("${gitDirPath}/.git/config")
+            if (!file.exists()) {
+                withContext(Dispatchers.Main) {
+                    log(applicationContext, "Sync", "Repository Not Found")
+                    Toast.makeText(
+                        applicationContext,
+                        "Repository not found!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
 
-                if (!file.exists()) {
-                    withContext(Dispatchers.Main) {
-                        log(applicationContext, "Sync", "Repository Not Found")
-                        Toast.makeText(
-                            applicationContext,
-                            "Repository not found!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+            val fileContents = file.readText()
+
+            val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+            var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+            val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value ?: run {
+                withContext(Dispatchers.Main) {
+                    log(applicationContext, "Sync", "Invalid Repository URL")
+                    Toast.makeText(
+                        applicationContext,
+                        "Invalid repository URL!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
+
+            var synced = false
+
+            log(applicationContext, "Sync", "Start Pull Repo")
+            val pullResult = gitManager.pullRepository(
+                gitDirPath,
+                authCredentials.first,
+                authCredentials.second
+            ) {
+                synced = true
+                displaySyncMessage()
+            }
+
+            when (pullResult) {
+                null -> {
+                    log(applicationContext, "Sync", "Pull Repo Failed")
                     return@launch
                 }
 
-                yield()
+                true -> log(applicationContext, "Sync", "Pull Complete")
+                false -> log(applicationContext, "Sync", "Pull Not Required")
+            }
 
-                val fileContents = file.readText()
+            while (File(gitDirPath, ".git/index.lock").exists()) {
+                delay(1000)
+            }
 
-                val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-                var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-                val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value ?: run {
-                    withContext(Dispatchers.Main) {
-                        log(applicationContext, "Sync", "Invalid Repository URL")
-                        Toast.makeText(
-                            applicationContext,
-                            "Invalid repository URL!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    return@launch
-                }
-
-                var synced = false
-
-                log(applicationContext, "Sync", "Start Pull Repo")
-                val pullResult = gitManager.pullRepository(
-                    gitDirPath,
-                    authCredentials.first,
-                    authCredentials.second
-                ) {
-                    synced = true
+            log(applicationContext, "Sync", "Start Push Repo")
+            val pushResult = gitManager.pushAllToRepository(
+                repoUrl,
+                gitDirPath,
+                authCredentials.first,
+                authCredentials.second
+            ) {
+                if (!synced) {
                     displaySyncMessage()
-                }
-
-                when (pullResult) {
-                    null -> {
-                        log(applicationContext, "Sync", "Pull Repo Failed")
-                        return@launch
-                    }
-
-                    true -> log(applicationContext, "Sync", "Pull Complete")
-                    false -> log(applicationContext, "Sync", "Pull Not Required")
-                }
-
-                yield()
-
-                while (File(gitDirPath, ".git/index.lock").exists()) {
-                    delay(1000)
-                }
-
-                log(applicationContext, "Sync", "Start Push Repo")
-                val pushResult = gitManager.pushAllToRepository(
-                    repoUrl,
-                    gitDirPath,
-                    authCredentials.first,
-                    authCredentials.second
-                ) {
-                    if (!synced) {
-                        displaySyncMessage()
-                    }
-                }
-
-                when (pushResult) {
-                    null -> {
-                        log(applicationContext, "Sync", "Push Repo Failed")
-                        return@launch
-                    }
-
-                    true -> log(applicationContext, "Sync", "Push Complete")
-                    false -> log(applicationContext, "Sync", "Push Not Required")
-                }
-
-                while (File(gitDirPath, ".git/index.lock").exists()) {
-                    delay(1000)
-                }
-
-                if (!(pushResult == true || pullResult == true)) {
-                    return@launch
-                }
-
-                if (isForeground()) {
-                    withContext(Dispatchers.Main) {
-                        val intent = Intent("REFRESH")
-                        LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
-                    }
                 }
             }
 
-            currentSyncJob?.invokeOnCompletion {
-                lastRunTime -= delay
-                flushLogs(this@GitSyncService)
+            when (pushResult) {
+                null -> {
+                    log(applicationContext, "Sync", "Push Repo Failed")
+                    return@launch
+                }
+
+                true -> log(applicationContext, "Sync", "Push Complete")
+                false -> log(applicationContext, "Sync", "Push Not Required")
+            }
+
+            while (File(gitDirPath, ".git/index.lock").exists()) {
+                delay(1000)
+            }
+
+            if (!(pushResult == true || pullResult == true)) {
+                return@launch
+            }
+
+            if (isForeground()) {
+                withContext(Dispatchers.Main) {
+                    val intent = Intent("REFRESH")
+                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
+                }
+            }
+        }
+
+        job.invokeOnCompletion {
+            log(applicationContext, "Sync", "Sync Complete")
+            isSyncing = false
+            if (isScheduled) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    delay(debouncePeriod)
+                    log(applicationContext, "Sync", "Scheduled Sync Starting")
+                    isScheduled = false
+                    sync()
+                }
             }
         }
     }
 
     private fun displaySyncMessage() {
         if (settingsManager.getSyncMessageEnabled()) {
-            Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT)
-                .show()
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(applicationContext, "Syncing files!", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
