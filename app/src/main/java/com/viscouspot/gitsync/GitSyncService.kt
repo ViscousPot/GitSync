@@ -192,12 +192,17 @@ class GitSyncService : Service() {
                     return@launch
                 }
 
+                var synced = false
+
                 log(applicationContext, "Sync", "Start Pull Repo")
                 val pullResult = gitManager.pullRepository(
                     gitDirPath,
                     authCredentials.first,
                     authCredentials.second
-                )
+                ) {
+                    synced = true
+                    displaySyncMessage()
+                }
 
                 when (pullResult) {
                     null -> {
@@ -221,7 +226,11 @@ class GitSyncService : Service() {
                     gitDirPath,
                     authCredentials.first,
                     authCredentials.second
-                )
+                ) {
+                    if (!synced) {
+                        displaySyncMessage()
+                    }
+                }
 
                 when (pushResult) {
                     null -> {
@@ -247,19 +256,19 @@ class GitSyncService : Service() {
                         LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
                     }
                 }
-
-                if (settingsManager.getSyncMessageEnabled()) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
             }
 
             currentSyncJob?.invokeOnCompletion {
                 lastRunTime -= delay
                 flushLogs(this@GitSyncService)
             }
+        }
+    }
+
+    private fun displaySyncMessage() {
+        if (settingsManager.getSyncMessageEnabled()) {
+            Toast.makeText(applicationContext, "Files synced!", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

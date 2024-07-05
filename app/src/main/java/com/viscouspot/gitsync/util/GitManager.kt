@@ -162,7 +162,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
     }
 
 
-    fun pullRepository(storageDir: String, username: String, token: String): Boolean? {
+    fun pullRepository(storageDir: String, username: String, token: String, onSync: () -> Unit): Boolean? {
         try {
             var returnResult: Boolean? = false
             log(context, "PullFromRepo", "Getting local directory")
@@ -175,6 +175,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             if (!fetchResult.trackingRefUpdates.isEmpty()) {
                 log(context, "PullFromRepo", "Pulling changes")
+                onSync.invoke()
                 val result = git.pull()
                     .setCredentialsProvider(cp)
                     .setRemote("origin")
@@ -196,7 +197,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         return null
     }
 
-    fun pushAllToRepository(repoUrl: String, storageDir: String, username: String, token: String): Boolean? {
+    fun pushAllToRepository(repoUrl: String, storageDir: String, username: String, token: String, onSync: () -> Unit): Boolean? {
         try {
             var returnResult = false
             log(context, "PushToRepo", "Getting local directory")
@@ -207,7 +208,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             logStatus(git)
             val status = git.status().call()
             if (status.uncommittedChanges.isNotEmpty() || status.untracked.isNotEmpty()) {
-
+                onSync.invoke()
                 log(context, "PushToRepo", "Adding Files to Stage")
                 git.add().addFilepattern(".").call();
                 git.add().addFilepattern(".").setUpdate(true).call();
