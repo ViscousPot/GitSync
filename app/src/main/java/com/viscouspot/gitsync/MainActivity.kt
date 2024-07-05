@@ -334,6 +334,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewLogs.setOnClickListener {
+            Logger.flushLogs(this)
             val file = File(filesDir, "logs.txt")
             if (file.exists()) {
                 val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

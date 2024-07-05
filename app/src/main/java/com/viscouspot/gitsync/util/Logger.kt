@@ -101,6 +101,8 @@ object Logger {
     private fun createBugReportEmailIntent(context: Context): Intent {
         val recipient = "bugs.viscouspotential@gmail.com"
 
+        flushLogs(context)
+
         val file = File(context.filesDir, "logs.txt")
         val fileUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 
