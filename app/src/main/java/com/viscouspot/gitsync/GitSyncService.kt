@@ -249,6 +249,7 @@ class GitSyncService : Service() {
         job.invokeOnCompletion {
             log(applicationContext, "Sync", "Sync Complete")
             isSyncing = false
+            flushLogs(this)
             if (isScheduled) {
                 CoroutineScope(Dispatchers.Default).launch {
                     delay(debouncePeriod)
