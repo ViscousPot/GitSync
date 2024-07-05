@@ -447,9 +447,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshRecentCommits() {
-        recentCommits.clear()
-        recentCommits.addAll(gitManager.getRecentCommits(gitDirPath.text.toString()).reversed())
-        recentCommitsAdapter.notifyDataSetChanged()
+        val oldSize = recentCommits.size
+        val newRecentCommits = gitManager.getRecentCommits(gitDirPath.text.toString()).reversed().filter { !recentCommits.map {commit -> commit.reference}.contains(it.reference) }
+        if (newRecentCommits.isNotEmpty()) {
+            recentCommits.addAll(newRecentCommits)
+            recentCommitsAdapter.notifyItemRangeInserted(oldSize, newRecentCommits.size)
+        }
+
         CoroutineScope(Dispatchers.Default).launch {
             delay(200)
             if (recentCommits.size > 0) recentCommitsRecycler.smoothScrollToPosition( recentCommits.size - 1)

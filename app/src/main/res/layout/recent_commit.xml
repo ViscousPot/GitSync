@@ -56,11 +56,10 @@
         app:layout_constraintStart_toEndOf="@id/author"
         app:layout_constraintTop_toTopOf="@id/author" />
 
-    <TextView
+    <Chronometer
         android:id="@+id/commitDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="last year"
         android:textColor="@color/textSecondary"
         android:textSize="@dimen/text_size_sm"
         android:layout_marginLeft="@dimen/space_xs"

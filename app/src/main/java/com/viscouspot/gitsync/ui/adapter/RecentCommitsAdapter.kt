@@ -4,15 +4,12 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Chronometer
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
 
 data class Commit(val commitMessage: String, val author: String, val timestamp: Long, val reference: String)
 
@@ -20,7 +17,7 @@ class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : Rec
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val commitMessage: TextView
         val author: TextView
-        val commitDate: TextView
+        val commitDate: Chronometer
         val commitRef: MaterialButton
 
         init {
@@ -40,17 +37,20 @@ class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : Rec
         return recentCommits.size
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.commitDate.stop()
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val commit = recentCommits[position]
         holder.commitMessage.text = commit.commitMessage
         holder.author.text = commit.author
         holder.commitRef.text = commit.reference
-
-        CoroutineScope(Dispatchers.Main + SupervisorJob()).launch {
-            while (true) {
-                holder.commitDate.text = DateUtils.getRelativeTimeSpanString(commit.timestamp, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString().replaceFirstChar { it.lowercase() }
-                delay(15 * 1000)
-            }
+        holder.commitDate.base = commit.timestamp
+        holder.commitDate.setOnChronometerTickListener { chronometer ->
+            chronometer.text = DateUtils.getRelativeTimeSpanString(chronometer.base, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString().replaceFirstChar { it.lowercase() }
         }
+        holder.commitDate.start()
     }
 }
