@@ -11,7 +11,7 @@ import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 
 
-data class Commit(val commitMessage: String, val author: String, val timestamp: Long, val reference: String)
+data class Commit(val commitMessage: String, val author: String, val timestamp: Long, val reference: String, val additions: Int, val deletions: Int)
 
 class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : RecyclerView.Adapter<RecentCommitsAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -19,12 +19,16 @@ class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : Rec
         val author: TextView
         val commitDate: Chronometer
         val commitRef: MaterialButton
+        val additions: TextView
+        val deletions: TextView
 
         init {
             commitMessage = view.findViewById(R.id.commitMessage)
             author = view.findViewById(R.id.author)
             commitDate = view.findViewById(R.id.commitDate)
             commitRef = view.findViewById(R.id.commitRef)
+            additions = view.findViewById(R.id.additions)
+            deletions = view.findViewById(R.id.deletions)
         }
     }
 
@@ -52,5 +56,7 @@ class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : Rec
             chronometer.text = DateUtils.getRelativeTimeSpanString(chronometer.base, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString().replaceFirstChar { it.lowercase() }
         }
         holder.commitDate.start()
+        holder.additions.text = "${commit.additions} ++"
+        holder.deletions.text = "${commit.deletions} --"
     }
 }

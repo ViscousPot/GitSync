@@ -12,6 +12,9 @@
     <color name="auth_green_secondary">#ff4f7051</color>
     <color name="auth_red">#ffc22424</color>
 
+    <color name="additions">#a7f3d0</color>
+    <color name="deletions">#fda4af</color>
+
     <color name="switch_color_control_activated">#FFFFFF</color>
     <color name="switch_thumb_normal">#000000</color>
 </resources>

@@ -85,8 +85,35 @@
         android:backgroundTint="@color/textSecondary"
         android:insetBottom="0dp"
         android:minHeight="1dp"
+        android:layout_marginBottom="@dimen/space_xs"
         android:minWidth="1dp"
         app:cornerRadius="@dimen/corner_radius_xs"
+        app:layout_constraintBottom_toTopOf="@id/deletions"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/additions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1,000 ++"
+        android:textColor="@color/additions"
+        android:textSize="@dimen/text_size_xs"
+        android:textStyle="bold"
+        android:layout_marginEnd="@dimen/space_sm"
+        android:layout_marginLeft="@dimen/space_xs"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/deletions"/>
+
+    <TextView
+        android:id="@+id/deletions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1,000 --"
+        android:textColor="@color/deletions"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_size_xs"
+        android:layout_marginEnd="@dimen/space_xs"
+        android:layout_marginLeft="@dimen/space_xs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

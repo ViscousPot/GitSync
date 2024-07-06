@@ -20,12 +20,14 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.util.io.DisabledOutputStream
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -279,17 +281,36 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             while (iterator.hasNext() && count < 10) {
                 val commit = iterator.next()
+
+                val diffFormatter = DiffFormatter(DisabledOutputStream.INSTANCE)
+                diffFormatter.setRepository(repo)
+                val parent = if (commit.parentCount > 0) commit.getParent(0) else null
+                val diffs = if (parent != null) diffFormatter.scan(parent.tree, commit.tree) else listOf()
+
+                var additions = 0
+                var deletions = 0
+                for (diff in diffs) {
+                    val editList = diffFormatter.toFileHeader(diff).toEditList()
+                    for (edit in editList) {
+                        additions += edit.endB - edit.beginB
+                        deletions += edit.endA - edit.beginA
+                    }
+                }
+
                 commits.add(
                     Commit(
                         commit.shortMessage,
                         commit.authorIdent.name,
                         commit.authorIdent.`when`.time,
-                        commit.name.substring(0, 7)
+                        commit.name.substring(0, 7),
+                        additions,
+                        deletions
                     )
                 )
                 count++
             }
 
+            revWalk.dispose()
             closeRepo(repo)
 
             return commits
