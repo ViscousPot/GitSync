@@ -11,7 +11,7 @@ okhttp = "4.12.0"
 activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 material = "1.12.0"
-securityCryptoKtx = "1.0.0"
+securityCryptoKtx = "1.1.0-alpha06"
 
 [libraries]
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoKtx" }
