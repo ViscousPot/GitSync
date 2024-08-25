@@ -68,6 +68,19 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <service
+            android:name=".GitTileService"
+            android:exported="true"
+            android:label="Git Sync"
+            android:icon="@drawable/gitsync_notif"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+        <service
             android:name=".GitSyncService"
             android:enabled="true"
             android:exported="true"
