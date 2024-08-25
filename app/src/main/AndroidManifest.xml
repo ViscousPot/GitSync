@@ -24,7 +24,7 @@
     </queries>
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -33,6 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GitSync"
         tools:targetApi="31"
+        android:enableOnBackInvokedCallback="true"
         android:requestLegacyExternalStorage="true" >
         <activity
             android:name=".MainActivity"
