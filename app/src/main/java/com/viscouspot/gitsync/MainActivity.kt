@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settingsManager: SettingsManager
     private var onStoragePermissionGranted: (() -> Unit)? = null
 
-    private lateinit var recentCommitsAdapter: RecentCommitsAdapter
-    private lateinit var recentCommitsRecycler: RecyclerView
+//    private lateinit var recentCommitsAdapter: RecentCommitsAdapter
+//    private lateinit var recentCommitsRecycler: RecyclerView
 
     private lateinit var forceSyncButton: MaterialButton
     private lateinit var syncMessageButton: MaterialButton
@@ -71,28 +71,28 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var gitDirPath: EditText
     private lateinit var selectFileButton: MaterialButton
-    private lateinit var syncOnFileChange: Switch
+//    private lateinit var syncOnFileChange: Switch
 
     private lateinit var viewLogs: MaterialButton
 
     private var refreshingAuthButton = false
 
-    private val recentCommits: MutableList<Commit> = mutableListOf()
+//    private val recentCommits: MutableList<Commit> = mutableListOf()
 
-    private lateinit var applicationObserverPanel: ConstraintLayout
-    private lateinit var applicationObserverSwitch: Switch
+//    private lateinit var applicationObserverPanel: ConstraintLayout
+//    private lateinit var applicationObserverSwitch: Switch
+//
+//    private lateinit var selectApplication: MaterialButton
+//    private lateinit var syncAppOpened: Switch
+//    private lateinit var syncAppClosed: Switch
 
-    private lateinit var selectApplication: MaterialButton
-    private lateinit var syncAppOpened: Switch
-    private lateinit var syncAppClosed: Switch
-
-    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == "REFRESH") {
-                refreshRecentCommits()
-            }
-        }
-    }
+//    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+//        override fun onReceive(context: Context, intent: Intent) {
+//            if (intent.action == "REFRESH") {
+//                refreshRecentCommits()
+//            }
+//        }
+//    }
 
     private val dirSelectionLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
@@ -184,13 +184,13 @@ class MainActivity : AppCompatActivity() {
         settingsManager.setGitDirPath(gitDirPath.text.toString())
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        try {
-            unregisterReceiver(broadcastReceiver)
-        } catch (e: Exception) { }
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//
+////        try {
+////            unregisterReceiver(broadcastReceiver)
+////        } catch (e: Exception) { }
+//    }
 
     override fun onResume() {
         super.onResume()
@@ -202,10 +202,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        val bManager = LocalBroadcastManager.getInstance(this)
-        val intentFilter = IntentFilter()
-        intentFilter.addAction("REFRESH")
-        bManager.registerReceiver(broadcastReceiver, intentFilter)
+//        val bManager = LocalBroadcastManager.getInstance(this)
+//        val intentFilter = IntentFilter()
+//        intentFilter.addAction("REFRESH")
+//        bManager.registerReceiver(broadcastReceiver, intentFilter)
 
         window.statusBarColor = getColor(R.color.app_bg)
 
@@ -214,8 +214,8 @@ class MainActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         gitManager = GitManager(this, this)
 
-        recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
-        recentCommitsAdapter = RecentCommitsAdapter(recentCommits)
+//        recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
+//        recentCommitsAdapter = RecentCommitsAdapter(recentCommits)
 
         forceSyncButton = findViewById(R.id.forceSyncButton)
         syncMessageButton = findViewById(R.id.syncMessageButton)
@@ -227,27 +227,27 @@ class MainActivity : AppCompatActivity() {
         gitDirPath = findViewById(R.id.gitDirPath)
         selectFileButton = findViewById(R.id.selectFileButton)
 
-        syncOnFileChange = findViewById(R.id.enableFileObserver)
+//        syncOnFileChange = findViewById(R.id.enableFileObserver)
 
         viewLogs = findViewById(R.id.viewLogs)
 
-        applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
-        applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
+//        applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
+//        applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
+//
+//        selectApplication = findViewById(R.id.selectApplication)
+//        syncAppOpened = findViewById(R.id.syncAppOpened)
+//        syncAppClosed = findViewById(R.id.syncAppClosed)
 
-        selectApplication = findViewById(R.id.selectApplication)
-        syncAppOpened = findViewById(R.id.syncAppOpened)
-        syncAppClosed = findViewById(R.id.syncAppClosed)
+//        applicationObserverMax = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_max) }
+//        applicationObserverMin = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_min) }
 
-        applicationObserverMax = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_max) }
-        applicationObserverMin = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_min) }
-
-        applicationObserverMin.applyTo(applicationObserverPanel)
+//        applicationObserverMin.applyTo(applicationObserverPanel)
 
         refresh()
 
-        recentCommitsRecycler.adapter = recentCommitsAdapter
-
-        setRecyclerViewHeight(recentCommitsRecycler)
+//        recentCommitsRecycler.adapter = recentCommitsAdapter
+//
+//        setRecyclerViewHeight(recentCommitsRecycler)
 
         forceSyncButton.setOnClickListener {
             val forceSyncIntent = Intent(this, GitSyncService::class.java)
@@ -284,54 +284,54 @@ class MainActivity : AppCompatActivity() {
             dirSelectionLauncher.launch(null)
         }
 
-        syncOnFileChange.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                settingsManager.setSyncOnFileChanges(true)
-
-                if (checkNotificationPermission()) {
-                    startGitSyncService()
-                } else {
-                    syncOnFileChange.isChecked = false
-                    settingsManager.setSyncOnFileChanges(false)
-                    requestNotificationPermission()
-                }
-            } else {
-                val intent = Intent(this, GitSyncService::class.java)
-                stopService(intent)
-
-                settingsManager.setSyncOnFileChanges(false)
-            }
-        }
-
-        applicationObserverMin.applyTo(applicationObserverPanel)
-
-        applicationObserverSwitch.setOnCheckedChangeListener { _, isChecked ->
-            (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
-            if (isChecked) {
-                if (!checkAccessibilityPermission()) {
-                    applicationObserverSwitch.isChecked = false
-                    requestAccessibilityPermission()
-                } else {
-                    settingsManager.setApplicationObserverEnabled(true)
-                }
-            } else {
-                settingsManager.setApplicationObserverEnabled(false)
-                syncAppOpened.isChecked = false
-                syncAppClosed.isChecked = false
-            }
-        }
-
-        selectApplication.setOnClickListener {
-            showApplicationSelectDialog()
-        }
-
-        syncAppOpened.setOnCheckedChangeListener { _, isChecked ->
-            settingsManager.setSyncOnAppOpened(isChecked)
-        }
-
-        syncAppClosed.setOnCheckedChangeListener { _, isChecked ->
-            settingsManager.setSyncOnAppClosed(isChecked)
-        }
+//        syncOnFileChange.setOnCheckedChangeListener { _, isChecked ->
+//            if (isChecked) {
+//                settingsManager.setSyncOnFileChanges(true)
+//
+//                if (checkNotificationPermission()) {
+//                    startGitSyncService()
+//                } else {
+//                    syncOnFileChange.isChecked = false
+//                    settingsManager.setSyncOnFileChanges(false)
+//                    requestNotificationPermission()
+//                }
+//            } else {
+//                val intent = Intent(this, GitSyncService::class.java)
+//                stopService(intent)
+//
+//                settingsManager.setSyncOnFileChanges(false)
+//            }
+//        }
+//
+//        applicationObserverMin.applyTo(applicationObserverPanel)
+//
+//        applicationObserverSwitch.setOnCheckedChangeListener { _, isChecked ->
+//            (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
+//            if (isChecked) {
+//                if (!checkAccessibilityPermission()) {
+//                    applicationObserverSwitch.isChecked = false
+//                    requestAccessibilityPermission()
+//                } else {
+//                    settingsManager.setApplicationObserverEnabled(true)
+//                }
+//            } else {
+//                settingsManager.setApplicationObserverEnabled(false)
+//                syncAppOpened.isChecked = false
+//                syncAppClosed.isChecked = false
+//            }
+//        }
+//
+//        selectApplication.setOnClickListener {
+//            showApplicationSelectDialog()
+//        }
+//
+//        syncAppOpened.setOnCheckedChangeListener { _, isChecked ->
+//            settingsManager.setSyncOnAppOpened(isChecked)
+//        }
+//
+//        syncAppClosed.setOnCheckedChangeListener { _, isChecked ->
+//            settingsManager.setSyncOnAppClosed(isChecked)
+//        }
 
         viewLogs.setOnClickListener {
             Logger.flushLogs(this)
@@ -393,7 +393,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refresh() {
-        refreshRecentCommits()
+//        refreshRecentCommits()
 
         val serviceEnabled = settingsManager.getSyncOnFileChanges()
 
@@ -403,7 +403,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitDirPath.setText(settingsManager.getGitDirPath())
-        syncOnFileChange.isChecked = serviceEnabled
+//        syncOnFileChange.isChecked = serviceEnabled
 
         if (settingsManager.getSyncMessageEnabled()) {
             syncMessageButton.setIconResource(R.drawable.notify)
@@ -413,56 +413,56 @@ class MainActivity : AppCompatActivity() {
             syncMessageButton.setIconTintResource(R.color.textPrimary)
         }
 
-        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
-        applicationObserverSwitch.isChecked = applicationObserverEnabled
-
-        if (applicationObserverEnabled) {
-            if (!checkAccessibilityPermission()) {
-                applicationObserverSwitch.isChecked = false
-                settingsManager.setApplicationObserverEnabled(false)
-                requestAccessibilityPermission()
-            }
-        }
-
-        (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
-
-        val appPackageName = settingsManager.getApplicationPackage()
-        if (appPackageName !== "") {
-            selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
-            selectApplication.icon = packageManager.getApplicationIcon(appPackageName)
-            selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
-            selectApplication.iconTint = getColorStateList(android.R.color.white)
-        } else {
-            selectApplication.text = getString(R.string.application_not_set)
-            selectApplication.setIconResource(R.drawable.circle_xmark)
-            selectApplication.setIconTintResource(R.color.auth_red)
-            selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
-        }
-
-        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
-        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
+//        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
+//        applicationObserverSwitch.isChecked = applicationObserverEnabled
+//
+//        if (applicationObserverEnabled) {
+//            if (!checkAccessibilityPermission()) {
+//                applicationObserverSwitch.isChecked = false
+//                settingsManager.setApplicationObserverEnabled(false)
+//                requestAccessibilityPermission()
+//            }
+//        }
+//
+//        (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
+//
+//        val appPackageName = settingsManager.getApplicationPackage()
+//        if (appPackageName !== "") {
+//            selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
+//            selectApplication.icon = packageManager.getApplicationIcon(appPackageName)
+//            selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
+//            selectApplication.iconTint = getColorStateList(android.R.color.white)
+//        } else {
+//            selectApplication.text = getString(R.string.application_not_set)
+//            selectApplication.setIconResource(R.drawable.circle_xmark)
+//            selectApplication.setIconTintResource(R.color.auth_red)
+//            selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
+//        }
+//
+//        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
+//        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
 
         refreshAuthButton()
         refreshGitRepoName()
     }
 
-    private fun refreshRecentCommits() {
-        val oldSize = recentCommits.size
-        val newRecentCommits = gitManager.getRecentCommits(gitDirPath.text.toString()).reversed().filter { !recentCommits.map {commit -> commit.reference}.contains(it.reference) }
-        if (newRecentCommits.isNotEmpty()) {
-            recentCommits.addAll(newRecentCommits)
-            recentCommitsAdapter.notifyItemRangeInserted(oldSize, newRecentCommits.size)
-        }
-
-        CoroutineScope(Dispatchers.Default).launch {
-            delay(200)
-            if (recentCommits.size > 0) recentCommitsRecycler.smoothScrollToPosition( recentCommits.size - 1)
-        }
-    }
+//    private fun refreshRecentCommits() {
+//        val oldSize = recentCommits.size
+//        val newRecentCommits = gitManager.getRecentCommits(gitDirPath.text.toString()).reversed().filter { !recentCommits.map {commit -> commit.reference}.contains(it.reference) }
+//        if (newRecentCommits.isNotEmpty()) {
+//            recentCommits.addAll(newRecentCommits)
+//            recentCommitsAdapter.notifyItemRangeInserted(oldSize, newRecentCommits.size)
+//        }
+//
+//        CoroutineScope(Dispatchers.Default).launch {
+//            delay(200)
+//            if (recentCommits.size > 0) recentCommitsRecycler.smoothScrollToPosition( recentCommits.size - 1)
+//        }
+//    }
 
     private fun noGitRepoFound() {
-        syncOnFileChange.isChecked = false
-        syncOnFileChange.isEnabled = false
+//        syncOnFileChange.isChecked = false
+//        syncOnFileChange.isEnabled = false
 
         cloneRepoButton.visibility = View.VISIBLE
         cloneRepoButton.setOnClickListener {
@@ -471,12 +471,12 @@ class MainActivity : AppCompatActivity() {
             }.show(supportFragmentManager, "Select a repository")
         }
 
-        applicationObserverSwitch.isChecked = false
-        applicationObserverSwitch.isEnabled = false
+//        applicationObserverSwitch.isChecked = false
+//        applicationObserverSwitch.isEnabled = false
     }
 
     private fun gitRepoFound() {
-        syncOnFileChange.isEnabled = true
+//        syncOnFileChange.isEnabled = true
 
         cloneRepoButton.visibility = View.GONE
         cloneRepoButton.setOnClickListener {
@@ -485,11 +485,11 @@ class MainActivity : AppCompatActivity() {
             refreshGitRepoName()
         }
 
-        applicationObserverSwitch.isEnabled = true
+//        applicationObserverSwitch.isEnabled = true
     }
 
     private fun refreshGitRepoName() {
-        refreshRecentCommits()
+//        refreshRecentCommits()
 
         if (gitDirPath.text.toString().trim() == "") {
             gitRepoName.setText(getString(R.string.respository_not_found))

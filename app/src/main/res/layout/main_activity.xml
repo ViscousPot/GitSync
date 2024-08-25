@@ -11,22 +11,22 @@
     android:paddingTop="?android:attr/actionBarSize"
     android:theme="@style/Theme.MaterialComponents">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recentCommitsRecycler"
-        android:layout_width="match_parent"
-        android:background="@drawable/input_bg_top"
-        android:backgroundTint="@color/card_bg"
-        android:paddingVertical="@dimen/space_sm"
-        android:paddingHorizontal="@dimen/space_sm"
-        android:layout_height="@dimen/recent_commits_height"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:listitem="@layout/recent_commit"
-        app:spanCount="1"
-        android:layout_marginTop="@dimen/space_md"
-        android:requiresFadingEdge="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/recentCommitsRecycler"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:background="@drawable/input_bg_top"-->
+<!--        android:backgroundTint="@color/card_bg"-->
+<!--        android:paddingVertical="@dimen/space_sm"-->
+<!--        android:paddingHorizontal="@dimen/space_sm"-->
+<!--        android:layout_height="@dimen/recent_commits_height"-->
+<!--        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
+<!--        tools:listitem="@layout/recent_commit"-->
+<!--        app:spanCount="1"-->
+<!--        android:layout_marginTop="@dimen/space_md"-->
+<!--        android:requiresFadingEdge="vertical"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/forceSyncButton"
@@ -54,7 +54,7 @@
         app:layout_constraintEnd_toStartOf="@id/syncMessageButton"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recentCommitsRecycler"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/syncMessageButton"
@@ -207,31 +207,31 @@
         android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="@+id/gitDirPath" />
 
-    <Switch
-        style="@style/Switch"
-        android:id="@+id/enableFileObserver"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
-        android:background="@drawable/input_bg_md"
-        android:backgroundTint="@color/card_bg"
-        android:checked="false"
-        android:paddingHorizontal="@dimen/space_md"
-        android:paddingVertical="@dimen/space_sm"
-        android:text="@string/sync_on_file_changes"
-        android:textSize="@dimen/text_size_md"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gitDirPath"
-        app:switchPadding="16dp" />
+<!--    <Switch-->
+<!--        style="@style/Switch"-->
+<!--        android:id="@+id/enableFileObserver"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="@dimen/space_md"-->
+<!--        android:background="@drawable/input_bg_md"-->
+<!--        android:backgroundTint="@color/card_bg"-->
+<!--        android:checked="false"-->
+<!--        android:paddingHorizontal="@dimen/space_md"-->
+<!--        android:paddingVertical="@dimen/space_sm"-->
+<!--        android:text="@string/sync_on_file_changes"-->
+<!--        android:textSize="@dimen/text_size_md"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/gitDirPath"-->
+<!--        app:switchPadding="16dp" />-->
 
-    <include
-        android:id="@+id/applicationObserverPanel"
-        layout="@layout/application_observer_max"
-        android:layout_marginTop="@dimen/space_lg"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/enableFileObserver"
-    />
+<!--    <include-->
+<!--        android:id="@+id/applicationObserverPanel"-->
+<!--        layout="@layout/application_observer_max"-->
+<!--        android:layout_marginTop="@dimen/space_lg"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_width="match_parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/enableFileObserver"-->
+<!--    />-->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/viewLogs"
