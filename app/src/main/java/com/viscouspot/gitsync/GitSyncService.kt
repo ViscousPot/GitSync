@@ -238,16 +238,17 @@ class GitSyncService : Service() {
                 return@launch
             }
 
-            if (isForeground()) {
-                withContext(Dispatchers.Main) {
-                    val intent = Intent("REFRESH")
-                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
-                }
-            }
+//            if (isForeground()) {
+//                withContext(Dispatchers.Main) {
+//                    val intent = Intent("REFRESH")
+//                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
+//                }
+//            }
         }
 
         job.invokeOnCompletion {
             log(applicationContext, "Sync", "Sync Complete")
+            displaySyncMessage()
             isSyncing = false
             flushLogs(this)
             if (isScheduled) {
@@ -264,21 +265,21 @@ class GitSyncService : Service() {
     private fun displaySyncMessage() {
         if (settingsManager.getSyncMessageEnabled()) {
             Handler(Looper.getMainLooper()).post {
-                Toast.makeText(applicationContext, "Syncing files!", Toast.LENGTH_SHORT)
+                Toast.makeText(applicationContext, "Files Synced!", Toast.LENGTH_SHORT)
                     .show()
             }
         }
     }
 
-    private fun isForeground(): Boolean {
-        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val runningTaskInfo = manager.getRunningTasks(1)
-        if (runningTaskInfo.isEmpty()) {
-            return false
-        }
-        val componentInfo = runningTaskInfo[0].topActivity
-        return componentInfo!!.packageName == packageName
-    }
+//    private fun isForeground(): Boolean {
+//        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+//        val runningTaskInfo = manager.getRunningTasks(1)
+//        if (runningTaskInfo.isEmpty()) {
+//            return false
+//        }
+//        val componentInfo = runningTaskInfo[0].topActivity
+//        return componentInfo!!.packageName == packageName
+//    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
