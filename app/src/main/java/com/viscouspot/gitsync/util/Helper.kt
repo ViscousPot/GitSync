@@ -17,7 +17,6 @@ import java.io.IOException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 object Helper {
     fun getPathFromUri(context: Context, uri: Uri): String {
         when {
@@ -130,23 +129,6 @@ object Helper {
         val m: Matcher = p.matcher(url)
 
         return m.matches()
-    }
-
-    fun copyDirectory(source: File, destination: File) {
-        if (!destination.exists()) {
-            destination.mkdirs()
-        }
-
-        val files = source.listFiles() ?: throw IOException("Source directory is empty or cannot be read")
-
-        for (file in files) {
-            val destFile = File(destination, file.name)
-            if (file.isDirectory) {
-                copyDirectory(file, destFile)
-            } else {
-                file.copyTo(destFile, overwrite = true)
-            }
-        }
     }
 }
 
