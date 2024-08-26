@@ -15,7 +15,7 @@ Android Mobile Git client for syncing a repository between remote and a local di
 - Sync mechanisms
     - From quick tile
     - When app opened or closed
-    - From custom intent
+    - From custom intent (advanced)
 
 ## [Documentation](Documentation.md)
 ## Support
