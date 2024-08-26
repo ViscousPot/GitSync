@@ -24,6 +24,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
@@ -38,6 +39,7 @@ import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.rightDrawable
 import java.io.File
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
@@ -333,16 +335,40 @@ class MainActivity : AppCompatActivity() {
         val applicationSelectDialog = layoutInflater.inflate(R.layout.application_select_dialog, null)
         builderSingle.setView(applicationSelectDialog)
         val dialog = builderSingle.create()
-        dialog.show()
 
         val devicePackageNames = getDeviceApps()
+        val filteredDevicePackageNames = devicePackageNames.toMutableList()
 
         val recyclerView = applicationSelectDialog.findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.adapter = ApplicationGridAdapter(packageManager, devicePackageNames) {
+        val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames) {
             dialog.cancel()
             settingsManager.setApplicationPackage(it)
             refresh()
         }
+
+        val searchView = applicationSelectDialog.findViewById<SearchView>(R.id.searchView)
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if ((newText == null) or (newText == "")) {
+                    filteredDevicePackageNames.clear()
+                    filteredDevicePackageNames.addAll(devicePackageNames)
+                    adapter.notifyDataSetChanged()
+                } else {
+                    filteredDevicePackageNames.clear()
+                    filteredDevicePackageNames.addAll(devicePackageNames.filter { packageManager.getApplicationLabel(packageManager.getApplicationInfo(it, 0)).toString().lowercase(Locale.getDefault()).contains(newText.toString().lowercase(Locale.getDefault())) })
+                    adapter.notifyDataSetChanged()
+                }
+                return true
+            }
+
+        })
+
+        recyclerView.adapter = adapter
+        dialog.show()
     }
 
     private fun refresh() {
