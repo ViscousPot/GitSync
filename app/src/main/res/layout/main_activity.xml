@@ -177,6 +177,7 @@
         android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:textSize="@dimen/text_size_md"
+        android:inputType="textNoSuggestions"
         android:hint="@string/git_dir_path_hint"
         android:paddingHorizontal="@dimen/space_md"
         android:paddingVertical="@dimen/space_sm"
