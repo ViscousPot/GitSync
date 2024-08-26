@@ -348,13 +348,6 @@ class MainActivity : AppCompatActivity() {
     private fun refresh() {
 //        refreshRecentCommits()
 
-//        val serviceEnabled = settingsManager.getSyncOnFileChanges()
-//
-//        if (serviceEnabled) {
-//            val intent = Intent(this, GitSyncService::class.java)
-//            startForegroundService(intent)
-//        }
-
         gitDirPath.setText(settingsManager.getGitDirPath())
 
         if (settingsManager.getSyncMessageEnabled()) {
@@ -479,21 +472,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshAuthButton() {
-        if (refreshingAuthButton) return
-        refreshingAuthButton = true
-
         authDisabled()
 
         if (settingsManager.getGitAuthCredentials().second != "") {
             authEnabled()
-
-            gitManager.getGithubProfile(settingsManager.getGitAuthCredentials().second, {
-                authEnabled()
-                refreshingAuthButton = false
-            }, {
-                authDisabled()
-                refreshingAuthButton = false
-            })
+        } else {
+            authDisabled()
         }
     }
 
