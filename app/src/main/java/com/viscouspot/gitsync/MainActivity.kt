@@ -156,10 +156,10 @@ class MainActivity : AppCompatActivity() {
 
         if (code == null || state == null ) return
 
-        log(applicationContext, "GithubFlow", "Flow Ended")
+        log("GithubFlow", "Flow Ended")
 
         gitManager.getGithubAuthCredentials(code, state) { username, authToken ->
-            log(applicationContext, "GithubAuthCredentials", "Username and Token Received")
+            log("GithubAuthCredentials", "Username and Token Received")
 
             settingsManager.setGitAuthCredentials(username, authToken)
             refreshAuthButton()
@@ -307,7 +307,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewLogs.setOnClickListener {
-            Logger.flushLogs(this)
             val file = File(filesDir, "logs.txt")
             if (file.exists()) {
                 val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -315,7 +314,6 @@ class MainActivity : AppCompatActivity() {
                 clipboardManager.setPrimaryClip(clip)
 
                 Toast.makeText(applicationContext, "Logs have been copied to clipboard!", Toast.LENGTH_SHORT).show()
-                Logger.deleteLogs(this)
             }
         }
 

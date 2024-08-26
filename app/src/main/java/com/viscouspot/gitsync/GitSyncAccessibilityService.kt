@@ -8,7 +8,6 @@ import android.view.inputmethod.InputMethodManager
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 
-
 class GitSyncAccessibilityService: AccessibilityService() {
     private lateinit var settingsManager: SettingsManager
     private lateinit var enabledInputMethods: List<String>
@@ -32,7 +31,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
             when (it.eventType) {
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                     if (appOpen && event.packageName != appPackageName && !enabledInputMethods.contains(event.packageName)) {
-                        log(this, "AccessibilityService", "Application Closed")
+                        log("AccessibilityService", "Application Closed")
                         if (settingsManager.getSyncOnAppClosed()) {
                             sync()
                         }
@@ -40,7 +39,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
                     }
 
                     if (!appOpen && event.packageName == appPackageName) {
-                        log(this, "AccessibilityService", "Application Opened")
+                        log("AccessibilityService", "Application Opened")
                         if (settingsManager.getSyncOnAppOpened()) {
                             sync()
                         }

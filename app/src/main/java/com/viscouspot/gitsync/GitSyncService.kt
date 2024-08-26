@@ -1,6 +1,5 @@
 package com.viscouspot.gitsync
 
-import android.app.ActivityManager
 import android.app.Service
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,10 +12,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.viscouspot.gitsync.util.GitManager
-import com.viscouspot.gitsync.util.Logger
-import com.viscouspot.gitsync.util.Logger.flushLogs
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
@@ -44,20 +40,18 @@ class GitSyncService : Service() {
 
         when (intent.action) {
             "FORCE_SYNC" -> {
-                log(this, "ToServiceCommand", "Force Sync")
+                log("ToServiceCommand", "Force Sync")
                 debouncedSync(forced = true)
             }
             "APPLICATION_SYNC" -> {
-                log(this, "ToServiceCommand", "AccessibilityService Sync")
+                log("ToServiceCommand", "AccessibilityService Sync")
                 debouncedSync()
             }
             "INTENT_SYNC" -> {
-                log(this, "ToServiceCommand", "Intent Sync")
+                log("ToServiceCommand", "Intent Sync")
                 debouncedSync()
             }
         }
-
-        flushLogs(this)
 
         return START_STICKY
     }
@@ -112,11 +106,10 @@ class GitSyncService : Service() {
     }
 
     private fun sync(forced: Boolean = false) {
-        log(applicationContext, "Sync", "Start Sync")
+        log("Sync", "Start Sync")
         isSyncing = true
 
         val job = CoroutineScope(Dispatchers.Default).launch {
-//            Logger.sendSyncNotification(applicationContext)
             val authCredentials = settingsManager.getGitAuthCredentials()
             val gitDirPath = settingsManager.getGitDirPath()
 
@@ -124,7 +117,7 @@ class GitSyncService : Service() {
 
             if (!file.exists()) {
                 withContext(Dispatchers.Main) {
-                    log(applicationContext, "Sync", "Repository Not Found")
+                    log("Sync", "Repository Not Found")
                     Toast.makeText(
                         applicationContext,
                         "Repository not found!",
@@ -140,7 +133,7 @@ class GitSyncService : Service() {
             var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
             val repoUrl = gitConfigUrlResult?.groups?.get(1)?.value ?: run {
                 withContext(Dispatchers.Main) {
-                    log(applicationContext, "Sync", "Invalid Repository URL")
+                    log("Sync", "Invalid Repository URL")
                     Toast.makeText(
                         applicationContext,
                         "Invalid repository URL!",
@@ -152,7 +145,7 @@ class GitSyncService : Service() {
 
             var synced = false
 
-            log(applicationContext, "Sync", "Start Pull Repo")
+            log("Sync", "Start Pull Repo")
             val pullResult = gitManager.pullRepository(
                 gitDirPath,
                 authCredentials.first,
@@ -164,19 +157,19 @@ class GitSyncService : Service() {
 
             when (pullResult) {
                 null -> {
-                    log(applicationContext, "Sync", "Pull Repo Failed")
+                    log("Sync", "Pull Repo Failed")
                     return@launch
                 }
 
-                true -> log(applicationContext, "Sync", "Pull Complete")
-                false -> log(applicationContext, "Sync", "Pull Not Required")
+                true -> log("Sync", "Pull Complete")
+                false -> log("Sync", "Pull Not Required")
             }
 
             while (File(gitDirPath, ".git/index.lock").exists()) {
                 delay(1000)
             }
 
-            log(applicationContext, "Sync", "Start Push Repo")
+            log("Sync", "Start Push Repo")
             val pushResult = gitManager.pushAllToRepository(
                 repoUrl,
                 gitDirPath,
@@ -190,12 +183,12 @@ class GitSyncService : Service() {
 
             when (pushResult) {
                 null -> {
-                    log(applicationContext, "Sync", "Push Repo Failed")
+                    log("Sync", "Push Repo Failed")
                     return@launch
                 }
 
-                true -> log(applicationContext, "Sync", "Push Complete")
-                false -> log(applicationContext, "Sync", "Push Not Required")
+                true -> log("Sync", "Push Complete")
+                false -> log("Sync", "Push Not Required")
             }
 
             while (File(gitDirPath, ".git/index.lock").exists()) {
@@ -220,15 +213,12 @@ class GitSyncService : Service() {
         }
 
         job.invokeOnCompletion {
-//            Logger.dimissSyncNotification(applicationContext)
-            log(applicationContext, "Sync", "Sync Complete")
-//            displaySyncMessage()
+            log("Sync", "Sync Complete")
             isSyncing = false
-            flushLogs(this)
             if (isScheduled) {
                 CoroutineScope(Dispatchers.Default).launch {
                     delay(debouncePeriod)
-                    log(applicationContext, "Sync", "Scheduled Sync Starting")
+                    log("Sync", "Scheduled Sync Starting")
                     isScheduled = false
                     sync()
                 }
@@ -261,7 +251,6 @@ class GitSyncService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        flushLogs(this)
         try {
             fileObserver.stopWatching()
         } catch (e: Exception) { e.printStackTrace() }
