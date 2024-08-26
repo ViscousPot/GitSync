@@ -2,12 +2,8 @@ package com.viscouspot.gitsync
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.BroadcastReceiver
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -32,23 +28,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.ui.adapter.ApplicationGridAdapter
-import com.viscouspot.gitsync.ui.adapter.Commit
-import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
-import com.viscouspot.gitsync.util.Logger
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.rightDrawable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -72,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gitDirPath: EditText
     private lateinit var selectFileButton: MaterialButton
 
-    private lateinit var viewLogs: MaterialButton
+    private lateinit var viewDocs: MaterialButton
 
     private var refreshingAuthButton = false
 
@@ -221,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         gitDirPath = findViewById(R.id.gitDirPath)
         selectFileButton = findViewById(R.id.selectFileButton)
 
-        viewLogs = findViewById(R.id.viewLogs)
+        viewDocs = findViewById(R.id.viewDocs)
 
         applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
         applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
@@ -306,15 +294,9 @@ class MainActivity : AppCompatActivity() {
             settingsManager.setSyncOnAppClosed(isChecked)
         }
 
-        viewLogs.setOnClickListener {
-            val file = File(filesDir, "logs.txt")
-            if (file.exists()) {
-                val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("Git Sync Logs", file.readText())
-                clipboardManager.setPrimaryClip(clip)
-
-                Toast.makeText(applicationContext, "Logs have been copied to clipboard!", Toast.LENGTH_SHORT).show()
-            }
+        viewDocs.setOnClickListener {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ViscousPotential/GitSync/blob/master/Documentation.md"))
+            startActivity(browserIntent)
         }
 
         refreshGitRepoName()
@@ -366,12 +348,12 @@ class MainActivity : AppCompatActivity() {
     private fun refresh() {
 //        refreshRecentCommits()
 
-        val serviceEnabled = settingsManager.getSyncOnFileChanges()
-
-        if (serviceEnabled) {
-            val intent = Intent(this, GitSyncService::class.java)
-            startForegroundService(intent)
-        }
+//        val serviceEnabled = settingsManager.getSyncOnFileChanges()
+//
+//        if (serviceEnabled) {
+//            val intent = Intent(this, GitSyncService::class.java)
+//            startForegroundService(intent)
+//        }
 
         gitDirPath.setText(settingsManager.getGitDirPath())
 
