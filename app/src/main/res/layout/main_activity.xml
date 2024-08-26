@@ -207,23 +207,6 @@
         android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="@+id/gitDirPath" />
 
-<!--    <Switch-->
-<!--        style="@style/Switch"-->
-<!--        android:id="@+id/enableFileObserver"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="@dimen/space_md"-->
-<!--        android:background="@drawable/input_bg_md"-->
-<!--        android:backgroundTint="@color/card_bg"-->
-<!--        android:checked="false"-->
-<!--        android:paddingHorizontal="@dimen/space_md"-->
-<!--        android:paddingVertical="@dimen/space_sm"-->
-<!--        android:text="@string/sync_on_file_changes"-->
-<!--        android:textSize="@dimen/text_size_md"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/gitDirPath"-->
-<!--        app:switchPadding="16dp" />-->
-
     <include
         android:id="@+id/applicationObserverPanel"
         layout="@layout/application_observer_max"
