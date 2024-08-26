@@ -20,7 +20,7 @@ OR
 ### From quick tile
 
 - Follow your OS-specific directions to add a quick tile
-- Select the quick tile labeled GitSync
+- Select the quick tile labeled `GitSync`
 - Clicking the quick tile will trigger a sync (in the same way as the in-app sync button)
 
 ### When app opened or closed
@@ -28,7 +28,7 @@ OR
 ![Application observer panel](https://i.postimg.cc/5yGs9pfM/app.png)
 
 - Enable the application observer feature
-    - This will prompt you to enable the GitSync Accessibility Service
+    - This will prompt you to enable the `Git Sync Accessibility Service`
     - This service is used to watch for the selected app being opened and closed (ignoring keyboards)
     - No data is collected or stored
 - Select an application to watch
