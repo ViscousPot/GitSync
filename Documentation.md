@@ -13,7 +13,9 @@
 ![Repository setup screen](https://i.postimg.cc/43CjQ4kT/clone.jpg)
 
 - Clone a remote repository from your account or from a direct link
-OR
+
+    OR
+
 - Select a local git repository fom your filesystem
 ## Sync Mechanisms
 
@@ -47,4 +49,4 @@ OR
 ## Extra Settings
 
 ![Turn on/off notifications button](https://i.postimg.cc/fRHh7QWz/Screenshot-20240826-Sync-2.png)
-Turn on/off flashing a small popup message on screen when a sync happens
+- Turn on/off flashing a small popup message on screen when a sync happens
