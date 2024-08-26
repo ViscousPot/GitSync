@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var gitDirPath: EditText
     private lateinit var selectFileButton: MaterialButton
-//    private lateinit var syncOnFileChange: Switch
 
     private lateinit var viewLogs: MaterialButton
 
@@ -130,11 +129,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val requestNotificationPermission = this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
-
-    private fun startGitSyncService() {
-        val intent = Intent(this, GitSyncService::class.java)
-        startForegroundService(intent)
-    }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
@@ -227,8 +221,6 @@ class MainActivity : AppCompatActivity() {
         gitDirPath = findViewById(R.id.gitDirPath)
         selectFileButton = findViewById(R.id.selectFileButton)
 
-//        syncOnFileChange = findViewById(R.id.enableFileObserver)
-
         viewLogs = findViewById(R.id.viewLogs)
 
         applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
@@ -284,25 +276,6 @@ class MainActivity : AppCompatActivity() {
             dirSelectionLauncher.launch(null)
         }
 
-//        syncOnFileChange.setOnCheckedChangeListener { _, isChecked ->
-//            if (isChecked) {
-//                settingsManager.setSyncOnFileChanges(true)
-//
-//                if (checkNotificationPermission()) {
-//                    startGitSyncService()
-//                } else {
-//                    syncOnFileChange.isChecked = false
-//                    settingsManager.setSyncOnFileChanges(false)
-//                    requestNotificationPermission()
-//                }
-//            } else {
-//                val intent = Intent(this, GitSyncService::class.java)
-//                stopService(intent)
-//
-//                settingsManager.setSyncOnFileChanges(false)
-//            }
-//        }
-//
         applicationObserverMin.applyTo(applicationObserverPanel)
 
         applicationObserverSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -403,7 +376,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitDirPath.setText(settingsManager.getGitDirPath())
-//        syncOnFileChange.isChecked = serviceEnabled
 
         if (settingsManager.getSyncMessageEnabled()) {
             syncMessageButton.setIconResource(R.drawable.notify)
@@ -461,9 +433,6 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     private fun noGitRepoFound() {
-//        syncOnFileChange.isChecked = false
-//        syncOnFileChange.isEnabled = false
-
         cloneRepoButton.visibility = View.VISIBLE
         cloneRepoButton.setOnClickListener {
             CloneRepoFragment(settingsManager, gitManager) {
@@ -476,8 +445,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun gitRepoFound() {
-//        syncOnFileChange.isEnabled = true
-
         cloneRepoButton.visibility = View.GONE
         cloneRepoButton.setOnClickListener {
             gitDirPath.setText("")

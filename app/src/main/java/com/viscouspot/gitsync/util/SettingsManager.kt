@@ -59,17 +59,6 @@ class SettingsManager internal constructor(context: Context) {
         }
     }
 
-    fun getSyncOnFileChanges(): Boolean {
-        return settingsSharedPref.getBoolean("syncOnFileChanges", false)!!
-    }
-
-    fun setSyncOnFileChanges(enabled: Boolean) {
-        with(settingsSharedPref.edit()) {
-            putBoolean("syncOnFileChanges", enabled)
-            apply()
-        }
-    }
-
     fun getApplicationObserverEnabled(): Boolean {
         return settingsSharedPref.getBoolean("applicationObserverEnabled", false)!!
     }

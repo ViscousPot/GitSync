@@ -69,10 +69,6 @@ class GitSyncService : Service() {
         settingsManager = SettingsManager(this)
 
         startForegroundService()
-
-        if (settingsManager.getSyncOnFileChanges()) {
-            startFileObserver()
-        }
     }
 
     private fun startForegroundService() {
@@ -101,47 +97,13 @@ class GitSyncService : Service() {
         startForeground(1, notification)
     }
 
-    private fun startFileObserver() {
-        log(applicationContext, "FileObserver", "Observer Created")
-        fileObserver = object : FileObserver(File(settingsManager.getGitDirPath()), ALL_EVENTS) {
-            override fun onEvent(event: Int, path: String?) {
-                val eventMap = hashMapOf(
-                    1 to "ACCESS",
-                    4095 to "ALL_EVENTS",
-                    4 to "ATTRIB",
-                    16 to "CLOSE_NOWRITE",
-                    8 to "CLOSE_WRITE",
-                    256 to "CREATE",
-                    512 to "DELETE",
-                    1024 to "DELETE_SELF",
-                    2 to "MODIFY",
-                    64 to "MOVED_FROM",
-                    128 to "MOVED_TO",
-                    2048 to "MOVE_SELF",
-                    32 to "OPEN"
-                )
-                path?.let {
-                    when (event) {
-                        OPEN, CREATE, DELETE, MODIFY, MOVED_FROM, MOVED_TO -> {
-                            log(applicationContext, "FileObserverEvent", eventMap[event].toString())
-                            debouncedSync()
-                        }
-                    }
-                }
-            }
-        }
-
-        log(applicationContext, "FileObserver", "Watching Started")
-        fileObserver.startWatching()
-    }
-
-    fun debouncedSync(forced: Boolean = false) {
+    private fun debouncedSync(forced: Boolean = false) {
         if (isScheduled) {
             return
         } else {
             if (isSyncing) {
                 isScheduled = true
-                log(applicationContext, "Sync", "Sync Scheduled")
+                log("Sync", "Sync Scheduled")
                 return
             } else {
                 sync(forced)
