@@ -224,14 +224,14 @@
 <!--        app:layout_constraintTop_toBottomOf="@id/gitDirPath"-->
 <!--        app:switchPadding="16dp" />-->
 
-<!--    <include-->
-<!--        android:id="@+id/applicationObserverPanel"-->
-<!--        layout="@layout/application_observer_max"-->
-<!--        android:layout_marginTop="@dimen/space_lg"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_width="match_parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/enableFileObserver"-->
-<!--    />-->
+    <include
+        android:id="@+id/applicationObserverPanel"
+        layout="@layout/application_observer_max"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/gitDirPath"
+    />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/viewLogs"

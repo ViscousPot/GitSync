@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.Logger
 import com.viscouspot.gitsync.util.Logger.flushLogs
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
@@ -44,10 +45,14 @@ class GitSyncService : Service() {
         when (intent.action) {
             "FORCE_SYNC" -> {
                 log(this, "ToServiceCommand", "Force Sync")
-                debouncedSync()
+                debouncedSync(forced = true)
             }
             "APPLICATION_SYNC" -> {
                 log(this, "ToServiceCommand", "AccessibilityService Sync")
+                debouncedSync()
+            }
+            "INTENT_SYNC" -> {
+                log(this, "ToServiceCommand", "Intent Sync")
                 debouncedSync()
             }
         }
@@ -130,7 +135,7 @@ class GitSyncService : Service() {
         fileObserver.startWatching()
     }
 
-    fun debouncedSync() {
+    fun debouncedSync(forced: Boolean = false) {
         if (isScheduled) {
             return
         } else {
@@ -139,16 +144,17 @@ class GitSyncService : Service() {
                 log(applicationContext, "Sync", "Sync Scheduled")
                 return
             } else {
-                sync()
+                sync(forced)
             }
         }
     }
 
-    private fun sync() {
+    private fun sync(forced: Boolean = false) {
         log(applicationContext, "Sync", "Start Sync")
         isSyncing = true
 
         val job = CoroutineScope(Dispatchers.Default).launch {
+//            Logger.sendSyncNotification(applicationContext)
             val authCredentials = settingsManager.getGitAuthCredentials()
             val gitDirPath = settingsManager.getGitDirPath()
 
@@ -191,7 +197,7 @@ class GitSyncService : Service() {
                 authCredentials.second
             ) {
                 synced = true
-                displaySyncMessage()
+                displaySyncMessage("Syncing changes...")
             }
 
             when (pullResult) {
@@ -216,7 +222,7 @@ class GitSyncService : Service() {
                 authCredentials.second
             ) {
                 if (!synced) {
-                    displaySyncMessage()
+                    displaySyncMessage("Syncing local changes...")
                 }
             }
 
@@ -234,8 +240,13 @@ class GitSyncService : Service() {
                 delay(1000)
             }
 
-            if (!(pushResult == true || pullResult == true)) {
+            if (!(pushResult || pullResult)) {
+                if (forced) {
+                    displaySyncMessage("Sync not required!")
+                }
                 return@launch
+            } else {
+                displaySyncMessage("Sync complete!")
             }
 
 //            if (isForeground()) {
@@ -247,8 +258,9 @@ class GitSyncService : Service() {
         }
 
         job.invokeOnCompletion {
+//            Logger.dimissSyncNotification(applicationContext)
             log(applicationContext, "Sync", "Sync Complete")
-            displaySyncMessage()
+//            displaySyncMessage()
             isSyncing = false
             flushLogs(this)
             if (isScheduled) {
@@ -262,10 +274,10 @@ class GitSyncService : Service() {
         }
     }
 
-    private fun displaySyncMessage() {
+    private fun displaySyncMessage(msg: String) {
         if (settingsManager.getSyncMessageEnabled()) {
             Handler(Looper.getMainLooper()).post {
-                Toast.makeText(applicationContext, "Files Synced!", Toast.LENGTH_SHORT)
+                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT)
                     .show()
             }
         }

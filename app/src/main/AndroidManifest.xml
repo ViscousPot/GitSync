@@ -85,6 +85,11 @@
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="dataSync">
+            <intent-filter>
+                <action android:name="FORCE_SYNC" />
+                <action android:name="APPLICATION_SYNC" />
+                <action android:name="INTENT_SYNC" />
+            </intent-filter>
         </service>
         <service
             android:name=".GitSyncAccessibilityService"

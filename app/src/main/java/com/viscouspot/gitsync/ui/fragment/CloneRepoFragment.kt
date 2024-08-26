@@ -35,7 +35,7 @@ class CloneRepoFragment(
 ): DialogFragment(R.layout.clone_repo_fragment) {
     private val repoList = mutableListOf<Pair<String, String>>()
     private var repoUrl = ""
-    private var localDir = ""
+//    private var localDir = ""
     private var callback: ((dirPath: String) -> Unit)? = null
 
     private val dirSelectionLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -108,43 +108,43 @@ class CloneRepoFragment(
         dirSelectionLauncher.launch(null)
     }
 
-    private fun templateDirCallback(templateDir: String) {
+    private fun localDirCallback(dirPath: String) {
         val authCredentials = settingsManager.getGitAuthCredentials()
 
         val pullDialog = ProgressDialog.show(requireContext(), "", "Cloning repository...", true);
 
-        gitManager.cloneRepository(repoUrl, localDir, authCredentials.first, authCredentials.second) {
+        gitManager.cloneRepository(repoUrl, dirPath, authCredentials.first, authCredentials.second) {
             pullDialog.dismiss()
 
-            if (templateDir != "") {
-                val pullDialog = ProgressDialog.show(requireContext(), "", "Copying template directory...", true);
-                Helper.copyDirectory(File(localDir), File(templateDir))
-                pullDialog.dismiss()
-            }
+//            if (templateDir != "") {
+//                val pullDialog = ProgressDialog.show(requireContext(), "", "Copying template directory...", true);
+//                Helper.copyDirectory(File(dirPath), File(templateDir))
+//                pullDialog.dismiss()
+//            }
 
-            settingsManager.setGitDirPath(localDir)
+            settingsManager.setGitDirPath(dirPath)
             dismiss()
         }
     }
 
-    private fun localDirCallback(dirPath: String){
-        localDir = dirPath
-
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
-            .setTitle("Select template directory")
-            .setPositiveButton("select") { _, _ ->
-                callback = ::templateDirCallback
-                dirSelectionLauncher.launch(null)
-            }
-            .setNegativeButton("skip") { _, _ ->
-                templateDirCallback("")
-            }
-            .show()
-    }
+//    private fun localDirCallback(dirPath: String){
+//        localDir = dirPath
+//
+//        AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+//            .setTitle("Select template directory")
+//            .setPositiveButton("select") { _, _ ->
+//                callback = ::templateDirCallback
+//                dirSelectionLauncher.launch(null)
+//            }
+//            .setNegativeButton("skip") { _, _ ->
+//                templateDirCallback("")
+//            }
+//            .show()
+//    }
 
     private fun selectLocalDir() {
         AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
-            .setTitle("Select local repository directory")
+            .setTitle("Select a folder to clone into")
             .setPositiveButton("select") { _, _ ->
                 callback = ::localDirCallback
                 dirSelectionLauncher.launch(null)

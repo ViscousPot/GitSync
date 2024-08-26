@@ -100,7 +100,7 @@
         android:layout_marginBottom="64dp"
         android:backgroundTint="@color/card_bg"
         android:textColor="@color/textPrimary"
-        android:text="I already have a local repository"
+        android:text="I have a local repository"
         android:textSize="14sp"
         app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -79,12 +79,12 @@ class MainActivity : AppCompatActivity() {
 
 //    private val recentCommits: MutableList<Commit> = mutableListOf()
 
-//    private lateinit var applicationObserverPanel: ConstraintLayout
-//    private lateinit var applicationObserverSwitch: Switch
-//
-//    private lateinit var selectApplication: MaterialButton
-//    private lateinit var syncAppOpened: Switch
-//    private lateinit var syncAppClosed: Switch
+    private lateinit var applicationObserverPanel: ConstraintLayout
+    private lateinit var applicationObserverSwitch: Switch
+
+    private lateinit var selectApplication: MaterialButton
+    private lateinit var syncAppOpened: Switch
+    private lateinit var syncAppClosed: Switch
 
 //    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 //        override fun onReceive(context: Context, intent: Intent) {
@@ -231,17 +231,17 @@ class MainActivity : AppCompatActivity() {
 
         viewLogs = findViewById(R.id.viewLogs)
 
-//        applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
-//        applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
-//
-//        selectApplication = findViewById(R.id.selectApplication)
-//        syncAppOpened = findViewById(R.id.syncAppOpened)
-//        syncAppClosed = findViewById(R.id.syncAppClosed)
+        applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
+        applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
 
-//        applicationObserverMax = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_max) }
-//        applicationObserverMin = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_min) }
+        selectApplication = findViewById(R.id.selectApplication)
+        syncAppOpened = findViewById(R.id.syncAppOpened)
+        syncAppClosed = findViewById(R.id.syncAppClosed)
 
-//        applicationObserverMin.applyTo(applicationObserverPanel)
+        applicationObserverMax = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_max) }
+        applicationObserverMin = ConstraintSet().apply { clone(applicationContext, R.layout.application_observer_min) }
+
+        applicationObserverMin.applyTo(applicationObserverPanel)
 
         refresh()
 
@@ -303,35 +303,35 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 //
-//        applicationObserverMin.applyTo(applicationObserverPanel)
-//
-//        applicationObserverSwitch.setOnCheckedChangeListener { _, isChecked ->
-//            (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
-//            if (isChecked) {
-//                if (!checkAccessibilityPermission()) {
-//                    applicationObserverSwitch.isChecked = false
-//                    requestAccessibilityPermission()
-//                } else {
-//                    settingsManager.setApplicationObserverEnabled(true)
-//                }
-//            } else {
-//                settingsManager.setApplicationObserverEnabled(false)
-//                syncAppOpened.isChecked = false
-//                syncAppClosed.isChecked = false
-//            }
-//        }
-//
-//        selectApplication.setOnClickListener {
-//            showApplicationSelectDialog()
-//        }
-//
-//        syncAppOpened.setOnCheckedChangeListener { _, isChecked ->
-//            settingsManager.setSyncOnAppOpened(isChecked)
-//        }
-//
-//        syncAppClosed.setOnCheckedChangeListener { _, isChecked ->
-//            settingsManager.setSyncOnAppClosed(isChecked)
-//        }
+        applicationObserverMin.applyTo(applicationObserverPanel)
+
+        applicationObserverSwitch.setOnCheckedChangeListener { _, isChecked ->
+            (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
+            if (isChecked) {
+                if (!checkAccessibilityPermission()) {
+                    applicationObserverSwitch.isChecked = false
+                    requestAccessibilityPermission()
+                } else {
+                    settingsManager.setApplicationObserverEnabled(true)
+                }
+            } else {
+                settingsManager.setApplicationObserverEnabled(false)
+                syncAppOpened.isChecked = false
+                syncAppClosed.isChecked = false
+            }
+        }
+
+        selectApplication.setOnClickListener {
+            showApplicationSelectDialog()
+        }
+
+        syncAppOpened.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setSyncOnAppOpened(isChecked)
+        }
+
+        syncAppClosed.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setSyncOnAppClosed(isChecked)
+        }
 
         viewLogs.setOnClickListener {
             Logger.flushLogs(this)
@@ -413,34 +413,34 @@ class MainActivity : AppCompatActivity() {
             syncMessageButton.setIconTintResource(R.color.textPrimary)
         }
 
-//        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
-//        applicationObserverSwitch.isChecked = applicationObserverEnabled
-//
-//        if (applicationObserverEnabled) {
-//            if (!checkAccessibilityPermission()) {
-//                applicationObserverSwitch.isChecked = false
-//                settingsManager.setApplicationObserverEnabled(false)
-//                requestAccessibilityPermission()
-//            }
-//        }
-//
-//        (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
-//
-//        val appPackageName = settingsManager.getApplicationPackage()
-//        if (appPackageName !== "") {
-//            selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
-//            selectApplication.icon = packageManager.getApplicationIcon(appPackageName)
-//            selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
-//            selectApplication.iconTint = getColorStateList(android.R.color.white)
-//        } else {
-//            selectApplication.text = getString(R.string.application_not_set)
-//            selectApplication.setIconResource(R.drawable.circle_xmark)
-//            selectApplication.setIconTintResource(R.color.auth_red)
-//            selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
-//        }
-//
-//        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
-//        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
+        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
+        applicationObserverSwitch.isChecked = applicationObserverEnabled
+
+        if (applicationObserverEnabled) {
+            if (!checkAccessibilityPermission()) {
+                applicationObserverSwitch.isChecked = false
+                settingsManager.setApplicationObserverEnabled(false)
+                requestAccessibilityPermission()
+            }
+        }
+
+        (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
+
+        val appPackageName = settingsManager.getApplicationPackage()
+        if (appPackageName !== "") {
+            selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
+            selectApplication.icon = packageManager.getApplicationIcon(appPackageName)
+            selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
+            selectApplication.iconTint = getColorStateList(android.R.color.white)
+        } else {
+            selectApplication.text = getString(R.string.application_not_set)
+            selectApplication.setIconResource(R.drawable.circle_xmark)
+            selectApplication.setIconTintResource(R.color.auth_red)
+            selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
+        }
+
+        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
+        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
 
         refreshAuthButton()
         refreshGitRepoName()
@@ -471,8 +471,8 @@ class MainActivity : AppCompatActivity() {
             }.show(supportFragmentManager, "Select a repository")
         }
 
-//        applicationObserverSwitch.isChecked = false
-//        applicationObserverSwitch.isEnabled = false
+        applicationObserverSwitch.isChecked = false
+        applicationObserverSwitch.isEnabled = false
     }
 
     private fun gitRepoFound() {
@@ -485,7 +485,7 @@ class MainActivity : AppCompatActivity() {
             refreshGitRepoName()
         }
 
-//        applicationObserverSwitch.isEnabled = true
+        applicationObserverSwitch.isEnabled = true
     }
 
     private fun refreshGitRepoName() {
