@@ -22,7 +22,7 @@ class SettingsManager internal constructor(context: Context) {
     }
 
     fun getSyncMessageEnabled(): Boolean {
-        return settingsSharedPref.getBoolean("syncMessageEnabled", false)
+        return settingsSharedPref.getBoolean("syncMessageEnabled", true)
     }
 
     fun toggleSyncMessageEnabled() {
