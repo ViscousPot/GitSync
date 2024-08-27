@@ -193,7 +193,7 @@ class MainActivity : AppCompatActivity() {
 
         window.statusBarColor = getColor(R.color.app_bg)
 
-        checkAndRequestStoragePermission { }
+        checkAndRequestStoragePermission()
 
         settingsManager = SettingsManager(this)
         gitManager = GitManager(this, this)
@@ -238,11 +238,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         syncMessageButton.setOnClickListener {
-            settingsManager.toggleSyncMessageEnabled()
-            if (settingsManager.getSyncMessageEnabled()) {
-                syncMessageButton.setIconResource(R.drawable.notify)
-                syncMessageButton.setIconTintResource(R.color.auth_green)
+            val syncMessageEnabled = settingsManager.getSyncMessageEnabled()
+
+            if (!syncMessageEnabled) {
+                checkAndRequestNotificationPermission {
+                    settingsManager.setSyncMessageEnabled(true)
+                    syncMessageButton.setIconResource(R.drawable.notify)
+                    syncMessageButton.setIconTintResource(R.color.auth_green)
+                }
             } else {
+                settingsManager.setSyncMessageEnabled(false)
                 syncMessageButton.setIconResource(R.drawable.notify_off)
                 syncMessageButton.setIconTintResource(R.color.textPrimary)
             }
@@ -377,8 +382,12 @@ class MainActivity : AppCompatActivity() {
         gitDirPath.setText(settingsManager.getGitDirPath())
 
         if (settingsManager.getSyncMessageEnabled()) {
-            syncMessageButton.setIconResource(R.drawable.notify)
-            syncMessageButton.setIconTintResource(R.color.auth_green)
+            settingsManager.setSyncMessageEnabled(false)
+            checkAndRequestNotificationPermission {
+                settingsManager.setSyncMessageEnabled(true)
+                syncMessageButton.setIconResource(R.drawable.notify)
+                syncMessageButton.setIconTintResource(R.color.auth_green)
+            }
         } else {
             syncMessageButton.setIconResource(R.drawable.notify_off)
             syncMessageButton.setIconTintResource(R.color.textPrimary)
@@ -568,11 +577,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkNotificationPermission(): Boolean {
-        return NotificationManagerCompat.from(this).areNotificationsEnabled()
-    }
+    private fun checkAndRequestNotificationPermission(onGranted: (() -> Unit)? = null) {
+        if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            onGranted?.invoke()
+            return
+        }
 
-    private fun requestNotificationPermission() {
         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
         intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
 
