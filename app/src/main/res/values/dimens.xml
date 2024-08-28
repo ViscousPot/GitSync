@@ -15,6 +15,6 @@
     <dimen name="space_sm">8dp</dimen>
     <dimen name="space_md">16dp</dimen>
     <dimen name="space_lg">32dp</dimen>
-    <dimen name="divider_height">2dp</dimen>
+
     <dimen name="recent_commits_height">120dp</dimen>
 </resources>

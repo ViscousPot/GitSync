@@ -1,5 +1,6 @@
 package com.viscouspot.gitsync
 
+import android.app.ActivityManager
 import android.app.Service
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,6 +13,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
@@ -204,12 +206,12 @@ class GitSyncService : Service() {
                 displaySyncMessage("Sync complete!")
             }
 
-//            if (isForeground()) {
-//                withContext(Dispatchers.Main) {
-//                    val intent = Intent("REFRESH")
-//                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
-//                }
-//            }
+            if (isForeground()) {
+                withContext(Dispatchers.Main) {
+                    val intent = Intent("REFRESH")
+                    LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
+                }
+            }
         }
 
         job.invokeOnCompletion {
@@ -235,15 +237,15 @@ class GitSyncService : Service() {
         }
     }
 
-//    private fun isForeground(): Boolean {
-//        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-//        val runningTaskInfo = manager.getRunningTasks(1)
-//        if (runningTaskInfo.isEmpty()) {
-//            return false
-//        }
-//        val componentInfo = runningTaskInfo[0].topActivity
-//        return componentInfo!!.packageName == packageName
-//    }
+    private fun isForeground(): Boolean {
+        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val runningTaskInfo = manager.getRunningTasks(1)
+        if (runningTaskInfo.isEmpty()) {
+            return false
+        }
+        val componentInfo = runningTaskInfo[0].topActivity
+        return componentInfo!!.packageName == packageName
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

@@ -11,22 +11,23 @@
     android:paddingTop="?android:attr/actionBarSize"
     android:theme="@style/Theme.MaterialComponents">
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/recentCommitsRecycler"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:background="@drawable/input_bg_top"-->
-<!--        android:backgroundTint="@color/card_bg"-->
-<!--        android:paddingVertical="@dimen/space_sm"-->
-<!--        android:paddingHorizontal="@dimen/space_sm"-->
-<!--        android:layout_height="@dimen/recent_commits_height"-->
-<!--        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
-<!--        tools:listitem="@layout/recent_commit"-->
-<!--        app:spanCount="1"-->
-<!--        android:layout_marginTop="@dimen/space_md"-->
-<!--        android:requiresFadingEdge="vertical"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recentCommitsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/recent_commits_height"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/input_bg_top"
+        android:backgroundTint="@color/card_bg"
+        android:paddingHorizontal="@dimen/space_sm"
+        android:paddingVertical="@dimen/space_sm"
+        android:requiresFadingEdge="vertical"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:reverseLayout="true"
+        app:spanCount="1"
+        tools:listitem="@layout/recent_commit" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/forceSyncButton"
@@ -53,8 +54,8 @@
         app:iconTint="@color/textPrimary"
         app:layout_constraintEnd_toStartOf="@id/syncMessageButton"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/recentCommitsRecycler"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/syncMessageButton"
