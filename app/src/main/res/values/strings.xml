@@ -4,7 +4,7 @@
     <string name="auth">AUTH</string>
     <string name="git_repo_url_hint">https://github.com/xyz.git</string>
     <string name="git_dir_path_hint">/storage/emulated/0/...</string>
-    <string name="enable_application_observer">Enable Application Observer</string>
+    <string name="enable_application_observer">Application Observer</string>
     <string name="respository_not_found">No repo found...</string>
     <string name="pull">pull</string>
     <string name="report_bug">Application error detected!</string>
@@ -20,6 +20,6 @@
     <string name="sync_on_app_opened">Sync on app opened</string>
     <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
     <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
-    <string name="application_not_set">Select App...</string>
+    <string name="application_not_set">Select App</string>
     <string name="committed">committed</string>
 </resources>
