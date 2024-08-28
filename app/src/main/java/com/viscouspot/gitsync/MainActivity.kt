@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewDocs: MaterialButton
 
-    private var refreshingAuthButton = false
+//    private var refreshingAuthButton = false
 
 //    private val recentCommits: MutableList<Commit> = mutableListOf()
 
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             gitDirPath.setText(newDirPath)
             settingsManager.setGitDirPath(newDirPath)
 
-            refreshGitRepoName()
+            refreshGitRepo()
         }
     }
 
@@ -155,11 +155,9 @@ class MainActivity : AppCompatActivity() {
             refreshAuthButton()
 
             CloneRepoFragment(settingsManager, gitManager) {
-                refresh()
+                refreshGitRepo()
             }.show(supportFragmentManager, "Select a repository")
         }
-
-        refreshAuthButton()
     }
 
     override fun onPause() {
@@ -179,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        refresh()
+        refreshAll()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -225,7 +223,7 @@ class MainActivity : AppCompatActivity() {
 
         applicationObserverMin.applyTo(applicationObserverPanel)
 
-        refresh()
+        refreshAll()
 
 //        recentCommitsRecycler.adapter = recentCommitsAdapter
 //
@@ -253,8 +251,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        refreshAuthButton()
-
         gitAuthButton.setOnClickListener {
             gitManager.launchGithubOAuthFlow()
 
@@ -263,7 +259,7 @@ class MainActivity : AppCompatActivity() {
         gitDirPath.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 settingsManager.setGitDirPath(gitDirPath.text.toString())
-                refreshGitRepoName()
+                refreshGitRepo()
             }
         }
 
@@ -305,20 +301,6 @@ class MainActivity : AppCompatActivity() {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ViscousPotential/GitSync/blob/master/Documentation.md"))
             startActivity(browserIntent)
         }
-
-        refreshGitRepoName()
-    }
-
-    private fun setRecyclerViewHeight(recyclerView: RecyclerView) {
-        val adapter = recyclerView.adapter ?: return
-
-        val viewHolder = adapter.createViewHolder(recyclerView, adapter.getItemViewType(0))
-        viewHolder.itemView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-
-        val itemHeight = (viewHolder.itemView.layoutParams as ViewGroup.MarginLayoutParams).topMargin + viewHolder.itemView.measuredHeight
-
-        recyclerView.layoutParams.height = itemHeight * 3
-        recyclerView.requestLayout()
     }
 
     private fun getDeviceApps(): List<String> {
@@ -348,7 +330,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames) {
             dialog.cancel()
             settingsManager.setApplicationPackage(it)
-            refresh()
+            refreshSelectedApplication()
         }
 
         val searchView = applicationSelectDialog.findViewById<SearchView>(R.id.searchView)
@@ -376,10 +358,8 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun refresh() {
+    private fun refreshAll() {
 //        refreshRecentCommits()
-
-        gitDirPath.setText(settingsManager.getGitDirPath())
 
         if (settingsManager.getSyncMessageEnabled()) {
             settingsManager.setSyncMessageEnabled(false)
@@ -392,6 +372,11 @@ class MainActivity : AppCompatActivity() {
             syncMessageButton.setIconResource(R.drawable.notify_off)
             syncMessageButton.setIconTintResource(R.color.textPrimary)
         }
+
+        refreshAuthButton()
+        refreshGitRepo()
+
+        gitDirPath.setText(settingsManager.getGitDirPath())
 
         val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
         applicationObserverSwitch.isChecked = applicationObserverEnabled
@@ -406,6 +391,14 @@ class MainActivity : AppCompatActivity() {
 
         (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
 
+        refreshSelectedApplication()
+
+        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
+        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
+
+    }
+
+    private fun refreshSelectedApplication() {
         val appPackageName = settingsManager.getApplicationPackage()
         if (appPackageName !== "") {
             selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
@@ -418,12 +411,6 @@ class MainActivity : AppCompatActivity() {
             selectApplication.setIconTintResource(R.color.auth_red)
             selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
         }
-
-        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
-        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
-
-        refreshAuthButton()
-        refreshGitRepoName()
     }
 
 //    private fun refreshRecentCommits() {
@@ -440,93 +427,72 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    private fun noGitRepoFound() {
-        cloneRepoButton.visibility = View.VISIBLE
-        cloneRepoButton.setOnClickListener {
-            CloneRepoFragment(settingsManager, gitManager) {
-                refresh()
-            }.show(supportFragmentManager, "Select a repository")
+    private fun refreshGitRepo() {
+        var repoName = ""
+
+        val gitConfigFile = File("${gitDirPath.text}/.git/config")
+        val gitPathEmpty = gitDirPath.text.toString().trim() == ""
+        if (!gitPathEmpty && gitConfigFile.exists()) {
+            val fileContents = gitConfigFile.readText()
+
+            val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+            var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+            val url = gitConfigUrlResult?.groups?.get(1)?.value
+
+            val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
+            val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
+            repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
         }
 
-        applicationObserverSwitch.isChecked = false
-        applicationObserverSwitch.isEnabled = false
-    }
-
-    private fun gitRepoFound() {
-        cloneRepoButton.visibility = View.GONE
-        cloneRepoButton.setOnClickListener {
-            gitDirPath.setText("")
-            settingsManager.setGitDirPath(gitDirPath.text.toString())
-            refreshGitRepoName()
-        }
-
-        applicationObserverSwitch.isEnabled = true
-    }
-
-    private fun refreshGitRepoName() {
-//        refreshRecentCommits()
-
-        if (gitDirPath.text.toString().trim() == "") {
+        if (repoName == "") {
             gitRepoName.setText(getString(R.string.respository_not_found))
             gitRepoName.isEnabled = false
-            gitRepoName.rightDrawable(null)
-            gitRepoName.compoundDrawablePadding = 0
-            noGitRepoFound()
-            return
-        }
 
-        val file = File("${gitDirPath.text}/.git/config")
+            cloneRepoButton.visibility = View.VISIBLE
+            cloneRepoButton.setOnClickListener {
+                CloneRepoFragment(settingsManager, gitManager) {
+                    refreshGitRepo()
+                }.show(supportFragmentManager, "Select a repository")
+            }
 
-        if (!file.exists()) {
-            gitRepoName.setText(getString(R.string.respository_not_found))
-            gitRepoName.isEnabled = false
+            applicationObserverSwitch.isChecked = false
+            applicationObserverSwitch.isEnabled = false
+
+            if (gitPathEmpty) {
+                gitRepoName.rightDrawable(null)
+                gitRepoName.compoundDrawablePadding = 0
+                return
+            }
+
             gitRepoName.rightDrawable(R.drawable.circle_xmark)
             gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_red)
             gitRepoName.compoundDrawablePadding = (4 * resources.displayMetrics.density + 0.5f).toInt()
-            noGitRepoFound()
+
             return
         }
 
-        gitRepoFound()
-
-        val fileContents = file.readText()
-
-        val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-        var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-        val url = gitConfigUrlResult?.groups?.get(1)?.value
-
-        val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
-        val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
-        val newGitRepoName = gitRepoNameResult?.groups?.get(1)?.value
-
-        gitRepoName.setText(newGitRepoName)
+        gitRepoName.setText(repoName)
         gitRepoName.isEnabled = true
         gitRepoName.rightDrawable(R.drawable.circle_check)
         gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_green)
         gitRepoName.compoundDrawablePadding = (4 * resources.displayMetrics.density + 0.5f).toInt()
+
+        cloneRepoButton.visibility = View.GONE
+
+        applicationObserverSwitch.isEnabled = true
     }
 
     private fun refreshAuthButton() {
-        authDisabled()
-
-        if (settingsManager.getGitAuthCredentials().second != "") {
-            authEnabled()
-        } else {
-            authDisabled()
-        }
-    }
-
-    private fun authEnabled() {
         runOnUiThread {
-            gitAuthButton.icon = getDrawable(R.drawable.circle_check)
-            gitAuthButton.setIconTintResource(R.color.auth_green)
+            if (settingsManager.getGitAuthCredentials().second != "") {
+                gitAuthButton.icon = getDrawable(R.drawable.circle_check)
+                gitAuthButton.setIconTintResource(R.color.auth_green)
 
-            cloneRepoButton.isEnabled = true
-        }
-    }
+                cloneRepoButton.isEnabled = true
 
-    private fun authDisabled() {
-        runOnUiThread {
+                return@runOnUiThread
+            }
+
             gitAuthButton.icon = getDrawable(R.drawable.circle_xmark)
             gitAuthButton.setIconTintResource(R.color.auth_red)
 
