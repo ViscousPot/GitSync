@@ -5,7 +5,7 @@
 
 Android Mobile Git client for syncing a repository between remote and a local directory
 
-![Screenshot](https://i.postimg.cc/fk4GLMvC/Screenshot-20240826-174608-Git-Sync-2.png)
+![Screenshot](https://i.postimg.cc/Fs9K0dw0/Screenshot-20240828-182537-Git-Sync-1.png)
 ## Features
 
 - Authenticate with Github.com
