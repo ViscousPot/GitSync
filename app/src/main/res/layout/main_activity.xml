@@ -226,7 +226,7 @@
         android:backgroundTint="@color/card_secondary_bg"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="@string/view_logs"
+        android:text=""
         android:textSize="@dimen/text_size_md"
         app:cornerRadius="@dimen/corner_radius_md"
         app:icon="@drawable/docs"
