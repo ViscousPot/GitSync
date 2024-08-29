@@ -22,6 +22,7 @@ import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Switch
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -34,6 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
 import com.viscouspot.gitsync.ui.adapter.ApplicationGridAdapter
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     private var onStoragePermissionGranted: (() -> Unit)? = null
 
     private lateinit var recentCommitsAdapter: RecentCommitsAdapter
-    private lateinit var recentCommitsRecycler: RecyclerView
+    private lateinit var recentCommitsRecycler: RecyclerViewEmptySupport
 
     private lateinit var forceSyncButton: MaterialButton
     private lateinit var syncMessageButton: MaterialButton
@@ -176,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
         val itemHeight = (viewHolder.itemView.layoutParams as ViewGroup.MarginLayoutParams).topMargin + viewHolder.itemView.measuredHeight
 
-        recyclerView.layoutParams.height = itemHeight * 3
+        recyclerView.layoutParams.height = itemHeight * 4
         recyclerView.requestLayout()
     }
 
@@ -217,6 +219,7 @@ class MainActivity : AppCompatActivity() {
         gitManager = GitManager(this, this)
 
         recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
+
         recentCommitsAdapter = RecentCommitsAdapter(recentCommits)
 
         forceSyncButton = findViewById(R.id.forceSyncButton)
@@ -248,6 +251,9 @@ class MainActivity : AppCompatActivity() {
         recentCommitsRecycler.adapter = recentCommitsAdapter
 
         setRecyclerViewHeight(recentCommitsRecycler)
+
+        val emptyCommitsView = findViewById<TextView>(R.id.emptyCommitsView)
+        recentCommitsRecycler.setEmptyView(emptyCommitsView)
 
         forceSyncButton.setOnClickListener {
             val forceSyncIntent = Intent(this, GitSyncService::class.java)
@@ -484,6 +490,10 @@ class MainActivity : AppCompatActivity() {
             gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_red)
             gitRepoName.compoundDrawablePadding = (4 * resources.displayMetrics.density + 0.5f).toInt()
 
+            val recentCommitsSize = recentCommits.size
+            recentCommits.clear()
+            recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
+
             return
         }
 
@@ -496,6 +506,8 @@ class MainActivity : AppCompatActivity() {
         cloneRepoButton.visibility = View.GONE
 
         applicationObserverSwitch.isEnabled = true
+
+        refreshRecentCommits()
     }
 
     private fun refreshAuthButton() {

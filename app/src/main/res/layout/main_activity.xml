@@ -11,10 +11,10 @@
     android:paddingTop="?android:attr/actionBarSize"
     android:theme="@style/Theme.MaterialComponents">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
         android:id="@+id/recentCommitsRecycler"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/recent_commits_height"
+        android:layout_height="100dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/input_bg_top"
         android:backgroundTint="@color/card_bg"
@@ -30,12 +30,35 @@
         tools:listitem="@layout/recent_commit" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/emptyCommitsView"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="@dimen/space_sm"
+        android:paddingHorizontal="@dimen/space_sm"
+        android:paddingVertical="@dimen/space_sm"
+        android:background="@drawable/input_bg_top"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minHeight="1dp"
+        android:enabled="false"
+        android:text="@string/respository_not_found"
+        android:textAlignment="center"
+        android:textColor="@color/textSecondary"
+        android:textSize="@dimen/text_size_md"
+        app:backgroundTint="@color/card_bg"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recentCommitsRecycler"/>
+
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/forceSyncButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_sm"
         android:layout_marginEnd="@dimen/space_sm"
-        android:background="@drawable/input_bg__bottom_left"
+        android:background="@drawable/input_bg_bottom_left"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:minHeight="1dp"
@@ -54,7 +77,7 @@
         app:iconTint="@color/textPrimary"
         app:layout_constraintEnd_toStartOf="@id/syncMessageButton"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintTop_toBottomOf="@id/recentCommitsRecycler"
+        app:layout_constraintTop_toBottomOf="@id/emptyCommitsView"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
