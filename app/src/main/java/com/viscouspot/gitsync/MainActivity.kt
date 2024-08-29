@@ -32,7 +32,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.ui.adapter.ApplicationGridAdapter
@@ -80,9 +79,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var syncAppOpened: Switch
     private lateinit var syncAppClosed: Switch
 
+    companion object {
+        const val REFRESH = "REFRESH"
+    }
+
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == "REFRESH") {
+            if (intent.action == REFRESH) {
                 refreshRecentCommits()
             }
         }
@@ -203,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 
         val bManager = LocalBroadcastManager.getInstance(this)
         val intentFilter = IntentFilter()
-        intentFilter.addAction("REFRESH")
+        intentFilter.addAction(REFRESH)
         bManager.registerReceiver(broadcastReceiver, intentFilter)
 
         window.statusBarColor = getColor(R.color.app_bg)
@@ -248,7 +251,7 @@ class MainActivity : AppCompatActivity() {
 
         forceSyncButton.setOnClickListener {
             val forceSyncIntent = Intent(this, GitSyncService::class.java)
-            forceSyncIntent.setAction("FORCE_SYNC")
+            forceSyncIntent.setAction(GitSyncService.FORCE_SYNC)
             startService(forceSyncIntent)
         }
 
@@ -315,7 +318,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewDocs.setOnClickListener {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ViscousPotential/GitSync/blob/master/Documentation.md"))
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.docs_link)))
             startActivity(browserIntent)
         }
     }
@@ -333,7 +336,7 @@ class MainActivity : AppCompatActivity() {
     private fun showApplicationSelectDialog() {
         val builderSingle = AlertDialog.Builder(this@MainActivity, R.style.AlertDialogTheme)
 
-        builderSingle.setTitle("Select an Application")
+        builderSingle.setTitle(getString(R.string.select_application))
         builderSingle.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
 
         val applicationSelectDialog = layoutInflater.inflate(R.layout.application_select_dialog, null)
@@ -465,7 +468,7 @@ class MainActivity : AppCompatActivity() {
             cloneRepoButton.setOnClickListener {
                 CloneRepoFragment(settingsManager, gitManager) {
                     refreshGitRepo()
-                }.show(supportFragmentManager, "Select a repository")
+                }.show(supportFragmentManager, getString(R.string.clone_repo))
             }
 
             applicationObserverSwitch.isChecked = false

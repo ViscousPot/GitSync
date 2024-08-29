@@ -7,7 +7,7 @@ class GitTileService: TileService() {
     override fun onClick() {
         super.onClick()
         val forceSyncIntent = Intent(this, GitSyncService::class.java)
-        forceSyncIntent.setAction("FORCE_SYNC")
+        forceSyncIntent.setAction(GitSyncService.FORCE_SYNC)
         startService(forceSyncIntent)
     }
 }

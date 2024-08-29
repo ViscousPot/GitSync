@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 
-
 data class Commit(val commitMessage: String, val author: String, val timestamp: Long, val reference: String, val additions: Int, val deletions: Int)
 
 class RecentCommitsAdapter(private val recentCommits: MutableList<Commit>) : RecyclerView.Adapter<RecentCommitsAdapter.ViewHolder>() {

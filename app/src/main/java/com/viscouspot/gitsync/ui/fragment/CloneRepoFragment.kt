@@ -25,8 +25,6 @@ import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.rightDrawable
-import java.io.File
-
 
 class CloneRepoFragment(
     private val settingsManager: SettingsManager,

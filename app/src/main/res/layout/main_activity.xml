@@ -229,7 +229,7 @@
         android:text="@string/view_logs"
         android:textSize="@dimen/text_size_md"
         app:cornerRadius="@dimen/corner_radius_md"
-        app:icon="@drawable/logs"
+        app:icon="@drawable/docs"
         app:iconPadding="0dp"
         app:iconSize="@dimen/text_size_lg"
         app:iconGravity="textEnd"

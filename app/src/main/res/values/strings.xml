@@ -1,25 +1,36 @@
 <resources>
     <string name="app_name">Git Sync</string>
-    <string name="enabled">Enabled</string>
+
+    <string name="force_sync">Sync Now</string>
+    <string name="committed">committed</string>
+
     <string name="auth">AUTH</string>
+    <string name="respository_not_found">No repo found...</string>
     <string name="git_repo_url_hint">https://github.com/xyz.git</string>
     <string name="git_dir_path_hint">/storage/emulated/0/...</string>
+
     <string name="enable_application_observer">Application Observer</string>
-    <string name="respository_not_found">No repo found...</string>
+    <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
+    <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
+    <string name="application_not_set">Select App</string>
+    <string name="select_application">Select an Application</string>
+    <string name="sync_on_app_closed">Sync on app closed</string>
+    <string name="sync_on_app_opened">Sync on app opened</string>
+
     <string name="pull">pull</string>
-    <string name="report_bug">Application error detected!</string>
-    <string name="force_sync">Sync now</string>
     <string name="clone_repo">Clone remote repository</string>
+    <string name="invalid_repository_url">Invalid repository URL!</string>
+
+    <string name="sync_start_pull">Syncing changes...</string>
+    <string name="sync_start_push">Syncing local changes...</string>
+    <string name="sync_not_required">Sync not required!</string>
+    <string name="sync_complete">Sync complete!</string>
+
+    <string name="report_bug">Application error detected!</string>
+    <string name="enable_notifications">Enable notifications to see more.</string>
     <string name="select_email_client">"Send email using: "</string>
     <string name="dismiss">Dismiss</string>
     <string name="send_bug_report">Tap to send a bug report</string>
-    <string name="enable_notifications">Enable notifications to see more.</string>
-    <string name="view_logs" />
-    <string name="sync_on_file_changes">Sync on file changes</string>
-    <string name="sync_on_app_closed">Sync on app closed</string>
-    <string name="sync_on_app_opened">Sync on app opened</string>
-    <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
-    <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
-    <string name="application_not_set">Select App</string>
-    <string name="committed">committed</string>
+
+    <string name="docs_link">https://github.com/ViscousPotential/GitSync/blob/master/Documentation.md</string>
 </resources>

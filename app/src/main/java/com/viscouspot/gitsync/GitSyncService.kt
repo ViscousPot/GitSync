@@ -26,7 +26,6 @@ import java.io.File
 import kotlin.random.Random
 
 class GitSyncService : Service() {
-    private val channelId = "git_sync_service_channel"
     private lateinit var fileObserver: FileObserver
     private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
@@ -35,21 +34,29 @@ class GitSyncService : Service() {
     private var isSyncing: Boolean = false
     private val debouncePeriod: Long = 10 * 1000
 
+    companion object {
+        const val NOTIFICATION_CHANNEL_ID = "git_sync_service_channel"
+        const val NOTIFICATION_CHANNEL_NAME = "Git Sync Service"
+        const val FORCE_SYNC = "FORCE_SYNC"
+        const val APPLICATION_SYNC = "APPLICATION_SYNC"
+        const val INTENT_SYNC = "INTENT_SYNC"
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null || intent.action == null) {
             return START_STICKY
         }
 
         when (intent.action) {
-            "FORCE_SYNC" -> {
+            FORCE_SYNC -> {
                 log("ToServiceCommand", "Force Sync")
                 debouncedSync(forced = true)
             }
-            "APPLICATION_SYNC" -> {
+            APPLICATION_SYNC -> {
                 log("ToServiceCommand", "AccessibilityService Sync")
                 debouncedSync()
             }
-            "INTENT_SYNC" -> {
+            INTENT_SYNC -> {
                 log("ToServiceCommand", "Intent Sync")
                 debouncedSync()
             }
@@ -70,8 +77,8 @@ class GitSyncService : Service() {
     private fun startForegroundService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId,
-                "Git Sync Service",
+                NOTIFICATION_CHANNEL_ID,
+                NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_MIN
             )
             val manager = this.getSystemService(
@@ -81,13 +88,13 @@ class GitSyncService : Service() {
         }
 
         val buttonIntent = Intent(this, GitSyncService::class.java).apply {
-            action = "FORCE_SYNC"
+            action = FORCE_SYNC
         }
         val buttonPendingIntent = PendingIntent.getService(this, Random.nextInt(0, 100), buttonIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        val notification = NotificationCompat.Builder(this, channelId)
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.gitsync_notif)
-            .addAction(NotificationCompat.Action(null, "Force Sync", buttonPendingIntent))
+            .addAction(NotificationCompat.Action(null, getString(R.string.force_sync), buttonPendingIntent))
             .build()
 
         startForeground(1, notification)
@@ -138,7 +145,7 @@ class GitSyncService : Service() {
                     log("Sync", "Invalid Repository URL")
                     Toast.makeText(
                         applicationContext,
-                        "Invalid repository URL!",
+                        getString(R.string.invalid_repository_url),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -154,7 +161,7 @@ class GitSyncService : Service() {
                 authCredentials.second
             ) {
                 synced = true
-                displaySyncMessage("Syncing changes...")
+                displaySyncMessage(getString(R.string.sync_start_pull))
             }
 
             when (pullResult) {
@@ -179,7 +186,7 @@ class GitSyncService : Service() {
                 authCredentials.second
             ) {
                 if (!synced) {
-                    displaySyncMessage("Syncing local changes...")
+                    displaySyncMessage(getString(R.string.sync_start_push))
                 }
             }
 
@@ -199,16 +206,16 @@ class GitSyncService : Service() {
 
             if (!(pushResult || pullResult)) {
                 if (forced) {
-                    displaySyncMessage("Sync not required!")
+                    displaySyncMessage(getString(R.string.sync_not_required))
                 }
                 return@launch
             } else {
-                displaySyncMessage("Sync complete!")
+                displaySyncMessage(getString(R.string.sync_complete))
             }
 
             if (isForeground()) {
                 withContext(Dispatchers.Main) {
-                    val intent = Intent("REFRESH")
+                    val intent = Intent(MainActivity.REFRESH)
                     LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
                 }
             }

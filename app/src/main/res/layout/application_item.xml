@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:insetTop="0dp"
     android:insetBottom="0dp"
-    app:icon="@drawable/bug"
+    app:icon="@drawable/circle_xmark"
     app:iconGravity="textTop"
     app:iconPadding="@dimen/space_md"
     android:padding="@dimen/space_md"

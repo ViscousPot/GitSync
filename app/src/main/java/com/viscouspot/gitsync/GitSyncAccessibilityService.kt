@@ -15,7 +15,6 @@ class GitSyncAccessibilityService: AccessibilityService() {
 
     override fun onCreate() {
         super.onCreate()
-
         settingsManager = SettingsManager(this)
 
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -54,7 +53,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
 
     private fun sync() {
         val syncIntent = Intent(this, GitSyncService::class.java)
-        syncIntent.setAction("APPLICATION_SYNC")
+        syncIntent.setAction(GitSyncService.APPLICATION_SYNC)
         startService(syncIntent)
     }
 }

@@ -36,7 +36,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-
 class GitManager(private val context: Context, private val activity: AppCompatActivity? = null) {
     private val GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
     private val GIT_SCOPE = "repo"
