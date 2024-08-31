@@ -108,7 +108,7 @@ class CloneRepoFragment(
     private fun localDirCallback(dirPath: String) {
         val authCredentials = settingsManager.getGitAuthCredentials()
 
-        val pullDialog = ProgressDialog.show(requireContext(), "", "Cloning repository...", true);
+        val pullDialog = ProgressDialog.show(requireContext(), "Cloning repository...", "This may take a while depending on the size of your repo", true);
 
         gitManager.cloneRepository(repoUrl, dirPath, authCredentials.first, authCredentials.second) {
             pullDialog.dismiss()
