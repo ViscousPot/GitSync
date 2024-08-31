@@ -22,14 +22,14 @@ class GitSyncAccessibilityService: AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val appPackageName = settingsManager.getApplicationPackage()
+        val packageNames = settingsManager.getApplicationPackages()
 
-        if (!(settingsManager.getApplicationObserverEnabled() && appPackageName.isNotEmpty() && (settingsManager.getSyncOnAppClosed() || settingsManager.getSyncOnAppOpened()))) return
+        if (!(settingsManager.getApplicationObserverEnabled() && packageNames.isNotEmpty() && (settingsManager.getSyncOnAppClosed() || settingsManager.getSyncOnAppOpened()))) return
 
         event?.let {
             when (it.eventType) {
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                    if (appOpen && event.packageName != appPackageName && !enabledInputMethods.contains(event.packageName)) {
+                    if (appOpen && !packageNames.contains(event.packageName) && !enabledInputMethods.contains(event.packageName)) {
                         log("AccessibilityService", "Application Closed")
                         if (settingsManager.getSyncOnAppClosed()) {
                             sync()
@@ -37,7 +37,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
                         appOpen = false
                     }
 
-                    if (!appOpen && event.packageName == appPackageName) {
+                    if (!appOpen && packageNames.contains(event.packageName)) {
                         log("AccessibilityService", "Application Opened")
                         if (settingsManager.getSyncOnAppOpened()) {
                             sync()
