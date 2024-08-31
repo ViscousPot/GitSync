@@ -33,4 +33,5 @@
     <string name="send_bug_report">Tap to send a bug report</string>
 
     <string name="docs_link">https://github.com/ViscousPotential/GitSync/blob/master/Documentation.md</string>
+    <string name="search_hint">Search...</string>
 </resources>
