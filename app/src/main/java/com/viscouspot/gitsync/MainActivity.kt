@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -37,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
 import com.viscouspot.gitsync.ui.adapter.ApplicationGridAdapter
+import com.viscouspot.gitsync.ui.adapter.ApplicationListAdapter
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
@@ -57,8 +59,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settingsManager: SettingsManager
     private var onStoragePermissionGranted: (() -> Unit)? = null
 
-    private lateinit var recentCommitsAdapter: RecentCommitsAdapter
+    private val recentCommits: MutableList<Commit> = mutableListOf()
     private lateinit var recentCommitsRecycler: RecyclerViewEmptySupport
+    private lateinit var recentCommitsAdapter: RecentCommitsAdapter
 
     private lateinit var forceSyncButton: MaterialButton
     private lateinit var syncMessageButton: MaterialButton
@@ -72,12 +75,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewDocs: MaterialButton
 
-    private val recentCommits: MutableList<Commit> = mutableListOf()
-
     private lateinit var applicationObserverPanel: ConstraintLayout
     private lateinit var applicationObserverSwitch: Switch
 
     private lateinit var selectApplication: MaterialButton
+
+    private val applicationList: MutableList<Drawable> = mutableListOf()
+    private lateinit var applicationRecycler: RecyclerView
+    private lateinit var applicationListAdapter: ApplicationListAdapter
+
     private lateinit var syncAppOpened: Switch
     private lateinit var syncAppClosed: Switch
 
@@ -217,6 +223,8 @@ class MainActivity : AppCompatActivity() {
         checkAndRequestStoragePermission()
 
         settingsManager = SettingsManager(this)
+        settingsManager.runMigrations()
+
         gitManager = GitManager(this, this)
 
         recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
@@ -239,6 +247,8 @@ class MainActivity : AppCompatActivity() {
         applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)
 
         selectApplication = findViewById(R.id.selectApplication)
+        applicationRecycler = findViewById(R.id.applicationRecycler)
+        applicationListAdapter = ApplicationListAdapter(applicationList)
         syncAppOpened = findViewById(R.id.syncAppOpened)
         syncAppClosed = findViewById(R.id.syncAppClosed)
 
@@ -250,6 +260,7 @@ class MainActivity : AppCompatActivity() {
         refreshAll()
 
         recentCommitsRecycler.adapter = recentCommitsAdapter
+        applicationRecycler.adapter = applicationListAdapter
 
         setRecyclerViewHeight(recentCommitsRecycler)
 
@@ -342,8 +353,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun showApplicationSelectDialog() {
         val builderSingle = AlertDialog.Builder(this@MainActivity, R.style.AlertDialogTheme)
+        val packageNames = mutableListOf<String>()
 
         builderSingle.setTitle(getString(R.string.select_application))
+        builderSingle.setPositiveButton(getString(R.string.save_application)) { dialog, _ ->
+            dialog.cancel()
+            settingsManager.setApplicationPackages(packageNames)
+            refreshSelectedApplications()
+        }
         builderSingle.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
 
         val applicationSelectDialog = layoutInflater.inflate(R.layout.application_select_dialog, null)
@@ -355,9 +372,7 @@ class MainActivity : AppCompatActivity() {
 
         val recyclerView = applicationSelectDialog.findViewById<RecyclerView>(R.id.recyclerView)
         val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames) {
-            dialog.cancel()
-            settingsManager.setApplicationPackage(it)
-            refreshSelectedApplication()
+            packageNames.add(it)
         }
 
         val searchView = applicationSelectDialog.findViewById<SearchView>(R.id.searchView)
@@ -418,25 +433,43 @@ class MainActivity : AppCompatActivity() {
 
         (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
 
-        refreshSelectedApplication()
+        refreshSelectedApplications()
 
         syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
         syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
 
     }
 
-    private fun refreshSelectedApplication() {
-        val appPackageName = settingsManager.getApplicationPackage()
-        if (appPackageName !== "") {
-            selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(appPackageName, 0)).toString()
-            selectApplication.icon = packageManager.getApplicationIcon(appPackageName)
-            selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
-            selectApplication.iconTint = getColorStateList(android.R.color.white)
+    private fun refreshSelectedApplications() {
+        val packageNames = settingsManager.getApplicationPackages()
+        if (packageNames.isNotEmpty()) {
+            when (packageNames.size) {
+                1 -> {
+                    selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageNames.elementAt(0), 0)).toString()
+                    selectApplication.icon = packageManager.getApplicationIcon(packageNames.elementAt(0))
+                    selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
+                    selectApplication.iconTint = getColorStateList(android.R.color.white)
+
+                    applicationRecycler.visibility = View.GONE
+                }
+                else -> {
+                    selectApplication.text = "${getString(R.string.multiple_application_selected)} (${if (packageNames.size < 5) packageNames.size else "4+"})"
+                    selectApplication.icon = null
+
+                    applicationRecycler.visibility = View.VISIBLE
+                    val iconList = packageNames.map { packageManager.getApplicationIcon(it) }
+                    applicationList.clear()
+                    applicationList.addAll(iconList)
+                    applicationListAdapter.notifyDataSetChanged()
+                }
+            }
         } else {
             selectApplication.text = getString(R.string.application_not_set)
             selectApplication.setIconResource(R.drawable.circle_xmark)
             selectApplication.setIconTintResource(R.color.auth_red)
             selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
+
+            applicationRecycler.visibility = View.GONE
         }
     }
 

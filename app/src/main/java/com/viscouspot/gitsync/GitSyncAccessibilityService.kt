@@ -22,7 +22,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val appPackageName = settingsManager.getApplicationPackage()
+        val appPackageName = settingsManager.getApplicationPackages()
 
         if (!(settingsManager.getApplicationObserverEnabled() && appPackageName.isNotEmpty() && (settingsManager.getSyncOnAppClosed() || settingsManager.getSyncOnAppOpened()))) return
 
