@@ -315,6 +315,7 @@ class MainActivity : AppCompatActivity() {
                     requestAccessibilityPermission()
                 } else {
                     settingsManager.setApplicationObserverEnabled(true)
+                    refreshSelectedApplications()
                 }
             } else {
                 settingsManager.setApplicationObserverEnabled(false)
