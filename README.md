@@ -32,5 +32,5 @@ For support, email bugs.viscouspotential@gmail.com.
 
 ## Acknowledgements
 
- - [JGit](https://www.eclipse.org/jgit/)
+ - [KGit](https://github.com/sya-ri/KGit)
 
