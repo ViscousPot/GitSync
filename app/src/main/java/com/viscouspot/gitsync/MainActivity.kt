@@ -354,12 +354,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showApplicationSelectDialog() {
         val builderSingle = AlertDialog.Builder(this@MainActivity, R.style.AlertDialogTheme)
-        val packageNames = mutableListOf<String>()
+        val selectedPackageNames = mutableListOf<String>()
 
         builderSingle.setTitle(getString(R.string.select_application))
         builderSingle.setPositiveButton(getString(R.string.save_application)) { dialog, _ ->
             dialog.cancel()
-            settingsManager.setApplicationPackages(packageNames)
+            settingsManager.setApplicationPackages(selectedPackageNames)
             refreshSelectedApplications()
         }
         builderSingle.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
@@ -372,9 +372,7 @@ class MainActivity : AppCompatActivity() {
         val filteredDevicePackageNames = devicePackageNames.toMutableList()
 
         val recyclerView = applicationSelectDialog.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames) {
-            packageNames.add(it)
-        }
+        val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames, selectedPackageNames)
 
         val searchView = applicationSelectDialog.findViewById<SearchView>(R.id.searchView)
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
@@ -389,7 +387,17 @@ class MainActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
                 } else {
                     filteredDevicePackageNames.clear()
-                    filteredDevicePackageNames.addAll(devicePackageNames.filter { packageManager.getApplicationLabel(packageManager.getApplicationInfo(it, 0)).toString().lowercase(Locale.getDefault()).contains(newText.toString().lowercase(Locale.getDefault())) })
+                    filteredDevicePackageNames.addAll(
+                        devicePackageNames.filter {
+                            packageManager.getApplicationLabel(
+                                packageManager.getApplicationInfo(it, 0)
+                            ).toString()
+                                .lowercase(Locale.getDefault())
+                                .contains(
+                                    newText.toString().lowercase(Locale.getDefault())
+                                )
+                        }
+                    )
                     adapter.notifyDataSetChanged()
                 }
                 return true
