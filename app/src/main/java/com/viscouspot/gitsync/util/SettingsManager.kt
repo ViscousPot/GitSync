@@ -61,7 +61,7 @@ class SettingsManager internal constructor(context: Context) {
     }
 
     fun getApplicationObserverEnabled(): Boolean {
-        return settingsSharedPref.getBoolean("applicationObserverEnabled", false)!!
+        return settingsSharedPref.getBoolean("applicationObserverEnabled", false)
     }
 
     fun setApplicationObserverEnabled(enabled: Boolean) {
@@ -83,7 +83,7 @@ class SettingsManager internal constructor(context: Context) {
     }
 
     fun getSyncOnAppOpened(): Boolean {
-        return settingsSharedPref.getBoolean("syncOnAppOpened", false)!!
+        return settingsSharedPref.getBoolean("syncOnAppOpened", false)
     }
 
     fun setSyncOnAppOpened(enabled: Boolean) {
@@ -94,7 +94,7 @@ class SettingsManager internal constructor(context: Context) {
     }
 
     fun getSyncOnAppClosed(): Boolean {
-        return settingsSharedPref.getBoolean("syncOnAppClosed", false)!!
+        return settingsSharedPref.getBoolean("syncOnAppClosed", false)
     }
 
     fun setSyncOnAppClosed(enabled: Boolean) {

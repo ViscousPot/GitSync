@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.github.syari.kgit.KGit
 import com.viscouspot.gitsync.Secrets
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.util.Logger.log
@@ -19,13 +20,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.internal.storage.file.FileRepository
-import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.eclipse.jgit.util.io.DisabledOutputStream
 import org.json.JSONArray
@@ -70,7 +68,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             override fun onResponse(call: Call, response: Response) {
                 log("GithubAuthCredentials", "Auth Token Obtained")
-                val authToken = JSONObject(response.body?.string()).getString("access_token")
+                val authToken = JSONObject(response.body?.string() ?: "").getString("access_token")
 
                 getGithubProfile(authToken, {
                     setCallback.invoke(it, authToken)
@@ -139,11 +137,11 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 log("CloneRepo", "Cloning Repo")
-                Git.cloneRepository()
-                    .setURI(repoUrl)
-                    .setDirectory(File(storageDir))
-                    .setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
-                    .call()
+                KGit.cloneRepository {
+                    setURI(repoUrl)
+                    setDirectory(File(storageDir))
+                    setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
+                }
 
                 log("CloneRepo", "Repository cloned successfully")
                 withContext(Dispatchers.Main) {
@@ -168,19 +166,21 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             var returnResult: Boolean? = false
             log("PullFromRepo", "Getting local directory")
             val repo = FileRepository("$storageDir/.git")
-            val git = Git(repo)
+            val git = KGit(repo)
             val cp = UsernamePasswordCredentialsProvider(username, token)
 
             log("PullFromRepo", "Fetching changes")
-            val fetchResult = git.fetch().setCredentialsProvider(cp).call()
+            val fetchResult = git.fetch {
+                setCredentialsProvider(cp)
+            }
 
             if (!fetchResult.trackingRefUpdates.isEmpty()) {
                 log("PullFromRepo", "Pulling changes")
                 onSync.invoke()
-                val result = git.pull()
-                    .setCredentialsProvider(cp)
-                    .setRemote("origin")
-                    .call()
+                val result = git.pull {
+                    setCredentialsProvider(cp)
+                    remote = "origin"
+                }
                 if (result.isSuccessful()) {
                     returnResult = true
                 } else {
@@ -204,31 +204,36 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             log("PushToRepo", "Getting local directory")
 
             val repo = FileRepository("$storageDir/.git")
-            val git = Git(repo)
+            val git = KGit(repo)
 
             logStatus(git)
-            val status = git.status().call()
+            val status = git.status()
             if (status.uncommittedChanges.isNotEmpty() || status.untracked.isNotEmpty()) {
                 onSync.invoke()
                 log("PushToRepo", "Adding Files to Stage")
-                git.add().addFilepattern(".").call();
-                git.add().addFilepattern(".").setUpdate(true).call();
+                git.add {
+                    addFilepattern(".")
+                }
+                git.add {
+                    addFilepattern(".")
+                    isUpdate = true
+                }
 
                 log("PushToRepo", "Getting current time")
                 val currentDateTime = LocalDateTime.now()
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
                 log("PushToRepo", "Committing changes")
-                git.commit()
-                    .setCommitter(username, "")
-                    .setMessage("Last Sync: ${currentDateTime.format(formatter)} (Mobile)")
-                    .call()
+                git.commit {
+                    setCommitter(username, "")
+                    message = "Last Sync: ${currentDateTime.format(formatter)} (Mobile)"
+                }
 
                 log("PushToRepo", "Pushing changes")
-                git.push()
-                    .setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
-                    .setRemote(repoUrl)
-                    .call()
+                git.push {
+                    setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
+                    remote = repoUrl
+                }
 
                 if (Looper.myLooper() == null) {
                     Looper.prepare()
@@ -248,8 +253,8 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         return null
     }
 
-    private fun logStatus(git: Git) {
-        val status = git.status().call()
+    private fun logStatus(git: KGit) {
+        val status = git.status()
         log("GitStatus.HasUncommittedChanges", status.hasUncommittedChanges().toString())
         log("GitStatus.Missing", status.missing.toString())
         log("GitStatus.Modified", status.modified.toString())
@@ -272,7 +277,6 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             val head = repo.resolve("refs/heads/master")
             revWalk.markStart(revWalk.parseCommit(head))
             revWalk.sort(RevSort.COMMIT_TIME_DESC)
-            revWalk.setRevFilter(RevFilter.NO_MERGES)
 
             val commits = mutableListOf<Commit>()
             var count = 0
@@ -319,7 +323,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         return listOf()
     }
 
-    private fun closeRepo(repo: Repository) {
+    private fun closeRepo(repo: FileRepository) {
         repo.close()
         val lockFile = File(repo.directory, "index.lock")
         if (lockFile.exists()) lockFile.delete()
