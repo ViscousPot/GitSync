@@ -1,23 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/applicationItem"
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:insetTop="0dp"
-    android:insetBottom="0dp"
-    app:icon="@drawable/circle_xmark"
-    app:iconGravity="textTop"
-    app:iconPadding="@dimen/space_md"
-    android:padding="@dimen/space_md"
-    app:backgroundTint="@color/card_secondary_bg"
-    android:text="example"
-    android:layout_marginHorizontal="@dimen/space_sm"
-    android:layout_marginVertical="@dimen/space_sm"
-    android:textSize="@dimen/text_size_sm"
-    android:textColor="@color/textPrimary"
-    app:iconTint="@color/textPrimary"
-    app:iconSize="@dimen/application_icon_size"
-    app:iconTintMode="multiply"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/space_sm"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-</com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/applicationItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:padding="@dimen/space_md"
+        android:text="example"
+        android:textColor="@color/textPrimary"
+        android:textSize="@dimen/text_size_sm"
+        app:backgroundTint="@color/card_secondary_bg"
+        app:icon="@drawable/circle_xmark"
+        app:iconGravity="textTop"
+        app:iconPadding="@dimen/space_md"
+        app:iconSize="@dimen/application_icon_size"
+        app:iconTint="@color/textPrimary"
+        app:iconTintMode="multiply"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/check"
+        android:layout_width="@dimen/application_icon_size"
+        android:layout_height="@dimen/application_icon_size"
+        android:src="@drawable/circle_check"
+        app:tint="@color/auth_green"
+        android:translationZ="@dimen/space_xs"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="@dimen/space_sm"
+        android:layout_marginTop="@dimen/space_sm"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

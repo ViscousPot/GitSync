@@ -82,6 +82,17 @@ class SettingsManager internal constructor(context: Context) {
         }
     }
 
+    fun getApplicationPackages(): Set<String> {
+        return settingsSharedPref.getStringSet("packageNames", setOf())!!
+    }
+
+    fun setApplicationPackages(packageNames: List<String>) {
+        with(settingsSharedPref.edit()) {
+            putStringSet("packageNames", packageNames.toSet())
+            apply()
+        }
+    }
+
     fun getSyncOnAppOpened(): Boolean {
         return settingsSharedPref.getBoolean("syncOnAppOpened", false)
     }
@@ -101,6 +112,13 @@ class SettingsManager internal constructor(context: Context) {
         with(settingsSharedPref.edit()) {
             putBoolean("syncOnAppClosed", enabled)
             apply()
+        }
+    }
+
+    fun runMigrations() {
+        val oldApplicationPackage = getApplicationPackage()
+        if (oldApplicationPackage != "" && getApplicationPackages().isEmpty()) {
+            setApplicationPackages(listOf(oldApplicationPackage))
         }
     }
 }

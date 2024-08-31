@@ -12,8 +12,10 @@
     <string name="enable_application_observer">Application Observer</string>
     <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
     <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
-    <string name="application_not_set">Select App</string>
-    <string name="select_application">Select an Application</string>
+    <string name="application_not_set">Select App(s)</string>
+    <string name="select_application">Select application(s)</string>
+    <string name="multiple_application_selected">Selected</string>
+    <string name="save_application">Save</string>
     <string name="sync_on_app_closed">Sync on app closed</string>
     <string name="sync_on_app_opened">Sync on app opened</string>
 
