@@ -2,7 +2,6 @@ package com.viscouspot.gitsync.util
 
 import android.content.ContentUris
 import android.content.Context
-import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -12,7 +11,6 @@ import android.provider.MediaStore
 import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import androidx.security.crypto.EncryptedSharedPreferences
 import com.viscouspot.gitsync.R
 import java.util.regex.Matcher
 import java.util.regex.Pattern
