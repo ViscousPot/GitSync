@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity() {
             refreshAuthButton()
 
             CloneRepoFragment(settingsManager, gitManager) {
+                gitDirPath.setText(settingsManager.getGitDirPath())
                 refreshGitRepo()
             }.show(supportFragmentManager, "Select a repository")
         }
@@ -282,7 +283,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        gitDirPath.setOnFocusChangeListener { v, hasFocus ->
+        gitDirPath.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 settingsManager.setGitDirPath(gitDirPath.text.toString())
                 refreshGitRepo()
@@ -452,8 +453,8 @@ class MainActivity : AppCompatActivity() {
     private fun refreshGitRepo() {
         var repoName = ""
 
-        val gitConfigFile = File("${gitDirPath.text}/.git/config")
         val gitPathEmpty = gitDirPath.text.toString().trim() == ""
+        val gitConfigFile = File("${gitDirPath.text}/.git/config")
         if (!gitPathEmpty && gitConfigFile.exists()) {
             val fileContents = gitConfigFile.readText()
 
@@ -473,6 +474,7 @@ class MainActivity : AppCompatActivity() {
             cloneRepoButton.visibility = View.VISIBLE
             cloneRepoButton.setOnClickListener {
                 CloneRepoFragment(settingsManager, gitManager) {
+                    gitDirPath.setText(settingsManager.getGitDirPath())
                     refreshGitRepo()
                 }.show(supportFragmentManager, getString(R.string.clone_repo))
             }

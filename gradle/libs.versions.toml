@@ -2,7 +2,7 @@
 agp = "8.3.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
-jgit = "3.7.1.201504261725-r"
+kgit = "1.0.6"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -16,7 +16,7 @@ securityCryptoKtx = "1.1.0-alpha06"
 [libraries]
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoKtx" }
 squareup-okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-eclipse-jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
+kgit = { group = "com.github.sya-ri", name = "kgit", version.ref = "kgit" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

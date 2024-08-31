@@ -67,7 +67,7 @@ class CloneRepoFragment(
 
         gitManager.getRepos(settingsManager.getGitAuthCredentials().second) {
             repoList.addAll(it)
-            requireActivity()?.runOnUiThread {
+            requireActivity().runOnUiThread {
                 adapter.notifyDataSetChanged()
             }
         }
@@ -125,7 +125,7 @@ class CloneRepoFragment(
                 callback = ::localDirCallback
                 dirSelectionLauncher.launch(null)
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
