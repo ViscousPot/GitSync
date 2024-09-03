@@ -63,7 +63,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
         client.newCall(authTokenRequest).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                log("GithubAuthCredentials", e)
+                log(context, "GithubAuthCredentials", e)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -87,7 +87,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         log("GithubAuthCredentials", "Getting User Profile")
         client.newCall(profileRequest).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                log("GithubAuthCredentials", e)
+                log(context, "GithubAuthCredentials", e)
                 failureCallback.invoke()
             }
 
@@ -112,7 +112,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         log("GetRepos", "Getting User Repos")
         client.newCall(reposRequest).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                log("GetRepos", e)
+                log(context, "GetRepos", e)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -150,7 +150,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
                 callback.invoke()
             } catch (e: Exception) {
-                log("CloneRepo", e)
+                log(context, "CloneRepo", e)
 
                 log("CloneRepo", "Repository clone failed")
                 withContext(Dispatchers.Main) {
@@ -193,7 +193,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             return returnResult
         } catch (e: Exception) {
-            log("PullFromRepo", e)
+            log(context, "PullFromRepo", e)
         }
         return null
     }
@@ -248,7 +248,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             return returnResult
         } catch (e: Exception) {
-            log("PushToRepo", e)
+            log(context, "PushToRepo", e)
         }
         return null
     }
@@ -318,7 +318,7 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
 
             return commits
         } catch (e: java.lang.Exception) {
-            log("RecentCommits", e)
+            log(context, "RecentCommits", e)
         }
         return listOf()
     }

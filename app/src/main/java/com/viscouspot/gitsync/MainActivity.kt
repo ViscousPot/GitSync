@@ -214,6 +214,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        Thread.setDefaultUncaughtExceptionHandler { paramThread, paramThrowable ->
+            log(this, "Global", Exception(paramThrowable))
+        }
+
         val bManager = LocalBroadcastManager.getInstance(this)
         val intentFilter = IntentFilter()
         intentFilter.addAction(REFRESH)
