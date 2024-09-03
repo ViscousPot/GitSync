@@ -274,7 +274,8 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
             val repo = FileRepository("$storageDir/.git")
             val revWalk = RevWalk(repo)
 
-            val head = repo.resolve("refs/heads/master")
+            val headRef = repo.fullBranch ?: repo.findRef("HEAD")?.target?.name
+            val head = repo.resolve(headRef)
             revWalk.markStart(revWalk.parseCommit(head))
             revWalk.sort(RevSort.COMMIT_TIME_DESC)
 
