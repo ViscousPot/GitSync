@@ -269,12 +269,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitDirPath.isEnabled = false
-//        gitDirPath.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                settingsManager.setGitDirPath(gitDirPath.text.toString())
-//                refreshGitRepo()
-//            }
-//        }
 
         selectFileButton.setOnClickListener {
             dirSelectionLauncher.launch(null)
