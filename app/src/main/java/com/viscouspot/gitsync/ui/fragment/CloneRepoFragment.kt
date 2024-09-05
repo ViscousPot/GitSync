@@ -2,17 +2,17 @@ package com.viscouspot.gitsync.ui.fragment
 
 import android.app.Dialog
 import android.app.ProgressDialog
-import android.content.DialogInterface
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.EditText
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
@@ -29,21 +29,19 @@ import com.viscouspot.gitsync.util.rightDrawable
 class CloneRepoFragment(
     private val settingsManager: SettingsManager,
     private val gitManager: GitManager,
-    private val refreshCallback: () -> Unit
+    private val dirSelectionCallback: ((dirUri: Uri?) -> Unit)
 ): DialogFragment(R.layout.clone_repo_fragment) {
     private val repoList = mutableListOf<Pair<String, String>>()
     private var repoUrl = ""
-    private var callback: ((dirPath: String) -> Unit)? = null
+    private var callback: ((dirUri: Uri?) -> Unit) = {dirUri: Uri? -> dirSelectionCallback(dirUri)}
 
-    private val dirSelectionLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        uri?.let {
-            val docUriTree = DocumentsContract.buildDocumentUriUsingTree(
-                it,
-                DocumentsContract.getTreeDocumentId(it)
-            )
+    private lateinit var dirSelectionLauncher: ActivityResultLauncher<Uri?>
 
-            val dirPath = Helper.getPathFromUri(requireContext(), docUriTree)
-            callback?.invoke(dirPath)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        dirSelectionLauncher = Helper.getDirSelectionLauncher(this, requireContext()) {
+            callback.invoke(it)
         }
     }
 
@@ -95,8 +93,8 @@ class CloneRepoFragment(
         return view
     }
 
-    private fun localRepoCallback(dirPath: String){
-        settingsManager.setGitDirPath(dirPath)
+    private fun localRepoCallback(dirUri: Uri?){
+        dirSelectionCallback.invoke(dirUri)
         dismiss()
     }
 
@@ -105,15 +103,20 @@ class CloneRepoFragment(
         dirSelectionLauncher.launch(null)
     }
 
-    private fun localDirCallback(dirPath: String) {
+    private fun localDirCallback(dirUri: Uri?) {
+        if (dirUri == null) {
+            dirSelectionCallback.invoke(null)
+            dismiss()
+            return
+        }
         val authCredentials = settingsManager.getGitAuthCredentials()
 
         val pullDialog = ProgressDialog.show(requireContext(), "Cloning repository...", "This may take a while depending on the size of your repo", true);
 
-        gitManager.cloneRepository(repoUrl, dirPath, authCredentials.first, authCredentials.second) {
+        gitManager.cloneRepository(repoUrl, dirUri, authCredentials.first, authCredentials.second) {
             pullDialog.dismiss()
 
-            settingsManager.setGitDirPath(dirPath)
+            dirSelectionCallback.invoke(dirUri)
             dismiss()
         }
     }
@@ -145,10 +148,5 @@ class CloneRepoFragment(
             )
             dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        refreshCallback.invoke()
     }
 }

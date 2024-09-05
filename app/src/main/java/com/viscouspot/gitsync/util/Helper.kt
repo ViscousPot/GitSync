@@ -2,6 +2,7 @@ package com.viscouspot.gitsync.util
 
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -9,19 +10,48 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.widget.EditText
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.R
+import java.io.File
+import java.io.IOException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 object Helper {
+    fun getDirSelectionLauncher(activityResultLauncher: ActivityResultCaller, context: Context, callback: ((dirUri: Uri?) -> Unit)): ActivityResultLauncher<Uri?> {
+        return activityResultLauncher.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            uri?.let {
+                try {
+                    val testFile = File(getPathFromUri(context, it), "test${System.currentTimeMillis()}.txt")
+                    testFile.createNewFile()
+                    testFile.delete()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    callback.invoke(null)
+                    return@let
+                }
+
+                context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                callback.invoke(uri)
+            }
+        }
+    }
     fun getPathFromUri(context: Context, uri: Uri): String {
+        val docUriTree = DocumentsContract.buildDocumentUriUsingTree(
+            uri,
+            DocumentsContract.getTreeDocumentId(uri)
+        )
+
         when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri) -> {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, docUriTree) -> {
                 when {
-                    isExternalStorageDocument(uri) -> {
-                        val docId = DocumentsContract.getDocumentId(uri)
+                    isExternalStorageDocument(docUriTree) -> {
+                        val docId = DocumentsContract.getDocumentId(docUriTree)
                         val split = docId.split(":")
                         val type = split[0]
 
@@ -38,16 +68,16 @@ object Helper {
                             }
                         }
                     }
-                    isDownloadsDocument(uri) -> {
-                        val id = DocumentsContract.getDocumentId(uri)
+                    isDownloadsDocument(docUriTree) -> {
+                        val id = DocumentsContract.getDocumentId(docUriTree)
                         val contentUri = ContentUris.withAppendedId(
                             Uri.parse("content://downloads/public_downloads"), id.toLong()
                         )
 
                         return getDataColumn(context, contentUri, null, null)
                     }
-                    isMediaDocument(uri) -> {
-                        val docId = DocumentsContract.getDocumentId(uri)
+                    isMediaDocument(docUriTree) -> {
+                        val docId = DocumentsContract.getDocumentId(docUriTree)
                         val split = docId.split(":")
                         val type = split[0]
 
@@ -65,14 +95,14 @@ object Helper {
                     }
                 }
             }
-            "content".equals(uri.scheme, ignoreCase = true) -> {
+            "content".equals(docUriTree.scheme, ignoreCase = true) -> {
                 when {
-                    isGooglePhotosUri(uri) -> return uri.lastPathSegment ?: ""
-                    else -> return getDataColumn(context, uri, null, null)
+                    isGooglePhotosUri(docUriTree) -> return uri.lastPathSegment ?: ""
+                    else -> return getDataColumn(context, docUriTree, null, null)
                 }
             }
-            "file".equals(uri.scheme, ignoreCase = true) -> {
-                return uri.path ?: ""
+            "file".equals(docUriTree.scheme, ignoreCase = true) -> {
+                return docUriTree.path ?: ""
             }
         }
 
