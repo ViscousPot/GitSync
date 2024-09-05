@@ -1,6 +1,7 @@
 package com.viscouspot.gitsync.util
 
 import android.content.Context
+import android.net.Uri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
@@ -34,13 +35,16 @@ class SettingsManager internal constructor(context: Context) {
         }
     }
 
-    fun getGitDirPath(): String {
-        return settingsSharedPref.getString("gitDirPath", "")!!
+    fun getGitDirUri(): Uri? {
+        val dirUri = settingsSharedPref.getString("gitDirUri", "")
+
+        if (dirUri == "") return null
+        return Uri.parse(dirUri)
     }
 
-    fun setGitDirPath(dirPath: String) {
+    fun setGitDirUri(dirUri: String) {
         with(settingsSharedPref.edit()) {
-            putString("gitDirPath", dirPath)
+            putString("gitDirUri", dirUri)
             apply()
         }
     }

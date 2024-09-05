@@ -1,6 +1,5 @@
 package com.viscouspot.gitsync
 
-import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,9 +10,7 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.MotionEvent
@@ -32,7 +29,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -51,14 +47,12 @@ import com.viscouspot.gitsync.util.rightDrawable
 import java.io.File
 import java.util.Locale
 
-
 class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
     private lateinit var applicationObserverMin: ConstraintSet
 
     private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
-    private var onStoragePermissionGranted: (() -> Unit)? = null
 
     private val recentCommits: MutableList<Commit> = mutableListOf()
     private lateinit var recentCommitsRecycler: RecyclerViewEmptySupport
@@ -100,39 +94,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val dirSelectionLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        uri?.let {
-            val docUriTree = DocumentsContract.buildDocumentUriUsingTree(
-                it,
-                DocumentsContract.getTreeDocumentId(it)
-            )
+    private val dirSelectionLauncher = Helper.getDirSelectionLauncher(this, this, ::dirSelectionCallback)
 
-            val newDirPath = Helper.getPathFromUri(this, docUriTree)
-
-            gitDirPath.setText(newDirPath)
-            settingsManager.setGitDirPath(newDirPath)
-
-            refreshGitRepo()
+    private fun dirSelectionCallback(dirUri: Uri?) {
+        if (dirUri == null) {
+            Toast.makeText(this, "Inaccessible! Please select a different directory.", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        settingsManager.setGitDirUri(dirUri.toString())
+
+        updateGitDirPath(dirUri)
+        refreshGitRepo()
     }
 
-    private val requestLegacyStoragePermission = this.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGrantedMap ->
-        if (isGrantedMap.values.all { it }) {
-            onStoragePermissionGranted?.invoke()
-        }
-    }
-
-    private val requestStoragePermission = this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        val hasPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-        
-        if (hasPermissions) {
-            onStoragePermissionGranted?.invoke()
-        }
+    private fun updateGitDirPath(dirUri: Uri) {
+        gitDirPath.setText(Helper.getPathFromUri(this, dirUri))
     }
 
     private val requestNotificationPermission = this.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
@@ -171,10 +148,7 @@ class MainActivity : AppCompatActivity() {
             settingsManager.setGitAuthCredentials(username, authToken)
             refreshAuthButton()
 
-            CloneRepoFragment(settingsManager, gitManager) {
-                gitDirPath.setText(settingsManager.getGitDirPath())
-                refreshGitRepo()
-            }.show(supportFragmentManager, "Select a repository")
+            CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback).show(supportFragmentManager, "Select a repository")
         }
     }
 
@@ -188,12 +162,6 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.layoutParams.height = itemHeight * 4
         recyclerView.requestLayout()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        settingsManager.setGitDirPath(gitDirPath.text.toString())
     }
 
     override fun onDestroy() {
@@ -224,8 +192,6 @@ class MainActivity : AppCompatActivity() {
         bManager.registerReceiver(broadcastReceiver, intentFilter)
 
         window.statusBarColor = getColor(R.color.app_bg)
-
-        checkAndRequestStoragePermission()
 
         settingsManager = SettingsManager(this)
         settingsManager.runMigrations()
@@ -302,12 +268,13 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        gitDirPath.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                settingsManager.setGitDirPath(gitDirPath.text.toString())
-                refreshGitRepo()
-            }
-        }
+        gitDirPath.isEnabled = false
+//        gitDirPath.setOnFocusChangeListener { _, hasFocus ->
+//            if (!hasFocus) {
+//                settingsManager.setGitDirPath(gitDirPath.text.toString())
+//                refreshGitRepo()
+//            }
+//        }
 
         selectFileButton.setOnClickListener {
             dirSelectionLauncher.launch(null)
@@ -418,148 +385,167 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshAll() {
-        refreshRecentCommits()
+        runOnUiThread {
+            refreshRecentCommits()
 
-        if (settingsManager.getSyncMessageEnabled()) {
-            settingsManager.setSyncMessageEnabled(false)
-            checkAndRequestNotificationPermission {
-                settingsManager.setSyncMessageEnabled(true)
-                syncMessageButton.setIconResource(R.drawable.notify)
-                syncMessageButton.setIconTintResource(R.color.auth_green)
+            if (settingsManager.getSyncMessageEnabled()) {
+                settingsManager.setSyncMessageEnabled(false)
+                checkAndRequestNotificationPermission {
+                    settingsManager.setSyncMessageEnabled(true)
+                    syncMessageButton.setIconResource(R.drawable.notify)
+                    syncMessageButton.setIconTintResource(R.color.auth_green)
+                }
+            } else {
+                syncMessageButton.setIconResource(R.drawable.notify_off)
+                syncMessageButton.setIconTintResource(R.color.textPrimary)
             }
-        } else {
-            syncMessageButton.setIconResource(R.drawable.notify_off)
-            syncMessageButton.setIconTintResource(R.color.textPrimary)
-        }
 
-        refreshAuthButton()
-        refreshGitRepo()
+            refreshAuthButton()
+            refreshGitRepo()
 
-        gitDirPath.setText(settingsManager.getGitDirPath())
-
-        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
-        applicationObserverSwitch.isChecked = applicationObserverEnabled
-
-        if (applicationObserverEnabled) {
-            if (!checkAccessibilityPermission()) {
-                applicationObserverSwitch.isChecked = false
-                settingsManager.setApplicationObserverEnabled(false)
-                requestAccessibilityPermission()
+            settingsManager.getGitDirUri()?.let {
+                gitDirPath.setText(Helper.getPathFromUri(this, it))
             }
+
+            val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
+            applicationObserverSwitch.isChecked = applicationObserverEnabled
+
+            if (applicationObserverEnabled) {
+                if (!checkAccessibilityPermission()) {
+                    applicationObserverSwitch.isChecked = false
+                    settingsManager.setApplicationObserverEnabled(false)
+                    requestAccessibilityPermission()
+                }
+            }
+
+            (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(
+                applicationObserverPanel
+            )
+
+            refreshSelectedApplications()
+
+            syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
+            syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
         }
-
-        (if (applicationObserverSwitch.isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
-
-        refreshSelectedApplications()
-
-        syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
-        syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
-
     }
 
     private fun refreshSelectedApplications() {
-        val packageNames = settingsManager.getApplicationPackages()
-        if (packageNames.isNotEmpty()) {
-            when (packageNames.size) {
-                1 -> {
-                    selectApplication.text = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageNames.elementAt(0), 0)).toString()
-                    selectApplication.icon = packageManager.getApplicationIcon(packageNames.elementAt(0))
-                    selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
-                    selectApplication.iconTint = getColorStateList(android.R.color.white)
+        runOnUiThread {
+            val packageNames = settingsManager.getApplicationPackages()
+            if (packageNames.isNotEmpty()) {
+                when (packageNames.size) {
+                    1 -> {
+                        selectApplication.text = packageManager.getApplicationLabel(
+                            packageManager.getApplicationInfo(
+                                packageNames.elementAt(0),
+                                0
+                            )
+                        ).toString()
+                        selectApplication.icon =
+                            packageManager.getApplicationIcon(packageNames.elementAt(0))
+                        selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
+                        selectApplication.iconTint = getColorStateList(android.R.color.white)
 
-                    applicationRecycler.visibility = View.GONE
-                }
-                else -> {
-                    selectApplication.text = "${getString(R.string.multiple_application_selected)} (${if (packageNames.size < 5) packageNames.size else "4+"})"
-                    selectApplication.icon = null
+                        applicationRecycler.visibility = View.GONE
+                    }
 
-                    applicationRecycler.visibility = View.VISIBLE
-                    val iconList = packageNames.map { packageManager.getApplicationIcon(it) }
-                    applicationList.clear()
-                    applicationList.addAll(iconList)
-                    applicationListAdapter.notifyDataSetChanged()
+                    else -> {
+                        selectApplication.text =
+                            "${getString(R.string.multiple_application_selected)} (${if (packageNames.size < 5) packageNames.size else "4+"})"
+                        selectApplication.icon = null
+
+                        applicationRecycler.visibility = View.VISIBLE
+                        val iconList = packageNames.map { packageManager.getApplicationIcon(it) }
+                        applicationList.clear()
+                        applicationList.addAll(iconList)
+                        applicationListAdapter.notifyDataSetChanged()
+                    }
                 }
+            } else {
+                selectApplication.text = getString(R.string.application_not_set)
+                selectApplication.setIconResource(R.drawable.circle_xmark)
+                selectApplication.setIconTintResource(R.color.auth_red)
+                selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
+
+                applicationRecycler.visibility = View.GONE
             }
-        } else {
-            selectApplication.text = getString(R.string.application_not_set)
-            selectApplication.setIconResource(R.drawable.circle_xmark)
-            selectApplication.setIconTintResource(R.color.auth_red)
-            selectApplication.iconTintMode = PorterDuff.Mode.SRC_IN
-
-            applicationRecycler.visibility = View.GONE
         }
     }
 
     private fun refreshRecentCommits() {
-        val recentCommitsReferences = recentCommits.map {commit -> commit.reference}
-        val newRecentCommits = gitManager.getRecentCommits(gitDirPath.text.toString()).filter { !recentCommitsReferences.contains(it.reference) }
-        if (newRecentCommits.isNotEmpty()) {
-            recentCommits.addAll(0, newRecentCommits)
-            recentCommitsAdapter.notifyItemRangeInserted(0, newRecentCommits.size)
-            recentCommitsRecycler.smoothScrollToPosition(0);
+        runOnUiThread {
+            val recentCommitsReferences = recentCommits.map { commit -> commit.reference }
+            val newRecentCommits = gitManager.getRecentCommits(gitDirPath.text.toString())
+                .filter { !recentCommitsReferences.contains(it.reference) }
+            if (newRecentCommits.isNotEmpty()) {
+                recentCommits.addAll(0, newRecentCommits)
+                recentCommitsAdapter.notifyItemRangeInserted(0, newRecentCommits.size)
+                recentCommitsRecycler.smoothScrollToPosition(0);
+            }
         }
     }
 
     private fun refreshGitRepo() {
-        var repoName = ""
+        runOnUiThread {
+            var repoName = ""
+            val gitDirUri = settingsManager.getGitDirUri() ?: return@runOnUiThread
 
-        val gitPathEmpty = gitDirPath.text.toString().trim() == ""
-        val gitConfigFile = File("${gitDirPath.text}/.git/config")
-        if (!gitPathEmpty && gitConfigFile.exists()) {
-            val fileContents = gitConfigFile.readText()
+            val gitConfigFile = File("${Helper.getPathFromUri(this, gitDirUri)}/.git/config")
+            if (gitConfigFile.exists()) {
+                val fileContents = gitConfigFile.readText()
 
-            val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-            var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-            val url = gitConfigUrlResult?.groups?.get(1)?.value
+                val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+                var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+                val url = gitConfigUrlResult?.groups?.get(1)?.value
 
-            val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
-            val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
-            repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
-        }
-
-        if (repoName == "") {
-            gitRepoName.setText(getString(R.string.respository_not_found))
-            gitRepoName.isEnabled = false
-
-            cloneRepoButton.visibility = View.VISIBLE
-            cloneRepoButton.setOnClickListener {
-                CloneRepoFragment(settingsManager, gitManager) {
-                    gitDirPath.setText(settingsManager.getGitDirPath())
-                    refreshGitRepo()
-                }.show(supportFragmentManager, getString(R.string.clone_repo))
+                val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
+                val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
+                repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
             }
 
-            applicationObserverSwitch.isChecked = false
-            applicationObserverSwitch.isEnabled = false
+            if (repoName == "") {
+                gitRepoName.setText(getString(R.string.respository_not_found))
+                gitRepoName.isEnabled = false
 
-            if (gitPathEmpty) {
-                gitRepoName.rightDrawable(null)
-                gitRepoName.compoundDrawablePadding = 0
-                return
+                cloneRepoButton.visibility = View.VISIBLE
+                cloneRepoButton.setOnClickListener {
+                    CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback).show(supportFragmentManager, getString(R.string.clone_repo))
+                }
+
+                applicationObserverSwitch.isChecked = false
+                applicationObserverSwitch.isEnabled = false
+
+                if (gitDirPath.text.isEmpty()) {
+                    gitRepoName.rightDrawable(null)
+                    gitRepoName.compoundDrawablePadding = 0
+                    return@runOnUiThread
+                }
+
+                gitRepoName.rightDrawable(R.drawable.circle_xmark)
+                gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_red)
+                gitRepoName.compoundDrawablePadding =
+                    (4 * resources.displayMetrics.density + 0.5f).toInt()
+
+                val recentCommitsSize = recentCommits.size
+                recentCommits.clear()
+                recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
+
+                return@runOnUiThread
             }
 
-            gitRepoName.rightDrawable(R.drawable.circle_xmark)
-            gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_red)
-            gitRepoName.compoundDrawablePadding = (4 * resources.displayMetrics.density + 0.5f).toInt()
+            gitRepoName.setText(repoName)
+            gitRepoName.isEnabled = true
+            gitRepoName.rightDrawable(R.drawable.circle_check)
+            gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_green)
+            gitRepoName.compoundDrawablePadding =
+                (4 * resources.displayMetrics.density + 0.5f).toInt()
 
-            val recentCommitsSize = recentCommits.size
-            recentCommits.clear()
-            recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
+            cloneRepoButton.visibility = View.GONE
 
-            return
+            applicationObserverSwitch.isEnabled = true
+
+            refreshRecentCommits()
         }
-
-        gitRepoName.setText(repoName)
-        gitRepoName.isEnabled = true
-        gitRepoName.rightDrawable(R.drawable.circle_check)
-        gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_green)
-        gitRepoName.compoundDrawablePadding = (4 * resources.displayMetrics.density + 0.5f).toInt()
-
-        cloneRepoButton.visibility = View.GONE
-
-        applicationObserverSwitch.isEnabled = true
-
-        refreshRecentCommits()
     }
 
     private fun refreshAuthButton() {
@@ -595,32 +581,6 @@ class MainActivity : AppCompatActivity() {
         openSettings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
         startActivity(openSettings)
         Toast.makeText(this, getString(R.string.enable_accessibility_service), Toast.LENGTH_SHORT).show()
-    }
-
-    private fun checkAndRequestStoragePermission(onGranted: (() -> Unit)? = null) {
-        val hasPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-
-
-        if (hasPermissions) {
-            onGranted?.invoke()
-            return
-        }
-
-        onStoragePermissionGranted = onGranted
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val uri = Uri.fromParts("package", packageName, null)
-            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri)
-            intent.data = Uri.fromParts("package", packageName, null)
-            requestStoragePermission.launch(intent)
-        } else {
-            requestLegacyStoragePermission.launch(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE))
-        }
     }
 
     private fun checkAndRequestNotificationPermission(onGranted: (() -> Unit)? = null) {

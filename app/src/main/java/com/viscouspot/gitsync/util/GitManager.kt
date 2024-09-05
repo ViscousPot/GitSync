@@ -133,13 +133,13 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         })
     }
 
-    fun cloneRepository(repoUrl: String, storageDir: String, username: String, token: String, callback: () -> Unit) {
+    fun cloneRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, callback: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 log("CloneRepo", "Cloning Repo")
                 KGit.cloneRepository {
                     setURI(repoUrl)
-                    setDirectory(File(storageDir))
+                    setDirectory(File(Helper.getPathFromUri(context, userStorageUri)))
                     setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
                 }
 
@@ -160,12 +160,11 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         }
     }
 
-
-    fun pullRepository(storageDir: String, username: String, token: String, onSync: () -> Unit): Boolean? {
+    fun pullRepository(userStorageUri: Uri, username: String, token: String, onSync: () -> Unit): Boolean? {
         try {
             var returnResult: Boolean? = false
             log("PullFromRepo", "Getting local directory")
-            val repo = FileRepository("$storageDir/.git")
+            val repo = FileRepository("${Helper.getPathFromUri(context, userStorageUri)}/.git")
             val git = KGit(repo)
             val cp = UsernamePasswordCredentialsProvider(username, token)
 
@@ -198,12 +197,12 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         return null
     }
 
-    fun pushAllToRepository(repoUrl: String, storageDir: String, username: String, token: String, onSync: () -> Unit): Boolean? {
+    fun pushAllToRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, onSync: () -> Unit): Boolean? {
         try {
             var returnResult = false
             log("PushToRepo", "Getting local directory")
 
-            val repo = FileRepository("$storageDir/.git")
+            val repo = FileRepository("${Helper.getPathFromUri(context, userStorageUri)}/.git")
             val git = KGit(repo)
 
             logStatus(git)
@@ -267,11 +266,11 @@ class GitManager(private val context: Context, private val activity: AppCompatAc
         log("GitStatus.UncommittedChanges", status.uncommittedChanges.toString())
     }
 
-    fun getRecentCommits(storageDir: String): List<Commit> {
+    fun getRecentCommits(gitDirPath: String): List<Commit> {
         try {
-            if (!File("$storageDir/.git").exists()) return listOf()
+            if (!File("$gitDirPath/.git").exists()) return listOf()
 
-            val repo = FileRepository("$storageDir/.git")
+            val repo = FileRepository("$gitDirPath/.git")
             val revWalk = RevWalk(repo)
 
             val headRef = repo.fullBranch ?: repo.findRef("HEAD")?.target?.name

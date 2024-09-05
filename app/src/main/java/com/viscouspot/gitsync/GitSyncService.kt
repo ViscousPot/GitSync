@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
@@ -120,11 +121,12 @@ class GitSyncService : Service() {
 
         val job = CoroutineScope(Dispatchers.Default).launch {
             val authCredentials = settingsManager.getGitAuthCredentials()
-            val gitDirPath = settingsManager.getGitDirPath()
 
+            val gitDirUri = settingsManager.getGitDirUri()
+            val gitDirPath = Helper.getPathFromUri(applicationContext, gitDirUri!!)
             val file = File("${gitDirPath}/.git/config")
 
-            if (!file.exists()) {
+            if (gitDirUri == null || !file.exists()) {
                 withContext(Dispatchers.Main) {
                     log("Sync", "Repository Not Found")
                     Toast.makeText(
@@ -156,7 +158,7 @@ class GitSyncService : Service() {
 
             log("Sync", "Start Pull Repo")
             val pullResult = gitManager.pullRepository(
-                gitDirPath,
+                gitDirUri,
                 authCredentials.first,
                 authCredentials.second
             ) {
@@ -181,7 +183,7 @@ class GitSyncService : Service() {
             log("Sync", "Start Push Repo")
             val pushResult = gitManager.pushAllToRepository(
                 repoUrl,
-                gitDirPath,
+                gitDirUri,
                 authCredentials.first,
                 authCredentials.second
             ) {
