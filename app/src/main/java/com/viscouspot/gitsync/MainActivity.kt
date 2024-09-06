@@ -477,19 +477,21 @@ class MainActivity : AppCompatActivity() {
     private fun refreshGitRepo() {
         runOnUiThread {
             var repoName = ""
-            val gitDirUri = settingsManager.getGitDirUri() ?: return@runOnUiThread
+            val gitDirUri = settingsManager.getGitDirUri()
 
-            val gitConfigFile = File("${Helper.getPathFromUri(this, gitDirUri)}/.git/config")
-            if (gitConfigFile.exists()) {
-                val fileContents = gitConfigFile.readText()
+            gitDirUri?.let {
+                val gitConfigFile = File("${Helper.getPathFromUri(this, it)}/.git/config")
+                if (gitConfigFile.exists()) {
+                    val fileContents = gitConfigFile.readText()
 
-                val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-                var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-                val url = gitConfigUrlResult?.groups?.get(1)?.value
+                    val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+                    var gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+                    val url = gitConfigUrlResult?.groups?.get(1)?.value
 
-                val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
-                val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
-                repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
+                    val gitRepoNameRegex = ".*/([^/]+)\\.git$".toRegex()
+                    val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
+                    repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
+                }
             }
 
             if (repoName == "") {
@@ -497,6 +499,7 @@ class MainActivity : AppCompatActivity() {
                 gitRepoName.isEnabled = false
 
                 cloneRepoButton.visibility = View.VISIBLE
+                cloneRepoButton.isEnabled = true
                 cloneRepoButton.setOnClickListener {
                     CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback).show(supportFragmentManager, getString(R.string.clone_repo))
                 }
