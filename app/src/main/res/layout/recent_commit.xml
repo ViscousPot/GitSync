@@ -4,9 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/input_bg_sm"
     android:backgroundTint="@color/card_secondary_bg"
-    android:paddingStart="@dimen/space_md"
-    android:paddingEnd="@dimen/space_sm"
-    android:paddingVertical="@dimen/space_sm"
+    android:padding="@dimen/space_sm"
     android:layout_marginTop="@dimen/space_sm"
     android:layout_height="wrap_content">
 
@@ -32,15 +30,15 @@
         android:id="@+id/author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_xs"
         android:text="ViscousPotential"
         android:textColor="@color/textSecondary"
         android:textSize="@dimen/text_size_sm"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/commitMessage" />
+        app:layout_constraintTop_toBottomOf="@id/commitMessage"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/committed"
@@ -49,7 +47,7 @@
         android:text="@string/committed"
         android:textColor="@color/textSecondary"
         android:textSize="@dimen/text_size_sm"
-        android:layout_marginLeft="@dimen/space_xs"
+        android:layout_marginLeft="@dimen/space_xxxs"
         app:layout_constraintBottom_toBottomOf="@id/author"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -62,7 +60,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/textSecondary"
         android:textSize="@dimen/text_size_sm"
-        android:layout_marginLeft="@dimen/space_xs"
+        android:layout_marginLeft="@dimen/space_xxxs"
         app:layout_constraintBottom_toBottomOf="@id/author"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -75,17 +73,19 @@
         android:layout_height="wrap_content"
         android:text="6c4d1f5"
         android:textSize="@dimen/text_size_xs"
+        android:clickable="false"
+        android:focusable="false"
         app:layout_constraintTop_toTopOf="parent"
         android:insetTop="0dp"
-        android:paddingHorizontal="@dimen/space_xs"
-        android:paddingVertical="@dimen/space_xs"
+        android:paddingHorizontal="@dimen/space_xxs"
+        android:paddingVertical="@dimen/space_xxxs"
         android:textColor="@color/card_secondary_bg"
         android:enabled="false"
         android:textStyle="bold"
         android:backgroundTint="@color/textSecondary"
         android:insetBottom="0dp"
         android:minHeight="1dp"
-        android:layout_marginBottom="@dimen/space_xs"
+        android:layout_marginBottom="@dimen/space_xxxs"
         android:minWidth="1dp"
         app:cornerRadius="@dimen/corner_radius_xs"
         app:layout_constraintBottom_toTopOf="@id/deletions"
@@ -99,8 +99,7 @@
         android:textColor="@color/additions"
         android:textSize="@dimen/text_size_xs"
         android:textStyle="bold"
-        android:layout_marginEnd="@dimen/space_sm"
-        android:layout_marginLeft="@dimen/space_xs"
+        android:layout_marginEnd="@dimen/space_xs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/deletions"/>
 
@@ -110,11 +109,10 @@
         android:layout_height="wrap_content"
         android:text="1,000 --"
         android:textColor="@color/deletions"
-        android:textStyle="bold"
         android:textSize="@dimen/text_size_xs"
-        android:layout_marginEnd="@dimen/space_xs"
-        android:layout_marginLeft="@dimen/space_xs"
+        android:textStyle="bold"
+        android:layout_marginEnd="@dimen/corner_radius_xs"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

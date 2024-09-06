@@ -8,11 +8,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/space_md"
-    android:paddingVertical="@dimen/space_md"
     android:theme="@style/Theme.MaterialComponents">
 
     <Switch
         style="@style/Switch"
+        android:paddingVertical="@dimen/space_md"
         android:id="@+id/enableApplicationObserver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -11,10 +11,13 @@
     <dimen name="text_size_md">14sp</dimen>
     <dimen name="text_size_lg">18sp</dimen>
 
-    <dimen name="space_xs">4dp</dimen>
-    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_xxxs">4dp</dimen>
+    <dimen name="space_xxs">6dp</dimen>
+    <dimen name="space_xs">8dp</dimen>
+    <dimen name="space_sm">12dp</dimen>
     <dimen name="space_md">16dp</dimen>
     <dimen name="space_lg">32dp</dimen>
+    <dimen name="space_xl">48dp</dimen>
 
     <dimen name="divider_height">2dp</dimen>
 </resources>

@@ -11,7 +11,6 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
@@ -159,7 +158,7 @@ class MainActivity : AppCompatActivity() {
 
         val itemHeight = (viewHolder.itemView.layoutParams as ViewGroup.MarginLayoutParams).topMargin + viewHolder.itemView.measuredHeight
 
-        recyclerView.layoutParams.height = itemHeight * 4
+        recyclerView.layoutParams.height = itemHeight * 3
         recyclerView.requestLayout()
     }
 

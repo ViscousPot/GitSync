@@ -8,7 +8,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/space_md"
-    android:paddingVertical="@dimen/space_md"
     android:theme="@style/Theme.MaterialComponents">
 
     <Switch
@@ -16,6 +15,7 @@
         android:id="@+id/enableApplicationObserver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/space_md"
         android:layout_marginStart="@dimen/space_sm"
         android:checked="true"
         android:enabled="true"
@@ -32,7 +32,6 @@
         android:visibility="invisible"
         android:enabled="false"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
         android:paddingVertical="@dimen/space_sm"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/enableApplicationObserver"/>
@@ -91,11 +90,11 @@
         app:layout_constraintTop_toBottomOf="@id/selectApplication" />
 
     <Switch
-        style="@style/Switch"
         android:id="@+id/syncAppClosed"
+        style="@style/Switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginVertical="@dimen/space_md"
         android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_secondary_bg"
         android:checked="true"
@@ -104,8 +103,8 @@
         android:paddingVertical="@dimen/space_sm"
         android:text="@string/sync_on_app_closed"
         android:textSize="@dimen/text_size_md"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/syncAppOpened"
-        />
+        app:layout_constraintTop_toBottomOf="@id/syncAppOpened" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
