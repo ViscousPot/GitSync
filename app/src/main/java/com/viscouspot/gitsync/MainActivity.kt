@@ -30,7 +30,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
@@ -237,9 +236,6 @@ class MainActivity : AppCompatActivity() {
 
         val emptyCommitsView = findViewById<TextView>(R.id.emptyCommitsView)
         recentCommitsRecycler.setEmptyView(emptyCommitsView)
-
-        val snapHelper = LinearSnapHelper()
-        snapHelper.attachToRecyclerView(recentCommitsRecycler)
 
         forceSyncButton.setOnClickListener {
             val forceSyncIntent = Intent(this, GitSyncService::class.java)
