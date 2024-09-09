@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/space_sm"
+    android:padding="@dimen/space_xs"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/applicationItem"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:padding="@dimen/space_md"
@@ -23,6 +23,7 @@
         app:iconSize="@dimen/application_icon_size"
         app:iconTint="@color/textPrimary"
         app:iconTintMode="multiply"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

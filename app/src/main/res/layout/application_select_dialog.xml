@@ -22,6 +22,7 @@
         android:layout_height="fill_parent"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         android:requiresFadingEdge="vertical"
+        android:orientation="vertical"
         app:spanCount="2"
         tools:itemCount="24"
         tools:listitem="@layout/application_item" />
