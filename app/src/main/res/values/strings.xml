@@ -11,7 +11,7 @@
 
     <string name="enable_application_observer">Application Observer</string>
     <string name="enable_accessibility_service">Please enable the Git Sync Accessibility Service!</string>
-    <string name="accessibility_service_description">This service syncs your git repo when a selected app is opened/closed</string>
+    <string name="accessibility_service_description">To enhance your experience, GitSync uses Android’s Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \n\n Key Points: \n Purpose: We use this service solely to improve your app experience. \n Privacy: No data is stored or sent elsewhere. \n Control: You can disable these permissions at any time in your device settings.</string>
     <string name="application_not_set">Select App(s)</string>
     <string name="select_application">Select application(s)</string>
     <string name="multiple_application_selected">Selected</string>
