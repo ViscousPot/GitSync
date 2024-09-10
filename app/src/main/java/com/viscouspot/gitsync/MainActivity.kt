@@ -276,7 +276,8 @@ class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 if (!checkAccessibilityPermission()) {
                     applicationObserverSwitch.isChecked = false
-                    requestAccessibilityPermission()
+                    applicationObserverMin.applyTo(applicationObserverPanel)
+                    displayProminentDisclosure()
                 } else {
                     settingsManager.setApplicationObserverEnabled(true)
                     refreshSelectedApplications()
@@ -566,6 +567,17 @@ class MainActivity : AppCompatActivity() {
             it.resolveInfo.serviceInfo.packageName == packageName &&
                     it.resolveInfo.serviceInfo.name == GitSyncAccessibilityService::class.java.name
         }
+    }
+
+    private fun displayProminentDisclosure() {
+        AlertDialog.Builder(this, R.style.AlertDialogTheme)
+            .setTitle("Accessibility Service Disclosure")
+            .setMessage("To enhance your experience,\nGitSync uses Android’s Accessibility Service to detect when apps are opened or closed.\n\nThis helps us provide tailored features without storing or sharing any data.")
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                requestAccessibilityPermission()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun requestAccessibilityPermission() {
