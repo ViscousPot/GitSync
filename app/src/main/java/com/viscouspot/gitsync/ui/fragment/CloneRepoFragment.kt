@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.RepoListAdapter
-import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.GithubManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -33,7 +33,7 @@ import com.viscouspot.gitsync.util.rightDrawable
 
 class CloneRepoFragment(
     private val settingsManager: SettingsManager,
-    private val gitManager: GitManager,
+    private val gitManager: GithubManager,
     private val dirSelectionCallback: ((dirUri: Uri?) -> Unit)
 ): DialogFragment(R.layout.fragment_clone_repo) {
     private val repoList = mutableListOf<Pair<String, String>>()
@@ -77,7 +77,7 @@ class CloneRepoFragment(
         invalidRepoError.text = ""
         setLoadingRepos(true)
 
-        gitManager.getGithubRepos(settingsManager.getGitAuthCredentials().second, ::addRepos) {
+        gitManager.getRepos(settingsManager.getGitAuthCredentials().second, ::addRepos) {
             loadNextRepos = it
         }
 

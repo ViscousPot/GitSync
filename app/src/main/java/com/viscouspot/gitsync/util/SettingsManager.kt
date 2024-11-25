@@ -98,10 +98,10 @@ class SettingsManager internal constructor(private val context: Context) {
         )
     }
 
-    fun setGitAuthCredentials(username: String, token: String) {
+    fun setGitAuthCredentials(username: String, accessToken: String) {
         with(settingsSharedPref.edit()) {
             putString("gitAuthUsername", username)
-            putString("gitAuthToken", token)
+            putString("gitAuthToken", accessToken)
             apply()
         }
     }

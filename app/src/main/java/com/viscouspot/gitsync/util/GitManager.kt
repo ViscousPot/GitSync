@@ -1,14 +1,12 @@
 package com.viscouspot.gitsync.util
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.syari.kgit.KGit
 import com.viscouspot.gitsync.R
-import com.viscouspot.gitsync.Secrets
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.util.Helper.sendCheckoutConflictNotification
 import com.viscouspot.gitsync.util.Logger.log
@@ -16,12 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.api.errors.CheckoutConflictException
@@ -46,144 +38,18 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.eclipse.jgit.util.io.DisabledOutputStream
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
-class GitManager(private val context: Context, private val activity: AppCompatActivity? = null) {
-    private val GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
-    private val GIT_SCOPE = "repo"
-    private val client = OkHttpClient()
+open class GitManager(private val context: Context, private val activity: AppCompatActivity? = null) {
 
-    fun launchGithubOAuthFlow() {
-        val fullAuthUrl = "$GITHUB_AUTH_URL?client_id=${Secrets.GIT_CLIENT_ID}&scope=$GIT_SCOPE&state=${UUID.randomUUID()}"
-
-        if (activity == null) {
-            log(LogType.GithubOAuthFlow, "Activity Not Found")
-            return
-        }
-
-        log(LogType.GithubOAuthFlow, "Launching Flow")
-        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(fullAuthUrl)).apply {
-            addCategory(Intent.CATEGORY_BROWSABLE)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
-    }
-
-    fun getGithubAuthCredentials(code: String, state: String, setCallback: (username: String, authToken: String) -> Unit) {
-        if (!Helper.isNetworkAvailable(context)) {
-            return
-        }
-        val authTokenRequest: Request = Request.Builder()
-            .url("https://github.com/login/oauth/access_token?client_id=${Secrets.GIT_CLIENT_ID}&client_secret=${Secrets.GIT_CLIENT_SECRET}&code=$code&state=$state")
-            .post("".toRequestBody())
-            .addHeader("Accept", "application/json")
-            .build()
-
-        client.newCall(authTokenRequest).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                log(context, LogType.GithubAuthCredentials, e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                log(LogType.GithubAuthCredentials, "Auth Token Obtained")
-                val authToken = JSONObject(response.body?.string() ?: "").getString("access_token")
-
-                getGithubUsername(authToken) {
-                    setCallback.invoke(it, authToken)
-                }
-            }
-        })
-    }
-
-    fun getGithubUsername(authToken: String, successCallback: (username: String) -> Unit) {
-        if (!Helper.isNetworkAvailable(context)) {
-            return
-        }
-        val profileRequest: Request = Request.Builder()
-            .url("https://api.github.com/user")
-            .addHeader("Accept", "application/json")
-            .addHeader("Authorization", "token $authToken")
-            .build()
-
-        log(LogType.GithubAuthCredentials, "Getting User Profile")
-        client.newCall(profileRequest).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                log(context, LogType.GithubAuthCredentials, e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val json = JSONObject(response.body?.string().toString())
-                val username = json.getString("login")
-
-                log(LogType.GithubAuthCredentials, "Username Retrieved")
-                successCallback.invoke(username)
-            }
-
-        })
-    }
-
-    fun getGithubRepos(authToken: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit){
-        log(LogType.GetRepos, "Getting User Repos")
-        getGithubReposRequest(authToken, "https://api.github.com/user/repos", updateCallback, nextPageCallback)
-    }
-
-    private fun getGithubReposRequest(authToken: String, url: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit) {
-        if (!Helper.isNetworkAvailable(context)) {
-            return
-        }
-        client.newCall(
-            Request.Builder()
-                .url(url)
-                .addHeader("Accept", "application/json")
-                .addHeader("Authorization", "token $authToken")
-                .build()
-        ).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                log(context, LogType.GetRepos, e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                log(LogType.GetRepos, "Repos Received")
-
-                val jsonArray = JSONArray(response.body?.string())
-                val repoMap: MutableList<Pair<String, String>> = mutableListOf()
-
-                val link = response.headers["link"] ?: ""
-
-                if (link != "") {
-                    val regex = "<(.*?)>; rel=\"next\"".toRegex()
-
-                    val match = regex.find(link)
-                    val result = match?.groups?.get(1)?.value
-
-                    val nextLink = result ?: ""
-                    if (nextLink != "") {
-                        nextPageCallback {
-                            getGithubReposRequest(authToken, nextLink, updateCallback, nextPageCallback)
-                        }
-                    } else {
-                        nextPageCallback(null)
-                    }
-                }
-
-                for (i in 0..<jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    val name = obj.getString("name")
-                    val cloneUrl = obj.getString("clone_url")
-                    repoMap.add(Pair(name, cloneUrl))
-                }
-
-                updateCallback.invoke(repoMap)
-            }
-        })
-    }
+    open fun launchOAuthFlow() {}
+    open fun getOAuthCredentials(code: String, state: String, setCallback: (username: String, accessToken: String) -> Unit) {}
+    open fun getRepos(accessToken: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit) {}
 
     fun cloneRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, taskCallback: (action: String) -> Unit, progressCallback: (progress: Int) -> Unit, failureCallback: (error: String) -> Unit, successCallback: () -> Unit) {
         if (!Helper.isNetworkAvailable(context)) {

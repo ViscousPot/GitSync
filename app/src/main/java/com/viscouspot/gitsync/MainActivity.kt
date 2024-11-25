@@ -53,7 +53,7 @@ import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.ui.adapter.ConflictEditorAdapter
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
-import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.GithubManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
     private lateinit var applicationObserverMin: ConstraintSet
 
-    private lateinit var gitManager: GitManager
+    private lateinit var gitManager: GithubManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var onboardingController: OnboardingController
     private lateinit var cloneRepoFragment: CloneRepoFragment
@@ -180,14 +180,14 @@ class MainActivity : AppCompatActivity() {
 
         log(LogType.GithubOAuthFlow, "Flow Ended")
 
-        gitManager.getGithubAuthCredentials(code, state) { username, authToken ->
+        gitManager.getOAuthCredentials(code, state) { username, accessToken ->
             log(LogType.GithubAuthCredentials, "Username and Token Received")
 
             if (settingsManager.getOnboardingStep() != 3) {
                 cloneRepoFragment.show(supportFragmentManager, getString(R.string.clone_repo_title))
             }
 
-            settingsManager.setGitAuthCredentials(username, authToken)
+            settingsManager.setGitAuthCredentials(username, accessToken)
             settingsManager.setOnboardingStep(3)
             onboardingController.dismissAll()
             refreshAuthButton()
@@ -285,7 +285,7 @@ class MainActivity : AppCompatActivity() {
 
         window.statusBarColor = getColor(R.color.app_bg)
 
-        gitManager = GitManager(this, this)
+        gitManager = GithubManager(this, this)
 
         recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
 
@@ -355,7 +355,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitAuthButton.setOnClickListener {
-            gitManager.launchGithubOAuthFlow()
+            gitManager.launchOAuthFlow()
 
         }
 

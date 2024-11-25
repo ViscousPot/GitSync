@@ -96,7 +96,7 @@ class OnboardingController(
                 .setMessage(context.getString(R.string.auth_dialog_message))
                 .setPositiveButton(context.getString(android.R.string.ok)) { dialog, _ ->
                     dialog.dismiss()
-                    gitManager.launchGithubOAuthFlow()
+                    gitManager.launchOAuthFlow()
                 }
                 .setNegativeButton(
                     context.getString(R.string.skip)
