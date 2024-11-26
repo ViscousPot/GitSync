@@ -15,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
+import com.viscouspot.gitsync.util.Logger.log
 
 class OnboardingController(
     private val context: Context,

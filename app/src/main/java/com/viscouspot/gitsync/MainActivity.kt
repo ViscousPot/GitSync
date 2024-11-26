@@ -179,22 +179,25 @@ class MainActivity : AppCompatActivity() {
         log(LogType.GithubOAuthFlow, "Flow Ended")
 
         val gitManager = GitProviderManager.getManager(this, settingsManager)
+        gitManager.getOAuthCredentials(uri, ::setGitCredentials)
+    }
 
-        gitManager.getOAuthCredentials(uri) { username, accessToken ->
-            if (username == null || accessToken == null) {
-                return@getOAuthCredentials
-            }
-            log(LogType.GithubAuthCredentials, "Username and Token Received")
-
-            if (settingsManager.getOnboardingStep() != 3) {
-                cloneRepoFragment.show(supportFragmentManager, getString(R.string.clone_repo_title))
-            }
-
-            settingsManager.setGitAuthCredentials(username, accessToken)
-            settingsManager.setOnboardingStep(3)
-            onboardingController.dismissAll()
-            refreshAuthButton()
+    fun setGitCredentials(username: String?, accessToken: String?, onNewIntent: Boolean = false) {
+        if (username == null || accessToken == null) {
+            return
         }
+        log(LogType.GithubAuthCredentials, "Username and Token Received")
+
+        settingsManager.setGitAuthCredentials(username, accessToken)
+
+        if (!cloneRepoFragment.isAdded) {
+            cloneRepoFragment.show(supportFragmentManager, getString(R.string.clone_repo_title))
+        }
+
+        settingsManager.setOnboardingStep(3)
+        onboardingController.dismissAll()
+
+        refreshAuthButton()
     }
 
     private fun setRecyclerViewHeight(recyclerView: RecyclerView) {
@@ -288,7 +291,7 @@ class MainActivity : AppCompatActivity() {
 
         window.statusBarColor = getColor(R.color.app_bg)
 
-        gitManager = GitManager(this)
+        gitManager = GitManager(this, settingsManager)
 
         recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
 
@@ -323,7 +326,7 @@ class MainActivity : AppCompatActivity() {
         recentCommitsRecycler.adapter = recentCommitsAdapter
         applicationRecycler.adapter = applicationListAdapter
 
-        authDialog = AuthDialog(this, settingsManager)
+        authDialog = AuthDialog(this, settingsManager, ::setGitCredentials)
         cloneRepoFragment = CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback)
         onboardingController = OnboardingController(this, this, settingsManager, authDialog, cloneRepoFragment, ::updateApplicationObserver, ::checkAndRequestNotificationPermission, ::checkAndRequestStoragePermission)
 

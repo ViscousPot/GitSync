@@ -20,6 +20,7 @@ import java.util.UUID
 
 class GithubManager(private val context: Context, private val domain: String) : GitProviderManager {
     private val client = OkHttpClient()
+    override val oAuthSupport = true
 
     override fun launchOAuthFlow() {
         val fullAuthUrl = "https://${domain}/login/oauth/authorize?client_id=${Secrets.GITHUB_CLIENT_ID}&scope=repo&state=${UUID.randomUUID()}"
@@ -31,7 +32,9 @@ class GithubManager(private val context: Context, private val domain: String) : 
         })
     }
 
-    override fun getOAuthCredentials(uri: Uri, setCallback: (username: String?, accessToken: String?) -> Unit) {
+    override fun getOAuthCredentials(uri: Uri?, setCallback: (username: String?, accessToken: String?) -> Unit) {
+        if (uri == null) return
+
         val code = uri.getQueryParameter("code")
         val state = uri.getQueryParameter("state")
 

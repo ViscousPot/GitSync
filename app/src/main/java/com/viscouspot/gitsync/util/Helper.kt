@@ -28,13 +28,27 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.MainActivity
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.provider.GitProviderManager
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator
+import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil
+import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil
+import org.bouncycastle.util.io.pem.PemObject
+import org.bouncycastle.util.io.pem.PemWriter
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
+import java.io.StringWriter
+import java.security.PublicKey
+import java.security.SecureRandom
+import java.util.Base64
 import kotlin.random.Random
+
 
 object Helper {
     const val CONFLICT_NOTIFICATION_ID = 1756
@@ -266,6 +280,7 @@ object Helper {
     }
 
     fun isValidGitRepo(settingsManager: SettingsManager, url: String): String? {
+        return null
         val validDomains = mutableListOf(settingsManager.getGitDomain())
         validDomains.addAll(GitProviderManager.defaultDomainMap.values)
         val regex = Regex("^https?://([a-zA-Z0-9.-]+)/(\\S+)/(\\S+)\$")
@@ -275,6 +290,22 @@ object Helper {
             !validDomains.any { url.startsWith("https://$it") || url.startsWith("http://$it") } -> "URL domain is not allowed"
             else -> null
         }
+    }
+
+    fun generateSSHKeyPair(): Pair<String, String> {
+        val keyPairGenerator = Ed25519KeyPairGenerator()
+        keyPairGenerator.init(Ed25519KeyGenerationParameters(SecureRandom()))
+        val keyPair = keyPairGenerator.generateKeyPair()
+
+        val privateKeyParams = keyPair.private as Ed25519PrivateKeyParameters
+        val publicKeyParams = keyPair.public as Ed25519PublicKeyParameters
+
+        fun encode(input: ByteArray): String = Base64.getEncoder().encodeToString(input)
+
+        val privateKey = "-----BEGIN PRIVATE KEY-----\n${encode(OpenSSHPrivateKeyUtil.encodePrivateKey(privateKeyParams))}\n-----END PRIVATE KEY-----"
+        val publicKey = "ssh-ed25519 " + encode(OpenSSHPublicKeyUtil.encodePublicKey(publicKeyParams))
+
+        return Pair(privateKey, publicKey)
     }
 }
 

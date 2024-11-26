@@ -5,14 +5,20 @@ import android.net.Uri
 import android.os.Looper
 import android.widget.Toast
 import com.github.syari.kgit.KGit
+import com.github.syari.kgit.KTransportCommand
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.util.Helper.sendCheckoutConflictNotification
 import com.viscouspot.gitsync.util.Logger.log
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.sshd.client.SshClient
+import org.apache.sshd.client.config.keys.ClientIdentity
+import org.apache.sshd.common.keyprovider.KeyPairProvider
+import org.apache.sshd.common.util.security.SecurityUtils
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.api.errors.CheckoutConflictException
@@ -34,17 +40,108 @@ import org.eclipse.jgit.lib.StoredConfig
 import org.eclipse.jgit.merge.ResolveMerger
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RemoteRefUpdate
+import org.eclipse.jgit.transport.SshSessionFactory
+import org.eclipse.jgit.transport.SshTransport
+import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.transport.sshd.JGitKeyCache
+import org.eclipse.jgit.transport.sshd.ServerKeyDatabase
+import org.eclipse.jgit.transport.sshd.SshdSessionFactory
+import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder
 import org.eclipse.jgit.util.io.DisabledOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
+import java.net.InetSocketAddress
+import java.nio.file.Files
+import java.nio.file.Path
+import java.security.PublicKey
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
-class GitManager(private val context: Context) {
+
+class GitManager(private val context: Context, private val settingsManager: SettingsManager) {
+    private fun applyCredentials(command: KTransportCommand<*, *>) {
+        if (settingsManager.getGitProvider() == GitProviderManager.Companion.Provider.SSH) {
+//            log(settingsManager.getGitSshPrivateKey())
+//            log(System.getProperty("user.home"));
+//            log(settingsManager.getGitSshPrivateKey())
+
+            val privateKeyContent = settingsManager.getGitSshPrivateKey()
+            val passphrase: String? = null
+//
+            val keyPairs = SecurityUtils.loadKeyPairIdentities(null, null, ByteArrayInputStream(privateKeyContent.toByteArray()),
+            ) { _, _, _ -> passphrase }
+//
+//            val temporaryDirectory: Path
+//            try {
+//                temporaryDirectory = Files.createTempDirectory("ssh-temp-dir")
+//            } catch (e: IOException) {
+//                throw RuntimeException("Failed to create temporary directory", e)
+//            }
+
+
+            val sshDir = File(context.filesDir, ".ssh")
+            if (!sshDir.exists()) {
+                log("created dir")
+                sshDir.mkdir()
+            }
+            val fileName = UUID.randomUUID().toString() + "_private_key"
+            val file = File(sshDir, fileName)
+            FileOutputStream(file).use { it.write(privateKeyContent.toByteArray()) }
+
+//            val test = SshSessionFactory
+
+            val sshSessionFactory = SshdSessionFactoryBuilder()
+                .setPreferredAuthentications("publickey")
+                .setDefaultKeysProvider { _ -> keyPairs }
+                .setHomeDirectory(context.filesDir)
+                .setSshDirectory(context.filesDir)
+//                .setServerKeyDatabase { ignoredHomeDir: File?, ignoredSshDir: File? ->
+//                    object : ServerKeyDatabase {
+//                        override fun lookup(
+//                            connectAddress: String,
+//                            remoteAddress: InetSocketAddress,
+//                            config: ServerKeyDatabase.Configuration
+//                        ): List<PublicKey> {
+//                            return emptyList()
+//                        }
+//
+//                        override fun accept(
+//                            connectAddress: String,
+//                            remoteAddress: InetSocketAddress,
+//                            serverKey: PublicKey,
+//                            config: ServerKeyDatabase.Configuration,
+//                            provider: CredentialsProvider
+//                        ): Boolean {
+//                            return true
+//                        }
+//                    }
+//                }
+                .build(JGitKeyCache())
+
+//            command.setTransportConfigCallback {
+//                val sshTransport = it as SshTransport
+//                sshTransport.sshSessionFactory = sshSessionFactory
+//            }
+
+            SshSessionFactory.setInstance(sshSessionFactory)
+            command.setTransportConfigCallback {
+                val sshTransport = it as SshTransport
+                sshTransport.sshSessionFactory = sshSessionFactory
+            }
+        } else {
+            val authCredentials = settingsManager.getGitAuthCredentials()
+            command.setCredentialsProvider(UsernamePasswordCredentialsProvider(authCredentials.first, authCredentials.second))
+        }
+    }
+
     fun cloneRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, taskCallback: (action: String) -> Unit, progressCallback: (progress: Int) -> Unit, failureCallback: (error: String) -> Unit, successCallback: () -> Unit) {
         if (!Helper.isNetworkAvailable(context)) {
             return
@@ -83,7 +180,8 @@ class GitManager(private val context: Context) {
                     setURI(repoUrl)
                     setProgressMonitor(monitor)
                     setDirectory(File(Helper.getPathFromUri(context, userStorageUri)))
-                    setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
+                    applyCredentials(this)
+//                    setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
                 }
 
                 log(LogType.CloneRepo, "Repository cloned successfully")
@@ -96,6 +194,10 @@ class GitManager(private val context: Context) {
                 failureCallback(context.getString(R.string.invalid_remote))
                 return@launch
             } catch (e: TransportException) {
+                e.printStackTrace()
+                log(e)
+                log(e.localizedMessage)
+                log(e.cause)
                 failureCallback(e.localizedMessage ?: context.getString(R.string.clone_failed))
                 return@launch
             } catch (e: GitAPIException) {
@@ -140,7 +242,8 @@ class GitManager(private val context: Context) {
 
             log(LogType.PullFromRepo, "Fetching changes")
             val fetchResult = git.fetch {
-                setCredentialsProvider(cp)
+                applyCredentials(this)
+//                setCredentialsProvider(cp)
             }
 
             if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
@@ -154,7 +257,8 @@ class GitManager(private val context: Context) {
                 log(LogType.PullFromRepo, "Pulling changes")
                 onSync.invoke()
                 val result = git.pull {
-                    setCredentialsProvider(cp)
+                    applyCredentials(this)
+//                    setCredentialsProvider(cp)
                     remote = "origin"
                 }
                 if (result.mergeResult.failingPaths != null && result.mergeResult.failingPaths.containsValue(ResolveMerger.MergeFailureReason.DIRTY_WORKTREE)) {
@@ -249,7 +353,8 @@ class GitManager(private val context: Context) {
 
             log(LogType.PushToRepo, "Pushing changes")
             for (pushResult in git.push {
-                setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
+                applyCredentials(this)
+//                setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
                 remote = "origin"
             }) {
                 for (remoteUpdate in pushResult.remoteUpdates) {

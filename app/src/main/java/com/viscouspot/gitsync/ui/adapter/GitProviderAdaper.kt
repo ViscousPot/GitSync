@@ -25,6 +25,9 @@ class GitProviderAdapter(private val context: Context, private val items: List<P
         val textView = view.findViewById<TextView>(R.id.gitProviderName)
         val item = items[position]
         textView.text = item.first
+        if (listOf("HTTP/S", "SSH").contains(item.first)) {
+            textView.text = "${item.first} (beta)"
+        }
         val drawable = context.getDrawable(item.second)?.mutate()
         drawable?.setBounds(0, 0, context.resources.getDimensionPixelSize(R.dimen.text_size_lg), context.resources.getDimensionPixelSize(R.dimen.text_size_lg))
         textView.setCompoundDrawables(drawable, null, null, null)

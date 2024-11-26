@@ -81,8 +81,8 @@ class GitSyncService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        gitManager = GitManager(this)
         settingsManager = SettingsManager(this)
+        gitManager = GitManager(this, settingsManager)
 
         startForegroundService()
     }

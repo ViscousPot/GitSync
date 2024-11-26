@@ -48,6 +48,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "OSGI-INF/l10n/plugin.properties"
         }
     }
 }
@@ -56,6 +58,8 @@ dependencies {
     implementation(libs.security.crypto)
     implementation(libs.squareup.okhttp3)
     implementation(libs.kgit)
+    implementation(libs.jgit.ssh)
+    implementation(libs.bouncy.castle)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

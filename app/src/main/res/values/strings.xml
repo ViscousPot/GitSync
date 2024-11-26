@@ -114,4 +114,5 @@
     <string name="git_merge_head_path">.git/MERGE_HEAD</string>
     <string name="git_merge_msg_path">.git/MERGE_MSG</string>
     <string name="git_info_exclude_path">.git/info/exclude</string>
+    <string name="token_example">ghp_1234abcd5678efgh</string>
 </resources>

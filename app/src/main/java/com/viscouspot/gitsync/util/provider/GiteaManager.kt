@@ -25,6 +25,7 @@ import java.util.UUID
 class GiteaManager(private val context: Context, private val domain: String) : GitProviderManager {
     private val client = OkHttpClient()
     private var codeVerifier: String? = null
+    override val oAuthSupport = true
 
     companion object {
         private const val REDIRECT_URI = "gitsync://auth"
@@ -51,7 +52,9 @@ class GiteaManager(private val context: Context, private val domain: String) : G
         })
     }
 
-    override fun getOAuthCredentials(uri: Uri, setCallback: (username: String?, accessToken: String?) -> Unit) {
+    override fun getOAuthCredentials(uri: Uri?, setCallback: (username: String?, accessToken: String?) -> Unit) {
+        if (uri == null) return
+
         val code = uri.getQueryParameter("code")
         val state = uri.getQueryParameter("state")
 

@@ -3,6 +3,8 @@ agp = "8.3.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 kgit = "1.1.0"
+jgitSsh = "7.0.0.202409031743-r"
+bouncyCastle = "1.70"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -19,6 +21,8 @@ coreKtxVersion = "1.6.1"
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoKtx" }
 squareup-okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 kgit = { group = "com.github.sya-ri", name = "kgit", version.ref = "kgit" }
+jgit-ssh = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.ssh.apache", version.ref = "jgitSsh" }
+bouncy-castle = { group = "org.bouncycastle", name = "bcprov-jdk15on", version.ref = "bouncyCastle" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
