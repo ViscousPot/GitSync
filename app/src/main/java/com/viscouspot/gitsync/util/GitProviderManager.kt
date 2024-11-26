@@ -5,7 +5,6 @@ import android.net.Uri
 import com.viscouspot.gitsync.R
 
 interface GitProviderManager {
-
     companion object {
         enum class Provider {
             GITHUB,
@@ -33,13 +32,14 @@ interface GitProviderManager {
         }
     }
 
-    open fun launchOAuthFlow() {}
-    open fun getOAuthCredentials(
+    fun launchOAuthFlow() {}
+
+    fun getOAuthCredentials(
         uri: Uri,
         setCallback: (username: String?, accessToken: String?) -> Unit
     ) {}
 
-    open fun getRepos(
+    fun getRepos(
         accessToken: String,
         updateCallback: (repos: List<Pair<String, String>>) -> Unit,
         nextPageCallback: (nextPage: (() -> Unit)?) -> Unit

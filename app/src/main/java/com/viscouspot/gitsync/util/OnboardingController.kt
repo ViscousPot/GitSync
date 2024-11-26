@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.viscouspot.gitsync.BuildConfig
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 
@@ -26,10 +25,9 @@ class OnboardingController(
     private val updateApplicationObserver: (isChecked: Boolean) -> Unit,
     private val checkAndRequestNotificationPermission: (onGranted: (() -> Unit)?) -> Unit,
     private val checkAndRequestStoragePermission: (onGranted: (() -> Unit)?) -> Unit
-    ) {
+) {
     var hasSkipped = false
     private var currentDialog: AlertDialog? = null
-
 
     fun show() {
         activity.runOnUiThread {

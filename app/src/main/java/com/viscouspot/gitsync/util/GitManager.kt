@@ -45,33 +45,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class GitManager(private val context: Context) {
-
-//    companion object {
-//        enum class Provider {
-//            GITHUB,
-//            GITLAB
-//        }
-//
-//        val detailsMap: Map<Provider, Pair<String, Int>> = mapOf(
-//            Provider.GITHUB to Pair("GitHub", R.drawable.provider_github),
-//            Provider.GITLAB to Pair("GitLab", R.drawable.provider_gitlab)
-//        )
-//
-//        private val managerMap: Map<Provider, (Context) -> GitManager> = mapOf(
-//            Provider.GITHUB to { GithubManager(it) },
-//            Provider.GITLAB to { GitLabManager(it) }
-//        )
-//
-//        fun getManager(context: Context, key: Provider): GitManager {
-//            return managerMap[key]?.invoke(context)
-//                ?: throw IllegalArgumentException("No manager found for key: $key")
-//        }
-//    }
-//
-//    open fun launchOAuthFlow() {}
-//    open fun getOAuthCredentials(code: String, state: String, setCallback: (username: String?, accessToken: String?) -> Unit) {}
-//    open fun getRepos(accessToken: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit) {}
-
     fun cloneRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, taskCallback: (action: String) -> Unit, progressCallback: (progress: Int) -> Unit, failureCallback: (error: String) -> Unit, successCallback: () -> Unit) {
         if (!Helper.isNetworkAvailable(context)) {
             return
@@ -169,7 +142,6 @@ class GitManager(private val context: Context) {
             val fetchResult = git.fetch {
                 setCredentialsProvider(cp)
             }
-            log("test")
 
             if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
                 return null
@@ -358,8 +330,6 @@ class GitManager(private val context: Context) {
     }
 
     private fun handleTransportException(e: TransportException, scheduleNetworkSync: () -> Unit) {
-        log(e.message.toString())
-
         if (listOf(
             JGitText.get().connectionFailed,
             JGitText.get().connectionTimeOut,

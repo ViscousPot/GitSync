@@ -1,17 +1,13 @@
 package com.viscouspot.gitsync.ui.adapter
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import com.viscouspot.gitsync.R
-import com.viscouspot.gitsync.util.Logger.log
 
 class GitProviderAdapter(private val context: Context, private val items: List<Pair<String, Int>>) : ArrayAdapter<Pair<String, Int>>(context, R.layout.item_git_provider, items) {
 
@@ -30,8 +26,7 @@ class GitProviderAdapter(private val context: Context, private val items: List<P
         val item = items[position]
         textView.text = item.first
         val drawable = context.getDrawable(item.second)?.mutate()
-        val size = context.resources.getDimensionPixelSize(R.dimen.text_size_lg)
-        drawable?.setBounds(0, 0, size, size)
+        drawable?.setBounds(0, 0, context.resources.getDimensionPixelSize(R.dimen.text_size_lg), context.resources.getDimensionPixelSize(R.dimen.text_size_lg))
         textView.setCompoundDrawables(drawable, null, null, null)
         textView.compoundDrawablePadding = context.resources.getDimensionPixelOffset(R.dimen.space_sm)
         textView.gravity = Gravity.CENTER_VERTICAL

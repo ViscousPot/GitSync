@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.viscouspot.gitsync.R
-import com.viscouspot.gitsync.util.Logger.log
 
 class SettingsManager internal constructor(private val context: Context) {
     private val masterKey = MasterKey.Builder(context, MasterKey.DEFAULT_MASTER_KEY_ALIAS)
@@ -109,12 +108,10 @@ class SettingsManager internal constructor(private val context: Context) {
             it.takeIf { it.value.first == gitProviderString }
         }
 
-        log(providerEntry.key)
         return providerEntry.key
     }
 
     fun setGitProvider(provider: GitProviderManager.Companion.Provider) {
-        log(provider)
         with(settingsSharedPref.edit()) {
             putString("gitProvider", GitProviderManager.detailsMap[provider]?.first)
             apply()

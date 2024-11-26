@@ -112,9 +112,7 @@ class MainActivity : AppCompatActivity() {
     private var requestLegacyStoragePermission: ActivityResultLauncher<Array<String>>? = null
     private var requestStoragePermission: ActivityResultLauncher<Intent>? = null
 
-//    private var newAuthProvider: GitProviderManager.Companion.Provider? = null
-
-    private var authDialog: Dialog? = null
+    private lateinit var authDialog: Dialog
     private var prominentDisclosure: Dialog? = null
     private var applicationSelectDialog: Dialog? = null
 
@@ -177,9 +175,6 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         val uri = intent.data ?: return
-
-        log(uri)
-
 
         log(LogType.GithubOAuthFlow, "Flow Ended")
 
@@ -364,7 +359,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitAuthButton.setOnClickListener {
-            authDialog!!.show()
+            authDialog.show()
         }
 
         gitDirPath.isEnabled = false

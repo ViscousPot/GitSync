@@ -5,7 +5,7 @@
     <string name="committed">committed</string>
 
     <string name="auth">AUTH</string>
-    <string name="git_repo_url_hint">https://git.com/xyz.git</string>
+    <string name="git_repo_url_hint">https://git.abc/xyz.git</string>
     <string name="git_dir_path_hint">/storage/emulated/0/…</string>
 
     <string name="enable_application_observer">Auto Sync Settings</string>

@@ -8,11 +8,9 @@ import com.viscouspot.gitsync.Secrets
 import com.viscouspot.gitsync.util.Logger.log
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.MediaType.Companion.get
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONArray
@@ -161,9 +159,6 @@ class GiteaManager(private val context: Context, private val domain: String) : G
 
                 val jsonArray = JSONArray(response.body?.string())
                 val repoMap: MutableList<Pair<String, String>> = mutableListOf()
-
-                log(jsonArray.toString())
-
                 val link = response.headers["link"] ?: ""
 
                 if (link.isNotEmpty()) {
