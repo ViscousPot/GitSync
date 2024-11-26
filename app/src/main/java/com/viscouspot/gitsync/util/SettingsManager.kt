@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 
 class SettingsManager internal constructor(private val context: Context) {
     private val masterKey = MasterKey.Builder(context, MasterKey.DEFAULT_MASTER_KEY_ALIAS)

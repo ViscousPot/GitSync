@@ -1,9 +1,11 @@
-package com.viscouspot.gitsync.util
+package com.viscouspot.gitsync.util.provider
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.viscouspot.gitsync.Secrets
+import com.viscouspot.gitsync.util.Helper
+import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import okhttp3.Call
 import okhttp3.Callback

@@ -14,7 +14,7 @@ import androidx.core.widget.doOnTextChanged
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.GitProviderAdapter
-import com.viscouspot.gitsync.util.GitProviderManager
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.SettingsManager
 
 class AuthDialog(context: Context, settingsManager: SettingsManager) : AlertDialog(context, R.style.AlertDialogMinTheme) {

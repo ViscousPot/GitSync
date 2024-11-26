@@ -1,10 +1,12 @@
-package com.viscouspot.gitsync.util
+package com.viscouspot.gitsync.util.provider
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
 import com.viscouspot.gitsync.Secrets
+import com.viscouspot.gitsync.util.Helper
+import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import okhttp3.Call
 import okhttp3.Callback
@@ -19,7 +21,6 @@ import java.io.IOException
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.UUID
-
 
 class GiteaManager(private val context: Context, private val domain: String) : GitProviderManager {
     private val client = OkHttpClient()
@@ -37,7 +38,7 @@ class GiteaManager(private val context: Context, private val domain: String) : G
         val fullAuthUrl = "https://${domain}/login/oauth/authorize" +
                 "?client_id=${Secrets.GITEA_CLIENT_ID}" +
                 "&client_secret=${Secrets.GITEA_CLIENT_SECRET}" +
-                "&redirect_uri=${REDIRECT_URI}" +
+                "&redirect_uri=$REDIRECT_URI" +
                 "&response_type=code" +
                 "&state=${UUID.randomUUID()}" +
                 "&code_challenge=$codeChallenge" +

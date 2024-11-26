@@ -28,6 +28,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.MainActivity
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream

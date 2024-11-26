@@ -55,7 +55,7 @@ import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.dialog.AuthDialog
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 import com.viscouspot.gitsync.util.GitManager
-import com.viscouspot.gitsync.util.GitProviderManager
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log

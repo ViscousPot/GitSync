@@ -1,8 +1,9 @@
-package com.viscouspot.gitsync.util
+package com.viscouspot.gitsync.util.provider
 
 import android.content.Context
 import android.net.Uri
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.SettingsManager
 
 interface GitProviderManager {
     companion object {
