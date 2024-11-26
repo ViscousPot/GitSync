@@ -21,12 +21,7 @@ jobs:
         run: |
           echo "Creating file with interpolated secrets"
           cat <<EOF > ./app/src/main/java/com/viscouspot/gitsync/Secrets.kt
-          package com.viscouspot.gitsync
-  
-          object Secrets {
-              const val GIT_CLIENT_ID = "${{ secrets.GIT_CLIENT_ID }}"
-              const val GIT_CLIENT_SECRET = "${{ secrets.GIT_CLIENT_SECRET }}"
-          }
+          ${{ secrets.SECRETS }}
           EOF
         
       - name: Set Up JDK
