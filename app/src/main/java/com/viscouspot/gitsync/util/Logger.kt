@@ -30,14 +30,20 @@ enum class LogType(val type: String) {
 
     Sync("Sync"),
     AbortMerge("AbortMerge"),
-    GithubAuthCredentials("GithubAuthCredentials"),
     GetRepos("GetRepos"),
     CloneRepo("CloneRepo"),
     PullFromRepo("PullFromRepo"),
     PushToRepo("PushToRepo"),
     GitStatus("GitStatus"),
     RecentCommits("RecentCommits"),
+
+    TransportException("TransportException"),
+
     GithubOAuthFlow("GithubOAuthFlow"),
+    GithubAuthCredentials("GithubAuthCredentials"),
+    GiteaOAuthFlow("GiteaOAuthFlow"),
+    GiteaAuthCredentials("GiteaAuthCredentials"),
+
 }
 
 object Logger {

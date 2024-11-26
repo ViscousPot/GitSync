@@ -24,7 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.RepoListAdapter
-import com.viscouspot.gitsync.util.GithubManager
+import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -33,7 +34,7 @@ import com.viscouspot.gitsync.util.rightDrawable
 
 class CloneRepoFragment(
     private val settingsManager: SettingsManager,
-    private val gitManager: GithubManager,
+    private val gitManager: GitManager,
     private val dirSelectionCallback: ((dirUri: Uri?) -> Unit)
 ): DialogFragment(R.layout.fragment_clone_repo) {
     private val repoList = mutableListOf<Pair<String, String>>()
@@ -77,8 +78,12 @@ class CloneRepoFragment(
         invalidRepoError.text = ""
         setLoadingRepos(true)
 
-        gitManager.getRepos(settingsManager.getGitAuthCredentials().second, ::addRepos) {
+        val repoListSupported = GitProviderManager.getManager(requireContext(), settingsManager).getRepos(settingsManager.getGitAuthCredentials().second, ::addRepos) {
             loadNextRepos = it
+        }
+
+        if (!repoListSupported) {
+            repoListRecycler.visibility = View.GONE
         }
 
         repoUrlEditText.doOnTextChanged { _, _, _, _ ->
@@ -86,7 +91,7 @@ class CloneRepoFragment(
         }
 
         pullButton.setOnClickListener {
-            val invalidRepoErrorText = Helper.isValidGitRepo(repoUrlEditText.text.toString())
+            val invalidRepoErrorText = Helper.isValidGitRepo(settingsManager, repoUrlEditText.text.toString())
             if (invalidRepoErrorText == null) {
                 repoUrl = repoUrlEditText.text.toString()
                 invalidRepoError.text = ""

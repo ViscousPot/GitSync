@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.Logger.log
 
 class SettingsManager internal constructor(private val context: Context) {
     private val masterKey = MasterKey.Builder(context, MasterKey.DEFAULT_MASTER_KEY_ALIAS)
@@ -87,6 +88,35 @@ class SettingsManager internal constructor(private val context: Context) {
     fun setGitDirUri(dirUri: String) {
         with(settingsSharedPref.edit()) {
             putString("gitDirUri", dirUri)
+            apply()
+        }
+    }
+
+    fun getGitDomain(): String {
+        return settingsSharedPref.getString("gitDomain", "").toString()
+    }
+
+    fun setGitDomain(domain: String) {
+        with(settingsSharedPref.edit()) {
+            putString("gitDomain", domain)
+            apply()
+        }
+    }
+
+    fun getGitProvider(): GitProviderManager.Companion.Provider {
+        val gitProviderString = settingsSharedPref.getString("gitProvider", "").toString()
+        val providerEntry = GitProviderManager.detailsMap.firstNotNullOf {
+            it.takeIf { it.value.first == gitProviderString }
+        }
+
+        log(providerEntry.key)
+        return providerEntry.key
+    }
+
+    fun setGitProvider(provider: GitProviderManager.Companion.Provider) {
+        log(provider)
+        with(settingsSharedPref.edit()) {
+            putString("gitProvider", GitProviderManager.detailsMap[provider]?.first)
             apply()
         }
     }

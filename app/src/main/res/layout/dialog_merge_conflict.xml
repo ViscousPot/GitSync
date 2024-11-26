@@ -78,7 +78,7 @@
             android:clipToOutline="true"
             android:textAlignment="viewStart"
             app:backgroundTint="@null"
-            android:textSize="@dimen/space_sm"
+            android:textSize="@dimen/text_size_sm"
             android:textStyle="bold"
             android:textAllCaps="true"
             android:layout_marginEnd="@dimen/space_xs"

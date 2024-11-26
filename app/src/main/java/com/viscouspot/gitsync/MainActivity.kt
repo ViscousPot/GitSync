@@ -52,8 +52,10 @@ import com.viscouspot.gitsync.ui.adapter.ApplicationListAdapter
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.ui.adapter.ConflictEditorAdapter
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
+import com.viscouspot.gitsync.ui.dialog.AuthDialog
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
-import com.viscouspot.gitsync.util.GithubManager
+import com.viscouspot.gitsync.util.GitManager
+import com.viscouspot.gitsync.util.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
     private lateinit var applicationObserverMin: ConstraintSet
 
-    private lateinit var gitManager: GithubManager
+    private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var onboardingController: OnboardingController
     private lateinit var cloneRepoFragment: CloneRepoFragment
@@ -110,6 +112,9 @@ class MainActivity : AppCompatActivity() {
     private var requestLegacyStoragePermission: ActivityResultLauncher<Array<String>>? = null
     private var requestStoragePermission: ActivityResultLauncher<Intent>? = null
 
+//    private var newAuthProvider: GitProviderManager.Companion.Provider? = null
+
+    private var authDialog: Dialog? = null
     private var prominentDisclosure: Dialog? = null
     private var applicationSelectDialog: Dialog? = null
 
@@ -173,14 +178,17 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         val uri = intent.data ?: return
 
-        val code = uri.getQueryParameter("code")
-        val state = uri.getQueryParameter("state")
+        log(uri)
 
-        if (code == null || state == null ) return
 
         log(LogType.GithubOAuthFlow, "Flow Ended")
 
-        gitManager.getOAuthCredentials(code, state) { username, accessToken ->
+        val gitManager = GitProviderManager.getManager(this, settingsManager)
+
+        gitManager.getOAuthCredentials(uri) { username, accessToken ->
+            if (username == null || accessToken == null) {
+                return@getOAuthCredentials
+            }
             log(LogType.GithubAuthCredentials, "Username and Token Received")
 
             if (settingsManager.getOnboardingStep() != 3) {
@@ -285,7 +293,7 @@ class MainActivity : AppCompatActivity() {
 
         window.statusBarColor = getColor(R.color.app_bg)
 
-        gitManager = GithubManager(this, this)
+        gitManager = GitManager(this)
 
         recentCommitsRecycler = findViewById(R.id.recentCommitsRecycler)
 
@@ -320,8 +328,9 @@ class MainActivity : AppCompatActivity() {
         recentCommitsRecycler.adapter = recentCommitsAdapter
         applicationRecycler.adapter = applicationListAdapter
 
+        authDialog = AuthDialog(this, settingsManager)
         cloneRepoFragment = CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback)
-        onboardingController = OnboardingController(this, this, settingsManager, gitManager, cloneRepoFragment, ::updateApplicationObserver, ::checkAndRequestNotificationPermission, ::checkAndRequestStoragePermission)
+        onboardingController = OnboardingController(this, this, settingsManager, authDialog, cloneRepoFragment, ::updateApplicationObserver, ::checkAndRequestNotificationPermission, ::checkAndRequestStoragePermission)
 
         setRecyclerViewHeight(recentCommitsRecycler)
 
@@ -355,8 +364,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gitAuthButton.setOnClickListener {
-            gitManager.launchOAuthFlow()
-
+            authDialog!!.show()
         }
 
         gitDirPath.isEnabled = false
@@ -458,7 +466,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), resources.getDimensionPixelOffset(R.dimen.space_lg))
+        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 0)
         mergeConflictDialog?.window!!.setBackgroundDrawable(inset)
         mergeConflictDialog?.show()
 
@@ -583,8 +591,7 @@ class MainActivity : AppCompatActivity() {
         builder.setView(dialogView)
 
         val dialog = builder.create()
-        val back = ColorDrawable(Color.TRANSPARENT)
-        val inset = InsetDrawable(back, resources.getDimensionPixelOffset(R.dimen.space_lg))
+        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 0)
         dialog.window!!.setBackgroundDrawable(inset)
         dialog.show()
     }

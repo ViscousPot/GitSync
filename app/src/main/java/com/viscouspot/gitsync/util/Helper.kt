@@ -264,8 +264,9 @@ object Helper {
         return ""
     }
 
-    fun isValidGitRepo(url: String): String? {
-        val validDomains = listOf("github.com")
+    fun isValidGitRepo(settingsManager: SettingsManager, url: String): String? {
+        val validDomains = mutableListOf(settingsManager.getGitDomain())
+        validDomains.addAll(GitProviderManager.defaultDomainMap.values)
         val regex = Regex("^https?://([a-zA-Z0-9.-]+)/(\\S+)/(\\S+)\$")
 
         return when {

@@ -29,16 +29,16 @@
         android:id="@+id/repoList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/space_xl"
-        android:layout_marginBottom="@dimen/space_lg"
         android:background="@drawable/input_bg_md"
         android:backgroundTint="@color/card_bg"
         android:padding="@dimen/space_md"
-        tools:listitem="@layout/repo_recycler_item"
+        android:requiresFadingEdge="vertical"
+        android:layout_marginTop="@dimen/space_xl"
         app:layout_constraintBottom_toTopOf="@+id/repoUrlEditText"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        android:requiresFadingEdge="vertical"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="16dp"
+        tools:listitem="@layout/repo_recycler_item" />
 
     <EditText
         android:id="@+id/repoUrlEditText"
@@ -49,6 +49,7 @@
         android:layout_marginEnd="@dimen/space_md"
         android:layout_marginBottom="@dimen/space_xl"
         android:background="@drawable/input_bg_md"
+        android:layout_marginTop="@dimen/space_xl"
         android:backgroundTint="@color/card_bg"
         android:hint="@string/git_repo_url_hint"
         android:inputType="none"

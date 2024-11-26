@@ -3,7 +3,6 @@ package com.viscouspot.gitsync.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import com.viscouspot.gitsync.Secrets
 import com.viscouspot.gitsync.util.Logger.log
 import okhttp3.Call
@@ -17,35 +16,30 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.UUID
 
-class GithubManager(private val context: Context, private val activity: AppCompatActivity? = null) : GitManager(context, activity) {
+class GithubManager(private val context: Context, private val domain: String) : GitProviderManager {
     private val client = OkHttpClient()
 
-    companion object {
-        private const val GITHUB_AUTH_URL = "https://github.com/login/oauth"
-        private const val GIT_SCOPE = "repo"
-    }
-
     override fun launchOAuthFlow() {
-        val fullAuthUrl = "${GITHUB_AUTH_URL}/authorize?client_id=${Secrets.GITHUB_CLIENT_ID}&scope=${GIT_SCOPE}&state=${UUID.randomUUID()}"
-
-        if (activity == null) {
-            log(LogType.GithubOAuthFlow, "Activity Not Found")
-            return
-        }
+        val fullAuthUrl = "https://${domain}/login/oauth/authorize?client_id=${Secrets.GITHUB_CLIENT_ID}&scope=repo&state=${UUID.randomUUID()}"
 
         log(LogType.GithubOAuthFlow, "Launching Flow")
-        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(fullAuthUrl)).apply {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(fullAuthUrl)).apply {
             addCategory(Intent.CATEGORY_BROWSABLE)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
     }
 
-    override fun getOAuthCredentials(code: String, state: String, setCallback: (username: String, accessToken: String) -> Unit) {
+    override fun getOAuthCredentials(uri: Uri, setCallback: (username: String?, accessToken: String?) -> Unit) {
+        val code = uri.getQueryParameter("code")
+        val state = uri.getQueryParameter("state")
+
+        if (code == null || state == null) return
+
         if (!Helper.isNetworkAvailable(context)) {
             return
         }
         val accessTokenRequest: Request = Request.Builder()
-            .url("${GITHUB_AUTH_URL}/access_token?client_id=${Secrets.GITHUB_CLIENT_ID}&client_secret=${Secrets.GITHUB_CLIENT_SECRET}&code=$code&state=$state")
+            .url("https://${domain}/login/oauth/access_token?client_id=${Secrets.GITHUB_CLIENT_ID}&client_secret=${Secrets.GITHUB_CLIENT_SECRET}&code=$code&state=$state")
             .post("".toRequestBody())
             .addHeader("Accept", "application/json")
             .build()
@@ -53,6 +47,8 @@ class GithubManager(private val context: Context, private val activity: AppCompa
         client.newCall(accessTokenRequest).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
                 log(context, LogType.GithubAuthCredentials, e)
+
+                setCallback.invoke(null, null)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -71,7 +67,7 @@ class GithubManager(private val context: Context, private val activity: AppCompa
             return
         }
         val profileRequest: Request = Request.Builder()
-            .url("https://api.github.com/user")
+            .url("https://api.${domain}/user")
             .addHeader("Accept", "application/json")
             .addHeader("Authorization", "token $accessToken")
             .build()
@@ -93,9 +89,11 @@ class GithubManager(private val context: Context, private val activity: AppCompa
         })
     }
 
-    override fun getRepos(accessToken: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit){
+    override fun getRepos(accessToken: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit): Boolean {
         log(LogType.GetRepos, "Getting User Repos")
-        getReposRequest(accessToken, "https://api.github.com/user/repos", updateCallback, nextPageCallback)
+        getReposRequest(accessToken, "https://api.${domain}/user/repos", updateCallback, nextPageCallback)
+
+        return true
     }
 
     private fun getReposRequest(accessToken: String, url: String, updateCallback: (repos: List<Pair<String, String>>) -> Unit, nextPageCallback: (nextPage: (() -> Unit)?) -> Unit) {

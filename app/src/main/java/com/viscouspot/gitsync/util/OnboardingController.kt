@@ -1,5 +1,6 @@
 package com.viscouspot.gitsync.util
 
+import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -20,7 +21,7 @@ class OnboardingController(
     private val context: Context,
     private val activity: AppCompatActivity,
     private val settingsManager: SettingsManager,
-    private val gitManager: GitManager,
+    private val authDialog: Dialog?,
     private val cloneRepoFragment: CloneRepoFragment,
     private val updateApplicationObserver: (isChecked: Boolean) -> Unit,
     private val checkAndRequestNotificationPermission: (onGranted: (() -> Unit)?) -> Unit,
@@ -96,7 +97,7 @@ class OnboardingController(
                 .setMessage(context.getString(R.string.auth_dialog_message))
                 .setPositiveButton(context.getString(android.R.string.ok)) { dialog, _ ->
                     dialog.dismiss()
-                    gitManager.launchOAuthFlow()
+                    authDialog?.show()
                 }
                 .setNegativeButton(
                     context.getString(R.string.skip)

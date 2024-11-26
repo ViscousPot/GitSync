@@ -18,7 +18,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.viscouspot.gitsync.util.GithubManager
+import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.CONFLICT_NOTIFICATION_ID
 import com.viscouspot.gitsync.util.LogType
@@ -35,7 +35,7 @@ import kotlin.random.Random
 
 class GitSyncService : Service() {
     private lateinit var fileObserver: FileObserver
-    private lateinit var gitManager: GithubManager
+    private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
 
     private var isScheduled: Boolean = false
@@ -81,7 +81,7 @@ class GitSyncService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        gitManager = GithubManager(this)
+        gitManager = GitManager(this)
         settingsManager = SettingsManager(this)
 
         startForegroundService()

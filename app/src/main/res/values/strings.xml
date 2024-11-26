@@ -5,7 +5,7 @@
     <string name="committed">committed</string>
 
     <string name="auth">AUTH</string>
-    <string name="git_repo_url_hint">https://github.com/xyz.git</string>
+    <string name="git_repo_url_hint">https://git.com/xyz.git</string>
     <string name="git_dir_path_hint">/storage/emulated/0/…</string>
 
     <string name="enable_application_observer">Auto Sync Settings</string>
@@ -56,10 +56,10 @@
     <string name="all_files_access_dialog_message">\nYou can use GitSync without granting \"All files access\" permissions, but we recommend enabling it for the best experience.\n\nThe app uses \"All files access\" for syncing your repository more consistently to a less limited range of directories on the device.\n</string>
 
     <string name="almost_there_dialog_title">Almost there!</string>
-    <string name="almost_there_dialog_message">\nSoon, we\'ll authenticate with GitHub.com and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • The GitSync quick tile\n  • The in-app \"Sync Now\" button\n  • Auto Sync\n  • A custom intent (advanced)\n</string>
+    <string name="almost_there_dialog_message">\nSoon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • The GitSync quick tile\n  • The in-app \"Sync Now\" button\n  • Auto Sync\n  • A custom intent (advanced)\n</string>
 
-    <string name="auth_dialog_title">Authenticate with Github.com</string>
-    <string name="auth_dialog_message">Please authenticate with Github and continue on to clone your repo!</string>
+    <string name="auth_dialog_title">Authenticate with a Git Provider</string>
+    <string name="auth_dialog_message">Please authenticate with your chosen git provider and continue on to clone your repo!</string>
 
     <string name="enable_autosync_title">Enable Auto Sync</string>
     <string name="enable_autosync_message">Keep your data up-to-date effortlessly. Turn on Auto Sync to automatically sync in the background whenever apps are opened or closed.</string>
