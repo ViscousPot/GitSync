@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
@@ -90,11 +91,11 @@ class AuthDialog(private val context: Context, private val settingsManager: Sett
                 usernameInput.doOnTextChanged { text, _, _, _ ->
                     if (text.isNullOrEmpty()) {
                         loginButton.isEnabled = false
-                        loginButton.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.auth_green_secondary))
+                        loginButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.auth_green_secondary))
                     } else {
                         if (!tokenInput.text.isNullOrEmpty()) {
                             loginButton.isEnabled = true
-                            loginButton.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.auth_green))
+                            loginButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.auth_green))
                         }
                     }
                 }
@@ -102,11 +103,11 @@ class AuthDialog(private val context: Context, private val settingsManager: Sett
                 tokenInput.doOnTextChanged { text, _, _, _ ->
                     if (text.isNullOrEmpty()) {
                         loginButton.isEnabled = false
-                        loginButton.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.auth_green_secondary))
+                        loginButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.auth_green_secondary))
                     } else {
                         if (!usernameInput.text.isNullOrEmpty()) {
                             loginButton.isEnabled = true
-                            loginButton.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.auth_green))
+                            loginButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.auth_green))
                         }
                     }
                 }

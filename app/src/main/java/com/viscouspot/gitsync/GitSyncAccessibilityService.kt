@@ -46,6 +46,7 @@ class GitSyncAccessibilityService: AccessibilityService() {
                         appOpen = true
                     }
                 }
+                else -> {}
             }
         }
     }

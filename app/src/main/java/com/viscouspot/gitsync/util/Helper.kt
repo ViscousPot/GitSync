@@ -73,14 +73,24 @@ object Helper {
 
     fun isNetworkAvailable(context: Context, toastMessage: String = "Network unavailable!\nRetry when reconnected"): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val nw = connectivityManager.activeNetwork ?: return false
-        val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
-        return when {
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
-            else -> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val nw = connectivityManager.activeNetwork ?: return false
+            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+            when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+                else -> {
+                    Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+                    false
+                }
+            }
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            if (networkInfo != null && networkInfo.isConnected) {
+                true
+            } else {
                 Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
                 false
             }
@@ -89,11 +99,15 @@ object Helper {
 
     fun sendCheckoutConflictNotification(context: Context) {
         val channelId = "git_sync_bug_channel"
-        val channel = NotificationChannel(
-            channelId,
-            "Git Sync Bug",
-            NotificationManager.IMPORTANCE_HIGH
-        )
+        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(
+                channelId,
+                "Git Sync Bug",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
         val manager = context.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
 
@@ -278,7 +292,9 @@ fun EditText.rightDrawable(@DrawableRes id: Int? = 0) {
     val drawable = if (id !=null) ContextCompat.getDrawable(context, id) else null
     val size = resources.getDimensionPixelSize(R.dimen.text_size_lg)
     drawable?.setBounds(0, 0, size, size)
-    this.compoundDrawableTintList
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        this.compoundDrawableTintList
+    }
     this.setCompoundDrawables(null, null, drawable, null)
 }
 

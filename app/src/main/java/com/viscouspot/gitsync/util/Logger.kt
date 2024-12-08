@@ -1,26 +1,30 @@
 package com.viscouspot.gitsync.util
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.viscouspot.gitsync.BuildConfig
 import com.viscouspot.gitsync.R
 import java.io.PrintWriter
-import android.Manifest
-import android.net.Uri
 import java.io.StringWriter
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.random.Random
-import androidx.core.app.NotificationCompat
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import com.viscouspot.gitsync.BuildConfig
 
 enum class LogType(val type: String) {
     TEST("TEST"),
@@ -79,11 +83,15 @@ object Logger {
 
     private fun sendBugReportNotification(context: Context) {
         val channelId = "git_sync_bug_channel"
-        val channel = NotificationChannel(
-            channelId,
-            "Git Sync Bug",
-            NotificationManager.IMPORTANCE_HIGH
-        )
+        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(
+                channelId,
+                "Git Sync Bug",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
         val manager = context.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
 
@@ -124,11 +132,15 @@ object Logger {
         val model = "Device Model: $manufacturer $deviceModel"
         val appVersion = "App Version: $appVersionName (Code: $appVersionCode)"
 
+        val formattedDate: String = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
             data = Uri.parse("mailto:$recipient")
             type = "message/rfc822"
             putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
-            putExtra(Intent.EXTRA_SUBJECT, "Bug Report: Git Sync - [${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}]")
+            putExtra(Intent.EXTRA_SUBJECT, "Bug Report: Git Sync - [$formattedDate]")
             putExtra(Intent.EXTRA_TEXT, "App logs are attached! \n $last5LogsString \n $version \n $model \n $appVersion \n\n\n")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }

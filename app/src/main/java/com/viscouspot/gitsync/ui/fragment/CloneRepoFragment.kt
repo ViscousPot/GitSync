@@ -16,6 +16,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -98,7 +100,7 @@ class CloneRepoFragment(
                 selectLocalDir()
             } else {
                 repoUrlEditText.rightDrawable(R.drawable.circle_xmark)
-                repoUrlEditText.compoundDrawableTintList = requireContext().getColorStateList(R.color.auth_red)
+                TextViewCompat.setCompoundDrawableTintList(repoUrlEditText, ContextCompat.getColorStateList(requireContext(), R.color.auth_red))
                 invalidRepoError.text = invalidRepoErrorText
             }
         }

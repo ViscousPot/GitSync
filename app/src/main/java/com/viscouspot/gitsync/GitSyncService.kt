@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.FileObserver
 import android.os.Handler
 import android.os.IBinder
@@ -88,11 +89,15 @@ class GitSyncService : Service() {
     }
 
     private fun startForegroundService() {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_MIN
-        )
+        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                NOTIFICATION_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_MIN
+            )
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
         val manager = this.getSystemService(
             NotificationManager::class.java
         )
