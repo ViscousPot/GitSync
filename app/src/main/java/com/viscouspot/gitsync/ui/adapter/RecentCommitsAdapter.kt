@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
@@ -54,12 +55,12 @@ class RecentCommitsAdapter(private val context: Context, private val recentCommi
             return
         }
 
-        holder.container.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.card_secondary_bg))
+        holder.container.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.card_secondary_bg))
         holder.commitMessage.text = commit.commitMessage
         holder.commitMessage.setTypeface(null, Typeface.NORMAL)
-        holder.commitMessage.setTextColor(context.getColor(R.color.text_primary))
+        holder.commitMessage.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
         holder.author.text = commit.author
-        holder.author.setTextColor(context.getColor(R.color.text_secondary))
+        holder.author.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
         holder.committed.visibility = View.VISIBLE
         holder.commitRef.visibility = View.VISIBLE
         holder.commitRef.text = commit.reference
@@ -74,12 +75,12 @@ class RecentCommitsAdapter(private val context: Context, private val recentCommi
     }
 
     private fun bindMergeConflictViewHolder(holder: ViewHolder) {
-        holder.container.backgroundTintList = ColorStateList.valueOf(context.getColor(R.color.deletions))
+        holder.container.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.deletions))
         holder.commitMessage.text = context.getString(R.string.merge_conflict_item_title)
         holder.commitMessage.setTypeface(null, Typeface.BOLD)
-        holder.commitMessage.setTextColor(context.getColor(R.color.card_bg))
+        holder.commitMessage.setTextColor(ContextCompat.getColor(context, R.color.card_bg))
         holder.author.text = context.getString(R.string.merge_conflict_item_message)
-        holder.author.setTextColor(context.getColor(R.color.card_secondary_bg))
+        holder.author.setTextColor(ContextCompat.getColor(context, R.color.card_secondary_bg))
         holder.committed.visibility = View.GONE
         holder.commitRef.visibility = View.GONE
         holder.commitDate.visibility = View.GONE

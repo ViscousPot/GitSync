@@ -4,17 +4,21 @@ import android.content.Context
 import android.net.Uri
 import android.os.Looper
 import android.widget.Toast
-import com.github.syari.kgit.KGit
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.Commit
 import com.viscouspot.gitsync.util.Helper.sendCheckoutConflictNotification
 import com.viscouspot.gitsync.util.Logger.log
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.api.ResetCommand
+import org.eclipse.jgit.api.TransportCommand
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.JGitInternalException
@@ -34,19 +38,52 @@ import org.eclipse.jgit.lib.StoredConfig
 import org.eclipse.jgit.merge.ResolveMerger
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.transport.JschConfigSessionFactory
+import org.eclipse.jgit.transport.OpenSshConfig
 import org.eclipse.jgit.transport.RemoteRefUpdate
+import org.eclipse.jgit.transport.SshSessionFactory
+import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.eclipse.jgit.util.io.DisabledOutputStream
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.time.Duration
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class GitManager(private val context: Context, private val settingsManager: SettingsManager) {
-    fun cloneRepository(repoUrl: String, userStorageUri: Uri, username: String, token: String, taskCallback: (action: String) -> Unit, progressCallback: (progress: Int) -> Unit, failureCallback: (error: String) -> Unit, successCallback: () -> Unit) {
+    private fun applyCredentials(command: TransportCommand<*, *>) {
+        log(settingsManager.getGitProvider())
+        if (settingsManager.getGitProvider() == GitProviderManager.Companion.Provider.SSH) {
+            val sshSessionFactory = object : JschConfigSessionFactory() {
+                override fun configure(host: OpenSshConfig.Host, session: Session) {
+                    session.setConfig("StrictHostKeyChecking", "no")
+                    session.setConfig("PreferredAuthentications", "publickey,password")
+                    session.setConfig("kex", "diffie-hellman-group-exchange-sha256")
+                }
+
+                override fun createDefaultJSch(fs: org.eclipse.jgit.util.FS?): JSch {
+                    val jsch = super.createDefaultJSch(fs)
+                    jsch.addIdentity("key", settingsManager.getGitSshPrivateKey().toByteArray(), null, null)
+                    return jsch
+                }
+            }
+
+            SshSessionFactory.setInstance(sshSessionFactory)
+            command.setTransportConfigCallback { transport ->
+                if (transport is SshTransport) {
+                    transport.sshSessionFactory = sshSessionFactory
+                }
+            }
+        } else {
+            val authCredentials = settingsManager.getGitAuthCredentials()
+            command.setCredentialsProvider(UsernamePasswordCredentialsProvider(authCredentials.first, authCredentials.second))
+        }
+    }
+
+    fun cloneRepository(repoUrl: String, userStorageUri: Uri, taskCallback: (action: String) -> Unit, progressCallback: (progress: Int) -> Unit, failureCallback: (error: String) -> Unit, successCallback: () -> Unit) {
         if (!Helper.isNetworkAvailable(context)) {
             return
         }
@@ -55,37 +92,34 @@ class GitManager(private val context: Context, private val settingsManager: Sett
                 log(LogType.CloneRepo, "Cloning Repo")
 
                 val monitor = object : BatchingProgressMonitor() {
-                    override fun onUpdate(taskName: String?, workCurr: Int, duration: Duration?) {}
+                    override fun onUpdate(taskName: String?, workCurr: Int) { }
 
                     override fun onUpdate(
                         taskName: String?,
                         workCurr: Int,
                         workTotal: Int,
                         percentDone: Int,
-                        duration: Duration?
                     ) {
                         taskCallback(taskName ?: "")
                         progressCallback(percentDone)
                     }
 
-                    override fun onEndTask(taskName: String?, workCurr: Int, duration: Duration?) {
-                    }
+                    override fun onEndTask(taskName: String?, workCurr: Int) { }
 
                     override fun onEndTask(
                         taskName: String?,
                         workCurr: Int,
                         workTotal: Int,
-                        percentDone: Int,
-                        duration: Duration?
-                    ) {}
+                        percentDone: Int
+                    ) { }
                 }
 
-                KGit.cloneRepository {
+                Git.cloneRepository().apply {
                     setURI(repoUrl)
                     setProgressMonitor(monitor)
                     setDirectory(File(Helper.getPathFromUri(context, userStorageUri)))
-                    setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
-                }
+                    applyCredentials(this)
+                }.call()
 
                 log(LogType.CloneRepo, "Repository cloned successfully")
                 withContext(Dispatchers.Main) {
@@ -104,6 +138,10 @@ class GitManager(private val context: Context, private val settingsManager: Sett
                 failureCallback(e.localizedMessage ?: context.getString(R.string.clone_failed))
                 return@launch
             } catch (e: GitAPIException) {
+                e.printStackTrace()
+                log(e)
+                log(e.localizedMessage)
+                log(e.cause)
                 failureCallback(context.getString(R.string.clone_failed))
                 return@launch
             }
@@ -132,7 +170,7 @@ class GitManager(private val context: Context, private val settingsManager: Sett
         }
     }
 
-    fun downloadChanges(userStorageUri: Uri, username: String, token: String, scheduleNetworkSync: () -> Unit, onSync: () -> Unit): Boolean? {
+    fun downloadChanges(userStorageUri: Uri, scheduleNetworkSync: () -> Unit, onSync: () -> Unit): Boolean? {
         if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
             return null
         }
@@ -140,13 +178,12 @@ class GitManager(private val context: Context, private val settingsManager: Sett
             var returnResult: Boolean? = false
             log(LogType.PullFromRepo, "Getting local directory")
             val repo = FileRepository("${Helper.getPathFromUri(context, userStorageUri)}/${context.getString(R.string.git_path)}")
-            val git = KGit(repo)
-            val cp = UsernamePasswordCredentialsProvider(username, token)
+            val git = Git(repo)
 
             log(LogType.PullFromRepo, "Fetching changes")
-            val fetchResult = git.fetch {
-                setCredentialsProvider(cp)
-            }
+            val fetchResult = git.fetch().apply {
+                applyCredentials(this)
+            }.call()
 
             if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
                 return null
@@ -158,10 +195,11 @@ class GitManager(private val context: Context, private val settingsManager: Sett
             if (!fetchResult.trackingRefUpdates.isEmpty() || !localHead.equals(remoteHead)) {
                 log(LogType.PullFromRepo, "Pulling changes")
                 onSync.invoke()
-                val result = git.pull {
-                    setCredentialsProvider(cp)
+                val result = git.pull().apply {
+                    applyCredentials(this)
                     remote = "origin"
-                }
+                }.call()
+
                 if (result.mergeResult.failingPaths != null && result.mergeResult.failingPaths.containsValue(
                         ResolveMerger.MergeFailureReason.DIRTY_WORKTREE)) {
                     log(LogType.PullFromRepo, "Merge conflict")
@@ -203,7 +241,7 @@ class GitManager(private val context: Context, private val settingsManager: Sett
         return null
     }
 
-    fun uploadChanges(userStorageUri: Uri, syncMessage: String, username: String, token: String, scheduleNetworkSync: () -> Unit, onSync: () -> Unit): Boolean? {
+    fun uploadChanges(userStorageUri: Uri, syncMessage: String, scheduleNetworkSync: () -> Unit, onSync: () -> Unit): Boolean? {
         if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
             return null
         }
@@ -212,39 +250,43 @@ class GitManager(private val context: Context, private val settingsManager: Sett
             log(LogType.PushToRepo, "Getting local directory")
 
             val repo = FileRepository("${Helper.getPathFromUri(context, userStorageUri)}/${context.getString(R.string.git_path)}")
-            val git = KGit(repo)
+            val git = Git(repo)
 
             logStatus(git)
-            val status = git.status()
+            val status = git.status().call()
 
             if (status.uncommittedChanges.isNotEmpty() || status.untracked.isNotEmpty()) {
                 onSync.invoke()
+
                 log(LogType.PushToRepo, "Adding Files to Stage")
-                git.add {
+
+                git.add().apply {
                     addFilepattern(".")
-                    isRenormalize = false
-                }
-                git.add {
+                }.call()
+
+                git.add().apply {
                     addFilepattern(".")
-                    isRenormalize = false
                     isUpdate = true
-                }
+                }.call()
 
                 log(LogType.PushToRepo, "Getting current time")
-                val currentDateTime = LocalDateTime.now()
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+                val formattedDate: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                }.format(Date())
 
                 log(LogType.PushToRepo, "Committing changes")
                 val config: StoredConfig = git.repository.config
                 val committerEmail = config.getString("user", null, "email")
                 var committerName = config.getString("user", null, "name")
                 if (committerName == null || committerName.equals("")) {
-                    committerName = username
+                    committerName = settingsManager.getGitAuthCredentials().first
                 }
-                git.commit {
+
+                git.commit().apply {
                     setCommitter(committerName, committerEmail ?: "")
-                    message = syncMessage.format(currentDateTime.format(formatter))
-                }
+                    message = syncMessage.format(formattedDate)
+                }.call()
 
                 returnResult = true
             }
@@ -254,10 +296,11 @@ class GitManager(private val context: Context, private val settingsManager: Sett
             }
 
             log(LogType.PushToRepo, "Pushing changes")
-            for (pushResult in git.push {
-                setCredentialsProvider(UsernamePasswordCredentialsProvider(username, token))
+            val pushResults = git.push().apply {
+                applyCredentials(this)
                 remote = "origin"
-            }) {
+            }.call()
+            for (pushResult in pushResults) {
                 for (remoteUpdate in pushResult.remoteUpdates) {
                     when (remoteUpdate.status) {
                         RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD -> {
@@ -268,23 +311,23 @@ class GitManager(private val context: Context, private val settingsManager: Sett
 
                             if (git.repository.repositoryState == RepositoryState.MERGING || git.repository.repositoryState == RepositoryState.MERGING_RESOLVED) {
                                 log(LogType.PushToRepo, "Aborting previous merge to ensure clean state for rebase")
-                                git.rebase {
+                                git.rebase().apply  {
                                     setOperation(RebaseCommand.Operation.ABORT)
-                                }
+                                }.call()
                             }
 
-                            val rebaseResult = git.rebase {
+                            val rebaseResult = git.rebase().apply  {
                                 setUpstream(trackingStatus.remoteTrackingBranch)
-                            }
+                            }.call()
 
                             logStatus(git)
 
                             if (!rebaseResult.status.isSuccessful) {
-                                git.rebase {
+                                git.rebase().apply  {
                                     setOperation(RebaseCommand.Operation.ABORT)
-                                }
+                                }.call()
 
-                                downloadChanges(userStorageUri, username, token, scheduleNetworkSync, onSync)
+                                downloadChanges(userStorageUri, scheduleNetworkSync, onSync)
                                 return false
                             }
                             break
@@ -361,8 +404,8 @@ class GitManager(private val context: Context, private val settingsManager: Sett
         log(context, LogType.TransportException, e)
     }
 
-    private fun logStatus(git: KGit) {
-        val status = git.status()
+    private fun logStatus(git: Git) {
+        val status = git.status().call()
         log(LogType.GitStatus, """
             HasUncommittedChanges: ${status.hasUncommittedChanges()}
             Missing: ${status.missing}
@@ -442,8 +485,8 @@ class GitManager(private val context: Context, private val settingsManager: Sett
         if (gitDirUri == null) return mutableListOf()
 
         val repo = FileRepository("${Helper.getPathFromUri(context, gitDirUri)}/${context.getString(R.string.git_path)}")
-        val git = KGit(repo)
-        val status = git.status()
+        val git = Git(repo)
+        val status = git.status().call()
         return status.conflicting.toMutableList()
     }
 
@@ -453,13 +496,13 @@ class GitManager(private val context: Context, private val settingsManager: Sett
 
         try {
             val repo = FileRepository("$gitDirPath/${context.getString(R.string.git_path)}")
-            val git = KGit(repo)
+            val git = Git(repo)
 
             val mergeHeadFile = File("$gitDirPath/${context.getString(R.string.git_merge_head_path)}")
             if (mergeHeadFile.exists()) {
-                git.reset {
+                git.reset().apply  {
                     setMode(ResetCommand.ResetType.HARD)
-                }
+                }.call()
 
                 val mergeMsgFile = File("$gitDirPath/${context.getString(R.string.git_merge_msg_path)}")
                 if (mergeMsgFile.exists()) {

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.FileObserver
 import android.os.Handler
 import android.os.IBinder
@@ -88,11 +89,15 @@ class GitSyncService : Service() {
     }
 
     private fun startForegroundService() {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_MIN
-        )
+        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                NOTIFICATION_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_MIN
+            )
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
         val manager = this.getSystemService(
             NotificationManager::class.java
         )
@@ -156,7 +161,6 @@ class GitSyncService : Service() {
         isSyncing = true
 
         val job = CoroutineScope(Dispatchers.Default).launch {
-            val authCredentials = settingsManager.getGitAuthCredentials()
             val gitDirUri = settingsManager.getGitDirUri()
 
             if (gitDirUri == null) {
@@ -176,8 +180,6 @@ class GitSyncService : Service() {
             log(LogType.Sync, "Start Pull Repo")
             val pullResult = gitManager.downloadChanges(
                 gitDirUri,
-                authCredentials.first,
-                authCredentials.second,
                 ::scheduleNetworkSync,
             ) {
                 synced = true
@@ -202,8 +204,6 @@ class GitSyncService : Service() {
             val pushResult = gitManager.uploadChanges(
                 gitDirUri,
                 settingsManager.getSyncMessage(),
-                authCredentials.first,
-                authCredentials.second,
                 ::scheduleNetworkSync,
             ) {
                 if (!synced) {
@@ -261,8 +261,6 @@ class GitSyncService : Service() {
             val pushResult = gitManager.uploadChanges(
                 settingsManager.getGitDirUri()!!,
                 settingsManager.getSyncMessage(),
-                authCredentials.first,
-                authCredentials.second,
                 ::scheduleNetworkSync,
             ) {
                 Handler(Looper.getMainLooper()).post {

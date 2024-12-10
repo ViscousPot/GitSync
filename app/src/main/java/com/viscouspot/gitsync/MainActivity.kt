@@ -42,6 +42,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.widget.TextViewCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
@@ -303,7 +304,7 @@ class MainActivity : AppCompatActivity() {
         intentFilter.addAction(MERGE_COMPLETE)
         bManager.registerReceiver(broadcastReceiver, intentFilter)
 
-        window.statusBarColor = getColor(R.color.app_bg)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.app_bg)
 
         gitManager = GitManager(this, settingsManager)
 
@@ -469,12 +470,12 @@ class MainActivity : AppCompatActivity() {
         conflictEditorInput.adapter = ConflictEditorAdapter(this, conflictSections, conflictEditor) {
             if (conflictSections.isEmpty() || conflictSections.firstOrNull { it.contains(getString(R.string.conflict_start)) } == null) {
                 merge.isEnabled = true
-                merge.backgroundTintList = ColorStateList.valueOf(getColor(R.color.auth_green))
-                merge.setTextColor(getColor(R.color.card_secondary_bg))
+                merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.auth_green))
+                merge.setTextColor(ContextCompat.getColor(this, R.color.card_secondary_bg))
             } else {
                 merge.isEnabled = false
-                merge.backgroundTintList = ColorStateList.valueOf(getColor(R.color.card_secondary_bg))
-                merge.setTextColor(getColor(R.color.text_secondary))
+                merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
+                merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
             }
         }
 
@@ -531,8 +532,8 @@ class MainActivity : AppCompatActivity() {
 
             merge.text = getString(R.string.merging)
             merge.isEnabled = false
-            merge.backgroundTintList = ColorStateList.valueOf(getColor(R.color.card_secondary_bg))
-            merge.setTextColor(getColor(R.color.text_secondary))
+            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
+            merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
             abortMerge.visibility = View.GONE
 
             val forceSyncIntent = Intent(this@MainActivity, GitSyncService::class.java)
@@ -575,19 +576,19 @@ class MainActivity : AppCompatActivity() {
 
         if (conflictSections.firstOrNull { it.contains("\n") || it.contains("File not found.") } == null) {
             merge.isEnabled = true
-            merge.backgroundTintList = ColorStateList.valueOf(getColor(R.color.auth_green))
-            merge.setTextColor(getColor(R.color.card_secondary_bg))
+            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.auth_green))
+            merge.setTextColor(ContextCompat.getColor(this, R.color.card_secondary_bg))
         } else {
             merge.isEnabled = false
-            merge.backgroundTintList = ColorStateList.valueOf(getColor(R.color.card_secondary_bg))
-            merge.setTextColor(getColor(R.color.text_secondary))
+            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
+            merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
         }
     }
 
     private fun updateApplicationObserverSwitch(upDown: Boolean = settingsManager.getApplicationObserverEnabled()) {
         applicationObserverSwitch.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(this, if (upDown) R.drawable.angle_up else R.drawable.angle_down)
             ?.apply {
-                setTint(getColor(if (checkAccessibilityPermission()) R.color.auth_green else R.color.text_secondary))
+                setTint(ContextCompat.getColor(this@MainActivity, if (checkAccessibilityPermission()) R.color.auth_green else R.color.text_secondary))
             }, null)
     }
 
@@ -654,7 +655,7 @@ class MainActivity : AppCompatActivity() {
         val start = syncMessageInput.text.indexOf("%s")
         if (start == -1) return
 
-        syncMessageInput.getText().setSpan(ForegroundColorSpan(getColor(R.color.additions)), start, start + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        syncMessageInput.getText().setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.additions)), start, start + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
     private fun highlightCommentsInInput(syncMessageInput: EditText) {
@@ -666,7 +667,7 @@ class MainActivity : AppCompatActivity() {
             if (line.trim().startsWith("#")) {
                 val lineStart = text.indexOf(line, start)
                 val lineEnd = lineStart + line.length
-                syncMessageInput.getText().setSpan(ForegroundColorSpan(getColor(R.color.text_secondary)), lineStart, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                syncMessageInput.getText().setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.text_secondary)), lineStart, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
             start += line.length + 1
         }
@@ -804,7 +805,7 @@ class MainActivity : AppCompatActivity() {
                         selectApplication.icon =
                             packageManager.getApplicationIcon(packageNames.elementAt(0))
                         selectApplication.iconTintMode = PorterDuff.Mode.MULTIPLY
-                        selectApplication.iconTint = getColorStateList(android.R.color.white)
+                        selectApplication.iconTint = ContextCompat.getColorStateList(this, android.R.color.white)
 
                         applicationRecycler.visibility = View.GONE
                     }
@@ -912,7 +913,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 gitRepoName.rightDrawable(R.drawable.circle_xmark)
-                gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_red)
+                TextViewCompat.setCompoundDrawableTintList(gitRepoName, ContextCompat.getColorStateList(this, R.color.auth_red))
                 gitRepoName.compoundDrawablePadding =
                     (4 * resources.displayMetrics.density + 0.5f).toInt()
 
@@ -927,7 +928,7 @@ class MainActivity : AppCompatActivity() {
             gitRepoName.isEnabled = true
             settingsButton.isEnabled = true
             gitRepoName.rightDrawable(R.drawable.circle_check)
-            gitRepoName.compoundDrawableTintList = getColorStateList(R.color.auth_green)
+            TextViewCompat.setCompoundDrawableTintList(gitRepoName, ContextCompat.getColorStateList(this, R.color.auth_green))
             gitRepoName.compoundDrawablePadding =
                 (4 * resources.displayMetrics.density + 0.5f).toInt()
 

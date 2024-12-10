@@ -116,10 +116,16 @@ class OnboardingController(
                 resources.getDimension(R.dimen.space_md).toInt(),
                 0
             )
-            text = Html.fromHtml(
-                context.getString(R.string.documentation_html_link).format(context.getString(R.string.docs_link)),
-                0
-            )
+            text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(
+                    context.getString(R.string.documentation_html_link).format(context.getString(R.string.docs_link)),
+                    Html.FROM_HTML_MODE_LEGACY
+                )
+            } else {
+                Html.fromHtml(
+                    context.getString(R.string.documentation_html_link).format(context.getString(R.string.docs_link)),
+                )
+            }
         }
     }
 

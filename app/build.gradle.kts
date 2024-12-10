@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId = "com.viscouspot.gitsync"
-        minSdk = 31
+        minSdk = 21
         targetSdk = 34
-        versionCode = 1620
-        versionName  = "1.620"
+        versionCode = 1622
+        versionName  = "1.622"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -32,11 +32,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
     buildFeatures {
         compose = true
@@ -54,10 +54,17 @@ android {
     }
 }
 
+configurations.all {
+    exclude(module = "httpclient")
+}
+
 dependencies {
     implementation(libs.security.crypto)
     implementation(libs.squareup.okhttp3)
-    implementation(libs.kgit)
+    implementation(libs.jgit) {
+        exclude(group = "com.jcraft", module = "jsch")
+    }
+    implementation(libs.jsch)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
