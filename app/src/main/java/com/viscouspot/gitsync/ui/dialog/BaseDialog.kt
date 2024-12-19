@@ -16,17 +16,16 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.R
 
-
 open class BaseDialog(private val context: Context) : AlertDialog(context, R.style.AlertDialogMinTheme) {
-    fun setCancelable(int: Int): BaseDialog {
+    open fun setCancelable(int: Int): BaseDialog {
         super.setCancelable(int != 0)
         return this
     }
-    fun setTitle(title: String): BaseDialog {
+    open fun setTitle(title: String): BaseDialog {
         super.setTitle(title)
         return this
     }
-    fun setMessage(msg: String): BaseDialog {
+    open fun setMessage(msg: String): BaseDialog {
         super.setMessage(msg)
         return this
     }
