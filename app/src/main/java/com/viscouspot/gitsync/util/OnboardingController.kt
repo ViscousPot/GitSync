@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.viscouspot.gitsync.R
-import com.viscouspot.gitsync.ui.dialog.BasicDialog
+import com.viscouspot.gitsync.ui.dialog.BaseDialog
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 
 class OnboardingController(
@@ -28,7 +28,7 @@ class OnboardingController(
     private val checkAndRequestStoragePermission: (onGranted: (() -> Unit)?) -> Unit
 ) {
     var hasSkipped = false
-    private var currentDialog: AlertDialog? = null
+    private var currentDialog: BaseDialog? = null
 
     fun show() {
         val authCreds = settingsManager.getGitAuthCredentials()
@@ -66,9 +66,9 @@ class OnboardingController(
         }
     }
 
-    private fun getEnableAutoSyncDialog(): AlertDialog {
+    private fun getEnableAutoSyncDialog(): BaseDialog {
         activity.runOnUiThread {
-            currentDialog = BasicDialog(context)
+            currentDialog = BaseDialog(context)
                 .setCancelable(0)
                 .setTitle(context.getString(R.string.enable_autosync_title))
                 .setMessage(context.getString(R.string.enable_autosync_message))
@@ -86,9 +86,9 @@ class OnboardingController(
         return currentDialog!!
     }
 
-    private fun getAuthDialog(): AlertDialog {
+    private fun getAuthDialog(): BaseDialog {
         activity.runOnUiThread {
-            currentDialog = BasicDialog(context)
+            currentDialog = BaseDialog(context)
                 .setCancelable(0)
                 .setTitle(context.getString(R.string.auth_dialog_title))
                 .setMessage(context.getString(R.string.auth_dialog_message))
@@ -127,9 +127,9 @@ class OnboardingController(
         }
     }
 
-    private fun getAlmostThereDialog(): AlertDialog {
+    private fun getAlmostThereDialog(): BaseDialog {
         activity.runOnUiThread {
-            currentDialog = BasicDialog(context)
+            currentDialog = BaseDialog(context)
                 .setCancelable(0)
                 .setTitle(context.getString(R.string.almost_there_dialog_title))
                 .setView(getAlmostThereDialogLink())
@@ -152,9 +152,9 @@ class OnboardingController(
         getAlmostThereDialog().show()
     }
 
-    private fun getEnableAllFilesDialog(standalone: Boolean = false): AlertDialog {
+    private fun getEnableAllFilesDialog(standalone: Boolean = false): BaseDialog {
         activity.runOnUiThread {
-            currentDialog = BasicDialog(context)
+            currentDialog = BaseDialog(context)
                 .setCancelable(0)
                 .setTitle(context.getString(R.string.all_files_access_dialog_title))
                 .setMessage(context.getString(R.string.all_files_access_dialog_message))
@@ -191,9 +191,9 @@ class OnboardingController(
         return false
     }
 
-    private fun getEnableNotificationsDialog(standalone: Boolean = false): AlertDialog {
+    private fun getEnableNotificationsDialog(standalone: Boolean = false): BaseDialog {
         activity.runOnUiThread {
-        currentDialog = BasicDialog(context)
+        currentDialog = BaseDialog(context)
             .setCancelable(0)
             .setTitle(context.getString(R.string.notification_dialog_title))
             .setMessage(context.getString(R.string.notification_dialog_message))
@@ -224,9 +224,9 @@ class OnboardingController(
         }
     }
 
-    private fun getWelcomeDialog(): AlertDialog {
+    private fun getWelcomeDialog(): BaseDialog {
         activity.runOnUiThread {
-            currentDialog = BasicDialog(context)
+            currentDialog = BaseDialog(context)
                 .setCancelable(0)
                 .setTitle(context.getString(R.string.welcome))
                 .setMessage(context.getString(R.string.welcome_message))
