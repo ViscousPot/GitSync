@@ -2,10 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/input_bg_md"
-    android:backgroundTint="@color/card_bg"
+    android:background="@color/card_bg"
     android:padding="@dimen/space_md"
-    android:layout_margin="@dimen/space_lg"
     android:layout_height="match_parent">
 
     <TextView
