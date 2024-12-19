@@ -1,8 +1,8 @@
 package com.viscouspot.gitsync.ui.fragment
 
 import android.app.Dialog
-import android.app.ProgressDialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -12,10 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.core.widget.doOnTextChanged
@@ -27,6 +27,7 @@ import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.RepoListAdapter
 import com.viscouspot.gitsync.ui.dialog.BaseDialog
+import com.viscouspot.gitsync.ui.dialog.ProgressDialog
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
@@ -172,17 +173,29 @@ class CloneRepoFragment(
             return
         }
 
-        val cloneDialog = ProgressDialog(requireContext(), R.style.AlertDialogTheme).apply {
-            setTitle(getString(R.string.cloning_repository))
-            setMessage(getString(R.string.clone_message))
+        val progressBar = ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
-            setCancelable(false)
-            setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-            show()
+            isIndeterminate = false
+            progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.auth_green))
+            setPadding(
+                resources.getDimension(R.dimen.space_lg).toInt(),
+                0,
+                resources.getDimension(R.dimen.space_lg).toInt(),
+                0
+            )
         }
+        val cloneDialog: ProgressDialog = ProgressDialog(
+            requireContext()
+        )
+            .setTitle(getString(R.string.cloning_repository))
+            .setMessage(getString(R.string.clone_message))
+            .setCancelable(0)
+            .setView(progressBar)
+        cloneDialog.show()
+
         gitManager.cloneRepository(repoUrl, dirUri,
             { task -> activity?.runOnUiThread { cloneDialog.setMessage("${getString(R.string.clone_message)}$task") } },
-            { progress -> activity?.runOnUiThread { cloneDialog.progress = progress } },
+            { progress -> activity?.runOnUiThread { progressBar.progress = progress } },
             { error ->
                 log(LogType.CloneRepo, error)
                 activity?.runOnUiThread {
