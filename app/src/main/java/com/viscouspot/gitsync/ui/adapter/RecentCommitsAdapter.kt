@@ -82,7 +82,7 @@ class RecentCommitsAdapter(private val context: Context, private val recentCommi
         holder.author.text = context.getString(R.string.merge_conflict_item_message)
         holder.author.setTextColor(ContextCompat.getColor(context, R.color.card_secondary_bg))
         holder.committed.visibility = View.GONE
-        holder.commitRef.visibility = View.GONE
+        holder.commitRef.visibility = View.INVISIBLE
         holder.commitDate.visibility = View.GONE
         holder.additions.text = ""
         holder.deletions.text = ""
