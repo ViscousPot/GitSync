@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.RepoListAdapter
+import com.viscouspot.gitsync.ui.dialog.BasicDialog
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
@@ -188,7 +189,7 @@ class CloneRepoFragment(
                     Toast.makeText(context, getString(R.string.clone_failed), Toast.LENGTH_SHORT).show()
                     cloneDialog.dismiss()
                     val message = if (getString(R.string.clone_failed) == error) "" else error
-                    AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+                    BasicDialog(requireContext())
                         .setTitle(getString(R.string.clone_failed))
                         .setMessage(message)
                         .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -206,13 +207,13 @@ class CloneRepoFragment(
     }
 
     private fun selectLocalDir() {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+        BasicDialog(requireContext())
             .setTitle(getString(R.string.select_clone_directory))
-            .setPositiveButton(getString(R.string.select)) { _, _ ->
+            .setPositiveButton(R.string.select) { _, _ ->
                 callback = ::localDirCallback
                 dirSelectionLauncher.launch(null)
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .show()
     }
 

@@ -37,6 +37,9 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowMinWidthMajor">87%</item>
         <item name="android:windowMinWidthMinor">87%</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
 
     </style>
 
