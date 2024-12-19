@@ -17,18 +17,6 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:background">@drawable/input_bg_sm</item>
-        <item name="android:backgroundTint">@color/card_bg</item>
-        <item name="colorPrimary">@color/text_secondary</item>
-        <item name="buttonIconDimen">20dp</item>
-        <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
-        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
-    </style>
-
     <style name="AlertDialogMinTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="buttonIconDimen">20dp</item>
         <item name="android:textColor">@color/text_primary</item>
