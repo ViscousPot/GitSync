@@ -2,8 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/input_bg_md"
-    android:backgroundTint="@color/card_bg"
+    android:background="@color/card_bg"
     android:padding="@dimen/space_md"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
