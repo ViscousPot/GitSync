@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.ProgressBar
 import android.widget.TextView
 
-class ProgressDialog(private val context: Context) : BaseDialog(context) {
+class ProgressDialog(context: Context) : BaseDialog(context) {
     fun setView(view: ProgressBar): ProgressDialog {
         super.setView(view)
         return this

@@ -184,9 +184,7 @@ class CloneRepoFragment(
                 0
             )
         }
-        val cloneDialog: ProgressDialog = ProgressDialog(
-            requireContext()
-        )
+        val cloneDialog: ProgressDialog = ProgressDialog(requireContext())
             .setTitle(getString(R.string.cloning_repository))
             .setMessage(getString(R.string.clone_message))
             .setCancelable(0)
