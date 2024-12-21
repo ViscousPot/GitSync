@@ -59,6 +59,7 @@ import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.LogType
+import com.viscouspot.gitsync.util.Logger
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.OnboardingController
 import com.viscouspot.gitsync.util.SettingsManager
@@ -417,8 +418,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewDocs.setOnClickListener {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.docs_link)))
-            startActivity(browserIntent)
+            Logger.sendBugReportNotification(this)
         }
     }
 
