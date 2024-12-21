@@ -77,7 +77,7 @@ object Logger {
         }
     }
 
-    private fun sendBugReportNotification(context: Context) {
+    fun sendBugReportNotification(context: Context) {
         val channelId = "git_sync_bug_channel"
         val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
