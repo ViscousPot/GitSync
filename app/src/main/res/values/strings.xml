@@ -109,6 +109,11 @@
     <!--    Settings Dialog-->
     <string name="settings">Settings</string>
 
+    <string name="author_name_label">author name</string>
+    <string name="author_name">JohnSmith12</string>
+    <string name="author_email_label">author email</string>
+    <string name="author_email">john12@smith.com</string>
+
     <string name="sync_message_label">Sync Message</string>
     <string name="sync_message_description">use %s for the date and time</string>
     <string name="sync_message">Last Sync: %s (Mobile)</string>

@@ -281,14 +281,22 @@ class GitManager(private val context: Context, private val settingsManager: Sett
 
                 log(LogType.PushToRepo, "Committing changes")
                 val config: StoredConfig = git.repository.config
-                val committerEmail = config.getString("user", null, "email")
-                var committerName = config.getString("user", null, "name")
-                if (committerName == null || committerName.equals("")) {
+
+                var committerEmail: String? = settingsManager.getAuthorEmail()
+                if (committerEmail == null || committerEmail == "") {
+                    committerEmail = config.getString("user", null, "email")
+                }
+
+                var committerName: String? = settingsManager.getAuthorName()
+                if (committerName == null || committerName == "") {
+                    committerName = config.getString("user", null, "name")
+                }
+                if (committerName == null || committerName == "") {
                     committerName = settingsManager.getGitAuthCredentials().first
                 }
 
                 git.commit().apply {
-                    setCommitter(committerName, committerEmail ?: "")
+                    setCommitter(committerName ?: "", committerEmail ?: "")
                     message = syncMessage.format(formattedDate)
                 }.call()
 
