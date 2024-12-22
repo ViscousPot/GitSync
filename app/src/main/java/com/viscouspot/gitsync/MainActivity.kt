@@ -7,28 +7,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.text.Spannable
-import android.text.style.ForegroundColorSpan
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.InputMethodManager
-import android.webkit.MimeTypeMap
 import android.widget.EditText
-import android.widget.HorizontalScrollView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
@@ -36,24 +28,22 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.widget.TextViewCompat
-import androidx.core.widget.doOnTextChanged
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
-import com.viscouspot.gitsync.ui.adapter.ApplicationGridAdapter
 import com.viscouspot.gitsync.ui.adapter.ApplicationListAdapter
 import com.viscouspot.gitsync.ui.adapter.Commit
-import com.viscouspot.gitsync.ui.adapter.ConflictEditorAdapter
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
+import com.viscouspot.gitsync.ui.dialog.ApplicationSelectDialog
 import com.viscouspot.gitsync.ui.dialog.AuthDialog
+import com.viscouspot.gitsync.ui.dialog.MergeConflictDialog
+import com.viscouspot.gitsync.ui.dialog.SettingsDialog
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
@@ -64,9 +54,6 @@ import com.viscouspot.gitsync.util.OnboardingController
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.rightDrawable
 import java.io.File
-import java.util.Locale
-import kotlin.math.max
-import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
@@ -444,146 +431,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openMergeConflictDialog() {
-        mergeConflictDialog?.dismiss()
+        if (mergeConflictDialog?.isShowing == true) mergeConflictDialog?.dismiss()
 
-        val conflicts = gitManager.getConflicting(settingsManager.getGitDirUri())
-        if (conflicts.isEmpty()) return
-
-        log(conflicts.toString())
-
-        val builder = AlertDialog.Builder(this, R.style.AlertDialogMinTheme)
-        val inflater = layoutInflater
-        val dialogView: View = inflater.inflate(R.layout.dialog_merge_conflict, null)
-
-        builder.setView(dialogView)
-        mergeConflictDialog = builder.create()
-
-        val conflictEditor = dialogView.findViewById<HorizontalScrollView>(R.id.conflictEditor)
-        val conflictEditorInput = dialogView.findViewById<RecyclerView>(R.id.conflictEditorInput)
-        val fileName = dialogView.findViewById<MaterialButton>(R.id.fileName)
-        val filePrev = dialogView.findViewById<MaterialButton>(R.id.filePrev)
-        val fileNext = dialogView.findViewById<MaterialButton>(R.id.fileNext)
-        val merge = dialogView.findViewById<MaterialButton>(R.id.merge)
-        val abortMerge = dialogView.findViewById<MaterialButton>(R.id.abortMerge)
-
-        val conflictSections = mutableListOf<String>()
-
-        conflictEditorInput.adapter = ConflictEditorAdapter(this, conflictSections, conflictEditor) {
-            if (conflictSections.isEmpty() || conflictSections.firstOrNull { it.contains(getString(R.string.conflict_start)) } == null) {
-                merge.isEnabled = true
-                merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.auth_green))
-                merge.setTextColor(ContextCompat.getColor(this, R.color.card_secondary_bg))
-            } else {
-                merge.isEnabled = false
-                merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
-                merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-            }
-        }
-
-        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 0)
-        mergeConflictDialog?.window!!.setBackgroundDrawable(inset)
+        mergeConflictDialog = MergeConflictDialog(this, settingsManager, gitManager, ::refreshRecentCommits)
         mergeConflictDialog?.show()
-
-        var conflictIndex = 0
-
-        fileName.setOnClickListener {
-            val file = File("${Helper.getPathFromUri(this, settingsManager.getGitDirUri()!!)}/${conflicts.elementAt(conflictIndex)}")
-
-            if (file.exists()) {
-                val intent = Intent(Intent.ACTION_VIEW)
-                val fileUri: Uri = FileProvider.getUriForFile(this, "${this.packageName}.fileprovider", file)
-                val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension) ?: "text/plain"
-
-                intent.setDataAndType(fileUri, mimeType)
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-                this.startActivity(Intent.createChooser(intent, "Open file with"))
-            }
-
-        }
-
-        filePrev.setOnClickListener {
-            conflictIndex = max(conflictIndex - 1, 0)
-            refreshMergeConflictDialog(conflicts, conflictSections, conflictIndex, merge, fileName, filePrev, fileNext, conflictEditorInput)
-        }
-
-        fileNext.setOnClickListener {
-            conflictIndex = min(conflictIndex + 1, conflicts.size - 1)
-            refreshMergeConflictDialog(conflicts, conflictSections, conflictIndex, merge, fileName, filePrev, fileNext, conflictEditorInput)
-        }
-
-        merge.post {
-            refreshMergeConflictDialog(conflicts, conflictSections, conflictIndex, merge, fileName, filePrev, fileNext, conflictEditorInput)
-        }
-
-        merge.setOnClickListener{
-            File("${Helper.getPathFromUri(this, settingsManager.getGitDirUri()!!)}/${conflicts.elementAt(conflictIndex)}").bufferedWriter().use { writer ->
-                conflictSections.forEach { line ->
-                    writer.write(line)
-                    writer.newLine()
-                }
-            }
-
-            if (conflicts.size > 1) {
-                conflicts.removeAt(conflictIndex)
-                conflictIndex = min(conflictIndex, conflicts.size - 1)
-                refreshMergeConflictDialog(conflicts, conflictSections, conflictIndex, merge, fileName, filePrev, fileNext, conflictEditorInput)
-                return@setOnClickListener
-            }
-
-            merge.text = getString(R.string.merging)
-            merge.isEnabled = false
-            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
-            merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-            abortMerge.visibility = View.GONE
-
-            val forceSyncIntent = Intent(this@MainActivity, GitSyncService::class.java)
-            forceSyncIntent.setAction(GitSyncService.MERGE)
-            startService(forceSyncIntent)
-        }
-
-        abortMerge.setOnClickListener {
-            gitManager.abortMerge(settingsManager.getGitDirUri())
-            mergeConflictDialog?.dismiss()
-            refreshRecentCommits()
-        }
-    }
-
-    private fun refreshMergeConflictDialog(conflicts: MutableList<String>, conflictSections: MutableList<String>, conflictIndex: Int, merge: MaterialButton, fileName: MaterialButton, filePrev: MaterialButton, fileNext: MaterialButton, conflictEditorInput: RecyclerView) {
-        filePrev.isEnabled = conflictIndex > 0
-        fileNext.isEnabled = conflictIndex < conflicts.size - 1
-
-        fileName.text = conflicts.elementAt(conflictIndex).substringAfterLast("/")
-
-        val file = File("${Helper.getPathFromUri(this, settingsManager.getGitDirUri()!!)}/${conflicts.elementAt(conflictIndex)}")
-
-        if (conflictSections.isNotEmpty()) {
-            val conflictSectionsSize = conflictSections.size
-            conflictSections.clear()
-            conflictEditorInput.adapter?.notifyItemRangeRemoved(0, conflictSectionsSize)
-        }
-
-        if (file.exists()) {
-            Helper.extractConflictSections(this, file) {
-                conflictSections.add(it.trim())
-                conflictEditorInput.adapter?.notifyItemInserted(conflictSections.size)
-            }
-
-            log(conflictSections.toString())
-        } else {
-            conflictSections.add("File not found.")
-            conflictEditorInput.adapter?.notifyItemInserted(conflictSections.size)
-        }
-
-        if (conflictSections.firstOrNull { it.contains("\n") || it.contains("File not found.") } == null) {
-            merge.isEnabled = true
-            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.auth_green))
-            merge.setTextColor(ContextCompat.getColor(this, R.color.card_secondary_bg))
-        } else {
-            merge.isEnabled = false
-            merge.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.card_secondary_bg))
-            merge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-        }
     }
 
     private fun updateApplicationObserverSwitch(upDown: Boolean = settingsManager.getApplicationObserverEnabled()) {
@@ -594,84 +445,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSettingsDialog() {
-        val builder = AlertDialog.Builder(this, R.style.AlertDialogMinTheme)
-        val inflater = layoutInflater
-        val dialogView: View = inflater.inflate(R.layout.dialog_settings, null)
-
-        setupSyncMessageSettings(dialogView)
-        setupGitignoreSettings(dialogView)
-        setupGitInfoExcludeSettings(dialogView)
-
-        builder.setView(dialogView)
-
-        val dialog = builder.create()
-        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 0)
-        dialog.window!!.setBackgroundDrawable(inset)
-        dialog.show()
-    }
-
-    private fun setupSyncMessageSettings(view: View) {
-        val syncMessageInput = view.findViewById<EditText>(R.id.syncMessageInput)
-        syncMessageInput.setText(settingsManager.getSyncMessage())
-        highlightStringInFormat(syncMessageInput)
-        syncMessageInput.doOnTextChanged { text, _, _, _ ->
-            settingsManager.setSyncMessage(text.toString())
-            highlightStringInFormat(syncMessageInput)
-        }
-    }
-
-    private fun setupGitignoreSettings(view: View) {
-        val gitignoreInputWrapper = view.findViewById<HorizontalScrollView>(R.id.gitignoreInputWrapper)
-        val gitignoreInput = view.findViewById<EditText>(R.id.gitignoreInput)
-        gitignoreInput.setText(gitManager.readGitignore(gitDirPath.text.toString()))
-        highlightCommentsInInput(gitignoreInput)
-        gitignoreInput.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                gitignoreInputWrapper.post { gitignoreInputWrapper.scrollTo(0, 0) }
-            }
-        }
-        gitignoreInput.doOnTextChanged { text, _, _, _ ->
-            gitManager.writeGitignore(gitDirPath.text.toString(), text.toString())
-            highlightCommentsInInput(gitignoreInput)
-        }
-    }
-
-    private fun setupGitInfoExcludeSettings(view: View) {
-        val gitInfoExcludeInputWrapper = view.findViewById<HorizontalScrollView>(R.id.gitInfoExcludeInputWrapper)
-        val gitInfoExcludeInput = view.findViewById<EditText>(R.id.gitInfoExcludeInput)
-        gitInfoExcludeInput.setText(gitManager.readGitInfoExclude(gitDirPath.text.toString()))
-        highlightCommentsInInput(gitInfoExcludeInput)
-        gitInfoExcludeInput.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                gitInfoExcludeInputWrapper.post { gitInfoExcludeInputWrapper.scrollTo(0, 0) }
-            }
-        }
-        gitInfoExcludeInput.doOnTextChanged { text, _, _, _ ->
-            gitManager.writeGitInfoExclude(gitDirPath.text.toString(), text.toString())
-            highlightCommentsInInput(gitInfoExcludeInput)
-        }
-    }
-
-    private fun highlightStringInFormat(syncMessageInput: EditText) {
-        val start = syncMessageInput.text.indexOf("%s")
-        if (start == -1) return
-
-        syncMessageInput.getText().setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.additions)), start, start + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
-
-    private fun highlightCommentsInInput(syncMessageInput: EditText) {
-        val text = syncMessageInput.text.toString()
-        val lines = text.split("\n")
-        var start = 0
-
-        for (line in lines) {
-            if (line.trim().startsWith("#")) {
-                val lineStart = text.indexOf(line, start)
-                val lineEnd = lineStart + line.length
-                syncMessageInput.getText().setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.text_secondary)), lineStart, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            start += line.length + 1
-        }
+        val settingsDialog = SettingsDialog(this, settingsManager, gitManager, gitDirPath.text.toString())
+        settingsDialog.show()
     }
 
     private fun getDeviceApps(): List<String> {
@@ -687,64 +462,8 @@ class MainActivity : AppCompatActivity() {
     private fun showApplicationSelectDialog() {
         if (applicationSelectDialog?.isShowing == true) applicationSelectDialog?.dismiss()
 
-        val applicationSelectDialogBuilder = AlertDialog.Builder(this@MainActivity, R.style.AlertDialogTheme)
-        val selectedPackageNames = mutableListOf<String>()
-
-        applicationSelectDialogBuilder.setTitle(getString(R.string.select_application))
-        applicationSelectDialogBuilder.setPositiveButton(getString(R.string.save_application)) { dialog, _ ->
-            dialog.cancel()
-            settingsManager.setApplicationPackages(selectedPackageNames)
-            refreshSelectedApplications()
-        }
-        applicationSelectDialogBuilder.setNegativeButton(getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
-
-        val applicationSelectDialogView = layoutInflater.inflate(R.layout.dialog_application_select, null)
-        applicationSelectDialogBuilder.setView(applicationSelectDialogView)
-        applicationSelectDialog = applicationSelectDialogBuilder.create()
-
-        val devicePackageNames = getDeviceApps()
-        val filteredDevicePackageNames = devicePackageNames.toMutableList()
-
-        val recyclerView = applicationSelectDialogView.findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = ApplicationGridAdapter(packageManager, filteredDevicePackageNames, selectedPackageNames)
-
-        val searchView = applicationSelectDialogView.findViewById<SearchView>(R.id.searchView)
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if ((newText == null) or (newText == "")) {
-                    val prevSize = filteredDevicePackageNames.size
-                    filteredDevicePackageNames.clear()
-                    adapter.notifyItemRangeRemoved(0, prevSize)
-                    filteredDevicePackageNames.addAll(devicePackageNames)
-                    adapter.notifyItemRangeInserted(0, devicePackageNames.size)
-                } else {
-                    val prevSize = filteredDevicePackageNames.size
-                    filteredDevicePackageNames.clear()
-                    adapter.notifyItemRangeRemoved(0, prevSize)
-                    val filteredPackageNames = devicePackageNames.filter {
-                        packageManager.getApplicationLabel(
-                            packageManager.getApplicationInfo(it, 0)
-                        ).toString()
-                            .lowercase(Locale.getDefault())
-                            .contains(
-                                newText.toString().lowercase(Locale.getDefault())
-                            )
-                    }
-                    filteredDevicePackageNames.addAll(filteredPackageNames)
-                    adapter.notifyItemRangeInserted(0, filteredPackageNames.size)
-                }
-                return true
-            }
-
-        })
-
-        recyclerView.adapter = adapter
+        applicationSelectDialog = ApplicationSelectDialog(this, settingsManager, getDeviceApps(), ::refreshSelectedApplications)
         applicationSelectDialog?.show()
-        searchView.requestFocus()
     }
 
     private fun refreshAll() {
