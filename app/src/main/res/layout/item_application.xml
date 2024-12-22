@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/space_xs"
+    android:layout_margin="@dimen/space_xs"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.button.MaterialButton
@@ -19,6 +19,7 @@
         app:icon="@drawable/circle_xmark"
         app:iconGravity="textTop"
         app:iconPadding="@dimen/space_md"
+        app:cornerRadius="@dimen/corner_radius_md"
         app:iconSize="@dimen/application_icon_size"
         app:iconTint="@color/primary_light"
         app:iconTintMode="multiply"
