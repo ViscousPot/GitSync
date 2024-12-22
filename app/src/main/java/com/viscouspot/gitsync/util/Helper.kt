@@ -300,8 +300,9 @@ object Helper {
         return ""
     }
 
-    fun isValidGitRepo(url: String): String? {
-        val regex = Regex("^(https?|ssh://[^@]+@|git@)[a-zA-Z0-9.-]+([:/])(\\S+)/(\\S+)(\\.git)?$")
+    fun isValidGitRepo(url: String, ssh: Boolean = false): String? {
+        val pattern = "^(${if (ssh) "ssh://[^@]+@|git@" else "https?://"})[a-zA-Z0-9.-]+([:/])(\\S+)/(\\S+)(\\.git)?$"
+        val regex = Regex(pattern)
 
         return when {
             !regex.matches(url) -> "URL must be a valid Git URL (HTTP/S, SSH, or git@) and follow the format"

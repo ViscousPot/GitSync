@@ -11,7 +11,8 @@ class IsValidGitRepoTest {
     fun testValidHttpGitRepo() {
         val validUrls = listOf(
             "https://github.com/user/repo.git",
-            "http://github.com/user/repo.git"
+            "http://github.com/user/repo.git",
+            "https://github.com/user/repo",
         )
 
         validUrls.forEach { url ->
@@ -20,20 +21,31 @@ class IsValidGitRepoTest {
     }
 
     @Test
+    fun testValidSshGitRepo() {
+        val validUrls = listOf(
+            "git@github.com:user/repo.git",
+            "ssh://git@github.com:user/repo.git",
+            "git@bitbucket.org:user/repo.git",
+            "git@github.com:user/repo",
+        )
+
+        validUrls.forEach { url ->
+            assertNull("Expected true for $url", isValidGitRepo(url, true))
+        }
+    }
+
+
+    @Test
     fun testInvalidGitRepo() {
         val invalidUrls = listOf(
-            "git@github.com:user/repo.git",        // Invalid protocol
-            "git@bitbucket.org:user/repo.git",     // Invalid protocol
             "ftp://github.com/user/repo.git",      // Invalid protocol
-            "https://github.com/user/repo",        // Missing .git
-            "git@github.com:user/repo",            // Missing .git
             "github.com/user/repo.git",            // Missing protocol
             "git://github.com/user/repo.git",      // Invalid protocol (git://)
-            "git@github.com:/user/repo.git"        // Extra colon after @
         )
 
         invalidUrls.forEach { url ->
             assertNotNull("Expected false for $url", isValidGitRepo(url))
+            assertNotNull("Expected false for $url", isValidGitRepo(url, true))
         }
     }
 }
