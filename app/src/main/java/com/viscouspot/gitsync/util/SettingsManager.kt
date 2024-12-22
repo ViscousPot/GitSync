@@ -56,6 +56,28 @@ class SettingsManager internal constructor(private val context: Context) {
         }
     }
 
+    fun getAuthorName(): String {
+        return settingsSharedPref.getString("authorName", "").toString()
+    }
+
+    fun setAuthorName(authorName: String) {
+        with(settingsSharedPref.edit()) {
+            putString("authorName", authorName)
+            apply()
+        }
+    }
+
+    fun getAuthorEmail(): String {
+        return settingsSharedPref.getString("authorEmail", "").toString()
+    }
+
+    fun setAuthorEmail(authorEmail: String) {
+        with(settingsSharedPref.edit()) {
+            putString("authorEmail", authorEmail)
+            apply()
+        }
+    }
+
     fun getSyncMessage(): String {
         return settingsSharedPref.getString("syncMessage", null) ?: context.getString(R.string.sync_message)
     }
@@ -117,6 +139,7 @@ class SettingsManager internal constructor(private val context: Context) {
     }
 
     fun setGitAuthCredentials(username: String, accessToken: String) {
+        setAuthorName(username)
         with(settingsSharedPref.edit()) {
             putString("gitAuthUsername", username)
             putString("gitAuthToken", accessToken)

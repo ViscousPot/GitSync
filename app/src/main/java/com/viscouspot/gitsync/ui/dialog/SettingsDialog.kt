@@ -18,6 +18,8 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         super.onStart()
         setContentView(R.layout.dialog_settings)
 
+        setupAuthorNameSettings()
+        setupAuthorEmailSettings()
         setupSyncMessageSettings()
         setupGitignoreSettings()
         setupGitInfoExcludeSettings()
@@ -43,6 +45,23 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
             }
             start += line.length + 1
         }
+    }
+
+    private fun setupAuthorNameSettings() {
+        val authorNameInput = findViewById<EditText>(R.id.authorNameInput) ?: return
+        authorNameInput.setText(settingsManager.getAuthorName())
+        authorNameInput.doOnTextChanged { text, _, _, _ ->
+            settingsManager.setAuthorName(text.toString())
+        }
+    }
+
+    private fun setupAuthorEmailSettings() {
+        val authorEmailInput = findViewById<EditText>(R.id.authorEmailInput) ?: return
+        authorEmailInput.setText(settingsManager.getAuthorEmail())
+        authorEmailInput.doOnTextChanged { text, _, _, _ ->
+            settingsManager.setAuthorEmail(text.toString())
+        }
+
     }
 
     private fun setupSyncMessageSettings() {
