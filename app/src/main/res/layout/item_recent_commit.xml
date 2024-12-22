@@ -13,17 +13,19 @@
         android:id="@+id/commitMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_size_md"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/sync_message"
         android:layout_marginEnd="@dimen/space_xs"
-        android:singleLine="true"
+        android:layout_marginBottom="1dp"
         android:ellipsize="none"
         android:requiresFadingEdge="horizontal"
         android:scrollHorizontally="true"
-        app:layout_constraintEnd_toStartOf="@id/commitRef"/>
+        android:singleLine="true"
+        android:text="@string/sync_message"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_size_md"
+        app:layout_constraintBottom_toTopOf="@+id/info"
+        app:layout_constraintEnd_toStartOf="@id/commitRef"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/info"
@@ -35,10 +37,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/commitMessage"
         app:layout_constraintVertical_bias="1.0">
+
         <TextView
             android:id="@+id/author"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:singleLine="true"
             android:text="@string/example_user"
             android:textColor="@color/text_secondary"
@@ -47,6 +51,8 @@
             app:layout_constraintEnd_toStartOf="@id/committed"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
             app:layout_constraintWidth_default="wrap" />
 
         <TextView
