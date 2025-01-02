@@ -74,6 +74,7 @@
     <string name="pull">pull</string>
     <string name="git_repo_url_hint">https://git.abc/xyz.git</string>
     <string name="invalid_repository_url">Invalid repository URL!</string>
+    <string name="clone_anyway">Clone anyway</string>
     <string name="i_have_a_local_repository">I have a local repository</string>
 
     <string name="cloning_repository">Cloning repository…</string>
@@ -109,14 +110,17 @@
     <!--    Settings Dialog-->
     <string name="settings">Settings</string>
 
+    <string name="sync_message_label">Sync Message</string>
+    <string name="sync_message_description">use %s for the date and time</string>
+    <string name="sync_message">Last Sync: %s (Mobile)</string>
+
+    <string name="remote_label">remote</string>
+    <string name="default_remote">origin</string>
+
     <string name="author_name_label">author name</string>
     <string name="author_name">JohnSmith12</string>
     <string name="author_email_label">author email</string>
     <string name="author_email">john12@smith.com</string>
-
-    <string name="sync_message_label">Sync Message</string>
-    <string name="sync_message_description">use %s for the date and time</string>
-    <string name="sync_message">Last Sync: %s (Mobile)</string>
 
     <string name="gitignore">.GitIgnore</string>
     <string name="gitignore_description">list files or folders to ignore on all devices</string>
@@ -176,6 +180,5 @@
 
     <string name="enable_autosync_title">Enable Auto Sync</string>
     <string name="enable_autosync_message">Keep your data up-to-date effortlessly. Turn on Auto Sync to automatically sync in the background whenever apps are opened or closed.</string>
-    <string name="clone_anyway">Clone anyway</string>
 
 </resources>
