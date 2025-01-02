@@ -25,8 +25,10 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         setupRemoteSetings()
         setupAuthorNameSettings()
         setupAuthorEmailSettings()
-        setupGitignoreSettings()
-        setupGitInfoExcludeSettings()
+
+        val gitDirUri = settingsManager.getGitDirUri()
+        setupGitignoreSettings(gitDirUri)
+        setupGitInfoExcludeSettings(gitDirUri)
     }
 
     private fun highlightStringInFormat(syncMessageInput: EditText) {
@@ -85,9 +87,19 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         }
     }
 
-    private fun setupGitignoreSettings() {
+    private fun setupGitignoreSettings(gitDirUri: Uri?) {
+        val gitIgnoreLabel = findViewById<TextView>(R.id.gitIgnoreLabel) ?: return
+        val gitIgnoreDescription = findViewById<TextView>(R.id.gitIgnoreDescription) ?: return
         val gitignoreInputWrapper = findViewById<HorizontalScrollView>(R.id.gitignoreInputWrapper) ?: return
         val gitignoreInput = findViewById<EditText>(R.id.gitignoreInput) ?: return
+
+        if (gitDirUri == null) {
+            gitIgnoreLabel.visibility = View.GONE
+            gitIgnoreDescription.visibility = View.GONE
+            gitignoreInputWrapper.visibility = View.GONE
+            return
+        }
+
         gitignoreInput.setText(gitManager.readGitignore(gitDirPath))
         highlightCommentsInInput(gitignoreInput)
         gitignoreInput.setOnFocusChangeListener { _, hasFocus ->
@@ -101,9 +113,19 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         }
     }
 
-    private fun setupGitInfoExcludeSettings() {
+    private fun setupGitInfoExcludeSettings(gitDirUri: Uri?) {
+        val gitInfoExcludeLabel = findViewById<TextView>(R.id.gitInfoExcludeLabel) ?: return
+        val gitInfoExcludeDescription = findViewById<TextView>(R.id.gitInfoExcludeDescription) ?: return
         val gitInfoExcludeInputWrapper = findViewById<HorizontalScrollView>(R.id.gitInfoExcludeInputWrapper) ?: return
         val gitInfoExcludeInput = findViewById<EditText>(R.id.gitInfoExcludeInput) ?: return
+
+        if (gitDirUri == null) {
+            gitInfoExcludeLabel.visibility = View.GONE
+            gitInfoExcludeDescription.visibility = View.GONE
+            gitInfoExcludeInputWrapper.visibility = View.GONE
+            return
+        }
+
         gitInfoExcludeInput.setText(gitManager.readGitInfoExclude(gitDirPath))
         highlightCommentsInInput(gitInfoExcludeInput)
         gitInfoExcludeInput.setOnFocusChangeListener { _, hasFocus ->

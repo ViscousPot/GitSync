@@ -628,7 +628,6 @@ class MainActivity : AppCompatActivity() {
 
                 applicationObserverSwitch.isChecked = false
                 applicationObserverSwitch.isEnabled = false
-                settingsButton.isEnabled = false
 
                 if (gitDirPath.text.isEmpty()) {
                     gitRepoName.rightDrawable(null)
@@ -650,7 +649,6 @@ class MainActivity : AppCompatActivity() {
 
             gitRepoName.setText(repoName)
             gitRepoName.isEnabled = true
-            settingsButton.isEnabled = true
             gitRepoName.rightDrawable(R.drawable.circle_check)
             TextViewCompat.setCompoundDrawableTintList(gitRepoName, ContextCompat.getColorStateList(this, R.color.auth_green))
             gitRepoName.compoundDrawablePadding =
