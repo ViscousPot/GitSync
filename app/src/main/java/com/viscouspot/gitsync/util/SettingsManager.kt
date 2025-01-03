@@ -89,6 +89,17 @@ class SettingsManager internal constructor(private val context: Context) {
         }
     }
 
+    fun getRemote(): String {
+        return settingsSharedPref.getString("remote", null) ?: context.getString(R.string.default_remote)
+    }
+
+    fun setRemote(remote: String) {
+        with(settingsSharedPref.edit()) {
+            putString("remote", remote)
+            apply()
+        }
+    }
+
     fun getSyncMessageEnabled(): Boolean {
         return settingsSharedPref.getBoolean("syncMessageEnabled", true)
     }
