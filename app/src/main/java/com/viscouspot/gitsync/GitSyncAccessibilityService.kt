@@ -7,43 +7,64 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
+import com.viscouspot.gitsync.util.RepoManager
 import com.viscouspot.gitsync.util.SettingsManager
 
 class GitSyncAccessibilityService: AccessibilityService() {
-    private lateinit var settingsManager: SettingsManager
     private lateinit var enabledInputMethods: List<String>
-    private var appOpen = false
+    private var appOpen = mutableListOf<Boolean>()
 
     override fun onCreate() {
         super.onCreate()
-        settingsManager = SettingsManager(this)
 
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         enabledInputMethods = imm.enabledInputMethodList.map { it.packageName }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val packageNames = settingsManager.getApplicationPackages()
+        var syncOnAppClosed = false
+        var syncOnAppOpened = false
 
-        if (!(packageNames.isNotEmpty() && (settingsManager.getSyncOnAppClosed() || settingsManager.getSyncOnAppOpened()))) return
+        val repoManager = RepoManager(this);
+        val packageNamesIndexed = (0..<repoManager.getRepoNames().size).map { i ->
+            val settingsManager = SettingsManager(this, i)
+
+            syncOnAppClosed = syncOnAppClosed || settingsManager.getSyncOnAppClosed()
+            syncOnAppOpened = syncOnAppOpened || settingsManager.getSyncOnAppOpened()
+
+            settingsManager.getApplicationPackages()
+        }
+
+        if (!(packageNamesIndexed.flatten().isNotEmpty() && (syncOnAppClosed || syncOnAppOpened))) return
 
         event?.let {
             when (it.eventType) {
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                    if (appOpen && !packageNames.contains(event.packageName) && !enabledInputMethods.contains(event.packageName)) {
-                        log(LogType.AccessibilityService, "Application Closed")
-                        if (settingsManager.getSyncOnAppClosed()) {
-                            sync()
+                    packageNamesIndexed.forEachIndexed { index, packageNames ->
+                        log(index)
+                        log(appOpen)
+                        if ((appOpen.getOrNull(index) == true) && !packageNames.contains(event.packageName) && !enabledInputMethods.contains(event.packageName)) {
+                            log(LogType.AccessibilityService, "Application Closed")
+                            if (syncOnAppClosed) {
+                                sync(index)
+                            }
+                            while (appOpen.size <= index) {
+                                appOpen.add(false)
+                            }
+                            appOpen[index] = false
                         }
-                        appOpen = false
-                    }
 
-                    if (!appOpen && packageNames.contains(event.packageName)) {
-                        log(LogType.AccessibilityService, "Application Opened")
-                        if (settingsManager.getSyncOnAppOpened()) {
-                            sync()
+                        log(packageNames.contains(event.packageName))
+                        if ((appOpen.getOrNull(index) != true) && packageNames.contains(event.packageName)) {
+                            log(LogType.AccessibilityService, "Application Opened")
+                            if (syncOnAppOpened) {
+                                sync(index)
+                            }
+                            while (appOpen.size <= index) {
+                                appOpen.add(false)
+                            }
+                            appOpen[index] = true
                         }
-                        appOpen = true
                     }
                 }
                 else -> {}
@@ -53,9 +74,11 @@ class GitSyncAccessibilityService: AccessibilityService() {
 
     override fun onInterrupt() { }
 
-    private fun sync() {
+    private fun sync(index: Int) {
+        log(index)
         val syncIntent = Intent(this, GitSyncService::class.java)
         syncIntent.setAction(GitSyncService.APPLICATION_SYNC)
+        syncIntent.putExtra("repoIndex", index)
         startService(syncIntent)
     }
 }

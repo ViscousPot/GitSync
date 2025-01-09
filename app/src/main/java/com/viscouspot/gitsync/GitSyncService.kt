@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
@@ -30,15 +31,16 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class GitSyncService : Service() {
-    private lateinit var gitManager: GitManager
-    private lateinit var settingsManager: SettingsManager
+//    private lateinit var gitManager: GitManager
+//    private lateinit var settingsManager: SettingsManager
 
     private var isScheduled: Boolean = false
     private var isSyncing: Boolean = false
     private val debouncePeriod: Long = 10 * 1000
+//    private var repoIndex = 0
 
-    private val debouncedSyncFn = debounced<Boolean>(1000) { forced ->
-        sync(forced)
+    private val debouncedSyncFn = debounced<Pair<Int, Boolean>>(1000) { (repoIndex, forced) ->
+        sync(repoIndex, forced)
     }
 
     companion object {
@@ -53,51 +55,52 @@ class GitSyncService : Service() {
             return START_STICKY
         }
 
+        val repoIndex = intent.getIntExtra("repoIndex", 0)
+//        settingsManager = SettingsManager(this)
+
         when (intent.action) {
             MERGE -> {
                 log(LogType.ToServiceCommand, "Merge")
-                merge()
+                merge(repoIndex)
             }
             FORCE_SYNC -> {
                 log(LogType.ToServiceCommand, "Force Sync")
-                debouncedSync(forced = true)
+                debouncedSync(repoIndex, forced = true)
             }
             APPLICATION_SYNC -> {
                 log(LogType.ToServiceCommand, "AccessibilityService Sync")
-                debouncedSync()
+                debouncedSync(repoIndex)
             }
             INTENT_SYNC -> {
                 log(LogType.ToServiceCommand, "Intent Sync")
-                debouncedSync()
+                debouncedSync(repoIndex)
             }
         }
 
         return START_STICKY
     }
 
-
-    override fun onCreate() {
-        super.onCreate()
-        settingsManager = SettingsManager(this)
-        gitManager = GitManager(this, settingsManager)
-
-    }
-
-    private fun scheduleNetworkSync() {
+    private fun scheduleNetworkSync(repoIndex: Int) {
         log(LogType.Sync, "Scheduling sync for network regained")
         val constraints: Constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
+
+        val inputData = Data.Builder()
+            .putInt("repoIndex", repoIndex)  // Pass the integer here
+            .build()
+
         val workRequest = OneTimeWorkRequest.Builder(NetworkWorker::class.java)
-            .setConstraints(constraints).build()
+            .setConstraints(constraints)
+            .setInputData(inputData)
+            .build()
 
         WorkManager.getInstance(this).enqueueUniqueWork("networkScheduledSync", ExistingWorkPolicy.KEEP, workRequest)
-        return
     }
 
-    private fun debouncedSync(forced: Boolean = false) {
+    private fun debouncedSync(repoIndex: Int, forced: Boolean = false) {
         if (!Helper.isNetworkAvailable(this, getString(R.string.network_unavailable_retry))) {
-            scheduleNetworkSync()
+            scheduleNetworkSync(repoIndex)
         }
         if (isScheduled) {
             return
@@ -107,12 +110,15 @@ class GitSyncService : Service() {
                 log(LogType.Sync, "Sync Scheduled")
                 return
             } else {
-                debouncedSyncFn(forced)
+                debouncedSyncFn(Pair(repoIndex, forced))
             }
         }
     }
 
-    private fun sync(forced: Boolean = false) {
+    private fun sync(repoIndex: Int, forced: Boolean = false) {
+        val settingsManager = SettingsManager(this, repoIndex)
+        val gitManager = GitManager(this, settingsManager)
+
         if (gitManager.getConflicting(settingsManager.getGitDirUri()).isNotEmpty()) {
             Handler(Looper.getMainLooper()).post {
                 makeToast(
@@ -146,10 +152,10 @@ class GitSyncService : Service() {
             log(LogType.Sync, "Start Pull Repo")
             val pullResult = gitManager.downloadChanges(
                 gitDirUri,
-                ::scheduleNetworkSync,
+                { scheduleNetworkSync(repoIndex) },
             ) {
                 synced = true
-                displaySyncMessage(getString(R.string.sync_start_pull))
+                displaySyncMessage(repoIndex, getString(R.string.sync_start_pull))
             }
 
             when (pullResult) {
@@ -169,10 +175,10 @@ class GitSyncService : Service() {
             log(LogType.Sync, "Start Push Repo")
             val pushResult = gitManager.uploadChanges(
                 gitDirUri,
-                ::scheduleNetworkSync,
+                { scheduleNetworkSync(repoIndex) },
                 {
                     if (!synced) {
-                        displaySyncMessage(getString(R.string.sync_start_push))
+                        displaySyncMessage(repoIndex, getString(R.string.sync_start_push))
                     }
                 }
             )
@@ -191,11 +197,11 @@ class GitSyncService : Service() {
 
             if (!(pushResult || pullResult)) {
                 if (forced) {
-                    displaySyncMessage(getString(R.string.sync_not_required))
+                    displaySyncMessage(repoIndex, getString(R.string.sync_not_required))
                 }
                 return@launch
             } else {
-                displaySyncMessage(getString(R.string.sync_complete))
+                displaySyncMessage(repoIndex, getString(R.string.sync_complete))
             }
 
         }
@@ -212,7 +218,7 @@ class GitSyncService : Service() {
                     delay(debouncePeriod)
                     log(LogType.Sync, "Scheduled Sync Starting")
                     isScheduled = false
-                    sync()
+                    sync(repoIndex)
                 }
             } else {
                 stopSelf()
@@ -220,14 +226,17 @@ class GitSyncService : Service() {
         }
     }
 
-    private fun merge() {
+    private fun merge(repoIndex: Int) {
+        val settingsManager = SettingsManager(this, repoIndex)
+        val gitManager = GitManager(this, settingsManager)
+
         CoroutineScope(Dispatchers.Default).launch {
             val authCredentials = settingsManager.getGitAuthCredentials()
             if (settingsManager.getGitDirUri() == null || ((authCredentials.first == "" || authCredentials.second == "") && settingsManager.getGitSshPrivateKey() == "")) return@launch
 
             val pushResult = gitManager.uploadChanges(
                 settingsManager.getGitDirUri()!!,
-                ::scheduleNetworkSync,
+                { scheduleNetworkSync(repoIndex) },
                 {
                     Handler(Looper.getMainLooper()).post {
                         makeToast(
@@ -248,7 +257,7 @@ class GitSyncService : Service() {
                 false -> log(LogType.Sync, "Merge Not Required")
             }
 
-            debouncedSync(forced = true)
+            debouncedSync(repoIndex, forced = true)
 
             val intent = Intent(MainActivity.MERGE_COMPLETE)
             LocalBroadcastManager.getInstance(this@GitSyncService).sendBroadcast(intent)
@@ -257,7 +266,9 @@ class GitSyncService : Service() {
         }
     }
 
-    private fun displaySyncMessage(msg: String) {
+    private fun displaySyncMessage(repoIndex: Int, msg: String) {
+        val settingsManager = SettingsManager(this, repoIndex)
+
         if (settingsManager.getSyncMessageEnabled()) {
             Handler(Looper.getMainLooper()).post {
                 makeToast(applicationContext, msg)

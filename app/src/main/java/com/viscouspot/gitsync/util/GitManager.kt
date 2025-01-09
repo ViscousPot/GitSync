@@ -54,7 +54,6 @@ import java.util.Locale
 import java.util.TimeZone
 import org.eclipse.jgit.api.errors.CheckoutConflictException as ApiCheckoutConflictException
 
-
 class GitManager(private val context: Context, private val settingsManager: SettingsManager) {
     private fun applyCredentials(command: TransportCommand<*, *>) {
         log(settingsManager.getGitProvider())
