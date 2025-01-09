@@ -38,7 +38,7 @@ open class BaseDialog(private val context: Context) : AlertDialog(context, R.sty
         super.setView(view)
         return this
     }
-    fun setPositiveButton(textResource: Int, onClick: (dialog: DialogInterface, index: Int) -> Unit): BaseDialog {
+    fun setPositiveButton(textResource: Int, onClick: ((dialog: DialogInterface, index: Int) -> Unit)?): BaseDialog {
         setButton(BUTTON_POSITIVE, context.getString(textResource), onClick)
         return this
     }

@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.view.accessibility.AccessibilityManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
@@ -31,11 +32,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toLowerCase
-import androidx.compose.ui.text.toUpperCase
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
@@ -74,7 +73,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-
 class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
     private lateinit var applicationObserverMin: ConstraintSet
@@ -86,6 +84,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cloneRepoFragment: CloneRepoFragment
 
     private lateinit var gitRepoSpinner: Spinner
+    private lateinit var repoSpinnerAdapter: ArrayAdapter<String>
     private lateinit var removeRepoButton: MaterialButton
     private lateinit var renameRepoButton: MaterialButton
     private lateinit var addRepoButton: MaterialButton
@@ -310,13 +309,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateRepoButtons() {
+        val repoIndex = repoManager.getRepoIndex()
         runOnUiThread {
             renameRepoButton.visibility = View.GONE
             removeRepoButton.visibility = View.GONE
             addRepoButton.visibility = View.GONE
             repoActionsToggleButton.visibility = View.GONE
 
-            gitRepoSpinner.setSelection(repoManager.getRepoIndex())
+            repoSpinnerAdapter.clear()
+            repoSpinnerAdapter.addAll(repoManager.getRepoNames())
+            repoSpinnerAdapter.notifyDataSetChanged()
+            gitRepoSpinner.post{
+                gitRepoSpinner.dropDownWidth = gitRepoSpinner.width
+            }
+
+            gitRepoSpinner.setSelection(repoIndex)
 
             if (repoManager.getRepoNames().size < 2) {
                 gitRepoSpinner.visibility = View.GONE
@@ -342,12 +349,12 @@ class MainActivity : AppCompatActivity() {
         addRepoButton = findViewById(R.id.addRepoButton)
         repoActionsToggleButton = findViewById(R.id.repoActionsToggleButton)
 
-        val repoSpinnerAdapter = SpinnerIconPrefixAdapter(this, repoManager.getRepoNames().map { name -> Pair(name, null) }, R.layout.item_spinner_compact)
+        repoSpinnerAdapter =  ArrayAdapter<String>(
+            this,
+            R.layout.item_spinner_compact
+        )
 
         gitRepoSpinner.adapter = repoSpinnerAdapter
-        gitRepoSpinner.post{
-            gitRepoSpinner.dropDownWidth = gitRepoSpinner.width
-        }
 
         updateRepoButtons()
 
@@ -392,17 +399,9 @@ class MainActivity : AppCompatActivity() {
                     val repoNames = repoManager.getRepoNames().toMutableList()
                     repoNames.removeAt(repoManager.getRepoIndex())
 
-                    log(repoManager.getRepoIndex())
-                    log(repoNames.size)
+                    repoManager.setRepoNames(repoNames)
                     if (repoManager.getRepoIndex() >= repoNames.size) {
                         repoManager.setRepoIndex(repoNames.size - 1)
-                    }
-                    log(repoManager.getRepoIndex())
-
-                    repoManager.setRepoNames(repoNames)
-                    runOnUiThread {
-                        repoSpinnerAdapter.clear()
-                        repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
                     }
 
                     updateRepoButtons()
@@ -420,25 +419,29 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(getString(R.string.rename_repository))
                 .setCancelable(1)
                 .setView(keyInput)
-                .setPositiveButton(R.string.rename) { _, _ ->
-                    val repoNames = repoManager.getRepoNames().toMutableList()
-                    SettingsManager.renameSettingsPref(
-                        this,
-                        "${SettingsManager.PREFIX}${repoNames[repoManager.getRepoIndex()]}",
-                        "${SettingsManager.PREFIX}${input.text}",
-                    )
-                    repoNames[repoManager.getRepoIndex()] = input.text.toString()
-
-                    repoManager.setRepoNames(repoNames)
-                    runOnUiThread {
-                        repoSpinnerAdapter.clear()
-                        repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
-                    }
-
-                    updateRepoButtons()
-                    refreshAll()
-                }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                .setPositiveButton(R.string.rename, null)
+                .apply {
+                    setOnShowListener {
+                        getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                            if (input.text.isEmpty()) return@setOnClickListener
+
+                            val repoNames = repoManager.getRepoNames().toMutableList()
+                            SettingsManager.renameSettingsPref(
+                                applicationContext,
+                                "${SettingsManager.PREFIX}${repoNames[repoManager.getRepoIndex()]}",
+                                "${SettingsManager.PREFIX}${input.text}",
+                            )
+                            repoNames[repoManager.getRepoIndex()] = input.text.toString()
+
+                            repoManager.setRepoNames(repoNames)
+
+                            updateRepoButtons()
+                            refreshAll()
+                            dismiss()
+                        }
+                    }
+                }
                 .show()
         }
 
@@ -454,18 +457,10 @@ class MainActivity : AppCompatActivity() {
                     .setPositiveButton(R.string.add) { _, _ ->
                         val repoNames = repoManager.getRepoNames().toMutableList()
                         repoNames.add(input.text.toString())
-                        log("repoNames")
-                        log(repoNames)
-                        log(repoNames.toSet())
 
                         repoManager.setRepoNames(repoNames)
-                        runOnUiThread {
-                            repoSpinnerAdapter.clear()
-                            repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
-                        }
-
-                        log("index" + repoNames.indexOf(input.text.toString()))
                         repoManager.setRepoIndex(repoNames.indexOf(input.text.toString()))
+
                         updateRepoButtons()
                         refreshAll()
                     }
@@ -656,17 +651,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun updateSettingsManager(refresh: Boolean = true) {
-////        settingsManager = SettingsManager(this, repoIndex)
-////        settingsManager.runMigrations()
-////        settingsManager.updateRepoIndex(repoManager.getRepoIndex())
-//
-//        if (refresh) {
-//            updateRepoButtons()
-//            refreshAll()
-//        }
-//    }
-
     private fun showConfirmForcePushPullDialog(push: Boolean) {
         val stringRes = if (push) listOf(
             R.string.confirm_force_push,
@@ -830,20 +814,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        refreshAuthButton()
+        refreshGitRepo()
+
         runOnUiThread {
-            refreshAuthButton()
-            refreshGitRepo()
 
-            settingsManager.getGitDirUri()?.let {
-                gitDirPath.text = Helper.getPathFromUri(applicationContext, it)
+            val gitDirUri = settingsManager.getGitDirUri()
+            if (gitDirUri == null) {
+                gitDirPath.text = getString(R.string.git_dir_path_hint)
+            } else {
+                gitDirPath.text = Helper.getPathFromUri(applicationContext, gitDirUri)
             }
-
-//            val gitDirUri = settingsManager.getGitDirUri()
-//            if (gitDirUri == null) {
-//                gitDirPath.text = ""
-//            } else {
-//                gitDirPath.text = Helper.getPathFromUri(applicationContext, gitDirUri)
-//            }
         }
 
         val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
@@ -911,11 +892,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshRecentCommits() {
         log("refreshRecentCommits")
-//        runOnUiThread {
-//            val recentCommitsSize = recentCommits.size
-//            recentCommits.clear()
-//            recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
-//        }
 
         val gitDirUri = settingsManager.getGitDirUri()
         gitDirUri?.let {
