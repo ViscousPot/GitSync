@@ -75,16 +75,14 @@ class SettingsManager internal constructor(private val context: Context, private
     private fun reloadSharedPref() {
         val newIndex = repoIndex ?: repoManager.getRepoIndex()
         val repoNames = repoManager.getRepoNames()
-        log("getSharedPref")
-        log(currentRepoIndex)
-        log(newIndex)
-        log(repoManager.getRepoNames())
+
         if (currentRepoIndex == newIndex && currentRepoNames[newIndex] == repoNames[newIndex]) {
             return
         }
 
         currentRepoIndex = newIndex
         currentRepoNames = repoNames
+
         settingsSharedPref = EncryptedSharedPreferences.create(
             context,
             "${PREFIX}${repoManager.getRepoNames().elementAt(newIndex)}",

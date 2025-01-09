@@ -41,4 +41,15 @@ class RepoManager internal constructor(private val context: Context) {
             apply()
         }
     }
+
+    fun hasContributed(): Boolean {
+        return settingsSharedPref.getBoolean("hasContributed", false)
+    }
+
+    fun setHasContributed() {
+        with(settingsSharedPref.edit()) {
+            putBoolean("hasContributed", true)
+            apply()
+        }
+    }
 }

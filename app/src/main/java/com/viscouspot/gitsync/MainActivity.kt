@@ -457,7 +457,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         addRepoButton.setOnClickListener {
-            showContributeDialog(this, settingsManager) {
+            showContributeDialog(this, repoManager) {
                 val keyInput = LayoutInflater.from(this).inflate(R.layout.edittext_key, null) as ConstraintLayout
                 val input = keyInput.findViewById<EditText>(R.id.input)
                 input.hint = getString(R.string.default_repo_name)
@@ -492,7 +492,7 @@ class MainActivity : AppCompatActivity() {
 
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
         if (System.currentTimeMillis() - packageInfo.firstInstallTime >= 30L * 24 * 60 * 60 * 1000) {
-            showContributeDialog(this, settingsManager) {}
+            showContributeDialog(this, repoManager) {}
         }
 
         requestLegacyStoragePermission = this.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGrantedMap ->
@@ -783,7 +783,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSettingsDialog() {
-        val settingsDialog = SettingsDialog(this, settingsManager, gitManager, gitDirPath.text.toString())
+        val settingsDialog = SettingsDialog(this, repoManager, settingsManager, gitManager, gitDirPath.text.toString())
         settingsDialog.show()
     }
 

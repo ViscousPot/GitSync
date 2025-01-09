@@ -352,8 +352,8 @@ object Helper {
         return Pair(privateKey, publicKey)
     }
 
-    fun showContributeDialog(context: Context, settingsManager: SettingsManager, callback: () -> Unit) {
-        if (settingsManager.hasContributed()) {
+    fun showContributeDialog(context: Context, repoManager: RepoManager, callback: () -> Unit) {
+        if (repoManager.hasContributed()) {
             callback()
             return
         }
@@ -376,10 +376,10 @@ object Helper {
             setPositiveButton(R.string.support_now) { _, _ ->
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.contribute_link)))
                 context.startActivity(browserIntent)
-                settingsManager.setHasContributed()
+                repoManager.setHasContributed()
             }
             setNegativeButton(R.string.support_promise) { _, _ ->
-                settingsManager.setHasContributed()
+                repoManager.setHasContributed()
                 callback()
             }
         }.show()
