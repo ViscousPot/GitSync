@@ -308,6 +308,11 @@ class MainActivity : AppCompatActivity() {
         settingsManager = SettingsManager(this)
         settingsManager.runMigrations()
 
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        if (System.currentTimeMillis() - packageInfo.firstInstallTime >= 30L * 24 * 60 * 60 * 1000) {
+            showContributeDialog(this, settingsManager) {}
+        }
+
         requestLegacyStoragePermission = this.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGrantedMap ->
             if (isGrantedMap.values.all { it }) {
                 onStoragePermissionGranted?.invoke()
