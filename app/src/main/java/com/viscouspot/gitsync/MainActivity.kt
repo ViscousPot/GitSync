@@ -133,7 +133,9 @@ class MainActivity : AppCompatActivity() {
             showConfirmForcePushPullDialog(false)
         },
         Pair("Manual Sync") {
-            ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
+            showContributeDialog(this, settingsManager) {
+                ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
+            }
         },
     )
 

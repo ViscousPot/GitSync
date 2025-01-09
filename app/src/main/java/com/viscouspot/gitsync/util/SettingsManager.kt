@@ -203,6 +203,17 @@ class SettingsManager internal constructor(private val context: Context) {
         }
     }
 
+    fun hasContributed(): Boolean {
+        return settingsSharedPref.getBoolean("hasContributed", false)
+    }
+
+    fun setHasContributed() {
+        with(settingsSharedPref.edit()) {
+            putBoolean("hasContributed", true)
+            apply()
+        }
+    }
+
     fun runMigrations() {
         val oldApplicationPackage = getApplicationPackage()
         if (oldApplicationPackage != "" && getApplicationPackages().isEmpty()) {

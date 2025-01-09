@@ -33,6 +33,7 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         setupGitInfoExcludeSettings(gitDirUri)
 
         setupViewDocsButton()
+        setupContributeButton()
         setupReportBugButton()
     }
 
@@ -41,6 +42,15 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         viewDocsButton.setOnClickListener {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.docs_link)))
             context.startActivity(browserIntent)
+        }
+    }
+
+    private fun setupContributeButton() {
+        val contributeButton = findViewById<MaterialButton>(R.id.contributeButton) ?: return
+        contributeButton.setOnClickListener {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.contribute_link)))
+            context.startActivity(browserIntent)
+            settingsManager.setHasContributed()
         }
     }
 

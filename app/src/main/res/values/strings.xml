@@ -150,6 +150,12 @@
     <string name="docs_link">https://github.com/ViscousPot/GitSync/blob/master/Documentation.md</string>
     <string name="documentation_html_link"><![CDATA[<a href=\"%s\">DOCUMENTATION</a>]]></string>
 
+    <string name="support_now">Contribute!</string>
+    <string name="contribute_msg"><![CDATA[Advanced features like this require extra effort to build and maintain. <br/><br/>You can help keep them available and improving with a contribution as low as <b>$5</b> through GitHub Sponsors.]]></string>
+    <string name="contribute_title">Support Our Work</string>
+    <string name="support_promise">I have</string>
+    <string name="contribute_link"><![CDATA[https://github.com/sponsors/ViscousPot?sponsor=ViscousPot&frequency=one-time&amount=15]]></string>
+
     <!--    Auth Dialogs-->
     <string name="select_your_git_provider_and_authenticate">Select your git provider and authenticate</string>
 
