@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/input_bg_sm"
         android:backgroundTint="@color/card_secondary_bg"
-        android:hint="@string/ssh_priv_key_example"
         android:inputType="textNoSuggestions"
         android:focusable="true"
         android:importantForAutofill="no"

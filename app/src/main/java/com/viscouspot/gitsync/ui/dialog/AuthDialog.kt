@@ -17,6 +17,7 @@ import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.adapter.SpinnerIconPrefixAdapter
 import com.viscouspot.gitsync.util.Helper
+import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 
@@ -56,13 +57,15 @@ class AuthDialog(private val context: Context, private val settingsManager: Sett
     }
 
     private fun showRestoreKeyDialog(provider: GitProviderManager.Companion.Provider){
+        val input = keyInput.findViewById<EditText>(R.id.input)
+        input.hint = context.getString(R.string.ssh_priv_key_example)
         BaseDialog(context)
             .setTitle(context.getString(R.string.import_private_key))
             .setMessage(context.getString(R.string.import_private_key_msg))
             .setCancelable(1)
             .setView(keyInput)
             .setPositiveButton(R.string.import_key) { _, _ ->
-                val key = keyInput.findViewById<EditText>(R.id.input).text
+                val key = input.text
                 if (key == null || key.isEmpty()) return@setPositiveButton
                 setAuth(provider,null, key.toString())
                 dismiss()
@@ -97,6 +100,8 @@ class AuthDialog(private val context: Context, private val settingsManager: Sett
         privKeyButton = findViewById(R.id.privKeyButton) ?: return
         generateKeyButton = findViewById(R.id.generateKeyButton) ?: return
         restoreKeyButton = findViewById(R.id.restoreKeyButton) ?: return
+
+        log(settingsManager.getGitProvider())
 
         spinner.setSelection(providers.keys.toList().indexOf(settingsManager.getGitProvider()))
 

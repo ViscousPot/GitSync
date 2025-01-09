@@ -3,6 +3,7 @@ package com.viscouspot.gitsync.util.provider
 import android.content.Context
 import android.net.Uri
 import com.viscouspot.gitsync.R
+import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
 
 interface GitProviderManager {
@@ -31,6 +32,7 @@ interface GitProviderManager {
         )
 
         fun getManager(context: Context, settingsManager: SettingsManager): GitProviderManager {
+            log(settingsManager.getGitProvider())
             return managerMap[settingsManager.getGitProvider()]?.invoke(context)
                 ?: throw IllegalArgumentException("No manager found")
         }

@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -24,12 +25,17 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.text.toUpperCase
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.NotificationManagerCompat
@@ -42,8 +48,8 @@ import com.viscouspot.gitsync.ui.NDSpinner
 import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
 import com.viscouspot.gitsync.ui.adapter.ApplicationListAdapter
 import com.viscouspot.gitsync.ui.adapter.Commit
-import com.viscouspot.gitsync.ui.adapter.SpinnerIconPrefixAdapter
 import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
+import com.viscouspot.gitsync.ui.adapter.SpinnerIconPrefixAdapter
 import com.viscouspot.gitsync.ui.dialog.ApplicationSelectDialog
 import com.viscouspot.gitsync.ui.dialog.AuthDialog
 import com.viscouspot.gitsync.ui.dialog.BaseDialog
@@ -53,19 +59,21 @@ import com.viscouspot.gitsync.ui.dialog.ProgressDialog
 import com.viscouspot.gitsync.ui.dialog.SettingsDialog
 import com.viscouspot.gitsync.ui.fragment.CloneRepoFragment
 import com.viscouspot.gitsync.util.GitManager
-import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.makeToast
 import com.viscouspot.gitsync.util.Helper.showContributeDialog
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.OnboardingController
+import com.viscouspot.gitsync.util.RepoManager
 import com.viscouspot.gitsync.util.SettingsManager
+import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.rightDrawable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var applicationObserverMax: ConstraintSet
@@ -73,8 +81,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var gitManager: GitManager
     private lateinit var settingsManager: SettingsManager
+    private lateinit var repoManager: RepoManager
     private lateinit var onboardingController: OnboardingController
     private lateinit var cloneRepoFragment: CloneRepoFragment
+
+    private lateinit var gitRepoSpinner: Spinner
+    private lateinit var removeRepoButton: MaterialButton
+    private lateinit var renameRepoButton: MaterialButton
+    private lateinit var addRepoButton: MaterialButton
+    private lateinit var repoActionsToggleButton: MaterialButton
 
     private val recentCommits: MutableList<Commit> = mutableListOf()
     private lateinit var recentCommitsRecycler: RecyclerViewEmptySupport
@@ -294,9 +309,170 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun updateRepoButtons() {
+        runOnUiThread {
+            renameRepoButton.visibility = View.GONE
+            removeRepoButton.visibility = View.GONE
+            addRepoButton.visibility = View.GONE
+            repoActionsToggleButton.visibility = View.GONE
+
+            gitRepoSpinner.setSelection(repoManager.getRepoIndex())
+
+            if (repoManager.getRepoNames().size < 2) {
+                gitRepoSpinner.visibility = View.GONE
+                addRepoButton.visibility = View.VISIBLE
+            } else {
+                gitRepoSpinner.visibility = View.VISIBLE
+                repoActionsToggleButton.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        repoManager = RepoManager(this)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        gitRepoSpinner = findViewById(R.id.gitRepoSpinner)
+        removeRepoButton = findViewById(R.id.removeRepoButton)
+        renameRepoButton = findViewById(R.id.renameRepoButton)
+        addRepoButton = findViewById(R.id.addRepoButton)
+        repoActionsToggleButton = findViewById(R.id.repoActionsToggleButton)
+
+        val repoSpinnerAdapter = SpinnerIconPrefixAdapter(this, repoManager.getRepoNames().map { name -> Pair(name, null) }, R.layout.item_spinner_compact)
+
+        gitRepoSpinner.adapter = repoSpinnerAdapter
+        gitRepoSpinner.post{
+            gitRepoSpinner.dropDownWidth = gitRepoSpinner.width
+        }
+
+        updateRepoButtons()
+
+        var initialGitRepoSpinner = false
+        gitRepoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                if (!initialGitRepoSpinner) {
+                    initialGitRepoSpinner = true
+                    return
+                }
+
+                repoManager.setRepoIndex(position)
+                updateRepoButtons()
+                refreshAll()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        repoActionsToggleButton.setOnClickListener {
+            renameRepoButton.visibility = View.VISIBLE
+            if (repoManager.getRepoNames().size > 1) {
+                removeRepoButton.visibility = View.VISIBLE
+            }
+            addRepoButton.visibility = View.VISIBLE
+            repoActionsToggleButton.visibility = View.GONE
+        }
+
+        removeRepoButton.setOnClickListener {
+            BaseDialog(this)
+                .setTitle(getString(R.string.confirm_repo_delete))
+                .setMessage(
+                    getString(
+                        R.string.confirm_repo_delete_msg,
+                        repoManager.getRepoNames().elementAt(repoManager.getRepoIndex())
+                    )
+                )
+                .setCancelable(1)
+                .setPositiveButton(android.R.string.cancel) { _, _ -> }
+                .setNegativeButton(R.string.confirm) { _, _ ->
+                    settingsManager.clearAll()
+                    val repoNames = repoManager.getRepoNames().toMutableList()
+                    repoNames.removeAt(repoManager.getRepoIndex())
+
+                    log(repoManager.getRepoIndex())
+                    log(repoNames.size)
+                    if (repoManager.getRepoIndex() >= repoNames.size) {
+                        repoManager.setRepoIndex(repoNames.size - 1)
+                    }
+                    log(repoManager.getRepoIndex())
+
+                    repoManager.setRepoNames(repoNames)
+                    runOnUiThread {
+                        repoSpinnerAdapter.clear()
+                        repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
+                    }
+
+                    updateRepoButtons()
+                    refreshAll()
+                }
+                .show()
+        }
+
+        renameRepoButton.setOnClickListener {
+            val keyInput = LayoutInflater.from(this).inflate(R.layout.edittext_key, null) as ConstraintLayout
+            val input = keyInput.findViewById<EditText>(R.id.input)
+            input.hint = getString(R.string.default_repo_name)
+            input.setText(repoManager.getRepoNames().elementAt(repoManager.getRepoIndex()))
+            BaseDialog(this)
+                .setTitle(getString(R.string.rename_repository))
+                .setCancelable(1)
+                .setView(keyInput)
+                .setPositiveButton(R.string.rename) { _, _ ->
+                    val repoNames = repoManager.getRepoNames().toMutableList()
+                    SettingsManager.renameSettingsPref(
+                        this,
+                        "${SettingsManager.PREFIX}${repoNames[repoManager.getRepoIndex()]}",
+                        "${SettingsManager.PREFIX}${input.text}",
+                    )
+                    repoNames[repoManager.getRepoIndex()] = input.text.toString()
+
+                    repoManager.setRepoNames(repoNames)
+                    runOnUiThread {
+                        repoSpinnerAdapter.clear()
+                        repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
+                    }
+
+                    updateRepoButtons()
+                    refreshAll()
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                .show()
+        }
+
+        addRepoButton.setOnClickListener {
+            showContributeDialog(this, settingsManager) {
+                val keyInput = LayoutInflater.from(this).inflate(R.layout.edittext_key, null) as ConstraintLayout
+                val input = keyInput.findViewById<EditText>(R.id.input)
+                input.hint = getString(R.string.default_repo_name)
+                BaseDialog(this)
+                    .setTitle(getString(R.string.add_repository))
+                    .setCancelable(1)
+                    .setView(keyInput)
+                    .setPositiveButton(R.string.add) { _, _ ->
+                        val repoNames = repoManager.getRepoNames().toMutableList()
+                        repoNames.add(input.text.toString())
+                        log("repoNames")
+                        log(repoNames)
+                        log(repoNames.toSet())
+
+                        repoManager.setRepoNames(repoNames)
+                        runOnUiThread {
+                            repoSpinnerAdapter.clear()
+                            repoSpinnerAdapter.addAll(repoNames.map { name -> Pair(name, null) })
+                        }
+
+                        log("index" + repoNames.indexOf(input.text.toString()))
+                        repoManager.setRepoIndex(repoNames.indexOf(input.text.toString()))
+                        updateRepoButtons()
+                        refreshAll()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                    .show()
+            }
+        }
 
         System.setProperty("org.eclipse.jgit.util.Debug", "true")
         System.setProperty("org.apache.sshd.common.util.logging.level", "DEBUG")
@@ -388,6 +564,7 @@ class MainActivity : AppCompatActivity() {
         forceSyncButton.setOnClickListener {
             val forceSyncIntent = Intent(this, GitSyncService::class.java)
             forceSyncIntent.setAction(GitSyncService.FORCE_SYNC)
+            forceSyncIntent.putExtra("repoIndex", repoManager.getRepoIndex())
             startService(forceSyncIntent)
         }
 
@@ -479,6 +656,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+//    private fun updateSettingsManager(refresh: Boolean = true) {
+////        settingsManager = SettingsManager(this, repoIndex)
+////        settingsManager.runMigrations()
+////        settingsManager.updateRepoIndex(repoManager.getRepoIndex())
+//
+//        if (refresh) {
+//            updateRepoButtons()
+//            refreshAll()
+//        }
+//    }
+
     private fun showConfirmForcePushPullDialog(push: Boolean) {
         val stringRes = if (push) listOf(
             R.string.confirm_force_push,
@@ -548,16 +736,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateApplicationObserver(isChecked: Boolean) {
-        (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(applicationObserverPanel)
+        runOnUiThread {
+            (if (isChecked) applicationObserverMax else applicationObserverMin).applyTo(
+                applicationObserverPanel
+            )
+        }
         if (isChecked) {
             updateApplicationObserverSwitch(true)
             if (!checkAccessibilityPermission()) {
-                applicationObserverSwitch.isChecked = false
-                syncAppOpened.isChecked = false
-                syncAppClosed.isChecked = false
-                updateApplicationObserverSwitch(false)
-                applicationObserverMin.applyTo(applicationObserverPanel)
-                displayProminentDisclosure()
+                runOnUiThread {
+                    applicationObserverSwitch.isChecked = false
+                    syncAppOpened.isChecked = false
+                    syncAppClosed.isChecked = false
+                    updateApplicationObserverSwitch(false)
+                    applicationObserverMin.applyTo(applicationObserverPanel)
+                    displayProminentDisclosure()
+                }
             } else {
                 settingsManager.setApplicationObserverEnabled(true)
                 refreshSelectedApplications()
@@ -571,15 +765,29 @@ class MainActivity : AppCompatActivity() {
     private fun openMergeConflictDialog() {
         if (mergeConflictDialog?.isShowing == true) mergeConflictDialog?.dismiss()
 
-        mergeConflictDialog = MergeConflictDialog(this, settingsManager, gitManager, ::refreshRecentCommits)
+        mergeConflictDialog = MergeConflictDialog(this, repoManager.getRepoIndex(), settingsManager, gitManager, ::refreshRecentCommits)
         mergeConflictDialog?.show()
     }
 
     private fun updateApplicationObserverSwitch(upDown: Boolean = settingsManager.getApplicationObserverEnabled()) {
-        applicationObserverSwitch.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(this, if (upDown) R.drawable.angle_up else R.drawable.angle_down)
-            ?.apply {
-                setTint(ContextCompat.getColor(this@MainActivity, if (checkAccessibilityPermission()) R.color.auth_green else R.color.text_secondary))
-            }, null)
+        runOnUiThread {
+            applicationObserverSwitch.setCompoundDrawablesWithIntrinsicBounds(null,
+                null,
+                ContextCompat.getDrawable(
+                    this,
+                    if (upDown) R.drawable.angle_up else R.drawable.angle_down
+                )
+                    ?.apply {
+                        setTint(
+                            ContextCompat.getColor(
+                                this@MainActivity,
+                                if (checkAccessibilityPermission()) R.color.auth_green else R.color.text_secondary
+                            )
+                        )
+                    },
+                null
+            )
+        }
     }
 
     private fun openSettingsDialog() {
@@ -605,8 +813,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshAll() {
-        refreshRecentCommits()
-
+        log("refreshAll")
         runOnUiThread {
             if (settingsManager.getSyncMessageEnabled()) {
                 settingsManager.setSyncMessageEnabled(false)
@@ -623,19 +830,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        refreshAuthButton()
-        refreshGitRepo()
-
         runOnUiThread {
+            refreshAuthButton()
+            refreshGitRepo()
+
             settingsManager.getGitDirUri()?.let {
-                gitDirPath.text = Helper.getPathFromUri(this, it)
+                gitDirPath.text = Helper.getPathFromUri(applicationContext, it)
             }
+
+//            val gitDirUri = settingsManager.getGitDirUri()
+//            if (gitDirUri == null) {
+//                gitDirPath.text = ""
+//            } else {
+//                gitDirPath.text = Helper.getPathFromUri(applicationContext, gitDirUri)
+//            }
         }
 
         val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
-        runOnUiThread {
-            updateApplicationObserver(applicationObserverEnabled)
-        }
+        updateApplicationObserver(applicationObserverEnabled)
 
         runOnUiThread {
             syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
@@ -698,35 +910,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshRecentCommits() {
-        runOnUiThread {
-            val mergeConflictIndex = recentCommits.indexOfFirst { it.reference == RecentCommitsAdapter.MERGE_CONFLICT}
-            if (mergeConflictIndex >= 0) {
-                recentCommits.removeAt(mergeConflictIndex)
-                recentCommitsAdapter.notifyItemRemoved(mergeConflictIndex)
-            }
-
-        }
+        log("refreshRecentCommits")
+//        runOnUiThread {
+//            val recentCommitsSize = recentCommits.size
+//            recentCommits.clear()
+//            recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
+//        }
 
         val gitDirUri = settingsManager.getGitDirUri()
         gitDirUri?.let {
-            val recentCommitsReferences = recentCommits.map { commit -> commit.reference }
-            log(settingsManager.getGitDirUri())
             val newRecentCommits = gitManager.getRecentCommits(Helper.getPathFromUri(this, it))
-                .filter { commit -> !recentCommitsReferences.contains(commit.reference) }
-            if (newRecentCommits.isNotEmpty()) {
+            if (recentCommits.map { commit -> commit.reference } != newRecentCommits.map { commit -> commit.reference }) {
+                log("test speed")
                 runOnUiThread {
-                    recentCommits.addAll(0, newRecentCommits)
-                    recentCommitsAdapter.notifyItemRangeInserted(0, newRecentCommits.size)
-                    recentCommitsRecycler.smoothScrollToPosition(0)
+                    val recentCommitsSize = recentCommits.size
+                    recentCommits.clear()
+                    recentCommitsAdapter.notifyItemRangeRemoved(0, recentCommitsSize)
+                }
+                if (newRecentCommits.isNotEmpty()) {
+                    runOnUiThread {
+                        recentCommits.addAll(0, newRecentCommits)
+                        recentCommitsAdapter.notifyItemRangeInserted(0, newRecentCommits.size)
+                        recentCommitsRecycler.smoothScrollToPosition(0)
+                    }
                 }
             }
         }
 
         if (gitManager.getConflicting(settingsManager.getGitDirUri()).isNotEmpty()) {
+            recentCommits.add(0, Commit("", "", 0L, RecentCommitsAdapter.MERGE_CONFLICT, 0, 0))
+
             runOnUiThread {
                 forceSyncButton.isEnabled = false
-
-                recentCommits.add(0, Commit("", "", 0L, RecentCommitsAdapter.MERGE_CONFLICT, 0, 0))
                 recentCommitsAdapter.notifyItemInserted(0)
                 recentCommitsRecycler.smoothScrollToPosition(0)
             }
@@ -735,28 +950,32 @@ class MainActivity : AppCompatActivity() {
                 forceSyncButton.isEnabled = true
             }
         }
+        log("done here")
     }
 
     private fun refreshGitRepo() {
-        runOnUiThread {
-            var repoName = ""
-            val gitDirUri = settingsManager.getGitDirUri()
+        log("refreshGitRepo")
+        var repoName = ""
+        val gitDirUri = settingsManager.getGitDirUri()
 
-            gitDirUri?.let {
-                val gitConfigFile = File("${Helper.getPathFromUri(this, it)}/${getString(R.string.git_config_path)}")
-                if (gitConfigFile.exists()) {
-                    val fileContents = gitConfigFile.readText()
+        log("gitDirUri")
+        log(gitDirUri)
 
-                    val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
-                    val gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
-                    val url = gitConfigUrlResult?.groups?.get(1)?.value
+        gitDirUri?.let {
+            val gitConfigFile = File("${Helper.getPathFromUri(this, it)}/${getString(R.string.git_config_path)}")
+            if (gitConfigFile.exists()) {
+                val fileContents = gitConfigFile.readText()
 
-                    val gitRepoNameRegex = ".*/([^/]+?)(\\.git)?$".toRegex()
-                    val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
-                    repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
-                }
+                val gitConfigUrlRegex = "url = (.*?)\\n".toRegex()
+                val gitConfigUrlResult = gitConfigUrlRegex.find(fileContents)
+                val url = gitConfigUrlResult?.groups?.get(1)?.value
+
+                val gitRepoNameRegex = ".*/([^/]+?)(\\.git)?$".toRegex()
+                val gitRepoNameResult = gitRepoNameRegex.find(url.toString())
+                repoName = gitRepoNameResult?.groups?.get(1)?.value ?: ""
             }
-
+        }
+        runOnUiThread {
             if (repoName == "") {
                 gitRepoName.setText(getString(R.string.repo_not_found))
                 gitRepoName.isEnabled = false
@@ -764,7 +983,10 @@ class MainActivity : AppCompatActivity() {
                 cloneRepoButton.visibility = View.VISIBLE
                 deselectDirButton.visibility = View.GONE
                 cloneRepoButton.setOnClickListener {
-                    CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback).show(supportFragmentManager, getString(R.string.clone_repo))
+                    CloneRepoFragment(settingsManager, gitManager, ::dirSelectionCallback).show(
+                        supportFragmentManager,
+                        getString(R.string.clone_repo)
+                    )
                 }
 
                 applicationObserverSwitch.isChecked = false
@@ -777,7 +999,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 gitRepoName.rightDrawable(R.drawable.circle_xmark)
-                TextViewCompat.setCompoundDrawableTintList(gitRepoName, ContextCompat.getColorStateList(this, R.color.auth_red))
+                TextViewCompat.setCompoundDrawableTintList(
+                    gitRepoName,
+                    ContextCompat.getColorStateList(this, R.color.auth_red)
+                )
                 gitRepoName.compoundDrawablePadding =
                     (4 * resources.displayMetrics.density + 0.5f).toInt()
 
@@ -791,7 +1016,10 @@ class MainActivity : AppCompatActivity() {
             gitRepoName.setText(repoName)
             gitRepoName.isEnabled = true
             gitRepoName.rightDrawable(R.drawable.circle_check)
-            TextViewCompat.setCompoundDrawableTintList(gitRepoName, ContextCompat.getColorStateList(this, R.color.auth_green))
+            TextViewCompat.setCompoundDrawableTintList(
+                gitRepoName,
+                ContextCompat.getColorStateList(this, R.color.auth_green)
+            )
             gitRepoName.compoundDrawablePadding =
                 (4 * resources.displayMetrics.density + 0.5f).toInt()
 
@@ -799,24 +1027,24 @@ class MainActivity : AppCompatActivity() {
             deselectDirButton.visibility = View.VISIBLE
 
             applicationObserverSwitch.isEnabled = true
-
         }
 
         refreshRecentCommits()
     }
 
     private fun refreshAuthButton() {
-        runOnUiThread {
-            if (settingsManager.getGitAuthCredentials().second != "" || settingsManager.getGitSshPrivateKey() != "") {
+        if (settingsManager.getGitAuthCredentials().second != "" || settingsManager.getGitSshPrivateKey() != "") {
+            runOnUiThread {
                 gitAuthButton.icon = ContextCompat.getDrawable(this, R.drawable.circle_check)
                 gitAuthButton.setIconTintResource(R.color.auth_green)
 
                 selectDirButton.isEnabled = true
                 cloneRepoButton.isEnabled = true
-
-                return@runOnUiThread
             }
+            return
+        }
 
+        runOnUiThread {
             gitAuthButton.icon = ContextCompat.getDrawable(this, R.drawable.circle_xmark)
             gitAuthButton.setIconTintResource(R.color.auth_red)
 

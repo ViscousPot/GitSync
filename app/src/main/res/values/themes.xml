@@ -4,18 +4,19 @@
     <style name="Theme.GitSync" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="android:textColorPrimary">@color/text_primary</item>
 
-        <item name="android:actionBarStyle">@style/ThemeActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="actionBarStyle">@style/ThemeActionBar</item>
-        <item name="windowActionBarOverlay">true</item>
+<!--        <item name="android:actionBarStyle">@style/ThemeActionBar</item>-->
+<!--        <item name="android:windowActionBarOverlay">true</item>-->
+<!--        <item name="actionBarStyle">@style/ThemeActionBar</item>-->
+        <item name="windowActionBarOverlay">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="ThemeActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
-        <item name="android:background">@color/app_bg</item>
-        <item name="background">@color/app_bg</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="elevation">0dp</item>
-    </style>
+<!--    <style name="ThemeActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">-->
+<!--        <item name="android:background">@color/app_bg</item>-->
+<!--        <item name="background">@color/app_bg</item>-->
+<!--        <item name="android:windowContentOverlay">@null</item>-->
+<!--        <item name="elevation">0dp</item>-->
+<!--    </style>-->
 
     <style name="AlertDialogMinTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="buttonIconDimen">20dp</item>

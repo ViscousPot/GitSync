@@ -218,5 +218,14 @@
 
     <string name="enable_autosync_title">Enable Auto Sync</string>
     <string name="enable_autosync_message">Keep your data up-to-date effortlessly. Turn on Auto Sync to automatically sync in the background whenever apps are opened or closed.</string>
+    <string name="rename_repository">Rename Repository</string>
+    <string name="rename_repository_msg">Enter a new name for the repository</string>
+    <string name="default_repo_name">main</string>
+    <string name="rename">Rename</string>
+    <string name="add_repository">Add Repository</string>
+    <string name="add">Add</string>
+    <string name="confirm_repo_delete_msg">Are you sure you want to delete the repository \"%1$s\"? \n\nThis action cannot be undone.</string>
+    <string name="confirm_repo_delete">Confirm Repository Deletion</string>
+    <string name="confirm">Confirm</string>
 
 </resources>
