@@ -56,6 +56,7 @@ import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.makeToast
+import com.viscouspot.gitsync.util.Helper.showContributeDialog
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.OnboardingController
@@ -95,8 +96,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gitDirPath: TextView
     private lateinit var deselectDirButton: MaterialButton
     private lateinit var selectDirButton: MaterialButton
-
-    private lateinit var viewDocs: MaterialButton
 
     private lateinit var applicationObserverPanel: ConstraintLayout
     private lateinit var applicationObserverSwitch: Switch
@@ -354,8 +353,6 @@ class MainActivity : AppCompatActivity() {
         gitDirPath = findViewById(R.id.gitDirPath)
         deselectDirButton = findViewById(R.id.deselectDirButton)
         selectDirButton = findViewById(R.id.selectDirButton)
-
-        viewDocs = findViewById(R.id.viewDocs)
 
         applicationObserverPanel = findViewById(R.id.applicationObserverPanel)
         applicationObserverSwitch = applicationObserverPanel.findViewById(R.id.enableApplicationObserver)

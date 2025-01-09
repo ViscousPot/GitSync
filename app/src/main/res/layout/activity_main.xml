@@ -357,26 +357,4 @@
             />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/viewDocs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_md"
-        android:backgroundTint="@color/card_secondary_bg"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:text=""
-        android:textSize="@dimen/text_size_md"
-        app:cornerRadius="@dimen/corner_radius_md"
-        app:icon="@drawable/docs"
-        android:contentDescription="@string/documentation_html_link"
-        app:iconPadding="0dp"
-        app:iconSize="@dimen/text_size_lg"
-        app:iconGravity="textEnd"
-        android:minWidth="1dp"
-        app:iconTint="@color/text_secondary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

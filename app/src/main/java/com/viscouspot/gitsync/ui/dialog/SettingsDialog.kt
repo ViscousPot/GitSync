@@ -1,6 +1,7 @@
 package com.viscouspot.gitsync.ui.dialog
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
@@ -31,7 +32,16 @@ class SettingsDialog(private val context: Context, private val settingsManager: 
         setupGitignoreSettings(gitDirUri)
         setupGitInfoExcludeSettings(gitDirUri)
 
+        setupViewDocsButton()
         setupReportBugButton()
+    }
+
+    private fun setupViewDocsButton() {
+        val viewDocsButton = findViewById<MaterialButton>(R.id.viewDocsButton) ?: return
+        viewDocsButton.setOnClickListener {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.docs_link)))
+            context.startActivity(browserIntent)
+        }
     }
 
     private fun setupReportBugButton() {

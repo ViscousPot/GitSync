@@ -68,9 +68,6 @@
     <string name="sync_on_app_closed">Sync on app(s) closed</string>
     <string name="sync_on_app_opened">Sync on app(s) opened</string>
 
-    <string name="docs_link">https://github.com/ViscousPot/GitSync/blob/master/Documentation.md</string>
-    <string name="documentation_html_link"><![CDATA[<a href=\"%s\">DOCUMENTATION</a>]]></string>
-
     <!--    Clone Screen-->
     <string name="clone_repo">Clone remote repository</string>
 
@@ -148,6 +145,10 @@
     <string name="git_info_exclude">Git/info/exclude</string>
     <string name="git_info_exclude_description">list files or folders to ignore on this device</string>
     <string name="git_info_exclude_hint">.trash/\n./…</string>
+
+    <string name="view_docs">View Documentation</string>
+    <string name="docs_link">https://github.com/ViscousPot/GitSync/blob/master/Documentation.md</string>
+    <string name="documentation_html_link"><![CDATA[<a href=\"%s\">DOCUMENTATION</a>]]></string>
 
     <!--    Auth Dialogs-->
     <string name="select_your_git_provider_and_authenticate">Select your git provider and authenticate</string>
