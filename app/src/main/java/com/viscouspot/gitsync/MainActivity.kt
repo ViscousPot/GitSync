@@ -140,6 +140,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REFRESH = "REFRESH"
+        const val MANUAL_SYNC = "MANUAL_SYNC"
         const val MERGE_COMPLETE = "MERGE_COMPLETE"
     }
 
@@ -198,6 +199,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (intent.action == MANUAL_SYNC) {
+            ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
+            return
+        }
+        
         val uri = intent.data ?: return
 
         log(LogType.GithubOAuthFlow, "Flow Ended")
@@ -467,6 +473,10 @@ class MainActivity : AppCompatActivity() {
         viewDocs.setOnClickListener {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.docs_link)))
             startActivity(browserIntent)
+        }
+
+        if (intent.action == MANUAL_SYNC) {
+            ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
         }
     }
 

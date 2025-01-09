@@ -50,11 +50,27 @@
                     android:scheme="gitsync"
                     android:host="auth" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="MANUAL_SYNC" />
+            </intent-filter>
         </activity>
         <service
-            android:name=".GitTileService"
+            android:name=".GitTileSyncService"
             android:exported="true"
-            android:label="Git Sync"
+            android:label="Sync"
+            android:icon="@drawable/gitsync_notif"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+        <service
+            android:name=".GitTileManualSyncService"
+            android:exported="true"
+            android:label="Manual Sync"
             android:icon="@drawable/gitsync_notif"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
