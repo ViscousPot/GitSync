@@ -47,6 +47,7 @@ import com.viscouspot.gitsync.ui.adapter.RecentCommitsAdapter
 import com.viscouspot.gitsync.ui.dialog.ApplicationSelectDialog
 import com.viscouspot.gitsync.ui.dialog.AuthDialog
 import com.viscouspot.gitsync.ui.dialog.BaseDialog
+import com.viscouspot.gitsync.ui.dialog.ManualSyncDialog
 import com.viscouspot.gitsync.ui.dialog.MergeConflictDialog
 import com.viscouspot.gitsync.ui.dialog.ProgressDialog
 import com.viscouspot.gitsync.ui.dialog.SettingsDialog
@@ -122,6 +123,7 @@ class MainActivity : AppCompatActivity() {
     private val syncOptionIconMap: Map<String, Int> = mapOf(
         Pair("Force Push", R.drawable.force_push),
         Pair("Force Pull", R.drawable.force_pull),
+        Pair("Manual Sync", R.drawable.manual_sync),
     )
 
     val syncOptionFnMap: Map<String, () -> Unit> = mapOf(
@@ -130,6 +132,9 @@ class MainActivity : AppCompatActivity() {
         },
         Pair("Force Pull") {
             showConfirmForcePushPullDialog(false)
+        },
+        Pair("Manual Sync") {
+            ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
         },
     )
 

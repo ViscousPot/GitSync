@@ -96,7 +96,7 @@ class GitSyncService : Service() {
     }
 
     private fun debouncedSync(forced: Boolean = false) {
-        if (!Helper.isNetworkAvailable(this, getString(R.string.network_unavailable))) {
+        if (!Helper.isNetworkAvailable(this, getString(R.string.network_unavailable_retry))) {
             scheduleNetworkSync()
         }
         if (isScheduled) {
@@ -170,12 +170,12 @@ class GitSyncService : Service() {
             val pushResult = gitManager.uploadChanges(
                 gitDirUri,
                 ::scheduleNetworkSync,
-            ) {
-                if (!synced) {
-                    displaySyncMessage(getString(R.string.sync_start_push))
+                {
+                    if (!synced) {
+                        displaySyncMessage(getString(R.string.sync_start_push))
+                    }
                 }
-            }
-
+            )
             when (pushResult) {
                 null -> {
                     log(LogType.Sync, "Push Repo Failed")
@@ -228,14 +228,15 @@ class GitSyncService : Service() {
             val pushResult = gitManager.uploadChanges(
                 settingsManager.getGitDirUri()!!,
                 ::scheduleNetworkSync,
-            ) {
-                Handler(Looper.getMainLooper()).post {
-                    makeToast(
-                        applicationContext,
-                        getString(R.string.resolving_merge),
-                    )
+                {
+                    Handler(Looper.getMainLooper()).post {
+                        makeToast(
+                            applicationContext,
+                            getString(R.string.resolving_merge),
+                        )
+                    }
                 }
-            }
+            )
 
             when (pushResult) {
                 null -> {
