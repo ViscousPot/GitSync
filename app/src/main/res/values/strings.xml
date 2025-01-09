@@ -151,7 +151,7 @@
     <string name="documentation_html_link"><![CDATA[<a href=\"%s\">DOCUMENTATION</a>]]></string>
 
     <string name="support_now">Contribute!</string>
-    <string name="contribute_msg"><![CDATA[Advanced features like this require extra effort to build and maintain. <br/><br/>You can help keep them available and improving with a contribution as low as <b>$5</b> through GitHub Sponsors.]]></string>
+    <string name="contribute_msg"><![CDATA[<b>Looks like you\'re a bit of a power user!</b><br/><br/>Your support can help keep the app running smoothly and evolving with a contribution as little as <b>$5</b> through GitHub Sponsors.]]></string>
     <string name="contribute_title">Support Our Work</string>
     <string name="support_promise">I have</string>
     <string name="contribute_link"><![CDATA[https://github.com/sponsors/ViscousPot?sponsor=ViscousPot&frequency=one-time&amount=15]]></string>
