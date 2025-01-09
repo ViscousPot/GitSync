@@ -474,11 +474,6 @@ class MainActivity : AppCompatActivity() {
             settingsManager.setSyncOnAppClosed(isChecked)
         }
 
-        viewDocs.setOnClickListener {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.docs_link)))
-            startActivity(browserIntent)
-        }
-
         if (intent.action == MANUAL_SYNC) {
             ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
         }
