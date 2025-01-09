@@ -32,7 +32,7 @@
         android:layout_marginTop="@dimen/space_xs"
         android:textColor="@color/text_secondary"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@id/conflictEditorContainer"
+        app:layout_constraintBottom_toTopOf="@id/manualSyncItemsContainer"
         android:layout_marginHorizontal="@dimen/space_xxs"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/mergeConflict"
