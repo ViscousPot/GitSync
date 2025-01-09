@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/manualSyncItem"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/input_bg_sm"
+    android:backgroundTint="@color/text_secondary"
+    android:padding="@dimen/space_sm"
+    android:layout_marginBottom="@dimen/space_sm"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/filePath"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_default="wrap"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text=""
+        android:textColor="@color/card_secondary_bg"
+        android:textSize="@dimen/text_size_sm"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/fileName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/fileName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:singleLine="true"
+        android:text=""
+        android:textColor="@color/card_bg"
+        android:textSize="@dimen/text_size_sm"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/filePath"
+        app:layout_constraintTop_toTopOf="parent" />
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/manualSyncItem"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@drawable/input_bg_sm"-->
+<!--        android:backgroundTint="@color/text_secondary"-->
+<!--        android:foreground="?android:attr/selectableItemBackground"-->
+<!--        android:minHeight="1dp"-->
+<!--        android:paddingHorizontal="@dimen/space_xs"-->
+<!--        android:paddingVertical="@dimen/space_xxs"-->
+<!--        android:textAllCaps="false"-->
+<!--        android:textAlignment="viewStart"-->
+<!--        app:backgroundTint="@null"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" >-->
+<!--    </com.google.android.material.button.MaterialButton>-->
+</androidx.constraintlayout.widget.ConstraintLayout>

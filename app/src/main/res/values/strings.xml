@@ -23,6 +23,7 @@
 
     <string name="enable_accessibility_service">Please enable Git Sync under "Installed apps"</string>
     <string name="network_unavailable">Network unavailable!\nGitSync will retry when reconnected</string>
+    <string name="network_unavailable_retry">Network unavailable!\nGitSync will retry when reconnected</string>
 
     <!--    Bug Notification-->
     <string name="report_a_bug">Report a Bug</string>
@@ -99,6 +100,10 @@
     <string name="confirm_force_pull_msg">Are you sure you want to force pull these changes? \n\nThis action will overwrite the local history and cannot be undone.</string>
 
     <string name="force_push_pull_message">Please do not close or exit the app until the process is complete.</string>
+
+    <string name="manual_sync">Manual Sync</string>
+    <string name="manual_sync_msg">Select the files you would like to sync</string>
+    <string name="no_uncommitted_changes">No uncommitted changes</string>
 
     <!--    Merge Conflict Dialog-->
     <string name="merge_conflict_item_title">MERGE CONFLICT</string>

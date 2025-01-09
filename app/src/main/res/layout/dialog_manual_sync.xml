@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/input_bg_md"
+    android:backgroundTint="@color/card_bg"
+    android:padding="@dimen/space_md"
+    android:layout_margin="@dimen/space_lg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/mergeConflict"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_lg"
+        android:textColor="@color/text_primary"
+        android:textAllCaps="true"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/mergeConflictMessage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/manual_sync"/>
+
+    <TextView
+        android:id="@+id/mergeConflictMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_md"
+        android:layout_marginTop="@dimen/space_xs"
+        android:textColor="@color/text_secondary"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/conflictEditorContainer"
+        android:layout_marginHorizontal="@dimen/space_xxs"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/mergeConflict"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/manual_sync_msg"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        app:layout_constraintBottom_toTopOf="@id/manualSyncButton"
+        app:layout_constraintTop_toBottomOf="@+id/mergeConflictMessage"
+        android:layout_width="match_parent"
+        android:id="@+id/manualSyncItemsContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/input_bg_sm"
+        app:layout_constraintStart_toStartOf="parent"
+        android:backgroundTint="@color/card_secondary_bg"
+        app:layout_constraintHeight_percent="0.7"
+        android:layout_marginVertical="@dimen/space_sm"
+        app:layout_constraintVertical_bias="0.0"
+        android:paddingHorizontal="@dimen/space_md"
+        android:paddingVertical="@dimen/space_md"
+        android:layout_height="0dp">
+        <com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
+            android:id="@+id/manualSyncItems"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:requiresFadingEdge="vertical"
+            android:visibility="visible"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            tools:listitem="@layout/manual_sync_item"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:spanCount="1"
+            tools:itemCount="0" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/emptyCommitsView"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:background="@color/transparent"
+            android:enabled="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="1dp"
+            android:paddingHorizontal="@dimen/space_sm"
+            android:paddingVertical="@dimen/space_sm"
+            android:text="@string/no_uncommitted_changes"
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_md"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/manualSyncButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_bg_sm"
+        android:backgroundTint="@color/card_secondary_bg"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minHeight="1dp"
+        android:paddingHorizontal="@dimen/space_sm"
+        android:paddingVertical="@dimen/space_sm"
+        android:text="@string/force_sync"
+        android:enabled="false"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_size_sm"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/manualSyncItemsContainer"
+        app:layout_constraintVertical_bias="0.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
