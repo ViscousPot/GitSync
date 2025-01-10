@@ -2,10 +2,10 @@ package com.viscouspot.gitsync.ui.dialog
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.viscouspot.gitsync.R
 import com.viscouspot.gitsync.ui.RecyclerViewEmptySupport
@@ -25,6 +25,7 @@ import java.io.File
 class ManualSyncDialog(private val context: Context, private val settingsManager: SettingsManager, private val gitManager: GitManager, private val refreshRecentCommits: () -> Unit) : BaseDialog(context) {
     private val selectedFiles = mutableListOf<String>()
     private lateinit var syncButton: MaterialButton
+    private lateinit var syncMessageInput: EditText
 
     override fun onStart() {
         super.onStart()
@@ -35,18 +36,9 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
         manualSyncItems.setEmptyView(emptyCommitsView)
 
         syncButton = findViewById(R.id.manualSyncButton) ?: return
+        syncMessageInput = findViewById(R.id.syncMessageInput) ?: return
 
-        val gitDirUri = settingsManager.getGitDirUri()
-        if (gitDirUri == null) {
-            log(LogType.Sync, "Repository Not Found")
-            makeToast(
-                context,
-                context.getString(R.string.repository_not_found),
-                Toast.LENGTH_LONG
-            )
-            dismiss()
-            return
-        }
+        val gitDirUri = settingsManager.getGitDirUri() ?: return
 
         val files = gitManager.getUncommittedFilePaths(gitDirUri)
         manualSyncItems.adapter = ManualSyncItemAdapter(context, files, selectedFiles) { filePath ->
@@ -65,7 +57,6 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
             syncButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.card_secondary_bg))
             syncButton.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
             syncButton.text = context.getString(R.string.sync_start_pull)
-
 
             val job = CoroutineScope(Dispatchers.Default).launch {
                 log(LogType.Sync, "Start Pull Repo")
@@ -103,6 +94,7 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
                     ::networkRequired,
                     {},
                     selectedFiles,
+                    syncMessageInput.text.toString()
                 )
 
                 when (pushResult) {
@@ -136,13 +128,26 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
         }
     }
 
+    override fun show() {
+        if (settingsManager.getGitDirUri() == null) {
+            log(LogType.Sync, "Repository Not Found")
+            makeToast(
+                context,
+                context.getString(R.string.repository_not_found),
+                Toast.LENGTH_LONG
+            )
+            return
+        }
+        super.show()
+    }
+
     override fun dismiss() {
         refreshRecentCommits()
         super.dismiss()
     }
 
     private fun networkRequired() {
-        log(LogType.Sync, "Repository Not Found")
+        log(LogType.Sync, "Network Connection Required!")
         makeToast(
             context,
             context.getString(R.string.network_unavailable),

@@ -373,7 +373,7 @@ class GitManager(private val context: Context, private val settingsManager: Sett
         return false
     }
 
-    fun uploadChanges(userStorageUri: Uri, scheduleNetworkSync: () -> Unit, onSync: () -> Unit, filePaths: List<String>? = null): Boolean? {
+    fun uploadChanges(userStorageUri: Uri, scheduleNetworkSync: () -> Unit, onSync: () -> Unit, filePaths: List<String>? = null, syncMessage: String? = null): Boolean? {
         if (conditionallyScheduleNetworkSync(scheduleNetworkSync)) {
             return null
         }
@@ -427,7 +427,7 @@ class GitManager(private val context: Context, private val settingsManager: Sett
 
                 git.commit().apply {
                     setCommitter(committerName, committerEmail ?: "")
-                    message = settingsManager.getSyncMessage().format(formattedDate)
+                    message = if (!syncMessage.isNullOrEmpty()) syncMessage else settingsManager.getSyncMessage().format(formattedDate)
                 }.call()
 
                 returnResult = true
