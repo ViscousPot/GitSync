@@ -1,16 +1,12 @@
 package com.viscouspot.gitsync.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.StructuredName.PREFIX
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
-import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.viscouspot.gitsync.R
-import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 
 class SettingsManager internal constructor(private val context: Context, private val repoIndex: Int? = null) {
@@ -76,7 +72,7 @@ class SettingsManager internal constructor(private val context: Context, private
         val newIndex = repoIndex ?: repoManager.getRepoIndex()
         val repoNames = repoManager.getRepoNames()
 
-        if (currentRepoIndex == newIndex && currentRepoNames[newIndex] == repoNames[newIndex]) {
+        if (currentRepoIndex == newIndex && newIndex < currentRepoNames.size && currentRepoNames[newIndex] == repoNames[newIndex]) {
             return
         }
 
@@ -354,10 +350,14 @@ class SettingsManager internal constructor(private val context: Context, private
     }
 
     fun getLastSyncMethod(): String {
+        reloadSharedPref()
+
         return settingsSharedPref.getString("lastSyncMethod", context.getString(R.string.sync_now)).toString()
     }
 
     fun setLastSyncMethod(lastSyncMethod: String) {
+        reloadSharedPref()
+
         with(settingsSharedPref.edit()) {
             putString("lastSyncMethod", lastSyncMethod)
             apply()
