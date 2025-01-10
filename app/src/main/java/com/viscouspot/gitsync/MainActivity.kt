@@ -287,9 +287,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
-            refreshAll()
-        }
+        refreshAll()
     }
 
     fun updateRepoButtons() {
@@ -820,45 +818,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshAll() {
-        updateSyncOptions()
+        CoroutineScope(Dispatchers.Default).launch {
+            updateSyncOptions()
 
-        refreshRecentCommits()
+            refreshRecentCommits()
 
-        runOnUiThread {
-            if (settingsManager.getSyncMessageEnabled()) {
-                settingsManager.setSyncMessageEnabled(false)
-                if (settingsManager.getOnboardingStep() != 0) {
-                    checkAndRequestNotificationPermission {
-                        settingsManager.setSyncMessageEnabled(true)
-                        syncMessageButton.setIconResource(R.drawable.notify)
-                        syncMessageButton.setIconTintResource(R.color.auth_green)
+            runOnUiThread {
+                if (settingsManager.getSyncMessageEnabled()) {
+                    settingsManager.setSyncMessageEnabled(false)
+                    if (settingsManager.getOnboardingStep() != 0) {
+                        checkAndRequestNotificationPermission {
+                            settingsManager.setSyncMessageEnabled(true)
+                            syncMessageButton.setIconResource(R.drawable.notify)
+                            syncMessageButton.setIconTintResource(R.color.auth_green)
+                        }
                     }
+                } else {
+                    syncMessageButton.setIconResource(R.drawable.notify_off)
+                    syncMessageButton.setIconTintResource(R.color.primary_light)
                 }
-            } else {
-                syncMessageButton.setIconResource(R.drawable.notify_off)
-                syncMessageButton.setIconTintResource(R.color.primary_light)
             }
-        }
 
-        refreshAuthButton()
-        refreshGitRepo()
+            refreshAuthButton()
+            refreshGitRepo()
 
-        runOnUiThread {
+            runOnUiThread {
 
-            val gitDirUri = settingsManager.getGitDirUri()
-            if (gitDirUri == null) {
-                gitDirPath.text = getString(R.string.git_dir_path_hint)
-            } else {
-                gitDirPath.text = Helper.getPathFromUri(applicationContext, gitDirUri)
+                val gitDirUri = settingsManager.getGitDirUri()
+                if (gitDirUri == null) {
+                    gitDirPath.text = getString(R.string.git_dir_path_hint)
+                } else {
+                    gitDirPath.text = Helper.getPathFromUri(applicationContext, gitDirUri)
+                }
             }
-        }
 
-        val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
-        updateApplicationObserver(applicationObserverEnabled)
+            val applicationObserverEnabled = settingsManager.getApplicationObserverEnabled()
+            updateApplicationObserver(applicationObserverEnabled)
 
-        runOnUiThread {
-            syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
-            syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
+            runOnUiThread {
+                syncAppOpened.isChecked = settingsManager.getSyncOnAppOpened()
+                syncAppClosed.isChecked = settingsManager.getSyncOnAppClosed()
+            }
         }
     }
 
