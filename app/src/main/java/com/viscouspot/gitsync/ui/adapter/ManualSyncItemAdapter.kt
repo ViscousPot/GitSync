@@ -33,7 +33,7 @@ class ManualSyncItemAdapter (
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         holder as BasicViewHolder
         val filePath = filePaths[position]
-        holder.filePath.text = filePath.replaceAfterLast("/", "")
+        holder.filePath.text = if (filePath.contains("/")) filePath.replaceAfterLast("/", "") else ""
         holder.fileName.text = filePath.replaceBeforeLast("/", "").replace("/", "")
         if (selectedFilePaths.contains(filePaths[position])) {
             holder.manualSyncItem.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.additions))
