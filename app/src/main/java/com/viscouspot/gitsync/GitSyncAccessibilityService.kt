@@ -9,6 +9,9 @@ import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.RepoManager
 import com.viscouspot.gitsync.util.SettingsManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class GitSyncAccessibilityService: AccessibilityService() {
     private lateinit var enabledInputMethods: List<String>
@@ -22,52 +25,51 @@ class GitSyncAccessibilityService: AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        var syncOnAppClosed = false
-        var syncOnAppOpened = false
+        CoroutineScope(Dispatchers.Default).launch {
+            val repoManager = RepoManager(applicationContext)
+            var syncOnAppClosed = false
+            var syncOnAppOpened = false
 
-        val repoManager = RepoManager(this);
-        val packageNamesIndexed = (0..<repoManager.getRepoNames().size).map { i ->
-            val settingsManager = SettingsManager(this, i)
+            val packageNamesIndexed = (0..<repoManager.getRepoNames().size).map { i ->
+                val settingsManager = SettingsManager(applicationContext, i)
 
-            syncOnAppClosed = syncOnAppClosed || settingsManager.getSyncOnAppClosed()
-            syncOnAppOpened = syncOnAppOpened || settingsManager.getSyncOnAppOpened()
+                syncOnAppClosed = syncOnAppClosed || settingsManager.getSyncOnAppClosed()
+                syncOnAppOpened = syncOnAppOpened || settingsManager.getSyncOnAppOpened()
 
-            settingsManager.getApplicationPackages()
-        }
+                settingsManager.getApplicationPackages()
+            }
 
-        if (!(packageNamesIndexed.flatten().isNotEmpty() && (syncOnAppClosed || syncOnAppOpened))) return
+            if (!(packageNamesIndexed.flatten().isNotEmpty() && (syncOnAppClosed || syncOnAppOpened))) return@launch
 
-        event?.let {
-            when (it.eventType) {
-                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                    packageNamesIndexed.forEachIndexed { index, packageNames ->
-                        log(index)
-                        log(appOpen)
-                        if ((appOpen.getOrNull(index) == true) && !packageNames.contains(event.packageName) && !enabledInputMethods.contains(event.packageName)) {
-                            log(LogType.AccessibilityService, "Application Closed")
-                            if (syncOnAppClosed) {
-                                sync(index)
+            event?.let {
+                when (it.eventType) {
+                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                        packageNamesIndexed.forEachIndexed { index, packageNames ->
+                            if ((appOpen.getOrNull(index) == true) && !packageNames.contains(event.packageName) && !enabledInputMethods.contains(event.packageName)) {
+                                log(LogType.AccessibilityService, "Application Closed")
+                                if (syncOnAppClosed) {
+                                    sync(index)
+                                }
+                                while (appOpen.size <= index) {
+                                    appOpen.add(false)
+                                }
+                                appOpen[index] = false
                             }
-                            while (appOpen.size <= index) {
-                                appOpen.add(false)
-                            }
-                            appOpen[index] = false
-                        }
 
-                        log(packageNames.contains(event.packageName))
-                        if ((appOpen.getOrNull(index) != true) && packageNames.contains(event.packageName)) {
-                            log(LogType.AccessibilityService, "Application Opened")
-                            if (syncOnAppOpened) {
-                                sync(index)
+                            if ((appOpen.getOrNull(index) != true) && packageNames.contains(event.packageName)) {
+                                log(LogType.AccessibilityService, "Application Opened")
+                                if (syncOnAppOpened) {
+                                    sync(index)
+                                }
+                                while (appOpen.size <= index) {
+                                    appOpen.add(false)
+                                }
+                                appOpen[index] = true
                             }
-                            while (appOpen.size <= index) {
-                                appOpen.add(false)
-                            }
-                            appOpen[index] = true
                         }
                     }
+                    else -> {}
                 }
-                else -> {}
             }
         }
     }
@@ -75,7 +77,6 @@ class GitSyncAccessibilityService: AccessibilityService() {
     override fun onInterrupt() { }
 
     private fun sync(index: Int) {
-        log(index)
         val syncIntent = Intent(this, GitSyncService::class.java)
         syncIntent.setAction(GitSyncService.APPLICATION_SYNC)
         syncIntent.putExtra("repoIndex", index)
