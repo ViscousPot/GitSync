@@ -17,7 +17,6 @@ import androidx.work.WorkManager
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.CONFLICT_NOTIFICATION_ID
-import com.viscouspot.gitsync.util.Helper.debounced
 import com.viscouspot.gitsync.util.Helper.makeToast
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -25,21 +24,20 @@ import com.viscouspot.gitsync.util.NetworkWorker
 import com.viscouspot.gitsync.util.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class GitSyncService : Service() {
-//    private lateinit var gitManager: GitManager
-//    private lateinit var settingsManager: SettingsManager
+    private var jobs: MutableMap<Int, Job> = mutableMapOf()
 
     private var isScheduled: Boolean = false
     private var isSyncing: Boolean = false
     private val debouncePeriod: Long = 10 * 1000
-//    private var repoIndex = 0
 
-    private val debouncedSyncFn = debounced<Pair<Int, Boolean>>(1000) { (repoIndex, forced) ->
+    private val debouncedSyncFn = debounced<Boolean> { repoIndex, forced ->
         sync(repoIndex, forced)
     }
 
@@ -50,13 +48,22 @@ class GitSyncService : Service() {
         const val INTENT_SYNC = "INTENT_SYNC"
     }
 
+    private fun <T> debounced(action: (Int, T) -> Unit): (Int, T) -> Unit {
+        return { index: Int, arg: T ->
+            jobs[index]?.cancel()
+            jobs[index] = CoroutineScope(Dispatchers.Default).launch {
+                delay(1000)
+                action(index, arg)
+            }
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null || intent.action == null) {
             return START_STICKY
         }
 
         val repoIndex = intent.getIntExtra("repoIndex", 0)
-//        settingsManager = SettingsManager(this)
 
         when (intent.action) {
             MERGE -> {
@@ -110,7 +117,7 @@ class GitSyncService : Service() {
                 log(LogType.Sync, "Sync Scheduled")
                 return
             } else {
-                debouncedSyncFn(Pair(repoIndex, forced))
+                debouncedSyncFn(repoIndex, forced)
             }
         }
     }
