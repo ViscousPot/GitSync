@@ -7,7 +7,6 @@
     android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="@dimen/space_md"
     android:theme="@style/Theme.MaterialComponents">
 
     <Switch
@@ -16,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="@dimen/space_md"
-        android:layout_marginStart="@dimen/space_sm"
+        android:paddingHorizontal="@dimen/space_lg"
         android:checked="true"
         android:background="@null"
         android:enabled="true"
@@ -38,6 +37,7 @@
         android:backgroundTint="@color/card_secondary_bg"
         android:checked="true"
         android:enabled="true"
+        android:layout_marginHorizontal="@dimen/space_md"
         android:paddingHorizontal="@dimen/space_md"
         android:paddingVertical="@dimen/space_md"
         android:text="@string/sync_on_app_opened"
@@ -56,6 +56,7 @@
         android:checked="true"
         android:layout_marginTop="@dimen/space_md"
         android:enabled="true"
+        android:layout_marginHorizontal="@dimen/space_md"
         android:paddingHorizontal="@dimen/space_md"
         android:paddingVertical="@dimen/space_md"
         android:text="@string/sync_on_app_closed"
@@ -72,6 +73,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/space_sm"
         android:orientation="horizontal"
+        android:layout_marginHorizontal="@dimen/space_md"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="@id/selectApplication"
         app:layout_constraintStart_toEndOf="@id/selectApplication"
@@ -100,6 +102,7 @@
         android:background="@drawable/input_bg_md"
         app:icon="@drawable/circle_xmark"
         app:iconSize="@dimen/application_icon_size"
+        android:layout_marginHorizontal="@dimen/space_md"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/syncAppClosed" />
