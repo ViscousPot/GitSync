@@ -82,8 +82,9 @@ class MainActivity : AppCompatActivity() {
 
     private var mergeConflictDialog: Dialog? = null
 
-    private lateinit var forceSyncButton: MaterialButton
+    private lateinit var syncButton: MaterialButton
     private lateinit var syncMenuButton: MaterialButton
+    private lateinit var syncOptionAdapter: SpinnerIconPrefixAdapter
     private lateinit var syncMenuSpinner: NDSpinner
 
     private lateinit var settingsButton: MaterialButton
@@ -119,25 +120,8 @@ class MainActivity : AppCompatActivity() {
 
     private var requestedPermission = false
 
-    private val syncOptionIconMap: Map<String, Int> = mapOf(
-        Pair("Force Push", R.drawable.force_push),
-        Pair("Force Pull", R.drawable.force_pull),
-        Pair("Manual Sync", R.drawable.manual_sync),
-    )
-
-    val syncOptionFnMap: Map<String, () -> Unit> = mapOf(
-        Pair("Force Push") {
-            showConfirmForcePushPullDialog(true)
-        },
-        Pair("Force Pull") {
-            showConfirmForcePushPullDialog(false)
-        },
-        Pair("Manual Sync") {
-            showContributeDialog(this, settingsManager) {
-                ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
-            }
-        },
-    )
+    private lateinit var syncOptionIconMap: Map<String, Int>
+    private lateinit var syncOptionFnMap: Map<String, () -> Unit>
 
     companion object {
         const val REFRESH = "REFRESH"
@@ -298,6 +282,33 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        syncOptionIconMap = mapOf(
+            Pair(getString(R.string.sync_now), R.drawable.pull),
+            Pair(getString(R.string.force_push), R.drawable.force_push),
+            Pair(getString(R.string.force_pull), R.drawable.force_pull),
+            Pair(getString(R.string.manual_sync), R.drawable.manual_sync),
+        )
+
+        syncOptionFnMap = mapOf(
+            Pair(getString(R.string.sync_now)) {
+                val forceSyncIntent = Intent(this, GitSyncService::class.java)
+                forceSyncIntent.setAction(GitSyncService.FORCE_SYNC)
+                startService(forceSyncIntent)
+                return@Pair
+            },
+            Pair(getString(R.string.force_push)) {
+                showConfirmForcePushPullDialog(true)
+            },
+            Pair(getString(R.string.force_pull)) {
+                showConfirmForcePushPullDialog(false)
+            },
+            Pair(getString(R.string.manual_sync)) {
+                showContributeDialog(this, settingsManager) {
+                    ManualSyncDialog(this, settingsManager, gitManager, ::refreshRecentCommits).show()
+                }
+            },
+        )
+
         System.setProperty("org.eclipse.jgit.util.Debug", "true")
         System.setProperty("org.apache.sshd.common.util.logging.level", "DEBUG")
 
@@ -346,7 +357,7 @@ class MainActivity : AppCompatActivity() {
 
         recentCommitsAdapter = RecentCommitsAdapter(this, recentCommits, ::openMergeConflictDialog)
 
-        forceSyncButton = findViewById(R.id.forceSyncButton)
+        syncButton = findViewById(R.id.syncButton)
         syncMenuButton = findViewById(R.id.syncMenuButton)
         syncMenuSpinner = findViewById(R.id.syncMenuSpinner)
 
@@ -385,15 +396,9 @@ class MainActivity : AppCompatActivity() {
         val emptyCommitsView = findViewById<TextView>(R.id.emptyCommitsView)
         recentCommitsRecycler.setEmptyView(emptyCommitsView)
 
-        forceSyncButton.setOnClickListener {
-            val forceSyncIntent = Intent(this, GitSyncService::class.java)
-            forceSyncIntent.setAction(GitSyncService.FORCE_SYNC)
-            startService(forceSyncIntent)
-        }
+        syncOptionAdapter = SpinnerIconPrefixAdapter(this, syncOptionIconMap.filter { (key, _) -> settingsManager.getLastSyncMethod() != key }.toList())
 
-        val adapter = SpinnerIconPrefixAdapter(this, syncOptionIconMap.toList())
-
-        syncMenuSpinner.adapter = adapter
+        syncMenuSpinner.adapter = syncOptionAdapter
         syncMenuSpinner.post{
             syncMenuSpinner.dropDownWidth = syncMenuSpinner.width
         }
@@ -406,8 +411,12 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                val syncOption = syncOptionFnMap.keys.toList()[position]
-                syncOptionFnMap[syncOption]?.invoke()
+                val filteredSyncOptions = syncOptionFnMap.filter { (key, _) -> settingsManager.getLastSyncMethod() != key }
+                val syncOption = filteredSyncOptions.keys.toList()[position]
+
+                settingsManager.setLastSyncMethod(syncOption)
+                filteredSyncOptions[syncOption]?.invoke()
+                updateSyncOptions()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -604,7 +613,24 @@ class MainActivity : AppCompatActivity() {
         applicationSelectDialog?.show()
     }
 
+    private fun updateSyncOptions() {
+        runOnUiThread {
+            syncOptionAdapter.clear()
+            syncOptionAdapter.addAll(syncOptionIconMap.filter { (key, _) -> settingsManager.getLastSyncMethod() != key }.toList())
+            syncOptionAdapter.notifyDataSetChanged()
+
+            syncButton.text = settingsManager.getLastSyncMethod()
+            syncButton.icon = ContextCompat.getDrawable(this, syncOptionIconMap[settingsManager.getLastSyncMethod()] ?: R.drawable.pull)?.mutate()
+            syncButton.setOnClickListener {
+                val syncFn = syncOptionFnMap[settingsManager.getLastSyncMethod()] ?: {}
+                syncFn.invoke()
+            }
+        }
+    }
+
     private fun refreshAll() {
+        updateSyncOptions()
+
         refreshRecentCommits()
 
         runOnUiThread {
@@ -724,7 +750,7 @@ class MainActivity : AppCompatActivity() {
 
         if (gitManager.getConflicting(settingsManager.getGitDirUri()).isNotEmpty()) {
             runOnUiThread {
-                forceSyncButton.isEnabled = false
+                syncButton.isEnabled = false
 
                 recentCommits.add(0, Commit("", "", 0L, RecentCommitsAdapter.MERGE_CONFLICT, 0, 0))
                 recentCommitsAdapter.notifyItemInserted(0)
@@ -732,7 +758,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             runOnUiThread {
-                forceSyncButton.isEnabled = true
+                syncButton.isEnabled = true
             }
         }
     }

@@ -53,8 +53,6 @@
     <string name="additions">%s ++</string>
     <string name="deletions" tools:ignore="TypographyDashes">%s --</string>
 
-    <string name="force_sync">Sync Now</string>
-
     <string name="auth">AUTH</string>
     <string name="git_dir_path_hint">/storage/emulated/0/…</string>
     <string name="deselect_repository_directory">deselect repository directory</string>
@@ -86,12 +84,14 @@
 
 
     <!--    Sync Dialogs-->
-    <string name="force_push">Force push</string>
+    <string name="sync_now">Sync Now</string>
+
+    <string name="force_push">Force Push</string>
     <string name="force_pushing">Force pushing…</string>
     <string name="confirm_force_push">Confirm Force Push</string>
     <string name="confirm_force_push_msg">Are you sure you want to force push these changes? \n\nThis action will overwrite the remote history and cannot be undone.</string>
 
-    <string name="force_pull">Force pull</string>
+    <string name="force_pull">Force Pull</string>
     <string name="force_pulling">Force pulling…</string>
     <string name="confirm_force_pull">Confirm Force Pull</string>
     <string name="confirm_force_pull_msg">Are you sure you want to force pull these changes? \n\nThis action will overwrite the local history and cannot be undone.</string>

@@ -127,7 +127,7 @@
         android:minHeight="1dp"
         android:paddingHorizontal="@dimen/space_sm"
         android:paddingVertical="@dimen/space_sm"
-        android:text="@string/force_sync"
+        android:text="@string/sync_now"
         android:enabled="false"
         android:textColor="@color/text_secondary"
         android:textSize="@dimen/text_size_sm"
