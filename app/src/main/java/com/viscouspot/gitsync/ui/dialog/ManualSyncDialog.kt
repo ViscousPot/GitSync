@@ -13,6 +13,7 @@ import com.viscouspot.gitsync.ui.adapter.ManualSyncItemAdapter
 import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.makeToast
+import com.viscouspot.gitsync.util.Helper.networkRequired
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
 import com.viscouspot.gitsync.util.SettingsManager
@@ -62,7 +63,10 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
                 log(LogType.Sync, "Start Pull Repo")
                 val pullResult = gitManager.downloadChanges(
                     gitDirUri,
-                    ::networkRequired,
+                    {
+                        networkRequired(context)
+                        dismiss()
+                    },
                 ) { }
                 when (pullResult) {
                     null -> {
@@ -91,7 +95,10 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
                 log(LogType.Sync, "Start Push Repo")
                 val pushResult = gitManager.uploadChanges(
                     gitDirUri,
-                    ::networkRequired,
+                    {
+                        networkRequired(context)
+                        dismiss()
+                    },
                     {},
                     selectedFiles,
                     syncMessageInput.text.toString()
@@ -144,16 +151,6 @@ class ManualSyncDialog(private val context: Context, private val settingsManager
     override fun dismiss() {
         refreshRecentCommits()
         super.dismiss()
-    }
-
-    private fun networkRequired() {
-        log(LogType.Sync, "Network Connection Required!")
-        makeToast(
-            context,
-            context.getString(R.string.network_unavailable),
-            Toast.LENGTH_LONG
-        )
-        dismiss()
     }
 
     private fun updateSyncButton() {

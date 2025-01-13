@@ -56,6 +56,15 @@ object Helper {
         Toast.makeText(context, message, length).show()
     }
 
+    fun networkRequired(context: Context) {
+        log(LogType.Sync, "Network Connection Required!")
+        makeToast(
+            context,
+            context.getString(R.string.network_unavailable),
+            Toast.LENGTH_LONG
+        )
+    }
+
     fun <T> debounced(delayMillis: Long, action: (T) -> Unit): (T) -> Unit {
         var job: Job? = null
         return { param: T ->

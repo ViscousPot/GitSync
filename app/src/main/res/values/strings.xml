@@ -218,5 +218,6 @@
 
     <string name="enable_autosync_title">Enable Auto Sync</string>
     <string name="enable_autosync_message">Keep your data up-to-date effortlessly. Turn on Auto Sync to automatically sync in the background whenever apps are opened or closed.</string>
+    <string name="pull_changes">Pull Changes</string>
 
 </resources>

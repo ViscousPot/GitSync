@@ -56,6 +56,7 @@ import com.viscouspot.gitsync.util.GitManager
 import com.viscouspot.gitsync.util.provider.GitProviderManager
 import com.viscouspot.gitsync.util.Helper
 import com.viscouspot.gitsync.util.Helper.makeToast
+import com.viscouspot.gitsync.util.Helper.networkRequired
 import com.viscouspot.gitsync.util.Helper.showContributeDialog
 import com.viscouspot.gitsync.util.LogType
 import com.viscouspot.gitsync.util.Logger.log
@@ -286,6 +287,7 @@ class MainActivity : AppCompatActivity() {
             Pair(getString(R.string.sync_now), R.drawable.pull),
             Pair(getString(R.string.force_push), R.drawable.force_push),
             Pair(getString(R.string.force_pull), R.drawable.force_pull),
+            Pair(getString(R.string.pull_changes), R.drawable.pull_changes),
             Pair(getString(R.string.manual_sync), R.drawable.manual_sync),
         )
 
@@ -301,6 +303,36 @@ class MainActivity : AppCompatActivity() {
             },
             Pair(getString(R.string.force_pull)) {
                 showConfirmForcePushPullDialog(false)
+            },
+            Pair(getString(R.string.pull_changes)) {
+                val gitDirUri = settingsManager.getGitDirUri()
+                if (gitDirUri == null) {
+                    runOnUiThread {
+                        log(LogType.Sync, "Repository Not Found")
+                        makeToast(
+                            applicationContext,
+                            getString(R.string.repository_not_found),
+                            Toast.LENGTH_LONG
+                        )
+                    }
+                    return@Pair
+                }
+                val job = CoroutineScope(Dispatchers.Default).launch {
+                    gitManager.downloadChanges(
+                        gitDirUri,
+                        {
+                            networkRequired(applicationContext)
+                        },
+                    ) { }
+
+                }
+
+                job.invokeOnCompletion {
+                    runOnUiThread {
+                        refreshRecentCommits()
+                    }
+                }
+
             },
             Pair(getString(R.string.manual_sync)) {
                 showContributeDialog(this, settingsManager) {
