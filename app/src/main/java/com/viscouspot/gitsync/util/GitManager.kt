@@ -133,6 +133,7 @@ class GitManager(private val context: Context, private val settingsManager: Sett
 
                 Git.cloneRepository().apply {
                     setURI(repoUrl)
+                    setCloneSubmodules(true)
                     setProgressMonitor(monitor)
                     setDirectory(File(Helper.getPathFromUri(context, userStorageUri)))
                     applyCredentials(this)
