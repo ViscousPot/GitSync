@@ -12,7 +12,7 @@ Manual arbitrary authentication methods for more advanced/self-hosting users
  - HTTP/S
      - Username and token for auth
  - SSH
-     - Generated RSA token pair for auth
+     - Generated RSA ([only](https://github.com/ViscousPot/GitSync/issues/148)) token pair for auth
 
 ## Sync Mechanisms
 
