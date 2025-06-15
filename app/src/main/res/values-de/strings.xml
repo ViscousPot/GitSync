@@ -1,0 +1,243 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Git Sync</string>
+
+    <!--    Common-->
+    <string name="dismiss">Schließen</string>
+    <string name="skip">Überspringen</string>
+    <string name="done">Fertig</string>
+    <string name="confirm">Bestätigen</string>
+
+    <!--    Paths-->
+    <string name="gitignore_path">.gitignore</string>
+    <string name="git_path">.git</string>
+    <string name="git_config_path">.git/config</string>
+    <string name="git_lock_path">.git/index.lock</string>
+    <string name="git_merge_head_path">.git/MERGE_HEAD</string>
+    <string name="git_merge_msg_path">.git/MERGE_MSG</string>
+    <string name="git_info_exclude_path">.git/info/exclude</string>
+
+    <!--    Toast Messages-->
+    <string name="sync_start_pull">Änderungen werden synchronisiert…</string>
+    <string name="sync_start_push">Lokale Änderungen werden synchronisiert…</string>
+    <string name="sync_not_required">Synchronisierung nicht erforderlich!</string>
+    <string name="sync_complete">Synchronisierung abgeschlossen!</string>
+
+    <string name="enable_accessibility_service">Bitte aktiviere Git Sync unter "Heruntergeladene Apps"</string>
+    <string name="network_unavailable">Kein Internet!\nGitSync probiert es nach Wiederherstellung der Verbindung erneut</string>
+    <string name="network_unavailable_retry">Kein Internet!\GitSync probiert es nach Wiederherstellung der Verbindung erneut</string>
+    <string name="pull_failed">Abrufen fehlgeschlagen! Bitte prüfe auf nicht committete Änderungen und versuche es erneut.</string>
+
+    <!--    Bug Notification-->
+    <string name="report_a_bug">Melde einen Fehler</string>
+    <string name="report_bug">&lt;GitSync Fehler&gt; Klicke um den Fehler zu melden</string>
+    <string name="unknown_error">Unbekannter Fehler</string>
+    <string name="enable_notifications">Erlaube Benachrichtigungen um mehr zu sehen.</string>
+
+    <string name="out_of_memory">Arbeitsspeicher der App ist ausgeschöpft!</string>
+    <string name="invalid_remote">Ungültige remote-Quelle! Ändere dies in den Einstellungen</string>
+    <string name="large_file">Einzelne Dateien, die über 50MB groß sind werden nicht unterstützt.</string>
+    <string name="clone_failed">Repository konnte nicht gecloned werden!</string>
+    <string name="inaccessible_directory_message">Unzugängliches Verzeichnis! Bitte wähle einen anderen Ort.</string>
+    <string name="auto_rebase_failed_exception">Remote-Quelle ist weiter vorne als die lokalen Dateien und wir konnten nicht automatisch für dich rebasen, da dies zu einem Nicht-Fast-Forward-Update führen würde.</string>
+    <string name="non_existing_exception">Remote-Referenz existiert nicht.</string>
+    <string name="rejected_nodelete_exception">Remote-Referenz-Änderung wurde abgelehnt, weil die Remote-Seite das löschen von Referenzen nicht erlaubt/unterstützt.</string>
+    <string name="rejected_exception">Remote-Referenz-Änderung wurde abgelehnt.</string>
+    <string name="rejection_with_reason_exception">Remote-Referenz-Änderung wurde abgelehnt, da %s.</string>
+    <string name="remote_changed_exception">Remote-Referenz-Änderung wurde abgelehnt, weil die alte Objekt-ID im Remote-Repository nicht mit der erwarteten alten Objekt-ID übereinstimmte.</string>
+    <string name="merging_exception_message">MERGEN</string>
+
+
+    <!--    Home Screen-->
+    <string name="repo_not_found">Keine Commits gefunden…</string>
+
+    <string name="committed">committed</string>
+    <string name="additions">%s ++</string>
+    <string name="deletions" tools:ignore="TypographyDashes">%s --</string>
+
+    <string name="auth">AUTH</string>
+    <string name="git_dir_path_hint">/storage/emulated/0/…</string>
+    <string name="deselect_repository_directory">Repository-Verzeichnis abwählen</string>
+    <string name="select_repository_directory">Repository-Verzeichnis wählen</string>
+
+    <string name="enable_application_observer">Auto-Sync Einstellungen</string>
+    <string name="application_not_set">App(s) auswählen</string>
+    <string name="select_application">Anwendung(en) auswählen</string>
+    <string name="multiple_application_selected">Gewählt (%s)</string>
+    <string name="save_application">Speichern</string>
+    <string name="sync_on_app_closed">Beim Schließen einer App synchronisieren</string>
+    <string name="sync_on_app_opened">Beim Öffnen einer App synchronisieren</string>
+
+    <!-- Multi Repo -->
+    <string name="default_container_name">alias</string>
+
+    <string name="rename">Umbenennen</string>
+    <string name="rename_container">Container umbenennen</string>
+    <string name="rename_container_msg">Gebe einen neuen Namen für den Container ein</string>
+
+    <string name="add">Hinzufügen</string>
+    <string name="add_container">Container hinzufügen</string>
+    <string name="add_container_msg">Gebe deinem neuen Container einen einmaligen Namen! Dieser Alias hilft dir ihn später leichter zu erkennen.</string>
+
+    <string name="confirm_container_delete">Container-Löschung bestätigen</string>
+    <string name="confirm_container_delete_msg">Bist du dir sicher, dass du den Container \"%1$s\" löschen willst? \n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
+
+    <!--    Clone Screen-->
+    <string name="clone_repo">Remote-Repository klonen</string>
+
+    <string name="pull">abrufen</string>
+    <string name="git_repo_url_hint">https://git.abc/xyz.git</string>
+    <string name="invalid_repository_url">Ungültige Repository-URL!</string>
+    <string name="clone_anyway">Trotzdem klonen</string>
+    <string name="i_have_a_local_repository">Ich habe eine lokale Repository</string>
+
+    <string name="cloning_repository">Repository wird geklont…</string>
+    <string name="clone_message">VERLASSE NICHT DIESE SEITE\nDies kann bei großen Repositories eine Weile dauern.\n\n</string>
+
+    <string name="clone_repo_title">Repository auswählen</string>
+    <string name="select_clone_directory">Ordner zum Klonen auswählen</string>
+    <string name="repository_not_found">Repository nicht gefunden!</string>
+
+
+    <!--    Sync Dialogs-->
+    <string name="sync_now">Änderungen synchronisieren</string>
+    <string name="pull_changes">Änderungen abrufen</string>
+
+    <string name="force_push">Erzwungen übertragen</string>
+    <string name="force_pushing">Erzwungene Übertragung…</string>
+    <string name="confirm_force_push">Bestätige eine erzwungene Übertragung</string>
+    <string name="confirm_force_push_msg">Bist du dir sicher, dass du diese Änderungen erzwungen übertragen willst? \n\nDiese Aktion überschreibt den Remote-Verlauf und kann nicht rückgängig gemacht werden.</string>
+
+    <string name="force_pull">Erzwungen abrufen</string>
+    <string name="force_pulling">Erzwungenes Abrufen…</string>
+    <string name="confirm_force_pull">Bestätige ein erzwungenes Abrufen</string>
+    <string name="confirm_force_pull_msg">Bist du dir sicher, dass du diese Änderungen erzwungen abrufen willst? \n\nDiese Aktion überschreibt den lokalen Verlauf und kann nicht rückgängig gemacht werden.</string>
+
+    <string name="force_push_pull_message">Bitte lasse die App offen bis der Prozess abgeschlossen ist.</string>
+
+    <string name="manual_sync">Manuell Synchronisieren</string>
+    <string name="manual_sync_msg">Wähle die Dateien aus, die du synchronisieren willst</string>
+    <string name="no_uncommitted_changes">Keine nicht committeten Änderungen</string>
+
+    <string name="discard_changes_title">Änderungen verwerfen?</string>
+    <string name="discard_changes_msg">Bist du dir sicher, dass du alle Änderungen an \"%s\" verwerfen willst? \n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="discard_changes">Änderungen verwerfen</string>
+
+    <!--    Merge Conflict Dialog-->
+    <string name="merge_conflict_item_title">MERGE-KONFLIKT</string>
+    <string name="merge_conflict_item_message">Es gibt einen Merge-Konflikt! Klicke um diesen zu beheben</string>
+
+    <string name="merge_conflict">Merge-Konflikt</string>
+    <string name="merge_dialog_message">Nutze diesen Editor um Merge-Konflikte zu beheben</string>
+    <string name="example_filepath">examplefile.md</string>
+
+    <string name="abort_merge">Merge abbrechen</string>
+    <string name="keep_changes">Änderungen beibehalten</string>
+    <string name="local">lokal</string>
+    <string name="both">beide</string>
+    <string name="remote">remote</string>
+
+    <string name="merge">Merge</string>
+    <string name="merging">Mergen…</string>
+    <string name="resolving_merge">Merge wird gelöst…</string>
+
+    <string name="conflict_start"><![CDATA[<<<<<<<]]></string>
+    <string name="conflict_separator">=======</string>
+    <string name="conflict_end"><![CDATA[>>>>>>>]]></string>
+
+    <!--    Settings Dialog-->
+    <string name="settings">Einstellungen</string>
+
+    <string name="sync_message_label">Synchronisations-Nachricht</string>
+    <string name="sync_message_description">Nutze %s für das Datum &amp; die Zeit</string>
+    <string name="sync_message">Letzte Synchronisierung: %s (Mobilgerät)</string>
+
+    <string name="remote_label">Standard-Remote</string>
+    <string name="default_remote">origin</string>
+
+    <string name="author_name_label">Autorname</string>
+    <string name="author_name">JohnSmith12</string>
+    <string name="author_email_label">Autor-E-Mail</string>
+    <string name="author_email">john12@smith.com</string>
+
+    <string name="gitignore">.GitIgnore</string>
+    <string name="gitignore_description">Liste Dateien und Ordner auf, die auf allen Geräten ignoriert werden</string>
+    <string name="gitignore_hint">.trash/\n./…</string>
+    <string name="git_info_exclude">Git/info/exclude</string>
+    <string name="git_info_exclude_description">Liste Dateien und Ordner, die auf diesem Gerät ignoriert werden</string>
+    <string name="git_info_exclude_hint">.trash/\n./…</string>
+
+    <string name="view_docs">Dokumentation ansehen</string>
+    <string name="docs_link">https://github.com/ViscousPot/GitSync/blob/master/Documentation.md</string>
+    <string name="documentation_html_link"><![CDATA[<a href=\"%s\">DOCUMENTATION</a>]]></string>
+
+    <string name="support_now">Beitragen!</string>
+    <string name="contribute_msg"><![CDATA[<b>Looks like you\'re a bit of a power user!</b><br/><br/>Your support can help keep the app running smoothly and evolving with a contribution as little as <b>$5</b> through GitHub Sponsors.]]></string>
+    <string name="contribute_title">Unterstütze unsere Arbeit</string>
+    <string name="support_promise">Habe ich</string>
+    <string name="contribute_link"><![CDATA[https://github.com/sponsors/ViscousPot?sponsor=ViscousPot&frequency=one-time&amount=15]]></string>
+
+    <!--    Auth Dialogs-->
+    <string name="select_your_git_provider_and_authenticate">Wähle deinen Git-Anbieter und authentifiziere dich</string>
+
+    <string name="oauth">oauth</string>
+
+    <string name="ensure_token_scope">Stelle sicher, dass dein Token den \"repo\"-Bereich enthält, um die volle Funktion zu nutzen.</string>
+    <string name="user">Nutzer</string>
+    <string name="example_user">JohnSmith12</string>
+    <string name="token">Token</string>
+    <string name="example_token">ghp_1234abcd5678efgh</string>
+    <string name="login">Anmelden</string>
+
+    <string name="pub_key">Öffentlicher Schlüssel</string>
+    <string name="priv_key">Privater Schlüssel</string>
+    <string name="ssh_pub_key_example">ssh-rsa AABBCCDDEEFF112233445566</string>
+    <string name="ssh_priv_key_example">-----BEGIN RSA PRIVATE KEY----- AABBCCDDEEFF112233445566</string>
+
+    <string name="generate_key">Generiere einen Schlüssel</string>
+    <string name="confirm_key_saved">Öffentlicher Schlüssel gespeichert</string>
+    <string name="copied_text">Text kopiert!</string>
+
+    <string name="confirm_priv_key_copy">Bestätige Kopie des privaten Schlüssels</string>
+    <string name="confirm_priv_key_copy_msg">Bist du sicher, dass du deinen privaten Schlüssel in die Zwischenablage kopieren möchtest? \n\nJeder, der Zugriff auf diesen Schlüssel hat, kann dein Konto kontrollieren. Stelle sicher, dass du ihn nur an sicheren Orten einfügst und deine Zwischenablage anschließend leerst.</string>
+    <string name="understood">Verstanden</string>
+
+    <string name="import_private_key">Privaten Schlüssel importieren</string>
+    <string name="import_private_key_msg">Füge unten deinen privaten Schlüssel ein, um ein bestehendes Konto zu verwenden. \n\nStelle sicher, dass du den Schlüssel in einer sicheren Umgebung einfügst, da jeder mit Zugriff auf diesen Schlüssel dein Konto kontrollieren kann.</string>
+    <string name="import_key">Importieren</string>
+
+    <!--    Auto Sync Dialogs-->
+    <string name="accessibility_service_disclosure_title">Information zur Nutzung von Barrierefreiheitsdiensten</string>
+    <string name="accessibility_service_disclosure_message">Um dein Erlebnis zu verbessern, \nverwendet GitSync den Accessibility Service von Android, um zu erkennen, wann Apps geöffnet oder geschlossen werden. \n\nDadurch können wir maßgeschneiderte Funktionen anbieten, ohne Daten zu speichern oder weiterzugeben. \n\nᴅᴜ ᴍᴜsᴛ ɢɪᴛsʏɴᴄ ɪᴍ ɴᴀᴄʜғᴏʟɢᴇɴᴅᴇɴ ʙɪʟᴅsᴄʜɪʀᴍ ᴀᴋᴛɪᴠɪᴇʀᴇɴ</string>
+    <string name="accessibility_service_description">Um dein Erlebnis zu verbessern, verwendet GitSync den Accessibility Service von Android, um zu erkennen, wann Apps geöffnet oder geschlossen werden. Dies hilft uns, maßgeschneiderte Funktionen anzubieten, ohne Daten zu speichern oder weiterzugeben. \n\n Wichtige Punkte: \n Zweck: Wir nutzen diesen Dienst ausschließlich, um deine App-Erfahrung zu verbessern. \n Datenschutz: Es werden keine Daten gespeichert oder weitergeleitet. \n Kontrolle: Du kannst diese Berechtigungen jederzeit in den Einstellungen deines Geräts deaktivieren.</string>
+
+    <string name="search_hint">Suchen…</string>
+    <string name="lg_3_apps_selected_text">4+</string>
+    <string name="select">auswählen</string>
+
+
+    <!--    Onboarding Dialogs-->
+    <string name="welcome">Willkommen!</string>
+    <string name="welcome_message">\nEs scheint, dass du hier zum ersten Mal bist.\n\nMöchtest du eine kurze Einrichtung durchlaufen, um zu starten?\n</string>
+    <string name="welcome_positive">Los geht\'s</string>
+    <string name="welcome_neutral">Überspringen</string>
+    <string name="welcome_negative">Ich kenne mich aus</string>
+
+    <string name="notification_dialog_title">Aktiviere Benachrichtigungen</string>
+    <string name="notification_dialog_message">\nBitte aktiviere Benachrichtigungen, um die bestmögliche Erfahrung zu bekommen.\n\nDie App benutzt Benachrichtigungen für \n  • Popup Synchronisations Nachrichten (optional)\n  • Fehler-Meldungen\n</string>
+
+    <string name="all_files_access_dialog_title">Aktiviere \"Zugriff auf alle Dateien\"</string>
+    <string name="all_files_access_dialog_message">\nDu kannst GitSync nicht nutzen, ohne \"Zugriff auf alle Dateien\" zu erlauben! Bitte erlaube den Zugriff, um die bestmögliche Erfahrung zu bekommen.\n\nDie App nutzt \"Zugriff auf alle Dateien\" um deine Repositories mit den gewählten Ordnern zu synchronisieren. Die App probiert nicht auf Dateien außerhalb dieser Ordner zuzugreifen.\n</string>
+
+    <string name="almost_there_dialog_title">Fast fertig!</string>
+    <string name="almost_there_dialog_message">\nBald authentifizieren und klonen wir deine Repository auf dein Gerät, um diese auf das Synchronisieren vorzubereiten.\n\nSobald das fertig ist, kannst du auf verschiedene Weisen eine Synchronisierung auslösen:\n\n  • Das GitSync Quick Tile\n  • Der In-App \"Änderungen synchronisieren\"-Button\n  • Automatisches Synchronisieren\n  • Ein benutzerdefinierter Intent (fortgeschritten)\n</string>
+
+    <string name="auth_dialog_title">Mit einem Git-Anbieter authentifizieren</string>
+    <string name="auth_dialog_message">Bitte authentifiziere dich mit deinem gewählten Anbieter und fahre dann fort deine Repository zu klonen!</string>
+
+    <string name="enable_autosync_title">Automatisches Synchronisieren aktivieren</string>
+    <string name="enable_autosync_message">Halte deine Daten aktuell, völlig ohne Anstrengung. Aktiviere automatisches Synchronisieren, um beim Öffnen oder Schließen von gewählten Apps automatisch deine Dateien zu synchronisieren.</string>
+
+
+    <string name="sunset_banner_pre_deprecation_text">GitSync (Android) veraltet %s\n\nEine neue, von Grund auf neu geschriebene Version ist hier. Du musst leider alles neu einrichten (sorry!)\nProbiere die Beta hier (Fehler erwartet).</string>
+    <string name="sunset_banner_post_deprecation_text">Diese Version von GitSync wird nicht mehr unterstützt. Eine neue, verbesserte App ist verfügbar. Bitte aktualisiere und synchronisiere dann weiter!</string>
+</resources>
