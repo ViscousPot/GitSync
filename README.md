@@ -1,26 +1,8 @@
 <div align="center">
-  <h4>⚠️ Disclaimer</h4>
-  <h4>GitSync is currently undergoing a rework.<br/>The latest release remains functional but won’t receive major updates until the rework is complete.<br/>Thanks for your patience! </h4>
-  <br/>
-
-  <h4>Roadmap</h4>
-  <p><em>optimistic estimates - subject to change</em></p>
-  <div align="center">
-    <strong>26 Jun 2025 - </strong> Official release of the rewrite<br/>
-    <div align="center"><strong>|</strong></div>
-    <strong>TBD - </strong> Open source release of the rewritten codebase
-    <div align="center"><strong>|</strong></div>
-  </div>
-
-
-  
-  <br/>
-  <br/>
-  <br/>
   <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" width="140" />
 
   <h3>GitSync</h3>
-  <h4>Android git client for syncing a repository between remote and a local directory</h4>
+  <h4>Mobile git client for syncing a repository between remote and a local directory</h4>
   
   <p align="center">
     <a href="#"><img src="https://img.shields.io/github/license/ViscousPot/GitSync?v=1" alt="license"></a>
@@ -48,12 +30,13 @@
 </div>
 
 
-GitSync is an Android git client that aims to simplify the process of syncing a folder between a git remote and a local directory. It works in the background to keep your files synced with a simple one-time setup and numerous options for activating manual syncs
+GitSync is a cross-platform git client that aims to simplify the process of syncing a folder between a git remote and a local directory. It works in the background to keep your files synced with a simple one-time setup and numerous options for activating manual syncs.
 
-- **Supports Android 5+**
+- **Supports Android 5+ & iOS 12+**
 - Authenticate with
     - **GitHub**
     - **Gitea**
+    - **Gitlab**
     - **HTTP/S**
     - **SSH**
 - Clone a remote repository
@@ -66,6 +49,7 @@ GitSync is an Android git client that aims to simplify the process of syncing a 
 - Sync mechanisms
     - From a quick tile
     - When an app is opened or closed
+    - On a schedule
     - From a custom intent (advanced)
 - Settings
     - Customise sync message
@@ -75,6 +59,8 @@ Give us a ⭐ if you like our work. Much appreciated!
 
 ## Build Instructions
 
+**Coming soon with the open-source release of the cross-platform codebase!**
+<!---
 If you just want to try the app out, feel free to use a pre-built release from the [Releases](https://github.com/ViscousPot/GitSync/releases) page
 
 ### 1. Setup 
@@ -106,7 +92,7 @@ If you just want to try the app out, feel free to use a pre-built release from t
 
 ### 3. Build & Run
 - Build from within Android Studio
-
+--->
 ## Support
 
 For support, email bugs.viscouspotential@gmail.com.
@@ -122,5 +108,4 @@ Consider [sponsoring](https://github.com/sponsors/ViscousPot)! Any help is hugel
 ## Acknowledgements
 
  - [JGit](https://github.com/eclipse-jgit/jgit)
-
 
