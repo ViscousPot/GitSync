@@ -347,8 +347,7 @@ class GitsyncService {
 
   void accessibilityEvent(String packageName, List<String> enabledInputMethods) async {
     for (var index = 0; index < (await repoManager.getStringList(StorageKey.repoman_repoNames)).length; index++) {
-      final settingsManager = SettingsManager();
-      await settingsManager.reinit(repoIndex: index);
+      final settingsManager = await SettingsManager().reinit(repoIndex: index);
 
       final syncClosed = await settingsManager.getBool(StorageKey.setman_syncOnAppClosed);
       final syncOpened = await settingsManager.getBool(StorageKey.setman_syncOnAppOpened);
