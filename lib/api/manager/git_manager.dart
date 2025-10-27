@@ -588,6 +588,8 @@ class GitManager {
     });
   }
 
+  static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
+
   static List<GitManagerRs.Commit> _lastRecentCommits = [];
   static DateTime _lastCalled = DateTime.now().subtract(Duration(days: 1));
   static Future<List<GitManagerRs.Commit>> getRecentCommits() async {
@@ -609,7 +611,11 @@ class GitManager {
           try {
             return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await uiSettingsManager.getRemote(), log: _logWrapper);
           } catch (e, stackTrace) {
-            Logger.logError(LogType.RecentCommits, e, stackTrace);
+            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
+              await File('$dirPath/$gitIndexPath').delete();
+            } else {
+              Logger.logError(LogType.RecentCommits, e, stackTrace);
+            }
             return <GitManagerRs.Commit>[];
           }
         }) ??
@@ -639,7 +645,11 @@ class GitManager {
           try {
             return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
-            Logger.logError(LogType.RecentCommits, e, stackTrace);
+            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
+              await File('$dirPath/$gitIndexPath').delete();
+            } else {
+              Logger.logError(LogType.RecentCommits, e, stackTrace);
+            }
             return <String>[];
           }
         }) ??
@@ -675,7 +685,11 @@ class GitManager {
           try {
             return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
-            Logger.logError(LogType.RecentCommits, e, stackTrace);
+            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
+              await File('$dirPath/$gitIndexPath').delete();
+            } else {
+              Logger.logError(LogType.RecentCommits, e, stackTrace);
+            }
             return <(String, int)>[];
           }
         }) ??
@@ -710,7 +724,11 @@ class GitManager {
           try {
             return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
-            Logger.logError(LogType.RecentCommits, e, stackTrace);
+            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
+              await File('$dirPath/$gitIndexPath').delete();
+            } else {
+              Logger.logError(LogType.RecentCommits, e, stackTrace);
+            }
             return <(String, int)>[];
           }
         }) ??
