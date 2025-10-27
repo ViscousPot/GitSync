@@ -1227,7 +1227,7 @@ class GitManager {
         [];
   }
 
-  static Future<List<String>> getLfsFilePaths([int? repomanRepoindex]) async {
+  static Future<List<String>> getAndExcludeLfsFilePaths([int? repomanRepoindex]) async {
     if (await isLocked()) {
       return await uiSettingsManager.getStringList(StorageKey.setman_lfsFilePaths);
     }

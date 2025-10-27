@@ -403,7 +403,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     ]);
 
     initAsync(() async {
-      await GitManager.getLfsFilePaths();
+      await GitManager.getAndExcludeLfsFilePaths();
     });
 
     initAsync(() async {
@@ -1435,7 +1435,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       setState(() {});
                                                     });
 
-                                                    await GitManager.getLfsFilePaths();
+                                                    await GitManager.getAndExcludeLfsFilePaths();
 
                                                     if (syncOptionsSnapshot.data?.containsKey(lastSyncMethodSnapshot.data) == true) {
                                                       await syncOptionsSnapshot.data![lastSyncMethodSnapshot.data]!.$2();
@@ -2077,7 +2077,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                     onPressed: () async {
                                                       gitLfsExpanded = !gitLfsExpanded;
                                                       setState(() {});
-                                                      await GitManager.getLfsFilePaths();
+                                                      await GitManager.getAndExcludeLfsFilePaths();
                                                       setState(() {});
                                                     },
                                                     iconAlignment: IconAlignment.end,

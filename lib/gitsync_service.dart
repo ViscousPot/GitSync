@@ -156,7 +156,8 @@ class GitsyncService {
 
   Future<void> _sync(int repomanRepoindex, [bool forced = false]) async {
     try {
-      await GitManager.getLfsFilePaths();
+      isSyncing = true;
+      await GitManager.getAndExcludeLfsFilePaths(repomanRepoindex);
 
       final settingsManager = SettingsManager();
       await settingsManager.reinit(repoIndex: repomanRepoindex);
@@ -180,7 +181,6 @@ class GitsyncService {
         _displaySyncMessage(settingsManager, s.detectingChanges);
       }
       Logger.gmLog(type: LogType.Sync, "Start Sync");
-      isSyncing = true;
 
       await () async {
         final gitDirPath = await settingsManager.getGitDirPath();
