@@ -559,6 +559,8 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                 children: [
                   TextButton(
                     onPressed: () async {
+                      if (isMerging) return;
+
                       await GitManager.abortMerge();
                       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                     },
@@ -576,6 +578,8 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                   TextButton.icon(
                     onPressed: conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1
                         ? () async {
+                            if (isMerging) return;
+
                             if (conflictingPaths.length > 1) {
                               conflictingPaths.removeAt(conflictIndex);
                               conflictIndex = conflictIndex.clamp(0, conflictingPaths.length - 1);
