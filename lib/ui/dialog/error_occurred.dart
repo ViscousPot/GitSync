@@ -34,17 +34,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
       content: SingleChildScrollView(
         child: ListBody(
           children: [
-            GestureDetector(
-              onLongPress: () {
-                Clipboard.setData(ClipboardData(text: error));
-              },
-              child: Text(
-                error,
-                style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
-              ),
-            ),
-            SizedBox(height: spaceMD),
-            ...autoFixCallbackMap.containsKey(error.split(";")[0])
+            ...autoFixCallbackMap.keys.any((text) => error.contains(text))
                 ? [
                     StatefulBuilder(
                       builder: (context, setState) => TextButton.icon(
@@ -86,6 +76,16 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                     SizedBox(height: spaceMD),
                   ]
                 : [],
+            GestureDetector(
+              onLongPress: () {
+                Clipboard.setData(ClipboardData(text: error));
+              },
+              child: Text(
+                error,
+                style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+              ),
+            ),
+            SizedBox(height: spaceMD),
             Text(
               t.errorOccurredMessagePart1,
               style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
