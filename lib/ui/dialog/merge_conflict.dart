@@ -51,11 +51,12 @@ $conflictEnd 77976da35a11db4580b80ae27e8d65caf5208086:gear-update.txt
   (18, "- Notebook & pen"),
 ];
 
-Future<void> showDialog(BuildContext parentContext, List<String> conflictingPaths) async {
+Future<void> showDialog(BuildContext parentContext, List<String> originalConflictingPaths) async {
   bool initialised = false;
   bool isMerging = false;
   int currentIndex = 0;
   final GlobalKey dialogKey = GlobalKey();
+  List<String> conflictingPaths = [...originalConflictingPaths];
 
   try {
     await Logger.notificationsPlugin.cancel(mergeConflictNotificationId);
@@ -587,6 +588,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> conflictingPath
 
                             FlutterBackgroundService().invoke(GitsyncService.MERGE, {
                               COMMIT_MESSAGE: commitMessageController.text.isEmpty ? syncMessage : commitMessageController.text,
+                              CONFLICTING_PATHS: originalConflictingPaths.join(conflictSeparator),
                             });
                             setState(() {});
                           }

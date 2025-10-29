@@ -311,7 +311,7 @@ class GitsyncService {
     );
   }
 
-  void merge(int repomanRepoindex, String commitMessage) async {
+  void merge(int repomanRepoindex, String commitMessage, List<String> conflictingaths) async {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
@@ -321,7 +321,7 @@ class GitsyncService {
       () {
         Fluttertoast.showToast(msg: resolvingMerge, toastLength: Toast.LENGTH_SHORT, gravity: null);
       },
-      null,
+      conflictingaths,
       commitMessage,
     );
 

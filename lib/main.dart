@@ -73,6 +73,7 @@ const REPO_INDEX = "repoman_repoIndex";
 const PACKAGE_NAME = "packageName";
 const ENABLED_INPUT_METHODS = "enabledInputMethods";
 const COMMIT_MESSAGE = "commitMessage";
+const CONFLICTING_PATHS = "conflictingPaths";
 
 Future<void> main() async {
   FlutterError.onError = (details) {
@@ -203,6 +204,7 @@ void onServiceStart(ServiceInstance service) async {
     gitSyncService.merge(
       int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex),
       event?[COMMIT_MESSAGE],
+      (event?[CONFLICTING_PATHS]).toString().split(conflictSeparator),
     );
   });
 
