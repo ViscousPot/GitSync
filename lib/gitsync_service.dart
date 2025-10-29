@@ -337,7 +337,9 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "Merge Not Required");
     }
 
-    debouncedSync(repomanRepoindex, true);
+    if (!await settingsManager.getClientModeEnabled()) {
+      debouncedSync(repomanRepoindex, true);
+    }
 
     serviceInstance?.invoke(MERGE_COMPLETE);
   }
