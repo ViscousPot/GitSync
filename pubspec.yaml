@@ -45,7 +45,7 @@ dependencies:
   sprintf: ^7.0.0
   intl: any
   path_provider: ^2.1.5
-  mixin_logger: ^0.1.2
+  mixin_logger: ^0.1.3
   package_info_plus: ^8.3.0
   device_info_plus: ^11.3.3
   anchor_scroll_controller: ^0.4.4
