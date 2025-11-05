@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
@@ -15,6 +16,49 @@ import 'package:sprintf/sprintf.dart';
 import 'package:path/path.dart' as path;
 import 'package:collection/collection.dart';
 
+extension CommitJson on GitManagerRs.Commit {
+  Map<String, dynamic> toJson() => {
+    'timestamp': timestamp.toInt(),
+    'author': author,
+    'reference': reference,
+    'commitMessage': commitMessage,
+    'additions': additions,
+    'deletions': deletions,
+    'unpulled': unpulled,
+    'unpushed': unpushed,
+  };
+
+  static GitManagerRs.Commit fromJson(Map<String, dynamic> json) {
+    try {
+      return GitManagerRs.Commit(
+        timestamp: _parseTimestamp(json['timestamp']),
+        author: json['author'] as String? ?? '',
+        reference: json['reference'] as String? ?? '',
+        commitMessage: json['commitMessage'] as String? ?? '',
+        additions: _parseIntSafely(json['additions']),
+        deletions: _parseIntSafely(json['deletions']),
+        unpulled: json['unpulled'] as bool? ?? false,
+        unpushed: json['unpushed'] as bool? ?? false,
+      );
+    } catch (e) {
+      print('Error parsing commit JSON: $e');
+      rethrow;
+    }
+  }
+
+  static int _parseTimestamp(dynamic timestamp) {
+    if (timestamp is int) return timestamp;
+    if (timestamp is String) return int.tryParse(timestamp) ?? 0;
+    return 0;
+  }
+
+  static int _parseIntSafely(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
 class GitManager {
   static final Map<String, Future<String?> Function()> _errorContentMap = {
     "failed to parse signature - Signature cannot have an empty name or email": () async => missingAuthorDetailsError,
@@ -25,6 +69,8 @@ class GitManager {
     "error reading file for hashing:": () async => null,
     "failed to parse loose object: invalid header": () async => null,
   };
+
+  static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
   static Future<T?> _runWithLock<T>(int index, Future<T?> Function() fn) async {
     final locks = await repoManager.getStringList(StorageKey.repoman_locks);
@@ -590,11 +636,16 @@ class GitManager {
 
   static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
 
-  static List<GitManagerRs.Commit> _lastRecentCommits = [];
+  static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {
+    return (await uiSettingsManager.getStringList(
+      StorageKey.setman_recentCommits,
+    )).map((item) => CommitJson.fromJson(jsonDecode(stringToBase64.decode(item)))).toList();
+  }
+
   static DateTime _lastCalled = DateTime.now().subtract(Duration(days: 1));
   static Future<List<GitManagerRs.Commit>> getRecentCommits() async {
     if (DateTime.now().isBefore(_lastCalled.add(Duration(seconds: 1))) || await isLocked()) {
-      return _lastRecentCommits;
+      return getInitialRecentCommits();
     }
 
     final dirPath = (await uiSettingsManager.getGitDirPath());
@@ -621,7 +672,12 @@ class GitManager {
         }) ??
         <GitManagerRs.Commit>[];
 
-    _lastRecentCommits = result;
+    print(result.map((item) => jsonEncode(item.toJson())));
+
+    await uiSettingsManager.setStringList(
+      StorageKey.setman_recentCommits,
+      result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
+    );
     _lastCalled = DateTime.now();
     return result;
   }
@@ -1250,54 +1306,50 @@ class GitManager {
       return await uiSettingsManager.getStringList(StorageKey.setman_lfsFilePaths);
     }
 
-    final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
+    final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
+    final gitDirPath = await uiSettingsManager.getGitDirPath();
+    if (gitDirPath == null || gitDirPath.isEmpty) return [];
 
-    return await _runWithLock(repoIndex, () async {
-          final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
-          final gitDirPath = await uiSettingsManager.getGitDirPath();
-          if (gitDirPath == null || gitDirPath.isEmpty) return null;
+    return await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
+          final Directory directory = Directory(selectedDirectory);
+          if (!await directory.exists()) {
+            throw Exception('Directory does not exist');
+          }
 
-          return await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
-            final Directory directory = Directory(selectedDirectory);
-            if (!await directory.exists()) {
-              throw Exception('Directory does not exist');
-            }
+          final int sizeThresholdBytes = 100 * 1024 * 1024;
 
-            final int sizeThresholdBytes = 100 * 1024 * 1024;
+          List<String> largeFilePaths = [];
 
-            List<String> largeFilePaths = [];
+          await for (var entity in directory.list(recursive: true, followLinks: false)) {
+            if (entity.path.contains('/.git/')) continue;
 
-            await for (var entity in directory.list(recursive: true, followLinks: false)) {
-              if (entity.path.contains('/.git/')) continue;
+            if (entity is File) {
+              final FileStat fileStat = await entity.stat();
 
-              if (entity is File) {
-                final FileStat fileStat = await entity.stat();
-
-                if (fileStat.size > sizeThresholdBytes) {
-                  largeFilePaths.add(entity.path);
-                }
+              if (fileStat.size > sizeThresholdBytes) {
+                largeFilePaths.add(entity.path);
               }
             }
+          }
 
-            final gitInfoExcludeFullPath = '$selectedDirectory/$gitInfoExcludePath';
-            final file = File(gitInfoExcludeFullPath);
-            final parentDir = file.parent;
-            if (!parentDir.existsSync()) {
-              parentDir.createSync(recursive: true);
+          final gitInfoExcludeFullPath = '$selectedDirectory/$gitInfoExcludePath';
+          final file = File(gitInfoExcludeFullPath);
+          final parentDir = file.parent;
+          if (!parentDir.existsSync()) {
+            parentDir.createSync(recursive: true);
+          }
+          if (!file.existsSync()) file.createSync();
+          final lines = file.readAsLinesSync();
+          for (final filePath in largeFilePaths) {
+            final ignoreLine = filePath.replaceFirst("$selectedDirectory/", "");
+            if (!lines.contains(ignoreLine)) {
+              file.writeAsStringSync("$ignoreLine\n", mode: FileMode.append);
             }
-            if (!file.existsSync()) file.createSync();
-            final lines = file.readAsLinesSync();
-            for (final filePath in largeFilePaths) {
-              final ignoreLine = filePath.replaceFirst("$selectedDirectory/", "");
-              if (!lines.contains(ignoreLine)) {
-                file.writeAsStringSync("$ignoreLine\n", mode: FileMode.append);
-              }
-            }
+          }
 
-            await uiSettingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
+          await uiSettingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
 
-            return largeFilePaths;
-          });
+          return largeFilePaths;
         }) ??
         [];
   }
