@@ -1275,21 +1275,41 @@ pub async fn get_recommended_action(
     if let Ok(mut remote) = repo.find_remote(remote_name) {
         remote.connect_auth(git2::Direction::Fetch, Some(callbacks), None)?;
         let remote_refs = remote.list()?;
-        for r in remote_refs {
-            let tracking_ref_name = format!("refs/remotes/{}/{}", remote.name().unwrap(), &branch_name);
-
-            if let Ok(tracking_ref) = repo.find_reference(&tracking_ref_name) {
-                if tracking_ref.target() != Some(r.oid()) {
-                    return Ok(Some(0));
-                }
-            } else {
-                return Ok(Some(0));
+        let tracking_ref_name = format!("refs/remotes/{}/{}", remote.name().unwrap(), &branch_name);
+        let mut found = false;
+                
+        if let Ok(tracking_ref) = repo.find_reference(&tracking_ref_name) {
+            for r in remote_refs {
+                if tracking_ref.target() == Some(r.oid()) { 
+                    found = true;
+                }            
             }
+        } else {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::GitStatus,
+                format!("Recommending action 0: No local tracking reference found. Expected ref: {}", tracking_ref_name)
+            );
+            return Ok(Some(0));
+        }
+
+        if (!found) {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::GitStatus,
+                format!("Recommending action 0: Remote reference differs from local tracking reference. Ref: {}", tracking_ref_name)
+            );
+            return Ok(Some(0));
         }
         remote.disconnect();
     }
 
     if !get_staged_file_paths_priv(&repo, &log_callback).is_empty() || !get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::GitStatus,
+            "Recommending action 2: Staged or uncommitted files exist".to_string()
+        );
         return Ok(Some(2));
     }
 
@@ -1300,10 +1320,25 @@ pub async fn get_recommended_action(
                     if local_commit.id() != remote_commit.id() {
                         let (ahead, behind) = repo.graph_ahead_behind(local_commit.id(), remote_commit.id())?;
                         if ahead > 0 {
+                            _log(
+                                Arc::clone(&log_callback),
+                                LogType::GitStatus,
+                                format!("Recommending action 3: Local branch is ahead of remote by {} commits", ahead)
+                            );
                             return Ok(Some(3));
                         } else if behind > 0 {
+                            _log(
+                                Arc::clone(&log_callback),
+                                LogType::GitStatus,
+                                format!("Recommending action 1: Local branch is behind remote by {} commits", behind)
+                            );
                             return Ok(Some(1));
                         }
+                        _log(
+                            Arc::clone(&log_callback),
+                            LogType::GitStatus,
+                            "Recommending action 3: Unhandled commit difference".to_string()
+                        );
                         return Ok(Some(3));
                     }
                 }
