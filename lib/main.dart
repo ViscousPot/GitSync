@@ -770,6 +770,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       gitLfsExpanded = false;
+      await updateRecommendedAction();
       setState(() {});
     }
     if (state == AppLifecycleState.paused) {
