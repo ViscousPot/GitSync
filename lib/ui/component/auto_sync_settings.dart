@@ -62,7 +62,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                   ),
                   icon: FaIcon(
                     (expandedSnapshot.data ?? false) ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                    color: (accessibilityServiceEnabledSnapshot.data ?? false) ? primaryPositive : primaryLight,
+                    color: (accessibilityServiceEnabledSnapshot.data ?? false) ? primaryLight : secondaryLight,
                     size: textXL,
                   ),
                   label: SizedBox(
