@@ -65,55 +65,71 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
         builder: (context, snapshot) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () async {
-                  await uiSettingsManager.setBool(StorageKey.setman_scheduledSyncSettingsExpanded, !(snapshot.data ?? false));
-                  setState(() {});
-                },
-                iconAlignment: IconAlignment.end,
-                style: ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                TextButton.icon(
+                  onPressed: () async {
+                    await uiSettingsManager.setBool(StorageKey.setman_scheduledSyncSettingsExpanded, !(snapshot.data ?? false));
+                    setState(() {});
+                  },
+                  iconAlignment: IconAlignment.end,
+                  style: ButtonStyle(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+                  ),
+                  icon: FaIcon(
+                    (snapshot.data ?? false) ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
+                    color: primaryLight,
+                    size: textXL,
+                  ),
+                  label: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        AnimatedSize(
+                          duration: Duration(milliseconds: 200),
+                          child: SizedBox(width: (snapshot.data ?? false) ? spaceMD + spaceXXS : 0),
+                        ),
+                        Flexible(
+                          child: Text(
+                            t.scheduledSyncSettings,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                icon: FaIcon((snapshot.data ?? false) ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown, color: primaryLight, size: textXL),
-                label: SizedBox(
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      AnimatedSize(
-                        duration: Duration(milliseconds: 200),
-                        child: Container(
-                          // height: (snapshot.data ?? false) ? null : 0,
-                          width: (snapshot.data ?? false) ? null : 0,
-                          decoration: BoxDecoration(),
-                          clipBehavior: Clip.hardEdge,
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: 200),
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  child: (snapshot.data ?? false)
+                      ? SizedBox(
+                          height: spaceXL,
+                          width: spaceXL,
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                            constraints: BoxConstraints(),
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.padded,
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                              ),
+                            ),
                             onPressed: () async {
                               launchUrl(Uri.parse(scheduledSyncDocsLink));
                             },
                             icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
                           ),
-                        ),
-                      ),
-                      SizedBox(width: (snapshot.data ?? false) ? spaceSM : 0),
-                      Flexible(
-                        child: Text(
-                          t.scheduledSyncSettings,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
-                        ),
-                      ),
-                    ],
-                  ),
+                        )
+                      : SizedBox.shrink(),
                 ),
-              ),
+              ],
             ),
             AnimatedSize(
               duration: Duration(milliseconds: 200),
