@@ -301,7 +301,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                               : FontAwesomeIcons.solidFolder),
                                     color: isFile
                                         ? (selectedPaths.contains(path) ? primaryLight : secondaryLight)
-                                        : (selectedPaths.contains(path) ? primaryPositive : tertiaryPositive),
+                                        : (selectedPaths.contains(path) ? tertiaryInfo : primaryInfo),
                                     size: textMD,
                                   ),
                                 ),

@@ -142,7 +142,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? primaryPositive : tertiaryDark),
+                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? tertiaryInfo : tertiaryDark),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
@@ -152,7 +152,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                   bottomRight: Radius.zero,
                                 ),
 
-                                side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: primaryPositive),
+                                side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
                               ),
                             ),
                             animationDuration: Duration.zero,
@@ -181,7 +181,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? primaryPositive : tertiaryDark),
+                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? tertiaryInfo : tertiaryDark),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
@@ -190,7 +190,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                   bottomLeft: Radius.zero,
                                   bottomRight: cornerRadiusMD,
                                 ),
-                                side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: primaryPositive),
+                                side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
                               ),
                             ),
                             animationDuration: Duration.zero,
