@@ -229,11 +229,49 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   Mmap? writeMmap;
   Map<String, ReEditor.CodeHighlightThemeMode> languages = {};
   bool logsCollapsed = false;
+  List<String> diffLineNumbers = [];
 
   @override
   void initState() {
     super.initState();
     MmapFlutter.initialize();
+
+    if (widget.type == EditorType.DIFF) {
+      initAsync(() async {
+        diffLineNumbers.clear();
+        int deletionsCount = 0;
+        int startIndex = 0;
+        int startLineNumber = 0;
+        diffLineNumbers.addAll(
+          (widget.text ?? "").split("\n").indexed.map((indexedLine) {
+            final hunkHeader = RegExp(
+              "(?:^@@ +-(\\d+),(\\d+) +\\+(\\d+),(\\d+) +@@|^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*\$|^--- +\\d+,\\d+ +----\$).*\$",
+            ).firstMatch(indexedLine.$2);
+            if (hunkHeader != null) {
+              print(hunkHeader.group(0));
+              print(hunkHeader.group(1));
+              print(hunkHeader.group(2));
+              print(hunkHeader.group(3));
+              print(hunkHeader.group(4));
+              startLineNumber = max(int.tryParse(hunkHeader.group(1) ?? "") ?? 0, int.tryParse(hunkHeader.group(3) ?? "") ?? 0);
+              startIndex = indexedLine.$1;
+              deletionsCount = 0;
+              return "";
+            }
+            // if (RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
+            // }
+            if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null) {
+              deletionsCount -= 1;
+            } else {
+              startLineNumber += deletionsCount;
+              deletionsCount = 0;
+            }
+            return "${startLineNumber - 1 + (indexedLine.$1 - startIndex)}";
+          }),
+        );
+        setState(() {});
+      });
+    }
 
     if (widget.verticalScrollController != null) verticalController = widget.verticalScrollController!;
 
@@ -413,6 +451,14 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                     return Row(
                       children: [
                         if (widget.type == EditorType.DEFAULT) ReEditor.DefaultCodeLineNumber(controller: editingController, notifier: notifier),
+                        if (widget.type == EditorType.DIFF)
+                          ReEditor.DefaultCodeLineNumber(
+                            controller: editingController,
+                            notifier: notifier,
+                            customLineIndex2Text: (lineIndex) {
+                              return "${diffLineNumbers.length > lineIndex ? diffLineNumbers[lineIndex] : ""}";
+                            },
+                          ),
                         if (widget.type == EditorType.DEFAULT || widget.type == EditorType.LOGS)
                           ReEditor.DefaultCodeChunkIndicator(width: 20, controller: chunkController, notifier: notifier),
                       ],

@@ -18,7 +18,17 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
   bool copiedEndCommitReference = false;
 
   final diff = await GitManager.getDiff(startCommit.reference, endCommit.reference);
-  final diffFiles = diff?.diffParts.map((key, value) => MapEntry(key, value.entries.map((entry) => "${entry.key}${entry.value}").join("\n"))) ?? {};
+  final diffFiles =
+      diff?.diffParts.map(
+        (key, value) => MapEntry(
+          key,
+          value.entries
+              .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
+              .map((entry) => "${entry.key}${entry.value}")
+              .join("\n"),
+        ),
+      ) ??
+      {};
 
   return await mat.showDialog(
     context: parentContext,
