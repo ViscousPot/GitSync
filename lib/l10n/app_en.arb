@@ -276,6 +276,8 @@
     "language": "Language",
     "browseEditDir": "Browse & Edit Directory",
     "backupRestoreTitle": "Encrypted Configuration Recovery",
+    "encryptedBackup": "Encrypted Backup",
+    "encryptedRestore": "Encrypted Restore",
     "backup": "Backup",
     "restore": "Restore",
     "selectBackupLocation": "Select location to save backup",

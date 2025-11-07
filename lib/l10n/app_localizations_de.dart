@@ -750,6 +750,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get backupRestoreTitle => 'Verschlüsselte Konfigurationswiederherstellung';
 
   @override
+  String get encryptedBackup => 'Encrypted Backup';
+
+  @override
+  String get encryptedRestore => 'Encrypted Restore';
+
+  @override
   String get backup => 'Sicherung';
 
   @override

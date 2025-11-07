@@ -161,7 +161,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                 ),
                 SizedBox(height: spaceSM),
                 ButtonSetting(
-                  text: t.backup,
+                  text: t.encryptedBackup,
                   icon: FontAwesomeIcons.solidFloppyDisk,
                   onPressed: () async {
                     await EnterBackupRestorePasswordDialog.showDialog(context, true, (text) async {
@@ -187,7 +187,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                 ),
                 SizedBox(height: spaceMD),
                 ButtonSetting(
-                  text: t.restore,
+                  text: t.encryptedRestore,
                   icon: FontAwesomeIcons.arrowRotateLeft,
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform.pickFiles();

@@ -733,6 +733,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupRestoreTitle => '加密配置恢复';
 
   @override
+  String get encryptedBackup => 'Encrypted Backup';
+
+  @override
+  String get encryptedRestore => 'Encrypted Restore';
+
+  @override
   String get backup => '备份';
 
   @override

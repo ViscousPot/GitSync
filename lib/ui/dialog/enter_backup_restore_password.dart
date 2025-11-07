@@ -61,7 +61,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         ),
         TextButton(
           child: Text(
-            (backupRestore ? t.backup : t.restore).toUpperCase(),
+            (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
             style: TextStyle(color: primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

@@ -1544,6 +1544,18 @@ abstract class AppLocalizations {
   /// **'Encrypted Configuration Recovery'**
   String get backupRestoreTitle;
 
+  /// No description provided for @encryptedBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted Backup'**
+  String get encryptedBackup;
+
+  /// No description provided for @encryptedRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted Restore'**
+  String get encryptedRestore;
+
   /// No description provided for @backup.
   ///
   /// In en, this message translates to:
