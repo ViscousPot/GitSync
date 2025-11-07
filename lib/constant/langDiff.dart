@@ -11,6 +11,7 @@ final langDiff = Mode(
       relevance: 10,
       match: "(?:^@@ +-\\d+,\\d+ +\\+\\d+,\\d+ +@@|^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*\$|^--- +\\d+,\\d+ +----\$).*\$",
     ),
+    Mode(className: "eof", relevance: 10, match: "^END OF FILE\$"),
 
     Mode(
       scope: 'diffRemove',
