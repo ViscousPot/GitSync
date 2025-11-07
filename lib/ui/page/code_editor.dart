@@ -236,24 +236,19 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
               "(?:^@@ +-(\\d+),(\\d+) +\\+(\\d+),(\\d+) +@@|^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*\$|^--- +\\d+,\\d+ +----\$).*\$",
             ).firstMatch(indexedLine.$2);
             if (hunkHeader != null) {
-              print(hunkHeader.group(0));
-              print(hunkHeader.group(1));
-              print(hunkHeader.group(2));
-              print(hunkHeader.group(3));
-              print(hunkHeader.group(4));
               startLineNumber = max(int.tryParse(hunkHeader.group(1) ?? "") ?? 0, int.tryParse(hunkHeader.group(3) ?? "") ?? 0);
               startIndex = indexedLine.$1;
               deletionsCount = 0;
               return "";
             }
-            // if (RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
-            // }
+
             if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null) {
               deletionsCount -= 1;
             } else {
               startLineNumber += deletionsCount;
               deletionsCount = 0;
             }
+
             return "${startLineNumber - 1 + (indexedLine.$1 - startIndex)}";
           }),
         );
