@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
             children: [
               SizedBox(height: spaceMD),
               TextField(
+                contextMenuBuilder: globalContextMenuBuilder,
                 controller: textController,
                 maxLines: 1,
                 style: TextStyle(

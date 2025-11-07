@@ -205,6 +205,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                   ),
                   SizedBox(height: spaceMD + spaceSM),
                   TextField(
+                    contextMenuBuilder: globalContextMenuBuilder,
                     controller: commitMessageController,
                     maxLines: null,
                     style: TextStyle(

@@ -176,6 +176,30 @@ Future<String?> pickDirectory() async {
   return null;
 }
 
+TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableTextState editableTextState) => TextSelectionToolbar(
+  anchorAbove: editableTextState.contextMenuAnchors.primaryAnchor,
+  anchorBelow: editableTextState.contextMenuAnchors.secondaryAnchor ?? Offset.zero,
+  toolbarBuilder: (context, child) => Material(
+    borderRadius: const BorderRadius.all(cornerRadiusMax),
+    clipBehavior: Clip.antiAlias,
+    color: primaryDark,
+    elevation: 1.0,
+    type: MaterialType.card,
+    child: child,
+  ),
+  children: editableTextState.contextMenuButtonItems.indexed.map(((int, ContextMenuButtonItem) indexedButtonItem) {
+    return TextSelectionToolbarTextButton(
+      padding: TextSelectionToolbarTextButton.getPadding(indexedButtonItem.$1, editableTextState.contextMenuButtonItems.length),
+      alignment: AlignmentDirectional.centerStart,
+      onPressed: indexedButtonItem.$2.onPressed,
+      child: Text(
+        AdaptiveTextSelectionToolbar.getButtonLabel(context, indexedButtonItem.$2),
+        style: TextStyle(fontSize: textMD, color: primaryLight, fontWeight: FontWeight.w500),
+      ),
+    );
+  }).toList(),
+);
+
 Future<bool> waitFor(Future<bool> Function() fn, {int maxWaitSeconds = 30}) async {
   final end = DateTime.now().add(Duration(seconds: maxWaitSeconds));
   while (DateTime.now().isBefore(end)) {

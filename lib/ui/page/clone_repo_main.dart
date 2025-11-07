@@ -208,6 +208,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             TextField(
+                              contextMenuBuilder: globalContextMenuBuilder,
                               controller: searchController,
                               maxLines: 1,
                               style: TextStyle(
@@ -340,6 +341,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                     children: [
                       Expanded(
                         child: TextField(
+                          contextMenuBuilder: globalContextMenuBuilder,
                           controller: cloneUrlController,
                           maxLines: 1,
                           style: TextStyle(color: primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textLG),

@@ -46,6 +46,7 @@ Future<void> showDialog(BuildContext parentContext, Set<String>? prevSelectedApp
             child: Column(
               children: [
                 TextField(
+                  contextMenuBuilder: globalContextMenuBuilder,
                   controller: searchController,
                   maxLines: 1,
                   style: TextStyle(

@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
@@ -203,6 +204,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                   child: Column(
                     children: [
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: httpsUsernameController,
                         maxLines: 1,
                         style: TextStyle(
@@ -229,6 +231,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       ),
                       SizedBox(height: spaceMD),
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: httpsTokenController,
                         maxLines: 1,
                         style: TextStyle(
@@ -299,6 +302,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: passphraseController,
                         maxLines: 1,
                         style: TextStyle(
