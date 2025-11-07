@@ -121,12 +121,9 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
               anchorAbove: anchors.primaryAnchor,
               anchorBelow: anchors.secondaryAnchor ?? Offset.zero,
               toolbarBuilder: (context, child) => Material(
-                // This value was eyeballed to match the native text selection menu on
-                // a Pixel 6 emulator running Android API level 34.
                 borderRadius: const BorderRadius.all(cornerRadiusMax),
                 clipBehavior: Clip.antiAlias,
                 color: primaryDark,
-                // color: _getColor(theme.colorScheme),
                 elevation: 1.0,
                 type: MaterialType.card,
                 child: child,
