@@ -635,13 +635,8 @@ ${await Logger.generateDeviceInfo()}
                 SizedBox(height: spaceMD),
                 FutureBuilder(
                   future: PackageInfo.fromPlatform(),
-                  builder: (context, versionSnapshot) => ButtonSetting(
-                    text: versionSnapshot.data?.version ?? "x.x.xx",
-                    icon: FontAwesomeIcons.tag,
-                    onPressed: () async {
-                      launchUrl(Uri.parse(eulaLink));
-                    },
-                  ),
+                  builder: (context, versionSnapshot) =>
+                      ButtonSetting(text: versionSnapshot.data?.version ?? "x.x.xx", icon: FontAwesomeIcons.tag, onPressed: null),
                 ),
 
                 SizedBox(height: spaceLG),

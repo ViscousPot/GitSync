@@ -27,7 +27,7 @@ class ButtonSetting extends StatefulWidget {
   final Color iconColor;
   final Color buttonColor;
   final List<Widget>? subButtons;
-  final Future<void> Function() onPressed;
+  final Future<void> Function()? onPressed;
 
   @override
   State<ButtonSetting> createState() => _ButtonSettingState();
@@ -45,7 +45,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
 
   void onPressed() async {
     if (mounted) setState(() => loading = true);
-    await widget.onPressed();
+    if (widget.onPressed != null) await widget.onPressed!();
     if (mounted) setState(() => loading = false);
   }
 
@@ -60,7 +60,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
   Widget build(BuildContext context) {
     return widget.subButtons == null || widget.subButtons!.isEmpty
         ? TextButton.icon(
-            onPressed: onPressed,
+            onPressed: widget.onPressed != null ? onPressed : null,
             style: ButtonStyle(
               alignment: Alignment.centerLeft,
               backgroundColor: WidgetStatePropertyAll(widget.buttonColor),
@@ -91,7 +91,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextButton.icon(
-                      onPressed: onPressed,
+                      onPressed: widget.onPressed != null ? onPressed : null,
                       style: ButtonStyle(
                         alignment: Alignment.centerLeft,
                         backgroundColor: WidgetStatePropertyAll(widget.buttonColor),
