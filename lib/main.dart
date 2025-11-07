@@ -263,8 +263,15 @@ class _MyAppState extends State<MyApp> {
           }
           return const Locale('en');
         },
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: primaryDark), useMaterial3: true),
-
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: primaryDark),
+          useMaterial3: true,
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: tertiaryInfo,
+            selectionColor: secondaryInfo.withAlpha(100),
+            cursorColor: secondaryInfo.withAlpha(150),
+          ),
+        ),
         builder: (context, child) {
           return child == null
               ? SizedBox.shrink()
@@ -1287,7 +1294,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                       );
                                                                     }
 
-                                                                    return ItemCommit(key: Key(reference), items[index]);
+                                                                    return ItemCommit(
+                                                                      key: Key(reference),
+                                                                      items[index],
+                                                                      index < items.length ? items[index + 1] : null,
+                                                                    );
                                                                   },
                                                                 ),
                                                               ),

@@ -44,6 +44,18 @@ Future<void> unstageAll({
   log: log,
 );
 
+Future<Diff> getDiff({
+  required String pathString,
+  required String startRef,
+  required String endRef,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerGetDiff(
+  pathString: pathString,
+  startRef: startRef,
+  endRef: endRef,
+  log: log,
+);
+
 Future<List<Commit>> getRecentCommits({
   required String pathString,
   required String remoteName,
@@ -432,12 +444,44 @@ class Commit {
           unpushed == other.unpushed;
 }
 
+class Diff {
+  final int filesChanged;
+  final int insertions;
+  final int deletions;
+  final Map<String, Map<String, String>> diffParts;
+
+  const Diff({
+    required this.filesChanged,
+    required this.insertions,
+    required this.deletions,
+    required this.diffParts,
+  });
+
+  @override
+  int get hashCode =>
+      filesChanged.hashCode ^
+      insertions.hashCode ^
+      deletions.hashCode ^
+      diffParts.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Diff &&
+          runtimeType == other.runtimeType &&
+          filesChanged == other.filesChanged &&
+          insertions == other.insertions &&
+          deletions == other.deletions &&
+          diffParts == other.diffParts;
+}
+
 enum LogType {
   global,
   accessibilityService,
   sync_,
   gitStatus,
   abortMerge,
+  diff,
   commit,
   getRepos,
   cloneRepo,

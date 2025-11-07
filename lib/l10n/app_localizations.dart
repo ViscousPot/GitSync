@@ -1544,6 +1544,18 @@ abstract class AppLocalizations {
   /// **'Encrypted Configuration Recovery'**
   String get backupRestoreTitle;
 
+  /// No description provided for @encryptedBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted Backup'**
+  String get encryptedBackup;
+
+  /// No description provided for @encryptedRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted Restore'**
+  String get encryptedRestore;
+
   /// No description provided for @backup.
   ///
   /// In en, this message translates to:
@@ -1759,6 +1771,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read-Only'**
   String get readOnly;
+
+  /// No description provided for @cut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get cut;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get paste;
 
   /// No description provided for @experimental.
   ///

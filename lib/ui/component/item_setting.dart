@@ -74,6 +74,7 @@ class _ItemSetting extends State<ItemSetting> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: double.maxFinite),
                     child: TextField(
+                      contextMenuBuilder: globalContextMenuBuilder,
                       controller: controller,
                       maxLines: widget.maxLines != null && widget.maxLines! < 1 ? null : widget.maxLines,
                       minLines: widget.minLines != null && widget.minLines! < 1 ? 4 : widget.minLines,
@@ -98,6 +99,7 @@ class _ItemSetting extends State<ItemSetting> {
               )
             : TextField(
                 controller: controller,
+                contextMenuBuilder: globalContextMenuBuilder,
                 // controller: TextEditingController()..text = ',
                 maxLines: widget.maxLines != null && widget.maxLines! < 1 ? (widget.isTextArea ? null : 1) : widget.maxLines,
                 minLines: widget.minLines != null && widget.minLines! < 1 ? (widget.isTextArea ? 4 : 1) : widget.minLines,

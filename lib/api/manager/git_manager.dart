@@ -634,6 +634,30 @@ class GitManager {
     });
   }
 
+  static Future<GitManagerRs.Diff?> getDiff(String startRef, String endRef) async {
+    if (await isLocked()) {
+      return null;
+    }
+
+    final dirPath = (await uiSettingsManager.getGitDirPath());
+    if (dirPath == null || dirPath.isEmpty) return null;
+
+    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      if (!isGitDir(dirPath)) {
+        return null;
+      }
+
+      Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
+
+      try {
+        return await GitManagerRs.getDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper);
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.RecentCommits, e, stackTrace);
+        return null;
+      }
+    });
+  }
+
   static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
 
   static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {

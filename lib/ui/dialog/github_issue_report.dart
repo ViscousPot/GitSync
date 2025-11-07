@@ -54,6 +54,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                   ),
                   SizedBox(height: spaceSM),
                   TextField(
+                    contextMenuBuilder: globalContextMenuBuilder,
                     controller: titleController,
                     maxLines: 1,
                     minLines: 1,
@@ -103,6 +104,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     SizedBox(height: spaceSM),
                     (expanded ? (child) => Flexible(child: child) : (child) => child)(
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: descriptionController,
                         maxLines: null,
                         minLines: 3,
@@ -154,6 +156,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     SizedBox(height: spaceSM),
                     (expanded ? (child) => Flexible(child: child) : (child) => child)(
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: minimalReproController,
                         maxLines: null,
                         minLines: 3,

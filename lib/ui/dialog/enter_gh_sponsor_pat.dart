@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../constant/colors.dart';
@@ -22,6 +23,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         child: ListBody(
           children: [
             TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
               controller: textController,
               maxLines: 1,
               obscureText: true,

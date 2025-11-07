@@ -17,6 +17,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/constant/strings.dart';
@@ -99,13 +100,15 @@ Future<void> openLogViewer(BuildContext context) async {
   final logFiles = <File>[];
   if (logsDir.existsSync()) {
     logFiles.addAll(logsDir.listSync().whereType<File>().where((f) => RegExp(r'log_(\d+)\.log$').hasMatch(f.path)));
+  } else {
+    Fluttertoast.showToast(msg: t.noLogFilesFound, toastLength: Toast.LENGTH_SHORT, gravity: null);
+    return;
   }
 
   File logFile;
   if (logFiles.isEmpty) {
     logFile = File("${logsDir.path}/log_0.log");
   } else {
-    // pick file with largest numeric suffix
     final fileWithMax = logFiles.reduce((a, b) {
       final ma = RegExp(r'log_(\d+)\.log$').firstMatch(a.path)!.group(1)!;
       final mb = RegExp(r'log_(\d+)\.log$').firstMatch(b.path)!.group(1)!;
@@ -116,8 +119,13 @@ Future<void> openLogViewer(BuildContext context) async {
     logFile = File(fileWithMax.path);
   }
 
+  if (!logFile.existsSync()) {
+    Fluttertoast.showToast(msg: t.noLogFilesFound, toastLength: Toast.LENGTH_SHORT, gravity: null);
+    return;
+  }
+
   print("Using log file: ${logFile.path}");
-  await Navigator.of(context).push(createCodeEditorRoute(logFile.path, logs: true));
+  await Navigator.of(context).push(createCodeEditorRoute(logFile.path, type: EditorType.LOGS));
 }
 
 Future<void> sendMergeConflictNotification() async {
@@ -167,6 +175,30 @@ Future<String?> pickDirectory() async {
   }
   return null;
 }
+
+TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableTextState editableTextState) => TextSelectionToolbar(
+  anchorAbove: editableTextState.contextMenuAnchors.primaryAnchor,
+  anchorBelow: editableTextState.contextMenuAnchors.secondaryAnchor ?? Offset.zero,
+  toolbarBuilder: (context, child) => Material(
+    borderRadius: const BorderRadius.all(cornerRadiusMax),
+    clipBehavior: Clip.antiAlias,
+    color: primaryDark,
+    elevation: 1.0,
+    type: MaterialType.card,
+    child: child,
+  ),
+  children: editableTextState.contextMenuButtonItems.indexed.map(((int, ContextMenuButtonItem) indexedButtonItem) {
+    return TextSelectionToolbarTextButton(
+      padding: TextSelectionToolbarTextButton.getPadding(indexedButtonItem.$1, editableTextState.contextMenuButtonItems.length),
+      alignment: AlignmentDirectional.centerStart,
+      onPressed: indexedButtonItem.$2.onPressed,
+      child: Text(
+        AdaptiveTextSelectionToolbar.getButtonLabel(context, indexedButtonItem.$2),
+        style: TextStyle(fontSize: textMD, color: primaryLight, fontWeight: FontWeight.w500),
+      ),
+    );
+  }).toList(),
+);
 
 Future<bool> waitFor(Future<bool> Function() fn, {int maxWaitSeconds = 30}) async {
   final end = DateTime.now().add(Duration(seconds: maxWaitSeconds));

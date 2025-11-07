@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
@@ -23,6 +24,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         child: ListBody(
           children: [
             TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
               controller: textController,
               maxLines: 1,
               obscureText: true,
@@ -59,7 +61,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         ),
         TextButton(
           child: Text(
-            (backupRestore ? t.backup : t.restore).toUpperCase(),
+            (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
             style: TextStyle(color: primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

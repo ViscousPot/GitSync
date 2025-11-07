@@ -161,7 +161,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                 ),
                 SizedBox(height: spaceSM),
                 ButtonSetting(
-                  text: t.backup,
+                  text: t.encryptedBackup,
                   icon: FontAwesomeIcons.solidFloppyDisk,
                   onPressed: () async {
                     await EnterBackupRestorePasswordDialog.showDialog(context, true, (text) async {
@@ -187,7 +187,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                 ),
                 SizedBox(height: spaceMD),
                 ButtonSetting(
-                  text: t.restore,
+                  text: t.encryptedRestore,
                   icon: FontAwesomeIcons.arrowRotateLeft,
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -635,13 +635,8 @@ ${await Logger.generateDeviceInfo()}
                 SizedBox(height: spaceMD),
                 FutureBuilder(
                   future: PackageInfo.fromPlatform(),
-                  builder: (context, versionSnapshot) => ButtonSetting(
-                    text: versionSnapshot.data?.version ?? "x.x.xx",
-                    icon: FontAwesomeIcons.tag,
-                    onPressed: () async {
-                      launchUrl(Uri.parse(eulaLink));
-                    },
-                  ),
+                  builder: (context, versionSnapshot) =>
+                      ButtonSetting(text: versionSnapshot.data?.version ?? "x.x.xx", icon: FontAwesomeIcons.tag, onPressed: null),
                 ),
 
                 SizedBox(height: spaceLG),

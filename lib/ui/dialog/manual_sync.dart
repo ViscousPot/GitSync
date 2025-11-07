@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
@@ -85,6 +86,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                             children: [
                               Expanded(
                                 child: TextField(
+                                  contextMenuBuilder: globalContextMenuBuilder,
                                   controller: syncMessageController,
                                   maxLines: null,
                                   style: TextStyle(

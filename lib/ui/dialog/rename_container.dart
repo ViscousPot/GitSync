@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../constant/colors.dart';
@@ -26,6 +27,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
             ),
             SizedBox(height: spaceMD + spaceSM),
             TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
               controller: textController,
               maxLines: 1,
               style: TextStyle(

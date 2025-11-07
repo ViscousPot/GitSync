@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../constant/colors.dart';
@@ -54,6 +55,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextField(
+                        contextMenuBuilder: globalContextMenuBuilder,
                         controller: passphraseController,
                         maxLines: 1,
                         style: TextStyle(
@@ -82,6 +84,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                         height: textMD * 1.5 + (spaceSM * 2),
                         child: SingleChildScrollView(
                           child: TextField(
+                            contextMenuBuilder: globalContextMenuBuilder,
                             controller: keyController,
                             maxLines: null,
                             style: TextStyle(

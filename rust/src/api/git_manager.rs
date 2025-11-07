@@ -1,4 +1,4 @@
-use std::{env, fs, path::Path, path::PathBuf, sync::Arc};
+use std::{env, fs, path::Path, path::PathBuf, sync::Arc, collections::HashMap};
 use flutter_rust_bridge::DartFnFuture;
 use osshkeys::{KeyPair, KeyType};
 use git2::{
@@ -19,6 +19,13 @@ pub struct Commit {
     pub unpushed: bool,
 }
 
+pub struct Diff {
+    pub files_changed: i32,
+    pub insertions: i32,
+    pub deletions: i32,
+    pub diff_parts: HashMap<String, HashMap<String, String>>,  
+}
+
 // Also add to lib/api/logger.dart:21
 pub enum LogType {
     Global,
@@ -26,6 +33,7 @@ pub enum LogType {
     Sync,
     GitStatus,
     AbortMerge,
+    Diff,
     Commit,
     GetRepos,
     CloneRepo,
@@ -401,6 +409,151 @@ pub async fn unstage_all(
     );
     
     Ok(())
+}
+
+pub async fn get_diff(
+    path_string: &String,
+    start_ref: &String,
+    end_ref:&String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<Diff, git2::Error> {
+    init(None);
+    let log_callback = Arc::new(log);
+
+    let insertion_marker: &str = "+++++insertion+++++";
+    let deletion_marker: &str = "-----deletion-----";
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Getting local directory".to_string(),
+    );
+
+    let repo = Repository::open(path_string)?;
+
+    let tree1 = repo.revparse_single(start_ref)?.peel_to_commit()?.tree()?;
+    let tree2 = repo.revparse_single(end_ref)?.peel_to_commit()?.tree()?;
+    
+    let mut diff_opts = DiffOptions::new();
+    
+    let diff = repo.diff_tree_to_tree(
+        Some(&tree2),
+        Some(&tree1),
+        Some(&mut diff_opts)
+    )?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Getting diff stats".to_string(),
+    );
+
+    let diff_stats = diff.stats()?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Getting diff hunks".to_string(),
+    );
+
+    let mut diff_parts: HashMap<String, HashMap<String, String>> = HashMap::new();
+
+    diff.foreach(
+        &mut |delta: git2::DiffDelta, _progress: f32| -> bool {
+            true
+        },
+        None,
+        Some(&mut |delta: git2::DiffDelta, hunk: git2::DiffHunk| -> bool {
+            true
+        }),
+        Some(&mut |delta: git2::DiffDelta, hunk: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+            let old_file_path = delta.old_file().path()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|| "Unknown".to_string());
+            let new_file_path = delta.new_file().path()
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|| "Unknown".to_string());
+
+            let mut hunk_header = "none".to_string();
+
+            if let Some(hunk) = hunk {
+                if !hunk.header().is_empty() {
+                    hunk_header = String::from_utf8_lossy(hunk.header()).to_string();
+                }
+            }
+
+            let file_path_key = if old_file_path == new_file_path { new_file_path } else { format!("{}=>{}", old_file_path, new_file_path) };
+
+            let line_text = String::from_utf8_lossy(line.content()).to_string();
+
+            match line.origin() {
+                '+' => {
+                    diff_parts
+                        .entry(file_path_key.clone())
+                        .or_default()
+                        .entry(hunk_header.clone())
+                        .and_modify(|existing_content| {
+                            *existing_content = format!(
+                                "{}{}", 
+                                existing_content, 
+                                format!("{}{}", &insertion_marker, line_text).to_string()
+                            );
+                        })
+                        .or_insert_with(|| format!("{}{}", &insertion_marker, line_text).to_string());
+                },
+                '-' => {
+                    diff_parts
+                        .entry(file_path_key.clone())
+                        .or_default()
+                        .entry(hunk_header.clone())
+                        .and_modify(|existing_content| {
+                            *existing_content = format!(
+                                "{}{}", 
+                                existing_content, 
+                                format!("{}{}", &deletion_marker, line_text).to_string()
+                            );
+                        })
+                        .or_insert_with(|| format!("{}{}", &deletion_marker, line_text).to_string());
+                },
+                '>' => {},
+                '<' => {},
+                '=' => {},
+                'F' => {},
+                'H' => {},
+                'B' => {},
+                ' ' => {
+                    diff_parts
+                        .entry(file_path_key.clone())
+                        .or_default()
+                        .entry(hunk_header.clone())
+                        .and_modify(|existing_content| {
+                            *existing_content = format!(
+                                "{}{}", 
+                                existing_content, 
+                                format!("{}", line_text).to_string()
+                            );
+                        })
+                        .or_insert_with(|| format!("{}", line_text).to_string());
+                },
+                _ => {
+                    _log(
+                        Arc::clone(&log_callback),
+                        LogType::Diff,
+                        format!("Other: {}", line.origin())
+                    );
+                } 
+            }
+
+            true
+        })
+    );
+
+    Ok(Diff {
+        files_changed: diff_stats.files_changed() as i32,
+        insertions: diff_stats.insertions() as i32,
+        deletions: diff_stats.deletions() as i32,
+        diff_parts: diff_parts
+    })
 }
 
 pub async fn get_recent_commits(

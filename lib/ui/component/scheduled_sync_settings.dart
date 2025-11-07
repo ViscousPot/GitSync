@@ -227,6 +227,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                               margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
                                               decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                               child: TextField(
+                                                contextMenuBuilder: globalContextMenuBuilder,
                                                 maxLines: 1,
                                                 controller: TextEditingController(text: scheduleSnapshot.data?.$2.toString()),
                                                 keyboardType: TextInputType.number,

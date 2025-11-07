@@ -733,6 +733,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupRestoreTitle => '加密配置恢复';
 
   @override
+  String get encryptedBackup => 'Encrypted Backup';
+
+  @override
+  String get encryptedRestore => 'Encrypted Restore';
+
+  @override
   String get backup => '备份';
 
   @override
@@ -839,6 +845,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readOnly => '只读';
+
+  @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
 
   @override
   String get experimental => '实验性';

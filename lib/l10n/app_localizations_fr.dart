@@ -753,6 +753,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get backupRestoreTitle => 'Récupération de configuration chiffrée';
 
   @override
+  String get encryptedBackup => 'Encrypted Backup';
+
+  @override
+  String get encryptedRestore => 'Encrypted Restore';
+
+  @override
   String get backup => 'Sauvegarde';
 
   @override
@@ -859,6 +865,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get readOnly => 'Lecture seule';
+
+  @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
 
   @override
   String get experimental => 'Expérimental';

@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:GitSync/global.dart';
@@ -28,6 +29,7 @@ Future<void> showDialog(BuildContext context, String? oldRemoteUrl, Future<void>
           children: [
             SizedBox(height: spaceMD),
             TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
               controller: newRemoteController,
               maxLines: 1,
               style: TextStyle(

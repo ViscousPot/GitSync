@@ -1,3 +1,4 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
           children: [
             SizedBox(height: spaceMD),
             TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
               controller: textController,
               maxLines: 1,
               style: TextStyle(

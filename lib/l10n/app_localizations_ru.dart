@@ -747,6 +747,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get backupRestoreTitle => 'Восстановление зашифрованной конфигурации';
 
   @override
+  String get encryptedBackup => 'Encrypted Backup';
+
+  @override
+  String get encryptedRestore => 'Encrypted Restore';
+
+  @override
   String get backup => 'Резервная копия';
 
   @override
@@ -853,6 +859,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get readOnly => 'Read-Only';
+
+  @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
 
   @override
   String get experimental => 'Experimental';
