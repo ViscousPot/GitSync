@@ -729,6 +729,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get disableSslPromptMsg => 'The address you cloned starts with \"http\" (not secure). Disabling SSL will match the URL but reduce security.';
 
   @override
+  String get optimisedSync => 'Optimised Sync';
+
+  @override
   String get proceedAnyway => 'Proceed anyway?';
 
   @override

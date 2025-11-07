@@ -1508,6 +1508,12 @@ abstract class AppLocalizations {
   /// **'The address you cloned starts with \"http\" (not secure). Disabling SSL will match the URL but reduce security.'**
   String get disableSslPromptMsg;
 
+  /// No description provided for @optimisedSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimised Sync'**
+  String get optimisedSync;
+
   /// No description provided for @proceedAnyway.
   ///
   /// In en, this message translates to:

@@ -715,6 +715,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get disableSslPromptMsg => '您克隆的地址以 \"http\" 开头 （不安全）。您可以选择禁用 SSL 验证，但这会降低安全性。';
 
   @override
+  String get optimisedSync => 'Optimised Sync';
+
+  @override
   String get proceedAnyway => '照常进行吗？';
 
   @override

@@ -735,6 +735,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'adresse que vous avez clonée commence par \"http\" (non sécurisé). La désactivation du SSL correspondra à l\'URL mais réduira la sécurité.';
 
   @override
+  String get optimisedSync => 'Optimised Sync';
+
+  @override
   String get proceedAnyway => 'Continuer quand même ?';
 
   @override

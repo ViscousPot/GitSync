@@ -510,6 +510,29 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             ),
                           ),
                         ),
+                        SizedBox(height: spaceSM),
+                        FutureBuilder(
+                          future: uiSettingsManager.getBool(StorageKey.setman_optimisedSyncExperimental),
+                          builder: (context, optimisedSyncSnapshot) => TextButton.icon(
+                            onPressed: () async {
+                              await uiSettingsManager.setBool(StorageKey.setman_optimisedSyncExperimental, !(optimisedSyncSnapshot.data ?? false));
+                              setState(() {});
+                            },
+                            label: SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})",
+                                style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            iconAlignment: IconAlignment.end,
+                            icon: FaIcon(
+                              optimisedSyncSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                              color: primaryPositive,
+                              size: textLG,
+                            ),
+                          ),
+                        ),
                       ],
                 SizedBox(height: spaceMD),
                 ButtonSetting(

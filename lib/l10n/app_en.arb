@@ -266,6 +266,7 @@
     "disableSsl": "Disable SSL",
     "disableSslPromptTitle": "Disable SSL?",
     "disableSslPromptMsg": "The address you cloned starts with \"http\" (not secure). Disabling SSL will match the URL but reduce security.",
+    "optimisedSync": "Optimised Sync",
     "proceedAnyway": "Proceed anyway?",
     "moreOptions": "More Options",
 
