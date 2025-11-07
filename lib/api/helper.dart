@@ -125,7 +125,7 @@ Future<void> openLogViewer(BuildContext context) async {
   }
 
   print("Using log file: ${logFile.path}");
-  await Navigator.of(context).push(createCodeEditorRoute(logFile.path, logs: true));
+  await Navigator.of(context).push(createCodeEditorRoute(logFile.path, type: EditorType.LOGS));
 }
 
 Future<void> sendMergeConflictNotification() async {

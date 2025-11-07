@@ -841,6 +841,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readOnly => '只读';
 
   @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
+
+  @override
   String get experimental => '实验性';
 
   @override

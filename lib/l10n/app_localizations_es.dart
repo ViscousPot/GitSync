@@ -857,6 +857,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get readOnly => 'Read-Only';
 
   @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
+
+  @override
   String get experimental => 'Experimental';
 
   @override

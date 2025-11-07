@@ -263,8 +263,15 @@ class _MyAppState extends State<MyApp> {
           }
           return const Locale('en');
         },
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: primaryDark), useMaterial3: true),
-
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: primaryDark),
+          useMaterial3: true,
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: tertiaryInfo,
+            selectionColor: secondaryInfo.withAlpha(100),
+            cursorColor: secondaryInfo.withAlpha(150),
+          ),
+        ),
         builder: (context, child) {
           return child == null
               ? SizedBox.shrink()

@@ -1,7 +1,8 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
-import 'package:collection/collection.dart';
+import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,7 +14,7 @@ final deletionRegex = RegExp(r'-{5}deletion-{5}');
 class DiffFile extends StatefulWidget {
   DiffFile(this.entry, this.expandedDefault, {super.key});
 
-  final MapEntry<String, Map<String, String>> entry;
+  final MapEntry<String, String> entry;
   final bool expandedDefault;
 
   @override
@@ -24,17 +25,32 @@ class _DiffFileState extends State<DiffFile> {
   bool expanded = false;
   int insertions = 0;
   int deletions = 0;
+  double _maxContentHeight = spaceXXL;
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     expanded = widget.expandedDefault;
-    insertions = 0;
-    deletions = 0;
-    for (var value in widget.entry.value.values) {
-      insertions += insertionRegex.allMatches(value).length;
-      deletions += deletionRegex.allMatches(value).length;
+    insertions = insertionRegex.allMatches(widget.entry.value).length;
+    deletions = deletionRegex.allMatches(widget.entry.value).length;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateMaxScrollExtent();
+    });
+
+    scrollController.addListener(_calculateMaxScrollExtent);
+  }
+
+  void _calculateMaxScrollExtent() async {
+    final result = await waitFor(() async => !scrollController.hasClients, maxWaitSeconds: 1);
+    if (result) {
+      return;
     }
+
+    setState(() {
+      _maxContentHeight = scrollController.position.maxScrollExtent + scrollController.position.viewportDimension + spaceSM;
+    });
   }
 
   List<(String, int)> splitTextWithMarkers(String text) {
@@ -87,6 +103,7 @@ class _DiffFileState extends State<DiffFile> {
               onPressed: () async {
                 expanded = !expanded;
                 setState(() {});
+                _calculateMaxScrollExtent();
               },
               style: ButtonStyle(
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -153,77 +170,14 @@ class _DiffFileState extends State<DiffFile> {
           ),
           SizedBox(width: MediaQuery.sizeOf(context).width, height: expanded ? spaceXXS : 0),
           expanded
-              ? Padding(
-                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: expanded ? MediaQuery.sizeOf(context).height * 0.8 : MediaQuery.sizeOf(context).height / 3,
-                        minWidth: MediaQuery.sizeOf(context).width,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ...widget.entry.value.entries
-                                .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
-                                .map(
-                                  (entry) => Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        color: tertiaryDark,
-                                        child: Text(
-                                          entry.key,
-                                          maxLines: 1,
-                                          style: TextStyle(color: tertiaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      ...entry.value.split("\n").indexed.map((indexedLine) {
-                                        final lineParts = splitTextWithMarkers(indexedLine.$2);
-
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "${indexedLine.$1 + (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0)}",
-                                              style: TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(width: spaceSM),
-                                            Text.rich(
-                                              TextSpan(
-                                                children: lineParts
-                                                    .map(
-                                                      (part) => TextSpan(
-                                                        text: part.$1.isEmpty ? "-" : part.$1,
-                                                        style: TextStyle(
-                                                          color: part.$1.isEmpty
-                                                              ? Colors.transparent
-                                                              : (part.$2 == 1
-                                                                    ? tertiaryPositive
-                                                                    : (part.$2 == -1 ? tertiaryNegative : secondaryLight)),
-                                                          decoration: part.$2 == -1 ? TextDecoration.lineThrough : TextDecoration.none,
-                                                          decorationThickness: 2,
-                                                          decorationColor: tertiaryNegative,
-                                                        ),
-                                                      ),
-                                                    )
-                                                    .toList(),
-                                              ),
-
-                                              style: TextStyle(color: secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                          ],
-                        ),
-                      ),
+              ? AnimatedSize(
+                  duration: Duration(milliseconds: 200),
+                  child: SizedBox(
+                    height: _maxContentHeight,
+                    width: double.infinity,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: spaceSM, bottom: spaceSM),
+                      child: Editor(type: EditorType.DIFF, text: widget.entry.value, verticalScrollController: scrollController),
                     ),
                   ),
                 )

@@ -861,6 +861,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get readOnly => 'Lecture seule';
 
   @override
+  String get cut => 'Cut';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get paste => 'Paste';
+
+  @override
   String get experimental => 'Expérimental';
 
   @override

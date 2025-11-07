@@ -316,6 +316,9 @@
     "renameFileDir": "Rename %s",
     "fileTooLarge": "File larger than %s lines",
     "readOnly": "Read-Only",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
     "experimental": "Experimental",
     "experimentalMsg": "Use at your own risk",
 

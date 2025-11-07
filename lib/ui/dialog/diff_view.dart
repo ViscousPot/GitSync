@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
-import 'package:GitSync/constant/strings.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../constant/colors.dart';
@@ -14,42 +13,12 @@ import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 
-final demoConflictSections = [
-  (
-    0,
-    """
-$conflictStart HEAD.txt
-- Flashlight
-$conflictSeparator
-- Headlamp
-$conflictEnd 77976da35a11db4580b80ae27e8d65caf5208086:gear-update.txt
-""",
-  ),
-  (1, "- First aid kit"),
-  (2, "- Map & compass"),
-  (3, ""),
-  (4, "## Clothing"),
-  (5, "- Waterproof jacket"),
-  (6, "- Extra socks"),
-  (7, "- Hat and gloves"),
-  (8, ""),
-  (9, "## Food"),
-  (10, "- Trail mix"),
-  (11, "- Instant noodles"),
-  (12, "- Granola bars"),
-  (13, "- Water bottles"),
-  (14, ""),
-  (15, "## Misc"),
-  (16, "- Matches/lighter"),
-  (17, "- Pocket knife"),
-  (18, "- Notebook & pen"),
-];
-
 Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCommit, GitManagerRs.Commit endCommit) async {
   bool copiedStartCommitReference = false;
   bool copiedEndCommitReference = false;
 
   final diff = await GitManager.getDiff(startCommit.reference, endCommit.reference);
+  final diffFiles = diff?.diffParts.map((key, value) => MapEntry(key, value.entries.map((entry) => "${entry.key}${entry.value}").join("\n"))) ?? {};
 
   return await mat.showDialog(
     context: parentContext,
@@ -208,7 +177,7 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
           contentBuilder: (expanded) => SingleChildScrollView(
             child: ListBody(
               children: [
-                ...(diff?.diffParts ?? {}).entries
+                ...diffFiles.entries
                     .sortedBy((entry) => entry.key)
                     .indexed
                     .map((indexedEntry) => DiffFile(key: Key(indexedEntry.$2.key), indexedEntry.$2, indexedEntry.$1 == 0)),

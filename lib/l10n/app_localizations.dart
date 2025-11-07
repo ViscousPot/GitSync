@@ -1760,6 +1760,24 @@ abstract class AppLocalizations {
   /// **'Read-Only'**
   String get readOnly;
 
+  /// No description provided for @cut.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get cut;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get paste;
+
   /// No description provided for @experimental.
   ///
   /// In en, this message translates to:
