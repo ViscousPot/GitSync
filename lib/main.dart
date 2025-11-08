@@ -1299,7 +1299,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                     return ItemCommit(
                                                                       key: Key(reference),
                                                                       items[index],
-                                                                      index < items.length ? items[index + 1] : null,
+                                                                      index < items.length - 1 ? items[index + 1] : null,
                                                                     );
                                                                   },
                                                                 ),
