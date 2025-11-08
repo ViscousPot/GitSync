@@ -80,9 +80,25 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
               onLongPress: () {
                 Clipboard.setData(ClipboardData(text: error));
               },
-              child: Text(
-                error,
-                style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height / 3,
+                child: ShaderMask(
+                  shaderCallback: (Rect rect) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                      stops: [0.0, 0.1, 0.9, 1.0],
+                    ).createShader(rect);
+                  },
+                  blendMode: BlendMode.dstOut,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      error,
+                      style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: spaceMD),
