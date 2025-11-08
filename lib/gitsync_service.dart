@@ -169,11 +169,15 @@ class GitsyncService {
           : (await settingsManager.getGitHttpAuthCredentials()).$2.isEmpty) {
         Logger.gmLog(type: LogType.Sync, "Credentials Not Found");
         Fluttertoast.showToast(msg: "Credentials not found", toastLength: Toast.LENGTH_LONG, gravity: null);
+        isScheduled = false;
+        isSyncing = false;
         return;
       }
 
       if ((await GitManager.getConflicting(repomanRepoindex)).isNotEmpty) {
         Fluttertoast.showToast(msg: s.ongoingMergeConflict, toastLength: Toast.LENGTH_SHORT, gravity: null);
+        isScheduled = false;
+        isSyncing = false;
         return;
       }
 

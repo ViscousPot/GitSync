@@ -885,6 +885,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   final locks = await repoManager.getStringList(StorageKey.repoman_locks);
                   final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
                   await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
+                  gitSyncService.isScheduled = false;
+                  gitSyncService.isSyncing = false;
                   setState(() {});
                 },
                 onTap: () async {
