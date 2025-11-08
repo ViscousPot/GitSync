@@ -68,7 +68,7 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onLongPress: () {
+                    onTap: () {
                       copyStartCommitReference();
                     },
                     child: Row(
@@ -104,7 +104,7 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
                   FaIcon(FontAwesomeIcons.rightLeft, color: tertiaryLight, size: textMD),
                   SizedBox(width: spaceXS),
                   GestureDetector(
-                    onLongPress: () {
+                    onTap: () {
                       copyEndCommitReference();
                     },
                     child: Row(
