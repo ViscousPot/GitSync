@@ -480,7 +480,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> updateRecommendedAction([int? override]) async {
+    updatingRecommendedAction.value = false;
     recommendedAction.value = override ?? await GitManager.getRecommendedAction();
+    updatingRecommendedAction.value = true;
   }
 
   Future<void> promptClearKeychainValues() async {
@@ -553,6 +555,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   ValueNotifier<int?> recommendedAction = ValueNotifier(null);
+  ValueNotifier<bool> updatingRecommendedAction = ValueNotifier(false);
   Future<String> getLastSyncOption() async {
     if (await uiSettingsManager.getClientModeEnabled() == true) {
       if (recommendedAction.value != null) {
@@ -1492,12 +1495,33 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         ),
                                                       ),
                                                     ),
-                                                    icon: FaIcon(
-                                                      syncOptionsSnapshot.data?[lastSyncMethodSnapshot.data]?.$1 ??
-                                                          syncOptionsSnapshot.data?.values.first.$1 ??
-                                                          FontAwesomeIcons.solidCircleDown,
-                                                      color: primaryLight,
-                                                      size: textLG,
+                                                    icon: Stack(
+                                                      clipBehavior: Clip.none,
+                                                      children: [
+                                                        Positioned(
+                                                          top: -spaceXXS,
+                                                          bottom: -spaceXXS,
+                                                          left: -spaceXXS,
+                                                          right: -spaceXXS,
+                                                          child: ValueListenableBuilder(
+                                                            valueListenable: updatingRecommendedAction,
+                                                            builder: (context, value, child) => value
+                                                                ? SizedBox(
+                                                                    height: spaceXXL,
+                                                                    width: spaceXXL,
+                                                                    child: CircularProgressIndicator(color: tertiaryDark),
+                                                                  )
+                                                                : SizedBox.shrink(),
+                                                          ),
+                                                        ),
+                                                        FaIcon(
+                                                          syncOptionsSnapshot.data?[lastSyncMethodSnapshot.data]?.$1 ??
+                                                              syncOptionsSnapshot.data?.values.first.$1 ??
+                                                              FontAwesomeIcons.solidCircleDown,
+                                                          color: primaryLight,
+                                                          size: textLG,
+                                                        ),
+                                                      ],
                                                     ),
                                                     label: Padding(
                                                       padding: EdgeInsets.only(left: spaceXS),
