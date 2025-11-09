@@ -1453,7 +1453,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         future: getSyncOptions(),
                                         builder: (context, syncOptionsSnapshot) => ValueListenableBuilder(
                                           valueListenable: recommendedAction,
-                                          builder: (context, _, _) => FutureBuilder(
+                                          builder: (context, recommendedActionValue, _) => FutureBuilder(
                                             future: getLastSyncOption(),
                                             builder: (context, lastSyncMethodSnapshot) => Stack(
                                               children: [
@@ -1531,7 +1531,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                     : syncOptionsSnapshot.data?.keys.first) ??
                                                                 t.syncNow)
                                                             .toUpperCase(),
-                                                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                        style: TextStyle(
+                                                          color: recommendedActionValue != null ? tertiaryInfo : primaryLight,
+                                                          fontSize: textMD,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
