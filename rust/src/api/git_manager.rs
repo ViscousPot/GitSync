@@ -460,11 +460,11 @@ pub async fn get_diff(
     let mut diff_parts: HashMap<String, HashMap<String, String>> = HashMap::new();
 
     diff.foreach(
-        &mut |delta: git2::DiffDelta, _progress: f32| -> bool {
+        &mut |_: git2::DiffDelta, _: f32| -> bool {
             true
         },
         None,
-        Some(&mut |delta: git2::DiffDelta, hunk: git2::DiffHunk| -> bool {
+        Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool {
             true
         }),
         Some(&mut |delta: git2::DiffDelta, hunk: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
@@ -2155,14 +2155,27 @@ pub async fn discard_changes(
         "Getting local directory".to_string(),
     );
     let repo = Repository::open(path_string)?;
+    let mut index = repo.index()?;
 
-    let mut checkout = git2::build::CheckoutBuilder::new();
-    checkout.force();
     for file_path in &file_paths {
-        checkout.path(file_path);
+        let is_tracked = index.get_path(Path::new(file_path), 0).is_some();
+
+        if is_tracked {
+            let mut checkout = git2::build::CheckoutBuilder::new();
+            checkout.force();
+            checkout.path(file_path);
+            
+            repo.checkout_index(Some(&mut index), Some(&mut checkout))?;
+        } else {
+            let full_path = Path::new(path_string).join(file_path);
+            
+            if full_path.exists() {
+                std::fs::remove_file(&full_path)
+                    .map_err(|e| git2::Error::from_str(&format!("Failed to remove file: {}", e)))?;
+            }
+        }
     }
 
-    repo.checkout_head(Some(&mut checkout))?;
     Ok(())
 }
 
