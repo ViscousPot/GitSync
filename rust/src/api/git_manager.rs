@@ -10,7 +10,8 @@ use ssh_key::{HashAlg, LineEnding, PrivateKey};
 
 pub struct Commit {
     pub timestamp: i64,
-    pub author: String,
+    pub author_username: String,
+    pub author_email: String,
     pub reference: String,
     pub commit_message: String,
     pub additions: i32,
@@ -610,7 +611,8 @@ pub async fn get_recent_commits(
             Err(_) => continue,
         };
 
-        let author = commit.author().name().unwrap_or("<unknown>").to_string();
+        let author_username = commit.author().name().unwrap_or("<unknown>").to_string();
+        let author_email = commit.author().email().unwrap_or("<unknown>").to_string();
         let time = commit.time().seconds();
         let message = commit.message().unwrap_or("<no message>").trim().to_string();
         let reference = format!("{}", oid);
@@ -646,7 +648,8 @@ pub async fn get_recent_commits(
 
         commits.push(Commit {
             timestamp: time,
-            author,
+            author_username,
+            author_email,
             reference,
             commit_message: message,
             additions,

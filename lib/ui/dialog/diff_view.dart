@@ -1,13 +1,14 @@
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/diff_file.dart';
 import 'package:collection/collection.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../global.dart';
@@ -16,6 +17,8 @@ import '../../../ui/dialog/base_alert_dialog.dart';
 Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCommit, GitManagerRs.Commit endCommit) async {
   bool copiedStartCommitReference = false;
   bool copiedEndCommitReference = false;
+
+  print("////email ${startCommit.authorEmail}");
 
   final diff = await GitManager.getDiff(startCommit.reference, endCommit.reference);
   final diffFiles =
@@ -62,7 +65,7 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
         return BaseAlertDialog(
           expandable: true,
           title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -139,20 +142,70 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
                 ],
               ),
               SizedBox(height: spaceXS),
-              Text(
-                startCommit.commitMessage,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: Text(
+                      startCommit.commitMessage,
+                      textAlign: TextAlign.left,
+                      softWrap: true,
+                      style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusXS), color: secondaryDark),
+                    child: Text(
+                      "${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(startCommit.timestamp * 1000))}",
+                      maxLines: 1,
+                      style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: spaceXXS),
-              Text(
-                "${startCommit.author} ${t.committed} ${timeago.format(DateTime.fromMillisecondsSinceEpoch(startCommit.timestamp * 1000), locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase())}",
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Text(
+                      "${startCommit.authorUsername}",
+                      textAlign: TextAlign.left,
+                      maxLines: 1,
+                      style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: spaceSM),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text(
+                            "\<",
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                            style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                          ),
+                          Flexible(
+                            child: Text(
+                              startCommit.authorEmail,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Text(
+                            "\>",
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                            style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: spaceSM),
+              SizedBox(height: spaceXS),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: spaceXS),
                 child: Row(

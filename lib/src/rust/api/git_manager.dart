@@ -399,7 +399,8 @@ Future<void> createBranch({
 
 class Commit {
   final PlatformInt64 timestamp;
-  final String author;
+  final String authorUsername;
+  final String authorEmail;
   final String reference;
   final String commitMessage;
   final int additions;
@@ -409,7 +410,8 @@ class Commit {
 
   const Commit({
     required this.timestamp,
-    required this.author,
+    required this.authorUsername,
+    required this.authorEmail,
     required this.reference,
     required this.commitMessage,
     required this.additions,
@@ -421,7 +423,8 @@ class Commit {
   @override
   int get hashCode =>
       timestamp.hashCode ^
-      author.hashCode ^
+      authorUsername.hashCode ^
+      authorEmail.hashCode ^
       reference.hashCode ^
       commitMessage.hashCode ^
       additions.hashCode ^
@@ -435,7 +438,8 @@ class Commit {
       other is Commit &&
           runtimeType == other.runtimeType &&
           timestamp == other.timestamp &&
-          author == other.author &&
+          authorUsername == other.authorUsername &&
+          authorEmail == other.authorEmail &&
           reference == other.reference &&
           commitMessage == other.commitMessage &&
           additions == other.additions &&

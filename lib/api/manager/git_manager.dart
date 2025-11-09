@@ -19,7 +19,8 @@ import 'package:collection/collection.dart';
 extension CommitJson on GitManagerRs.Commit {
   Map<String, dynamic> toJson() => {
     'timestamp': timestamp.toInt(),
-    'author': author,
+    'authorUsername': authorUsername,
+    'authorEmail': authorEmail,
     'reference': reference,
     'commitMessage': commitMessage,
     'additions': additions,
@@ -32,7 +33,8 @@ extension CommitJson on GitManagerRs.Commit {
     try {
       return GitManagerRs.Commit(
         timestamp: _parseTimestamp(json['timestamp']),
-        author: json['author'] as String? ?? '',
+        authorUsername: json['authorUsername'] as String? ?? '',
+        authorEmail: json['authorEmail'] as String? ?? '',
         reference: json['reference'] as String? ?? '',
         commitMessage: json['commitMessage'] as String? ?? '',
         additions: _parseIntSafely(json['additions']),

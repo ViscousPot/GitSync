@@ -1187,7 +1187,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 : [
                                     GitManagerRs.Commit(
                                       timestamp: 0,
-                                      author: "",
+                                      authorUsername: "",
+                                      authorEmail: "",
                                       reference: mergeConflictReference,
                                       commitMessage: "",
                                       additions: 0,
@@ -1204,7 +1205,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               items.add(
                                 GitManagerRs.Commit(
                                   timestamp: 0,
-                                  author: "",
+                                  authorUsername: "",
+                                  authorEmail: "",
                                   reference: "REFERENCE${Random().nextInt(100)}",
                                   commitMessage: "",
                                   additions: 0,
@@ -1216,7 +1218,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             }
                             items[2] = GitManagerRs.Commit(
                               timestamp: 0,
-                              author: "",
+                              authorUsername: "",
+                              authorEmail: "",
                               reference: mergeConflictReference,
                               commitMessage: "",
                               additions: 0,

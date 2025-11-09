@@ -146,7 +146,7 @@ class _ItemCommit extends State<ItemCommit> {
                           ),
                         ),
                         Text(
-                          "${demo ? "ViscousTests" : widget.commit.author} ${t.committed} $_relativeCommitDate",
+                          "${demo ? "ViscousTests" : widget.commit.authorUsername} ${t.committed} $_relativeCommitDate",
                           style: TextStyle(
                             color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
                             fontSize: textSM,
