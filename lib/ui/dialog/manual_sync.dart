@@ -20,8 +20,6 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
   final selectedFiles = <String>[];
   final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
 
-  print(await GitManager.getStagedFilePaths());
-
   if (demo) {
     selectedFiles.add("storage/external/example/file_changed.md");
   }
