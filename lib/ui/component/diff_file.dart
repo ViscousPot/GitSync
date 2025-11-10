@@ -123,10 +123,12 @@ class _DiffFileState extends State<DiffFile> {
               iconAlignment: IconAlignment.start,
               icon: Padding(
                 padding: EdgeInsets.only(left: spaceSM),
-                child: FaIcon(
-                  expanded ? FontAwesomeIcons.chevronDown : FontAwesomeIcons.chevronRight,
-                  color: expanded ? secondaryLight : primaryLight,
-                  size: textSM,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    FaIcon(FontAwesomeIcons.chevronRight, color: expanded ? Colors.transparent : primaryLight, size: textSM),
+                    FaIcon(FontAwesomeIcons.chevronDown, color: expanded ? secondaryLight : Colors.transparent, size: textSM),
+                  ],
                 ),
               ),
               label: Row(
