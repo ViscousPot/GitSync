@@ -96,7 +96,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
       final bookmarkPath = await uiSettingsManager.getString(StorageKey.setman_gitDirPath);
       if (bookmarkPath.isEmpty) return;
 
-      await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (path) async {
+      await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
         final file = File("$path/${conflictingPaths[conflictIndex]}");
 
         List<String> conflictStringSections = [];
@@ -149,7 +149,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
     final bookmarkPath = await uiSettingsManager.getString(StorageKey.setman_gitDirPath);
     if (bookmarkPath.isEmpty) return;
 
-    await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (path) async {
+    await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
       final file = File("$path/${conflictingPaths[conflictIndex]}");
       await file.writeAsString(conflictSections.map((section) => section.$2).join('\n'));
 

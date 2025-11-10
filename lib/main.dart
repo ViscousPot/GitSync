@@ -1271,10 +1271,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 ).createShader(rect);
                                               },
                                               blendMode: BlendMode.dstOut,
-                                              child:
-                                                  ((recentCommits ?? []).isEmpty &&
-                                                          recentCommitsSnapshot.connectionState == ConnectionState.waiting) ||
-                                                      conflictingSnapshot.data == null
+                                              child: ((recentCommits ?? []).isEmpty) || conflictingSnapshot.data == null
                                                   ? Center(child: CircularProgressIndicator(color: tertiaryLight))
                                                   : (recentCommits!.isEmpty && conflictingSnapshot.data!.isEmpty
                                                         ? Center(
@@ -2085,7 +2082,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       : () async {
                                           await useDirectory(
                                             await uiSettingsManager.getString(StorageKey.setman_gitDirPath),
-                                            (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath),
+                                            (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true),
                                             (path) async {
                                               await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => setState(() {}));
                                             },

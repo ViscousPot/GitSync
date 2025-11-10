@@ -141,7 +141,9 @@ class GitManager {
       final offline = await offlineGuard();
       if (offline != null) return offline;
 
-      final result = await useDirectory(repoPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (repoPath) async {
+      final result = await useDirectory(repoPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (
+        repoPath,
+      ) async {
         try {
           await GitManagerRs.cloneRepository(
             url: repoUrl,
@@ -187,7 +189,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PullFromRepo, ".git folder found");
@@ -222,7 +224,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PullFromRepo, ".git folder found");
@@ -258,7 +260,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PullFromRepo, ".git folder found");
@@ -294,7 +296,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.Commit, ".git folder found");
@@ -324,7 +326,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.Commit, ".git folder found");
@@ -350,7 +352,7 @@ class GitManager {
 
     if (!await hasNetworkConnection()) return null;
 
-    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
       if (!isGitDir(dirPath)) return null;
 
       Logger.gmLog(type: LogType.Global, ".git folder found");
@@ -387,7 +389,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.Commit, ".git folder found");
@@ -425,7 +427,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PushToRepo, ".git folder found");
@@ -462,7 +464,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.ForcePull, ".git folder found");
@@ -492,7 +494,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.ForcePush, ".git folder found");
@@ -528,7 +530,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.ForcePull, ".git folder found");
@@ -565,7 +567,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.ForcePush, ".git folder found");
@@ -599,7 +601,7 @@ class GitManager {
       final dirPath = (await uiSettingsManager.getGitDirPath());
       if (dirPath == null) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PushToRepo, ".git folder found");
@@ -621,7 +623,7 @@ class GitManager {
       final dirPath = (await uiSettingsManager.getGitDirPath());
       if (dirPath == null) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         if (!isGitDir(dirPath)) return;
 
         Logger.gmLog(type: LogType.PushToRepo, ".git folder found");
@@ -644,7 +646,7 @@ class GitManager {
     final dirPath = (await uiSettingsManager.getGitDirPath());
     if (dirPath == null || dirPath.isEmpty) return null;
 
-    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
       if (!isGitDir(dirPath)) {
         return null;
       }
@@ -678,7 +680,7 @@ class GitManager {
     if (dirPath == null || dirPath.isEmpty) return [];
 
     final result =
-        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           if (!isGitDir(dirPath)) {
             return <GitManagerRs.Commit>[];
           }
@@ -717,7 +719,7 @@ class GitManager {
     final dirPath = await settingsManager.getGitDirPath();
     if (dirPath == null || dirPath.isEmpty) return [];
     final result =
-        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           if (!isGitDir(dirPath)) {
             return <String>[];
           }
@@ -761,7 +763,7 @@ class GitManager {
     final dirPath = (await settingsManager.getGitDirPath());
     if (dirPath == null) return [];
     final result =
-        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
           try {
@@ -800,7 +802,7 @@ class GitManager {
     final dirPath = (await settingsManager.getGitDirPath());
     if (dirPath == null) return [];
     final result =
-        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
           try {
@@ -831,7 +833,7 @@ class GitManager {
     return await _runWithLock(repoIndex, () async {
       final dirPath = (await uiSettingsManager.getGitDirPath());
       if (dirPath == null) return;
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         try {
           await GitManagerRs.abortMerge(pathString: dirPath, log: _logWrapper);
         } catch (e, stackTrace) {
@@ -849,7 +851,7 @@ class GitManager {
     final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
     final dirPath = (await settingsManager.getGitDirPath());
     if (dirPath == null) return repositoryNotFound;
-    final result = await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+    final result = await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
       Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
       try {
@@ -873,7 +875,7 @@ class GitManager {
     final dirPath = (await settingsManager.getGitDirPath());
     if (dirPath == null) return [];
     final result =
-        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
           try {
@@ -901,7 +903,7 @@ class GitManager {
       final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
       final dirPath = (await settingsManager.getGitDirPath());
       if (dirPath == null) return;
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
         try {
@@ -931,7 +933,7 @@ class GitManager {
       final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
       final dirPath = (await settingsManager.getGitDirPath());
       if (dirPath == null) return;
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
         try {
@@ -964,7 +966,7 @@ class GitManager {
 
       if (!await hasNetworkConnection()) return;
 
-      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+      await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
         Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
         try {
@@ -990,7 +992,7 @@ class GitManager {
   static Future<String> readGitignore() async {
     final gitDirPath = (await uiSettingsManager.getGitDirPath());
     if (gitDirPath == null) return "";
-    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
           final gitignorePath = '$gitDirPath/$gitIgnorePath';
           final file = File(gitignorePath);
           if (!file.existsSync()) return '';
@@ -1002,7 +1004,7 @@ class GitManager {
   static void writeGitignore(String gitignoreString) async {
     final gitDirPath = (await uiSettingsManager.getGitDirPath());
     if (gitDirPath == null) return;
-    await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+    await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
       final gitignorePath = '$gitDirPath/$gitIgnorePath';
       final file = File(gitignorePath);
       if (!file.existsSync()) file.createSync();
@@ -1013,7 +1015,7 @@ class GitManager {
   static Future<String> readGitInfoExclude() async {
     final gitDirPath = (await uiSettingsManager.getGitDirPath());
     if (gitDirPath == null) return "";
-    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
           final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
           final file = File(gitInfoExcludeFullPath);
           if (!file.existsSync()) return '';
@@ -1025,7 +1027,7 @@ class GitManager {
   static void writeGitInfoExclude(String gitignoreString) async {
     final gitDirPath = (await uiSettingsManager.getGitDirPath());
     if (gitDirPath == null) return;
-    await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+    await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
       final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
       final file = File(gitInfoExcludeFullPath);
       final parentDir = file.parent;
@@ -1046,7 +1048,7 @@ class GitManager {
     if (gitDirPath == null) return false;
 
     final result =
-        await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+        await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
           try {
             return await GitManagerRs.getDisableSsl(gitDir: gitDirPath);
           } on AnyhowException catch (e, stackTrace) {
@@ -1073,7 +1075,7 @@ class GitManager {
       final gitDirPath = (await uiSettingsManager.getGitDirPath());
       if (gitDirPath == null) return;
 
-      await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+      await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
         try {
           return await GitManagerRs.setDisableSsl(gitDir: gitDirPath, disable: disable);
         } on AnyhowException catch (e, stackTrace) {
@@ -1108,7 +1110,7 @@ class GitManager {
 
     if (gitDirPath == null) return null;
 
-    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (gitDirPath) async {
+    return await useDirectory(gitDirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (gitDirPath) async {
       try {
         final gitDir = Directory(gitDirPath);
         if (!await gitDir.exists()) {
@@ -1203,7 +1205,7 @@ class GitManager {
       final gitDirPath = dirPath ?? (await uiSettingsManager.getGitDirPath());
       if (gitDirPath == null || gitDirPath.isEmpty) return;
 
-      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
+      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (selectedDirectory) async {
         final dir = Directory(selectedDirectory);
         try {
           if (Platform.isIOS) {
@@ -1272,7 +1274,7 @@ class GitManager {
       final gitDirPath = await uiSettingsManager.getGitDirPath();
       if (gitDirPath == null || gitDirPath.isEmpty) return;
 
-      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
+      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (selectedDirectory) async {
         final file = File("$selectedDirectory/$gitIndexPath");
         if (await file.exists()) {
           await file.delete();
@@ -1294,7 +1296,7 @@ class GitManager {
       final gitDirPath = await uiSettingsManager.getGitDirPath();
       if (gitDirPath == null || gitDirPath.isEmpty) return;
 
-      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
+      await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (selectedDirectory) async {
         final file = File("$selectedDirectory/$gitFetchHeadPath");
         if (await file.exists()) {
           await file.delete();
@@ -1309,7 +1311,7 @@ class GitManager {
     }
 
     if (!await hasNetworkConnection()) return [];
-    return await useDirectory(repoPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+    return await useDirectory(repoPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           if (!isGitDir(dirPath)) return null;
 
           Logger.gmLog(type: LogType.SelectDirectory, ".git folder found");
@@ -1336,7 +1338,7 @@ class GitManager {
     final gitDirPath = await uiSettingsManager.getGitDirPath();
     if (gitDirPath == null || gitDirPath.isEmpty) return [];
 
-    return await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (selectedDirectory) async {
+    return await useDirectory(gitDirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (selectedDirectory) async {
           final Directory directory = Directory(selectedDirectory);
           if (!await directory.exists()) {
             throw Exception('Directory does not exist');
@@ -1388,7 +1390,7 @@ class GitManager {
       try {
         final dirPath = (await settingsManager.getGitDirPath());
         if (dirPath == null) return null;
-        return await useDirectory(dirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        return await useDirectory(dirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           return await GitManagerRs.downloadChanges(
             pathString: dirPath,
             remote: await settingsManager.getRemote(),
@@ -1424,7 +1426,7 @@ class GitManager {
         final dirPath = (await settingsManager.getGitDirPath());
         if (dirPath == null) return null;
 
-        return await useDirectory(dirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath), (dirPath) async {
+        return await useDirectory(dirPath, (bookmarkPath) async => await settingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
           return await GitManagerRs.uploadChanges(
             pathString: dirPath,
             remoteName: await settingsManager.getRemote(),

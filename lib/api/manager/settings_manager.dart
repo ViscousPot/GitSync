@@ -78,20 +78,22 @@ class SettingsManager extends Storage {
     keyNamespace = newNamespace;
   }
 
-  Future<void> setGitDirPath(String dir) async {
+  Future<void> setGitDirPath(String dir, [bookmark = false]) async {
     await setString(StorageKey.setman_gitDirPath, dir);
 
-    await setStringNullable(StorageKey.setman_branchName, null);
-    await setStringList(StorageKey.setman_branchNames, []);
-    await setStringList(StorageKey.setman_recentCommits, []);
-    await setStringList(StorageKey.setman_lfsFilePaths, []);
+    if (!bookmark) {
+      await setStringNullable(StorageKey.setman_branchName, null);
+      await setStringList(StorageKey.setman_branchNames, []);
+      await setStringList(StorageKey.setman_recentCommits, []);
+      await setStringList(StorageKey.setman_lfsFilePaths, []);
+    }
   }
 
   Future<String?> getGitDirPath([bool iosGetPath = false]) async {
     final bookmarkPath = await getString(StorageKey.setman_gitDirPath);
     if (bookmarkPath.isEmpty) return null;
 
-    return await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath), (path) async {
+    return await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
       if (!await requestStoragePerm(false) || (!await Directory('$path/$gitPath').exists() && !await File('$path/$gitPath').exists())) {
         await setString(StorageKey.setman_gitDirPath, "");
         return null;
