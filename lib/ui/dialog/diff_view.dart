@@ -143,6 +143,7 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
               ),
               SizedBox(height: spaceXS),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Flexible(
