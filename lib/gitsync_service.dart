@@ -322,7 +322,7 @@ class GitsyncService {
     debounce(
       refreshDebounceReference,
       500,
-      () => serviceInstance == null ? FlutterBackgroundService().invoke(GitsyncService.REFRESH) : serviceInstance?.invoke(REFRESH),
+      () => serviceInstance == null ? FlutterBackgroundService().invoke(GitsyncService.REFRESH, null) : serviceInstance?.invoke(REFRESH, null),
     );
   }
 
