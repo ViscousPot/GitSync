@@ -1529,7 +1529,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                 t.syncNow)
                                                             .toUpperCase(),
                                                         style: TextStyle(
-                                                          color: recommendedActionValue != null ? tertiaryInfo : primaryLight,
+                                                          color: clientModeEnabledSnapshot.data == true && recommendedActionValue != null
+                                                              ? tertiaryInfo
+                                                              : primaryLight,
                                                           fontSize: textMD,
                                                           fontWeight: FontWeight.bold,
                                                         ),
