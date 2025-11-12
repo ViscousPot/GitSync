@@ -700,8 +700,6 @@ class GitManager {
         }) ??
         <GitManagerRs.Commit>[];
 
-    print(result.map((item) => jsonEncode(item.toJson())));
-
     await uiSettingsManager.setStringList(
       StorageKey.setman_recentCommits,
       result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
