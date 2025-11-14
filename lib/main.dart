@@ -1271,7 +1271,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 ).createShader(rect);
                                               },
                                               blendMode: BlendMode.dstOut,
-                                              child: ((recentCommits ?? []).isEmpty) || conflictingSnapshot.data == null
+                                              child:
+                                                  ((recentCommits ?? []).isEmpty &&
+                                                          fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting) ||
+                                                      conflictingSnapshot.data == null
                                                   ? Center(child: CircularProgressIndicator(color: tertiaryLight))
                                                   : (recentCommits!.isEmpty && conflictingSnapshot.data!.isEmpty
                                                         ? Center(
