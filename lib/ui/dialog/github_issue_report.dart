@@ -107,7 +107,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: descriptionController,
                         maxLines: null,
-                        minLines: 3,
+                        minLines: expanded ? 10 : 3,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
@@ -115,7 +115,6 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                           decorationThickness: 0,
                           fontSize: textMD,
                         ),
-
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                           border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
@@ -159,7 +158,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: minimalReproController,
                         maxLines: null,
-                        minLines: 3,
+                        minLines: expanded ? 10 : 3,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
