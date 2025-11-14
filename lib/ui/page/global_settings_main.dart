@@ -315,6 +315,14 @@ ${await Logger.generateDeviceInfo()}
                     try {
                       await FlutterEmailSender.send(email);
                     } catch (e, stackStrace) {
+                      if (e.toString().contains("No email clients found!")) {
+                        Fluttertoast.showToast(
+                          msg: "No compatible email app found!\n(Gmail incompatible)",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: null,
+                        );
+                        return;
+                      }
                       Logger.logError(LogType.Global, e, stackStrace);
                     }
                   },
