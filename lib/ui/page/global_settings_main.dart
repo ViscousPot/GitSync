@@ -7,6 +7,7 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
+import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:archive/archive_io.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -455,91 +456,7 @@ ${await Logger.generateDeviceInfo()}
                   ),
                 ),
                 SizedBox(height: spaceMD),
-                FutureBuilder(
-                  future: repoManager.getBool(StorageKey.repoman_defaultClientModeEnabled),
-                  builder: (context, clientModeEnabledSnapshot) => Row(
-                    children: [
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            await repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, false);
-                            setState(() {});
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? primaryPositive : tertiaryDark),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: cornerRadiusMD,
-                                  topRight: Radius.zero,
-                                  bottomLeft: cornerRadiusMD,
-                                  bottomRight: Radius.zero,
-                                ),
-
-                                side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: primaryPositive),
-                              ),
-                            ),
-                            animationDuration: Duration.zero,
-                          ),
-                          icon: FaIcon(
-                            FontAwesomeIcons.arrowsRotate,
-                            color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
-                            size: textMD,
-                          ),
-                          label: Text(
-                            t.syncMode,
-                            style: TextStyle(
-                              color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
-                              fontSize: textMD,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            await repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, true);
-                            setState(() {});
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? primaryPositive : tertiaryDark),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.zero,
-                                  topRight: cornerRadiusMD,
-                                  bottomLeft: Radius.zero,
-                                  bottomRight: cornerRadiusMD,
-                                ),
-                                side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: primaryPositive),
-                              ),
-                            ),
-                            animationDuration: Duration.zero,
-                          ),
-                          iconAlignment: IconAlignment.end,
-                          icon: FaIcon(
-                            FontAwesomeIcons.codeCompare,
-                            color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
-                            size: textMD,
-                          ),
-                          label: Text(
-                            t.clientMode,
-                            style: TextStyle(
-                              color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
-                              fontSize: textMD,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                SyncClientModeToggle(global: true),
                 SizedBox(height: spaceMD),
                 ItemSetting(
                   setFn: (value) => repoManager.setString(StorageKey.repoman_defaultSyncMessage, value),

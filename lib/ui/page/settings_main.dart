@@ -1,6 +1,7 @@
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
+import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
 import 'package:GitSync/ui/page/global_settings_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -129,91 +130,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                FutureBuilder(
-                  future: uiSettingsManager.getClientModeEnabled(),
-                  builder: (context, clientModeEnabledSnapshot) => Row(
-                    children: [
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
-                            setState(() {});
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? tertiaryInfo : tertiaryDark),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: cornerRadiusMD,
-                                  topRight: Radius.zero,
-                                  bottomLeft: cornerRadiusMD,
-                                  bottomRight: Radius.zero,
-                                ),
-
-                                side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
-                              ),
-                            ),
-                            animationDuration: Duration.zero,
-                          ),
-                          icon: FaIcon(
-                            FontAwesomeIcons.arrowsRotate,
-                            color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
-                            size: textMD,
-                          ),
-                          label: Text(
-                            t.syncMode,
-                            style: TextStyle(
-                              color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
-                              fontSize: textMD,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, true);
-                            setState(() {});
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                            backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? tertiaryInfo : tertiaryDark),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.zero,
-                                  topRight: cornerRadiusMD,
-                                  bottomLeft: Radius.zero,
-                                  bottomRight: cornerRadiusMD,
-                                ),
-                                side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
-                              ),
-                            ),
-                            animationDuration: Duration.zero,
-                          ),
-                          iconAlignment: IconAlignment.end,
-                          icon: FaIcon(
-                            FontAwesomeIcons.codeCompare,
-                            color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
-                            size: textMD,
-                          ),
-                          label: Text(
-                            t.clientMode,
-                            style: TextStyle(
-                              color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
-                              fontSize: textMD,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                SyncClientModeToggle(),
                 gitDirPath == null
                     ? SizedBox.shrink()
                     : Column(
