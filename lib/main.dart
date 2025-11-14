@@ -1888,7 +1888,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     SizedBox(width: gitDirPathSnapshot.data == null ? spaceSM : 0),
                                     Visibility(
                                       visible: gitDirPathSnapshot.data == null,
-                                      child: IconButton(
+                                      child: TextButton.icon(
                                         onPressed: isAuthenticatedSnapshot.data == true
                                             ? () async {
                                                 await showCloneRepoPage();
@@ -1905,6 +1905,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                           FontAwesomeIcons.cloudArrowDown,
                                           color: isAuthenticatedSnapshot.data == true ? primaryLight : tertiaryLight,
                                           size: textLG - 2,
+                                        ),
+                                        iconAlignment: IconAlignment.start,
+                                        label: Padding(
+                                          padding: EdgeInsets.only(left: spaceXS),
+                                          child: Text(
+                                            t.clone.toUpperCase(),
+                                            style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                          ),
                                         ),
                                       ),
                                     ),
