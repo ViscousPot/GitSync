@@ -399,7 +399,7 @@
     "issueReportDescTitle": "Description",
     "issueReportDescDesc": "Explain what’s happening in more detail",
     "issueReportMinimalReproTitle": "Reproduction Steps",
-    "issueReportMinimalReproDesc": "Minimal steps to reproduce the issue",
+    "issueReportMinimalReproDesc": "Describe the steps taken leading up to the error",
     "report": "Report",
     "issueReportSuccessTitle": "Issue Reported Successfully",
     "issueReportSuccessMsg": "Your issue has been reported. Bookmark this page to track progress and respond to messages. \n\nPlease avoid creating duplicate issues, as that makes resolution harder. \n\nIssues with no activity for 7 days are automatically closed.",

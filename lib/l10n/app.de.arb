@@ -387,7 +387,7 @@
     "issueReportDescTitle": "Beschreibung",
     "issueReportDescDesc": "Erklären Sie genauer, was passiert",
     "issueReportMinimalReproTitle": "Reproduktionsschritte",
-    "issueReportMinimalReproDesc": "Minimale Schritte zur Reproduktion des Problems",
+    "issueReportMinimalReproDesc": "Beschreiben Sie die Schritte, die zum Fehler führen",
     "report": "Melden",
     "issueReportSuccessTitle": "Problem erfolgreich gemeldet",
     "issueReportSuccessMsg": "Ihr Problem wurde gemeldet. Sie können den Fortschritt verfolgen und auf Nachrichten antworten, indem Sie den untenstehenden Link verwenden. \n\nProbleme ohne Aktivität für 7 Tage werden automatisch geschlossen.",

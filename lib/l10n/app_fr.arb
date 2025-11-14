@@ -387,7 +387,7 @@
     "issueReportDescTitle": "Description",
     "issueReportDescDesc": "Expliquez plus en détail ce qui se passe",
     "issueReportMinimalReproTitle": "Étapes de reproduction",
-    "issueReportMinimalReproDesc": "Étapes minimales pour reproduire le problème",
+    "issueReportMinimalReproDesc": "Décrivez les étapes menant à l'erreur",
     "report": "Signaler",
     "issueReportSuccessTitle": "Problème signalé avec succès",
     "issueReportSuccessMsg": "Votre problème a été signalé. Marquez cette page pour suivre la progression et répondre aux messages.\n\nVeuillez éviter de créer des problèmes en double, car cela rend la résolution plus difficile.\n\nLes problèmes sans activité pendant 7 jours sont automatiquement fermés.",

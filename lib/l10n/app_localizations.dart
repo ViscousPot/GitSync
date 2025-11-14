@@ -2183,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @issueReportMinimalReproDesc.
   ///
   /// In en, this message translates to:
-  /// **'Minimal steps to reproduce the issue'**
+  /// **'Describe the steps taken leading up to the error'**
   String get issueReportMinimalReproDesc;
 
   /// No description provided for @report.

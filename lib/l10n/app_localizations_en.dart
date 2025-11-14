@@ -1066,7 +1066,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get issueReportMinimalReproTitle => 'Reproduction Steps';
 
   @override
-  String get issueReportMinimalReproDesc => 'Minimal steps to reproduce the issue';
+  String get issueReportMinimalReproDesc => 'Describe the steps taken leading up to the error';
 
   @override
   String get report => 'Report';

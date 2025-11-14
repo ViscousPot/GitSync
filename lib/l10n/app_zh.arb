@@ -392,7 +392,7 @@
     "issueReportDescTitle": "描述",
     "issueReportDescDesc": "更详细地解释发生了什么",
     "issueReportMinimalReproTitle": "重现步骤",
-    "issueReportMinimalReproDesc": "重现问题的最少步骤",
+    "issueReportMinimalReproDesc": "描述导致错误的步骤",
     "report": "报告",
     "issueReportSuccessTitle": "问题报告成功",
     "issueReportSuccessMsg": "您的问题已报告。您可以使用下面的链接跟踪其进度并回复消息。\n\n7 天内无活动的问题将自动关闭。",
