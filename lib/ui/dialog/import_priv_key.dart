@@ -58,6 +58,9 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: passphraseController,
                         maxLines: 1,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
@@ -87,6 +90,8 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                             contextMenuBuilder: globalContextMenuBuilder,
                             controller: keyController,
                             maxLines: null,
+                            enableSuggestions: false,
+                            autocorrect: false,
                             style: TextStyle(
                               color: primaryLight,
                               fontWeight: FontWeight.bold,

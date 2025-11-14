@@ -207,6 +207,8 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: httpsUsernameController,
                         maxLines: 1,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
@@ -234,6 +236,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: httpsTokenController,
                         maxLines: 1,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
@@ -305,6 +310,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         contextMenuBuilder: globalContextMenuBuilder,
                         controller: passphraseController,
                         maxLines: 1,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         style: TextStyle(
                           color: primaryLight,
                           fontWeight: FontWeight.bold,
