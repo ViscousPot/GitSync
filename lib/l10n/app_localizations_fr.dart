@@ -1078,7 +1078,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get issueReportMinimalReproTitle => 'Étapes de reproduction';
 
   @override
-  String get issueReportMinimalReproDesc => 'Étapes minimales pour reproduire le problème';
+  String get issueReportMinimalReproDesc => 'Décrivez les étapes menant à l\'erreur';
 
   @override
   String get report => 'Signaler';

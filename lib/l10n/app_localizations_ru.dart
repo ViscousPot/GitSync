@@ -1070,7 +1070,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get issueReportMinimalReproTitle => 'Шаги воспроизведения';
 
   @override
-  String get issueReportMinimalReproDesc => 'Минимальные шаги для воспроизведения проблемы';
+  String get issueReportMinimalReproDesc => 'Опишите шаги, приводящие к ошибке';
 
   @override
   String get report => 'Сообщить';

@@ -1052,7 +1052,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issueReportMinimalReproTitle => '重现步骤';
 
   @override
-  String get issueReportMinimalReproDesc => '重现问题的最少步骤';
+  String get issueReportMinimalReproDesc => '描述导致错误的步骤';
 
   @override
   String get report => '报告';
