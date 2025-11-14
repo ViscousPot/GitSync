@@ -55,25 +55,14 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
           style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
-      body: ShaderMask(
-        shaderCallback: (Rect rect) {
-          return LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [atTop ? Colors.transparent : Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
-            stops: [0.0, 0.1, 0.9, 1.0],
-          ).createShader(rect);
-        },
-        blendMode: BlendMode.dstOut,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spaceMD),
-          child: SingleChildScrollView(
-            controller: _controller,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[GroupSyncSettings()],
-            ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+        child: SingleChildScrollView(
+          controller: _controller,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[GroupSyncSettings()],
           ),
         ),
       ),
