@@ -1496,6 +1496,12 @@ abstract class AppLocalizations {
   /// **'Disable SSL'**
   String get disableSsl;
 
+  /// No description provided for @disableSslDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable secure connection for HTTP repositories'**
+  String get disableSslDescription;
+
   /// No description provided for @disableSslPromptTitle.
   ///
   /// In en, this message translates to:
@@ -1513,6 +1519,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Optimised Sync'**
   String get optimisedSync;
+
+  /// No description provided for @optimisedSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligently reduce overall sync operations'**
+  String get optimisedSyncDescription;
 
   /// No description provided for @proceedAnyway.
   ///

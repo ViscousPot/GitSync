@@ -720,6 +720,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disableSsl => 'Disable SSL';
 
   @override
+  String get disableSslDescription => 'Disable secure connection for HTTP repositories';
+
+  @override
   String get disableSslPromptTitle => 'Disable SSL?';
 
   @override
@@ -727,6 +730,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get optimisedSync => 'Optimised Sync';
+
+  @override
+  String get optimisedSyncDescription => 'Intelligently reduce overall sync operations';
 
   @override
   String get proceedAnyway => 'Proceed anyway?';

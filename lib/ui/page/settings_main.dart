@@ -495,11 +495,21 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                               await GitManager.setDisableSsl(!(snapshot.data ?? false));
                               setState(() {});
                             },
+                            style: ButtonStyle(shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)))),
                             label: SizedBox(
                               width: double.infinity,
-                              child: Text(
-                                t.disableSsl.toUpperCase(),
-                                style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    t.disableSsl.toUpperCase(),
+                                    style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    t.disableSslDescription,
+                                    style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
                             ),
                             iconAlignment: IconAlignment.end,
@@ -518,11 +528,21 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                               await uiSettingsManager.setBool(StorageKey.setman_optimisedSyncExperimental, !(optimisedSyncSnapshot.data ?? false));
                               setState(() {});
                             },
+                            style: ButtonStyle(shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)))),
                             label: SizedBox(
                               width: double.infinity,
-                              child: Text(
-                                "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})",
-                                style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})".toUpperCase(),
+                                    style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    t.optimisedSyncDescription,
+                                    style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
                             ),
                             iconAlignment: IconAlignment.end,

@@ -264,9 +264,11 @@
     "gitInfoExcludeDescription": "list files or folders to ignore on this device",
     "gitInfoExcludeHint": ".trash/\n./…",
     "disableSsl": "Disable SSL",
+    "disableSslDescription": "Disable secure connection for HTTP repositories",
     "disableSslPromptTitle": "Disable SSL?",
     "disableSslPromptMsg": "The address you cloned starts with \"http\" (not secure). Disabling SSL will match the URL but reduce security.",
     "optimisedSync": "Optimised Sync",
+    "optimisedSyncDescription": "Intelligently reduce overall sync operations",
     "proceedAnyway": "Proceed anyway?",
     "moreOptions": "More Options",
 

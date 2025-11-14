@@ -709,6 +709,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get disableSsl => '禁用 SSL';
 
   @override
+  String get disableSslDescription => 'Disable secure connection for HTTP repositories';
+
+  @override
   String get disableSslPromptTitle => '禁用 SSL？';
 
   @override
@@ -716,6 +719,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get optimisedSync => 'Optimised Sync';
+
+  @override
+  String get optimisedSyncDescription => 'Intelligently reduce overall sync operations';
 
   @override
   String get proceedAnyway => '照常进行吗？';
