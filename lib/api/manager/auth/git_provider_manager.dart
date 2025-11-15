@@ -51,7 +51,7 @@ class GitProviderManager {
     final expirationDate = tokenParts.length >= 2 ? DateTime.tryParse(tokenParts[1]) : null;
     final refreshToken = tokenParts.last;
 
-    if (!token.contains(conflictSeparator) || refreshToken.isEmpty || expirationDate == null || expirationDate.isBefore(DateTime.now())) {
+    if (!token.contains(conflictSeparator) || refreshToken.isEmpty || expirationDate == null || expirationDate.isAfter(DateTime.now())) {
       return accessToken;
     }
 
