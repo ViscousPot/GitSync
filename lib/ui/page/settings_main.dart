@@ -130,6 +130,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
+                SizedBox(height: spaceXXS),
                 SyncClientModeToggle(),
                 gitDirPath == null
                     ? SizedBox.shrink()
@@ -138,7 +139,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          SizedBox(height: spaceLG),
+                          SizedBox(height: spaceMD + spaceSM),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: spaceMD),
                             child: Text(

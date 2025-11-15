@@ -156,7 +156,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clientMode => '客户端模式';
 
   @override
+  String get clientModeDescription => 'Expanded Git UI\n(Advanced)';
+
+  @override
   String get syncMode => '同步模式';
+
+  @override
+  String get syncModeDescription => 'Automated syncing\n(Beginner-friendly)';
 
   @override
   String get syncNow => '立即同步';

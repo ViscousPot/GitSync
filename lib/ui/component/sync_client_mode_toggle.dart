@@ -25,7 +25,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
             child: TextButton.icon(
               onPressed: () async {
                 if (widget.global) {
-                  repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, false);
+                  await repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, false);
                 } else {
                   await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
                 }
@@ -33,7 +33,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
               },
               style: ButtonStyle(
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
                 backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? tertiaryInfo : tertiaryDark),
                 shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
@@ -50,12 +50,32 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                 animationDuration: Duration.zero,
               ),
               icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight, size: textMD),
-              label: Text(
-                t.syncMode,
-                style: TextStyle(
-                  color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
-                  fontSize: textMD,
-                  fontWeight: FontWeight.bold,
+              label: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      t.syncMode,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
+                        fontSize: textMD,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: spaceXXXXS),
+                    Text(
+                      t.syncModeDescription,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
+                        fontSize: textXS,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -64,7 +84,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
             child: TextButton.icon(
               onPressed: () async {
                 if (widget.global) {
-                  repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, true);
+                  await repoManager.setBool(StorageKey.repoman_defaultClientModeEnabled, true);
                 } else {
                   await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, true);
                 }
@@ -72,7 +92,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
               },
               style: ButtonStyle(
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
                 backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? tertiaryInfo : tertiaryDark),
                 shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
@@ -89,12 +109,32 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
               ),
               iconAlignment: IconAlignment.end,
               icon: FaIcon(FontAwesomeIcons.codeCompare, color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight, size: textMD),
-              label: Text(
-                t.clientMode,
-                style: TextStyle(
-                  color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
-                  fontSize: textMD,
-                  fontWeight: FontWeight.bold,
+              label: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      t.clientMode,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
+                        fontSize: textMD,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: spaceXXXXS),
+                    Text(
+                      t.clientModeDescription,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
+                        fontSize: textXS,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

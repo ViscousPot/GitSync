@@ -398,11 +398,23 @@ abstract class AppLocalizations {
   /// **'Client Mode'**
   String get clientMode;
 
+  /// No description provided for @clientModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Expanded Git UI\n(Advanced)'**
+  String get clientModeDescription;
+
   /// No description provided for @syncMode.
   ///
   /// In en, this message translates to:
   /// **'Sync Mode'**
   String get syncMode;
+
+  /// No description provided for @syncModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated syncing\n(Beginner-friendly)'**
+  String get syncModeDescription;
 
   /// No description provided for @syncNow.
   ///

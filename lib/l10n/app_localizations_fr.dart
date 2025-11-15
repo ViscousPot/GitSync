@@ -158,7 +158,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get clientMode => 'Mode client';
 
   @override
+  String get clientModeDescription => 'Expanded Git UI\n(Advanced)';
+
+  @override
   String get syncMode => 'Mode sync';
+
+  @override
+  String get syncModeDescription => 'Automated syncing\n(Beginner-friendly)';
 
   @override
   String get syncNow => 'Sync les modifications';
