@@ -638,7 +638,7 @@ class GitManager {
     });
   }
 
-  static Future<GitManagerRs.Diff?> getDiff(String startRef, String endRef) async {
+  static Future<GitManagerRs.Diff?> getDiff(String startRef, String? endRef) async {
     if (await isLocked()) {
       return null;
     }

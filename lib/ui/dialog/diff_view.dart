@@ -14,13 +14,11 @@ import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 
-Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCommit, GitManagerRs.Commit endCommit) async {
+Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCommit, GitManagerRs.Commit? endCommit) async {
   bool copiedStartCommitReference = false;
   bool copiedEndCommitReference = false;
 
-  print("////email ${startCommit.authorEmail}");
-
-  final diff = await GitManager.getDiff(startCommit.reference, endCommit.reference);
+  final diff = await GitManager.getDiff(startCommit.reference, endCommit?.reference);
   final diffFiles =
       diff?.diffParts.map(
         (key, value) => MapEntry(
@@ -107,13 +105,15 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
                   FaIcon(FontAwesomeIcons.rightLeft, color: tertiaryLight, size: textMD),
                   SizedBox(width: spaceXS),
                   GestureDetector(
-                    onTap: () {
-                      copyEndCommitReference();
-                    },
+                    onTap: endCommit == null
+                        ? null
+                        : () {
+                            copyEndCommitReference();
+                          },
                     child: Row(
                       children: [
                         Text(
-                          endCommit.reference.substring(0, 7).toUpperCase(),
+                          (endCommit?.reference.substring(0, 7) ?? "EMPTY").toUpperCase(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: copiedEndCommitReference ? tertiaryPositive : secondaryLight,
@@ -124,17 +124,19 @@ Future<void> showDialog(BuildContext parentContext, GitManagerRs.Commit startCom
                         SizedBox(width: spaceXXXXS),
                         Padding(
                           padding: EdgeInsets.only(bottom: spaceXS),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                            constraints: BoxConstraints(),
-                            onPressed: () async => copyEndCommitReference(),
-                            icon: FaIcon(
-                              copiedEndCommitReference ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                              size: copiedEndCommitReference ? textMD : textSM,
-                              color: copiedEndCommitReference ? primaryPositive : tertiaryLight,
-                            ),
-                          ),
+                          child: endCommit == null
+                              ? null
+                              : IconButton(
+                                  padding: EdgeInsets.zero,
+                                  style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                  constraints: BoxConstraints(),
+                                  onPressed: () async => copyEndCommitReference(),
+                                  icon: FaIcon(
+                                    copiedEndCommitReference ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
+                                    size: copiedEndCommitReference ? textMD : textSM,
+                                    color: copiedEndCommitReference ? primaryPositive : tertiaryLight,
+                                  ),
+                                ),
                         ),
                       ],
                     ),

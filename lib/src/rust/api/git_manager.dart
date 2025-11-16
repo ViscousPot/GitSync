@@ -48,7 +48,7 @@ Future<void> unstageAll({
 Future<Diff> getDiff({
   required String pathString,
   required String startRef,
-  required String endRef,
+  String? endRef,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerGetDiff(
   pathString: pathString,

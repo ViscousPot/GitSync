@@ -96,9 +96,8 @@ class _ItemCommit extends State<ItemCommit> {
         onPressed: () {
           print(widget.commit.reference);
           print(widget.prevCommit?.reference);
-          if (widget.prevCommit == null) return;
 
-          DiffViewDialog.showDialog(context, widget.commit, widget.prevCommit!);
+          DiffViewDialog.showDialog(context, widget.commit, widget.prevCommit);
         },
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(

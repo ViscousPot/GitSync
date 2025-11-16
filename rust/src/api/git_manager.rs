@@ -433,7 +433,7 @@ pub async fn unstage_all(
 pub async fn get_diff(
     path_string: &String,
     start_ref: &String,
-    end_ref:&String,
+    end_ref: &Option<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Diff, git2::Error> {
     init(None);
@@ -451,7 +451,14 @@ pub async fn get_diff(
     let repo = swl!(Repository::open(path_string))?;
 
     let tree1 = swl!(repo.revparse_single(start_ref)?.peel_to_commit()?.tree())?;
-    let tree2 = swl!(repo.revparse_single(end_ref)?.peel_to_commit()?.tree())?;
+    let tree2 = match end_ref {
+        Some(end) => swl!(repo.revparse_single(end)?.peel_to_commit()?.tree())?,
+        None => {
+            let mut tree_builder = swl!(repo.treebuilder(None))?;
+            let empty_tree_oid = swl!(tree_builder.write())?;
+            swl!(repo.find_tree(empty_tree_oid))?
+        }
+    };
     
     let mut diff_opts = DiffOptions::new();
     
