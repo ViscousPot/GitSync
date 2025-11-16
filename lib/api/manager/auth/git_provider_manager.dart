@@ -48,7 +48,9 @@ class GitProviderManager {
   Future<String?> getToken(String token, Future<void> Function(String p1, DateTime? p2, String p3) setAccessRefreshToken) async {
     final tokenParts = token.split(conflictSeparator);
     final accessToken = tokenParts.first;
-    final expirationDate = tokenParts.length >= 2 ? DateTime.tryParse(tokenParts[1]) : null;
+    final expirationDate = tokenParts.length >= 2 && int.tryParse(tokenParts[1]) != null
+        ? DateTime.fromMillisecondsSinceEpoch(int.parse(tokenParts[1]))
+        : null;
     final refreshToken = tokenParts.last;
 
     if (!token.contains(conflictSeparator) || refreshToken.isEmpty || expirationDate == null || expirationDate.isAfter(DateTime.now())) {
