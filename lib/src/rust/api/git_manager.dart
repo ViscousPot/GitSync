@@ -7,6 +7,7 @@ import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `_log`, `commit`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `pull_changes_priv`, `push_changes_priv`, `set_author`, `update_submodules_priv`
+// These functions are ignored (category: IgnoreBecauseNotAllowedOwner): `safe_wline`
 
 Future<void> init({String? homepath}) =>
     RustLib.instance.api.crateApiGitManagerInit(homepath: homepath);
@@ -396,6 +397,10 @@ Future<void> createBranch({
   sourceBranchName: sourceBranchName,
   log: log,
 );
+
+abstract class WithLine {
+  Future<WithLine> safeWline({required int line});
+}
 
 class Commit {
   final PlatformInt64 timestamp;
