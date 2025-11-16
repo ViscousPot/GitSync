@@ -217,7 +217,8 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   Mmap? writeMmap;
   Map<String, ReEditor.CodeHighlightThemeMode> languages = {};
   bool logsCollapsed = false;
-  List<(String, String)> diffLineNumbers = [];
+  List<String> deletionDiffLineNumbers = [];
+  List<String> insertionDiffLineNumbers = [];
 
   @override
   void initState() {
@@ -226,34 +227,41 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
     if (widget.type == EditorType.DIFF) {
       initAsync(() async {
-        diffLineNumbers.clear();
+        deletionDiffLineNumbers.clear();
+        insertionDiffLineNumbers.clear();
         int deletionStartLineNumber = 0;
         int insertionStartLineNumber = 0;
         int hunkStartIndex = 0;
-        diffLineNumbers.addAll(
-          (widget.text ?? "").split("\n").indexed.map((indexedLine) {
-            final hunkHeader = RegExp(
-              "(?:^@@ +-(\\d+),(\\d+) +\\+(\\d+),(\\d+) +@@|^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*\$|^--- +\\d+,\\d+ +----\$).*\$",
-            ).firstMatch(indexedLine.$2);
-            if (hunkHeader != null) {
-              deletionStartLineNumber = int.tryParse(hunkHeader.group(1) ?? "") ?? 0;
-              insertionStartLineNumber = int.tryParse(hunkHeader.group(3) ?? "") ?? 0;
-              hunkStartIndex = indexedLine.$1;
-              return ("", "");
-            }
+        final indexedLines = (widget.text ?? "").split("\n").indexed;
+        final diffLineNumbers = indexedLines.map((indexedLine) {
+          final hunkHeader = RegExp(
+            "(?:^@@ +-(\\d+),(\\d+) +\\+(\\d+),(\\d+) +@@|^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*\$|^--- +\\d+,\\d+ +----\$).*\$",
+          ).firstMatch(indexedLine.$2);
+          if (hunkHeader != null) {
+            deletionStartLineNumber = int.tryParse(hunkHeader.group(1) ?? "") ?? 0;
+            insertionStartLineNumber = int.tryParse(hunkHeader.group(3) ?? "") ?? 0;
+            print("//// $deletionStartLineNumber $insertionStartLineNumber");
+            hunkStartIndex = indexedLine.$1;
+            return ("", "");
+          }
 
-            if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null) {
-              return ("${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}", "");
-            }
-            if (RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
-              return ("", "${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}");
-            }
-            return (
-              "${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
-              "${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
-            );
-          }),
-        );
+          if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null) {
+            return ("${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}", "");
+          }
+          if (RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
+            return ("", "${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}");
+          }
+          print(indexedLine);
+          if (indexedLine.$1 == indexedLines.length - 1 && indexedLine.$2.isEmpty) {
+            return ("", "");
+          }
+          return (
+            "${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
+            "${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
+          );
+        });
+        deletionDiffLineNumbers.addAll(diffLineNumbers.map((item) => item.$1));
+        insertionDiffLineNumbers.addAll(diffLineNumbers.map((item) => item.$2));
         setState(() {});
       });
     }
@@ -431,20 +439,20 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                     return Row(
                       children: [
                         if (widget.type == EditorType.DEFAULT) ReEditor.DefaultCodeLineNumber(controller: editingController, notifier: notifier),
-                        if (widget.type == EditorType.DIFF)
+                        if (widget.type == EditorType.DIFF && deletionDiffLineNumbers.any((item) => item.isNotEmpty))
                           ReEditor.DefaultCodeLineNumber(
                             controller: editingController,
                             notifier: notifier,
                             customLineIndex2Text: (lineIndex) {
-                              return "${diffLineNumbers.length > lineIndex ? diffLineNumbers[lineIndex].$1 : ""}";
+                              return "${deletionDiffLineNumbers.length > lineIndex ? deletionDiffLineNumbers[lineIndex] : ""}";
                             },
                           ),
-                        if (widget.type == EditorType.DIFF)
+                        if (widget.type == EditorType.DIFF && insertionDiffLineNumbers.any((item) => item.isNotEmpty))
                           ReEditor.DefaultCodeLineNumber(
                             controller: editingController,
                             notifier: notifier,
                             customLineIndex2Text: (lineIndex) {
-                              return "${diffLineNumbers.length > lineIndex ? diffLineNumbers[lineIndex].$2 : ""}";
+                              return "${insertionDiffLineNumbers.length > lineIndex ? insertionDiffLineNumbers[lineIndex] : ""}";
                             },
                           ),
                         if (widget.type == EditorType.DEFAULT || widget.type == EditorType.LOGS)
