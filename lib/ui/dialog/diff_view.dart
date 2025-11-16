@@ -1,7 +1,6 @@
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/diff_file.dart';
 import 'package:collection/collection.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

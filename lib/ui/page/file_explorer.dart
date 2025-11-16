@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/colors.dart';
