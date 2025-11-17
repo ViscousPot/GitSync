@@ -43,7 +43,7 @@ Future<void> showDialog(BuildContext context) async {
           padding: EdgeInsets.symmetric(vertical: spaceMD),
           child: TextButton.icon(
             onPressed: () async {
-              final result = await GithubManager().launchOAuthFlow();
+              final result = await GithubManager().launchOAuthFlow(["user", "user:email"]);
               if (result == null) return;
 
               await repoManager.setStringNullable(StorageKey.repoman_ghSponsorToken, result.$3);

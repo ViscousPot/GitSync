@@ -78,12 +78,10 @@ class GitProviderManager {
     final usernameAndEmail = await getUsernameAndEmail(response.accessToken!);
     if (usernameAndEmail == null) return null;
 
-    print(response.expirationDate);
-
     return (
       usernameAndEmail.$1,
       usernameAndEmail.$2,
-      buildAccessRefreshToken(response.accessToken ?? "", response.expirationDate, response.refreshToken ?? ""),
+      buildAccessRefreshToken(response.accessToken ?? "", response.expirationDate, response.refreshToken),
     );
   }
 

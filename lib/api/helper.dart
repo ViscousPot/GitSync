@@ -212,8 +212,9 @@ Future<bool> waitFor(Future<bool> Function() fn, {int maxWaitSeconds = 30}) asyn
   return true;
 }
 
-String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, String refreshToken) =>
-    "$accessToken$conflictSeparator${expirationDate == null ? "" : "${expirationDate.millisecondsSinceEpoch}$conflictSeparator"}$refreshToken";
+String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, String? refreshToken) => refreshToken == null
+    ? accessToken
+    : "$accessToken$conflictSeparator${expirationDate == null ? "" : "${expirationDate.millisecondsSinceEpoch}$conflictSeparator"}$refreshToken";
 
 Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
   await uiSettingsManager.setGitDirPath(dir);
