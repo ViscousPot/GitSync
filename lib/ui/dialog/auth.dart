@@ -1,10 +1,13 @@
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/auth/github_app_manager.dart';
+import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
 import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
@@ -51,16 +54,80 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   Widget buildActions(BuildContext context, void Function(void Function()) setState) {
     switch (selectedGitProvider) {
       case GitProvider.GITHUB:
+        return Column(
+          children: [
+            TextButton.icon(
+              onPressed: () async {
+                uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, false);
+
+                final gitProviderManager = GithubManager();
+
+                final result = await gitProviderManager.launchOAuthFlow();
+
+                if (result == null) return;
+
+                await setHttpAuth(context, result, selectedGitProvider);
+              },
+              style: ButtonStyle(
+                alignment: Alignment.center,
+                backgroundColor: WidgetStatePropertyAll(primaryPositive),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+              ),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+              label: Text(
+                "OAuth (All Repos)".toUpperCase(),
+                style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: spaceSM),
+            TextButton.icon(
+              onPressed: () async {
+                uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, true);
+
+                final gitProviderManager = GithubAppManager();
+
+                final result = await gitProviderManager.launchOAuthFlow();
+
+                if (result == null) return;
+
+                final token = await gitProviderManager.getToken(result.$3, (_, _, _) async {});
+                if (token == null) return;
+
+                final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+                if (githubAppInstallations.isEmpty) {
+                  await launchUrl(Uri.parse("https://github.com/apps/git-sync-viscouspotential"));
+                } else {
+                  await launchUrl(Uri.parse("https://github.com/settings/installations/${githubAppInstallations[0]["id"]}"));
+                }
+
+                await setHttpAuth(context, result, selectedGitProvider);
+              },
+              style: ButtonStyle(
+                alignment: Alignment.center,
+                backgroundColor: WidgetStatePropertyAll(primaryPositive),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+              ),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+              label: Text(
+                "Oauth (Scoped)".toUpperCase(),
+                style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
       case GitProvider.GITEA:
       case GitProvider.GITLAB:
         return TextButton.icon(
           onPressed: () async {
-            final gitProviderManager = GitProviderManager.getGitProviderManager(selectedGitProvider);
+            final gitProviderManager = GitProviderManager.getGitProviderManager(selectedGitProvider, false);
             if (gitProviderManager == null) return;
 
             final result = await gitProviderManager.launchOAuthFlow();
 
             if (result == null) return;
+
             await setHttpAuth(context, result, selectedGitProvider);
           },
           style: ButtonStyle(

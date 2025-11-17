@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:GitSync/api/manager/git_manager.dart';
+import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/dialog/prompt_disable_ssl.dart' as PromptDisableSslDialog;
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +75,10 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
   }
 
   Future<void> searchRepos(String searchString) async {
-    final gitProviderManager = GitProviderManager.getGitProviderManager(await uiSettingsManager.getGitProvider());
+    final gitProviderManager = GitProviderManager.getGitProviderManager(
+      await uiSettingsManager.getGitProvider(),
+      await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth),
+    );
     if (gitProviderManager == null) return;
 
     setLoadingRepos(true);

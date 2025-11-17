@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:GitSync/api/manager/auth/github_app_manager.dart';
+import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/group_sync_settings.dart';
@@ -551,6 +553,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     //   await uiSettingsManager.setOnboardingStep(3);
     //   await onboardingController?.dismissAll();
     // }
+  }
+
+  Future<bool> isGithubOauth() async {
+    final provider = await uiSettingsManager.getGitProvider();
+    return provider == GitProvider.GITHUB;
   }
 
   ValueNotifier<int?> recommendedAction = ValueNotifier(null);
@@ -1791,7 +1798,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                               child: DropdownButton(
                                                 borderRadius: BorderRadius.all(cornerRadiusMD),
                                                 // padding: EdgeInsets.zero,
-                                                padding: EdgeInsets.only(left: spaceMD, right: spaceXXS),
+                                                padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
                                                 //   // icon: FaIcon(
                                                 //   //   snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
                                                 //   //   color: snapshot.data != null ? primaryLight : primaryNegative,
@@ -1916,29 +1923,83 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       ),
                                     ),
                                     SizedBox(width: spaceSM),
-                                    TextButton.icon(
-                                      onPressed: () async {
-                                        await showAuthDialog();
-                                      },
-                                      style: ButtonStyle(
-                                        alignment: Alignment.centerLeft,
-                                        backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                        shape: WidgetStatePropertyAll(
-                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                        ),
-                                      ),
-                                      icon: FaIcon(
-                                        isAuthenticatedSnapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.solidCircleXmark,
-                                        color: isAuthenticatedSnapshot.data == true ? primaryPositive : primaryNegative,
-                                        size: textLG,
-                                      ),
-                                      label: Padding(
-                                        padding: EdgeInsets.only(left: spaceXS),
-                                        child: Text(
-                                          t.auth.toUpperCase(),
-                                          style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                        ),
+                                    Container(
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: secondaryDark),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          TextButton.icon(
+                                            onPressed: () async {
+                                              await showAuthDialog();
+                                            },
+                                            style: ButtonStyle(
+                                              alignment: Alignment.centerLeft,
+                                              backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                              shape: WidgetStatePropertyAll(
+                                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                              ),
+                                            ),
+                                            icon: FaIcon(
+                                              isAuthenticatedSnapshot.data == true
+                                                  ? FontAwesomeIcons.solidCircleCheck
+                                                  : FontAwesomeIcons.solidCircleXmark,
+                                              color: isAuthenticatedSnapshot.data == true ? primaryPositive : primaryNegative,
+                                              size: textLG,
+                                            ),
+                                            label: Padding(
+                                              padding: EdgeInsets.only(left: spaceXS),
+                                              child: Text(
+                                                t.auth.toUpperCase(),
+                                                style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          FutureBuilder(
+                                            future: (() async =>
+                                                await uiSettingsManager.getGitProvider() == GitProvider.GITHUB &&
+                                                await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) == true)(),
+                                            builder: (context, gitProviderSnapshot) => !(gitProviderSnapshot.data == true)
+                                                ? SizedBox.shrink()
+                                                : IconButton(
+                                                    padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                    style: ButtonStyle(
+                                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                                      shape: WidgetStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                          borderRadius: BorderRadiusGeometry.only(
+                                                            topRight: cornerRadiusMD,
+                                                            bottomRight: cornerRadiusMD,
+                                                            bottomLeft: Radius.zero,
+                                                            topLeft: Radius.zero,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    constraints: BoxConstraints(),
+                                                    onPressed: () async {
+                                                      final gitProviderManager = GithubAppManager();
+
+                                                      final usernameToken = await uiSettingsManager.getGitHttpAuthCredentials();
+
+                                                      final token = await gitProviderManager.getToken(usernameToken.$2, (_, _, _) async {});
+
+                                                      if (token == null) return;
+
+                                                      final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+                                                      if (githubAppInstallations.isEmpty) {
+                                                        await launchUrl(Uri.parse("https://github.com/apps/git-sync-viscouspotential"));
+                                                      } else {
+                                                        await launchUrl(
+                                                          Uri.parse("https://github.com/settings/installations/${githubAppInstallations[0]["id"]}"),
+                                                        );
+                                                      }
+                                                    },
+                                                    icon: FaIcon(FontAwesomeIcons.sliders, size: textLG, color: secondaryLight),
+                                                  ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],

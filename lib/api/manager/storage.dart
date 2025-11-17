@@ -51,6 +51,7 @@ enum StorageKey<T> {
   setman_gitCommitSigningPassphrase<String?>(name: "gitCommitSigningPassphrase", defaultValue: null),
   setman_clientModeEnabled<bool?>(name: "clientModeEnabled", defaultValue: false, hasDefault: true),
   setman_optimisedSyncExperimental<bool>(name: "optimisedSyncExperimental", defaultValue: false),
+  setman_githubScopedOauth<bool>(name: "githubScopedOauth", defaultValue: false),
 
   // Git Manager
   setman_lfsFilePaths<List<String>>(name: "lfsFilePaths", defaultValue: []),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/auth/gitea_manager.dart';
+import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/auth/gitlab_manager.dart';
 
@@ -127,9 +128,13 @@ class SettingsManager extends Storage {
 
     String? oauthToken;
 
+    bool githubAppOauth = await getBool(StorageKey.setman_githubScopedOauth);
+
     switch (await getGitProvider()) {
       case GitProvider.GITHUB:
-        oauthToken = await GithubManager().getToken(token, setAccessRefreshToken);
+        oauthToken = githubAppOauth
+            ? await GithubAppManager().getToken(token, setAccessRefreshToken)
+            : await GithubManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITEA:
         oauthToken = await GiteaManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITLAB:

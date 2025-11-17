@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/auth/gitlab_manager.dart';
@@ -29,9 +30,9 @@ class GitProviderManager {
     GitProvider.SSH: FaIcon(FontAwesomeIcons.terminal, size: textMD, color: primaryLight),
   };
 
-  static GitProviderManager? getGitProviderManager(GitProvider provider) {
+  static GitProviderManager? getGitProviderManager(GitProvider provider, bool githubAppOauth) {
     return switch (provider) {
-      GitProvider.GITHUB => GithubManager(),
+      GitProvider.GITHUB => githubAppOauth ? GithubAppManager() : GithubManager(),
       GitProvider.GITEA => GiteaManager(),
       GitProvider.GITLAB => GitlabManager(),
       GitProvider.HTTPS => null,
@@ -71,8 +72,8 @@ class GitProviderManager {
   }
 
   Future<(String, String, String)?> launchOAuthFlow([List<String>? scopeOverride]) async {
-    OAuth2Client gitlabClient = oauthClient;
-    final response = await gitlabClient.getTokenWithAuthCodeFlow(clientId: clientId, clientSecret: clientSecret, scopes: scopeOverride ?? scopes);
+    final response = await oauthClient.getTokenWithAuthCodeFlow(clientId: clientId, clientSecret: clientSecret, scopes: scopeOverride ?? scopes);
+
     if (response.accessToken == null) return null;
 
     final usernameAndEmail = await getUsernameAndEmail(response.accessToken!);
