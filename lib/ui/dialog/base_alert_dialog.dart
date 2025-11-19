@@ -178,6 +178,7 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
               widget.contentPadding ??
               EdgeInsets.only(left: spaceSM * 2, right: spaceSM * 2, top: spaceSM, bottom: (widget.actions?.isEmpty ?? true) ? spaceLG : 0),
           actions: widget.actions,
+          actionsAlignment: widget.actionsAlignment,
           actionsPadding: widget.contentPadding ?? EdgeInsets.only(right: spaceSM * 2, left: spaceSM * 2, bottom: spaceSM, top: spaceSM),
           insetPadding: widget.insetPadding ?? EdgeInsets.all(expanded ? 0 : spaceLG),
           backgroundColor: widget.backgroundColor ?? primaryDark,
