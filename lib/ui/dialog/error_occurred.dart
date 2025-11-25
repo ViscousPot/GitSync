@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
@@ -24,6 +25,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
+      expandable: true,
       key: errorDialogKey,
       title: SizedBox(
         child: Text(
@@ -31,9 +33,10 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
           style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
-      content: SingleChildScrollView(
-        child: ListBody(
-          children: [
+      contentBuilder: (expanded) =>
+          (expanded
+          ? (List<Widget> children) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)
+          : (List<Widget> children) => SingleChildScrollView(child: ListBody(children: children)))([
             ...autoFixCallbackMap.keys.any((text) => error.contains(text))
                 ? [
                     StatefulBuilder(
@@ -81,7 +84,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                 Clipboard.setData(ClipboardData(text: error));
               },
               child: SizedBox(
-                height: MediaQuery.sizeOf(context).height / 3,
+                height: expanded ? null : MediaQuery.sizeOf(context).height / 3,
                 child: ShaderMask(
                   shaderCallback: (Rect rect) {
                     return LinearGradient(
@@ -111,28 +114,53 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
               t.errorOccurredMessagePart2,
               style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
-          ],
-        ),
-      ),
+          ]),
       actions: <Widget>[
-        TextButton(
-          child: Text(
-            t.dismiss.toUpperCase(),
-            style: TextStyle(color: primaryLight, fontSize: textMD),
-          ),
-          onPressed: () {
-            Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-          },
-        ),
-        TextButton(
-          child: Text(
-            t.reportABug.toUpperCase(),
-            style: TextStyle(color: tertiaryNegative, fontSize: textMD),
-          ),
-          onPressed: () async {
-            callback();
-            Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-          },
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextButton.icon(
+              onPressed: () async {
+                launchUrl(Uri.parse(troubleshootingLink));
+              },
+              style: ButtonStyle(
+                alignment: Alignment.center,
+                backgroundColor: WidgetStatePropertyAll(tertiaryInfo),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
+              ),
+              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: secondaryDark, size: textSM),
+              label: Text(
+                "Troubleshooting".toUpperCase(),
+                style: TextStyle(color: primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  child: Text(
+                    t.dismiss.toUpperCase(),
+                    style: TextStyle(color: primaryLight, fontSize: textMD),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                  },
+                ),
+                TextButton(
+                  child: Text(
+                    t.reportABug.toUpperCase(),
+                    style: TextStyle(color: tertiaryNegative, fontSize: textMD),
+                  ),
+                  onPressed: () async {
+                    callback();
+                    Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),

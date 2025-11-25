@@ -64,6 +64,7 @@ const String defaultSyncMessage = "Last Sync: %s (Mobile)";
 const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
 
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
+const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";
 const String privacyPolicyLink = "https://gitsync.viscouspotenti.al/wiki/privacy-policy/";
 const String eulaLink = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
 const String discordLink = "https://discord.gg/cgvjdDyzzB";
