@@ -48,12 +48,14 @@ enum LogType {
 }
 
 void notificationClicked(NotificationResponse _) {
+  Logger.notifClicked = true;
   runApp(const MyApp());
 }
 
 class Logger {
   static const int _errorNotificationId = 1757;
   static final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
+  static bool notifClicked = false;
 
   static Future<void> init() async {
     await notificationsPlugin.initialize(

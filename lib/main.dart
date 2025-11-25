@@ -22,6 +22,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -437,7 +438,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     FlutterBackgroundService().on(GitsyncService.MERGE_COMPLETE).listen((event) async {
       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-      await Logger.dismissError(context);
       setState(() {});
     });
 
@@ -504,7 +504,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    Logger.dismissError(context);
 
     onboardingController = OnboardingController(context, showAuthDialog, showCloneRepoPage, completeUiGuideShowcase, [
       _globalSettingsKey,
@@ -831,7 +830,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    Logger.dismissError(context);
+    initAsync(() async {
+      if (Logger.notifClicked == true) {
+        Logger.notifClicked = false;
+        Logger.dismissError(context);
+      }
+    });
 
     return Scaffold(
       backgroundColor: primaryDark,
@@ -899,7 +903,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   setState(() {});
                 },
                 onTap: () async {
-                  await openLogViewer(context).then((_) => setState(() {}));
+                  if ((await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true) {
+                    await Logger.dismissError(context);
+                  } else {
+                    await openLogViewer(context);
+                  }
+                  setState(() {});
                 },
                 child: Stack(
                   children: [
@@ -934,6 +943,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           ),
                         ),
                       ),
+                    FutureBuilder(
+                      future: repoManager.getStringNullable(StorageKey.repoman_erroring),
+                      builder: (context, snapshot) => AnimatedOpacity(
+                        opacity: snapshot.data?.isNotEmpty == true ? 1 : 0,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: spaceMD + spaceXS,
+                            height: spaceMD + spaceXS,
+                            child: FaIcon(FontAwesomeIcons.circleExclamation, color: tertiaryNegative, size: spaceMD + spaceXS),
+                          ),
+                        ),
+                      ),
+                    ),
                     AnimatedOpacity(
                       opacity: locked ? 0 : opacity,
                       duration: Duration(milliseconds: 500),
