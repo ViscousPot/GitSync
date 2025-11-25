@@ -484,7 +484,7 @@ pub async fn get_diff(
 
     let mut diff_parts: HashMap<String, HashMap<String, String>> = HashMap::new();
 
-    diff.foreach(
+    swl!(diff.foreach(
         &mut |_: git2::DiffDelta, _: f32| -> bool {
             true
         },
@@ -572,7 +572,7 @@ pub async fn get_diff(
 
             true
         })
-    );
+    ))?;
 
     Ok(Diff {
         files_changed: diff_stats.files_changed() as i32,
