@@ -426,7 +426,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                         'diffRoot': TextStyle(color: tertiaryLight),
                         'diffHunkHeader': TextStyle(backgroundColor: tertiaryDark, color: tertiaryLight),
                         'eof': TextStyle(backgroundColor: tertiaryDark, color: tertiaryLight),
-                        'diffRemove': TextStyle(wordSpacing: 0, fontSize: 0),
+                        'diffHide': TextStyle(wordSpacing: 0, fontSize: 0),
                         'addition': TextStyle(color: tertiaryPositive, fontWeight: FontWeight.w400),
                         'deletion': TextStyle(color: tertiaryNegative, fontWeight: FontWeight.w400),
                       },

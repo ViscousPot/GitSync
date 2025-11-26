@@ -14,17 +14,13 @@ final langDiff = Mode(
     Mode(className: "eof", relevance: 10, match: "^END OF FILE\$"),
 
     Mode(
-      scope: 'diffRemove',
-      begin: r"\+{5}insertion\+{5}",
+      scope: 'diffHide',
+      begin: r"(\+{5}insertion\+{5}|-{5}deletion-{5})",
       end: "\$",
-      contains: [Mode(scope: 'addition', match: r"(?<=\+{5}insertion\+{5}).*$", relevance: 10)],
-      relevance: 10,
-    ),
-    Mode(
-      scope: 'diffRemove',
-      begin: r"-{5}deletion-{5}",
-      end: "\$",
-      contains: [Mode(scope: 'deletion', match: r"(?<=-{5}deletion-{5}).*$", relevance: 10)],
+      contains: [
+        Mode(scope: 'addition', match: r"(?<=\+{5}insertion\+{5}).*?(?=-{5}deletion-{5}|$)", relevance: 10),
+        Mode(scope: 'deletion', match: r"(?<=-{5}deletion-{5}).*?(?=\+{5}insertion\+{5}|$)", relevance: 10),
+      ],
       relevance: 10,
     ),
 
