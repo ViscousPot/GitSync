@@ -25,6 +25,7 @@ enum StorageKey<T> {
   repoman_defaultAuthorName<String>(name: "defaultAuthorName", defaultValue: ""),
   repoman_defaultAuthorEmail<String>(name: "defaultAuthorEmail", defaultValue: ""),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
+  repoman_successfulSyncs<int>(name: "successfulSyncs", defaultValue: 0),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),

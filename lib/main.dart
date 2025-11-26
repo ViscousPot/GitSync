@@ -39,6 +39,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:in_app_review/in_app_review.dart';
 import '../api/helper.dart';
 import '../api/logger.dart';
 import '../api/manager/git_manager.dart';
@@ -66,6 +67,7 @@ import '../ui/page/clone_repo_main.dart';
 import '../ui/page/settings_main.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'ui/dialog/confirm_reinstall_clear_data.dart' as ConfirmReinstallClearDataDialog;
+import 'ui/dialog/request_review.dart' as RequestReviewDialog show showDialog;
 import 'ui/dialog/set_remote_url.dart' as SetRemoteUrlDialog;
 import 'package:GitSync/l10n/app_localizations.dart';
 
@@ -376,6 +378,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // Logger.logError(LogType.TEST, "test", StackTrace.fromString("test stack"));
     // Future.delayed(Duration(seconds: 5), () => Logger.logError(LogType.TEST, "test", StackTrace.fromString("test stack")));
 
+    conditionallyRequestReview();
+
     initAsync(() async {
       String uri = (await HomeWidget.initiallyLaunchedFromHomeWidget()).toString();
       print("////init $uri");
@@ -433,7 +437,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
 
     FlutterBackgroundService().on(GitsyncService.REFRESH).listen((event) async {
-      debounce(refreshDebounceReference, 500, () => widget.setState(() {}));
+      debounce(refreshDebounceReference, 500, () async {
+        if (Logger.notifClicked == true) {
+          Logger.notifClicked = false;
+          Logger.dismissError(context);
+        }
+        conditionallyRequestReview();
+        widget.setState(() {});
+      });
     });
 
     FlutterBackgroundService().on(GitsyncService.MERGE_COMPLETE).listen((event) async {
@@ -504,7 +515,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-
     onboardingController = OnboardingController(context, showAuthDialog, showCloneRepoPage, completeUiGuideShowcase, [
       _globalSettingsKey,
       _syncProgressKey,
@@ -513,6 +523,21 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       _configKey,
       _autoSyncOptionsKey,
     ]);
+  }
+
+  void conditionallyRequestReview() async {
+    final syncs = await repoManager.getInt(StorageKey.repoman_successfulSyncs);
+
+    if (syncs >= 25) {
+      await repoManager.setInt(StorageKey.repoman_successfulSyncs, -1);
+      RequestReviewDialog.showDialog(context, syncs, () async {
+        final InAppReview inAppReview = InAppReview.instance;
+
+        if (await inAppReview.isAvailable()) {
+          inAppReview.requestReview();
+        }
+      });
+    }
   }
 
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
@@ -830,13 +855,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    initAsync(() async {
-      if (Logger.notifClicked == true) {
-        Logger.notifClicked = false;
-        Logger.dismissError(context);
-      }
-    });
-
     return Scaffold(
       backgroundColor: primaryDark,
       appBar: AppBar(
