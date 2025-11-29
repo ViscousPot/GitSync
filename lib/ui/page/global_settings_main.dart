@@ -23,12 +23,12 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog;
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:in_app_review/in_app_review.dart';
 import '../../../api/helper.dart';
 import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
+
 import '../dialog/change_language.dart' as ChangeLanguageDialog;
 import '../dialog/confirm_clear_data.dart' as ConfirmClearDataDialog;
 import '../dialog/enter_backup_restore_password.dart' as EnterBackupRestorePasswordDialog;
@@ -336,16 +336,6 @@ ${await Logger.generateDeviceInfo()}
                     if (await canLaunchUrl(Uri.parse(githubFeatureTemplate))) {
                       await launchUrl(Uri.parse(githubFeatureTemplate));
                     }
-                  },
-                ),
-                SizedBox(height: spaceMD),
-                ButtonSetting(
-                  text: "Leave a Review",
-                  icon: FontAwesomeIcons.solidStar,
-                  onPressed: () async {
-                    final InAppReview inAppReview = InAppReview.instance;
-
-                    inAppReview.openStoreListing(appStoreId: 'com.viscouspot.git-sync');
                   },
                 ),
                 SizedBox(height: spaceMD),

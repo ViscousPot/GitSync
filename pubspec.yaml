@@ -80,7 +80,6 @@ dependencies:
   collection: any
   quick_actions: ^1.1.0
   home_widget: ^0.8.0
-  in_app_review: ^2.0.11
 
 dependency_overrides:
   flutter_background_service_platform_interface:
