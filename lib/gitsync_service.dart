@@ -367,8 +367,9 @@ class GitsyncService {
   String lastOpenPackageNameExcludingInputs = conflictSeparator;
 
   void accessibilityEvent(String packageName, List<String> enabledInputMethods) async {
-    enabledInputMethods = [...enabledInputMethods, "com.android.systemui"];
-    for (var index = 0; index < (await repoManager.getStringList(StorageKey.repoman_repoNames)).length; index++) {
+    enabledInputMethods = [...enabledInputMethods];
+    final repoNamesLength = (await repoManager.getStringList(StorageKey.repoman_repoNames)).length;
+    for (var index = 0; index < repoNamesLength; index++) {
       final settingsManager = await SettingsManager().reinit(repoIndex: index);
 
       final syncClosed = await settingsManager.getBool(StorageKey.setman_syncOnAppClosed);
