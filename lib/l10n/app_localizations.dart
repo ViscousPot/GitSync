@@ -2168,6 +2168,12 @@ abstract class AppLocalizations {
   /// **'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |'**
   String get androidLimitedFilepathCharacters;
 
+  /// No description provided for @emptyNameOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.'**
+  String get emptyNameOrEmail;
+
   /// No description provided for @githubIssueOauthTitle.
   ///
   /// In en, this message translates to:

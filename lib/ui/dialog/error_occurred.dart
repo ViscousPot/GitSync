@@ -1,5 +1,6 @@
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
+import 'package:GitSync/ui/page/settings_main.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
       launchUrl(Uri.parse(androidLimitedFilepathCharactersLink));
     },
   ),
+  [emptyNameOrEmail]: (t.emptyNameOrEmail, null),
 };
 final GlobalKey errorDialogKey = GlobalKey();
 

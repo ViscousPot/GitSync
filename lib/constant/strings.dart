@@ -29,6 +29,7 @@ const String invalidDataInIndexInvalidEntry = "invalid data in index - invalid e
 const String invalidDataInIndexExtensionIsTruncated = "invalid data in index - extension is truncated";
 const String androidInvalidCharacterInFilenamePrefix = "could not open";
 const String androidInvalidCharacterInFilenameSuffix = "for writing: Operation not permitted";
+const String emptyNameOrEmail = "Signature cannot have an empty name or email";
 const String theIndexIsLocked = "the index is locked";
 const String corruptedLooseFetchHead = "corrupted loose reference file: FETCH_HEAD";
 const String missingAuthorDetailsError = "Missing repository author details. Please set your name and email in the repository settings.";

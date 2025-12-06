@@ -1048,6 +1048,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
 
   @override
+  String get emptyNameOrEmail =>
+      'Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.';
+
+  @override
   String get githubIssueOauthTitle => '连接 GitHub 以自动发送报告';
 
   @override

@@ -1067,6 +1067,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
 
   @override
+  String get emptyNameOrEmail =>
+      'Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.';
+
+  @override
   String get githubIssueOauthTitle => 'Conectar GitHub para Reportar Automáticamente';
 
   @override

@@ -90,6 +90,7 @@
     "submodulesFoundAction",
     "troubleshooting",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "includeLogs"
   ],
 
@@ -184,6 +185,7 @@
     "submodulesFoundAction",
     "troubleshooting",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "includeLogs"
   ],
 
@@ -209,6 +211,7 @@
     "paste",
     "troubleshooting",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "includeLogs"
   ],
 
@@ -303,6 +306,7 @@
     "submodulesFoundAction",
     "troubleshooting",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "includeLogs"
   ],
 
@@ -347,6 +351,7 @@
     "submodulesFoundAction",
     "troubleshooting",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "includeLogs"
   ],
 
@@ -695,6 +700,7 @@
     "mergingExceptionMessage",
     "fieldCannotBeEmpty",
     "androidLimitedFilepathCharacters",
+    "emptyNameOrEmail",
     "githubIssueOauthTitle",
     "githubIssueOauthMsg",
     "issueReportMessage",
