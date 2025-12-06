@@ -57,7 +57,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                         style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 0),
+                    SizedBox(height: spaceMD),
                   ]
                 : [],
             ...autoFixMessageCallbackMap[autoFixKey]?.$2 != null
