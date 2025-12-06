@@ -745,6 +745,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get browseEditDir => '浏览及编辑档案目录';
 
   @override
+  String get enableLineWrap => 'Enable Line Wrap in Editors';
+
+  @override
   String get backupRestoreTitle => '加密配置恢复';
 
   @override

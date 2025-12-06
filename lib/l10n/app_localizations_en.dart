@@ -756,6 +756,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get browseEditDir => 'Browse & Edit Directory';
 
   @override
+  String get enableLineWrap => 'Enable Line Wrap in Editors';
+
+  @override
   String get backupRestoreTitle => 'Encrypted Configuration Recovery';
 
   @override

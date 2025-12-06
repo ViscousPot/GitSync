@@ -280,6 +280,7 @@
     "globalSettings": "Global Settings",
     "language": "Language",
     "browseEditDir": "Browse & Edit Directory",
+    "enableLineWrap": "Enable Line Wrap in Editors",
     "backupRestoreTitle": "Encrypted Configuration Recovery",
     "encryptedBackup": "Encrypted Backup",
     "encryptedRestore": "Encrypted Restore",

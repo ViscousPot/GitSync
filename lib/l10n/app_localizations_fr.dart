@@ -765,6 +765,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get browseEditDir => 'Parcourir & Modifier le répertoire';
 
   @override
+  String get enableLineWrap => 'Enable Line Wrap in Editors';
+
+  @override
   String get backupRestoreTitle => 'Récupération de configuration chiffrée';
 
   @override

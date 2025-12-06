@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
@@ -219,11 +220,17 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   bool logsCollapsed = false;
   List<String> deletionDiffLineNumbers = [];
   List<String> insertionDiffLineNumbers = [];
+  bool editorLineWrap = false;
 
   @override
   void initState() {
     super.initState();
     MmapFlutter.initialize();
+
+    initAsync(() async {
+      editorLineWrap = await repoManager.getBool(StorageKey.repoman_editorLineWrap);
+      setState(() {});
+    });
 
     if (widget.type == EditorType.DIFF) {
       initAsync(() async {
@@ -380,7 +387,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
               : ReEditor.CodeEditor(
                   controller: controller,
                   scrollController: ReEditor.CodeScrollController(verticalScroller: verticalController, horizontalScroller: horizontalController),
-                  wordWrap: false,
+                  wordWrap: editorLineWrap,
                   chunkAnalyzer: widget.type == EditorType.LOGS ? LogsChunkAnalyzer() : ReEditor.DefaultCodeChunkAnalyzer(),
                   style: ReEditor.CodeEditorStyle(
                     textColor: Color(0xfff8f8f2),

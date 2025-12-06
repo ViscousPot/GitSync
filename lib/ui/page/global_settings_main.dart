@@ -134,6 +134,37 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     });
                   },
                 ),
+                SizedBox(height: spaceMD),
+                FutureBuilder(
+                  future: repoManager.getBool(StorageKey.repoman_editorLineWrap),
+                  builder: (context, editorLineWrapSnapshot) => TextButton.icon(
+                    onPressed: () async {
+                      await repoManager.setBool(StorageKey.repoman_editorLineWrap, !(editorLineWrapSnapshot.data ?? false));
+                      setState(() {});
+                    },
+                    style: ButtonStyle(
+                      alignment: Alignment.centerLeft,
+                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      minimumSize: WidgetStatePropertyAll(Size.zero),
+                    ),
+                    iconAlignment: IconAlignment.end,
+                    icon: FaIcon(
+                      editorLineWrapSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                      color: primaryPositive,
+                      size: textLG,
+                    ),
+                    label: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        t.enableLineWrap.toUpperCase(),
+                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: spaceLG),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: spaceMD),

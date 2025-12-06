@@ -1568,6 +1568,12 @@ abstract class AppLocalizations {
   /// **'Browse & Edit Directory'**
   String get browseEditDir;
 
+  /// No description provided for @enableLineWrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Line Wrap in Editors'**
+  String get enableLineWrap;
+
   /// No description provided for @backupRestoreTitle.
   ///
   /// In en, this message translates to:
