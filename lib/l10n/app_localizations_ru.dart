@@ -381,11 +381,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get goToSettings => 'Перейти в настройки';
 
   @override
-  String get enableAutosyncTitle => 'Включить автосинхронизацию';
+  String get enableAutosyncTitle => 'Enable App Sync';
 
   @override
   String get enableAutosyncMessage =>
-      'Поддерживайте ваши данные актуальными без усилий. Включите автосинхронизацию для автоматической синхронизации в фоне при открытии или закрытии приложений.';
+      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
 
   @override
   String get addMoreHint => 'Нажмите эту кнопку, чтобы добавить дополнительные репозитории в приложение';
@@ -441,7 +441,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get syncSettings => 'Sync Settings';
 
   @override
-  String get enableApplicationObserver => 'Настройки автосинхронизации';
+  String get enableApplicationObserver => 'App Sync Settings';
 
   @override
   String get accessibilityServiceDisclosureTitle => 'Раскрытие информации о службе специальных возможностей';

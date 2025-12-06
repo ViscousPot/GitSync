@@ -139,8 +139,6 @@
     "authorDetailsPromptMessage": "您的提交者昵称或邮箱缺失。请在仓库设置中更新它们。",
     
     "goToSettings": "前往设置",
-    "enableAutosyncTitle": "启用自动同步",
-    "enableAutosyncMessage": "保持数据最新。开启自动同步，可在应用打开或关闭时自动在后台同步。",
     "addMoreHint": "点击此按钮向应用添加其他仓库",
     "globalSettingsHint": "点击此按钮访问全局应用设置",
     "syncProgressHint": "在此处跟踪活动同步操作的状态",
@@ -161,7 +159,6 @@
     "gitDirPathHint": "/storage/emulated/0/…",
     "openFileExplorer": "浏览及编辑",
     "syncSettings": "同步设置",
-    "enableApplicationObserver": "自动同步设置",
     "accessibilityServiceDisclosureTitle": "启用无障碍服务介绍",
     "accessibilityServiceDisclosureMessage": "为了增强您的体验，\nGitSync 使用 Android 的无障碍服务来检测应用的打开或关闭。\n\n这帮助我们提供定制功能，而不存储或共享任何数据。\n\n请在下一个屏幕上启用 GitSync",
     "accessibilityServiceDescription": "为了增强您的体验，GitSync 使用 Android 的无障碍服务来检测应用的打开或关闭。这帮助我们提供定制功能，而不存储或共享任何数据。\n\n要点：\n目的：我们仅使用此服务来改善您的应用体验。\n隐私：不存储或发送数据到其他地方。\n控制：您可以随时在设备设置中禁用这些权限。",

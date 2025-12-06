@@ -374,10 +374,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get goToSettings => '前往设置';
 
   @override
-  String get enableAutosyncTitle => '启用自动同步';
+  String get enableAutosyncTitle => 'Enable App Sync';
 
   @override
-  String get enableAutosyncMessage => '保持数据最新。开启自动同步，可在应用打开或关闭时自动在后台同步。';
+  String get enableAutosyncMessage =>
+      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
 
   @override
   String get addMoreHint => '点击此按钮向应用添加其他仓库';
@@ -431,7 +432,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncSettings => '同步设置';
 
   @override
-  String get enableApplicationObserver => '自动同步设置';
+  String get enableApplicationObserver => 'App Sync Settings';
 
   @override
   String get accessibilityServiceDisclosureTitle => '启用无障碍服务介绍';

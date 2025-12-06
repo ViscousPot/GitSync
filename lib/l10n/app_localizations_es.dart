@@ -383,11 +383,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goToSettings => 'Ir a Configuración';
 
   @override
-  String get enableAutosyncTitle => 'Habilitar Sync Automática';
+  String get enableAutosyncTitle => 'Enable App Sync';
 
   @override
   String get enableAutosyncMessage =>
-      'Mantén tus datos actualizados sin esfuerzo. Activa la Sync Automática para sync automáticamente en segundo plano cuando se abran o cierren aplicaciones.';
+      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
 
   @override
   String get addMoreHint => 'Haz clic en este botón para agregar repositorios adicionales a la aplicación';
@@ -443,7 +443,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get syncSettings => 'Sync Settings';
 
   @override
-  String get enableApplicationObserver => 'Configuración de Sync Automática';
+  String get enableApplicationObserver => 'App Sync Settings';
 
   @override
   String get accessibilityServiceDisclosureTitle => 'Divulgación del Servicio de Accesibilidad';

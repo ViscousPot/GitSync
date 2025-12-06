@@ -1,6 +1,5 @@
 appId: com.viscouspot.gitsync
 ---
-
 - runFlow: ./assert.yaml
 - tapOn: "SELECT APP(S)"
 - tapOn: "Search"
@@ -9,9 +8,9 @@ appId: com.viscouspot.gitsync
 - tapOn: "SAVE"
 - runFlow:
     when:
-      notVisible: 'Sync on app(s) opened'
+      notVisible: "Sync on app(s) opened"
     commands:
-        - tapOn: "Auto Sync Settings"
+      - tapOn: "App Sync Settings"
 - assertVisible: "OBSIDIAN"
 - tapOn: "Sync on app(s) opened"
 - tapOn: "Sync on app(s) closed"

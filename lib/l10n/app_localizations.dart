@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @almostThereDialogMessageAndroid.
   ///
   /// In en, this message translates to:
-  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app\n  • From a Quick Tile\n  • Using Auto Sync\n  • Using a Custom Intent (advanced)'**
+  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app\n  • From a Quick Tile\n  • Using App Sync\n  • Using a Custom Intent (advanced)'**
   String get almostThereDialogMessageAndroid;
 
   /// No description provided for @almostThereDialogMessageIos.
@@ -833,13 +833,13 @@ abstract class AppLocalizations {
   /// No description provided for @enableAutosyncTitle.
   ///
   /// In en, this message translates to:
-  /// **'Enable Auto Sync'**
+  /// **'Enable App Sync'**
   String get enableAutosyncTitle;
 
   /// No description provided for @enableAutosyncMessage.
   ///
   /// In en, this message translates to:
-  /// **'Keep your data up-to-date effortlessly. Turn on Auto Sync to automatically sync in the background whenever apps are opened or closed.'**
+  /// **'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.'**
   String get enableAutosyncMessage;
 
   /// No description provided for @addMoreHint.
@@ -947,7 +947,7 @@ abstract class AppLocalizations {
   /// No description provided for @enableApplicationObserver.
   ///
   /// In en, this message translates to:
-  /// **'Auto Sync Settings'**
+  /// **'App Sync Settings'**
   String get enableApplicationObserver;
 
   /// No description provided for @accessibilityServiceDisclosureTitle.

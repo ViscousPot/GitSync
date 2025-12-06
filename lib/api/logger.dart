@@ -224,7 +224,7 @@ $logs
 **Repo URL:** ${(await GitManager.getRemoteUrlLink())?.$1}
 
 ${await AccessibilityServiceHelper.isAccessibilityServiceEnabled() ? """
-**Auto Sync**
+**App Sync**
 **Package Names:** [${(await uiSettingsManager.getApplicationPackages()).join(", ")}]
 **Sync on app opened:** ${(await uiSettingsManager.getBool(StorageKey.setman_syncOnAppOpened)) ? "🟢" : "⭕"}
 **Sync on app closed&nbsp;&nbsp;:** ${(await uiSettingsManager.getBool(StorageKey.setman_syncOnAppClosed)) ? "🟢" : "⭕"}

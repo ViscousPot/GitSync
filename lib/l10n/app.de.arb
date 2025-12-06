@@ -139,8 +139,6 @@
     "authorDetailsPromptMessage": "Ihr Autorenname oder Ihre E-Mail fehlen. Bitte aktualisieren Sie diese in den Repository-Einstellungen vor der Synchronisation.",
     
     "goToSettings": "Zu den Einstellungen",
-    "enableAutosyncTitle": "Auto-Sync aktivieren",
-    "enableAutosyncMessage": "Halten Sie Ihre Daten mühelos auf dem neuesten Stand. Aktivieren Sie Auto-Sync, um automatisch im Hintergrund zu synchronisieren, wenn Apps geöffnet oder geschlossen werden.",
     "addMoreHint": "Klicken Sie diese Schaltfläche, um weitere Repositorys zur App hinzuzufügen",
     "globalSettingsHint": "Klicken Sie diese Schaltfläche, um auf die globalen App-Einstellungen zuzugreifen",
     "syncProgressHint": "Verfolgen Sie hier den Status aktiver Synchronisationsvorgänge",
@@ -161,7 +159,6 @@
     "gitDirPathHint": "/storage/emulated/0/…",
     
     
-    "enableApplicationObserver": "Auto-Sync-Einstellungen",
     "accessibilityServiceDisclosureTitle": "Hinweis zum Barrierefreiheitsdienst",
     "accessibilityServiceDisclosureMessage": "Um Ihre Erfahrung zu verbessern,\nverwendet GitSync Androids Barrierefreiheitsdienst, um zu erkennen, wann Apps geöffnet oder geschlossen werden.\n\nDies hilft uns, maßgeschneiderte Funktionen bereitzustellen, ohne Daten zu speichern oder zu teilen.\n\nʙɪᴛᴛᴇ ᴀᴋᴛɪᴠɪᴇʀᴇɴ sɪᴇ ɢɪᴛsʏɴᴄ ᴀᴜғ ᴅᴇᴍ ɴäᴄʜsᴛᴇɴ ʙɪʟᴅsᴄʜɪʀᴍ",
     "accessibilityServiceDescription": "Um Ihre Erfahrung zu verbessern, verwendet GitSync Androids Barrierefreiheitsdienst, um zu erkennen, wann Apps geöffnet oder geschlossen werden. Dies hilft uns, maßgeschneiderte Funktionen bereitzustellen, ohne Daten zu speichern oder zu teilen. \n\n Wichtige Punkte: \n Zweck: Wir verwenden diesen Dienst ausschließlich zur Verbesserung Ihrer App-Erfahrung. \n Datenschutz: Keine Daten werden gespeichert oder anderweitig gesendet. \n Kontrolle: Sie können diese Berechtigungen jederzeit in Ihren Geräteeinstellungen deaktivieren.",

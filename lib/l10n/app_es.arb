@@ -139,8 +139,6 @@
     "authorDetailsPromptMessage": "Faltan tu nombre de autor o email. Por favor, actualízalos en la configuración del repositorio antes de sync.",
     
     "goToSettings": "Ir a Configuración",
-    "enableAutosyncTitle": "Habilitar Sync Automática",
-    "enableAutosyncMessage": "Mantén tus datos actualizados sin esfuerzo. Activa la Sync Automática para sync automáticamente en segundo plano cuando se abran o cierren aplicaciones.",
     "addMoreHint": "Haz clic en este botón para agregar repositorios adicionales a la aplicación",
     "globalSettingsHint": "Haz clic en este botón para acceder a la configuración global de la aplicación",
     "syncProgressHint": "Rastrea el estado de las operaciones de sync activas aquí",
@@ -161,7 +159,6 @@
     "gitDirPathHint": "/storage/emulated/0/…",
     
     
-    "enableApplicationObserver": "Configuración de Sync Automática",
     "accessibilityServiceDisclosureTitle": "Divulgación del Servicio de Accesibilidad",
     "accessibilityServiceDisclosureMessage": "Para mejorar tu experiencia,\nGitSync usa el Servicio de Accesibilidad de Android para detectar cuándo se abren o cierran aplicaciones.\n\nEsto nos ayuda a proporcionar funciones personalizadas sin almacenar o compartir ningún dato.\n\nᴘᴏʀ ғᴀᴠᴏʀ ʜᴀʙɪʟɪᴛᴀ ɢɪᴛsʏɴᴄ ᴇɴ ʟᴀ sɪɢᴜɪᴇɴᴛᴇ ᴘᴀɴᴛᴀʟʟᴀ",
     "accessibilityServiceDescription": "Para mejorar tu experiencia, GitSync usa el Servicio de Accesibilidad de Android para detectar cuándo se abren o cierran aplicaciones. Esto nos ayuda a proporcionar funciones personalizadas sin almacenar o compartir ningún dato. \n\n Puntos Clave: \n Propósito: Usamos este servicio únicamente para mejorar tu experiencia con la aplicación. \n Privacidad: No se almacenan ni envían datos a ningún otro lugar. \n Control: Puedes deshabilitar estos permisos en cualquier momento en la configuración de tu dispositivo.",
