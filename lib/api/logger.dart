@@ -88,23 +88,25 @@ class Logger {
   static Future<void> dismissError(BuildContext? context) async {
     debounce(dismissErrorDebounceReference, 500, () async {
       final error = await repoManager.getStringNullable(StorageKey.repoman_erroring);
-      if (error != null) {
-        await repoManager.setStringNullable(StorageKey.repoman_erroring, null);
-        try {
-          await notificationsPlugin.cancel(_errorNotificationId);
-        } catch (e) {}
+      if (error == null) return;
 
-        print(ErrorOccurredDialog.errorDialogKey.currentContext);
+      await repoManager.setStringNullable(StorageKey.repoman_erroring, null);
+      try {
+        await notificationsPlugin.cancel(_errorNotificationId);
+      } catch (e) {}
 
-        if (ErrorOccurredDialog.errorDialogKey.currentContext != null) {
-          Navigator.of(context ?? ErrorOccurredDialog.errorDialogKey.currentContext!).canPop()
-              ? Navigator.pop(context ?? ErrorOccurredDialog.errorDialogKey.currentContext!)
-              : null;
-        }
-        if (context == null) return;
+      gitSyncService.refreshUi();
 
-        await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context));
+      print(ErrorOccurredDialog.errorDialogKey.currentContext);
+
+      if (ErrorOccurredDialog.errorDialogKey.currentContext != null) {
+        Navigator.of(context ?? ErrorOccurredDialog.errorDialogKey.currentContext!).canPop()
+            ? Navigator.pop(context ?? ErrorOccurredDialog.errorDialogKey.currentContext!)
+            : null;
       }
+      if (context == null) return;
+
+      await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context));
     });
   }
 
