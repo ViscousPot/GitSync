@@ -1976,6 +1976,12 @@ abstract class AppLocalizations {
   /// **'Attempt Auto-Fix?'**
   String get attemptAutoFix;
 
+  /// No description provided for @troubleshooting.
+  ///
+  /// In en, this message translates to:
+  /// **'Troubleshooting'**
+  String get troubleshooting;
+
   /// No description provided for @youreOffline.
   ///
   /// In en, this message translates to:
@@ -2149,6 +2155,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Field cannot be empty'**
   String get fieldCannotBeEmpty;
+
+  /// No description provided for @androidLimitedFilepathCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |'**
+  String get androidLimitedFilepathCharacters;
 
   /// No description provided for @githubIssueOauthTitle.
   ///

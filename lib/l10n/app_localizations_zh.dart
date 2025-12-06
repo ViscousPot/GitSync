@@ -950,6 +950,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get attemptAutoFix => '尝试自动修复？';
 
   @override
+  String get troubleshooting => 'Troubleshooting';
+
+  @override
   String get youreOffline => '您已离线。';
 
   @override
@@ -1035,6 +1038,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fieldCannotBeEmpty => '字段不能为空';
+
+  @override
+  String get androidLimitedFilepathCharacters =>
+      'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
 
   @override
   String get githubIssueOauthTitle => '连接 GitHub 以自动发送报告';

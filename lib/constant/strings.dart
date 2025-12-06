@@ -27,6 +27,8 @@ const String networkUnavailable = "Network unavailable!";
 const String invalidIndexHeaderError = "Invalid index data! Incorrect header signature detected.";
 const String invalidDataInIndexInvalidEntry = "invalid data in index - invalid entry";
 const String invalidDataInIndexExtensionIsTruncated = "invalid data in index - extension is truncated";
+const String androidInvalidCharacterInFilenamePrefix = "could not open";
+const String androidInvalidCharacterInFilenameSuffix = "for writing: Operation not permitted";
 const String theIndexIsLocked = "the index is locked";
 const String corruptedLooseFetchHead = "corrupted loose reference file: FETCH_HEAD";
 const String missingAuthorDetailsError = "Missing repository author details. Please set your name and email in the repository settings.";
@@ -65,6 +67,7 @@ const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
 
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
 const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";
+const String androidLimitedFilepathCharactersLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting#android-limited-filepath-characters";
 const String privacyPolicyLink = "https://gitsync.viscouspotenti.al/wiki/privacy-policy/";
 const String eulaLink = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
 const String discordLink = "https://discord.gg/cgvjdDyzzB";

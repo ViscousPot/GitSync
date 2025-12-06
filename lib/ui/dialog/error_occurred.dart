@@ -1,5 +1,6 @@
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,17 +11,25 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-final Map<String, Future<void> Function([int? repomanRepoindex])> autoFixCallbackMap = {
-  invalidIndexHeaderError: GitManager.deleteGitIndex,
-  invalidDataInIndexInvalidEntry: GitManager.deleteGitIndex,
-  invalidDataInIndexExtensionIsTruncated: GitManager.deleteGitIndex,
-  corruptedLooseFetchHead: GitManager.deleteFetchHead,
-  theIndexIsLocked: GitManager.deleteGitIndex,
+final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])?)> autoFixMessageCallbackMap = {
+  [invalidIndexHeaderError]: (null, GitManager.deleteGitIndex),
+  [invalidDataInIndexInvalidEntry]: (null, GitManager.deleteGitIndex),
+  [invalidDataInIndexExtensionIsTruncated]: (null, GitManager.deleteGitIndex),
+  [corruptedLooseFetchHead]: (null, GitManager.deleteFetchHead),
+  [theIndexIsLocked]: (null, GitManager.deleteGitIndex),
+  [androidInvalidCharacterInFilenamePrefix, androidInvalidCharacterInFilenameSuffix]: (
+    t.androidLimitedFilepathCharacters,
+    ([int? repomanRepoindex]) async {
+      launchUrl(Uri.parse(androidLimitedFilepathCharactersLink));
+    },
+  ),
 };
 final GlobalKey errorDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext context, String error, Function() callback) {
   bool autoFixing = false;
+
+  final autoFixKey = autoFixMessageCallbackMap.keys.firstWhereOrNull((textArray) => textArray.every((text) => error.contains(text)));
 
   return mat.showDialog(
     context: context,
@@ -37,7 +46,19 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
           (expanded
           ? (List<Widget> children) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)
           : (List<Widget> children) => SingleChildScrollView(child: ListBody(children: children)))([
-            ...autoFixCallbackMap.keys.any((text) => error.contains(text))
+            ...autoFixMessageCallbackMap[autoFixKey]?.$1 != null
+                ? [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spaceXS),
+                      child: Text(
+                        autoFixMessageCallbackMap[autoFixKey]?.$1 ?? "",
+                        style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    SizedBox(height: 0),
+                  ]
+                : [],
+            ...autoFixMessageCallbackMap[autoFixKey]?.$2 != null
                 ? [
                     StatefulBuilder(
                       builder: (context, setState) => TextButton.icon(
@@ -45,7 +66,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                           autoFixing = true;
                           setState(() {});
 
-                          await (autoFixCallbackMap[error] ?? () async {})();
+                          await (autoFixMessageCallbackMap[autoFixKey]?.$2 ?? () async {})();
 
                           autoFixing = false;
                           setState(() {});
@@ -69,7 +90,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                                 width: textSM,
                                 child: CircularProgressIndicator(color: primaryPositive),
                               )
-                            : FaIcon(FontAwesomeIcons.bugSlash, color: primaryPositive, size: textLG),
+                            : FaIcon(FontAwesomeIcons.hammer, color: primaryPositive, size: textLG),
                         label: Text(
                           t.attemptAutoFix.toUpperCase(),
                           style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
@@ -79,26 +100,28 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                     SizedBox(height: spaceMD),
                   ]
                 : [],
-            GestureDetector(
-              onLongPress: () {
-                Clipboard.setData(ClipboardData(text: error));
-              },
-              child: SizedBox(
-                height: expanded ? null : MediaQuery.sizeOf(context).height / 3,
-                child: ShaderMask(
-                  shaderCallback: (Rect rect) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
-                      stops: [0.0, 0.1, 0.9, 1.0],
-                    ).createShader(rect);
-                  },
-                  blendMode: BlendMode.dstOut,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      error,
-                      style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+            Flexible(
+              child: GestureDetector(
+                onLongPress: () {
+                  Clipboard.setData(ClipboardData(text: error));
+                },
+                child: SizedBox(
+                  height: expanded ? null : MediaQuery.sizeOf(context).height / 3,
+                  child: ShaderMask(
+                    shaderCallback: (Rect rect) {
+                      return LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                        stops: [0.0, 0.1, 0.9, 1.0],
+                      ).createShader(rect);
+                    },
+                    blendMode: BlendMode.dstOut,
+                    child: SingleChildScrollView(
+                      child: Text(
+                        error,
+                        style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                      ),
                     ),
                   ),
                 ),
@@ -132,7 +155,7 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
               ),
               icon: FaIcon(FontAwesomeIcons.solidFileLines, color: secondaryDark, size: textSM),
               label: Text(
-                "Troubleshooting".toUpperCase(),
+                t.troubleshooting.toUpperCase(),
                 style: TextStyle(color: primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),

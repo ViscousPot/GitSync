@@ -964,6 +964,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get attemptAutoFix => 'Попытаться автоисправление?';
 
   @override
+  String get troubleshooting => 'Troubleshooting';
+
+  @override
   String get youreOffline => 'Вы офлайн.';
 
   @override
@@ -1052,6 +1055,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fieldCannotBeEmpty => 'Поле не может быть пустым';
+
+  @override
+  String get androidLimitedFilepathCharacters =>
+      'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
 
   @override
   String get githubIssueOauthTitle => 'Подключить GitHub для автоматических отчетов';

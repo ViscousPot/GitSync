@@ -362,6 +362,7 @@
 
     "@@x-ERRORS": "",
     "attemptAutoFix": "Attempt Auto-Fix?",
+    "troubleshooting": "Troubleshooting",
     "youreOffline": "You're offline.",
     "someFeaturesMayNotWork": "Some features may not work.",
     "ongoingMergeConflict": "Ongoing merge conflict",
@@ -391,6 +392,7 @@
     "remoteChangedException": "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.",
     "mergingExceptionMessage": "MERGING",
     "fieldCannotBeEmpty": "Field cannot be empty",
+    "androidLimitedFilepathCharacters": "This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * \/ : &lt; &gt; ? \\ |",
 
 
     "@@x-ISSUE_REPORTING": "",

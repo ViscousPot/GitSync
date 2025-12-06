@@ -966,6 +966,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get attemptAutoFix => '¿Intentar Reparación Automática?';
 
   @override
+  String get troubleshooting => 'Troubleshooting';
+
+  @override
   String get youreOffline => 'Estás desconectado.';
 
   @override
@@ -1055,6 +1058,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get fieldCannotBeEmpty => 'El campo no puede estar vacío';
+
+  @override
+  String get androidLimitedFilepathCharacters =>
+      'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
 
   @override
   String get githubIssueOauthTitle => 'Conectar GitHub para Reportar Automáticamente';

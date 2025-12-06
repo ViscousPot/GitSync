@@ -84,6 +84,8 @@
     "submodulesFoundTitle",
     "submodulesFoundMessage",
     "submodulesFoundAction",
+    "troubleshooting",
+    "androidLimitedFilepathCharacters",
     "includeLogs"
   ],
 
@@ -172,6 +174,8 @@
     "submodulesFoundTitle",
     "submodulesFoundMessage",
     "submodulesFoundAction",
+    "troubleshooting",
+    "androidLimitedFilepathCharacters",
     "includeLogs"
   ],
 
@@ -191,6 +195,8 @@
     "cut",
     "copy",
     "paste",
+    "troubleshooting",
+    "androidLimitedFilepathCharacters",
     "includeLogs"
   ],
 
@@ -279,6 +285,8 @@
     "submodulesFoundTitle",
     "submodulesFoundMessage",
     "submodulesFoundAction",
+    "troubleshooting",
+    "androidLimitedFilepathCharacters",
     "includeLogs"
   ],
 
@@ -317,6 +325,8 @@
     "submodulesFoundTitle",
     "submodulesFoundMessage",
     "submodulesFoundAction",
+    "troubleshooting",
+    "androidLimitedFilepathCharacters",
     "includeLogs"
   ],
 
@@ -633,6 +643,7 @@
     "createBranchName",
     "createBranchBasedOn",
     "attemptAutoFix",
+    "troubleshooting",
     "youreOffline",
     "someFeaturesMayNotWork",
     "ongoingMergeConflict",
@@ -662,6 +673,7 @@
     "remoteChangedException",
     "mergingExceptionMessage",
     "fieldCannotBeEmpty",
+    "androidLimitedFilepathCharacters",
     "githubIssueOauthTitle",
     "githubIssueOauthMsg",
     "issueReportMessage",
