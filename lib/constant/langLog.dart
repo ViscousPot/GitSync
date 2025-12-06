@@ -6,10 +6,10 @@ final langLog = Mode(
   caseInsensitive: false,
   illegal: null,
   contains: <Mode>[
-    Mode(className: 'comment', begin: r'^.*\s.git\sfolder\sfound.*$', relevance: 10),
-    Mode(className: 'comment', begin: r'^.*\sGetting\slocal\sdirectory.*$', relevance: 10),
-    Mode(className: 'comment', begin: r'^.*\sGitStatus:\s.*$', relevance: 10),
-    Mode(className: 'comment', begin: r'^.*\RecentCommits:\s.*$', relevance: 10),
+    Mode(className: 'logComment', begin: r'^.*\s.git\sfolder\sfound.*$', relevance: 10),
+    Mode(className: 'logComment', begin: r'^.*\sGetting\slocal\sdirectory.*$', relevance: 10),
+    Mode(className: 'logComment', begin: r'^.*\sGitStatus:\s.*$', relevance: 10),
+    Mode(className: 'logComment', begin: r'^.*\RecentCommits:\s.*$', relevance: 10),
 
     Mode(className: 'logError', begin: r'.*\s\[E\]\s.*', relevance: 8),
     Mode(className: 'logError', begin: r'^(?!.*\s\[(I|W|E|D|V|T)\]\s).*$', relevance: 8),
@@ -18,6 +18,6 @@ final langLog = Mode(
     Mode(className: 'logLevel', begin: r'\s\[(I|W|E|D|V|T)\]\s', relevance: 5),
     Mode(className: 'logComponent', begin: r'\b[A-Za-z][A-Za-z0-9_]*\b:', relevance: 5),
 
-    Mode(className: 'root', begin: r'.+', relevance: 0),
+    Mode(className: 'logRoot', begin: r'.+', relevance: 0),
   ],
 );

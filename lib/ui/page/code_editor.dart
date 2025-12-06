@@ -385,6 +385,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                   style: ReEditor.CodeEditorStyle(
                     textColor: Color(0xfff8f8f2),
                     fontSize: textMD,
+                    fontFamily: "RobotoMono",
                     codeTheme: ReEditor.CodeHighlightTheme(
                       languages: languages,
                       theme: {
@@ -417,16 +418,23 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                         'emphasis': TextStyle(fontStyle: FontStyle.italic),
                         'strong': TextStyle(fontWeight: FontWeight.bold),
 
-                        'logDate': TextStyle(color: tertiaryInfo.withAlpha(170)),
-                        'logTime': TextStyle(color: tertiaryInfo),
-                        'logLevel': TextStyle(color: tertiaryPositive),
-                        'logComponent': TextStyle(color: primaryPositive),
-                        'logError': TextStyle(color: tertiaryNegative),
+                        'logRoot': TextStyle(color: primaryLight, fontFamily: "Roboto"),
+                        'logComment': TextStyle(color: secondaryLight, fontFamily: "Roboto"),
+                        'logDate': TextStyle(color: tertiaryInfo.withAlpha(170), fontFamily: "Roboto"),
+                        'logTime': TextStyle(color: tertiaryInfo, fontFamily: "Roboto"),
+                        'logLevel': TextStyle(color: tertiaryPositive, fontFamily: "Roboto"),
+                        'logComponent': TextStyle(color: primaryPositive, fontFamily: "Roboto"),
+                        'logError': TextStyle(color: tertiaryNegative, fontFamily: "Roboto"),
 
                         'diffRoot': TextStyle(color: tertiaryLight),
-                        'diffHunkHeader': TextStyle(backgroundColor: tertiaryDark, color: tertiaryLight),
-                        'eof': TextStyle(backgroundColor: tertiaryDark, color: tertiaryLight),
-                        'diffHide': TextStyle(wordSpacing: 0, fontSize: 0),
+                        'diffHunkHeader': TextStyle(
+                          backgroundColor: tertiaryDark,
+                          color: tertiaryLight,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: "Roboto",
+                        ),
+                        'eof': TextStyle(backgroundColor: tertiaryDark, color: tertiaryLight, fontWeight: FontWeight.w500, fontFamily: "Roboto"),
+                        'diffHide': TextStyle(wordSpacing: 0, fontSize: 0, fontFamily: "Roboto"),
                         'addition': TextStyle(color: tertiaryPositive, fontWeight: FontWeight.w400),
                         'deletion': TextStyle(color: tertiaryNegative, fontWeight: FontWeight.w400),
                       },

@@ -121,3 +121,13 @@ flutter:
     - family: GitlabLogo
       fonts:
         - asset: fonts/GitlabLogo.ttf
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono/RobotoMono-Regular.ttf
+        - asset: fonts/RobotoMono/RobotoMono-Bold.ttf
+          weight: 700
+        - asset: fonts/RobotoMono/RobotoMono-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/RobotoMono/RobotoMono-Italic.ttf
+          style: italic
