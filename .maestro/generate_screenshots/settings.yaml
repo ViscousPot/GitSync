@@ -6,7 +6,7 @@ appId: com.viscouspot.gitsync
     commands:
       - launchApp:
           appId: com.viscouspot.gitsync
-- assertVisible: "Git Sync"
+- assertVisible: "GitSync"
 - tapOn: "repository settings"
 - assertVisible: "SETTINGS"
 - takeScreenshot: generate_screenshots/raw/screenshot_settings

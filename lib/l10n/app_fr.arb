@@ -349,7 +349,7 @@
     "youreOffline": "Vous êtes hors ligne.",
     "someFeaturesMayNotWork": "Certaines fonctionnalités peuvent ne pas fonctionner.",
     "ongoingMergeConflict": "Conflit de fusion en cours",
-    "enableAccessibilityService": "Veuillez activer Git Sync sous \"Applications installées\"",
+    "enableAccessibilityService": "Veuillez activer GitSync sous \"Applications installées\"",
     "networkUnavailable": "Réseau indisponible !",
     "networkUnavailableRetry": "Réseau indisponible !\nGitSync réessaiera lors de la reconnexion",
     "pullFailed": "Échec du pull ! Veuillez vérifier les modifications non validées et réessayer.",

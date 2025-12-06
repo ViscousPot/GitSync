@@ -1,5 +1,5 @@
 // App Name
-const String appName = "Git Sync";
+const String appName = "GitSync";
 
 // Routes
 const String settings_main = "/settings_main";
@@ -105,7 +105,7 @@ final httpsPattern = RegExp(r'^(https?://)[a-zA-Z0-9.-]+([:/])(\S+)/(\S+)(\.git)
 const gitSyncIconRes = "gitsync_notif";
 
 const gitSyncNotifyChannelId = "git_sync_notify_channel";
-const gitSyncNotifyChannelName = "Git Sync Merge Conflict";
+const gitSyncNotifyChannelName = "GitSync Merge Conflict";
 
 const gitSyncBugChannelId = "git_sync_bug_channel";
-const gitSyncBugChannelName = "Git Sync Bug";
+const gitSyncBugChannelName = "GitSync Bug";

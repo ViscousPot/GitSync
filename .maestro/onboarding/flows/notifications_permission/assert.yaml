@@ -6,4 +6,4 @@ appId: com.viscouspot.gitsync
     when:
       platform: Android
     commands:
-      - assertVisible: "Allow Git Sync to send you notifications?"
+      - assertVisible: "Allow GitSync to send you notifications?"

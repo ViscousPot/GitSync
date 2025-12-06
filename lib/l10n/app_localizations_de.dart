@@ -983,7 +983,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ongoingMergeConflict => 'Laufender Merge-Konflikt';
 
   @override
-  String get enableAccessibilityService => 'Bitte aktivieren Sie Git Sync unter \"Installierte Apps\"';
+  String get enableAccessibilityService => 'Bitte aktivieren Sie GitSync unter \"Installierte Apps\"';
 
   @override
   String get networkUnavailable => 'Netzwerk nicht verfügbar!';

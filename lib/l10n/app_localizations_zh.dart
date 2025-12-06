@@ -965,7 +965,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ongoingMergeConflict => '存在合并冲突';
 
   @override
-  String get enableAccessibilityService => '请在\"已安装的应用\"下启用 Git Sync';
+  String get enableAccessibilityService => '请在\"已安装的应用\"下启用 GitSync';
 
   @override
   String get networkUnavailable => '网络不可用！';

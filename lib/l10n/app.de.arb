@@ -350,7 +350,7 @@
     "youreOffline": "Sie sind offline.",
     "someFeaturesMayNotWork": "Einige Funktionen funktionieren möglicherweise nicht.",
     "ongoingMergeConflict": "Laufender Merge-Konflikt",
-    "enableAccessibilityService": "Bitte aktivieren Sie Git Sync unter \"Installierte Apps\"",
+    "enableAccessibilityService": "Bitte aktivieren Sie GitSync unter \"Installierte Apps\"",
     "networkUnavailable": "Netzwerk nicht verfügbar!",
     "networkUnavailableRetry": "Netzwerk nicht verfügbar!\nGitSync wird es erneut versuchen, wenn die Verbindung wiederhergestellt ist",
     "pullFailed": "Pull fehlgeschlagen! Bitte prüfen Sie auf nicht-commitete Änderungen und versuchen Sie es erneut.",

@@ -2009,7 +2009,7 @@ abstract class AppLocalizations {
   /// No description provided for @enableAccessibilityService.
   ///
   /// In en, this message translates to:
-  /// **'Please enable Git Sync under \"Installed apps\"'**
+  /// **'Please enable GitSync under \"Installed apps\"'**
   String get enableAccessibilityService;
 
   /// No description provided for @networkUnavailable.

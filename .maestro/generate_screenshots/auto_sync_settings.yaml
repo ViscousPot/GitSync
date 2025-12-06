@@ -12,7 +12,7 @@ appId: com.viscouspot.gitsync
     commands:
       - launchApp:
           appId: com.viscouspot.gitsync
-- assertVisible: "Git Sync"
+- assertVisible: "GitSync"
 - runFlow:
     when:
       notVisible: "Sync on app(s) opened"

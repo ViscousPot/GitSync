@@ -1,7 +1,7 @@
 appId: com.viscouspot.gitsync
 ---
 - launchApp
-- assertVisible: "Git Sync"
+- assertVisible: "GitSync"
 - runFlow:
     when:
       notVisible: "Use for Tile Sync"

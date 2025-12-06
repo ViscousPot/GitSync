@@ -9,15 +9,15 @@ appId: com.android.settings
       - inputText: "All files"
       - tapOn: "All files access"
       - tapOn: "All files access"
-      - assertVisible: "Git Sync"
+      - assertVisible: "GitSync"
       - runFlow:
           when:
             visible:
               text: "Allowed"
               below:
-                text: "Git Sync"
+                text: "GitSync"
           commands:
-            - tapOn: "Git Sync"
+            - tapOn: "GitSync"
             - assertVisible: "Allow access to manage all files"
             - tapOn: "Allow access to manage all files"
       - back

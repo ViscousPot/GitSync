@@ -350,7 +350,7 @@
     "youreOffline": "Вы офлайн.",
     "someFeaturesMayNotWork": "Некоторые функции могут не работать.",
     "ongoingMergeConflict": "Текущий конфликт слияния",
-    "enableAccessibilityService": "Пожалуйста, включите Git Sync в разделе \"Установленные приложения\"",
+    "enableAccessibilityService": "Пожалуйста, включите GitSync в разделе \"Установленные приложения\"",
     "networkUnavailable": "Сеть недоступна!",
     "networkUnavailableRetry": "Сеть недоступна!\nGitSync повторит попытку при подключении",
     "pullFailed": "Получение не удалось! Пожалуйста, проверьте незафиксированные изменения и попробуйте снова.",

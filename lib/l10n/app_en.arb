@@ -367,7 +367,7 @@
     "youreOffline": "You're offline.",
     "someFeaturesMayNotWork": "Some features may not work.",
     "ongoingMergeConflict": "Ongoing merge conflict",
-    "enableAccessibilityService": "Please enable Git Sync under \"Installed apps\"",
+    "enableAccessibilityService": "Please enable GitSync under \"Installed apps\"",
     "networkUnavailable": "Network unavailable!",
     "networkUnavailableRetry": "Network unavailable!\nGitSync will retry when reconnected",
     "pullFailed": "Pull failed! Please check for uncommitted changes and try again.",

@@ -22,7 +22,7 @@
     </queries>
 
     <application
-        android:label="Git Sync"
+        android:label="GitSync"
         android:enableOnBackInvokedCallback="false"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"

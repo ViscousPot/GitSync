@@ -981,7 +981,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ongoingMergeConflict => 'Conflicto de fusión en curso';
 
   @override
-  String get enableAccessibilityService => 'Por favor, habilita Git Sync en \"Aplicaciones instaladas\"';
+  String get enableAccessibilityService => 'Por favor, habilita GitSync en \"Aplicaciones instaladas\"';
 
   @override
   String get networkUnavailable => '¡Red no disponible!';

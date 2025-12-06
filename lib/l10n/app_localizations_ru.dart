@@ -979,7 +979,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ongoingMergeConflict => 'Текущий конфликт слияния';
 
   @override
-  String get enableAccessibilityService => 'Пожалуйста, включите Git Sync в разделе \"Установленные приложения\"';
+  String get enableAccessibilityService => 'Пожалуйста, включите GitSync в разделе \"Установленные приложения\"';
 
   @override
   String get networkUnavailable => 'Сеть недоступна!';

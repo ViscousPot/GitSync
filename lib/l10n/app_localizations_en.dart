@@ -976,7 +976,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ongoingMergeConflict => 'Ongoing merge conflict';
 
   @override
-  String get enableAccessibilityService => 'Please enable Git Sync under \"Installed apps\"';
+  String get enableAccessibilityService => 'Please enable GitSync under \"Installed apps\"';
 
   @override
   String get networkUnavailable => 'Network unavailable!';

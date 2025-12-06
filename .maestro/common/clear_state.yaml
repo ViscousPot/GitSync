@@ -11,7 +11,7 @@ appId: com.android.settings
     commands:
       - launchApp
       - tapOn: "Search settings"
-      - inputText: "Git Sync"
+      - inputText: "GitSync"
       - tapOn: "App info"
       - tapOn: "Storage & cache"
       - tapOn: "Clear storage"

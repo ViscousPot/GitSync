@@ -350,7 +350,7 @@
     "youreOffline": "Estás desconectado.",
     "someFeaturesMayNotWork": "Algunas funciones pueden no funcionar.",
     "ongoingMergeConflict": "Conflicto de fusión en curso",
-    "enableAccessibilityService": "Por favor, habilita Git Sync en \"Aplicaciones instaladas\"",
+    "enableAccessibilityService": "Por favor, habilita GitSync en \"Aplicaciones instaladas\"",
     "networkUnavailable": "¡Red no disponible!",
     "networkUnavailableRetry": "¡Red no disponible!\nGitSync reintentará cuando se reconecte",
     "pullFailed": "¡Falló el pull! Por favor, verifica cambios sin confirmar e intenta de nuevo.",

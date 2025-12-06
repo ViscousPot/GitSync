@@ -354,7 +354,7 @@
     "youreOffline": "您已离线。",
     "someFeaturesMayNotWork": "某些功能可能无法正常工作。",
     "ongoingMergeConflict": "存在合并冲突",
-    "enableAccessibilityService": "请在\"已安装的应用\"下启用 Git Sync",
+    "enableAccessibilityService": "请在\"已安装的应用\"下启用 GitSync",
     "networkUnavailable": "网络不可用！",
     "networkUnavailableRetry": "网络不可用！\nGitSync 将在重新连接时重试",
     "pullFailed": "拉取失败！请检查未提交的更改并重试。",
