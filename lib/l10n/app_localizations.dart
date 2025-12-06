@@ -2174,6 +2174,12 @@ abstract class AppLocalizations {
   /// **'Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.'**
   String get emptyNameOrEmail;
 
+  /// No description provided for @errorReadingZlibStream.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited'**
+  String get errorReadingZlibStream;
+
   /// No description provided for @githubIssueOauthTitle.
   ///
   /// In en, this message translates to:

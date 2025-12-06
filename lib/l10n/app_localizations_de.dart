@@ -1073,6 +1073,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.';
 
   @override
+  String get errorReadingZlibStream =>
+      'This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited';
+
+  @override
   String get githubIssueOauthTitle => 'GitHub verbinden, um automatisch zu melden';
 
   @override

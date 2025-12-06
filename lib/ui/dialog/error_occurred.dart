@@ -25,6 +25,12 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
     },
   ),
   [emptyNameOrEmail]: (t.emptyNameOrEmail, null),
+  [errorReadingZlibStream]: (
+    t.errorReadingZlibStream,
+    ([int? repomanRepoindex]) async {
+      launchUrl(Uri.parse(release1708Link));
+    },
+  ),
 };
 final GlobalKey errorDialogKey = GlobalKey();
 

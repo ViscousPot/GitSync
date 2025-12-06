@@ -91,6 +91,7 @@
     "troubleshooting",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "includeLogs"
   ],
 
@@ -186,6 +187,7 @@
     "troubleshooting",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "includeLogs"
   ],
 
@@ -212,6 +214,7 @@
     "troubleshooting",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "includeLogs"
   ],
 
@@ -307,6 +310,7 @@
     "troubleshooting",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "includeLogs"
   ],
 
@@ -352,6 +356,7 @@
     "troubleshooting",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "includeLogs"
   ],
 
@@ -701,6 +706,7 @@
     "fieldCannotBeEmpty",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
+    "errorReadingZlibStream",
     "githubIssueOauthTitle",
     "githubIssueOauthMsg",
     "issueReportMessage",

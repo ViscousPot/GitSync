@@ -395,6 +395,7 @@
     "fieldCannotBeEmpty": "Field cannot be empty",
     "androidLimitedFilepathCharacters": "This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * \/ : &lt; &gt; ? \\ |",
     "emptyNameOrEmail": "Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.",
+    "errorReadingZlibStream": "This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited",
 
 
     "@@x-ISSUE_REPORTING": "",

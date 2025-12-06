@@ -30,6 +30,7 @@ const String invalidDataInIndexExtensionIsTruncated = "invalid data in index - e
 const String androidInvalidCharacterInFilenamePrefix = "could not open";
 const String androidInvalidCharacterInFilenameSuffix = "for writing: Operation not permitted";
 const String emptyNameOrEmail = "Signature cannot have an empty name or email";
+const String errorReadingZlibStream = "error reading from the zlib stream";
 const String theIndexIsLocked = "the index is locked";
 const String corruptedLooseFetchHead = "corrupted loose reference file: FETCH_HEAD";
 const String missingAuthorDetailsError = "Missing repository author details. Please set your name and email in the repository settings.";
@@ -86,6 +87,7 @@ const String githubImproveTranslationsDocs = "https://github.com/ViscousPot/GitS
 const String contributeLink = "https://github.com/sponsors/ViscousPot?sponsor=ViscousPot&frequency=one-time&amount=15";
 const String githubIssueTemplate =
     "https://www.github.com/ViscousPot/GitSync/issues/new?template=BUG_REPORT.yaml&title=[Bug]:%20(%s)%%20Application%%20Error!&labels=%s,bug&logs=%s";
+const String release1708Link = "https://github.com/ViscousPot/GitSync/releases/tag/v1.708";
 
 // Constants
 const mergeConflictReference = "merge_conflict";
