@@ -212,6 +212,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         final settingsManager = SettingsManager();
                         settingsManager.reinit(repoIndex: i);
                         await settingsManager.setAll(settingsManagerSettings[i]);
+                        await settingsManager.setStringList(StorageKey.repoman_locks, []);
                       }
 
                       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
