@@ -90,115 +90,117 @@ class _ItemCommit extends State<ItemCommit> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: spaceSM),
-      child: TextButton(
-        onPressed: () {
-          print(widget.commit.reference);
-          print(widget.prevCommit?.reference);
+    return OrientationBuilder(
+      builder: (context, orientation) => Container(
+        margin: orientation == Orientation.portrait ? EdgeInsets.only(top: spaceSM) : EdgeInsets.only(bottom: spaceSM),
+        child: TextButton(
+          onPressed: () {
+            print(widget.commit.reference);
+            print(widget.prevCommit?.reference);
 
-          DiffViewDialog.showDialog(context, widget.commit, widget.prevCommit);
-        },
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(
-            widget.commit.unpushed
-                ? tertiaryInfo
-                : widget.commit.unpulled
-                ? tertiaryWarning
-                : tertiaryDark,
+            DiffViewDialog.showDialog(context, widget.commit, widget.prevCommit);
+          },
+          style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(
+              widget.commit.unpushed
+                  ? tertiaryInfo
+                  : widget.commit.unpulled
+                  ? tertiaryWarning
+                  : tertiaryDark,
+            ),
+            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
           ),
-          padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: CustomPaint(
-          painter: ChevronPainter(
-            color: widget.commit.unpushed
-                ? secondaryInfo.withAlpha(70)
-                : widget.commit.unpulled
-                ? secondaryWarning.withAlpha(70)
-                : Colors.transparent,
-            stripeWidth: 20,
-            facingDown: !widget.commit.unpushed,
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(spaceSM),
-            child: IntrinsicHeight(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(
-                          widget.commit.commitMessage,
-                          style: TextStyle(
-                            color: widget.commit.unpulled || widget.commit.unpushed ? secondaryDark : primaryLight,
-                            fontSize: textMD,
-                            overflow: TextOverflow.ellipsis,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          "${demo ? "ViscousTests" : widget.commit.authorUsername} ${t.committed} $_relativeCommitDate",
-                          style: TextStyle(
-                            color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
-                            fontSize: textSM,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: spaceXS),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
-                          borderRadius: BorderRadius.all(cornerRadiusXS),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                        child: Text(
-                          (widget.commit.reference).substring(0, 7).toUpperCase(),
-                          style: TextStyle(
-                            color: widget.commit.unpulled || widget.commit.unpushed ? secondaryLight : tertiaryDark,
-                            fontSize: textXS,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: spaceXXXS),
-                      Row(
+          clipBehavior: Clip.antiAlias,
+          child: CustomPaint(
+            painter: ChevronPainter(
+              color: widget.commit.unpushed
+                  ? secondaryInfo.withAlpha(70)
+                  : widget.commit.unpulled
+                  ? secondaryWarning.withAlpha(70)
+                  : Colors.transparent,
+              stripeWidth: 20,
+              facingDown: !widget.commit.unpushed,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(spaceSM),
+              child: IntrinsicHeight(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Text(
-                            sprintf(t.additions, [widget.commit.additions]),
+                            widget.commit.commitMessage,
                             style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? secondaryPositive : tertiaryPositive,
-                              fontSize: textXS,
-                              fontWeight: FontWeight.w900,
+                              color: widget.commit.unpulled || widget.commit.unpushed ? secondaryDark : primaryLight,
+                              fontSize: textMD,
+                              overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(width: spaceSM),
                           Text(
-                            sprintf(t.deletions, [widget.commit.deletions]),
+                            "${demo ? "ViscousTests" : widget.commit.authorUsername} ${t.committed} $_relativeCommitDate",
                             style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? primaryNegative : tertiaryNegative,
-                              fontSize: textXS,
-                              fontWeight: FontWeight.w900,
+                              color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
+                              fontSize: textSM,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    SizedBox(width: spaceXS),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
+                            borderRadius: BorderRadius.all(cornerRadiusXS),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                          child: Text(
+                            (widget.commit.reference).substring(0, 7).toUpperCase(),
+                            style: TextStyle(
+                              color: widget.commit.unpulled || widget.commit.unpushed ? secondaryLight : tertiaryDark,
+                              fontSize: textXS,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: spaceXXXS),
+                        Row(
+                          children: [
+                            Text(
+                              sprintf(t.additions, [widget.commit.additions]),
+                              style: TextStyle(
+                                color: widget.commit.unpulled || widget.commit.unpushed ? secondaryPositive : tertiaryPositive,
+                                fontSize: textXS,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            SizedBox(width: spaceSM),
+                            Text(
+                              sprintf(t.deletions, [widget.commit.deletions]),
+                              style: TextStyle(
+                                color: widget.commit.unpulled || widget.commit.unpushed ? primaryNegative : tertiaryNegative,
+                                fontSize: textXS,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
