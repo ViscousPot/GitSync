@@ -27,8 +27,10 @@ import 'package:ios_document_picker/types.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:GitSync/global.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constant/colors.dart';
 import '../constant/dimens.dart';
+import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
 import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;
 import 'package:http/http.dart' as http;
 
@@ -218,6 +220,18 @@ String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, Str
 
 Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
   await uiSettingsManager.setGitDirPath(dir);
+
+  final dirPath = await uiSettingsManager.getGitDirPath();
+  if (dirPath != null) {
+    await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
+      if (await Directory('$dirPath/$obsidianPath').exists() && await Directory('$dirPath/$obsidianGitPath').exists()) {
+        await ObsidianGitFoundDialog.showDialog(context, () async {
+          launchUrl(Uri.parse(concurrentRepositoryAccessLink));
+        });
+      }
+    });
+  }
+
   final submodulePaths = await GitManager.getSubmodulePaths(dir);
 
   Future<void> addSubmodules() async {

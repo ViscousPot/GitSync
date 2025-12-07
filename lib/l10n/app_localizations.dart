@@ -2180,6 +2180,24 @@ abstract class AppLocalizations {
   /// **'This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited'**
   String get errorReadingZlibStream;
 
+  /// No description provided for @gitObsidianFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Obsidian Git Warning'**
+  String get gitObsidianFoundTitle;
+
+  /// No description provided for @gitObsidianFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This repository seems to contain an Obsidian vault with the Obsidian Git plugin enabled.\n\nPlease disable the plugin on this device to avoid conflicts! More details on the process can be found in the linked documentation.'**
+  String get gitObsidianFoundMessage;
+
+  /// No description provided for @gitObsidianFoundAction.
+  ///
+  /// In en, this message translates to:
+  /// **'View Documentation'**
+  String get gitObsidianFoundAction;
+
   /// No description provided for @githubIssueOauthTitle.
   ///
   /// In en, this message translates to:

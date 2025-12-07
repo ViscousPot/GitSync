@@ -92,6 +92,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "includeLogs"
   ],
 
@@ -188,6 +191,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "includeLogs"
   ],
 
@@ -215,6 +221,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "includeLogs"
   ],
 
@@ -311,6 +320,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "includeLogs"
   ],
 
@@ -357,6 +369,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "includeLogs"
   ],
 
@@ -707,6 +722,9 @@
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
+    "gitObsidianFoundTitle",
+    "gitObsidianFoundMessage",
+    "gitObsidianFoundAction",
     "githubIssueOauthTitle",
     "githubIssueOauthMsg",
     "issueReportMessage",

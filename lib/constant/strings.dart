@@ -8,6 +8,8 @@ const String global_settings_main = "/global_settings_main";
 
 // Paths
 const String gitIgnorePath = ".gitignore";
+const String obsidianPath = ".obsidian";
+const String obsidianGitPath = ".obsidian/plugins/obsidian-git";
 const String gitPath = ".git";
 const String gitConfigPath = ".git/config";
 const String gitIndexPath = ".git/index";
@@ -70,6 +72,7 @@ const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
 const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";
 const String androidLimitedFilepathCharactersLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting#android-limited-filepath-characters";
+const String concurrentRepositoryAccessLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting#concurrent-repository-access";
 const String privacyPolicyLink = "https://gitsync.viscouspotenti.al/wiki/privacy-policy/";
 const String eulaLink = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
 const String discordLink = "https://discord.gg/cgvjdDyzzB";

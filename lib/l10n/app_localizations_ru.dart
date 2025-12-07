@@ -1072,6 +1072,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited';
 
   @override
+  String get gitObsidianFoundTitle => 'Obsidian Git Warning';
+
+  @override
+  String get gitObsidianFoundMessage =>
+      'This repository seems to contain an Obsidian vault with the Obsidian Git plugin enabled.\n\nPlease disable the plugin on this device to avoid conflicts! More details on the process can be found in the linked documentation.';
+
+  @override
+  String get gitObsidianFoundAction => 'View Documentation';
+
+  @override
   String get githubIssueOauthTitle => 'Подключить GitHub для автоматических отчетов';
 
   @override

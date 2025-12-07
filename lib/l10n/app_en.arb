@@ -396,6 +396,9 @@
     "androidLimitedFilepathCharacters": "This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * \/ : &lt; &gt; ? \\ |",
     "emptyNameOrEmail": "Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.",
     "errorReadingZlibStream": "This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited",
+    "gitObsidianFoundTitle": "Obsidian Git Warning",
+    "gitObsidianFoundMessage": "This repository seems to contain an Obsidian vault with the Obsidian Git plugin enabled.\n\nPlease disable the plugin on this device to avoid conflicts! More details on the process can be found in the linked documentation.",
+    "gitObsidianFoundAction": "View Documentation",
 
 
     "@@x-ISSUE_REPORTING": "",
