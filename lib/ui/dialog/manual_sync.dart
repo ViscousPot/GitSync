@@ -166,7 +166,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                               width: double.maxFinite,
                               child:
                                   (clientModeEnabled
-                                      ? uncommittedFilePathsSnapshot.data == null && stagedFilePathsSnapshot.data == null
+                                      ? uncommittedFilePathsSnapshot.data == null &&
+                                            (stagedFilePathsSnapshot.data == null || stagedFilePathsSnapshot.data?.isEmpty == true)
                                       : uncommittedFilePathsSnapshot.data == null)
                                   ? Center(child: CircularProgressIndicator(color: tertiaryLight))
                                   : filePaths.isEmpty
