@@ -360,8 +360,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                 onPressed: selectedFiles.isNotEmpty || selectedFiles.isNotEmpty
                                     ? () async {
                                         ConfirmDiscardChangesDialog.showDialog(context, selectedFiles, () async {
+                                          await GitManager.unstageFilePaths(
+                                            selectedFiles
+                                                .where((file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
+                                                .toList(),
+                                          );
                                           await GitManager.discardChanges(selectedFiles);
-                                          selectedFiles.clear();
                                           selectedFiles.clear();
                                           setState(() {});
                                         });
