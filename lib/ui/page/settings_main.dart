@@ -144,21 +144,17 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
             child: Container(
               width: orientation == Orientation.portrait
                   ? null
-                  : MediaQuery.of(context).size.width - MediaQuery.of(context).systemGestureInsets.bottom,
-              padding: EdgeInsets.only(left: spaceMD + spaceSM, right: orientation == Orientation.portrait ? spaceMD + spaceSM : spaceSM),
+                  : MediaQuery.of(context).size.width -
+                        (MediaQuery.of(context).systemGestureInsets.right == 48 ? MediaQuery.of(context).systemGestureInsets.right : 0),
+              padding: EdgeInsets.only(left: spaceMD + spaceSM, right: spaceMD + spaceSM),
               child: Flex(
                 direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   (orientation == Orientation.portrait
-                      ? (List<Widget> children) => Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: children,
-                          ),
-                        )
+                      ? (List<Widget> children) =>
+                            Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisAlignment: MainAxisAlignment.start, children: children)
                       : (List<Widget> children) => Expanded(
                           child: ShaderMask(
                             shaderCallback: (Rect rect) {
@@ -397,13 +393,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                   SizedBox(height: spaceLG, width: spaceLG),
 
                   (orientation == Orientation.portrait
-                      ? (List<Widget> children) => Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: children,
-                          ),
-                        )
+                      ? (List<Widget> children) =>
+                            Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisAlignment: MainAxisAlignment.start, children: children)
                       : (List<Widget> children) => Expanded(
                           child: ShaderMask(
                             shaderCallback: (Rect rect) {

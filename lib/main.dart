@@ -1203,12 +1203,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             builder: (context, clientModeEnabledSnapshot) => Container(
               width: orientation == Orientation.portrait
                   ? null
-                  : MediaQuery.of(context).size.width - MediaQuery.of(context).systemGestureInsets.bottom,
-              padding: EdgeInsets.only(
-                left: spaceMD,
-                right: orientation == Orientation.portrait ? spaceMD : 0,
-                bottom: orientation == Orientation.portrait ? 0 : spaceSM,
-              ),
+                  : MediaQuery.of(context).size.width -
+                        (MediaQuery.of(context).systemGestureInsets.right == 48 ? MediaQuery.of(context).systemGestureInsets.right : 0),
+              padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
               child: Flex(
                 direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
                 mainAxisAlignment: MainAxisAlignment.start,
