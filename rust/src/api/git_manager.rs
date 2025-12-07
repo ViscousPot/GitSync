@@ -67,12 +67,12 @@ macro_rules! swl {
 }
 
 pub fn init(homepath: Option<String>) {
-    env::set_var("RUST_BACKTRACE", "1");
-    flutter_rust_bridge::setup_default_user_utils();
-
     if let Some(path) = homepath {
-        env::set_var("HOME", path);
+        unsafe { env::set_var("RUST_BACKTRACE", "1") };
+        unsafe { env::set_var("HOME", path) };
     }
+
+    flutter_rust_bridge::setup_default_user_utils();
 
     // unsafe {
     //     set_verify_owner_validation(false).unwrap();
