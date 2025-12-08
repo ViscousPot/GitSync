@@ -395,7 +395,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(tertiaryPositive),
+                                                                backgroundColor: WidgetStatePropertyAll(tertiaryInfo),
                                                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                 visualDensity: VisualDensity.compact,
                                                                 padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -460,7 +460,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(tertiaryNegative),
+                                                                backgroundColor: WidgetStatePropertyAll(tertiaryWarning),
                                                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                 visualDensity: VisualDensity.compact,
                                                                 padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -492,12 +492,22 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                         children: [
                                                           Text(
                                                             padNumber(item.$1 + line.$1 + 1),
-                                                            style: TextStyle(color: tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                                                            style: TextStyle(
+                                                              color: tertiaryInfo,
+                                                              fontSize: textMD,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontFamily: "Roboto",
+                                                            ),
                                                           ),
                                                           SizedBox(width: spaceSM),
                                                           Text(
                                                             line.$2.trim(),
-                                                            style: TextStyle(color: tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                            style: TextStyle(
+                                                              color: tertiaryInfo,
+                                                              fontSize: textMD,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontFamily: "RobotoMono",
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -508,12 +518,22 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                         children: [
                                                           Text(
                                                             padNumber(item.$1 + line.$1 + 1),
-                                                            style: TextStyle(color: tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                                                            style: TextStyle(
+                                                              color: tertiaryWarning,
+                                                              fontSize: textMD,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontFamily: "Roboto",
+                                                            ),
                                                           ),
                                                           SizedBox(width: spaceSM),
                                                           Text(
                                                             line.$2.trim(),
-                                                            style: TextStyle(color: tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                            style: TextStyle(
+                                                              color: tertiaryWarning,
+                                                              fontSize: textMD,
+                                                              fontWeight: FontWeight.bold,
+                                                              fontFamily: "RobotoMono",
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -532,12 +552,22 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                 children: [
                                                   Text(
                                                     padNumber(item.$1 + 1),
-                                                    style: TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                                    style: TextStyle(
+                                                      color: tertiaryLight,
+                                                      fontSize: textMD,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: "Roboto",
+                                                    ),
                                                   ),
                                                   SizedBox(width: spaceSM),
                                                   Text(
                                                     item.$2.trim(),
-                                                    style: TextStyle(color: secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                    style: TextStyle(
+                                                      color: secondaryLight,
+                                                      fontSize: textMD,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: "RobotoMono",
+                                                    ),
                                                   ),
                                                 ],
                                               ),
