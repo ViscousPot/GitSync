@@ -566,7 +566,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
 Route createCodeEditorRoute(String path, {EditorType type = EditorType.DEFAULT}) {
   return PageRouteBuilder(
-    settings: const RouteSettings(name: settings_main),
+    settings: const RouteSettings(name: code_editor),
     pageBuilder: (context, animation, secondaryAnimation) => CodeEditor(path: path, type: type),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);

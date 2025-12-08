@@ -72,7 +72,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
 
 Route createSyncSettingsMainRoute() {
   return PageRouteBuilder(
-    settings: const RouteSettings(name: settings_main),
+    settings: const RouteSettings(name: sync_settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => SyncSettingsMain(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
