@@ -9,6 +9,7 @@ import 'package:GitSync/ui/dialog/create_file.dart' as CreateFileDialog;
 import 'package:GitSync/ui/dialog/rename_file_folder.dart' as RenameFileFolderDialog;
 import 'package:GitSync/ui/dialog/confirm_delete_file_folder.dart' as ConfirmDeleteFileFolderDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -96,8 +97,18 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
           ),
           title: ValueListenableBuilder(
             valueListenable: controller.getPathNotifier,
-            builder: (context, currentPath, child) => Text(
+            builder: (context, currentPath, child) => ExtendedText(
               currentPath.replaceFirst(getPathLeadingText(), ""),
+              maxLines: 1,
+              textAlign: TextAlign.left,
+              softWrap: false,
+              overflowWidget: TextOverflowWidget(
+                position: TextOverflowPosition.start,
+                child: Text(
+                  "…",
+                  style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+                ),
+              ),
               style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
             ),
           ),
