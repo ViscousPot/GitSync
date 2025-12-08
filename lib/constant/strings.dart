@@ -4,6 +4,7 @@ const String appName = "GitSync";
 // Routes
 const String settings_main = "/settings_main";
 const String clone_repo_main = "/clone_repo_main";
+const String image_viewer = "/clone_repo_main";
 const String global_settings_main = "/global_settings_main";
 
 // Paths

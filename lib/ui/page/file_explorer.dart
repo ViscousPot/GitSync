@@ -9,6 +9,7 @@ import 'package:GitSync/ui/dialog/create_file.dart' as CreateFileDialog;
 import 'package:GitSync/ui/dialog/rename_file_folder.dart' as RenameFileFolderDialog;
 import 'package:GitSync/ui/dialog/confirm_delete_file_folder.dart' as ConfirmDeleteFileFolderDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
+import 'package:GitSync/ui/page/image_viewer.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../constant/strings.dart';
 import 'package:path/path.dart' as p;
+
+const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".wbmp"];
 
 class FileExplorer extends StatefulWidget {
   const FileExplorer({super.key, required this.path});
@@ -55,9 +58,6 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print(controller.getPathNotifier);
-    print(widget.path);
-
     return WillPopScope(
       onWillPop: () async {
         if (selectedPathsNotifier.value.isNotEmpty) {
@@ -274,7 +274,11 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                 await Navigator.of(context).push(createCodeEditorRoute(entities[index].path));
                               } catch (e) {
                                 print(e);
-                                Fluttertoast.showToast(msg: "Editing unavailable", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                if (imageExtensions.any((item) => entities[index].path.endsWith(item))) {
+                                  await Navigator.of(context).push(createImageViewerRoute(path: path)).then((_) => setState(() {}));
+                                } else {
+                                  Fluttertoast.showToast(msg: "Editing unavailable", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                }
                               }
                             }
                           },
@@ -302,12 +306,16 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                         ? (isFile
                                               ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
                                                     ? FontAwesomeIcons.fileLines
-                                                    : FontAwesomeIcons.file)
+                                                    : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                          ? FontAwesomeIcons.fileImage
+                                                          : FontAwesomeIcons.file))
                                               : FontAwesomeIcons.folder)
                                         : (isFile
                                               ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
                                                     ? FontAwesomeIcons.solidFileLines
-                                                    : FontAwesomeIcons.solidFile)
+                                                    : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                          ? FontAwesomeIcons.solidFileImage
+                                                          : FontAwesomeIcons.solidFile))
                                               : FontAwesomeIcons.solidFolder),
                                     color: isFile
                                         ? (selectedPaths.contains(path) ? primaryLight : secondaryLight)
@@ -357,7 +365,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
 
 Route createFileExplorerRoute(String path) {
   return PageRouteBuilder(
-    settings: const RouteSettings(name: settings_main),
+    settings: const RouteSettings(name: file_explorer),
     pageBuilder: (context, animation, secondaryAnimation) => FileExplorer(path: path),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
