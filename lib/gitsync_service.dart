@@ -68,7 +68,6 @@ class GitsyncService {
   static const INTENT_SYNC = "INTENT_SYNC";
   static const TILE_SYNC = "TILE_SYNC";
   static const UPDATE_SERVICE_STRINGS = "UPDATE_SERVICE_STRINGS";
-  static const REFRESH = "REFRESH";
   static const MERGE = "MERGE";
   static const MERGE_COMPLETE = "MERGE_COMPLETE";
   static const repoIndex = "repoIndex";
@@ -306,8 +305,6 @@ class GitsyncService {
       Logger.gmLog(type: LogType.Sync, "Sync Complete!");
       isSyncing = false;
 
-      serviceInstance?.invoke(REFRESH);
-
       if (isScheduled) {
         Logger.gmLog(type: LogType.Sync, "Scheduled Sync Starting");
         isScheduled = false;
@@ -316,14 +313,6 @@ class GitsyncService {
     } catch (e, st) {
       Logger.logError(LogType.SyncException, e, st);
     }
-  }
-
-  Future<void> refreshUi() async {
-    debounce(
-      refreshDebounceReference,
-      500,
-      () => serviceInstance == null ? FlutterBackgroundService().invoke(GitsyncService.REFRESH, null) : serviceInstance?.invoke(REFRESH, null),
-    );
   }
 
   void merge(int repomanRepoindex, String commitMessage, List<String> conflictingaths) async {

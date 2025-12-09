@@ -82,7 +82,6 @@ class Logger {
 
     await repoManager.setStringNullable(StorageKey.repoman_erroring, errorContent ?? error.toString());
     await sendBugReportNotification(errorContent);
-    gitSyncService.refreshUi();
   }
 
   static Future<void> dismissError(BuildContext? context) async {
@@ -94,8 +93,6 @@ class Logger {
       try {
         await notificationsPlugin.cancel(_errorNotificationId);
       } catch (e) {}
-
-      gitSyncService.refreshUi();
 
       print(ErrorOccurredDialog.errorDialogKey.currentContext);
 

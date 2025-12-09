@@ -79,7 +79,6 @@ class GitManager {
 
     T? result;
     await repoManager.setStringList(StorageKey.repoman_locks, [...locks, index.toString()]);
-    gitSyncService.refreshUi();
 
     try {
       result = await fn();
@@ -87,7 +86,6 @@ class GitManager {
       Logger.logError(LogType.CloneRepo, e, stackTrace);
     } finally {
       await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
-      gitSyncService.refreshUi();
     }
 
     return result;

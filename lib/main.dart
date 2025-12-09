@@ -8,6 +8,7 @@ import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/group_sync_settings.dart';
+import 'package:GitSync/ui/component/sync_loader.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/dialog/create_branch.dart' as CreateBranchDialog;
@@ -188,11 +189,6 @@ void onServiceStart(ServiceInstance service) async {
     gitSyncService.debouncedSync(int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex), true);
   });
 
-  service.on(GitsyncService.REFRESH).listen((event) async {
-    print(GitsyncService.REFRESH);
-    gitSyncService.refreshUi();
-  });
-
   service.on(GitsyncService.INTENT_SYNC).listen((event) async {
     print(GitsyncService.INTENT_SYNC);
     gitSyncService.debouncedSync(int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex));
@@ -219,7 +215,6 @@ void onServiceStart(ServiceInstance service) async {
 
   service.on("stop").listen((event) async {
     await repoManager.setStringList(StorageKey.repoman_locks, []);
-    gitSyncService.refreshUi();
     service.stopSelf();
   });
 
@@ -280,7 +275,7 @@ class _MyAppState extends State<MyApp> {
               ? SizedBox.shrink()
               : Container(
                   color: primaryDark,
-                  child: SafeArea(top: false, bottom: true, child: child),
+                  child: SafeArea(top: false, left: false, bottom: true, right: true, child: child),
                 );
         },
         home: ShowCaseWidget(
@@ -322,11 +317,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   bool repoSettingsExpanded = false;
   bool gitLfsExpanded = false;
   bool demoConflicting = false;
-  bool? previousLocked;
-  bool showCheck = false;
-  double opacity = 0.0;
 
-  Timer? hideCheckTimer;
   Timer? autoRefreshTimer;
   StreamSubscription<List<ConnectivityResult>>? networkSubscription;
   ScrollController recentCommitsController = ScrollController();
@@ -355,9 +346,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    showCheck = false;
-    opacity = 0.0;
-
     AccessibilityServiceHelper.init(context, setState);
     WidgetsBinding.instance.addObserver(this);
 
@@ -431,10 +419,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         await premiumManager.cullNonPremium();
       }
       setState(() {});
-    });
-
-    FlutterBackgroundService().on(GitsyncService.REFRESH).listen((event) async {
-      debounce(refreshDebounceReference, 500, () => widget.setState(() {}));
     });
 
     FlutterBackgroundService().on(GitsyncService.MERGE_COMPLETE).listen((event) async {
@@ -772,7 +756,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     autoRefreshTimer?.cancel();
     networkSubscription?.cancel();
-    hideCheckTimer?.cancel();
     for (var key in debounceTimers.keys) {
       if (key.startsWith(iosFolderAccessDebounceReference)) {
         cancelDebounce(key, true);
@@ -869,114 +852,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
           ),
           SizedBox(width: spaceSM),
-          FutureBuilder(
-            future: GitManager.isLocked(false),
-            builder: (context, snapshot) {
-              final locked = snapshot.data ?? false;
-
-              if (previousLocked == true && locked == false) {
-                showCheck = true;
-                Future.delayed(Duration(milliseconds: 10), () {
-                  opacity = 1.0;
-                  setState(() {});
-                });
-                hideCheckTimer?.cancel();
-                hideCheckTimer = Timer(Duration(seconds: 2), () {
-                  showCheck = false;
-                  opacity = 0.0;
-                  setState(() {});
-                });
-              } else if (locked == true) {
-                showCheck = false;
-                hideCheckTimer?.cancel();
-              }
-
-              previousLocked = locked;
-
-              return GestureDetector(
-                onLongPress: () async {
-                  final locks = await repoManager.getStringList(StorageKey.repoman_locks);
-                  final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
-                  await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
-                  gitSyncService.isScheduled = false;
-                  gitSyncService.isSyncing = false;
-                  setState(() {});
-                },
-                onTap: () async {
-                  if ((await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true) {
-                    await Logger.dismissError(context);
-                  } else {
-                    await openLogViewer(context);
-                  }
-                  setState(() {});
-                },
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: CustomShowcase(
-                        globalKey: _syncProgressKey,
-                        description: t.syncProgressHint,
-                        cornerRadius: cornerRadiusMax,
-                        child: Container(
-                          width: spaceMD + spaceXS,
-                          height: spaceMD + spaceXS,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: tertiaryDark, width: 4),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    if (locked)
-                      Align(
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: spaceMD + spaceXS,
-                          height: spaceMD + spaceXS,
-                          child: CircularProgressIndicator(
-                            color: primaryLight,
-                            padding: EdgeInsets.zero,
-                            strokeAlign: BorderSide.strokeAlignInside,
-                            strokeWidth: 4.2,
-                          ),
-                        ),
-                      ),
-                    FutureBuilder(
-                      future: repoManager.getStringNullable(StorageKey.repoman_erroring),
-                      builder: (context, snapshot) => AnimatedOpacity(
-                        opacity: snapshot.data?.isNotEmpty == true ? 1 : 0,
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: spaceMD + spaceXS,
-                            height: spaceMD + spaceXS,
-                            child: FaIcon(FontAwesomeIcons.circleExclamation, color: tertiaryNegative, size: spaceMD + spaceXS),
-                          ),
-                        ),
-                      ),
-                    ),
-                    AnimatedOpacity(
-                      opacity: locked ? 0 : opacity,
-                      duration: Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: spaceMD + spaceXS,
-                          height: spaceMD + spaceXS,
-                          child: FaIcon(FontAwesomeIcons.solidCircleCheck, color: primaryPositive, size: spaceMD + spaceXS),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+          SyncLoader(syncProgressKey: _syncProgressKey),
           SizedBox(width: spaceSM),
           CustomShowcase(
             globalKey: _addMoreKey,
