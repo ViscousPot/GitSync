@@ -448,10 +448,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         setState(() {});
       }
 
-      if (await uiSettingsManager.getClientModeEnabled()) {
-        await updateRecommendedAction();
-        autoRefreshTimer = Timer.periodic(Duration(seconds: 5), (_) async => await updateRecommendedAction());
-      }
+      await updateRecommendedAction();
+      autoRefreshTimer = Timer.periodic(Duration(seconds: 5), (_) async => await updateRecommendedAction());
     });
 
     super.initState();
@@ -466,9 +464,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> updateRecommendedAction([int? override]) async {
-    updatingRecommendedAction.value = false;
-    recommendedAction.value = override ?? await GitManager.getRecommendedAction();
+    if (!await uiSettingsManager.getClientModeEnabled()) return;
+
     updatingRecommendedAction.value = true;
+    recommendedAction.value = override ?? await GitManager.getRecommendedAction();
+    updatingRecommendedAction.value = false;
   }
 
   Future<void> promptClearKeychainValues() async {
@@ -1458,22 +1458,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         icon: Stack(
                                                           clipBehavior: Clip.none,
                                                           children: [
-                                                            Positioned(
-                                                              top: -spaceXXS,
-                                                              bottom: -spaceXXS,
-                                                              left: -spaceXXS,
-                                                              right: -spaceXXS,
-                                                              child: ValueListenableBuilder(
-                                                                valueListenable: updatingRecommendedAction,
-                                                                builder: (context, value, child) => value
-                                                                    ? SizedBox(
-                                                                        height: spaceXXL,
-                                                                        width: spaceXXL,
-                                                                        child: CircularProgressIndicator(color: tertiaryDark),
-                                                                      )
-                                                                    : SizedBox.shrink(),
+                                                            if (clientModeEnabledSnapshot.data == true)
+                                                              Positioned(
+                                                                top: -spaceXXS,
+                                                                bottom: -spaceXXS,
+                                                                left: -spaceXXS,
+                                                                right: -spaceXXS,
+                                                                child: ValueListenableBuilder(
+                                                                  valueListenable: updatingRecommendedAction,
+                                                                  builder: (context, value, child) => value
+                                                                      ? SizedBox(
+                                                                          height: spaceXXL,
+                                                                          width: spaceXXL,
+                                                                          child: CircularProgressIndicator(color: tertiaryDark),
+                                                                        )
+                                                                      : SizedBox.shrink(),
+                                                                ),
                                                               ),
-                                                            ),
                                                             FaIcon(
                                                               syncOptionsSnapshot.data?[lastSyncMethodSnapshot.data]?.$1 ??
                                                                   syncOptionsSnapshot.data?.values.first.$1 ??
