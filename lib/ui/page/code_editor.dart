@@ -316,10 +316,13 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.type == EditorType.LOGS) {
         await Future.delayed(Duration(milliseconds: 500));
+        if (!horizontalController.hasClients) return;
         horizontalController.jumpTo(80);
         await Future.delayed(Duration(milliseconds: 500));
+        if (!horizontalController.hasClients) return;
         horizontalController.jumpTo(80);
 
+        if (!horizontalController.hasClients) return;
         verticalController.jumpTo(verticalController.position.maxScrollExtent);
       }
     });
