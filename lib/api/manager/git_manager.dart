@@ -614,7 +614,7 @@ class GitManager {
     });
   }
 
-  static Future<void> unstageAll() async {
+  static Future<void> untrackAll() async {
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
 
     return await _runWithLock(repoIndex, () async {
@@ -627,7 +627,7 @@ class GitManager {
         Logger.gmLog(type: LogType.PushToRepo, ".git folder found");
 
         try {
-          return await GitManagerRs.unstageAll(pathString: dirPath, log: _logWrapper);
+          return await GitManagerRs.untrackAll(pathString: dirPath, log: _logWrapper);
         } catch (e, stackTrace) {
           Logger.logError(LogType.PushToRepo, e, stackTrace);
           return;

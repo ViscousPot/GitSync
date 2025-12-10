@@ -37,10 +37,10 @@ Future<void> cloneRepository({
   log: log,
 );
 
-Future<void> unstageAll({
+Future<void> untrackAll({
   required String pathString,
   required FutureOr<void> Function(LogType, String) log,
-}) => RustLib.instance.api.crateApiGitManagerUnstageAll(
+}) => RustLib.instance.api.crateApiGitManagerUntrackAll(
   pathString: pathString,
   log: log,
 );

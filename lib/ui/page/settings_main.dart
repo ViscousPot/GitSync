@@ -424,7 +424,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 unstaging = true;
                                 setState(() {});
 
-                                await GitManager.unstageAll();
+                                await GitManager.untrackAll();
 
                                 unstaging = false;
                                 ignoreChanged = false;
@@ -459,7 +459,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                   Padding(
                                     padding: EdgeInsets.only(left: spaceXS),
                                     child: Text(
-                                      "Unstage All Changes".toUpperCase(),
+                                      "Untrack All".toUpperCase(),
                                       style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),

@@ -393,7 +393,7 @@ pub async fn clone_repository(
     Ok(())
 }
 
-pub async fn unstage_all(
+pub async fn untrack_all(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
@@ -404,27 +404,39 @@ pub async fn unstage_all(
         LogType::Stage,
         "Getting local directory".to_string(),
     );
+    
     let repo = swl!(Repository::open(path_string))?;
     let mut index = swl!(repo.index())?;
 
-    let paths: Vec<PathBuf> = index
-        .iter()
-        .map(|entry| {
-            let s = String::from_utf8_lossy(entry.path.as_slice()).into_owned();
-            PathBuf::from(s)
-        })
-        .collect();
-
-    for path in paths {
-        swl!(index.remove_path(&path))?;
+    if let Ok(contents) = fs::read_to_string(format!("{}/.gitignore", path_string)) {
+        for line in contents.lines() {
+            let trimmed = line.trim();
+            if !trimmed.is_empty() && !trimmed.starts_with('#') {
+                swl!(index.remove_path(&PathBuf::from(trimmed)))?;
+            }
+        }
     }
 
+    if let Ok(contents) = fs::read_to_string(format!("{}/.git/info/exclude", path_string)) {
+        for line in contents.lines() {
+            let trimmed = line.trim();
+            if !trimmed.is_empty() && !trimmed.starts_with('#') {
+                swl!(index.remove_path(&PathBuf::from(trimmed)))?;
+            }
+        }
+    }
+
+    swl!(index.remove_path(&PathBuf::from("Readme.md")))?;
+
     swl!(index.write())?;
+    if !index.has_conflicts() {
+        swl!(index.write_tree())?;
+    }
 
     _log(
         Arc::clone(&log_callback),
         LogType::Stage,
-        "Unstaged all!".to_string(),
+        "Untracked all!".to_string(),
     );
     
     Ok(())
