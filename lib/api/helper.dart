@@ -69,7 +69,7 @@ Future<bool> requestStoragePerm([bool request = true]) async {
   return false;
 }
 
-Widget? getBackButton(BuildContext context, Function() onPressed) => IconButton(
+Widget getBackButton(BuildContext context, Function() onPressed) => IconButton(
   onPressed: onPressed,
   icon: FaIcon(FontAwesomeIcons.arrowLeft, color: primaryLight, size: textLG, semanticLabel: t.backLabel),
 );

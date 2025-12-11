@@ -33,6 +33,9 @@ class FileExplorer extends StatefulWidget {
 class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   final FileManagerController controller = FileManagerController();
   final ValueNotifier<List<String>> selectedPathsNotifier = ValueNotifier([]);
+  final ValueNotifier<List<String>> heldPathsNotifier = ValueNotifier([]);
+  bool? copyingMoving = null;
+  bool pasting = false;
 
   @override
   void initState() {
@@ -50,7 +53,11 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
+      final destinationPath = controller.getCurrentPath;
       setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        controller.setCurrentPath = destinationPath;
+      });
     }
   }
 
@@ -85,95 +92,238 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
           ),
           leading: ValueListenableBuilder(
             valueListenable: controller.getPathNotifier,
-            builder: (context, currentPath, child) =>
-                getBackButton(context, () {
-                  selectedPathsNotifier.value.isNotEmpty
-                      ? selectedPathsNotifier.value = []
-                      : (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')
-                            ? (Navigator.of(context).canPop() ? Navigator.pop(context) : null)
-                            : controller.goToParentDirectory());
-                }) ??
-                SizedBox.shrink(),
+            builder: (context, currentPath, child) => getBackButton(context, () {
+              if (selectedPathsNotifier.value.isNotEmpty) {
+                selectedPathsNotifier.value = [];
+              } else {
+                (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')
+                    ? (Navigator.of(context).canPop() ? Navigator.pop(context) : null)
+                    : controller.goToParentDirectory());
+              }
+            }),
           ),
           title: ValueListenableBuilder(
             valueListenable: controller.getPathNotifier,
-            builder: (context, currentPath, child) => ExtendedText(
-              currentPath.replaceFirst(getPathLeadingText(), ""),
-              maxLines: 1,
-              textAlign: TextAlign.left,
-              softWrap: false,
-              overflowWidget: TextOverflowWidget(
-                position: TextOverflowPosition.start,
-                child: Text(
-                  "…",
-                  style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
-                ),
-              ),
-              style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+            builder: (context, currentPath, child) => ValueListenableBuilder(
+              valueListenable: heldPathsNotifier,
+              builder: (context, heldPaths, child) => heldPaths.isNotEmpty
+                  ? Text(
+                      "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} selected",
+                      style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+                    )
+                  : ExtendedText(
+                      currentPath.replaceFirst(getPathLeadingText(), ""),
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      softWrap: false,
+                      overflowWidget: TextOverflowWidget(
+                        position: TextOverflowPosition.start,
+                        child: Text(
+                          "…",
+                          style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+                    ),
             ),
           ),
           actions: [
             ValueListenableBuilder(
-              valueListenable: selectedPathsNotifier,
-              builder: (context, selectedPaths, child) => Row(
-                children: selectedPaths.isNotEmpty
-                    ? [
-                        IconButton(
-                          onPressed: () async {
-                            ConfirmDeleteFileFolderDialog.showDialog(context, selectedPaths, () async {
-                              for (var path in selectedPaths) {
-                                final entity = FileSystemEntity.typeSync(path);
+              valueListenable: heldPathsNotifier,
+              builder: (context, heldPaths, child) => ValueListenableBuilder(
+                valueListenable: selectedPathsNotifier,
+                builder: (context, selectedPaths, child) => Row(
+                  children: selectedPaths.isNotEmpty
+                      ? [
+                          if (selectedPaths.length <= 1) ...[
+                            IconButton(
+                              onPressed: () async {
+                                final oldPath = selectedPaths[0];
+                                final entity = FileSystemEntity.typeSync(oldPath);
                                 if (entity == FileSystemEntityType.notFound) {
                                   throw Exception('Path does not exist.');
                                 }
 
-                                try {
-                                  if (entity == FileSystemEntityType.directory) {
-                                    await Directory(path).delete();
-                                  } else {
-                                    await File(path).delete();
-                                  }
-                                } catch (e) {
-                                  Fluttertoast.showToast(msg: "Failed to delete file/directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
-                                }
+                                RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (
+                                  fileName,
+                                ) async {
+                                  final dir = p.dirname(oldPath);
+                                  final newPath = p.join(dir, fileName);
 
-                                selectedPathsNotifier.value = [];
-                                controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
-                              }
-                            });
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                          ),
-                          icon: FaIcon(FontAwesomeIcons.trash, color: tertiaryNegative, size: textLG),
-                        ),
-                        SizedBox(width: spaceXXS),
-                        if (selectedPaths.length <= 1)
+                                  try {
+                                    if (entity == FileSystemEntityType.directory) {
+                                      await Directory(oldPath).rename(newPath);
+                                    } else {
+                                      await File(oldPath).rename(newPath);
+                                    }
+                                  } catch (e) {
+                                    Fluttertoast.showToast(msg: "Failed to rename file/directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                  }
+                                  selectedPathsNotifier.value = [];
+                                  controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
+                                });
+                              },
+                              style: ButtonStyle(
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                              ),
+                              icon: FaIcon(FontAwesomeIcons.pen, color: tertiaryInfo, size: textLG),
+                            ),
+                            SizedBox(width: spaceXXS),
+                          ],
+
                           IconButton(
                             onPressed: () async {
-                              final oldPath = selectedPaths[0];
-                              final entity = FileSystemEntity.typeSync(oldPath);
-                              if (entity == FileSystemEntityType.notFound) {
-                                throw Exception('Path does not exist.');
-                              }
-
-                              RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (
-                                fileName,
-                              ) async {
-                                final dir = p.dirname(oldPath);
-                                final newPath = p.join(dir, fileName);
-
-                                try {
-                                  if (entity == FileSystemEntityType.directory) {
-                                    await Directory(oldPath).rename(newPath);
-                                  } else {
-                                    await File(oldPath).rename(newPath);
+                              ConfirmDeleteFileFolderDialog.showDialog(context, selectedPaths, () async {
+                                for (var path in selectedPaths) {
+                                  final entity = FileSystemEntity.typeSync(path);
+                                  if (entity == FileSystemEntityType.notFound) {
+                                    throw Exception('Path does not exist.');
                                   }
-                                } catch (e) {
-                                  Fluttertoast.showToast(msg: "Failed to rename file/directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+
+                                  try {
+                                    if (entity == FileSystemEntityType.directory) {
+                                      await Directory(path).delete();
+                                    } else {
+                                      await File(path).delete();
+                                    }
+                                  } catch (e) {
+                                    Fluttertoast.showToast(msg: "Failed to delete file/directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                  }
+
+                                  selectedPathsNotifier.value = [];
+                                  final destinationPath = controller.getCurrentPath;
+                                  setState(() {});
+                                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                                    controller.setCurrentPath = destinationPath;
+                                  });
                                 }
-                                selectedPathsNotifier.value = [];
+                              });
+                            },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                            ),
+                            icon: FaIcon(FontAwesomeIcons.trash, color: tertiaryNegative, size: textLG),
+                          ),
+                          SizedBox(width: spaceXXS),
+                          IconButton(
+                            onPressed: () async {
+                              heldPathsNotifier.value = selectedPaths;
+                              selectedPathsNotifier.value = [];
+                              copyingMoving = true;
+                            },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                            ),
+                            icon: FaIcon(FontAwesomeIcons.solidCopy, color: tertiaryInfo, size: textLG),
+                          ),
+                          SizedBox(width: spaceXXS),
+                          IconButton(
+                            onPressed: () async {
+                              heldPathsNotifier.value = selectedPaths;
+                              copyingMoving = false;
+                              selectedPathsNotifier.value = [];
+                            },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                            ),
+                            icon: FaIcon(FontAwesomeIcons.scissors, color: tertiaryInfo, size: textLG),
+                          ),
+                          SizedBox(width: spaceMD),
+                        ]
+                      : heldPaths.isNotEmpty
+                      ? [
+                          IconButton(
+                            onPressed: pasting
+                                ? null
+                                : () async {
+                                    final destinationPath = controller.getCurrentPath;
+                                    for (String filePath in heldPathsNotifier.value) {
+                                      File sourceFile = File(filePath);
+                                      String fileName = sourceFile.uri.pathSegments.last;
+                                      File destinationFile = File('$destinationPath/$fileName');
+
+                                      pasting = true;
+                                      setState(() {});
+                                      try {
+                                        if (copyingMoving == false) {
+                                          // Move the file
+                                          await sourceFile.rename(destinationFile.path);
+                                          print('Moved: ${sourceFile.path} to ${destinationFile.path}');
+                                        } else {
+                                          // Copy the file
+                                          await sourceFile.copy(destinationFile.path);
+                                          print('Copied: ${sourceFile.path} to ${destinationFile.path}');
+                                        }
+                                      } catch (e) {
+                                        print('Error: $e');
+                                      }
+                                      pasting = false;
+                                      setState(() {});
+                                    }
+
+                                    heldPathsNotifier.value = [];
+                                    setState(() {});
+
+                                    WidgetsBinding.instance.addPostFrameCallback((_) async {
+                                      controller.setCurrentPath = destinationPath;
+                                    });
+
+                                    // print(heldPathsNotifier.value);
+                                    // print(copyingMoving);
+                                    // print(controller.getCurrentPath);
+                                  },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                            ),
+                            icon: pasting
+                                ? SizedBox.square(
+                                    dimension: textLG,
+                                    child: CircularProgressIndicator(color: tertiaryInfo),
+                                  )
+                                : FaIcon(FontAwesomeIcons.solidPaste, color: tertiaryInfo, size: textLG),
+                          ),
+                          SizedBox(width: spaceXXS),
+                          IconButton(
+                            onPressed: () {
+                              heldPathsNotifier.value = [];
+                            },
+                            icon: FaIcon(FontAwesomeIcons.solidCircleXmark, color: primaryLight, size: textLG),
+                          ),
+                          SizedBox(width: spaceMD),
+                        ]
+                      : [
+                          IconButton(
+                            onPressed: () async {
+                              CreateFolderDialog.showDialog(context, (folderName) async {
+                                try {
+                                  await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
+                                } catch (e) {
+                                  Fluttertoast.showToast(msg: "Failed to create directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                }
+                                await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
+                                controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
+                              });
+                            },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                            ),
+                            icon: FaIcon(FontAwesomeIcons.folderPlus, color: primaryLight, size: textLG),
+                          ),
+                          SizedBox(width: spaceXXS),
+                          IconButton(
+                            onPressed: () async {
+                              CreateFileDialog.showDialog(context, (fileName) async {
+                                try {
+                                  await File("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$fileName").create();
+                                } catch (e) {
+                                  Fluttertoast.showToast(msg: "Failed to create file: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                }
                                 controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
                               });
                             },
@@ -181,49 +331,11 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
                             ),
-                            icon: FaIcon(FontAwesomeIcons.pen, color: tertiaryInfo, size: textLG),
+                            icon: FaIcon(FontAwesomeIcons.fileCirclePlus, color: primaryLight, size: textLG),
                           ),
-                        SizedBox(width: spaceMD),
-                      ]
-                    : [
-                        IconButton(
-                          onPressed: () async {
-                            CreateFolderDialog.showDialog(context, (folderName) async {
-                              try {
-                                await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
-                              } catch (e) {
-                                Fluttertoast.showToast(msg: "Failed to create directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
-                              }
-                              await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
-                              controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
-                            });
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                          ),
-                          icon: FaIcon(FontAwesomeIcons.folderPlus, color: primaryLight, size: textLG),
-                        ),
-                        SizedBox(width: spaceXXS),
-                        IconButton(
-                          onPressed: () async {
-                            CreateFileDialog.showDialog(context, (fileName) async {
-                              try {
-                                await File("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$fileName").create();
-                              } catch (e) {
-                                Fluttertoast.showToast(msg: "Failed to create file: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
-                              }
-                              controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
-                            });
-                          },
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                          ),
-                          icon: FaIcon(FontAwesomeIcons.fileCirclePlus, color: primaryLight, size: textLG),
-                        ),
-                        SizedBox(width: spaceMD),
-                      ],
+                          SizedBox(width: spaceMD),
+                        ],
+                ),
               ),
             ),
           ],
@@ -275,7 +387,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                               } catch (e) {
                                 print(e);
                                 if (imageExtensions.any((item) => entities[index].path.endsWith(item))) {
-                                  await Navigator.of(context).push(createImageViewerRoute(path: path)).then((_) => setState(() {}));
+                                  await Navigator.of(context).push(createImageViewerRoute(path: path));
                                 } else {
                                   Fluttertoast.showToast(msg: "Editing unavailable", toastLength: Toast.LENGTH_LONG, gravity: null);
                                 }
