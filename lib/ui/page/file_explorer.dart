@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
@@ -10,6 +11,7 @@ import 'package:GitSync/ui/dialog/rename_file_folder.dart' as RenameFileFolderDi
 import 'package:GitSync/ui/dialog/confirm_delete_file_folder.dart' as ConfirmDeleteFileFolderDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:GitSync/ui/page/image_viewer.dart';
+import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,60 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   final ValueNotifier<List<String>> heldPathsNotifier = ValueNotifier([]);
   bool? copyingMoving = null;
   bool pasting = false;
+  bool loadingMore = false;
+
+  final moreOptionsDropdownKey = GlobalKey();
+
+  List<((String, String), Function(List<String>))> get moreOptions => [
+    (
+      (".gitignore + untrack", "Add files to .gitignore and untrack"),
+      (List<String> selectedPaths) async {
+        addToIgnore(selectedPaths, gitIgnorePath);
+        await GitManager.untrackAll(selectedPaths);
+      },
+    ),
+    (
+      (".git/info/exclude + untrack", "Add files to the local exclude file and untrack"),
+      (List<String> selectedPaths) async {
+        addToIgnore(selectedPaths, gitInfoExcludePath);
+        await GitManager.untrackAll(selectedPaths);
+      },
+    ),
+    (
+      ("add to .gitignore only", "Only add files to .gitignore"),
+      (List<String> selectedPaths) async {
+        addToIgnore(selectedPaths, gitIgnorePath);
+      },
+    ),
+    (
+      ("add to .git/info/exclude only", "Only add files to the local exclude file"),
+      (List<String> selectedPaths) async {
+        addToIgnore(selectedPaths, gitInfoExcludePath);
+      },
+    ),
+    (
+      ("untrack file(s)", "Untrack specified file(s)"),
+      (List<String> selectedPaths) async {
+        await GitManager.untrackAll(selectedPaths);
+      },
+    ),
+  ];
+
+  void addToIgnore(List<String> selectedPaths, [String path = gitIgnorePath]) {
+    final ignoreFullPath = '${widget.path}/$path';
+    final file = File(ignoreFullPath);
+    final parentDir = file.parent;
+    if (!parentDir.existsSync()) {
+      parentDir.createSync(recursive: true);
+    }
+    if (!file.existsSync()) file.createSync();
+    final lines = file.readAsLinesSync();
+    for (final filePath in selectedPaths) {
+      if (!lines.contains(filePath)) {
+        file.writeAsStringSync("\n$filePath\n", mode: FileMode.append);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -96,9 +152,15 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
               if (selectedPathsNotifier.value.isNotEmpty) {
                 selectedPathsNotifier.value = [];
               } else {
-                (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')
-                    ? (Navigator.of(context).canPop() ? Navigator.pop(context) : null)
-                    : controller.goToParentDirectory());
+                if (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')) {
+                  if (heldPathsNotifier.value.isNotEmpty) {
+                    heldPathsNotifier.value = [];
+                  } else {
+                    (Navigator.of(context).canPop() ? Navigator.pop(context) : null);
+                  }
+                } else {
+                  controller.goToParentDirectory();
+                }
               }
             }),
           ),
@@ -135,6 +197,108 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                 builder: (context, selectedPaths, child) => Row(
                   children: selectedPaths.isNotEmpty
                       ? [
+                          Stack(
+                            children: [
+                              IconButton(
+                                onPressed: () async {
+                                  GestureDetector? detector;
+
+                                  void searchForGestureDetector(BuildContext? element) {
+                                    element?.visitChildElements((element) {
+                                      if (element.widget is GestureDetector) {
+                                        detector = element.widget as GestureDetector;
+                                        return;
+                                      } else {
+                                        searchForGestureDetector(element);
+                                      }
+
+                                      return;
+                                    });
+                                  }
+
+                                  searchForGestureDetector(moreOptionsDropdownKey.currentContext);
+
+                                  if (detector?.onTap != null) detector?.onTap!();
+                                },
+                                style: ButtonStyle(
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                                ),
+                                icon: loadingMore
+                                    ? SizedBox.square(
+                                        dimension: textLG,
+                                        child: CircularProgressIndicator(color: primaryLight),
+                                      )
+                                    : FaIcon(FontAwesomeIcons.ellipsisVertical, color: primaryLight, size: textLG),
+                              ),
+                              Positioned(
+                                top: spaceLG * 1.5,
+                                child: DropdownButton(
+                                  key: moreOptionsDropdownKey,
+                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                  selectedItemBuilder: (context) => List.generate(1, (_) => SizedBox.shrink()),
+                                  icon: SizedBox.shrink(),
+                                  underline: const SizedBox.shrink(),
+                                  menuWidth: MediaQuery.of(context).size.width / 1.5,
+                                  dropdownColor: secondaryDark,
+                                  padding: EdgeInsets.zero,
+                                  alignment: Alignment.bottomCenter,
+                                  onChanged: (value) {},
+                                  items: moreOptions
+                                      .map(
+                                        (option) => DropdownMenuItem(
+                                          onTap: () async {
+                                            loadingMore = true;
+                                            setState(() {});
+                                            await option.$2(selectedPaths.map((path) => path.replaceFirst("${widget.path}/", "")).toList());
+                                            loadingMore = false;
+                                            setState(() {});
+                                            selectedPathsNotifier.value = [];
+                                          },
+                                          value: option.$1.$1,
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(vertical: spaceXXS),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    option.$1.$1.toUpperCase(),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: textSM,
+                                                      color: primaryLight,
+                                                      fontWeight: FontWeight.bold,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(height: spaceXS),
+                                                Flexible(
+                                                  child: Text(
+                                                    option.$1.$2,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: textXS,
+                                                      color: secondaryLight,
+                                                      fontWeight: FontWeight.bold,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: spaceXXS),
                           if (selectedPaths.length <= 1) ...[
                             IconButton(
                               onPressed: () async {
@@ -171,7 +335,6 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                             ),
                             SizedBox(width: spaceXXS),
                           ],
-
                           IconButton(
                             onPressed: () async {
                               ConfirmDeleteFileFolderDialog.showDialog(context, selectedPaths, () async {
@@ -368,12 +531,10 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                           onTap: () async {
                             if (selectedPaths.contains(path)) {
                               selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
-                              // selectedPaths.remove(path);
                               return;
                             }
                             if (selectedPaths.isNotEmpty) {
                               selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
-                              // selectedPaths.add(path);
                               return;
                             }
                             if (longPressTriggered) return;

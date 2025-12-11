@@ -39,9 +39,11 @@ Future<void> cloneRepository({
 
 Future<void> untrackAll({
   required String pathString,
+  List<String>? filePaths,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerUntrackAll(
   pathString: pathString,
+  filePaths: filePaths,
   log: log,
 );
 

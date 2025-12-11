@@ -614,7 +614,7 @@ class GitManager {
     });
   }
 
-  static Future<void> untrackAll() async {
+  static Future<void> untrackAll([List<String>? filePaths = null]) async {
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
 
     return await _runWithLock(repoIndex, () async {
@@ -627,7 +627,7 @@ class GitManager {
         Logger.gmLog(type: LogType.PushToRepo, ".git folder found");
 
         try {
-          return await GitManagerRs.untrackAll(pathString: dirPath, log: _logWrapper);
+          return await GitManagerRs.untrackAll(pathString: dirPath, filePaths: filePaths, log: _logWrapper);
         } catch (e, stackTrace) {
           Logger.logError(LogType.PushToRepo, e, stackTrace);
           return;
@@ -1367,7 +1367,7 @@ class GitManager {
           for (final filePath in largeFilePaths) {
             final ignoreLine = filePath.replaceFirst("$selectedDirectory/", "");
             if (!lines.contains(ignoreLine)) {
-              file.writeAsStringSync("$ignoreLine\n", mode: FileMode.append);
+              file.writeAsStringSync("\n$ignoreLine\n", mode: FileMode.append);
             }
           }
 

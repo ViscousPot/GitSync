@@ -395,6 +395,7 @@ pub async fn clone_repository(
 
 pub async fn untrack_all(
     path_string: &String,
+    file_paths: Option<Vec<String>>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
     let log_callback = Arc::new(log);
@@ -408,25 +409,32 @@ pub async fn untrack_all(
     let repo = swl!(Repository::open(path_string))?;
     let mut index = swl!(repo.index())?;
 
-    if let Ok(contents) = fs::read_to_string(format!("{}/.gitignore", path_string)) {
-        for line in contents.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') {
-                swl!(index.remove_path(&PathBuf::from(trimmed)))?;
+    let mut paths_to_remove: Vec<String> = if let Some(ref paths) = file_paths { paths.clone() } else { Vec::new() };
+
+    if file_paths.is_none() {
+        if let Ok(contents) = fs::read_to_string(format!("{}/.gitignore", path_string)) {
+            for line in contents.lines() {
+                let trimmed = line.trim();
+                if !trimmed.is_empty() && !trimmed.starts_with('#') {
+                    paths_to_remove.push(trimmed.to_string());
+                }
+            }
+        }
+
+        if let Ok(contents) = fs::read_to_string(format!("{}/.git/info/exclude", path_string)) {
+            for line in contents.lines() {
+                let trimmed = line.trim();
+                if !trimmed.is_empty() && !trimmed.starts_with('#') {
+                    paths_to_remove.push(trimmed.to_string());
+                }
             }
         }
     }
 
-    if let Ok(contents) = fs::read_to_string(format!("{}/.git/info/exclude", path_string)) {
-        for line in contents.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') {
-                swl!(index.remove_path(&PathBuf::from(trimmed)))?;
-            }
-        }
-    }
 
-    swl!(index.remove_path(&PathBuf::from("Readme.md")))?;
+    for path in paths_to_remove {
+        swl!(index.remove_path(&PathBuf::from(path)))?;
+    }
 
     swl!(index.write())?;
     if !index.has_conflicts() {
@@ -1485,7 +1493,7 @@ pub async fn get_recommended_action(
             return Ok(Some(0));
         }
 
-        if (!found) {
+        if !found {
             _log(
                 Arc::clone(&log_callback),
                 LogType::GitStatus,
