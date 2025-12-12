@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/constant/strings.dart';
 
 import '../../manager/auth/git_provider_manager.dart';
 import '../../../constant/secrets.dart';
@@ -46,6 +47,14 @@ class GithubManager extends GitProviderManager {
     }
 
     return null;
+  }
+
+  @override
+  Future<String?> getToken(String token, Future<void> Function(String p1, DateTime? p2, String p3) setAccessRefreshToken) async {
+    final tokenParts = token.split(conflictSeparator);
+    final accessToken = tokenParts.first;
+
+    return accessToken;
   }
 
   @override
