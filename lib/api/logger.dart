@@ -129,6 +129,7 @@ class Logger {
       if (provider == GitProvider.GITHUB) {
         reportIssueToken = (await tempSettingsManager.getGitHttpAuthCredentials()).$2;
       }
+      uiSettingsManager.reinit();
     }
 
     if (reportIssueToken == "" || reportIssueToken == null) {
