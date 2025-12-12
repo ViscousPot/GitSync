@@ -42,6 +42,20 @@ class AccessibilityServiceHelper {
     await _channel.invokeMethod('openAccessibilitySettings');
   }
 
+  static Future<bool> isExcludedFromRecents() async {
+    if (Platform.isIOS) return false;
+    return await _channel.invokeMethod('isExcludedFromRecents') ?? false;
+  }
+
+  static Future<void> excludeFromRecents(bool exclude) async {
+    if (Platform.isIOS) return;
+    if (exclude) {
+      await _channel.invokeMethod('enableExcludeFromRecents');
+    } else {
+      await _channel.invokeMethod('disableExcludeFromRecents');
+    }
+  }
+
   static Future<List<String>> getDeviceApplications() async =>
       ((await _channel.invokeMethod('getDeviceApplications') ?? []) as List).map((item) => item.toString()).toSet().toList();
   static Future<String> getApplicationLabel(String packageName) async => await _channel.invokeMethod('getApplicationLabel', packageName);

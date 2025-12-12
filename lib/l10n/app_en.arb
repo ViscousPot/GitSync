@@ -286,6 +286,7 @@
     "language": "Language",
     "browseEditDir": "Browse & Edit Directory",
     "enableLineWrap": "Enable Line Wrap in Editors",
+    "excludeFromRecents": "Exclude From Recents",
     "backupRestoreTitle": "Encrypted Configuration Recovery",
     "encryptedBackup": "Encrypted Backup",
     "encryptedRestore": "Encrypted Restore",

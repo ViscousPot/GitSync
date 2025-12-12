@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
@@ -213,6 +214,41 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         ),
                       ),
                     ),
+                    if (Platform.isAndroid) ...[
+                      SizedBox(height: spaceMD),
+                      FutureBuilder(
+                        future: AccessibilityServiceHelper.isExcludedFromRecents(),
+                        builder: (context, excludedFromRecentsSnapshot) => TextButton.icon(
+                          onPressed: () async {
+                            await AccessibilityServiceHelper.excludeFromRecents(!(excludedFromRecentsSnapshot.data ?? false));
+                            setState(() {});
+                          },
+                          style: ButtonStyle(
+                            alignment: Alignment.centerLeft,
+                            backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                            ),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            minimumSize: WidgetStatePropertyAll(Size.zero),
+                          ),
+                          iconAlignment: IconAlignment.end,
+                          icon: FaIcon(
+                            excludedFromRecentsSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                            color: primaryPositive,
+                            size: textLG,
+                          ),
+                          label: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              t.excludeFromRecents.toUpperCase(),
+                              style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                     SizedBox(height: spaceLG),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),

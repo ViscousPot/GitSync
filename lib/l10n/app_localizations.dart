@@ -1604,6 +1604,12 @@ abstract class AppLocalizations {
   /// **'Enable Line Wrap in Editors'**
   String get enableLineWrap;
 
+  /// No description provided for @excludeFromRecents.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude From Recents'**
+  String get excludeFromRecents;
+
   /// No description provided for @backupRestoreTitle.
   ///
   /// In en, this message translates to:

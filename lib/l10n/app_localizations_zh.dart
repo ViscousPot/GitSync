@@ -764,6 +764,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get enableLineWrap => 'Enable Line Wrap in Editors';
 
   @override
+  String get excludeFromRecents => 'Exclude From Recents';
+
+  @override
   String get backupRestoreTitle => '加密配置恢复';
 
   @override

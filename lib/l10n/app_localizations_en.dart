@@ -774,6 +774,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enableLineWrap => 'Enable Line Wrap in Editors';
 
   @override
+  String get excludeFromRecents => 'Exclude From Recents';
+
+  @override
   String get backupRestoreTitle => 'Encrypted Configuration Recovery';
 
   @override

@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.provider.Settings
 import android.text.TextUtils
+import android.app.ActivityManager
 import java.io.File
 import android.widget.Toast
 import io.flutter.Log
@@ -31,6 +32,31 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
             }
             "openAccessibilitySettings" -> {
                 openAccessibilitySettings()
+                result.success(null)
+            }
+            "isExcludedFromRecents" -> {
+                val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val tasks = activityManager.appTasks
+                var excluded = false;
+                tasks.forEach { appTask ->
+                    excluded = excluded || (appTask.taskInfo.baseIntent.flags and Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0;
+                }
+                result.success(excluded)
+            }
+            "enableExcludeFromRecents" -> {
+                val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val tasks = activityManager.appTasks
+                tasks.forEach { appTask ->
+                    appTask.setExcludeFromRecents(true)
+                }
+                result.success(null)
+            }
+            "disableExcludeFromRecents" -> {
+                val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val tasks = activityManager.appTasks
+                tasks.forEach { appTask ->
+                    appTask.setExcludeFromRecents(false)
+                }
                 result.success(null)
             }
             "getDeviceApplications" -> {
