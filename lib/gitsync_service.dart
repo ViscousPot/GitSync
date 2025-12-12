@@ -213,7 +213,7 @@ class GitsyncService {
 
         if (optimisedSyncFlag && recommendedAction == null) return;
 
-        if (!optimisedSyncFlag || (recommendedAction == 0 || recommendedAction == 1)) {
+        if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
           pullResult = await GitManager.downloadChanges(repomanRepoindex, settingsManager, () {
             synced = true;
@@ -256,7 +256,7 @@ class GitsyncService {
           }
         }
 
-        if (!optimisedSyncFlag || recommendedAction == 2 || recommendedAction == 3) {
+        if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
           pushResult = await GitManager.uploadChanges(repomanRepoindex, settingsManager, () {
             if (!synced) {
