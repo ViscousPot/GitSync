@@ -1286,6 +1286,36 @@ abstract class AppLocalizations {
   /// **'clone'**
   String get clone;
 
+  /// No description provided for @chooseHowToClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you want to clone the repository:'**
+  String get chooseHowToClone;
+
+  /// No description provided for @directCloningMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Cloning: Clones the repository into the selected folder'**
+  String get directCloningMsg;
+
+  /// No description provided for @nestedCloningMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Nested Cloning: Creates a new folder named after the repository within the selected folder'**
+  String get nestedCloningMsg;
+
+  /// No description provided for @directClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Clone'**
+  String get directClone;
+
+  /// No description provided for @nestedClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nested Clone'**
+  String get nestedClone;
+
   /// No description provided for @gitRepoUrlHint.
   ///
   /// In en, this message translates to:

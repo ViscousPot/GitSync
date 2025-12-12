@@ -33,7 +33,7 @@
     "syncScheduled": "Sync Scheduled",
     "detectingChanges": "Detecting Changes…",
     "thisActionCannotBeUndone": "This action cannot be undone.",
-    
+
 
     "@@x-ACCESSIBILITY_LABELS": "",
     "cloneProgressLabel": "clone progress",
@@ -58,8 +58,8 @@
     "verifyGhSponsorTitle": "Verify GitHub Sponsorship",
     "verifyGhSponsorMsg": "If you are a GitHub Sponsor, you can access premium features for free. Authenticate with GitHub so we can verify your sponsor status.",
     "verifyGhSponsorNote": "Note: new sponsorships may take up to 1 day to become available in the app.",
-    
-    
+
+
 
     "@@x-SYNC_OPTIONS": "",
     "switchToClientMode": "Switch to Client Mode…",
@@ -226,6 +226,11 @@
     "@@x-CLONE_REPO_PAGE": "",
     "cloneRepo": "Clone Remote Repository",
     "clone": "clone",
+    "chooseHowToClone": "Choose how you want to clone the repository:",
+    "directCloningMsg": "Direct Cloning: Clones the repository into the selected folder",
+    "nestedCloningMsg": "Nested Cloning: Creates a new folder named after the repository within the selected folder",
+    "directClone": "Direct Clone",
+    "nestedClone": "Nested Clone",
     "gitRepoUrlHint": "https://git.abc/xyz.git",
     "invalidRepositoryUrlTitle": "Invalid repository URL!",
     "invalidRepositoryUrlMessage": "Invalid repository URL!",

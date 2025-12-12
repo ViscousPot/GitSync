@@ -122,12 +122,30 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
   }
 
   void cloneRepository(String repoUrl) {
-    SelectFolderDialog.showDialog(context, () async {
+    SelectFolderDialog.showDialog(context, (directClone) async {
       String? selectedDirectory;
       if (await requestStoragePerm()) {
         selectedDirectory = await pickDirectory();
       }
       if (selectedDirectory == null) return;
+
+      final nestedDirName = getDirectoryNameFromCloneUrl(repoUrl);
+
+      if (!directClone) {
+        if (Platform.isIOS) {
+          final bookmarkParts = selectedDirectory.split(conflictSeparator);
+          final bookmark = bookmarkParts.first;
+          final pathSuffix = selectedDirectory.contains(conflictSeparator) ? bookmarkParts.last : "";
+          selectedDirectory = "$bookmark$conflictSeparator${pathSuffix.isEmpty ? nestedDirName : "$pathSuffix/$nestedDirName"}";
+        } else {
+          selectedDirectory = "$selectedDirectory/$nestedDirName";
+        }
+        await useDirectory(selectedDirectory, (_) async {}, (selectedDirectory) async {
+          final dir = Directory(selectedDirectory);
+          print(await dir.exists());
+          if (!await dir.exists()) await dir.create();
+        }, true);
+      }
 
       final isEmpty = await useDirectory(selectedDirectory, (_) async {}, (selectedDirectory) async {
         final dir = Directory(selectedDirectory);

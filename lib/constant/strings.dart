@@ -119,3 +119,5 @@ const gitSyncNotifyChannelName = "GitSync Merge Conflict";
 
 const gitSyncBugChannelId = "git_sync_bug_channel";
 const gitSyncBugChannelName = "GitSync Bug";
+
+const bullet = "•";

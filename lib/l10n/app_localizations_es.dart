@@ -620,6 +620,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get clone => 'clonar';
 
   @override
+  String get chooseHowToClone => 'Choose how you want to clone the repository:';
+
+  @override
+  String get directCloningMsg => 'Direct Cloning: Clones the repository into the selected folder';
+
+  @override
+  String get nestedCloningMsg => 'Nested Cloning: Creates a new folder named after the repository within the selected folder';
+
+  @override
+  String get directClone => 'Direct Clone';
+
+  @override
+  String get nestedClone => 'Nested Clone';
+
+  @override
   String get gitRepoUrlHint => 'https://git.abc/xyz.git';
 
   @override

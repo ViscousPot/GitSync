@@ -178,6 +178,26 @@ Future<String?> pickDirectory() async {
   return null;
 }
 
+String getDirectoryNameFromCloneUrl(String cloneUrl) {
+  cloneUrl = cloneUrl.replaceAll(RegExp(r'https?://'), '');
+
+  int atIndex = cloneUrl.indexOf('@');
+  if (atIndex != -1) {
+    cloneUrl = cloneUrl.substring(atIndex + 1);
+  }
+
+  cloneUrl = cloneUrl.split(':').last;
+
+  if (cloneUrl.endsWith('.git')) {
+    cloneUrl = cloneUrl.substring(0, cloneUrl.length - 4);
+  }
+
+  List<String> parts = cloneUrl.split('/');
+  String repositoryName = parts.last;
+
+  return repositoryName;
+}
+
 TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableTextState editableTextState) => TextSelectionToolbar(
   anchorAbove: editableTextState.contextMenuAnchors.primaryAnchor,
   anchorBelow: editableTextState.contextMenuAnchors.secondaryAnchor ?? Offset.zero,
@@ -311,10 +331,15 @@ Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async 
   }
 }
 
-Future<T?> useDirectory<T>(String bookmarkPath, Future<void> Function(String) setBookmarkPath, Future<T?> Function(String path) useAccess) async {
+Future<T?> useDirectory<T>(
+  String bookmarkPath,
+  Future<void> Function(String) setBookmarkPath,
+  Future<T?> Function(String path) useAccess, [
+  bool createDir = false,
+]) async {
   Future<T?> preUseAccess(String path) async {
     final dir = Directory(path);
-    if (!await dir.exists()) {
+    if (!createDir && !await dir.exists()) {
       return null;
     }
 
