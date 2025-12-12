@@ -950,6 +950,12 @@ abstract class AppLocalizations {
   /// **'App Sync Settings'**
   String get enableApplicationObserver;
 
+  /// No description provided for @appSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically syncs when your selected app is opened or closed'**
+  String get appSyncDescription;
+
   /// No description provided for @accessibilityServiceDisclosureTitle.
   ///
   /// In en, this message translates to:
@@ -1016,6 +1022,12 @@ abstract class AppLocalizations {
   /// **'Scheduled Sync Settings'**
   String get scheduledSyncSettings;
 
+  /// No description provided for @scheduledSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically syncs periodically in the background'**
+  String get scheduledSyncDescription;
+
   /// No description provided for @sync.
   ///
   /// In en, this message translates to:
@@ -1069,6 +1081,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quick Sync Settings'**
   String get quickSyncSettings;
+
+  /// No description provided for @quickSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync using customizable quick tiles, shortcuts, or widgets'**
+  String get quickSyncDescription;
 
   /// No description provided for @tileSyncSettings.
   ///

@@ -446,6 +446,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get enableApplicationObserver => 'App Sync Settings';
 
   @override
+  String get appSyncDescription => 'Automatically syncs when your selected app is opened or closed';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'Divulgación del Servicio de Accesibilidad';
 
   @override
@@ -481,6 +484,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scheduledSyncSettings => 'Configuración de Sync Programada';
 
   @override
+  String get scheduledSyncDescription => 'Automatically syncs periodically in the background';
+
+  @override
   String get sync => 'Sync';
 
   @override
@@ -508,6 +514,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get quickSyncSettings => 'Quick Sync Settings';
+
+  @override
+  String get quickSyncDescription => 'Sync using customizable quick tiles, shortcuts, or widgets';
 
   @override
   String get tileSyncSettings => 'Configuración de Sync de Acceso Rápido';

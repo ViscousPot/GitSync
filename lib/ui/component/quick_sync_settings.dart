@@ -54,11 +54,28 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                           child: SizedBox(width: (snapshot.data ?? false) ? spaceMD + spaceXXS : 0),
                         ),
                         Flexible(
-                          child: Text(
-                            t.quickSyncSettings,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                t.quickSyncSettings,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFeatures: [FontFeature.enable('smcp')],
+                                  color: primaryLight,
+                                  fontSize: textLG,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (snapshot.data == true) ...[
+                                SizedBox(height: spaceXXXXS),
+                                Text(
+                                  t.quickSyncDescription,
+                                  style: TextStyle(color: secondaryLight, fontSize: textMD),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ],
