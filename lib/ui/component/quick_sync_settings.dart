@@ -83,7 +83,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               ),
                             ),
                             onPressed: () async {
-                              launchUrl(Uri.parse(tileSyncDocsLink));
+                              launchUrl(Uri.parse(quickSyncDocsLink));
                             },
                             icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
                           ),
