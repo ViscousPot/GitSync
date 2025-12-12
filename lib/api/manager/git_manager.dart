@@ -111,7 +111,8 @@ class GitManager {
   }
 
   static Future<String?> _getErrorContent(String message) async {
-    final error = message.split(";").first;
+    String error = message.split(";").first;
+    if (error.contains(" (")) error = message.split(" (").first;
 
     return _errorContentMap.containsKey(error) ? await _errorContentMap[error]!() : message;
   }
