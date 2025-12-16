@@ -108,8 +108,8 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                     SizedBox(height: spaceMD),
                   ]
                 : [],
-            Flexible(
-              child: GestureDetector(
+            (expanded ? (child) => Flexible(child: child) : (child) => child)(
+              GestureDetector(
                 onLongPress: () {
                   Clipboard.setData(ClipboardData(text: error));
                 },
