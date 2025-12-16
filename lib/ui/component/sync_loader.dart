@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SyncLoader extends StatefulWidget {
-  const SyncLoader({super.key, required this.syncProgressKey});
+  const SyncLoader({super.key, required this.syncProgressKey, required this.reload});
 
+  final VoidCallback reload;
   final GlobalKey<State<StatefulWidget>> syncProgressKey;
 
   @override
@@ -68,6 +69,9 @@ class _SyncLoaderState extends State<SyncLoader> {
   @override
   Widget build(BuildContext context) {
     if (previousLocked == true && locked == false) {
+      Future.delayed(Duration(milliseconds: 10), () {
+        widget.reload();
+      });
       showCheck = true;
       Future.delayed(Duration(milliseconds: 10), () {
         opacity = 1.0;

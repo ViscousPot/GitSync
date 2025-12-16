@@ -853,7 +853,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
           ),
           SizedBox(width: spaceSM),
-          SyncLoader(syncProgressKey: _syncProgressKey),
+          SyncLoader(syncProgressKey: _syncProgressKey, reload: () => widget.setState(() {})),
           SizedBox(width: spaceSM),
           CustomShowcase(
             globalKey: _addMoreKey,
