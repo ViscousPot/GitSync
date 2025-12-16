@@ -22,6 +22,7 @@ final GlobalKey authDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   List<String> repoNames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+  await repoNames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
   GitProvider selectedGitProvider = await uiSettingsManager.getGitProvider();
 
   final httpsUsernameController = TextEditingController();
