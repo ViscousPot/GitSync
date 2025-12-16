@@ -637,7 +637,7 @@ class GitManager {
     });
   }
 
-  static Future<GitManagerRs.Diff?> getDiff(String startRef, String? endRef) async {
+  static Future<GitManagerRs.Diff?> getCommitDiff(String startRef, String? endRef) async {
     if (await isLocked()) {
       return null;
     }
@@ -653,7 +653,31 @@ class GitManager {
       Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
 
       try {
-        return await GitManagerRs.getDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper);
+        return await GitManagerRs.getCommitDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper);
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.RecentCommits, e, stackTrace);
+        return null;
+      }
+    });
+  }
+
+  static Future<GitManagerRs.Diff?> getFileDiff(String filePath) async {
+    if (await isLocked()) {
+      return null;
+    }
+
+    final dirPath = (await uiSettingsManager.getGitDirPath());
+    if (dirPath == null || dirPath.isEmpty) return null;
+
+    return await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
+      if (!isGitDir(dirPath)) {
+        return null;
+      }
+
+      Logger.gmLog(type: LogType.RecentCommits, ".git folder found");
+      print(filePath);
+      try {
+        return await GitManagerRs.getFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper);
       } catch (e, stackTrace) {
         Logger.logError(LogType.RecentCommits, e, stackTrace);
         return null;

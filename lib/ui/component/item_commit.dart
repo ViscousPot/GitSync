@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:GitSync/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -94,11 +95,13 @@ class _ItemCommit extends State<ItemCommit> {
       builder: (context, orientation) => Container(
         margin: orientation == Orientation.portrait ? EdgeInsets.only(top: spaceSM) : EdgeInsets.only(bottom: spaceSM),
         child: TextButton(
-          onPressed: () {
+          onPressed: () async {
             print(widget.commit.reference);
             print(widget.prevCommit?.reference);
 
-            DiffViewDialog.showDialog(context, widget.commit, widget.prevCommit);
+            final diff = await GitManager.getCommitDiff(widget.commit.reference, widget.prevCommit?.reference);
+
+            DiffViewDialog.showDialog(context, diff, widget.commit.reference.substring(0, 7), (widget.commit, widget.prevCommit));
           },
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(

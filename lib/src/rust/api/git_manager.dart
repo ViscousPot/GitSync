@@ -7,6 +7,7 @@ import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `_log`, `commit`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `pull_changes_priv`, `push_changes_priv`, `set_author`, `update_submodules_priv`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`
 // These functions are ignored (category: IgnoreBecauseNotAllowedOwner): `safe_wline`
 
 Future<void> init({String? homepath}) =>
@@ -47,12 +48,22 @@ Future<void> untrackAll({
   log: log,
 );
 
-Future<Diff> getDiff({
+Future<Diff> getFileDiff({
+  required String pathString,
+  required String filePath,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerGetFileDiff(
+  pathString: pathString,
+  filePath: filePath,
+  log: log,
+);
+
+Future<Diff> getCommitDiff({
   required String pathString,
   required String startRef,
   String? endRef,
   required FutureOr<void> Function(LogType, String) log,
-}) => RustLib.instance.api.crateApiGitManagerGetDiff(
+}) => RustLib.instance.api.crateApiGitManagerGetCommitDiff(
   pathString: pathString,
   startRef: startRef,
   endRef: endRef,
@@ -456,31 +467,28 @@ class Commit {
 }
 
 class Diff {
-  final int filesChanged;
   final int insertions;
   final int deletions;
   final Map<String, Map<String, String>> diffParts;
 
   const Diff({
-    required this.filesChanged,
     required this.insertions,
     required this.deletions,
     required this.diffParts,
   });
 
+  static Future<Diff> default_() =>
+      RustLib.instance.api.crateApiGitManagerDiffDefault();
+
   @override
   int get hashCode =>
-      filesChanged.hashCode ^
-      insertions.hashCode ^
-      deletions.hashCode ^
-      diffParts.hashCode;
+      insertions.hashCode ^ deletions.hashCode ^ diffParts.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Diff &&
           runtimeType == other.runtimeType &&
-          filesChanged == other.filesChanged &&
           insertions == other.insertions &&
           deletions == other.deletions &&
           diffParts == other.diffParts;

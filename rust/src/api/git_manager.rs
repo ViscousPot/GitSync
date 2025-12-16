@@ -1,12 +1,12 @@
-use std::{env, fs, path::Path, path::PathBuf, sync::Arc, collections::HashMap};
 use flutter_rust_bridge::DartFnFuture;
-use osshkeys::{KeyPair, KeyType};
 use git2::{
-    CertificateCheckStatus, Cred,  DiffOptions, ErrorCode,
-    FetchOptions, PushOptions, RemoteCallbacks, Repository, RepositoryState, ResetType, Signature,
-    StatusOptions, Status, BranchType, Tree, SubmoduleUpdateOptions
+    BranchType, CertificateCheckStatus, Cred, DiffOptions, ErrorCode, FetchOptions, PushOptions,
+    RemoteCallbacks, Repository, RepositoryState, ResetType, Signature, Status, StatusOptions,
+    SubmoduleUpdateOptions, Tree,
 };
+use osshkeys::{KeyPair, KeyType};
 use ssh_key::{HashAlg, LineEnding, PrivateKey};
+use std::{collections::HashMap, env, fs, path::Path, path::PathBuf, sync::Arc};
 
 pub struct Commit {
     pub timestamp: i64,
@@ -20,8 +20,8 @@ pub struct Commit {
     pub unpushed: bool,
 }
 
+#[derive(Debug, Default)]
 pub struct Diff {
-    pub files_changed: i32,
     pub insertions: i32,
     pub deletions: i32,
     pub diff_parts: HashMap<String, HashMap<String, String>>,
@@ -129,7 +129,7 @@ fn _log(
     });
 }
 
-pub async fn get_submodule_paths(path_string: String,) -> Result<Vec<String>, git2::Error> {
+pub async fn get_submodule_paths(path_string: String) -> Result<Vec<String>, git2::Error> {
     let repo = swl!(Repository::open(path_string))?;
     let mut paths = Vec::new();
 
@@ -409,7 +409,11 @@ pub async fn untrack_all(
     let repo = swl!(Repository::open(path_string))?;
     let mut index = swl!(repo.index())?;
 
-    let mut paths_to_remove: Vec<String> = if let Some(ref paths) = file_paths { paths.clone() } else { Vec::new() };
+    let mut paths_to_remove: Vec<String> = if let Some(ref paths) = file_paths {
+        paths.clone()
+    } else {
+        Vec::new()
+    };
 
     if file_paths.is_none() {
         if let Ok(contents) = fs::read_to_string(format!("{}/.gitignore", path_string)) {
@@ -431,7 +435,6 @@ pub async fn untrack_all(
         }
     }
 
-
     for path in paths_to_remove {
         swl!(index.remove_path(&PathBuf::from(path)))?;
     }
@@ -450,7 +453,198 @@ pub async fn untrack_all(
     Ok(())
 }
 
-pub async fn get_diff(
+pub async fn get_file_diff(
+    path_string: &String,
+    file_path: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<Diff, git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Opening repository".to_string(),
+    );
+
+    // Open the repository
+    let repo = Repository::open(path_string)?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Preparing diff options".to_string(),
+    );
+
+    let mut diff_opts = DiffOptions::new();
+    diff_opts.pathspec(file_path);
+
+    let mut file_diff = Diff::default();
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Preparing revision walk".to_string(),
+    );
+
+    let mut revwalk = repo.revwalk()?;
+    revwalk.push_head()?;
+    revwalk.set_sorting(git2::Sort::TIME | git2::Sort::REVERSE)?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        "Starting commit traversal".to_string(),
+    );
+
+    for commit_oid in revwalk {
+        let commit_oid = commit_oid?;
+        let commit = repo.find_commit(commit_oid)?;
+
+        _log(
+            Arc::clone(&log_callback),
+            LogType::Diff,
+            format!("Processing commit: {}", commit.id()),
+        );
+
+        let diff = if commit.parent_count() > 0 {
+            let parent = commit.parent(0)?;
+            repo.diff_tree_to_tree(
+                Some(&parent.tree()?),
+                Some(&commit.tree()?),
+                Some(&mut diff_opts),
+            )?
+        } else {
+            repo.diff_tree_to_tree(None, Some(&commit.tree()?), Some(&mut diff_opts))?
+        };
+        _log(
+            Arc::clone(&log_callback),
+            LogType::Diff,
+            format!("Number of deltas: {}", diff.deltas().count()),
+        );
+
+        for delta in diff.deltas() {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::Diff,
+                format!(
+                    "Found file: {}",
+                    delta
+                        .new_file()
+                        .path()
+                        .and_then(|p| p.to_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| "Unknown".to_string())
+                ),
+            );
+            if delta.new_file().path().map(|p| p.to_str()) == Some(Some(file_path)) {
+                _log(
+                    Arc::clone(&log_callback),
+                    LogType::Diff,
+                    format!("Found changes in file: {}", file_path),
+                );
+
+                let commit_hash = commit.id().to_string();
+                let commit_timestamp = commit.time().seconds() * 1000;
+                let commit_msg = commit.message().unwrap();
+                let commit_identifier = format!(
+                    "{}======={}======={}",
+                    commit_timestamp, commit_hash, commit_msg
+                );
+                let mut commit_diff_parts = HashMap::new();
+
+                let mut insertions = 0;
+                let mut deletions = 0;
+
+                let insertion_marker: &str = "+++++insertion+++++";
+                let deletion_marker: &str = "-----deletion-----";
+
+                diff.print(git2::DiffFormat::Patch, |delta, hunk, line| {
+                    let line_content = String::from_utf8_lossy(line.content()).to_string();
+
+                    let hunk_header = hunk
+                        .map(|h| String::from_utf8_lossy(h.header()).to_string())
+                        .unwrap_or_else(|| "none".to_string());
+
+                    match line.origin() {
+                        '+' => {
+                            insertions += 1;
+                            commit_diff_parts
+                                .entry(hunk_header.clone())
+                                .and_modify(|existing_content| {
+                                    *existing_content = format!(
+                                        "{}{}{}",
+                                        existing_content, insertion_marker, line_content
+                                    );
+                                })
+                                .or_insert_with(|| format!("{}{}", insertion_marker, line_content));
+                        }
+                        '-' => {
+                            deletions += 1;
+                            commit_diff_parts
+                                .entry(hunk_header.clone())
+                                .and_modify(|existing_content| {
+                                    *existing_content = format!(
+                                        "{}{}{}",
+                                        existing_content, deletion_marker, line_content
+                                    );
+                                })
+                                .or_insert_with(|| format!("{}{}", deletion_marker, line_content));
+                        }
+                        ' ' => {
+                            commit_diff_parts
+                                .entry(hunk_header.clone())
+                                .and_modify(|existing_content| {
+                                    *existing_content =
+                                        format!("{}{}", existing_content, line_content);
+                                })
+                                .or_insert_with(|| line_content.clone());
+                        }
+                        _ => {
+                            _log(
+                                Arc::clone(&log_callback),
+                                LogType::Diff,
+                                format!("Unhandled diff line origin: {}", line.origin()),
+                            );
+                        }
+                    }
+
+                    true
+                })?;
+
+                _log(
+                    Arc::clone(&log_callback),
+                    LogType::Diff,
+                    format!(
+                        "Commit {} - Insertions: {}, Deletions: {}",
+                        commit_hash, insertions, deletions
+                    ),
+                );
+
+                file_diff.insertions += insertions;
+                file_diff.deletions += deletions;
+
+                if !commit_diff_parts.is_empty() {
+                    file_diff
+                        .diff_parts
+                        .insert(commit_identifier, commit_diff_parts);
+                }
+            }
+        }
+    }
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::Diff,
+        format!(
+            "File history complete - Total Insertions: {}, Total Deletions: {}",
+            file_diff.insertions, file_diff.deletions
+        ),
+    );
+
+    Ok(file_diff)
+}
+
+pub async fn get_commit_diff(
     path_string: &String,
     start_ref: &String,
     end_ref: &Option<String>,
@@ -482,11 +676,7 @@ pub async fn get_diff(
 
     let mut diff_opts = DiffOptions::new();
 
-    let diff = swl!(repo.diff_tree_to_tree(
-        Some(&tree2),
-        Some(&tree1),
-        Some(&mut diff_opts)
-    ))?;
+    let diff = swl!(repo.diff_tree_to_tree(Some(&tree2), Some(&tree1), Some(&mut diff_opts)))?;
 
     _log(
         Arc::clone(&log_callback),
@@ -505,20 +695,23 @@ pub async fn get_diff(
     let mut diff_parts: HashMap<String, HashMap<String, String>> = HashMap::new();
 
     swl!(diff.foreach(
-        &mut |_: git2::DiffDelta, _: f32| -> bool {
-            true
-        },
+        &mut |_: git2::DiffDelta, _: f32| -> bool { true },
         None,
-        Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool {
-            true
-        }),
-        Some(&mut |delta: git2::DiffDelta, hunk: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
-            let old_file_path = delta.old_file().path()
+        Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
+        Some(&mut |delta: git2::DiffDelta,
+                   hunk: Option<git2::DiffHunk>,
+                   line: git2::DiffLine|
+         -> bool {
+            let old_file_path = delta
+                .old_file()
+                .path()
                 .map(|p| p.display().to_string())
                 .unwrap_or_else(|| "Unknown".to_string());
-            let new_file_path = delta.new_file().path()
-            .map(|p| p.display().to_string())
-            .unwrap_or_else(|| "Unknown".to_string());
+            let new_file_path = delta
+                .new_file()
+                .path()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|| "Unknown".to_string());
 
             let mut hunk_header = "none".to_string();
 
@@ -528,7 +721,11 @@ pub async fn get_diff(
                 }
             }
 
-            let file_path_key = if old_file_path == new_file_path { new_file_path } else { format!("{}=>{}", old_file_path, new_file_path) };
+            let file_path_key = if old_file_path == new_file_path {
+                new_file_path
+            } else {
+                format!("{}=>{}", old_file_path, new_file_path)
+            };
 
             let line_text = String::from_utf8_lossy(line.content()).to_string();
 
@@ -545,8 +742,10 @@ pub async fn get_diff(
                                 format!("{}{}", &insertion_marker, line_text).to_string()
                             );
                         })
-                        .or_insert_with(|| format!("{}{}", &insertion_marker, line_text).to_string());
-                },
+                        .or_insert_with(|| {
+                            format!("{}{}", &insertion_marker, line_text).to_string()
+                        });
+                }
                 '-' => {
                     diff_parts
                         .entry(file_path_key.clone())
@@ -559,14 +758,16 @@ pub async fn get_diff(
                                 format!("{}{}", &deletion_marker, line_text).to_string()
                             );
                         })
-                        .or_insert_with(|| format!("{}{}", &deletion_marker, line_text).to_string());
-                },
-                '>' => {},
-                '<' => {},
-                '=' => {},
-                'F' => {},
-                'H' => {},
-                'B' => {},
+                        .or_insert_with(|| {
+                            format!("{}{}", &deletion_marker, line_text).to_string()
+                        });
+                }
+                '>' => {}
+                '<' => {}
+                '=' => {}
+                'F' => {}
+                'H' => {}
+                'B' => {}
                 ' ' => {
                     diff_parts
                         .entry(file_path_key.clone())
@@ -580,12 +781,12 @@ pub async fn get_diff(
                             );
                         })
                         .or_insert_with(|| format!("{}", line_text).to_string());
-                },
+                }
                 _ => {
                     _log(
                         Arc::clone(&log_callback),
                         LogType::Diff,
-                        format!("Other: {}", line.origin())
+                        format!("Other: {}", line.origin()),
                     );
                 }
             }
@@ -595,10 +796,9 @@ pub async fn get_diff(
     ))?;
 
     Ok(Diff {
-        files_changed: diff_stats.files_changed() as i32,
         insertions: diff_stats.insertions() as i32,
         deletions: diff_stats.deletions() as i32,
-        diff_parts: diff_parts
+        diff_parts: diff_parts,
     })
 }
 
@@ -625,7 +825,10 @@ pub async fn get_recent_commits(
 
     if let Some(name) = branch_name {
         let local_branch = swl!(repo.find_branch(&name, BranchType::Local))?;
-        local_oid = Some(swl!(local_branch.get().target().ok_or_else(|| git2::Error::from_str("Invalid local branch")))?);
+        local_oid = Some(swl!(local_branch
+            .get()
+            .target()
+            .ok_or_else(|| git2::Error::from_str("Invalid local branch")))?);
         let remote_ref = format!("refs/remotes/{}/{}", remote_name, name);
         remote_oid = repo.refname_to_id(&remote_ref).ok();
         if let Some(local_oid) = local_oid {
@@ -636,7 +839,7 @@ pub async fn get_recent_commits(
         }
     } else {
         match revwalk.push_head() {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => return Ok(Vec::new()),
         }
     }
@@ -659,7 +862,11 @@ pub async fn get_recent_commits(
         let author_username = commit.author().name().unwrap_or("<unknown>").to_string();
         let author_email = commit.author().email().unwrap_or("<unknown>").to_string();
         let time = commit.time().seconds();
-        let message = commit.message().unwrap_or("<no message>").trim().to_string();
+        let message = commit
+            .message()
+            .unwrap_or("<no message>")
+            .trim()
+            .to_string();
         let reference = format!("{}", oid);
 
         let parent = commit.parent(0).ok();
@@ -670,7 +877,11 @@ pub async fn get_recent_commits(
                 Some(&swl!(commit.tree())?),
                 Some(&mut diff_opts),
             )?,
-            None => swl!(repo.diff_tree_to_tree(None, Some(&swl!(commit.tree())?), Some(&mut diff_opts)))?,
+            None => swl!(repo.diff_tree_to_tree(
+                None,
+                Some(&swl!(commit.tree())?),
+                Some(&mut diff_opts)
+            ))?,
         };
 
         let (additions, deletions) = match diff.stats() {
@@ -760,30 +971,28 @@ fn commit(
     commit_signing_credentials: Option<(String, String)>,
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
 ) -> Result<git2::Oid, git2::Error> {
-	let commit_id = if let Some((ref pass, ref key)) = commit_signing_credentials
-	{
+    let commit_id = if let Some((ref pass, ref key)) = commit_signing_credentials {
         _log(
             Arc::clone(&log_callback),
             LogType::Commit,
             "Signing commit".to_string(),
         );
-		let buffer = swl!(repo.commit_create_buffer(
-			&author_committer,
-			&author_committer,
-			message,
-			&tree,
-			parents,
-		))?;
+        let buffer = swl!(repo.commit_create_buffer(
+            &author_committer,
+            &author_committer,
+            message,
+            &tree,
+            parents,
+        ))?;
 
-		let commit = swl!(std::str::from_utf8(&buffer).map_err(|_e| {
-			git2::Error::from_str(&"utf8 conversion error".to_string())
-		}))?;
-
+        let commit = swl!(std::str::from_utf8(&buffer)
+            .map_err(|_e| { git2::Error::from_str(&"utf8 conversion error".to_string()) }))?;
 
         let secret_key = swl!(PrivateKey::from_openssh(key.as_bytes())
             .map_err(|e| git2::Error::from_str(&e.to_string())))?;
         if !pass.is_empty() {
-            swl!(secret_key.decrypt(pass.as_bytes())
+            swl!(secret_key
+                .decrypt(pass.as_bytes())
                 .map_err(|e| git2::Error::from_str(&e.to_string())))?;
         }
         _log(
@@ -794,46 +1003,43 @@ fn commit(
         let sig = swl!(swl!(secret_key
             .sign("git", HashAlg::Sha256, &commit.as_bytes())
             .map_err(|e| git2::Error::from_str(&e.to_string())))?
-            .to_pem(LineEnding::LF)
-            .map_err(|e| git2::Error::from_str(&e.to_string())))?;
+        .to_pem(LineEnding::LF)
+        .map_err(|e| git2::Error::from_str(&e.to_string())))?;
 
-        let commit_id = swl!(repo.commit_signed(
-			commit,
-			&sig,
-			None,
-		))?;
+        let commit_id = swl!(repo.commit_signed(commit, &sig, None,))?;
 
-		if let Ok(mut head) = repo.head() {
-			swl!(head.set_target(commit_id, message))?;
-		} else {
-            let current_branch = get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
+        if let Ok(mut head) = repo.head() {
+            swl!(head.set_target(commit_id, message))?;
+        } else {
+            let current_branch =
+                get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
 
-			swl!(repo.reference(
-				&format!("refs/heads/{}", current_branch),
-				commit_id,
-				true,
-				message,
-			))?;
-		}
+            swl!(repo.reference(
+                &format!("refs/heads/{}", current_branch),
+                commit_id,
+                true,
+                message,
+            ))?;
+        }
 
-		commit_id
-	} else {
+        commit_id
+    } else {
         _log(
             Arc::clone(&log_callback),
             LogType::Commit,
             "Committing".to_string(),
         );
-		swl!(repo.commit(
-			update_ref,
-			&author_committer,
-			&author_committer,
-			message,
-			&tree,
-			parents,
-		))?
-	};
+        swl!(repo.commit(
+            update_ref,
+            &author_committer,
+            &author_committer,
+            message,
+            &tree,
+            parents,
+        ))?
+    };
 
-	Ok(commit_id.into())
+    Ok(commit_id.into())
 }
 
 pub async fn update_submodules(
@@ -882,7 +1088,6 @@ fn update_submodules_priv(
         fetch_options.update_fetchhead(true);
         fetch_options.remote_callbacks(callbacks);
         fetch_options.download_tags(git2::AutotagOption::All);
-
 
         let mut submodule_opts = git2::SubmoduleUpdateOptions::new();
         submodule_opts.fetch(fetch_options);
@@ -976,7 +1181,14 @@ pub async fn pull_changes(
         "Getting local directory".to_string(),
     );
 
-    pull_changes_priv(&repo, &provider, &credentials, commit_signing_credentials, sync_callback, &log_callback)
+    pull_changes_priv(
+        &repo,
+        &provider,
+        &credentials,
+        commit_signing_credentials,
+        sync_callback,
+        &log_callback,
+    )
 }
 
 fn pull_changes_priv(
@@ -993,7 +1205,9 @@ fn pull_changes_priv(
             if e.code() == git2::ErrorCode::UnbornBranch {
                 None
             } else {
-                return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())));
+                return Err(e).map_err(|e| {
+                    git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+                });
             }
         }
     };
@@ -1004,7 +1218,8 @@ fn pull_changes_priv(
 
     let head = result.unwrap();
     let resolved_head = swl!(head.resolve())?;
-    let remote_branch = swl!(resolved_head.shorthand()
+    let remote_branch = swl!(resolved_head
+        .shorthand()
         .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?;
 
     let fetch_head = swl!(repo.find_reference("FETCH_HEAD"))?;
@@ -1038,9 +1253,16 @@ fn pull_changes_priv(
                     LogType::PullFromRepo,
                     "OK fast forward".to_string(),
                 );
-                if get_staged_file_paths_priv(&repo, &log_callback).is_empty() && get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty() {
+                if get_staged_file_paths_priv(&repo, &log_callback).is_empty()
+                    && get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty()
+                {
                     swl!(fast_forward(&repo, &mut r, &fetch_commit, &log_callback))?;
-                    swl!(update_submodules_priv(&repo, &provider, &credentials, &log_callback))?;
+                    swl!(update_submodules_priv(
+                        &repo,
+                        &provider,
+                        &credentials,
+                        &log_callback
+                    ))?;
                 } else {
                     _log(
                         Arc::clone(&log_callback),
@@ -1070,7 +1292,12 @@ fn pull_changes_priv(
                         .conflict_style_merge(true)
                         .force(),
                 )))?;
-                swl!(update_submodules_priv(&repo, &provider, &credentials, &log_callback))?;
+                swl!(update_submodules_priv(
+                    &repo,
+                    &provider,
+                    &credentials,
+                    &log_callback
+                ))?;
                 return Ok(Some(true));
             }
         };
@@ -1088,9 +1315,10 @@ fn pull_changes_priv(
         );
         let local_tree = swl!(repo.find_commit(head_commit.id())?.tree())?;
         let remote_tree = swl!(repo.find_commit(fetch_commit.id())?.tree())?;
-        let ancestor = swl!(swl!(repo
-            .find_commit(swl!(repo.merge_base(head_commit.id(), fetch_commit.id()))?))?
-            .tree())?;
+        let ancestor = swl!(swl!(
+            repo.find_commit(swl!(repo.merge_base(head_commit.id(), fetch_commit.id()))?)
+        )?
+        .tree())?;
         let mut idx = swl!(repo.merge_trees(&ancestor, &local_tree, &remote_tree, None))?;
 
         if idx.has_conflicts() {
@@ -1148,7 +1376,15 @@ pub async fn download_changes(
 
     fetch_remote_priv(&repo, &remote, &provider, &credentials, &log_callback);
 
-    if pull_changes_priv(&repo, &provider, &credentials, commit_signing_credentials, sync_callback, &log_callback) == Ok(Some(false)) {
+    if pull_changes_priv(
+        &repo,
+        &provider,
+        &credentials,
+        commit_signing_credentials,
+        sync_callback,
+        &log_callback,
+    ) == Ok(Some(false))
+    {
         return Ok(Some(false));
     }
 
@@ -1179,7 +1415,14 @@ pub async fn push_changes(
         "Getting local directory".to_string(),
     );
 
-    push_changes_priv(&repo, &remote_name, &provider, &credentials, merge_conflict_callback, &log_callback)
+    push_changes_priv(
+        &repo,
+        &remote_name,
+        &provider,
+        &credentials,
+        merge_conflict_callback,
+        &log_callback,
+    )
 }
 
 fn push_changes_priv(
@@ -1202,7 +1445,9 @@ fn push_changes_priv(
             if e.code() == git2::ErrorCode::UnbornBranch {
                 None
             } else {
-                return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())));
+                return Err(e).map_err(|e| {
+                    git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+                });
             }
         }
     };
@@ -1215,16 +1460,19 @@ fn push_changes_priv(
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
 
     let refname = if rebase_head_path.exists() {
-        let content = swl!(fs::read_to_string(&rebase_head_path)
-            .map_err(|err| git2::Error::from_str(&format!(
-                "Failed to read rebase head-name file: {}", err
-            ))))?;
+        let content =
+            swl!(
+                fs::read_to_string(&rebase_head_path).map_err(|err| git2::Error::from_str(
+                    &format!("Failed to read rebase head-name file: {}", err)
+                ))
+            )?;
 
         content.trim().to_string()
     } else {
         let head = swl!(repo.head())?;
         let resolved_head = swl!(head.resolve())?;
-        let branch_name = swl!(resolved_head.shorthand()
+        let branch_name = swl!(resolved_head
+            .shorthand()
             .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?;
 
         format!("refs/heads/{}", branch_name)
@@ -1275,7 +1523,9 @@ fn push_changes_priv(
                     Ok(_) => {
                         return Ok(Some(true));
                     }
-                    Err(e) if e.code() == ErrorCode::Modified || e.code() == ErrorCode::Unmerged => {
+                    Err(e)
+                        if e.code() == ErrorCode::Modified || e.code() == ErrorCode::Unmerged =>
+                    {
                         swl!(rebase.abort())?;
                     }
                     Err(e) => {
@@ -1289,8 +1539,10 @@ fn push_changes_priv(
                             LogType::PushToRepo,
                             (e.code() == ErrorCode::Unmerged).to_string(),
                         );
-                        return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())))
-                    },
+                        return Err(e).map_err(|e| {
+                            git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+                        });
+                    }
                 }
             }
 
@@ -1308,7 +1560,8 @@ fn push_changes_priv(
 
             let remote_branch = swl!(repo.find_reference(&remote_branch_ref))?;
             let annotated_commit = swl!(repo.reference_to_annotated_commit(&remote_branch))?;
-            let mut rebase = swl!(repo.rebase(None, Some(&annotated_commit), Some(&annotated_commit), None))?;
+            let mut rebase =
+                swl!(repo.rebase(None, Some(&annotated_commit), Some(&annotated_commit), None))?;
 
             while let Some(op) = rebase.next() {
                 let commit_id = swl!(op)?.id();
@@ -1339,7 +1592,9 @@ fn push_changes_priv(
                             LogType::PushToRepo,
                             format!("Error: {}; code={}", e.message(), e.code() as i32),
                         );
-                        return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())));
+                        return Err(e).map_err(|e| {
+                            git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+                        });
                     }
                 }
             }
@@ -1359,7 +1614,11 @@ fn push_changes_priv(
 
             swl!(remote.push(&[&refname], Some(&mut push_options)))?;
         }
-        Err(e) => return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))),
+        Err(e) => {
+            return Err(e).map_err(|e| {
+                git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+            })
+        }
     }
 
     Ok(Some(true))
@@ -1396,7 +1655,9 @@ pub async fn stage_file_paths(
 
     match index.add_all(paths.iter(), git2::IndexAddOption::DEFAULT, None) {
         Ok(_) => {}
-        Err(_) => { swl!(index.update_all(paths.iter(), None))?; }
+        Err(_) => {
+            swl!(index.update_all(paths.iter(), None))?;
+        }
     }
 
     for path in &paths {
@@ -1415,7 +1676,6 @@ pub async fn stage_file_paths(
 
     Ok(())
 }
-
 
 pub async fn unstage_file_paths(
     path_string: &String,
@@ -1488,7 +1748,10 @@ pub async fn get_recommended_action(
             _log(
                 Arc::clone(&log_callback),
                 LogType::GitStatus,
-                format!("Recommending action 0: No local tracking reference found. Expected ref: {}", tracking_ref_name)
+                format!(
+                    "Recommending action 0: No local tracking reference found. Expected ref: {}",
+                    tracking_ref_name
+                ),
             );
             return Ok(Some(0));
         }
@@ -1504,21 +1767,27 @@ pub async fn get_recommended_action(
         remote.disconnect();
     }
 
-    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty() || !get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty() {
+    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
+        || !get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty()
+    {
         _log(
             Arc::clone(&log_callback),
             LogType::GitStatus,
-            "Recommending action 2: Staged or uncommitted files exist".to_string()
+            "Recommending action 2: Staged or uncommitted files exist".to_string(),
         );
         return Ok(Some(2));
     }
 
     if let Ok(head) = repo.head() {
         if let Ok(local_commit) = head.peel_to_commit() {
-            if let Ok(remote_branch) = repo.find_branch(&format!("{}/{}", remote_name, head.shorthand().unwrap_or("")), git2::BranchType::Remote) {
+            if let Ok(remote_branch) = repo.find_branch(
+                &format!("{}/{}", remote_name, head.shorthand().unwrap_or("")),
+                git2::BranchType::Remote,
+            ) {
                 if let Ok(remote_commit) = remote_branch.get().peel_to_commit() {
                     if local_commit.id() != remote_commit.id() {
-                        let (ahead, behind) = swl!(repo.graph_ahead_behind(local_commit.id(), remote_commit.id()))?;
+                        let (ahead, behind) =
+                            swl!(repo.graph_ahead_behind(local_commit.id(), remote_commit.id()))?;
                         if ahead > 0 {
                             _log(
                                 Arc::clone(&log_callback),
@@ -1537,7 +1806,7 @@ pub async fn get_recommended_action(
                         _log(
                             Arc::clone(&log_callback),
                             LogType::GitStatus,
-                            "Recommending action 3: Unhandled commit difference".to_string()
+                            "Recommending action 3: Unhandled commit difference".to_string(),
                         );
                         return Ok(Some(3));
                     }
@@ -1567,7 +1836,6 @@ pub async fn commit_changes(
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
 
-
     _log(
         Arc::clone(&log_callback),
         LogType::PushToRepo,
@@ -1591,14 +1859,15 @@ pub async fn commit_changes(
         .signature()
         .or_else(|_| Signature::now(&author.0, &author.1)))?;
 
-    let parents = match repo.head()
+    let parents = match repo
+        .head()
         .ok()
         .and_then(|h| h.resolve().ok())
-        .and_then(|h| h.peel_to_commit().ok()) {
-            Some(commit) => vec![commit],
-            None => vec![],
-        };
-
+        .and_then(|h| h.peel_to_commit().ok())
+    {
+        Some(commit) => vec![commit],
+        None => vec![],
+    };
 
     let tree_oid = updated_tree_oid.unwrap_or_else(|| index.write_tree_to(&repo).unwrap());
     let tree = swl!(repo.find_tree(tree_oid))?;
@@ -1641,14 +1910,17 @@ pub async fn upload_changes(
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
 
-
     _log(
         Arc::clone(&log_callback),
         LogType::PushToRepo,
         "Retrieved Statuses".to_string(),
     );
 
-    let uncommitted_file_paths: Vec<(String, i32)> = get_staged_file_paths_priv(&repo, &log_callback).into_iter().chain(get_uncommitted_file_paths_priv(&repo, true, &log_callback)).collect();
+    let uncommitted_file_paths: Vec<(String, i32)> =
+        get_staged_file_paths_priv(&repo, &log_callback)
+            .into_iter()
+            .chain(get_uncommitted_file_paths_priv(&repo, true, &log_callback))
+            .collect();
 
     let mut index = swl!(repo.index())?;
 
@@ -1672,17 +1944,18 @@ pub async fn upload_changes(
         "Adding Files to Stage".to_string(),
     );
 
-    let paths: Vec<String> = if let Some(paths) = file_paths { paths } else {
+    let paths: Vec<String> = if let Some(paths) = file_paths {
+        paths
+    } else {
         uncommitted_file_paths.into_iter().map(|(p, _)| p).collect()
     };
 
     match index.add_all(paths.iter(), git2::IndexAddOption::DEFAULT, None) {
         Ok(_) => {}
         Err(_) => {
-            let non_submodule_paths: Vec<&String> = paths.iter()
-                .filter(|path| {
-                    repo.find_submodule(path).is_err()
-                })
+            let non_submodule_paths: Vec<&String> = paths
+                .iter()
+                .filter(|path| repo.find_submodule(path).is_err())
                 .collect();
             swl!(index.update_all(non_submodule_paths.iter(), None))?;
         }
@@ -1704,7 +1977,6 @@ pub async fn upload_changes(
         None
     };
 
-
     let should_commit = match (initial_tree_oid, updated_tree_oid) {
         (Some(old), Some(new)) => old != new,
         (None, None) => true,
@@ -1723,14 +1995,15 @@ pub async fn upload_changes(
             .signature()
             .or_else(|_| Signature::now(&author.0, &author.1)))?;
 
-        let parents = match repo.head()
+        let parents = match repo
+            .head()
             .ok()
             .and_then(|h| h.resolve().ok())
-            .and_then(|h| h.peel_to_commit().ok()) {
-                Some(commit) => vec![commit],
-                None => vec![],
-            };
-
+            .and_then(|h| h.peel_to_commit().ok())
+        {
+            Some(commit) => vec![commit],
+            None => vec![],
+        };
 
         let tree_oid = updated_tree_oid.unwrap_or_else(|| index.write_tree_to(&repo).unwrap());
         let tree = swl!(repo.find_tree(tree_oid))?;
@@ -1753,14 +2026,20 @@ pub async fn upload_changes(
         );
     }
 
-
     _log(
         Arc::clone(&log_callback),
         LogType::PushToRepo,
         "Added Files to Stage (optional)".to_string(),
     );
 
-    push_changes_priv(&repo, &remote_name, &provider, &credentials, merge_conflict_callback, &log_callback)
+    push_changes_priv(
+        &repo,
+        &remote_name,
+        &provider,
+        &credentials,
+        merge_conflict_callback,
+        &log_callback,
+    )
 }
 
 pub async fn force_pull(
@@ -1782,29 +2061,33 @@ pub async fn force_pull(
         .find_reference("FETCH_HEAD")
         .and_then(|r| repo.reference_to_annotated_commit(&r)))?;
 
-
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
     let refname = if rebase_head_path.exists() {
-        let content = swl!(fs::read_to_string(&rebase_head_path)
-            .map_err(|err| git2::Error::from_str(&format!(
-                "Failed to read rebase head-name file: {}", err
-            ))))?;
+        let content =
+            swl!(
+                fs::read_to_string(&rebase_head_path).map_err(|err| git2::Error::from_str(
+                    &format!("Failed to read rebase head-name file: {}", err)
+                ))
+            )?;
 
         content.trim().to_string()
     } else {
         let head = swl!(repo.head())?;
         let resolved_head = swl!(head.resolve())?;
-        let mut branch_name = swl!(resolved_head.shorthand()
+        let mut branch_name = swl!(resolved_head
+            .shorthand()
             .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?
-            .to_string();
+        .to_string();
 
         let orig_head_path = git_dir.join("ORIG_HEAD");
         if branch_name == "HEAD" && orig_head_path.exists() {
-            let content = swl!(fs::read_to_string(&orig_head_path)
-                .map_err(|err| git2::Error::from_str(&format!(
-                    "Failed to read orig_head file: {}", err
-                ))))?;
+            let content =
+                swl!(
+                    fs::read_to_string(&orig_head_path).map_err(|err| git2::Error::from_str(
+                        &format!("Failed to read orig_head file: {}", err)
+                    ))
+                )?;
             let orig_commit_id = content.trim();
             let orig_commit = swl!(repo.find_commit(git2::Oid::from_str(orig_commit_id)?))?;
             let branches = swl!(repo.branches(None))?;
@@ -1816,7 +2099,16 @@ pub async fn force_pull(
                 if orig_commit.id() == branch_commit.id() {
                     branch_name = match branch_ref.name() {
                         Ok(Some(name)) => name.to_string(),
-                        Ok(None) | Err(_) => return Err(git2::Error::from_str("Unable to determine branch name")).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())))
+                        Ok(None) | Err(_) => {
+                            return Err(git2::Error::from_str("Unable to determine branch name"))
+                                .map_err(|e| {
+                                    git2::Error::from_str(&format!(
+                                        "{} (at line {})",
+                                        e.message(),
+                                        line!()
+                                    ))
+                                })
+                        }
                     };
                     break;
                 }
@@ -1871,10 +2163,12 @@ pub async fn force_push(
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
     let refname = if rebase_head_path.exists() {
-        let content = swl!(fs::read_to_string(&rebase_head_path)
-            .map_err(|err| git2::Error::from_str(&format!(
-                "Failed to read rebase head-name file: {}", err
-            ))))?;
+        let content =
+            swl!(
+                fs::read_to_string(&rebase_head_path).map_err(|err| git2::Error::from_str(
+                    &format!("Failed to read rebase head-name file: {}", err)
+                ))
+            )?;
 
         let rebase_merge = git_dir.join("rebase-merge");
         let rebase_apply = git_dir.join("rebase-apply");
@@ -1891,16 +2185,19 @@ pub async fn force_push(
     } else {
         let head = swl!(repo.head())?;
         let resolved_head = swl!(head.resolve())?;
-        let mut branch_name = swl!(resolved_head.shorthand()
+        let mut branch_name = swl!(resolved_head
+            .shorthand()
             .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?
-            .to_string();
+        .to_string();
 
         let orig_head_path = git_dir.join("ORIG_HEAD");
         if branch_name == "HEAD" && orig_head_path.exists() {
-            let content = swl!(fs::read_to_string(&orig_head_path)
-                .map_err(|err| git2::Error::from_str(&format!(
-                    "Failed to read orig_head file: {}", err
-                ))))?;
+            let content =
+                swl!(
+                    fs::read_to_string(&orig_head_path).map_err(|err| git2::Error::from_str(
+                        &format!("Failed to read orig_head file: {}", err)
+                    ))
+                )?;
             let orig_commit_id = content.trim();
             let orig_commit = swl!(repo.find_commit(git2::Oid::from_str(orig_commit_id)?))?;
             let branches = swl!(repo.branches(None))?;
@@ -1912,7 +2209,16 @@ pub async fn force_push(
                 if orig_commit.id() == branch_commit.id() {
                     branch_name = match branch_ref.name() {
                         Ok(Some(name)) => name.to_string(),
-                        Ok(None) | Err(_) => return Err(git2::Error::from_str("Unable to determine branch name")).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())))
+                        Ok(None) | Err(_) => {
+                            return Err(git2::Error::from_str("Unable to determine branch name"))
+                                .map_err(|e| {
+                                    git2::Error::from_str(&format!(
+                                        "{} (at line {})",
+                                        e.message(),
+                                        line!()
+                                    ))
+                                })
+                        }
                     };
                     break;
                 }
@@ -1968,7 +2274,9 @@ pub async fn upload_and_overwrite(
         swl!(rebase.abort())?;
     }
 
-    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty() || !get_uncommitted_file_paths_priv(&repo, true, &log_callback).is_empty() {
+    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
+        || !get_uncommitted_file_paths_priv(&repo, true, &log_callback).is_empty()
+    {
         let mut index = swl!(repo.index())?;
 
         _log(
@@ -2014,10 +2322,12 @@ pub async fn upload_and_overwrite(
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
     let refname = if rebase_head_path.exists() {
-        let content = swl!(fs::read_to_string(&rebase_head_path)
-            .map_err(|err| git2::Error::from_str(&format!(
-                "Failed to read rebase head-name file: {}", err
-            ))))?;
+        let content =
+            swl!(
+                fs::read_to_string(&rebase_head_path).map_err(|err| git2::Error::from_str(
+                    &format!("Failed to read rebase head-name file: {}", err)
+                ))
+            )?;
 
         let rebase_merge = git_dir.join("rebase-merge");
         let rebase_apply = git_dir.join("rebase-apply");
@@ -2034,16 +2344,19 @@ pub async fn upload_and_overwrite(
     } else {
         let head = swl!(repo.head())?;
         let resolved_head = swl!(head.resolve())?;
-        let mut branch_name = swl!(resolved_head.shorthand()
+        let mut branch_name = swl!(resolved_head
+            .shorthand()
             .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?
-            .to_string();
+        .to_string();
 
         let orig_head_path = git_dir.join("ORIG_HEAD");
         if branch_name == "HEAD" && orig_head_path.exists() {
-            let content = swl!(fs::read_to_string(&orig_head_path)
-                .map_err(|err| git2::Error::from_str(&format!(
-                    "Failed to read orig_head file: {}", err
-                ))))?;
+            let content =
+                swl!(
+                    fs::read_to_string(&orig_head_path).map_err(|err| git2::Error::from_str(
+                        &format!("Failed to read orig_head file: {}", err)
+                    ))
+                )?;
             let orig_commit_id = content.trim();
             let orig_commit = swl!(repo.find_commit(git2::Oid::from_str(orig_commit_id)?))?;
             let branches = swl!(repo.branches(None))?;
@@ -2055,7 +2368,16 @@ pub async fn upload_and_overwrite(
                 if orig_commit.id() == branch_commit.id() {
                     branch_name = match branch_ref.name() {
                         Ok(Some(name)) => name.to_string(),
-                        Ok(None) | Err(_) => return Err(git2::Error::from_str("Unable to determine branch name")).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())))
+                        Ok(None) | Err(_) => {
+                            return Err(git2::Error::from_str("Unable to determine branch name"))
+                                .map_err(|e| {
+                                    git2::Error::from_str(&format!(
+                                        "{} (at line {})",
+                                        e.message(),
+                                        line!()
+                                    ))
+                                })
+                        }
                     };
                     break;
                 }
@@ -2123,29 +2445,33 @@ pub async fn download_and_overwrite(
         .find_reference("FETCH_HEAD")
         .and_then(|r| repo.reference_to_annotated_commit(&r)))?;
 
-
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
     let refname = if rebase_head_path.exists() {
-        let content = swl!(fs::read_to_string(&rebase_head_path)
-            .map_err(|err| git2::Error::from_str(&format!(
-                "Failed to read rebase head-name file: {}", err
-            ))))?;
+        let content =
+            swl!(
+                fs::read_to_string(&rebase_head_path).map_err(|err| git2::Error::from_str(
+                    &format!("Failed to read rebase head-name file: {}", err)
+                ))
+            )?;
 
         content.trim().to_string()
     } else {
         let head = swl!(repo.head())?;
         let resolved_head = swl!(head.resolve())?;
-        let mut branch_name = swl!(resolved_head.shorthand()
+        let mut branch_name = swl!(resolved_head
+            .shorthand()
             .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?
-            .to_string();
+        .to_string();
 
         let orig_head_path = git_dir.join("ORIG_HEAD");
         if branch_name == "HEAD" && orig_head_path.exists() {
-            let content = swl!(fs::read_to_string(&orig_head_path)
-                .map_err(|err| git2::Error::from_str(&format!(
-                    "Failed to read orig_head file: {}", err
-                ))))?;
+            let content =
+                swl!(
+                    fs::read_to_string(&orig_head_path).map_err(|err| git2::Error::from_str(
+                        &format!("Failed to read orig_head file: {}", err)
+                    ))
+                )?;
             let orig_commit_id = content.trim();
             let orig_commit = swl!(repo.find_commit(git2::Oid::from_str(orig_commit_id)?))?;
             let branches = swl!(repo.branches(None))?;
@@ -2157,7 +2483,16 @@ pub async fn download_and_overwrite(
                 if orig_commit.id() == branch_commit.id() {
                     branch_name = match branch_ref.name() {
                         Ok(Some(name)) => name.to_string(),
-                        Ok(None) | Err(_) => return Err(git2::Error::from_str("Unable to determine branch name")).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())))
+                        Ok(None) | Err(_) => {
+                            return Err(git2::Error::from_str("Unable to determine branch name"))
+                                .map_err(|e| {
+                                    git2::Error::from_str(&format!(
+                                        "{} (at line {})",
+                                        e.message(),
+                                        line!()
+                                    ))
+                                })
+                        }
                     };
                     break;
                 }
@@ -2299,7 +2634,7 @@ fn get_staged_file_paths_priv(
         let path = entry.path().unwrap_or_default();
         let status = entry.status();
 
-        if path.ends_with('/') && repo.find_submodule(&path[..path.len()-1]).is_ok() {
+        if path.ends_with('/') && repo.find_submodule(&path[..path.len() - 1]).is_ok() {
             continue;
         }
 
@@ -2317,13 +2652,13 @@ fn get_staged_file_paths_priv(
         match status {
             Status::INDEX_MODIFIED => {
                 file_paths.push((path.to_string(), 1));
-            },
+            }
             Status::INDEX_DELETED => {
                 file_paths.push((path.to_string(), 2));
-            },
+            }
             Status::INDEX_NEW => {
                 file_paths.push((path.to_string(), 3));
-            },
+            }
             _ => {}
         }
     }
@@ -2370,7 +2705,6 @@ fn get_uncommitted_file_paths_priv(
 
     let mut file_paths = Vec::new();
 
-
     _log(
         Arc::clone(&log_callback),
         LogType::GitStatus,
@@ -2381,7 +2715,7 @@ fn get_uncommitted_file_paths_priv(
         let path = entry.path().unwrap_or_default();
         let status = entry.status();
 
-        if path.ends_with('/') && repo.find_submodule(&path[..path.len()-1]).is_ok() {
+        if path.ends_with('/') && repo.find_submodule(&path[..path.len() - 1]).is_ok() {
             continue;
         }
 
@@ -2400,13 +2734,13 @@ fn get_uncommitted_file_paths_priv(
         match status {
             Status::WT_MODIFIED => {
                 file_paths.push((path.to_string(), 1)); // Change
-            },
+            }
             Status::WT_DELETED => {
                 file_paths.push((path.to_string(), 2)); // Deletion
-            },
+            }
             Status::WT_NEW => {
                 file_paths.push((path.to_string(), 3)); // Addition
-            },
+            }
             _ => {}
         }
     }
@@ -2484,7 +2818,7 @@ pub async fn generate_ssh_key(
             } else {
                 Some(passphrase)
             },
-            osshkeys::cipher::Cipher::Null
+            osshkeys::cipher::Cipher::Null,
         )
         .unwrap();
 
@@ -2513,11 +2847,7 @@ pub async fn get_branch_name(
     return branch_name;
 }
 
-
-fn get_branch_name_priv(
-    repo: &Repository,
-) -> Option<String> {
-
+fn get_branch_name_priv(repo: &Repository) -> Option<String> {
     let head = match repo.head() {
         Ok(h) => h,
         Err(_) => {
@@ -2568,7 +2898,8 @@ pub async fn get_branch_names(
                     continue;
                 }
 
-                if let Some(stripped_name) = name.strip_prefix(&format!("{}/", remote.to_string())) {
+                if let Some(stripped_name) = name.strip_prefix(&format!("{}/", remote.to_string()))
+                {
                     if !branch_set.contains(stripped_name) {
                         branch_set.insert(stripped_name.to_string());
                     }
@@ -2619,22 +2950,26 @@ pub async fn checkout_branch(
         Ok(branch) => branch,
         Err(e) => {
             if e.code() == ErrorCode::NotFound {
-
                 let remote_branch_name = format!("{}/{}", remote, branch_name);
-                let remote_branch = swl!(repo.find_branch(&remote_branch_name, git2::BranchType::Remote))?;
-                let target = swl!(remote_branch.get().target().ok_or_else(|| git2::Error::from_str("Invalid remote branch")))?;
+                let remote_branch =
+                    swl!(repo.find_branch(&remote_branch_name, git2::BranchType::Remote))?;
+                let target = swl!(remote_branch
+                    .get()
+                    .target()
+                    .ok_or_else(|| git2::Error::from_str("Invalid remote branch")))?;
                 swl!(repo.branch(branch_name, &repo.find_commit(target)?, false))?
 
                 // match repo.find_branch(&format!("{}/{}", &remote, &branch_name), git2::BranchType::Remote).unwrap() {
                 //     Some(remote_branch) => {
-
 
                 //         remote_branch
                 //     },
                 //     None => return Err(Error::from_str(&format!("Branch '{}' not found", branch_name)))
                 // }
             } else {
-                return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())));
+                return Err(e).map_err(|e| {
+                    git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+                });
             }
         }
     };
@@ -2699,7 +3034,10 @@ pub async fn create_branch(
     _log(
         Arc::clone(&log_callback),
         LogType::Global,
-        format!("Creating new branch '{}' from '{}'", new_branch_name, source_branch_name),
+        format!(
+            "Creating new branch '{}' from '{}'",
+            new_branch_name, source_branch_name
+        ),
     );
 
     let repo = swl!(Repository::open(Path::new(path_string)))?;
@@ -2708,7 +3046,15 @@ pub async fn create_branch(
 
     // If we're not on the source branch, check it out first
     if current_branch.as_deref() != Some(source_branch_name) {
-        swl!(checkout_branch(path_string, &remote_name, source_branch_name, |_level: LogType, _msg: String| Box::pin(async {})).await)?;
+        swl!(
+            checkout_branch(
+                path_string,
+                &remote_name,
+                source_branch_name,
+                |_level: LogType, _msg: String| Box::pin(async {})
+            )
+            .await
+        )?;
     }
 
     // Get the commit that the source branch points to
@@ -2753,7 +3099,10 @@ pub async fn create_branch(
     let mut push_options = PushOptions::new();
     push_options.remote_callbacks(callbacks);
 
-    let refspec = format!("refs/heads/{}:refs/heads/{}", new_branch_name, new_branch_name);
+    let refspec = format!(
+        "refs/heads/{}:refs/heads/{}",
+        new_branch_name, new_branch_name
+    );
 
     match remote.push(&[&refspec], Some(&mut push_options)) {
         Ok(_) => {
@@ -2762,14 +3111,19 @@ pub async fn create_branch(
                 LogType::PushToRepo,
                 format!("Successfully pushed branch '{}' to remote", new_branch_name),
             );
-        },
+        }
         Err(e) => {
             _log(
                 Arc::clone(&log_callback),
                 LogType::PushToRepo,
-                format!("Failed to push branch '{}' to remote: {}", new_branch_name, e),
+                format!(
+                    "Failed to push branch '{}' to remote: {}",
+                    new_branch_name, e
+                ),
             );
-            return Err(e).map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line!())));
+            return Err(e).map_err(|e| {
+                git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
+            });
         }
     }
 
@@ -2781,7 +3135,10 @@ pub async fn create_branch(
     _log(
         Arc::clone(&log_callback),
         LogType::Global,
-        format!("Set upstream for '{}' to '{}'", new_branch_name, upstream_name),
+        format!(
+            "Set upstream for '{}' to '{}'",
+            new_branch_name, upstream_name
+        ),
     );
 
     Ok(())

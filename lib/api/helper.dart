@@ -9,6 +9,7 @@ import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog show showDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
+import 'package:GitSync/ui/page/image_viewer.dart';
 import 'package:cryptography/cryptography.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -427,3 +428,26 @@ Future<http.Response> httpGet(Uri url, {Map<String, String>? headers}) => http
         return http.Response('Error', 408);
       },
     );
+
+const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".wbmp"];
+bool viewOrEditFile(BuildContext context, String path, [check = false]) {
+  try {
+    if (check) return true;
+    File(path).readAsStringSync();
+    initAsync(() async {
+      Navigator.of(context).push(createCodeEditorRoute(path));
+    });
+  } catch (e) {
+    print(e);
+    if (imageExtensions.any((item) => path.endsWith(item))) {
+      if (check) return true;
+      initAsync(() async {
+        Navigator.of(context).push(createImageViewerRoute(path: path));
+      });
+    } else {
+      if (check) return false;
+      Fluttertoast.showToast(msg: "Editing unavailable for ${path}", toastLength: Toast.LENGTH_LONG, gravity: null);
+    }
+  }
+  return true;
+}
