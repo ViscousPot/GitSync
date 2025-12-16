@@ -88,8 +88,6 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      HomeWidget.setAppGroupId('group.ForceSyncWidget');
-      HomeWidget.registerInteractivityCallback(backgroundCallback);
       await gitSyncService.initialise(onServiceStart, callbackDispatcher);
       await uiSettingsManager.reinit();
       initLogger("${(await getTemporaryDirectory()).path}/logs", maxFileCount: 50, maxFileLength: 1 * 1024 * 1024);
@@ -108,7 +106,8 @@ Future<void> main() async {
 }
 
 @pragma("vm:entry-point")
-FutureOr<void> backgroundCallback(Uri? data) async {
+Future<void> backgroundCallback(Uri? data) async {
+  HomeWidget.setAppGroupId('group.ForceSyncWidget');
   if (!RustLib.instance.initialized) await RustLib.init();
 
   try {
@@ -119,7 +118,7 @@ FutureOr<void> backgroundCallback(Uri? data) async {
           final widgetSyncIndex = await repoManager.getInt(StorageKey.repoman_widgetSyncIndex);
 
           if (Platform.isIOS) {
-            gitSyncService.debouncedSync(widgetSyncIndex, true, true);
+            await gitSyncService.debouncedSync(widgetSyncIndex, true, true);
           } else {
             FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$widgetSyncIndex"});
           }
@@ -239,6 +238,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
+    HomeWidget.setAppGroupId('group.ForceSyncWidget');
+    HomeWidget.registerInteractivityCallback(backgroundCallback);
     super.initState();
   }
 

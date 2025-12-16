@@ -27,13 +27,6 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
-target 'ForceSyncWidgetExtension' do
-   use_frameworks!
-   use_modular_headers!
-
-   pod 'home_widget', :path => '.symlinks/plugins/home_widget/ios'
-end
-
 target 'Runner' do
   pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '11.15.0'
 
@@ -41,6 +34,9 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
+    inherit! :search_paths
+  end
+  target 'ForceSyncWidgetExtension' do
     inherit! :search_paths
   end
 end
@@ -52,7 +48,7 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
-        
+
         ## dart: PermissionGroup.notification
         'PERMISSION_NOTIFICATIONS=1',
       ]
