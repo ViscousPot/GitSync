@@ -141,10 +141,11 @@ class _ItemCommit extends State<ItemCommit> {
                         children: [
                           Text(
                             widget.commit.commitMessage,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: widget.commit.unpulled || widget.commit.unpushed ? secondaryDark : primaryLight,
                               fontSize: textMD,
-                              overflow: TextOverflow.ellipsis,
                               fontWeight: FontWeight.w500,
                             ),
                           ),

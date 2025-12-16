@@ -24,6 +24,7 @@ Future<void> showDialog(
 ]) async {
   bool copiedStartCommitReference = false;
   bool copiedEndCommitReference = false;
+  bool commitMessageExpanded = false;
 
   final dirPath = await uiSettingsManager.getGitDirPath(true);
 
@@ -175,11 +176,57 @@ Future<void> showDialog(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
-                        child: Text(
-                          data.$1.commitMessage,
-                          textAlign: TextAlign.left,
-                          softWrap: true,
-                          style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                constraints: BoxConstraints(maxHeight: textSM * 5),
+                                child: ShaderMask(
+                                  shaderCallback: (Rect rect) {
+                                    return LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                                      stops: [0, 0.05, 0.95, 1.0],
+                                    ).createShader(rect);
+                                  },
+                                  blendMode: BlendMode.dstOut,
+                                  child: SingleChildScrollView(
+                                    child: Text(
+                                      data.$1.commitMessage.contains("\n") && !commitMessageExpanded
+                                          ? data.$1.commitMessage.split("\n").first
+                                          : data.$1.commitMessage,
+                                      maxLines: commitMessageExpanded ? null : 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.left,
+                                      softWrap: true,
+                                      style: const TextStyle(color: tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (data.$1.commitMessage.contains("\n")) ...[
+                              SizedBox(width: spaceXXXXS),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: spaceXXXXS),
+                                child: IconButton(
+                                  padding: EdgeInsets.all(spaceXXXS),
+                                  style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                  visualDensity: VisualDensity.compact,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () async {
+                                    commitMessageExpanded = !commitMessageExpanded;
+                                    setState(() {});
+                                  },
+                                  icon: FaIcon(commitMessageExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown, size: textSM),
+                                ),
+                              ),
+                              SizedBox(width: spaceXXXXS),
+                            ],
+                          ],
                         ),
                       ),
                       Container(
