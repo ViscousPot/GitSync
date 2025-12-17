@@ -21,7 +21,7 @@ import 'confirm_priv_key_copy.dart' as ConfirmPrivKeyCopyDialog;
 final GlobalKey authDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext parentContext, Function() callback) async {
-  List<String> repoNames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+  List<String> repoNames = [...await repoManager.getStringList(StorageKey.repoman_repoNames)];
   await repoNames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
   GitProvider selectedGitProvider = await uiSettingsManager.getGitProvider();
 
@@ -545,7 +545,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                   items:
                       [
                         if (repoNames.length > 1) "copyFromContainer",
-                        "orSeparator",
+                        if (repoNames.length > 1) "orSeparator",
                         ...GitProviderManager.GitProviderIconsMap.keys.toList().sublist(0, GitProviderManager.GitProviderIconsMap.keys.length - 2),
                         "protocolSeparator",
                         ...GitProviderManager.GitProviderIconsMap.keys.toList().sublist(GitProviderManager.GitProviderIconsMap.keys.length - 2),
