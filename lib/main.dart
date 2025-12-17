@@ -1195,20 +1195,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         return LinearGradient(
                                                           begin: Alignment.topCenter,
                                                           end: Alignment.bottomCenter,
-                                                          colors: [
-                                                            orientation == Orientation.landscape &&
-                                                                    recentCommitsController.hasClients &&
-                                                                    recentCommitsController.offset == 0
-                                                                ? Colors.transparent
-                                                                : Colors.black,
-                                                            Colors.transparent,
-                                                            Colors.transparent,
-                                                            orientation == Orientation.portrait &&
-                                                                    recentCommitsController.hasClients &&
-                                                                    recentCommitsController.offset == 0
-                                                                ? Colors.transparent
-                                                                : Colors.black,
-                                                          ],
+                                                          colors: [Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
                                                           stops: [0.0, 0.1, 0.9, 1.0],
                                                         ).createShader(rect);
                                                       },
@@ -1235,7 +1222,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                         child: AnimatedListView(
                                                                           controller: recentCommitsController,
                                                                           items: items,
-                                                                          reverse: orientation == Orientation.portrait,
+                                                                          reverse: true,
                                                                           isSameItem: (a, b) => a.reference == b.reference,
                                                                           itemBuilder: (BuildContext context, int index) {
                                                                             final reference = items[index].reference;
