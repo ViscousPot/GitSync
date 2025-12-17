@@ -122,7 +122,9 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
               width: orientation == Orientation.portrait
                   ? null
                   : MediaQuery.of(context).size.width -
-                        (MediaQuery.of(context).systemGestureInsets.right == 48 ? MediaQuery.of(context).systemGestureInsets.right : 0),
+                        (MediaQuery.of(context).systemGestureInsets.right == 48 || MediaQuery.of(context).systemGestureInsets.left == 48
+                            ? MediaQuery.of(context).systemGestureInsets.right + MediaQuery.of(context).systemGestureInsets.left
+                            : 0),
               padding: EdgeInsets.only(left: spaceMD + spaceSM, right: spaceMD + spaceSM),
               child: Flex(
                 direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,

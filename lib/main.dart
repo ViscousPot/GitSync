@@ -276,7 +276,10 @@ class _MyAppState extends State<MyApp> {
               ? SizedBox.shrink()
               : Container(
                   color: primaryDark,
-                  child: SafeArea(top: false, left: false, bottom: true, right: true, child: child),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(padding: EdgeInsets.zero, child: child),
+                  ),
                 );
         },
         home: ShowCaseWidget(
@@ -1081,7 +1084,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               width: orientation == Orientation.portrait
                   ? null
                   : MediaQuery.of(context).size.width -
-                        (MediaQuery.of(context).systemGestureInsets.right == 48 ? MediaQuery.of(context).systemGestureInsets.right : 0),
+                        (MediaQuery.of(context).systemGestureInsets.right == 48 || MediaQuery.of(context).systemGestureInsets.left == 48
+                            ? MediaQuery.of(context).systemGestureInsets.right + MediaQuery.of(context).systemGestureInsets.left
+                            : 0),
               padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
               child: Flex(
                 direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
