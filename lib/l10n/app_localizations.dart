@@ -1829,7 +1829,7 @@ abstract class AppLocalizations {
   /// No description provided for @fileName.
   ///
   /// In en, this message translates to:
-  /// **'File Name'**
+  /// **'Repository URL'**
   String get fileName;
 
   /// No description provided for @createADir.

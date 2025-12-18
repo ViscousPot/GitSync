@@ -327,7 +327,7 @@
     "deleteMultipleSuffix": "and %s more and their contents",
     "deleteSingularSuffix": "and it's contents",
     "createAFile": "Create a File",
-    "fileName": "File Name",
+    "fileName": "Repository URL",
     "createADir": "Create a Directory",
     "dirName": "Folder Name",
     "renameFileDir": "Rename %s",
