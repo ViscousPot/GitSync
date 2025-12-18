@@ -372,7 +372,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       iconColor: primaryDark,
                       buttonColor: tertiaryNegative,
                       onPressed: () async {
-                        await Logger.reportIssue(context);
+                        await Logger.reportIssue(context, From.GLOBAL_SETTINGS);
                       },
                     ),
                     SizedBox(height: spaceMD),

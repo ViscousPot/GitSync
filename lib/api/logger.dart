@@ -47,6 +47,8 @@ enum LogType {
   SyncException,
 }
 
+enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }
+
 void notificationClicked(NotificationResponse _) {
   Logger.notifClicked = true;
   runApp(const MyApp());
@@ -103,7 +105,7 @@ class Logger {
       }
       if (context == null) return;
 
-      await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context));
+      await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context, From.ERROR_DIALOG));
     });
   }
 
@@ -120,7 +122,7 @@ class Logger {
     await notificationsPlugin.show(_errorNotificationId, reportBug, contentText ?? reportABug, notificationDetails);
   }
 
-  static Future<void> reportIssue(BuildContext context) async {
+  static Future<void> reportIssue(BuildContext context, From from) async {
     String? reportIssueToken = await repoManager.getStringNullable(StorageKey.repoman_reportIssueToken);
     if (reportIssueToken == "" || reportIssueToken == null) {
       SettingsManager tempSettingsManager = SettingsManager();
@@ -163,7 +165,7 @@ $minimalRepro
 ### Exception or Error
 
 <details>
-<summary>Click to expand logs</summary>
+<summary>Expand Logs (origin: ${from.name.toLowerCase()})</summary>
 
 $deviceInfo
 

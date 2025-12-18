@@ -591,7 +591,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       iconColor: primaryDark,
                       buttonColor: tertiaryNegative,
                       onPressed: () async {
-                        await Logger.reportIssue(context);
+                        await Logger.reportIssue(context, From.SYNC_DURING_DETACHED_HEAD);
                       },
                     ),
                   ],

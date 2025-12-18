@@ -520,7 +520,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                                   iconColor: primaryDark,
                                   buttonColor: tertiaryNegative,
                                   onPressed: () async {
-                                    await Logger.reportIssue(context);
+                                    await Logger.reportIssue(context, From.CODE_EDITOR);
                                   },
                                 ),
                               ],
