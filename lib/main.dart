@@ -337,11 +337,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   static final List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote))> remoteActions = [
     (
-      ("launch in browser", FaIcon(FontAwesomeIcons.squareArrowUpRight, color: primaryPositive, size: textMD)),
+      (t.launchInBrowser, FaIcon(FontAwesomeIcons.squareArrowUpRight, color: primaryPositive, size: textMD)),
       (BuildContext context, (String, String)? remote) async => remote == null ? null : await launchUrl(Uri.parse(remote.$2)),
     ),
     (
-      ("modify remote url", FaIcon(FontAwesomeIcons.squarePen, color: tertiaryInfo, size: textMD)),
+      (t.modifyRemoteUrl, FaIcon(FontAwesomeIcons.squarePen, color: tertiaryInfo, size: textMD)),
       (BuildContext context, (String, String)? remote) async {
         await SetRemoteUrlDialog.showDialog(context, remote?.$1, (newRemoteUrl) async => await GitManager.setRemoteUrl(newRemoteUrl));
       },

@@ -20,7 +20,7 @@ Future<void> showDialog(BuildContext context, String? oldRemoteUrl, Future<void>
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          "Set Remote URL".toUpperCase(),
+          t.setRemoteUrl.toUpperCase(),
           style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -45,7 +45,7 @@ Future<void> showDialog(BuildContext context, String? oldRemoteUrl, Future<void>
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
-                  t.fileName.toUpperCase(),
+                  t.remoteUrl.toUpperCase(),
                   style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -68,7 +68,7 @@ Future<void> showDialog(BuildContext context, String? oldRemoteUrl, Future<void>
         ),
         TextButton(
           child: Text(
-            "Modify".toUpperCase(),
+            t.modify.toUpperCase(),
             style: TextStyle(color: primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

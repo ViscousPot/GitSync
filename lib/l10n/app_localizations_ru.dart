@@ -429,6 +429,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deletions => '%s --';
 
   @override
+  String get modifyRemoteUrl => 'Modify Remote URL';
+
+  @override
+  String get remoteUrl => 'Remote URL';
+
+  @override
+  String get setRemoteUrl => 'Set Remote URL';
+
+  @override
+  String get launchInBrowser => 'Launch in Browser';
+
+  @override
   String get auth => 'АВТОРИЗАЦИЯ';
 
   @override

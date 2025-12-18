@@ -920,6 +920,30 @@ abstract class AppLocalizations {
   /// **'%s --'**
   String get deletions;
 
+  /// No description provided for @modifyRemoteUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify Remote URL'**
+  String get modifyRemoteUrl;
+
+  /// No description provided for @remoteUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote URL'**
+  String get remoteUrl;
+
+  /// No description provided for @setRemoteUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Remote URL'**
+  String get setRemoteUrl;
+
+  /// No description provided for @launchInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch in Browser'**
+  String get launchInBrowser;
+
   /// No description provided for @auth.
   ///
   /// In en, this message translates to:
