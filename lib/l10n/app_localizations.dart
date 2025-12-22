@@ -926,6 +926,12 @@ abstract class AppLocalizations {
   /// **'Modify Remote URL'**
   String get modifyRemoteUrl;
 
+  /// No description provided for @modify.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify'**
+  String get modify;
+
   /// No description provided for @remoteUrl.
   ///
   /// In en, this message translates to:

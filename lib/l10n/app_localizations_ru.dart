@@ -432,6 +432,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get modifyRemoteUrl => 'Modify Remote URL';
 
   @override
+  String get modify => 'Modify';
+
+  @override
   String get remoteUrl => 'Remote URL';
 
   @override
