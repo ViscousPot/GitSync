@@ -4,7 +4,9 @@ appId: com.viscouspot.gitsync
 - tapOn: "SELECT APP(S)"
 - tapOn: "Search"
 - inputText: "obsi"
-- tapOn: "OBSIDIAN"
+- tapOn:
+    text: "OBSIDIAN"
+    index: 0
 - tapOn: "SAVE"
 - runFlow:
     when:

@@ -2,8 +2,8 @@ use crate::env;
 use image::{imageops::overlay, DynamicImage, GenericImageView, Rgba, RgbaImage};
 use serde_json::Value;
 use std::{
-    env::current_dir,
     env::consts::OS,
+    env::current_dir,
     fs,
     path::Path,
     process::{Command, Stdio},
@@ -12,7 +12,7 @@ use std::{
 };
 
 // iphone 16 pro max
-// ipad air 13 inch 
+// ipad air 13 inch
 // Medium phone api 35
 
 // const adjust: bool = false;
@@ -57,6 +57,7 @@ fn generate_screenshot(config: ScreenshotConfig) {
             .expect("Failed to execute command");
     }
 
+    thread::sleep(Duration::from_secs(2));
     let raw_path = format!(
         "generate_screenshots/raw/screenshot_{}.png",
         config.yaml_name
@@ -140,54 +141,57 @@ pub fn main(args: &[String]) {
 
     let is_android = is_android();
 
-    if (is_android == None) {
-        if OS == "macos" {
-            Command::new("xcrun")
-                .args(&["simctl", "boot", "iPhone 16 Pro Max"])
-                .status()
-                .expect("failed to boot iPhone simulator");
-            Command::new("open")
-                .arg("-a")
-                .arg("Simulator")
-                .status()
-                .expect("failed to open Simulator");
-        } else {
-            let local_props_path = Path::new("../android/local.properties");
-            let props = fs::read_to_string(local_props_path)
-                .expect("failed to read local.properties");
-            let sdk_dir = props.lines()
-                .find(|l| l.starts_with("sdk.dir="))
-                .map(|l| l.trim_start_matches("sdk.dir=").replace("\\", "/"))
-                .expect("sdk.dir not found in local.properties");
+    if !adjust {
+        if (is_android == None) {
+            if OS == "macos" {
+                Command::new("xcrun")
+                    .args(&["simctl", "boot", "iPhone 16 Pro Max"])
+                    .status()
+                    .expect("failed to boot iPhone simulator");
+                Command::new("open")
+                    .arg("-a")
+                    .arg("Simulator")
+                    .status()
+                    .expect("failed to open Simulator");
+            } else {
+                let local_props_path = Path::new("../android/local.properties");
+                let props =
+                    fs::read_to_string(local_props_path).expect("failed to read local.properties");
+                let sdk_dir = props
+                    .lines()
+                    .find(|l| l.starts_with("sdk.dir="))
+                    .map(|l| l.trim_start_matches("sdk.dir=").replace("\\", "/"))
+                    .expect("sdk.dir not found in local.properties");
 
-            let emulator_path = format!("{}/emulator/emulator", sdk_dir);
-            Command::new(&emulator_path)
-                .args(&["-avd", "Medium_Phone_API_35"])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .spawn()
-                .expect("failed to launch Android emulator");
+                // let emulator_path = format!("{}/emulator/emulator", sdk_dir);
+                // Command::new(&emulator_path)
+                //     .args(&["-avd", "Medium_Phone_API_35"])
+                //     .stdout(Stdio::null())
+                //     .stderr(Stdio::null())
+                //     .spawn()
+                //     .expect("failed to launch Android emulator");
 
-            let adb_path = format!("{}/platform-tools/adb", sdk_dir);
+                let adb_path = format!("{}/platform-tools/adb", sdk_dir);
 
-            Command::new(&adb_path)
-                .arg("wait-for-device")
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status()
-                .expect("failed to wait for device");
-
-            loop {
-                let output = Command::new(&adb_path)
-                    .args(&["shell", "getprop", "sys.boot_completed"])
-                    .stdout(Stdio::piped())
+                Command::new(&adb_path)
+                    .arg("wait-for-device")
+                    .stdout(Stdio::null())
                     .stderr(Stdio::null())
-                    .output()
-                    .expect("failed to run adb");
-                if String::from_utf8_lossy(&output.stdout).trim() == "1" {
-                    break;
+                    .status()
+                    .expect("failed to wait for device");
+
+                loop {
+                    let output = Command::new(&adb_path)
+                        .args(&["shell", "getprop", "sys.boot_completed"])
+                        .stdout(Stdio::piped())
+                        .stderr(Stdio::null())
+                        .output()
+                        .expect("failed to run adb");
+                    if String::from_utf8_lossy(&output.stdout).trim() == "1" {
+                        break;
+                    }
+                    thread::sleep(Duration::from_secs(2));
                 }
-                thread::sleep(Duration::from_secs(2));
             }
         }
     }
@@ -204,9 +208,10 @@ pub fn main(args: &[String]) {
 
         if is_android == Some(true) {
             let local_props_path = Path::new("../android/local.properties");
-            let props = fs::read_to_string(local_props_path)
-                .expect("failed to read local.properties");
-            let sdk_dir = props.lines()
+            let props =
+                fs::read_to_string(local_props_path).expect("failed to read local.properties");
+            let sdk_dir = props
+                .lines()
                 .find(|l| l.starts_with("sdk.dir="))
                 .map(|l| l.trim_start_matches("sdk.dir=").replace("\\", "/"))
                 .expect("sdk.dir not found in local.properties");
@@ -262,7 +267,8 @@ pub fn main(args: &[String]) {
         if is_android == Some(true) {
             let local_props_path = Path::new("../android/local.properties");
             let props = fs::read_to_string(local_props_path).unwrap();
-            let sdk_dir = props.lines()
+            let sdk_dir = props
+                .lines()
                 .find(|l| l.starts_with("sdk.dir="))
                 .map(|l| l.trim_start_matches("sdk.dir=").replace("\\", "/"))
                 .unwrap();
@@ -314,7 +320,7 @@ pub fn main(args: &[String]) {
         platform: PlatformConstraint::All,
         yaml_name: "homepage",
         crop_ios: None,
-        crop_android: Some((0, 50, 1080, 2310)),
+        crop_android: Some((0, 54, 1080, 2309)),
         triangle_size: None,
         adjust: adjust,
         is_android: is_android,
@@ -324,27 +330,27 @@ pub fn main(args: &[String]) {
         platform: PlatformConstraint::AndroidOnly,
         yaml_name: "auth",
         crop_ios: None,
-        crop_android: Some((96, 1039, 909, 672)),
+        crop_android: Some((96, 720, 909, 1048)),
         triangle_size: Some(40),
         adjust: adjust,
         is_android: is_android,
     });
- 
+
     generate_screenshot(ScreenshotConfig {
         platform: PlatformConstraint::AndroidOnly,
         yaml_name: "auto_sync_settings",
         crop_ios: None,
-        crop_android: Some((39, 1165, 1002, 651)),
+        crop_android: Some((39, 926, 1002, 796)),
         triangle_size: Some(40),
         adjust: adjust,
         is_android: is_android,
     });
- 
+
     generate_screenshot(ScreenshotConfig {
         platform: PlatformConstraint::AndroidOnly,
         yaml_name: "select_apps",
         crop_ios: None,
-        crop_android: Some((79, 554, 922, 1292)),
+        crop_android: Some((79, 560, 922, 1291)),
         triangle_size: None,
         adjust: adjust,
         is_android: is_android,
@@ -354,7 +360,7 @@ pub fn main(args: &[String]) {
         platform: PlatformConstraint::AndroidOnly,
         yaml_name: "scheduled_sync_settings",
         crop_ios: None,
-        crop_android: Some((39, 1704, 1002, 294)),
+        crop_android: Some((39, 1473, 1002, 441)),
         triangle_size: Some(40),
         adjust: adjust,
         is_android: is_android,
@@ -362,9 +368,9 @@ pub fn main(args: &[String]) {
 
     generate_screenshot(ScreenshotConfig {
         platform: PlatformConstraint::AndroidOnly,
-        yaml_name: "tile_sync_settings",
+        yaml_name: "quick_sync_settings",
         crop_ios: None,
-        crop_android: Some((39, 1774, 1002, 405)),
+        crop_android: Some((39, 963, 1002, 1115)),
         triangle_size: Some(40),
         adjust: adjust,
         is_android: is_android,
@@ -401,7 +407,7 @@ pub fn main(args: &[String]) {
             .unwrap();
 
         let mut img = image::open("generate_screenshots/screenshot_settings_top.png").unwrap();
-        let cropped_top = img.crop(0, 50, 1080, 1631);
+        let cropped_top = img.crop(0, 54, 1080, 2143);
 
         cropped_top
             .save("generate_screenshots/screenshot_settings_top.png")
@@ -436,7 +442,7 @@ pub fn main(args: &[String]) {
             .unwrap();
 
         let mut img = image::open("generate_screenshots/screenshot_settings_bottom.png").unwrap();
-        let cropped_bottom = img.crop(0, 777, 1080, 1583);
+        let cropped_bottom = img.crop(0, 466, 1080, 1983);
 
         cropped_bottom
             .save("generate_screenshots/screenshot_settings_bottom.png")
@@ -472,7 +478,7 @@ pub fn main(args: &[String]) {
         platform: PlatformConstraint::All,
         yaml_name: "manual_sync",
         crop_ios: None,
-        crop_android: Some((0, 50, 1080, 2310)),
+        crop_android: Some((0, 54, 1080, 2309)),
         triangle_size: None,
         adjust: adjust,
         is_android: is_android,
@@ -482,7 +488,7 @@ pub fn main(args: &[String]) {
         platform: PlatformConstraint::All,
         yaml_name: "merge_conflict",
         crop_ios: None,
-        crop_android: Some((0, 50, 1080, 2310)),
+        crop_android: Some((0, 54, 1080, 2309)),
         triangle_size: None,
         adjust: adjust,
         is_android: is_android,

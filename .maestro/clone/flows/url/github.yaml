@@ -1,7 +1,7 @@
 appId: com.viscouspot.gitsync
 ---
-
 - runFlow: ./assert.yaml
 - tapOn: "https://git.abc/xyz.git"
 - inputText: ${MAESTRO_GITHUB_CLONE_URL}
+- hideKeyboard
 - tapOn: "CLONE"

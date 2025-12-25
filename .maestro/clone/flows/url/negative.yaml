@@ -1,8 +1,8 @@
 appId: com.viscouspot.gitsync
 ---
-
 - runFlow: ./assert.yaml
 - tapOn: "https://git.abc/xyz.git"
 - inputText: "github.com/ViscousTests/TestObsidianVault"
+- back
 - tapOn: "CLONE"
 - assertVisible: "URL must be a valid Git URL (HTTP/S, SSH, or git@) and follow the format"

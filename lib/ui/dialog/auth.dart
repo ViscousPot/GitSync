@@ -544,8 +544,8 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                   },
                   items:
                       [
-                        if (repoNames.length >= 1) "copyFromContainer",
-                        if (repoNames.length >= 1) "orSeparator",
+                        if (demo || repoNames.length >= 1) "copyFromContainer",
+                        if (demo || repoNames.length >= 1) "orSeparator",
                         ...GitProviderManager.GitProviderIconsMap.keys.toList().sublist(0, GitProviderManager.GitProviderIconsMap.keys.length - 2),
                         "protocolSeparator",
                         ...GitProviderManager.GitProviderIconsMap.keys.toList().sublist(GitProviderManager.GitProviderIconsMap.keys.length - 2),

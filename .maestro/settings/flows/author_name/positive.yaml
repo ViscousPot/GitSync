@@ -5,3 +5,4 @@ appId: com.viscouspot.gitsync
     below: AUTHOR NAME
 - eraseText
 - inputText: "ViscousTests"
+- hideKeyboard

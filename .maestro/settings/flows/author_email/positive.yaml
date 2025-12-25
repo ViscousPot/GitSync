@@ -5,3 +5,4 @@ appId: com.viscouspot.gitsync
     below: AUTHOR EMAIL
 - eraseText
 - inputText: "bugs.viscouspotential@gmail.com"
+- hideKeyboard

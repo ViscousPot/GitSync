@@ -7,6 +7,11 @@ appId: com.viscouspot.gitsync
 - runFlow: flows/open_auth/positive.yaml
 - runFlow: flows/https/start.yaml
 - runFlow: flows/https/auth.yaml
+- runFlow: ../onboarding/flows/author_details_prompt/positive.yaml
+- runFlow: ../settings/flows/assert.yaml
+- runFlow: ../settings/flows/author_name/positive.yaml
+- runFlow: ../settings/flows/author_email/positive.yaml
+- runFlow: ../common/back.yaml
 - runFlow: ../clone/flows/assert.yaml
 - runFlow: ../clone/flows/list/assert_not.yaml
 - runFlow: ../clone/flows/url/https.yaml
@@ -21,6 +26,11 @@ appId: com.viscouspot.gitsync
 - runFlow: flows/open_auth/positive.yaml
 - runFlow: flows/https/start.yaml
 - runFlow: flows/https/auth.yaml
+- runFlow: ../onboarding/flows/author_details_prompt/positive.yaml
+- runFlow: ../settings/flows/assert.yaml
+- runFlow: ../settings/flows/author_name/positive.yaml
+- runFlow: ../settings/flows/author_email/positive.yaml
+- runFlow: ../common/back.yaml
 - runFlow: ../clone/flows/assert.yaml
 - runFlow: ../clone/flows/list/assert_not.yaml
 - runFlow: ../clone/flows/local/positive.yaml

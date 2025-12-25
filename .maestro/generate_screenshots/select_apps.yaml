@@ -1,5 +1,4 @@
 appId: com.viscouspot.gitsync
 ---
-
 - tapOn: "OBSIDIAN"
 - takeScreenshot: generate_screenshots/raw/screenshot_select_apps

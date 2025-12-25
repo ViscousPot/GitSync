@@ -4,7 +4,16 @@ appId: com.viscouspot.gitsync
     when:
       platform: Android
     commands:
-      - assertVisible: github.com
+      - runFlow:
+          when:
+            visible: "Sign in to "
+          commands:
+            - assertVisible: "Sign in to "
+      - runFlow:
+          when:
+            notVisible: "Sign in to "
+          commands:
+            - assertVisible: "Verify Session"
 
 - runFlow:
     when:

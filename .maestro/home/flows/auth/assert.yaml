@@ -1,4 +1,3 @@
 appId: com.viscouspot.gitsync
 ---
-
-- assertVisible: "AUTH"
+- assertVisible: "AUTH.*"

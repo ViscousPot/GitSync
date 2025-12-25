@@ -7,7 +7,7 @@ appId: com.viscouspot.gitsync
     commands:
       - tapOn: "Documents"
       - tapOn:
-          id: "com.google.android.documentsui:id/option_menu_create_dir"
+          id: "com.android.documentsui:id/option_menu_create_dir"
       - evalScript: ${output.randomNumber = (Math.floor(Math.random() * 10000) + 1).toString()}
       - inputText: ${output.randomNumber}
       - assertVisible: "OK"

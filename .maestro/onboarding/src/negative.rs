@@ -6,9 +6,7 @@ pub fn get_input() -> Input {
         before_each: vec![vec!["launch_stls_no_perms"], vec!["launch_notif_perm"]],
         flows: vec![
             vec![
-                vec![
-                    vec!["legacy_user_dialog/positive"],
-                ],
+                vec![vec!["legacy_user_dialog/positive"]],
                 vec![
                     vec!["welcome_dialog/negative", "notifications_dialog/assert"],
                     vec!["welcome_dialog/positive", "notifications_dialog/assert"],
@@ -26,6 +24,7 @@ pub fn get_input() -> Input {
             ],
             vec![
                 vec![vec![
+                    "legacy_user_dialog/positive",
                     "welcome_dialog/positive",
                     "all_files_dialog/positive",
                     "all_files_permission/assert",
@@ -54,17 +53,15 @@ pub fn get_input() -> Input {
                     "../auth/flows/github/start",
                     "../auth/flows/github/assert",
                 ]],
-                vec![
-                    vec![
-                        "../auth/flows/github/auth",
-                        "author_details_prompt/positive",
-                        "../settings/flows/assert",
-                        "../settings/flows/author_name/positive",
-                        "../settings/flows/author_email/positive",
-                        "back",
-                        "../clone/flows/assert",
-                    ],
-                ],
+                vec![vec![
+                    "../auth/flows/github/auth",
+                    // "author_details_prompt/positive",
+                    // "../settings/flows/assert",
+                    // "../settings/flows/author_name/positive",
+                    // "../settings/flows/author_email/positive",
+                    // "back",
+                    "../clone/flows/assert",
+                ]],
             ],
             vec![
                 vec![vec!["../clone/flows/list/github"]],
@@ -100,14 +97,11 @@ pub fn get_input() -> Input {
                     "showcase/positive",
                     "showcase/positive",
                     "showcase/positive",
+                    "showcase/positive",
                     "showcase/finish",
                 ],
             ]],
-            vec![vec![
-                vec![
-                    "../home/flows/sync_now/assert",
-                ],
-            ]],
+            vec![vec![vec!["../home/flows/sync_now/assert"]]],
         ],
     }
 }

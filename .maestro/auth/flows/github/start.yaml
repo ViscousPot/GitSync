@@ -8,7 +8,7 @@ appId: com.viscouspot.gitsync
       - tapOn: ".*auth dropdown"
       - assertVisible: "GITHUB"
       - tapOn: "GITHUB"
-- tapOn: "OAUTH"
+- tapOn: "OAUTH (ALL REPOS)"
 - runFlow:
     when:
       platform: iOS

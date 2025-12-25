@@ -5,15 +5,15 @@ appId: com.android.settings
       platform: Android
     commands:
       - launchApp
-      - tapOn: "Search settings"
+      - tapOn: "Search.*"
       - inputText: "All files"
       - tapOn: "All files access"
       - tapOn: "All files access"
       - assertVisible: "GitSync"
       - runFlow:
           when:
-            visible:
-              text: "Allowed"
+            notVisible:
+              text: "Not allowed"
               below:
                 text: "GitSync"
           commands:

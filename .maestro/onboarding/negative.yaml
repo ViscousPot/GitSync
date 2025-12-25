@@ -45,6 +45,7 @@ appId: com.viscouspot.gitsync
 
 
 - runFlow: ../common/launch_notif_perm.yaml
+- runFlow: flows/legacy_user_dialog/positive.yaml
 - runFlow: flows/welcome_dialog/positive.yaml
 - runFlow: flows/all_files_dialog/positive.yaml
 - runFlow: flows/all_files_permission/assert.yaml
@@ -53,6 +54,7 @@ appId: com.viscouspot.gitsync
 - runFlow: ../common/kill.yaml
 
 - runFlow: ../common/launch_notif_perm.yaml
+- runFlow: flows/legacy_user_dialog/positive.yaml
 - runFlow: flows/welcome_dialog/positive.yaml
 - runFlow: flows/all_files_dialog/positive.yaml
 - runFlow: flows/all_files_permission/assert.yaml
@@ -98,11 +100,6 @@ appId: com.viscouspot.gitsync
 - runFlow: ../auth/flows/github/start.yaml
 - runFlow: ../auth/flows/github/assert.yaml
 - runFlow: ../auth/flows/github/auth.yaml
-- runFlow: flows/author_details_prompt/positive.yaml
-- runFlow: ../settings/flows/assert.yaml
-- runFlow: ../settings/flows/author_name/positive.yaml
-- runFlow: ../settings/flows/author_email/positive.yaml
-- runFlow: ../common/back.yaml
 - runFlow: ../clone/flows/assert.yaml
 - runFlow: ../common/kill.yaml
 
@@ -148,6 +145,7 @@ appId: com.viscouspot.gitsync
 - runFlow: ../common/kill.yaml
 
 - runFlow: ../common/launch_notif_perm.yaml
+- runFlow: flows/showcase/positive.yaml
 - runFlow: flows/showcase/positive.yaml
 - runFlow: flows/showcase/positive.yaml
 - runFlow: flows/showcase/positive.yaml

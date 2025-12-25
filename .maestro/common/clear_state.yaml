@@ -10,7 +10,7 @@ appId: com.android.settings
       platform: Android
     commands:
       - launchApp
-      - tapOn: "Search settings"
+      - tapOn: "Search.*"
       - inputText: "GitSync"
       - tapOn: "App info"
       - tapOn: "Storage & cache"

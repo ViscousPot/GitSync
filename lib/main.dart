@@ -796,8 +796,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             await Navigator.of(context).push(createSettingsMainRoute(showcaseAuthorDetails: true)).then((_) => setState(() {}));
           },
           () async {
-            await onboardingController?.show();
-            setState(() {});
+            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
+              await showCloneRepoPage();
+            } else {
+              await onboardingController?.show();
+              setState(() {});
+            }
           },
         );
         return;
@@ -1785,6 +1789,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       borderRadius: BorderRadius.all(cornerRadiusMD),
                                                       // padding: EdgeInsets.zero,
                                                       padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
+                                                      onTap: () {
+                                                        if (demo) {
+                                                          ManualSyncDialog.showDialog(context, () async {}).then((_) => setState(() {}));
+                                                          return;
+                                                        }
+                                                      },
                                                       //   // icon: FaIcon(
                                                       //   //   snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
                                                       //   //   color: snapshot.data != null ? primaryLight : primaryNegative,

@@ -1,4 +1,3 @@
 appId: com.viscouspot.gitsync
 ---
-
-- assertVisible: "Authorize Application"
+- assertVisible: 'Authorize "GitSync" to access your account?'

@@ -6,5 +6,5 @@ appId: com.viscouspot.gitsync
     commands:
       - launchApp:
           appId: com.viscouspot.gitsync
-      - assertVisible: "AUTH"
+      - assertVisible: "AUTH.*"
       - tapOn: "disable/enable sync messages"

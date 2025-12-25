@@ -1,9 +1,8 @@
 appId: com.viscouspot.gitsync
 ---
-
 - runFlow: ./assert.yaml
 - runFlow:
-    when: 
+    when:
       visible: "Username or email address"
     commands:
       - tapOn: "Username or email address"
@@ -15,8 +14,16 @@ appId: com.viscouspot.gitsync
       - tapOn: "Sign In"
 - tapOn: "Continue"
 - runFlow:
-    when: 
+    when:
       visible: "Reauthorization required"
     commands:
       - tapOn: "Authorize ViscousPot"
-      
+- runFlow:
+    when:
+      visible: "Confirm access"
+    commands:
+      - tapOn: "Use your password"
+      - tapOn: "Password"
+      - inputText: ${MAESTRO_GITHUB_PASSWORD}
+      - hideKeyboard
+      - tapOn: "Confirm"
