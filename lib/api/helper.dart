@@ -100,7 +100,7 @@ Future<void> openLogViewer(BuildContext context) async {
   final Directory dir = await getTemporaryDirectory();
   final logsDir = Directory("${dir.path}/logs");
 
-  final logFiles = <File>[];
+  List<File> logFiles = <File>[];
   if (logsDir.existsSync()) {
     logFiles.addAll(logsDir.listSync().whereType<File>().where((f) => RegExp(r'log_(\d+)\.log$').hasMatch(f.path)));
   } else {
@@ -108,27 +108,16 @@ Future<void> openLogViewer(BuildContext context) async {
     return;
   }
 
-  File logFile;
   if (logFiles.isEmpty) {
-    logFile = File("${logsDir.path}/log_0.log");
-  } else {
-    final fileWithMax = logFiles.reduce((a, b) {
-      final ma = RegExp(r'log_(\d+)\.log$').firstMatch(a.path)!.group(1)!;
-      final mb = RegExp(r'log_(\d+)\.log$').firstMatch(b.path)!.group(1)!;
-      final ia = int.parse(ma);
-      final ib = int.parse(mb);
-      return ia >= ib ? a : b;
-    });
-    logFile = File(fileWithMax.path);
+    logFiles = [File("${logsDir.path}/log_0.log")];
   }
 
-  if (!logFile.existsSync()) {
+  if (!logFiles[0].existsSync()) {
     Fluttertoast.showToast(msg: t.noLogFilesFound, toastLength: Toast.LENGTH_SHORT, gravity: null);
     return;
   }
 
-  print("Using log file: ${logFile.path}");
-  await Navigator.of(context).push(createCodeEditorRoute(logFile.path, type: EditorType.LOGS));
+  await Navigator.of(context).push(createCodeEditorRoute(logFiles.map((logFile) => logFile.path).toList(), type: EditorType.LOGS));
 }
 
 Future<void> sendMergeConflictNotification() async {
@@ -435,14 +424,14 @@ bool viewOrEditFile(BuildContext context, String path, [check = false]) {
     if (check) return true;
     File(path).readAsStringSync();
     initAsync(() async {
-      Navigator.of(context).push(createCodeEditorRoute(path));
+      await Navigator.of(context).push(createCodeEditorRoute([path]));
     });
   } catch (e) {
     print(e);
     if (imageExtensions.any((item) => path.endsWith(item))) {
       if (check) return true;
       initAsync(() async {
-        Navigator.of(context).push(createImageViewerRoute(path: path));
+        await Navigator.of(context).push(createImageViewerRoute(path: path));
       });
     } else {
       if (check) return false;

@@ -158,9 +158,9 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
 enum EditorType { DEFAULT, LOGS, DIFF }
 
 class CodeEditor extends StatefulWidget {
-  const CodeEditor({super.key, required this.path, this.type = EditorType.DEFAULT});
+  const CodeEditor({super.key, required this.paths, this.type = EditorType.DEFAULT});
 
-  final String path;
+  final List<String> paths;
   final EditorType type;
 
   @override
@@ -168,6 +168,11 @@ class CodeEditor extends StatefulWidget {
 }
 
 class _CodeEditor extends State<CodeEditor> {
+  int index = 0;
+  bool prevEnabled = false;
+  bool nextEnabled = true;
+  GlobalKey key = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -188,12 +193,75 @@ class _CodeEditor extends State<CodeEditor> {
           systemNavigationBarIconBrightness: Brightness.light,
         ),
         leading: getBackButton(context, () => (Navigator.of(context).canPop() ? Navigator.pop(context) : null)) ?? SizedBox.shrink(),
-        title: Text(
-          p.basename(widget.path),
-          style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+        title: SizedBox(
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  p.basename(widget.paths[index]),
+                  style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (widget.paths.length > 1)
+                Row(
+                  children: [
+                    SizedBox(width: spaceXS),
+                    IconButton(
+                      onPressed: prevEnabled
+                          ? () async {
+                              if (widget.paths.isEmpty) return;
+
+                              index = (index - 1).clamp(0, widget.paths.length - 1);
+                              prevEnabled = index > 0;
+                              nextEnabled = index < widget.paths.length - 1;
+                              key = GlobalKey();
+                              setState(() {});
+                            }
+                          : null,
+                      icon: FaIcon(FontAwesomeIcons.caretLeft),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
+                      ),
+                      color: primaryLight,
+                      disabledColor: tertiaryLight,
+                      iconSize: textSM,
+                    ),
+                    SizedBox(width: spaceXS),
+                    IconButton(
+                      onPressed: nextEnabled
+                          ? () async {
+                              if (widget.paths.isEmpty) return;
+
+                              index = (index + 1).clamp(0, widget.paths.length - 1);
+                              prevEnabled = index > 0;
+                              nextEnabled = index < widget.paths.length - 1;
+                              key = GlobalKey();
+                              setState(() {});
+                            }
+                          : null,
+                      icon: FaIcon(FontAwesomeIcons.caretRight),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
+                      ),
+                      color: primaryLight,
+                      disabledColor: tertiaryLight,
+                      iconSize: textSM,
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
-      body: Editor(key: widget.key, path: widget.path, type: widget.type),
+      body: Editor(key: key, path: widget.paths[index], type: widget.type),
     );
   }
 }
@@ -278,6 +346,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
     try {
       _mapFile();
       controller.text = writeMmap == null ? widget.text ?? "" : utf8.decode(writeMmap!.writableData, allowMalformed: true);
+      if (widget.type == EditorType.LOGS) controller.text = controller.text.split("\n").reversed.join("\n");
 
       controller.addListener(_onTextChanged);
     } catch (e) {
@@ -301,7 +370,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
       }
       logsCollapsed = true;
       setState(() {});
-      logsScrollToBottom();
     });
 
     languages = {
@@ -310,22 +378,6 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
           : extensionToLanguageMap["txt"]!),
       if (widget.type == EditorType.DIFF) "diff": langDiff,
     }.map((key, value) => MapEntry(key, ReEditor.CodeHighlightThemeMode(mode: value)));
-  }
-
-  void logsScrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.type == EditorType.LOGS) {
-        await Future.delayed(Duration(milliseconds: 500));
-        if (!horizontalController.hasClients) return;
-        horizontalController.jumpTo(80);
-        await Future.delayed(Duration(milliseconds: 500));
-        if (!horizontalController.hasClients) return;
-        horizontalController.jumpTo(80);
-
-        if (!horizontalController.hasClients) return;
-        verticalController.jumpTo(verticalController.position.maxScrollExtent);
-      }
-    });
   }
 
   void _mapFile() {
@@ -567,10 +619,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   }
 }
 
-Route createCodeEditorRoute(String path, {EditorType type = EditorType.DEFAULT}) {
+Route createCodeEditorRoute(List<String> paths, {EditorType type = EditorType.DEFAULT}) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: code_editor),
-    pageBuilder: (context, animation, secondaryAnimation) => CodeEditor(path: path, type: type),
+    pageBuilder: (context, animation, secondaryAnimation) => CodeEditor(paths: paths, type: type),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

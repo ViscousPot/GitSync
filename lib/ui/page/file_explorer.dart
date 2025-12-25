@@ -45,7 +45,10 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
       (
         ("open file", "Preview/edit file contents"),
         (List<String> selectedPaths) async {
-          viewOrEditFile(context, selectedPathsNotifier.value[0]);
+          print("${selectedPathsNotifier.value[0]}");
+          initAsync(() async {
+            viewOrEditFile(context, selectedPathsNotifier.value[0]);
+          });
         },
       ),
     (
@@ -54,9 +57,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
         final path = selectedPathsNotifier.value[0];
         final diff = await GitManager.getFileDiff(path.replaceAll("${widget.path}/", ""));
         if (diff == null) return;
-        initAsync(() async {
-          DiffViewDialog.showDialog(context, diff, path.replaceAll("${widget.path}/", ""), null);
-        });
+        await DiffViewDialog.showDialog(context, diff, path.replaceAll("${widget.path}/", ""), null);
 
         print(diff.deletions);
         print(diff.insertions);
