@@ -241,7 +241,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                 fontWeight: FontWeight.bold,
                               ),
                               decoration: InputDecoration(
-                                hintText: "Search...",
+                                hintText: t.searchEllipsis,
                                 hintStyle: TextStyle(color: secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                 fillColor: tertiaryDark,
                                 filled: true,
@@ -264,11 +264,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                                   constraints: BoxConstraints(),
                                   onPressed: () async {
-                                    await InfoDialog.showDialog(
-                                      context,
-                                      "Repository Search Limits",
-                                      "Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.",
-                                    );
+                                    await InfoDialog.showDialog(context, t.repoSearchLimits, t.repoSearchLimitsDescription);
                                   },
                                   visualDensity: VisualDensity.compact,
                                   icon: FaIcon(FontAwesomeIcons.circleInfo, color: secondaryLight, size: textMD),

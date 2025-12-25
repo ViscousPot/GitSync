@@ -588,7 +588,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                           ),
                           Text(
-                            "Repository Defaults".toUpperCase(),
+                            t.repositoryDefaults.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -657,7 +657,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                           ),
                           Text(
-                            "Miscellaneous".toUpperCase(),
+                            t.miscellaneous.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -724,7 +724,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                           ),
                           Text(
-                            "Danger Zone".toUpperCase(),
+                            t.dangerZone.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: tertiaryNegative, fontWeight: FontWeight.bold),
                           ),
                           Expanded(

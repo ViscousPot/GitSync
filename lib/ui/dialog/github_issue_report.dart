@@ -202,11 +202,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     onPressed: () async {
                       includeLogFiles = !includeLogFiles;
                       if (includeLogFiles == false) {
-                        await InfoDialog.showDialog(
-                          context,
-                          "Include Log File(s)",
-                          "Including log files with your bug report is strongly recommended as they can greatly speed up diagnosing the root cause. \nIf you choose to disable \"Include log file(s)\", please copy and paste the relevant log excerpts into your report so we can reproduce the issue. You can review logs before sending by using the eye icon to confirm there’s nothing sensitive. \n\nIncluding logs is optional, not mandatory.",
-                        );
+                        await InfoDialog.showDialog(context, t.includeLogFiles, t.includeLogFilesDescription);
                       }
                       setState(() {});
                     },

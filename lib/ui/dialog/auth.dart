@@ -3,11 +3,13 @@ import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
 import '../../../constant/colors.dart';
@@ -79,7 +81,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               ),
               icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
               label: Text(
-                "OAuth (All Repos)".toUpperCase(),
+                t.oauthAllRepos.toUpperCase(),
                 style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
@@ -99,9 +101,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
 
                 final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
                 if (githubAppInstallations.isEmpty) {
-                  await launchUrl(Uri.parse("https://github.com/apps/git-sync-viscouspotential"));
+                  await launchUrl(Uri.parse(githubAppsLink));
                 } else {
-                  await launchUrl(Uri.parse("https://github.com/settings/installations/${githubAppInstallations[0]["id"]}"));
+                  await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])));
                 }
 
                 await setHttpAuth(context, result, selectedGitProvider);
@@ -114,7 +116,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               ),
               icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
               label: Text(
-                "Oauth (Scoped)".toUpperCase(),
+                t.oauthScoped.toUpperCase(),
                 style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
@@ -506,7 +508,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXS),
                 margin: EdgeInsets.only(top: spaceSM, left: spaceSM, bottom: 24 - spaceSM),
                 child: Text(
-                  "Replaces existing\ncontainer auth".toUpperCase(),
+                  t.replacesExistingAuth.toUpperCase(),
                   style: TextStyle(color: primaryDark, fontSize: textXXS, fontWeight: FontWeight.w900, height: 1),
                 ),
               ),
@@ -604,7 +606,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                           FaIcon(FontAwesomeIcons.solidCopy, color: tertiaryInfo, size: textMD),
                                           SizedBox(width: spaceSM),
                                           Text(
-                                            "copy from container".toUpperCase(),
+                                            t.copyFromContainer.toUpperCase(),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(color: tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                                           ),
@@ -674,7 +676,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                             color: secondaryDark,
                                             padding: EdgeInsets.all(spaceSM),
                                             child: Text(
-                                              "or".toUpperCase(),
+                                              t.or.toUpperCase(),
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 color: primaryPositive,

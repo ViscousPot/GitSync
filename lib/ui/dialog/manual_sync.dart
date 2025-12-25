@@ -145,7 +145,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                         )
                                       : null,
                                   label: Text(
-                                    "Commit".toUpperCase(),
+                                    t.commit.toUpperCase(),
                                     style: TextStyle(
                                       color: (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? tertiaryDark : tertiaryLight,
                                       fontSize: textSM,
@@ -433,7 +433,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                           )
                                         : null,
                                     label: Text(
-                                      "Unstage".toUpperCase(),
+                                      t.unstage.toUpperCase(),
                                       style: TextStyle(
                                         color:
                                             selectedFiles
@@ -490,7 +490,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                           )
                                         : null,
                                     label: Text(
-                                      "Stage".toUpperCase(),
+                                      t.stage.toUpperCase(),
                                       style: TextStyle(
                                         color:
                                             selectedFiles

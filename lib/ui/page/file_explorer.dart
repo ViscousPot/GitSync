@@ -5,6 +5,7 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
+import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/dialog/create_folder.dart' as CreateFolderDialog;
 import 'package:GitSync/ui/dialog/create_file.dart' as CreateFileDialog;
 import 'package:GitSync/ui/dialog/diff_view.dart' as DiffViewDialog;
@@ -43,7 +44,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   List<((String, String), Function(List<String>))> get singleSelectOptions => [
     if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
       (
-        ("open file", "Preview/edit file contents"),
+        (t.openFile, t.openFileDescription),
         (List<String> selectedPaths) async {
           print("${selectedPathsNotifier.value[0]}");
           initAsync(() async {
@@ -52,7 +53,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
         },
       ),
     (
-      ("view git log", "View the full git log history"),
+      (t.viewGitLog, t.viewGitLogDescription),
       (List<String> selectedPaths) async {
         final path = selectedPathsNotifier.value[0];
         final diff = await GitManager.getFileDiff(path.replaceAll("${widget.path}/", ""));
@@ -67,33 +68,33 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
 
   List<((String, String), Function(List<String>))> get ignoreAndUntrackOptions => [
     (
-      (".gitignore + untrack", "Add files to .gitignore and untrack"),
+      (t.ignoreUntrack, t.ignoreUntrackDescription),
       (List<String> selectedPaths) async {
         addToIgnore(selectedPaths, gitIgnorePath);
         await GitManager.untrackAll(selectedPaths);
       },
     ),
     (
-      (".git/info/exclude + untrack", "Add files to the local exclude file and untrack"),
+      (t.excludeUntrack, t.excludeUntrackDescription),
       (List<String> selectedPaths) async {
         addToIgnore(selectedPaths, gitInfoExcludePath);
         await GitManager.untrackAll(selectedPaths);
       },
     ),
     (
-      ("add to .gitignore only", "Only add files to .gitignore"),
+      (t.ignoreOnly, t.ignoreOnlyDescription),
       (List<String> selectedPaths) async {
         addToIgnore(selectedPaths, gitIgnorePath);
       },
     ),
     (
-      ("add to .git/info/exclude only", "Only add files to the local exclude file"),
+      (t.excludeOnly, t.excludeOnlyDescription),
       (List<String> selectedPaths) async {
         addToIgnore(selectedPaths, gitInfoExcludePath);
       },
     ),
     (
-      ("untrack file(s)", "Untrack specified file(s)"),
+      (t.untrack, t.untrackDescription),
       (List<String> selectedPaths) async {
         await GitManager.untrackAll(selectedPaths);
       },
@@ -193,7 +194,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
               valueListenable: heldPathsNotifier,
               builder: (context, heldPaths, child) => heldPaths.isNotEmpty
                   ? Text(
-                      "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} selected",
+                      "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} ${t.selected}",
                       style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
                     )
                   : ExtendedText(
@@ -290,7 +291,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                                 ),
                                                 SizedBox(height: spaceXXXS),
                                                 Text(
-                                                  "Ignore & Untrack".toUpperCase(),
+                                                  t.ignoreAndUntrack.toUpperCase(),
                                                   style: TextStyle(color: tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                                                 ),
                                               ],

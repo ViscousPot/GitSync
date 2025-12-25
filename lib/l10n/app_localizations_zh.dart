@@ -234,6 +234,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get manualSyncMsg => '选择您要同步的文件';
 
   @override
+  String get commit => 'Commit';
+
+  @override
+  String get unstage => 'Unstage';
+
+  @override
+  String get stage => 'Stage';
+
+  @override
   String get selectAll => '全选';
 
   @override
@@ -467,6 +476,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get search => '搜索';
 
   @override
+  String get searchEllipsis => 'Search…';
+
+  @override
   String get applicationNotSet => '选择应用';
 
   @override
@@ -557,7 +569,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get oauthNoAffiliation => '通过第三方进行身份验证；\n不表示关联或认可。';
 
   @override
+  String get replacesExistingAuth => 'Replaces existing\ncontainer auth';
+
+  @override
   String get oauth => 'oauth';
+
+  @override
+  String get copyFromContainer => 'Copy from Container';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get enterPAT => 'Enter Personal Access Token';
+
+  @override
+  String get usePAT => 'Use PAT';
+
+  @override
+  String get oauthAllRepos => 'OAuth (All Repos)';
+
+  @override
+  String get oauthScoped => 'OAuth (Scoped)';
 
   @override
   String get ensureTokenScope => '确保您的令牌包含\"repo\"范围以获得完整功能。';
@@ -683,6 +716,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get confirmCloneOverwriteAction => '覆盖';
 
   @override
+  String get repoSearchLimits => 'Repository Search Limits';
+
+  @override
+  String get repoSearchLimitsDescription =>
+      'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.';
+
+  @override
   String get repositorySettings => '仓库设置';
 
   @override
@@ -776,6 +816,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moreOptions => '更多选项';
 
   @override
+  String get untrackAll => 'Untrack All';
+
+  @override
   String get globalSettings => '全局设置';
 
   @override
@@ -866,6 +909,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logsEmailRecipient => 'bugsviscouspotential@gmail.com';
 
   @override
+  String get repositoryDefaults => 'Repository Defaults';
+
+  @override
+  String get miscellaneous => 'Miscellaneous';
+
+  @override
+  String get dangerZone => 'Danger Zone';
+
+  @override
   String get file => '文件';
 
   @override
@@ -921,6 +973,73 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get experimentalMsg => '使用风险自负';
+
+  @override
+  String get codeEditorLimits => 'Code Editor Limits';
+
+  @override
+  String get codeEditorLimitsDescription =>
+      'The code editor provides basic, functional editing but hasn’t been exhaustively tested for edge cases or heavy use. \n\nIf you encounter bugs or want to suggest features, I welcome feedback! Please use the Bug Report or Feature Request options in Global Settings or below.';
+
+  @override
+  String get openFile => 'Open File';
+
+  @override
+  String get openFileDescription => 'Preview/edit file contents';
+
+  @override
+  String get viewGitLog => 'view git log';
+
+  @override
+  String get viewGitLogDescription => 'View the full git log history';
+
+  @override
+  String get ignoreUntrack => '.gitignore + Untrack';
+
+  @override
+  String get ignoreUntrackDescription => 'Add files to .gitignore and untrack';
+
+  @override
+  String get excludeUntrack => '.git/info/exclude + Untrack';
+
+  @override
+  String get excludeUntrackDescription => 'Add files to the local exclude file and untrack';
+
+  @override
+  String get ignoreOnly => 'Add to .gitignore Only';
+
+  @override
+  String get ignoreOnlyDescription => 'Only add files to .gitignore';
+
+  @override
+  String get excludeOnly => 'Add to .git/info/exclude Only';
+
+  @override
+  String get excludeOnlyDescription => 'Only add files to the local exclude file';
+
+  @override
+  String get untrack => 'Untrack file(s)';
+
+  @override
+  String get untrackDescription => 'Untrack specified file(s)';
+
+  @override
+  String get selected => 'selected';
+
+  @override
+  String get ignoreAndUntrack => 'Ignore & Untrack';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get fileDiff => 'File Diff';
+
+  @override
+  String get openEditFile => 'Open/Edit File';
+
+  @override
+  String get filesChanged => 'file(s) changed';
 
   @override
   String get defaultContainerName => '别名';
@@ -1136,6 +1255,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get issueReportMinimalReproDesc => '描述导致错误的步骤';
+
+  @override
+  String get includeLogFiles => 'Include Log File(s)';
+
+  @override
+  String get includeLogFilesDescription =>
+      'Including log files with your bug report is strongly recommended as they can greatly speed up diagnosing the root cause. \nIf you choose to disable \"Include log file(s)\", please copy and paste the relevant log excerpts into your report so we can reproduce the issue. You can review logs before sending by using the eye icon to confirm there’s nothing sensitive. \n\nIncluding logs is optional, not mandatory.';
 
   @override
   String get report => '报告';

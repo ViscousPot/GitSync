@@ -85,7 +85,7 @@ Future<void> showDialog(BuildContext context) async {
             ),
             icon: FaIcon(FontAwesomeIcons.qrcode, color: secondaryDark, size: textLG),
             label: Text(
-              "Use PAT".toUpperCase(),
+              t.usePAT.toUpperCase(),
               style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
             ),
           ),

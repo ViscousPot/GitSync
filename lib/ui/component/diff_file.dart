@@ -340,7 +340,7 @@ class _DiffFileState extends State<DiffFile> {
                       size: textXS,
                     ),
                     label: Text(
-                      "Open ${widget.entry.key.contains(conflictSeparator) ? "Commit" : "File Diff"}".toUpperCase(),
+                      "${t.open} ${widget.entry.key.contains(conflictSeparator) ? t.commit : t.fileDiff}".toUpperCase(),
                       style: TextStyle(color: tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -363,7 +363,7 @@ class _DiffFileState extends State<DiffFile> {
                     ),
                     icon: FaIcon(FontAwesomeIcons.filePen, color: tertiaryInfo, size: textXS),
                     label: Text(
-                      "Open/Edit File".toUpperCase(),
+                      t.openEditFile.toUpperCase(),
                       style: TextStyle(color: tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
                     ),
                   ),

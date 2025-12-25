@@ -91,6 +91,9 @@
     "forcePushPullMessage": "Please do not close or exit the app until the process is complete.",
     "manualSync": "Manual Sync",
     "manualSyncMsg": "Select the files you would like to sync",
+    "commit": "Commit",
+    "unstage": "Unstage",
+    "stage": "Stage",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "noUncommittedChanges": "No uncommitted changes",
@@ -174,6 +177,7 @@
     "accessibilityServiceDisclosureMessage": "To enhance your experience,\nGitSync uses Android's Accessibility Service to detect when apps are opened or closed.\n\nThis helps us provide tailored features without storing or sharing any data.\n\nᴘʟᴇᴀsᴇ ᴇɴᴀʙʟᴇ ɢɪᴛsʏɴᴄ ᴏɴ ᴛʜᴇ ɴᴇxᴛ sᴄʀᴇᴇɴ",
     "accessibilityServiceDescription": "To enhance your experience, GitSync uses Android's Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \n\n Key Points: \n Purpose: We use this service solely to improve your app experience. \n Privacy: No data is stored or sent elsewhere. \n Control: You can disable these permissions at any time in your device settings.",
     "search": "Search",
+    "searchEllipsis": "Search…",
     "applicationNotSet": "Select App(s)",
     "selectApplication": "Select application(s)",
     "multipleApplicationSelected": "Selected (%s)",
@@ -207,7 +211,14 @@
     "oauthProviders": "oAuth Providers",
     "gitProtocols": "Git Protocols",
     "oauthNoAffiliation": "Authentication via third parties;\nno affiliation or endorsement implied.",
-    "oauth": "oauth",
+    "replacesExistingAuth": "Replaces existing\ncontainer auth",
+    "oauth": "OAuth",
+    "copyFromContainer": "Copy from Container",
+    "or": "or",
+    "enterPAT": "Enter Personal Access Token",
+    "usePAT": "Use PAT",
+    "oauthAllRepos": "OAuth (All Repos)",
+    "oauthScoped": "OAuth (Scoped)",
     "ensureTokenScope": "Ensure your token includes the \"repo\" scope for full functionality.",
     "user": "user",
     "exampleUser": "JohnSmith12",
@@ -252,6 +263,8 @@
     "confirmCloneOverwriteMsg": "The folder you selected already contains files. Cloning into it will overwrite its contents.",
     "confirmCloneOverwriteWarning": "This action is irreversible.",
     "confirmCloneOverwriteAction": "Overwrite",
+    "repoSearchLimits": "Repository Search Limits",
+    "repoSearchLimitsDescription": "Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.",
 
 
     "@@x-SETTINGS_PAGE": "",
@@ -286,6 +299,7 @@
     "optimisedSyncDescription": "Intelligently reduce overall sync operations",
     "proceedAnyway": "Proceed anyway?",
     "moreOptions": "More Options",
+    "untrackAll": "Untrack All",
 
 
 
@@ -320,6 +334,9 @@
     "shareLogs": "Share Logs",
     "logsEmailSubjectTemplate": "GitSync Logs (%s)",
     "logsEmailRecipient": "bugsviscouspotential@gmail.com",
+    "repositoryDefaults": "Repository Defaults",
+    "miscellaneous": "Miscellaneous",
+    "dangerZone": "Danger Zone",
 
 
 
@@ -343,6 +360,31 @@
     "paste": "Paste",
     "experimental": "Experimental",
     "experimentalMsg": "Use at your own risk",
+    "codeEditorLimits": "Code Editor Limits",
+    "codeEditorLimitsDescription": "The code editor provides basic, functional editing but hasn’t been exhaustively tested for edge cases or heavy use. \n\nIf you encounter bugs or want to suggest features, I welcome feedback! Please use the Bug Report or Feature Request options in Global Settings or below.",
+    "openFile": "Open File",
+    "openFileDescription": "Preview/edit file contents",
+    "viewGitLog": "view git log",
+    "viewGitLogDescription": "View the full git log history",
+    "ignoreUntrack": ".gitignore + Untrack",
+    "ignoreUntrackDescription": "Add files to .gitignore and untrack",
+    "excludeUntrack": ".git/info/exclude + Untrack",
+    "excludeUntrackDescription": "Add files to the local exclude file and untrack",
+    "ignoreOnly": "Add to .gitignore Only",
+    "ignoreOnlyDescription": "Only add files to .gitignore",
+    "excludeOnly": "Add to .git/info/exclude Only",
+    "excludeOnlyDescription": "Only add files to the local exclude file",
+    "untrack": "Untrack file(s)",
+    "untrackDescription": "Untrack specified file(s)",
+    "selected": "selected",
+    "ignoreAndUntrack": "Ignore & Untrack",
+
+
+    "@@x-DIFF_VIEW": "",
+    "open": "Open",
+    "fileDiff": "File Diff",
+    "openEditFile": "Open/Edit File",
+    "filesChanged": "file(s) changed",
 
 
     "@@x-REPO_MANAGEMENT": "",
@@ -426,6 +468,8 @@
     "issueReportDescDesc": "Explain what’s happening in more detail",
     "issueReportMinimalReproTitle": "Reproduction Steps",
     "issueReportMinimalReproDesc": "Describe the steps taken leading up to the error",
+    "includeLogFiles": "Include Log File(s)",
+    "includeLogFilesDescription": "Including log files with your bug report is strongly recommended as they can greatly speed up diagnosing the root cause. \nIf you choose to disable \"Include log file(s)\", please copy and paste the relevant log excerpts into your report so we can reproduce the issue. You can review logs before sending by using the eye icon to confirm there’s nothing sensitive. \n\nIncluding logs is optional, not mandatory.",
     "report": "Report",
     "issueReportSuccessTitle": "Issue Reported Successfully",
     "issueReportSuccessMsg": "Your issue has been reported. Bookmark this page to track progress and respond to messages. \n\nPlease avoid creating duplicate issues, as that makes resolution harder. \n\nIssues with no activity for 7 days are automatically closed.",

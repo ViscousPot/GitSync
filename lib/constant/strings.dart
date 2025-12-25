@@ -96,6 +96,8 @@ const String contributeLink = "https://github.com/sponsors/ViscousPot?sponsor=Vi
 const String githubIssueTemplate =
     "https://www.github.com/ViscousPot/GitSync/issues/new?template=BUG_REPORT.yaml&title=[Bug]:%20(%s)%%20Application%%20Error!&labels=%s,bug&logs=%s";
 const String release1708Link = "https://github.com/ViscousPot/GitSync/releases/tag/v1.708";
+const String githubAppsLink = "https://github.com/apps/git-sync-viscouspotential";
+const String githubInstallationsLink = "https://github.com/settings/installations/%s";
 
 // Constants
 const mergeConflictReference = "merge_conflict";

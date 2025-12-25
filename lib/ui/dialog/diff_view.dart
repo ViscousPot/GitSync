@@ -291,7 +291,7 @@ Future<void> showDialog(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "${diff?.diffParts.keys.length ?? 0} file(s) changed",
+                        "${diff?.diffParts.keys.length ?? 0} ${t.filesChanged}",
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                       ),

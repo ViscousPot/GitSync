@@ -461,7 +461,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                   Padding(
                                     padding: EdgeInsets.only(left: spaceXS),
                                     child: Text(
-                                      "Untrack All".toUpperCase(),
+                                      t.untrackAll.toUpperCase(),
                                       style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),

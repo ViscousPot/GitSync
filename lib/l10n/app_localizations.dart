@@ -554,6 +554,24 @@ abstract class AppLocalizations {
   /// **'Select the files you would like to sync'**
   String get manualSyncMsg;
 
+  /// No description provided for @commit.
+  ///
+  /// In en, this message translates to:
+  /// **'Commit'**
+  String get commit;
+
+  /// No description provided for @unstage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstage'**
+  String get unstage;
+
+  /// No description provided for @stage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get stage;
+
   /// No description provided for @selectAll.
   ///
   /// In en, this message translates to:
@@ -1010,6 +1028,12 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @searchEllipsis.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get searchEllipsis;
+
   /// No description provided for @applicationNotSet.
   ///
   /// In en, this message translates to:
@@ -1190,11 +1214,53 @@ abstract class AppLocalizations {
   /// **'Authentication via third parties;\nno affiliation or endorsement implied.'**
   String get oauthNoAffiliation;
 
+  /// No description provided for @replacesExistingAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces existing\ncontainer auth'**
+  String get replacesExistingAuth;
+
   /// No description provided for @oauth.
   ///
   /// In en, this message translates to:
-  /// **'oauth'**
+  /// **'OAuth'**
   String get oauth;
+
+  /// No description provided for @copyFromContainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy from Container'**
+  String get copyFromContainer;
+
+  /// No description provided for @or.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get or;
+
+  /// No description provided for @enterPAT.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Personal Access Token'**
+  String get enterPAT;
+
+  /// No description provided for @usePAT.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PAT'**
+  String get usePAT;
+
+  /// No description provided for @oauthAllRepos.
+  ///
+  /// In en, this message translates to:
+  /// **'OAuth (All Repos)'**
+  String get oauthAllRepos;
+
+  /// No description provided for @oauthScoped.
+  ///
+  /// In en, this message translates to:
+  /// **'OAuth (Scoped)'**
+  String get oauthScoped;
 
   /// No description provided for @ensureTokenScope.
   ///
@@ -1442,6 +1508,18 @@ abstract class AppLocalizations {
   /// **'Overwrite'**
   String get confirmCloneOverwriteAction;
 
+  /// No description provided for @repoSearchLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository Search Limits'**
+  String get repoSearchLimits;
+
+  /// No description provided for @repoSearchLimitsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.'**
+  String get repoSearchLimitsDescription;
+
   /// No description provided for @repositorySettings.
   ///
   /// In en, this message translates to:
@@ -1628,6 +1706,12 @@ abstract class AppLocalizations {
   /// **'More Options'**
   String get moreOptions;
 
+  /// No description provided for @untrackAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Untrack All'**
+  String get untrackAll;
+
   /// No description provided for @globalSettings.
   ///
   /// In en, this message translates to:
@@ -1808,6 +1892,24 @@ abstract class AppLocalizations {
   /// **'bugsviscouspotential@gmail.com'**
   String get logsEmailRecipient;
 
+  /// No description provided for @repositoryDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository Defaults'**
+  String get repositoryDefaults;
+
+  /// No description provided for @miscellaneous.
+  ///
+  /// In en, this message translates to:
+  /// **'Miscellaneous'**
+  String get miscellaneous;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get dangerZone;
+
   /// No description provided for @file.
   ///
   /// In en, this message translates to:
@@ -1921,6 +2023,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use at your own risk'**
   String get experimentalMsg;
+
+  /// No description provided for @codeEditorLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Code Editor Limits'**
+  String get codeEditorLimits;
+
+  /// No description provided for @codeEditorLimitsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The code editor provides basic, functional editing but hasn’t been exhaustively tested for edge cases or heavy use. \n\nIf you encounter bugs or want to suggest features, I welcome feedback! Please use the Bug Report or Feature Request options in Global Settings or below.'**
+  String get codeEditorLimitsDescription;
+
+  /// No description provided for @openFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open File'**
+  String get openFile;
+
+  /// No description provided for @openFileDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview/edit file contents'**
+  String get openFileDescription;
+
+  /// No description provided for @viewGitLog.
+  ///
+  /// In en, this message translates to:
+  /// **'view git log'**
+  String get viewGitLog;
+
+  /// No description provided for @viewGitLogDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View the full git log history'**
+  String get viewGitLogDescription;
+
+  /// No description provided for @ignoreUntrack.
+  ///
+  /// In en, this message translates to:
+  /// **'.gitignore + Untrack'**
+  String get ignoreUntrack;
+
+  /// No description provided for @ignoreUntrackDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add files to .gitignore and untrack'**
+  String get ignoreUntrackDescription;
+
+  /// No description provided for @excludeUntrack.
+  ///
+  /// In en, this message translates to:
+  /// **'.git/info/exclude + Untrack'**
+  String get excludeUntrack;
+
+  /// No description provided for @excludeUntrackDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add files to the local exclude file and untrack'**
+  String get excludeUntrackDescription;
+
+  /// No description provided for @ignoreOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to .gitignore Only'**
+  String get ignoreOnly;
+
+  /// No description provided for @ignoreOnlyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only add files to .gitignore'**
+  String get ignoreOnlyDescription;
+
+  /// No description provided for @excludeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to .git/info/exclude Only'**
+  String get excludeOnly;
+
+  /// No description provided for @excludeOnlyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only add files to the local exclude file'**
+  String get excludeOnlyDescription;
+
+  /// No description provided for @untrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Untrack file(s)'**
+  String get untrack;
+
+  /// No description provided for @untrackDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Untrack specified file(s)'**
+  String get untrackDescription;
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'selected'**
+  String get selected;
+
+  /// No description provided for @ignoreAndUntrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore & Untrack'**
+  String get ignoreAndUntrack;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @fileDiff.
+  ///
+  /// In en, this message translates to:
+  /// **'File Diff'**
+  String get fileDiff;
+
+  /// No description provided for @openEditFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open/Edit File'**
+  String get openEditFile;
+
+  /// No description provided for @filesChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'file(s) changed'**
+  String get filesChanged;
 
   /// No description provided for @defaultContainerName.
   ///
@@ -2341,6 +2575,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Describe the steps taken leading up to the error'**
   String get issueReportMinimalReproDesc;
+
+  /// No description provided for @includeLogFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Log File(s)'**
+  String get includeLogFiles;
+
+  /// No description provided for @includeLogFilesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Including log files with your bug report is strongly recommended as they can greatly speed up diagnosing the root cause. \nIf you choose to disable \"Include log file(s)\", please copy and paste the relevant log excerpts into your report so we can reproduce the issue. You can review logs before sending by using the eye icon to confirm there’s nothing sensitive. \n\nIncluding logs is optional, not mandatory.'**
+  String get includeLogFilesDescription;
 
   /// No description provided for @report.
   ///

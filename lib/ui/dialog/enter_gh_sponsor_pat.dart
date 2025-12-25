@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          "Enter Personal Access Token",
+          t.enterPAT,
           style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
