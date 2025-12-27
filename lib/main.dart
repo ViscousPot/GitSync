@@ -1991,7 +1991,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                                                             final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
                                                             if (githubAppInstallations.isEmpty) {
-                                                              await launchUrl(Uri.parse("https://github.com/apps/git-sync-viscouspotential"));
+                                                              await launchUrl(Uri.parse("https://github.com/apps/gitsync-viscouspotential"));
                                                             } else {
                                                               await launchUrl(
                                                                 Uri.parse(
