@@ -422,6 +422,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Klicken Sie hier, um die Einrichtung oder UI-Führung neu zu starten, wenn Sie eine Anleitung benötigen oder die Benutzeroberfläche erneut überprüfen möchten';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => 'Detached Head';
 
   @override

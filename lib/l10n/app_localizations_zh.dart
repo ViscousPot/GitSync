@@ -411,6 +411,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guidedSetupHint => '需要演示或想要重新查看界面时，点击此处重新开始设置或界面指南';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => '分离的 HEAD';
 
   @override

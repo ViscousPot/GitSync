@@ -424,6 +424,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cliquez ici pour redémarrer la configuration ou le guide d\'interface utilisateur chaque fois que vous avez besoin d\'une visite guidée ou que vous souhaitez revoir l\'interface utilisateur';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => 'Tête détachée';
 
   @override

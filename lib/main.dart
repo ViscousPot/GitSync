@@ -1289,63 +1289,84 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                     return Row(
                                                       children: [
                                                         Expanded(
-                                                          child: DropdownButton(
-                                                            isDense: true,
-                                                            isExpanded: true,
-                                                            hint: Text(
-                                                              t.detachedHead.toUpperCase(),
-                                                              style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: secondaryLight),
-                                                            ),
-                                                            padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                                            value: branchNames?.contains(branchName) == true ? branchName : null,
-                                                            menuMaxHeight: 250,
-                                                            dropdownColor: secondaryDark,
-                                                            borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                            selectedItemBuilder: (context) => List.generate(
-                                                              (branchNames ?? []).length,
-                                                              (index) => Row(
-                                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                                children: [
-                                                                  Text(
-                                                                    (branchNames ?? [])[index].toUpperCase(),
-                                                                    style: TextStyle(
-                                                                      fontSize: textMD,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      color: !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
-                                                                          ? tertiaryLight
-                                                                          : primaryLight,
-                                                                    ),
+                                                          child: Stack(
+                                                            children: [
+                                                              DropdownButton(
+                                                                isDense: true,
+                                                                isExpanded: true,
+                                                                hint: Text(
+                                                                  t.detachedHead.toUpperCase(),
+                                                                  style: TextStyle(
+                                                                    fontSize: textMD,
+                                                                    fontWeight: FontWeight.bold,
+                                                                    color: secondaryLight,
                                                                   ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            underline: const SizedBox.shrink(),
-                                                            onChanged: !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
-                                                                ? null
-                                                                : <String>(value) async {
-                                                                    if (value == branchName) return;
-
-                                                                    await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
-                                                                      await GitManager.checkoutBranch(value);
-                                                                    });
-                                                                    setState(() {});
-                                                                  },
-                                                            items: (branchNames ?? [])
-                                                                .map(
-                                                                  (item) => DropdownMenuItem(
-                                                                    value: item,
-                                                                    child: Text(
-                                                                      item.toUpperCase(),
-                                                                      style: TextStyle(
-                                                                        fontSize: textSM,
-                                                                        color: primaryLight,
-                                                                        fontWeight: FontWeight.bold,
-                                                                        overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                                padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                                value: branchNames?.contains(branchName) == true ? branchName : null,
+                                                                menuMaxHeight: 250,
+                                                                dropdownColor: secondaryDark,
+                                                                borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                selectedItemBuilder: (context) => List.generate(
+                                                                  (branchNames ?? []).length,
+                                                                  (index) => Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                                    children: [
+                                                                      Text(
+                                                                        (branchNames ?? [])[index].toUpperCase(),
+                                                                        style: TextStyle(
+                                                                          fontSize: textMD,
+                                                                          fontWeight: FontWeight.bold,
+                                                                          color:
+                                                                              !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
+                                                                              ? tertiaryLight
+                                                                              : primaryLight,
+                                                                        ),
                                                                       ),
-                                                                    ),
+                                                                    ],
                                                                   ),
-                                                                )
-                                                                .toList(),
+                                                                ),
+                                                                underline: const SizedBox.shrink(),
+                                                                onChanged: !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
+                                                                    ? null
+                                                                    : <String>(value) async {
+                                                                        if (value == branchName) return;
+
+                                                                        await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
+                                                                          await GitManager.checkoutBranch(value);
+                                                                        });
+                                                                        setState(() {});
+                                                                      },
+                                                                items: (branchNames ?? [])
+                                                                    .map(
+                                                                      (item) => DropdownMenuItem(
+                                                                        value: item,
+                                                                        child: Text(
+                                                                          item.toUpperCase(),
+                                                                          style: TextStyle(
+                                                                            fontSize: textSM,
+                                                                            color: primaryLight,
+                                                                            fontWeight: FontWeight.bold,
+                                                                            overflow: TextOverflow.ellipsis,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                    .toList(),
+                                                              ),
+                                                              Positioned(
+                                                                top: -spaceXXXXS,
+                                                                left: spaceXS,
+                                                                child: Text(
+                                                                  t.currentBranch.toUpperCase(),
+                                                                  style: TextStyle(
+                                                                    color: tertiaryLight,
+                                                                    fontSize: textXXS,
+                                                                    fontWeight: FontWeight.w900,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
                                                         IconButton(

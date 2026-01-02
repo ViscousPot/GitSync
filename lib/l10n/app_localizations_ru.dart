@@ -420,6 +420,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нажмите здесь, чтобы перезапустить настройку или руководство по интерфейсу, когда вам нужен пошаговый обзор или вы хотите повторно изучить интерфейс';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => 'Отсоединенная HEAD';
 
   @override

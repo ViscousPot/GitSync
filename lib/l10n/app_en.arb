@@ -156,6 +156,7 @@
 
 
     "@@x-HOME_PAGE": "",
+    "currentBranch": "Current Branch",
     "detachedHead": "Detached Head",
     "commitsNotFound": "No commits found…",
     "repoNotFound": "No repo found…",

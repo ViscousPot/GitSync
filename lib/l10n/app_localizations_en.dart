@@ -417,6 +417,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guidedSetupHint => 'Click here to restart the setup or UI guide whenever you need a walkthrough or want to review the UI again';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => 'Detached Head';
 
   @override

@@ -902,6 +902,12 @@ abstract class AppLocalizations {
   /// **'Click here to restart the setup or UI guide whenever you need a walkthrough or want to review the UI again'**
   String get guidedSetupHint;
 
+  /// No description provided for @currentBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Branch'**
+  String get currentBranch;
+
   /// No description provided for @detachedHead.
   ///
   /// In en, this message translates to:

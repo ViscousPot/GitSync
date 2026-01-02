@@ -422,6 +422,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'Haz clic aquí para reiniciar la configuración o la guía de la interfaz cuando necesites un tutorial o quieras revisar la interfaz de nuevo';
 
   @override
+  String get currentBranch => 'Current Branch';
+
+  @override
   String get detachedHead => 'Head Desconectado';
 
   @override
