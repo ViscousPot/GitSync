@@ -37,12 +37,12 @@ class _SyncLoaderState extends State<SyncLoader> {
     opacity = 0.0;
 
     initAsync(() async {
-      locked = await GitManager.isLocked(false);
+      locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
       erroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
       setState(() {});
       lockedTimer = Timer.periodic(const Duration(milliseconds: 200), (_) async {
         final newErroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
-        final newLocked = await GitManager.isLocked(false);
+        final newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
 
         if (newErroring != erroring) {
           erroring = newErroring;
@@ -92,9 +92,9 @@ class _SyncLoaderState extends State<SyncLoader> {
 
     return GestureDetector(
       onLongPress: () async {
-        final locks = await repoManager.getStringList(StorageKey.repoman_locks);
+        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
         final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
-        await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
+        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
         gitSyncService.isScheduled = false;
         gitSyncService.isSyncing = false;
         setState(() {});

@@ -237,6 +237,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late Future<String?> appLocale = repoManager.getStringNullable(StorageKey.repoman_appLocale);
+
   @override
   void initState() {
     HomeWidget.setAppGroupId('group.ForceSyncWidget');
@@ -247,7 +249,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: repoManager.getStringNullable(StorageKey.repoman_appLocale),
+      future: appLocale,
       builder: (context, appLocaleSnapshot) => MaterialApp(
         title: appName,
         debugShowCheckedModeBanner: false,
@@ -300,7 +302,14 @@ class _MyAppState extends State<MyApp> {
                 ongoingMergeConflict: t.ongoingMergeConflict,
               ).toMap(),
             );
-            return MyHomePage(title: appName, setState: setState);
+            return MyHomePage(
+              title: appName,
+              reloadLocale: () async {
+                appLocale = repoManager.getStringNullable(StorageKey.repoman_appLocale);
+                setState(() {});
+                ();
+              },
+            );
           },
         ),
       ),
@@ -309,10 +318,10 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.setState});
+  const MyHomePage({super.key, required this.title, required this.reloadLocale});
 
   final String title;
-  final void Function(VoidCallback) setState;
+  final VoidCallback reloadLocale;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -335,6 +344,29 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final _controlKey = GlobalKey();
   final _configKey = GlobalKey();
   final _autoSyncOptionsKey = GlobalKey();
+
+  late Future<List<GitManagerRs.Commit>> recentCommits = GitManager.getRecentCommits();
+  late Future<List<GitManagerRs.Commit>> initialRecentCommits = GitManager.getInitialRecentCommits();
+  late Future<List<String>> conflicting = GitManager.getConflicting();
+  late Future<String?> branchName = GitManager.getBranchName();
+  late Future<List<String>> branchNames = GitManager.getBranchNames();
+  late Future<Map<String, (IconData, Future<void> Function())>> syncOptions = getSyncOptions();
+  late Future<String> lastSyncOption = getLastSyncOption();
+  late Future<(String, String)?> remoteUrlLink = GitManager.getRemoteUrlLink();
+
+  void reloadAll() {
+    var stack = StackTrace.current;
+    print("///////////// badddddddd $stack");
+    syncOptions = getSyncOptions();
+    lastSyncOption = getLastSyncOption();
+    remoteUrlLink = GitManager.getRemoteUrlLink();
+    initialRecentCommits = GitManager.getInitialRecentCommits();
+    recentCommits = GitManager.getRecentCommits();
+    conflicting = GitManager.getConflicting();
+    branchNames = GitManager.getBranchNames();
+    branchName = GitManager.getBranchName();
+    setState(() {});
+  }
 
   static final List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote))> remoteActions = [
     (
@@ -397,7 +429,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         final shortcutSyncIndex = await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex);
         await repoManager.setInt(StorageKey.repoman_repoIndex, shortcutSyncIndex);
         await uiSettingsManager.reinit();
-        setState(() {});
+        reloadAll();
         await ManualSyncDialog.showDialog(context, () async {});
         return;
       }
@@ -415,20 +447,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     initAsync(() async {
       if (premiumManager.hasPremiumNotifier.value == false) {
         await premiumManager.cullNonPremium();
-        setState(() {});
+        reloadAll();
       }
     });
 
     premiumManager.hasPremiumNotifier.addListener(() async {
       if (premiumManager.hasPremiumNotifier.value == false) {
         await premiumManager.cullNonPremium();
+        reloadAll();
       }
-      setState(() {});
     });
 
     FlutterBackgroundService().on(GitsyncService.MERGE_COMPLETE).listen((event) async {
       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-      setState(() {});
+      reloadAll();
     });
 
     networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => setState(() {}));
@@ -443,14 +475,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         if (!mounted) return;
         await LegacyAppUserDialog.showDialog(context, () async {
           await onboardingController?.show();
-          setState(() {});
+          reloadAll();
         });
         return;
       }
       final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
       if (step != -1) {
         await onboardingController?.show();
-        setState(() {});
+        reloadAll();
       }
 
       await updateRecommendedAction();
@@ -464,7 +496,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     final widgetManualSyncIndex = await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex);
     await repoManager.setInt(StorageKey.repoman_repoIndex, widgetManualSyncIndex);
     await uiSettingsManager.reinit();
-    setState(() {});
+    reloadAll();
     await ManualSyncDialog.showDialog(context, () async {});
   }
 
@@ -505,7 +537,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
-    await Navigator.of(context).push(createGlobalSettingsMainRoute(onboarding: true)).then((_) => setState(() {}));
+    await Navigator.of(context).push(createGlobalSettingsMainRoute(onboarding: true)).then((_) => reloadAll());
     await repoManager.setOnboardingStep(-1);
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     setState(() {});
@@ -528,7 +560,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.indexOf(text));
       await uiSettingsManager.reinit();
 
-      setState(() {});
+      reloadAll();
     });
   }
 
@@ -701,7 +733,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               await GitManager.uploadAndOverwrite();
               await GitManager.downloadAndOverwrite();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              setState(() {});
+              reloadAll();
             });
           },
         ),
@@ -713,7 +745,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context);
               await GitManager.downloadAndOverwrite();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              setState(() {});
+              reloadAll();
             });
           },
         ),
@@ -725,7 +757,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context, push: true);
               await GitManager.forcePush();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              setState(() {});
+              reloadAll();
             });
           },
         ),
@@ -737,7 +769,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context);
               await GitManager.forcePull();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              setState(() {});
+              reloadAll();
             });
           },
         ),
@@ -745,7 +777,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         FontAwesomeIcons.rightLeft,
         () async {
           await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, !clientModeEnabled);
-          setState(() {});
+          reloadAll();
         },
       ),
     });
@@ -774,7 +806,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       gitLfsExpanded = false;
       await updateRecommendedAction();
-      setState(() {});
+      reloadAll();
     }
     if (state == AppLifecycleState.paused) {
       // if (uiSettingsManager.getOnboardingStep() != 0 && onboardingController?.hasSkipped == false) {
@@ -789,19 +821,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
 
     return AuthDialog.showDialog(context, () async {
-      setState(() {});
+      reloadAll();
       if ((await uiSettingsManager.getAuthorEmail()).isEmpty || (await uiSettingsManager.getAuthorName()).isEmpty) {
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
-            await Navigator.of(context).push(createSettingsMainRoute(showcaseAuthorDetails: true)).then((_) => setState(() {}));
+            await Navigator.of(context).push(createSettingsMainRoute(showcaseAuthorDetails: true)).then((_) => reloadAll());
           },
           () async {
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
               await showCloneRepoPage();
             } else {
               await onboardingController?.show();
-              setState(() {});
+              reloadAll();
             }
           },
         );
@@ -811,13 +843,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         await showCloneRepoPage();
       } else {
         await onboardingController?.show();
-        setState(() {});
+        reloadAll();
       }
     });
   }
 
   Future<void> showCloneRepoPage() async {
-    Navigator.of(context).push(createCloneRepoMainRoute()).then((_) => setState(() {}));
+    Navigator.of(context).push(createCloneRepoMainRoute()).then((_) => reloadAll());
   }
 
   @override
@@ -854,14 +886,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               constraints: BoxConstraints(),
               onPressed: () async {
-                await Navigator.of(context).push(createGlobalSettingsMainRoute()).then((_) => setState(() {}));
-                widget.setState(() {});
+                await Navigator.of(context).push(createGlobalSettingsMainRoute()).then((_) => reloadAll());
+                widget.reloadLocale();
               },
               icon: FaIcon(FontAwesomeIcons.gear, color: tertiaryDark, size: spaceMD + 7),
             ),
           ),
           SizedBox(width: spaceSM),
-          SyncLoader(syncProgressKey: _syncProgressKey, reload: () => widget.setState(() {})),
+          SyncLoader(syncProgressKey: _syncProgressKey, reload: () => reloadAll()),
           SizedBox(width: spaceSM),
           CustomShowcase(
             globalKey: _addMoreKey,
@@ -900,10 +932,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               onPressed: () async {
                                 if (premiumManager.hasPremiumNotifier.value != true) {
                                   await UnlockPremiumDialog.showDialog(context, () {
-                                    setState(() {});
+                                    reloadAll();
                                     addRepo();
                                   });
-                                  setState(() {});
+                                  reloadAll();
                                   return;
                                 }
 
@@ -913,7 +945,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 }
 
                                 repoSettingsExpanded = !repoSettingsExpanded;
-                                setState(() {});
+                                reloadAll();
 
                                 if (repoSettingsExpanded) {
                                   Future.delayed(
@@ -958,7 +990,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         constraints: BoxConstraints(),
                                         onPressed: () {
                                           repoSettingsExpanded = false;
-                                          setState(() {});
+                                          reloadAll();
 
                                           RemoveContainerDialog.showDialog(context, (deleteContents) async {
                                             if (deleteContents) {
@@ -985,7 +1017,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             }
 
                                             await uiSettingsManager.reinit();
-                                            setState(() {});
+                                            reloadAll();
                                           });
                                         },
                                         icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: tertiaryNegative, size: textLG),
@@ -995,7 +1027,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         constraints: BoxConstraints(),
                                         onPressed: () {
                                           repoSettingsExpanded = false;
-                                          setState(() {});
+                                          reloadAll();
 
                                           if (repoNamesSnapshot.data == null || repoIndexSnapshot.data == null) return;
 
@@ -1009,7 +1041,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
 
                                             await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
-                                            setState(() {});
+                                            reloadAll();
                                           });
                                         },
                                         icon: FaIcon(FontAwesomeIcons.squarePen, color: tertiaryInfo, size: textLG),
@@ -1037,7 +1069,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         if (value == null) return;
                                         await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                         await uiSettingsManager.reinit();
-                                        setState(() {});
+                                        reloadAll();
                                       },
                                       selectedItemBuilder: (context) => List.generate(
                                         repoNamesSnapshot.data!.length,
@@ -1105,11 +1137,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       cornerRadius: cornerRadiusMD,
                       description: t.controlHint,
                       child: FutureBuilder(
-                        future: GitManager.getRecentCommits(),
+                        future: recentCommits,
                         builder: (context, recentCommitsSnapshot) => FutureBuilder(
-                          future: GitManager.getInitialRecentCommits(),
+                          future: initialRecentCommits,
                           builder: (context, fastRecentCommitsSnapshot) => FutureBuilder(
-                            future: GitManager.getConflicting(),
+                            future: conflicting,
                             builder: (context, conflictingSnapshot) {
                               final recentCommits = fastRecentCommitsSnapshot.data;
                               final items = [
@@ -1236,7 +1268,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                               return ItemMergeConflict(
                                                                                 key: Key(reference),
                                                                                 conflictingSnapshot.data!,
-                                                                                () => setState(() {}),
+                                                                                () => reloadAll(),
                                                                               );
                                                                             }
 
@@ -1275,16 +1307,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                           SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
 
                                           FutureBuilder(
-                                            future: GitManager.getBranchName(),
+                                            future: branchName,
                                             builder: (context, branchNameSnapshot) => FutureBuilder(
                                               future: uiSettingsManager.getStringNullable(StorageKey.setman_branchName),
                                               builder: (context, fastBranchNameSnapshot) => FutureBuilder(
-                                                future: GitManager.getBranchNames(),
+                                                future: branchNames,
                                                 builder: (context, branchNamesSnapshot) => FutureBuilder(
                                                   future: uiSettingsManager.getStringList(StorageKey.setman_branchNames),
                                                   builder: (context, fastBranchNamesSnapshot) {
                                                     final branchName = fastBranchNameSnapshot.data ?? branchNameSnapshot.data;
-                                                    final branchNames = fastBranchNamesSnapshot.data ?? branchNamesSnapshot.data;
+                                                    final branchNames = fastBranchNamesSnapshot.data == null || fastBranchNamesSnapshot.data!.isEmpty
+                                                        ? branchNamesSnapshot.data
+                                                        : fastBranchNamesSnapshot.data;
 
                                                     return Row(
                                                       children: [
@@ -1335,7 +1369,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                         await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
                                                                           await GitManager.checkoutBranch(value);
                                                                         });
-                                                                        setState(() {});
+                                                                        reloadAll();
                                                                       },
                                                                 items: (branchNames ?? [])
                                                                     .map(
@@ -1374,7 +1408,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                               ? () {
                                                                   CreateBranchDialog.showDialog(context, (branchName, basedOn) async {
                                                                     await GitManager.createBranch(branchName, basedOn);
-                                                                    setState(() {});
+                                                                    reloadAll();
                                                                   });
                                                                 }
                                                               : null,
@@ -1418,11 +1452,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       children: [
                                         Expanded(
                                           child: FutureBuilder(
-                                            future: getSyncOptions(),
+                                            future: syncOptions,
                                             builder: (context, syncOptionsSnapshot) => ValueListenableBuilder(
                                               valueListenable: recommendedAction,
                                               builder: (context, recommendedActionValue, _) => FutureBuilder(
-                                                future: getLastSyncOption(),
+                                                future: lastSyncOption,
                                                 builder: (context, lastSyncMethodSnapshot) => Stack(
                                                   children: [
                                                     SizedBox.expand(
@@ -1432,7 +1466,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                           if (syncOptionsSnapshot.data == null || lastSyncMethodSnapshot.data == null) return;
 
                                                           WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                            setState(() {});
+                                                            reloadAll();
                                                           });
 
                                                           await GitManager.getAndExcludeLfsFilePaths();
@@ -1443,7 +1477,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                             await syncOptionsSnapshot.data?.values.first.$2();
                                                           }
                                                           WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                            setState(() {});
+                                                            reloadAll();
                                                           });
                                                           await updateRecommendedAction();
                                                         },
@@ -1557,11 +1591,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                       await uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, item.key);
                                                                     }
                                                                     WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                                      setState(() {});
+                                                                      reloadAll();
                                                                     });
                                                                     await item.value.$2();
                                                                     WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                                      setState(() {});
+                                                                      reloadAll();
                                                                     });
                                                                     await updateRecommendedAction();
                                                                   },
@@ -1608,13 +1642,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         onPressed: () {
                                                           if (demo) {
                                                             demoConflicting = true;
-                                                            setState(() {});
+                                                            reloadAll();
                                                             MergeConflictDialog.showDialog(context, ["Readme.md"])
                                                                 .then((_) {
                                                                   demoConflicting = false;
-                                                                  setState(() {});
+                                                                  reloadAll();
                                                                 })
-                                                                .then((_) => setState(() {}));
+                                                                .then((_) => reloadAll());
 
                                                             return;
                                                           }
@@ -1685,7 +1719,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 SizedBox(width: spaceSM),
                                                 IconButton(
                                                   onPressed: () {
-                                                    Navigator.of(context).push(createSettingsMainRoute()).then((_) => setState(() {}));
+                                                    Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
                                                   },
                                                   style: ButtonStyle(
                                                     backgroundColor: WidgetStatePropertyAll(secondaryDark),
@@ -1711,7 +1745,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       }
 
                                                       uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                      setState(() {});
+                                                      reloadAll();
                                                     },
                                                     style: ButtonStyle(
                                                       backgroundColor: WidgetStatePropertyAll(secondaryDark),
@@ -1798,7 +1832,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
                                           FutureBuilder(
-                                            future: GitManager.getRemoteUrlLink(),
+                                            future: remoteUrlLink,
                                             builder: (context, snapshot) => Expanded(
                                               child: Stack(
                                                 children: [
@@ -1813,7 +1847,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
                                                       onTap: () {
                                                         if (demo) {
-                                                          ManualSyncDialog.showDialog(context, () async {}).then((_) => setState(() {}));
+                                                          ManualSyncDialog.showDialog(context, () async {}).then((_) => reloadAll());
                                                           return;
                                                         }
                                                       },
@@ -1839,7 +1873,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       onChanged: (value) async {
                                                         // await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                                         // await uiSettingsManager.reinit();
-                                                        // setState(() {});
+                                                        // reloadAll();
                                                       },
 
                                                       selectedItemBuilder: (context) => List.generate(
@@ -1881,11 +1915,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                           value: index,
                                                           // SetRemoteUrlDialog.showDialog(this.context, snapshot.data?.$1, (newRemoteUrl) async {
                                                           //   await GitManager.setRemoteUrl(newRemoteUrl);
-                                                          //   setState(() {});
+                                                          //   reloadAll();
                                                           // }),
                                                           onTap: () async {
                                                             await remoteActions[index].$2(context, snapshot.data);
-                                                            setState(() {});
+                                                            reloadAll();
                                                           },
                                                           child: Row(
                                                             children: [
@@ -2092,7 +2126,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                           : IconButton(
                                                               onPressed: () async {
                                                                 await uiSettingsManager.setGitDirPath("");
-                                                                setState(() {});
+                                                                reloadAll();
                                                               },
                                                               constraints: BoxConstraints(),
                                                               style: ButtonStyle(
@@ -2144,7 +2178,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                                                     await onboardingController?.show();
 
-                                                    if (mounted) setState(() {});
+                                                    if (mounted) reloadAll();
                                                   }
                                                 : null,
                                             style: ButtonStyle(
@@ -2183,7 +2217,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                   await uiSettingsManager.getString(StorageKey.setman_gitDirPath),
                                                   (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true),
                                                   (path) async {
-                                                    await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => setState(() {}));
+                                                    await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => reloadAll());
                                                   },
                                                 );
                                               },
@@ -2230,9 +2264,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         child: TextButton.icon(
                                                           onPressed: () async {
                                                             gitLfsExpanded = !gitLfsExpanded;
-                                                            setState(() {});
+                                                            reloadAll();
                                                             await GitManager.getAndExcludeLfsFilePaths();
-                                                            setState(() {});
+                                                            reloadAll();
                                                           },
                                                           iconAlignment: IconAlignment.end,
                                                           style: ButtonStyle(
@@ -2423,7 +2457,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             Expanded(
                                               child: TextButton.icon(
                                                 onPressed: () async {
-                                                  Navigator.of(context).push(createSettingsMainRoute()).then((_) => setState(() {}));
+                                                  Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
                                                 },
                                                 iconAlignment: IconAlignment.end,
                                                 style: ButtonStyle(
@@ -2481,7 +2515,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                   }
 
                                                   uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                  setState(() {});
+                                                  reloadAll();
                                                 },
                                                 style: ButtonStyle(
                                                   backgroundColor: WidgetStatePropertyAll(secondaryDark),
@@ -2522,7 +2556,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   ? [
                                       TextButton.icon(
                                         onPressed: () async {
-                                          Navigator.of(context).push(createSyncSettingsMainRoute()).then((_) => setState(() {}));
+                                          Navigator.of(context).push(createSyncSettingsMainRoute()).then((_) => reloadAll());
                                         },
                                         iconAlignment: IconAlignment.end,
                                         style: ButtonStyle(

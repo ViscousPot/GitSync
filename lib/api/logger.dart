@@ -32,18 +32,54 @@ enum LogType {
   Global,
   AccessibilityService,
   Sync,
-  GitStatus,
-  AbortMerge,
-  Commit,
-  GetRepos,
   CloneRepo,
   SelectDirectory,
+
+  GitStatus,
+  RecommendedActionStatus,
+  CommitDiff,
+  FileDiff,
+
+  GetBranchName,
+  CheckoutBranch,
+  CreateBranch,
+
+  GitIgnore,
+  GitInfoExclude,
+
+  UpdateSubmodules,
+  GetSubmodules,
+  GetAndExcludeLfs,
+
+  FetchRemote,
   PullFromRepo,
+  Stage,
+  Unstage,
+  Untrack,
+  Commit,
   PushToRepo,
   ForcePull,
   ForcePush,
+  DownloadChanges,
+  UploadChanges,
+
   RecentCommits,
-  Stage,
+  ConflictingFiles,
+  UncommittedFiles,
+  StagedFiles,
+
+  SetRemoteUrl,
+  GetRemoteUrlLink,
+  DisableSsl,
+  GenerateKeyPair,
+
+  DiscardDir,
+  DiscardGitIndex,
+  DiscardFetchHead,
+
+  GetRepos,
+  DiscardChanges,
+  AbortMerge,
   SyncException,
 }
 

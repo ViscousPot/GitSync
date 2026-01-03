@@ -142,10 +142,6 @@ Future<bool> hasNetworkConnection() async {
   return (await Connectivity().checkConnectivity())[0] != ConnectivityResult.none;
 }
 
-Future<T?> returnWhenOffline<T>(Future<T> Function() callback) async {
-  return (await Connectivity().checkConnectivity())[0] == ConnectivityResult.none ? callback() : null;
-}
-
 Future<String?> pickDirectory() async {
   try {
     if (Platform.isAndroid) {

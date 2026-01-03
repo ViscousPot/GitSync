@@ -17,6 +17,7 @@ enum StorageKey<T> {
   repoman_ghSponsorToken<String?>(name: "ghSponsorToken", defaultValue: null),
   repoman_repoNames<List<String>>(name: "repoNames", defaultValue: <String>["main"]),
   repoman_locks<List<String>>(name: "locks", defaultValue: <String>[]),
+  repoman_uiLocks<List<String>>(name: "uiLocks", defaultValue: <String>[]),
   repoman_showGithubAppRedirectDisclosure<bool>(name: "showGithubAppRedirectDisclosure", defaultValue: true),
   repoman_reportIssueToken<String?>(name: "reportIssueToken", defaultValue: null),
   repoman_defaultClientModeEnabled<bool>(name: "defaultClientModeEnabled", defaultValue: false),
