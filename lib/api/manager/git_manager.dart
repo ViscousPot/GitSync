@@ -153,7 +153,7 @@ class GitManager {
 
     if (!waitForUnlock) return await internal();
 
-    return await waitFor(internal, maxWaitSeconds: 5);
+    return await waitFor(internal, maxWaitSeconds: 10);
   }
 
   static FutureOr<void> _logWrapper(GitManagerRs.LogType type, String message) {
