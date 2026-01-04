@@ -346,21 +346,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final _autoSyncOptionsKey = GlobalKey();
 
   late Future<List<GitManagerRs.Commit>> recentCommits = GitManager.getRecentCommits();
-  late Future<List<GitManagerRs.Commit>> initialRecentCommits = GitManager.getInitialRecentCommits();
   late Future<List<String>> conflicting = GitManager.getConflicting();
   late Future<String?> branchName = GitManager.getBranchName();
   late Future<List<String>> branchNames = GitManager.getBranchNames();
   late Future<Map<String, (IconData, Future<void> Function())>> syncOptions = getSyncOptions();
-  late Future<String> lastSyncOption = getLastSyncOption();
   late Future<(String, String)?> remoteUrlLink = GitManager.getRemoteUrlLink();
 
   void reloadAll() {
     var stack = StackTrace.current;
     print("///////////// badddddddd $stack");
     syncOptions = getSyncOptions();
-    lastSyncOption = getLastSyncOption();
     remoteUrlLink = GitManager.getRemoteUrlLink();
-    initialRecentCommits = GitManager.getInitialRecentCommits();
     recentCommits = GitManager.getRecentCommits();
     conflicting = GitManager.getConflicting();
     branchNames = GitManager.getBranchNames();
@@ -1139,7 +1135,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       child: FutureBuilder(
                         future: recentCommits,
                         builder: (context, recentCommitsSnapshot) => FutureBuilder(
-                          future: initialRecentCommits,
+                          future: GitManager.getInitialRecentCommits(),
                           builder: (context, fastRecentCommitsSnapshot) => FutureBuilder(
                             future: conflicting,
                             builder: (context, conflictingSnapshot) {
@@ -1456,7 +1452,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             builder: (context, syncOptionsSnapshot) => ValueListenableBuilder(
                                               valueListenable: recommendedAction,
                                               builder: (context, recommendedActionValue, _) => FutureBuilder(
-                                                future: lastSyncOption,
+                                                future: getLastSyncOption(),
                                                 builder: (context, lastSyncMethodSnapshot) => Stack(
                                                   children: [
                                                     SizedBox.expand(
