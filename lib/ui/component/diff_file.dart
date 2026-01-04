@@ -351,7 +351,7 @@ class _DiffFileState extends State<DiffFile> {
                     onPressed: () async {
                       await viewOrEditFile(
                         context,
-                        "${await uiSettingsManager.getGitDirPath(true)}/${widget.entry.key.contains(conflictSeparator) ? widget.filePath : widget.entry.key}",
+                        "${await uiSettingsManager.gitDirPath?.$2}/${widget.entry.key.contains(conflictSeparator) ? widget.filePath : widget.entry.key}",
                       );
                     },
                     style: ButtonStyle(

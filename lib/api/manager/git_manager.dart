@@ -118,7 +118,7 @@ class GitManager {
 
     try {
       if (dirPath == null) {
-        dirPath = await setman.getGitDirPath();
+        dirPath = setman.gitDirPath?.$1;
         if (dirPath == null) return null;
       }
       if (dirPath.isNotEmpty) {
@@ -664,7 +664,7 @@ class GitManager {
   }
 
   static Future<String> readGitignore() async {
-    final gitDirPath = (await uiSettingsManager.getGitDirPath());
+    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return "";
     return await _runWithLock(await _repoIndex, LogType.GitIgnore, (dirPath) async {
           final gitignorePath = '$gitDirPath/$gitIgnorePath';
@@ -676,7 +676,7 @@ class GitManager {
   }
 
   static void writeGitignore(String gitignoreString) async {
-    final gitDirPath = (await uiSettingsManager.getGitDirPath());
+    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
     return await _runWithLock(await _repoIndex, LogType.GitIgnore, (dirPath) async {
       final gitignorePath = '$gitDirPath/$gitIgnorePath';
@@ -687,7 +687,7 @@ class GitManager {
   }
 
   static Future<String> readGitInfoExclude() async {
-    final gitDirPath = (await uiSettingsManager.getGitDirPath());
+    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return "";
     return await _runWithLock(await _repoIndex, LogType.GitInfoExclude, (dirPath) async {
           final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
@@ -699,7 +699,7 @@ class GitManager {
   }
 
   static void writeGitInfoExclude(String gitignoreString) async {
-    final gitDirPath = (await uiSettingsManager.getGitDirPath());
+    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
     return await _runWithLock(await _repoIndex, LogType.GitInfoExclude, (dirPath) async {
       final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';

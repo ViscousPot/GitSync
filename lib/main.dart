@@ -595,7 +595,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Future<Map<String, (IconData, Future<void> Function())>> getSyncOptions() async {
     final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
-    final dirPath = await uiSettingsManager.getGitDirPath();
+    final dirPath = uiSettingsManager.gitDirPath?.$1;
     final submodulePaths = dirPath == null ? [] : await GitManager.getSubmodulePaths(dirPath);
     Map<String, (IconData, Future<void> Function())> syncOptions = {};
 
@@ -1799,818 +1799,804 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   Expanded(
                     flex: orientation == Orientation.portrait ? 0 : 1,
                     child: FutureBuilder(
-                      future: uiSettingsManager.getGitDirPath(true),
-                      builder: (context, gitDirPathSnapshot) => FutureBuilder(
-                        future: isAuthenticated(),
-                        builder: (context, isAuthenticatedSnapshot) =>
-                            (orientation == Orientation.portrait
-                            ? (List<Widget> children) => Column(children: children)
-                            : (List<Widget> children) => ShaderMask(
-                                shaderCallback: (Rect rect) {
-                                  return LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
-                                    stops: [0, 0.05, 0.95, 1.0],
-                                  ).createShader(rect);
-                                },
-                                blendMode: BlendMode.dstOut,
-                                child: SingleChildScrollView(child: ListBody(children: children)),
-                              ))([
-                              CustomShowcase(
-                                cornerRadius: cornerRadiusMD,
-                                globalKey: _configKey,
-                                description: t.configHint,
-                                child: Column(
-                                  children: [
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          FutureBuilder(
-                                            future: remoteUrlLink,
-                                            builder: (context, snapshot) => Expanded(
-                                              child: Stack(
-                                                children: [
-                                                  Container(
-                                                    padding: EdgeInsets.zero,
-                                                    // padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                    decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                      future: isAuthenticated(),
+                      builder: (context, isAuthenticatedSnapshot) =>
+                          (orientation == Orientation.portrait
+                          ? (List<Widget> children) => Column(children: children)
+                          : (List<Widget> children) => ShaderMask(
+                              shaderCallback: (Rect rect) {
+                                return LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                                  stops: [0, 0.05, 0.95, 1.0],
+                                ).createShader(rect);
+                              },
+                              blendMode: BlendMode.dstOut,
+                              child: SingleChildScrollView(child: ListBody(children: children)),
+                            ))([
+                            CustomShowcase(
+                              cornerRadius: cornerRadiusMD,
+                              globalKey: _configKey,
+                              description: t.configHint,
+                              child: Column(
+                                children: [
+                                  IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        FutureBuilder(
+                                          future: remoteUrlLink,
+                                          builder: (context, snapshot) => Expanded(
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.zero,
+                                                  // padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                  decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
 
-                                                    child: DropdownButton(
-                                                      borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                      // padding: EdgeInsets.zero,
-                                                      padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
-                                                      onTap: () {
-                                                        if (demo) {
-                                                          ManualSyncDialog.showDialog(context, () async {}).then((_) => reloadAll());
-                                                          return;
-                                                        }
-                                                      },
-                                                      //   // icon: FaIcon(
-                                                      //   //   snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
-                                                      //   //   color: snapshot.data != null ? primaryLight : primaryNegative,
-                                                      //   //   size: textLG,
-                                                      //   // ),
-                                                      icon: Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                                        child: FaIcon(
-                                                          snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
-                                                          color: snapshot.data != null ? secondaryLight : primaryNegative,
-                                                          size: textLG,
-                                                        ),
+                                                  child: DropdownButton(
+                                                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                    // padding: EdgeInsets.zero,
+                                                    padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
+                                                    onTap: () {
+                                                      if (demo) {
+                                                        ManualSyncDialog.showDialog(context, () async {}).then((_) => reloadAll());
+                                                        return;
+                                                      }
+                                                    },
+                                                    //   // icon: FaIcon(
+                                                    //   //   snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
+                                                    //   //   color: snapshot.data != null ? primaryLight : primaryNegative,
+                                                    //   //   size: textLG,
+                                                    //   // ),
+                                                    icon: Padding(
+                                                      padding: EdgeInsets.symmetric(horizontal: spaceSM),
+                                                      child: FaIcon(
+                                                        snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
+                                                        color: snapshot.data != null ? secondaryLight : primaryNegative,
+                                                        size: textLG,
                                                       ),
-                                                      value: 0,
-                                                      // style: const TextStyle(color: tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
-                                                      // isDense: true,
-                                                      isExpanded: true,
-                                                      underline: const SizedBox.shrink(),
-                                                      dropdownColor: secondaryDark,
-                                                      onChanged: (value) async {
-                                                        // await repoManager.setInt(StorageKey.repoman_repoIndex, value);
-                                                        // await uiSettingsManager.reinit();
-                                                        // reloadAll();
-                                                      },
+                                                    ),
+                                                    value: 0,
+                                                    // style: const TextStyle(color: tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
+                                                    // isDense: true,
+                                                    isExpanded: true,
+                                                    underline: const SizedBox.shrink(),
+                                                    dropdownColor: secondaryDark,
+                                                    onChanged: (value) async {
+                                                      // await repoManager.setInt(StorageKey.repoman_repoIndex, value);
+                                                      // await uiSettingsManager.reinit();
+                                                      // reloadAll();
+                                                    },
 
-                                                      selectedItemBuilder: (context) => List.generate(
-                                                        remoteActions.length,
-                                                        (index) => Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: ExtendedText(
-                                                                demo
-                                                                    ? "https://github.com/ViscousTests/TestObsidianVault.git"
-                                                                    : (snapshot.data == null ? t.repoNotFound : snapshot.data!.$1),
-                                                                maxLines: 1,
-                                                                textAlign: TextAlign.left,
-                                                                softWrap: false,
-                                                                overflowWidget: TextOverflowWidget(
-                                                                  position: TextOverflowPosition.start,
-                                                                  child: Text(
-                                                                    "…",
-                                                                    style: TextStyle(
-                                                                      color: tertiaryLight,
-                                                                      fontSize: textMD,
-                                                                      fontWeight: FontWeight.w400,
-                                                                    ),
+                                                    selectedItemBuilder: (context) => List.generate(
+                                                      remoteActions.length,
+                                                      (index) => Row(
+                                                        children: [
+                                                          Expanded(
+                                                            child: ExtendedText(
+                                                              demo
+                                                                  ? "https://github.com/ViscousTests/TestObsidianVault.git"
+                                                                  : (snapshot.data == null ? t.repoNotFound : snapshot.data!.$1),
+                                                              maxLines: 1,
+                                                              textAlign: TextAlign.left,
+                                                              softWrap: false,
+                                                              overflowWidget: TextOverflowWidget(
+                                                                position: TextOverflowPosition.start,
+                                                                child: Text(
+                                                                  "…",
+                                                                  style: TextStyle(
+                                                                    color: tertiaryLight,
+                                                                    fontSize: textMD,
+                                                                    fontWeight: FontWeight.w400,
                                                                   ),
                                                                 ),
-                                                                style: TextStyle(
-                                                                  color: snapshot.data != null ? primaryLight : secondaryLight,
-                                                                  fontSize: textMD,
-                                                                  fontWeight: FontWeight.w400,
-                                                                ),
                                                               ),
+                                                              style: TextStyle(
+                                                                color: snapshot.data != null ? primaryLight : secondaryLight,
+                                                                fontSize: textMD,
+                                                                fontWeight: FontWeight.w400,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    items: List.generate(
+                                                      remoteActions.length,
+                                                      (index) => DropdownMenuItem(
+                                                        value: index,
+                                                        // SetRemoteUrlDialog.showDialog(this.context, snapshot.data?.$1, (newRemoteUrl) async {
+                                                        //   await GitManager.setRemoteUrl(newRemoteUrl);
+                                                        //   reloadAll();
+                                                        // }),
+                                                        onTap: () async {
+                                                          await remoteActions[index].$2(context, snapshot.data);
+                                                          reloadAll();
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            remoteActions[index].$1.$2,
+                                                            SizedBox(width: spaceSM),
+                                                            Text(
+                                                              remoteActions[index].$1.$1.toUpperCase(),
+                                                              style: TextStyle(fontSize: textXS, color: primaryLight, fontWeight: FontWeight.bold),
                                                             ),
                                                           ],
                                                         ),
                                                       ),
-                                                      items: List.generate(
-                                                        remoteActions.length,
-                                                        (index) => DropdownMenuItem(
-                                                          value: index,
-                                                          // SetRemoteUrlDialog.showDialog(this.context, snapshot.data?.$1, (newRemoteUrl) async {
-                                                          //   await GitManager.setRemoteUrl(newRemoteUrl);
-                                                          //   reloadAll();
-                                                          // }),
-                                                          onTap: () async {
-                                                            await remoteActions[index].$2(context, snapshot.data);
-                                                            reloadAll();
-                                                          },
-                                                          child: Row(
-                                                            children: [
-                                                              remoteActions[index].$1.$2,
-                                                              SizedBox(width: spaceSM),
-                                                              Text(
-                                                                remoteActions[index].$1.$1.toUpperCase(),
-                                                                style: TextStyle(fontSize: textXS, color: primaryLight, fontWeight: FontWeight.bold),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
                                                     ),
-                                                  ),
-                                                  Positioned(
-                                                    top: spaceXXXXS / 2,
-                                                    left: spaceSM,
-                                                    child: Text(
-                                                      t.remote.toUpperCase(),
-                                                      style: TextStyle(color: tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: gitDirPathSnapshot.data == null ? spaceSM : 0),
-                                          Visibility(
-                                            visible: gitDirPathSnapshot.data == null,
-                                            child: TextButton.icon(
-                                              onPressed: isAuthenticatedSnapshot.data == true
-                                                  ? () async {
-                                                      await showCloneRepoPage();
-                                                    }
-                                                  : null,
-                                              style: ButtonStyle(
-                                                backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                shape: WidgetStatePropertyAll(
-                                                  RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                                ),
-                                              ),
-                                              icon: FaIcon(
-                                                FontAwesomeIcons.cloudArrowDown,
-                                                color: isAuthenticatedSnapshot.data == true ? primaryLight : tertiaryLight,
-                                                size: textLG - 2,
-                                              ),
-                                              iconAlignment: IconAlignment.start,
-                                              label: Padding(
-                                                padding: EdgeInsets.only(left: spaceXS),
-                                                child: Text(
-                                                  t.clone.toUpperCase(),
-                                                  style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: spaceSM),
-                                          Container(
-                                            decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: secondaryDark),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                                              children: [
-                                                TextButton.icon(
-                                                  onPressed: () async {
-                                                    await showAuthDialog();
-                                                  },
-                                                  style: ButtonStyle(
-                                                    alignment: Alignment.centerLeft,
-                                                    backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                    shape: WidgetStatePropertyAll(
-                                                      RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                                    ),
-                                                  ),
-                                                  icon: FaIcon(
-                                                    isAuthenticatedSnapshot.data == true
-                                                        ? FontAwesomeIcons.solidCircleCheck
-                                                        : FontAwesomeIcons.solidCircleXmark,
-                                                    color: isAuthenticatedSnapshot.data == true ? primaryPositive : primaryNegative,
-                                                    size: textLG,
-                                                  ),
-                                                  label: Padding(
-                                                    padding: EdgeInsets.only(left: spaceXS),
-                                                    child: Text(
-                                                      t.auth.toUpperCase(),
-                                                      style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                                    ),
-                                                  ),
-                                                ),
-
-                                                FutureBuilder(
-                                                  future: (() async =>
-                                                      await uiSettingsManager.getGitProvider() == GitProvider.GITHUB &&
-                                                      await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) == true)(),
-                                                  builder: (context, gitProviderSnapshot) => !(gitProviderSnapshot.data == true)
-                                                      ? SizedBox.shrink()
-                                                      : IconButton(
-                                                          padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                          style: ButtonStyle(
-                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                            backgroundColor: WidgetStatePropertyAll(tertiaryDark),
-                                                            shape: WidgetStatePropertyAll(
-                                                              RoundedRectangleBorder(
-                                                                borderRadius: BorderRadiusGeometry.only(
-                                                                  topRight: cornerRadiusMD,
-                                                                  bottomRight: cornerRadiusMD,
-                                                                  bottomLeft: Radius.zero,
-                                                                  topLeft: Radius.zero,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          constraints: BoxConstraints(),
-                                                          onPressed: () async {
-                                                            final gitProviderManager = GithubAppManager();
-
-                                                            final usernameToken = await uiSettingsManager.getGitHttpAuthCredentials();
-
-                                                            final token = await gitProviderManager.getToken(usernameToken.$2, (_, _, _) async {});
-
-                                                            if (token == null) return;
-
-                                                            final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
-                                                            if (githubAppInstallations.isEmpty) {
-                                                              await launchUrl(Uri.parse("https://github.com/apps/gitsync-viscouspotential"));
-                                                            } else {
-                                                              await launchUrl(
-                                                                Uri.parse(
-                                                                  "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
-                                                                ),
-                                                              );
-                                                            }
-                                                          },
-                                                          icon: FaIcon(FontAwesomeIcons.sliders, size: textLG, color: secondaryLight),
-                                                        ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: spaceMD),
-
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            child: Stack(
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: secondaryDark,
-                                                    borderRadius: BorderRadius.only(
-                                                      bottomLeft: cornerRadiusMD,
-                                                      bottomRight: cornerRadiusSM,
-                                                      topLeft: cornerRadiusMD,
-                                                      topRight: cornerRadiusSM,
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Flexible(
-                                                        child: Padding(
-                                                          padding: EdgeInsets.all(spaceMD),
-                                                          child: ExtendedText(
-                                                            demo
-                                                                ? (Platform.isIOS
-                                                                      ? "TestObsidianVault"
-                                                                      : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
-                                                                : (gitDirPathSnapshot.data == null
-                                                                      ? t.repoNotFound
-                                                                      : (Platform.isIOS
-                                                                                ? gitDirPathSnapshot.data?.split("/").last
-                                                                                : gitDirPathSnapshot.data) ??
-                                                                            ""),
-                                                            maxLines: 1,
-                                                            textAlign: TextAlign.left,
-                                                            softWrap: false,
-                                                            overflowWidget: TextOverflowWidget(
-                                                              position: TextOverflowPosition.start,
-                                                              child: Text(
-                                                                "…",
-                                                                style: TextStyle(
-                                                                  color: gitDirPathSnapshot.data == null ? secondaryLight : primaryLight,
-                                                                  fontSize: textMD,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            style: TextStyle(
-                                                              color: gitDirPathSnapshot.data == null ? secondaryLight : primaryLight,
-                                                              fontSize: textMD,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      gitDirPathSnapshot.data == null
-                                                          ? SizedBox.shrink()
-                                                          : IconButton(
-                                                              onPressed: () async {
-                                                                await uiSettingsManager.setGitDirPath("");
-                                                                reloadAll();
-                                                              },
-                                                              constraints: BoxConstraints(),
-                                                              style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                                padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
-                                                                visualDensity: VisualDensity.compact,
-                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                    side: BorderSide.none,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              icon: FaIcon(
-                                                                FontAwesomeIcons.solidCircleXmark,
-                                                                size: textLG,
-                                                                color: primaryLight,
-                                                                semanticLabel: t.deselectDirLabel,
-                                                              ),
-                                                            ),
-                                                    ],
                                                   ),
                                                 ),
                                                 Positioned(
                                                   top: spaceXXXXS / 2,
                                                   left: spaceSM,
                                                   child: Text(
-                                                    t.directory.toUpperCase(),
+                                                    t.remote.toUpperCase(),
                                                     style: TextStyle(color: tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          SizedBox(width: spaceSM),
-                                          IconButton(
+                                        ),
+                                        SizedBox(width: uiSettingsManager.gitDirPath?.$2 == null ? spaceSM : 0),
+                                        Visibility(
+                                          visible: uiSettingsManager.gitDirPath?.$2 == null,
+                                          child: TextButton.icon(
                                             onPressed: isAuthenticatedSnapshot.data == true
                                                 ? () async {
-                                                    String? selectedDirectory;
-                                                    if (await requestStoragePerm()) {
-                                                      selectedDirectory = await pickDirectory();
-                                                    }
-                                                    if (selectedDirectory == null) return;
-
-                                                    if (!mounted) return;
-                                                    await setGitDirPathGetSubmodules(context, selectedDirectory);
-                                                    await repoManager.setOnboardingStep(4);
-
-                                                    await onboardingController?.show();
-
-                                                    reloadAll();
+                                                    await showCloneRepoPage();
                                                   }
                                                 : null,
                                             style: ButtonStyle(
                                               backgroundColor: WidgetStatePropertyAll(secondaryDark),
                                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                                               shape: WidgetStatePropertyAll(
-                                                RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.only(
-                                                    bottomLeft: cornerRadiusSM,
-                                                    bottomRight: cornerRadiusMD,
-                                                    topLeft: cornerRadiusSM,
-                                                    topRight: cornerRadiusMD,
-                                                  ),
-                                                  side: BorderSide.none,
-                                                ),
+                                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                               ),
                                             ),
                                             icon: FaIcon(
-                                              FontAwesomeIcons.solidFolderOpen,
+                                              FontAwesomeIcons.cloudArrowDown,
                                               color: isAuthenticatedSnapshot.data == true ? primaryLight : tertiaryLight,
                                               size: textLG - 2,
-                                              semanticLabel: t.selectDirLabel,
+                                            ),
+                                            iconAlignment: IconAlignment.start,
+                                            label: Padding(
+                                              padding: EdgeInsets.only(left: spaceXS),
+                                              child: Text(
+                                                t.clone.toUpperCase(),
+                                                style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: spaceSM),
+                                        Container(
+                                          decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: secondaryDark),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                                            children: [
+                                              TextButton.icon(
+                                                onPressed: () async {
+                                                  await showAuthDialog();
+                                                },
+                                                style: ButtonStyle(
+                                                  alignment: Alignment.centerLeft,
+                                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                  shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                                  ),
+                                                ),
+                                                icon: FaIcon(
+                                                  isAuthenticatedSnapshot.data == true
+                                                      ? FontAwesomeIcons.solidCircleCheck
+                                                      : FontAwesomeIcons.solidCircleXmark,
+                                                  color: isAuthenticatedSnapshot.data == true ? primaryPositive : primaryNegative,
+                                                  size: textLG,
+                                                ),
+                                                label: Padding(
+                                                  padding: EdgeInsets.only(left: spaceXS),
+                                                  child: Text(
+                                                    t.auth.toUpperCase(),
+                                                    style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              FutureBuilder(
+                                                future: (() async =>
+                                                    await uiSettingsManager.getGitProvider() == GitProvider.GITHUB &&
+                                                    await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) == true)(),
+                                                builder: (context, gitProviderSnapshot) => !(gitProviderSnapshot.data == true)
+                                                    ? SizedBox.shrink()
+                                                    : IconButton(
+                                                        padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                        style: ButtonStyle(
+                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                          backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                                          shape: WidgetStatePropertyAll(
+                                                            RoundedRectangleBorder(
+                                                              borderRadius: BorderRadiusGeometry.only(
+                                                                topRight: cornerRadiusMD,
+                                                                bottomRight: cornerRadiusMD,
+                                                                bottomLeft: Radius.zero,
+                                                                topLeft: Radius.zero,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        constraints: BoxConstraints(),
+                                                        onPressed: () async {
+                                                          final gitProviderManager = GithubAppManager();
+
+                                                          final usernameToken = await uiSettingsManager.getGitHttpAuthCredentials();
+
+                                                          final token = await gitProviderManager.getToken(usernameToken.$2, (_, _, _) async {});
+
+                                                          if (token == null) return;
+
+                                                          final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+                                                          if (githubAppInstallations.isEmpty) {
+                                                            await launchUrl(Uri.parse("https://github.com/apps/gitsync-viscouspotential"));
+                                                          } else {
+                                                            await launchUrl(
+                                                              Uri.parse(
+                                                                "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        icon: FaIcon(FontAwesomeIcons.sliders, size: textLG, color: secondaryLight),
+                                                      ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: spaceMD),
+
+                                  IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: secondaryDark,
+                                                  borderRadius: BorderRadius.only(
+                                                    bottomLeft: cornerRadiusMD,
+                                                    bottomRight: cornerRadiusSM,
+                                                    topLeft: cornerRadiusMD,
+                                                    topRight: cornerRadiusSM,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Flexible(
+                                                      child: Padding(
+                                                        padding: EdgeInsets.all(spaceMD),
+                                                        child: ExtendedText(
+                                                          demo
+                                                              ? (Platform.isIOS
+                                                                    ? "TestObsidianVault"
+                                                                    : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
+                                                              : (uiSettingsManager.gitDirPath?.$2 == null
+                                                                    ? t.repoNotFound
+                                                                    : (Platform.isIOS
+                                                                              ? uiSettingsManager.gitDirPath?.$2?.split("/").last
+                                                                              : uiSettingsManager.gitDirPath?.$2) ??
+                                                                          ""),
+                                                          maxLines: 1,
+                                                          textAlign: TextAlign.left,
+                                                          softWrap: false,
+                                                          overflowWidget: TextOverflowWidget(
+                                                            position: TextOverflowPosition.start,
+                                                            child: Text(
+                                                              "…",
+                                                              style: TextStyle(
+                                                                color: uiSettingsManager.gitDirPath?.$2 == null ? secondaryLight : primaryLight,
+                                                                fontSize: textMD,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          style: TextStyle(
+                                                            color: uiSettingsManager.gitDirPath?.$2 == null ? secondaryLight : primaryLight,
+                                                            fontSize: textMD,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    uiSettingsManager.gitDirPath?.$2 == null
+                                                        ? SizedBox.shrink()
+                                                        : IconButton(
+                                                            onPressed: () async {
+                                                              await uiSettingsManager.setGitDirPath("");
+                                                              reloadAll();
+                                                            },
+                                                            constraints: BoxConstraints(),
+                                                            style: ButtonStyle(
+                                                              backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                                              padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
+                                                              visualDensity: VisualDensity.compact,
+                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                              shape: WidgetStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                  side: BorderSide.none,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            icon: FaIcon(
+                                                              FontAwesomeIcons.solidCircleXmark,
+                                                              size: textLG,
+                                                              color: primaryLight,
+                                                              semanticLabel: t.deselectDirLabel,
+                                                            ),
+                                                          ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: spaceXXXXS / 2,
+                                                left: spaceSM,
+                                                child: Text(
+                                                  t.directory.toUpperCase(),
+                                                  style: TextStyle(color: tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: spaceSM),
+                                        IconButton(
+                                          onPressed: isAuthenticatedSnapshot.data == true
+                                              ? () async {
+                                                  String? selectedDirectory;
+                                                  if (await requestStoragePerm()) {
+                                                    selectedDirectory = await pickDirectory();
+                                                  }
+                                                  if (selectedDirectory == null) return;
+
+                                                  if (!mounted) return;
+                                                  await setGitDirPathGetSubmodules(context, selectedDirectory);
+                                                  await repoManager.setOnboardingStep(4);
+
+                                                  await onboardingController?.show();
+
+                                                  reloadAll();
+                                                }
+                                              : null,
+                                          style: ButtonStyle(
+                                            backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                            shape: WidgetStatePropertyAll(
+                                              RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  bottomLeft: cornerRadiusSM,
+                                                  bottomRight: cornerRadiusMD,
+                                                  topLeft: cornerRadiusSM,
+                                                  topRight: cornerRadiusMD,
+                                                ),
+                                                side: BorderSide.none,
+                                              ),
+                                            ),
+                                          ),
+                                          icon: FaIcon(
+                                            FontAwesomeIcons.solidFolderOpen,
+                                            color: isAuthenticatedSnapshot.data == true ? primaryLight : tertiaryLight,
+                                            size: textLG - 2,
+                                            semanticLabel: t.selectDirLabel,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: spaceMD),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton.icon(
+                                      onPressed: uiSettingsManager.gitDirPath?.$2 == null
+                                          ? null
+                                          : () async {
+                                              await useDirectory(
+                                                await uiSettingsManager.getString(StorageKey.setman_gitDirPath),
+                                                (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true),
+                                                (path) async {
+                                                  await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => reloadAll());
+                                                },
+                                              );
+                                            },
+                                      style: ButtonStyle(
+                                        alignment: Alignment.center,
+                                        backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                        ),
+                                      ),
+                                      icon: FaIcon(
+                                        FontAwesomeIcons.filePen,
+                                        color: uiSettingsManager.gitDirPath?.$2 == null ? secondaryLight : tertiaryInfo,
+                                        size: textLG,
+                                      ),
+                                      label: Padding(
+                                        padding: EdgeInsets.only(left: spaceXS),
+                                        child: Text(
+                                          t.openFileExplorer.toUpperCase(),
+                                          style: TextStyle(
+                                            color: uiSettingsManager.gitDirPath?.$2 == null ? secondaryLight : tertiaryInfo,
+                                            fontSize: textMD,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  FutureBuilder(
+                                    future: uiSettingsManager.getStringList(StorageKey.setman_lfsFilePaths),
+                                    builder: (context, lfsFilePathsSnapshot) => lfsFilePathsSnapshot.data?.isEmpty ?? true
+                                        ? SizedBox.shrink()
+                                        : Column(
+                                            children: [
+                                              SizedBox(height: spaceMD),
+                                              Container(
+                                                decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: TextButton.icon(
+                                                        onPressed: () async {
+                                                          gitLfsExpanded = !gitLfsExpanded;
+                                                          reloadAll();
+                                                          await GitManager.getAndExcludeLfsFilePaths();
+                                                          reloadAll();
+                                                        },
+                                                        iconAlignment: IconAlignment.end,
+                                                        style: ButtonStyle(
+                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                          padding: WidgetStatePropertyAll(
+                                                            EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
+                                                          ),
+                                                          shape: WidgetStatePropertyAll(
+                                                            RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                              side: BorderSide.none,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        icon: FaIcon(
+                                                          gitLfsExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
+                                                          color: primaryLight,
+                                                          size: textXL,
+                                                        ),
+                                                        label: SizedBox(
+                                                          width: double.infinity,
+                                                          child: Row(
+                                                            children: [
+                                                              AnimatedSize(
+                                                                duration: Duration(milliseconds: 200),
+                                                                child: Container(
+                                                                  width: gitLfsExpanded ? null : 0,
+                                                                  decoration: BoxDecoration(),
+                                                                  clipBehavior: Clip.hardEdge,
+                                                                  child: IconButton(
+                                                                    padding: EdgeInsets.zero,
+                                                                    style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                                                    constraints: BoxConstraints(),
+                                                                    onPressed: () async {
+                                                                      await InfoDialog.showDialog(
+                                                                        context,
+                                                                        "Large Files Management",
+                                                                        "Large files over 100 MB cannot be synced because GitSync does not currently support Git Large File Storage (LFS). \n\nThese files have been automatically excluded from synchronization and added to the \".git/info/exclude\" file to prevent sync issues. If you need to manage these large files, you'll need to use Git LFS through the command line or update to a future version of the app that supports LFS functionality. You can modify the excluded files list in the repository settings if needed.",
+                                                                      );
+                                                                      // launchUrl(Uri.parse(autoSyncDocsLink));
+                                                                    },
+                                                                    icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              SizedBox(width: gitLfsExpanded ? spaceSM : 0),
+                                                              Text(
+                                                                sprintf(clientModeEnabledSnapshot.data == true ? "%sLFS Files" : "%sUnsynced Files", [
+                                                                  (lfsFilePathsSnapshot.data?.length ?? 0) == 0
+                                                                      ? ""
+                                                                      : "(${lfsFilePathsSnapshot.data?.length}) ",
+                                                                ]).toUpperCase(),
+                                                                style: TextStyle(
+                                                                  color: tertiaryNegative,
+                                                                  fontSize: textMD,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    AnimatedSize(
+                                                      duration: Duration(milliseconds: 200),
+                                                      child: SizedBox(
+                                                        height: gitLfsExpanded ? null : 0,
+                                                        child: gitLfsExpanded
+                                                            ? Container(
+                                                                padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
+                                                                height: spaceXL * 4,
+                                                                child: ShaderMask(
+                                                                  shaderCallback: (Rect rect) {
+                                                                    return LinearGradient(
+                                                                      begin: Alignment.topCenter,
+                                                                      end: Alignment.bottomCenter,
+                                                                      colors: [
+                                                                        Colors.transparent,
+                                                                        Colors.transparent,
+                                                                        Colors.transparent,
+                                                                        Colors.black,
+                                                                      ],
+                                                                      stops: [0.0, 0.1, 0.9, 1.0],
+                                                                    ).createShader(rect);
+                                                                  },
+                                                                  blendMode: BlendMode.dstOut,
+                                                                  child: GridView.builder(
+                                                                    shrinkWrap: true,
+                                                                    itemCount: lfsFilePathsSnapshot.data?.length,
+                                                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                                      crossAxisCount: 4,
+                                                                      crossAxisSpacing: spaceSM,
+                                                                      mainAxisSpacing: spaceSM,
+                                                                    ),
+                                                                    itemBuilder: (BuildContext context, int index) {
+                                                                      final filePath = (lfsFilePathsSnapshot.data ?? [])[index];
+
+                                                                      return Container(
+                                                                        child: Column(
+                                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                                          children: [
+                                                                            Stack(
+                                                                              clipBehavior: Clip.none,
+                                                                              children: [
+                                                                                FaIcon(FontAwesomeIcons.solidFile, color: primaryLight, size: textXL),
+                                                                                Positioned(
+                                                                                  bottom: -spaceXS,
+                                                                                  left: -spaceXS,
+                                                                                  child: Text(
+                                                                                    "${formatBytes(File(filePath).statSync().size, 0)}",
+                                                                                    maxLines: 1,
+                                                                                    style: TextStyle(
+                                                                                      fontSize: textXS,
+
+                                                                                      shadows: [
+                                                                                        Shadow(offset: Offset(-1, -1), color: tertiaryDark),
+                                                                                        Shadow(offset: Offset(1, -1), color: tertiaryDark),
+                                                                                        Shadow(offset: Offset(1, 1), color: tertiaryDark),
+                                                                                        Shadow(offset: Offset(-1, 1), color: tertiaryDark),
+                                                                                      ],
+                                                                                      color: primaryLight,
+                                                                                      overflow: TextOverflow.ellipsis,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            SizedBox(height: spaceXS),
+                                                                            Text(
+                                                                              p.basename(filePath),
+                                                                              maxLines: 1,
+                                                                              style: TextStyle(
+                                                                                fontSize: textSM,
+                                                                                color: primaryLight,
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(height: spaceXXXXS),
+                                                                            Text(
+                                                                              "${File(filePath).statSync().modified}".substring(0, 10),
+                                                                              maxLines: 1,
+                                                                              style: TextStyle(
+                                                                                fontSize: textXS,
+                                                                                color: primaryLight,
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink(),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: spaceLG),
+                            ...clientModeEnabledSnapshot.data == true
+                                ? [
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: TextButton.icon(
+                                              onPressed: () async {
+                                                Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
+                                              },
+                                              iconAlignment: IconAlignment.end,
+                                              style: ButtonStyle(
+                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
+                                                shape: WidgetStatePropertyAll(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.only(
+                                                      topLeft: cornerRadiusMD,
+                                                      topRight: cornerRadiusSM,
+                                                      bottomLeft: cornerRadiusMD,
+                                                      bottomRight: cornerRadiusSM,
+                                                    ),
+                                                    side: BorderSide.none,
+                                                  ),
+                                                ),
+                                                backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                              ),
+                                              icon: IconButton(
+                                                padding: EdgeInsets.zero,
+                                                style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                                constraints: BoxConstraints(),
+                                                onPressed: () async {
+                                                  launchUrl(Uri.parse(repositorySettingsDocsLink));
+                                                },
+                                                icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
+                                              ),
+                                              label: Row(
+                                                children: [
+                                                  FaIcon(FontAwesomeIcons.gear, color: primaryLight, size: textLG),
+                                                  SizedBox(width: spaceSM),
+                                                  Expanded(
+                                                    child: Text(
+                                                      t.repositorySettings,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontFeatures: [FontFeature.enable('smcp')],
+                                                        color: primaryLight,
+                                                        fontSize: textLG,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: spaceSM),
+                                          FutureBuilder(
+                                            future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
+                                            builder: (context, snapshot) => IconButton(
+                                              onPressed: () async {
+                                                if (!(snapshot.data ?? false)) {
+                                                  if (!(await Permission.notification.request().isGranted)) return;
+                                                }
+
+                                                uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
+                                                reloadAll();
+                                              },
+                                              style: ButtonStyle(
+                                                backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                shape: WidgetStatePropertyAll(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.only(
+                                                      topLeft: cornerRadiusSM,
+                                                      topRight: cornerRadiusMD,
+                                                      bottomLeft: cornerRadiusSM,
+                                                      bottomRight: cornerRadiusMD,
+                                                    ),
+                                                    side: BorderSide.none,
+                                                  ),
+                                                ),
+                                              ),
+                                              icon: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
+                                                  FaIcon(
+                                                    demo || snapshot.data == true ? FontAwesomeIcons.solidBell : FontAwesomeIcons.solidBellSlash,
+                                                    color: demo || snapshot.data == true ? primaryPositive : primaryLight,
+                                                    size: textLG - 2,
+                                                    semanticLabel: t.syncMessagesLabel,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
                                     SizedBox(height: spaceMD),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: TextButton.icon(
-                                        onPressed: gitDirPathSnapshot.data == null
-                                            ? null
-                                            : () async {
-                                                await useDirectory(
-                                                  await uiSettingsManager.getString(StorageKey.setman_gitDirPath),
-                                                  (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true),
-                                                  (path) async {
-                                                    await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => reloadAll());
-                                                  },
-                                                );
-                                              },
-                                        style: ButtonStyle(
-                                          alignment: Alignment.center,
-                                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                          shape: WidgetStatePropertyAll(
-                                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                          ),
+                                  ]
+                                : [],
+                            ...clientModeEnabledSnapshot.data == true
+                                ? [
+                                    TextButton.icon(
+                                      onPressed: () async {
+                                        Navigator.of(context).push(createSyncSettingsMainRoute()).then((_) => reloadAll());
+                                      },
+                                      iconAlignment: IconAlignment.end,
+                                      style: ButtonStyle(
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                         ),
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.filePen,
-                                          color: gitDirPathSnapshot.data == null ? secondaryLight : tertiaryInfo,
-                                          size: textLG,
-                                        ),
-                                        label: Padding(
-                                          padding: EdgeInsets.only(left: spaceXS),
-                                          child: Text(
-                                            t.openFileExplorer.toUpperCase(),
-                                            style: TextStyle(
-                                              color: gitDirPathSnapshot.data == null ? secondaryLight : tertiaryInfo,
-                                              fontSize: textMD,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
+                                        backgroundColor: WidgetStatePropertyAll(secondaryDark),
                                       ),
-                                    ),
-                                    FutureBuilder(
-                                      future: uiSettingsManager.getStringList(StorageKey.setman_lfsFilePaths),
-                                      builder: (context, lfsFilePathsSnapshot) => lfsFilePathsSnapshot.data?.isEmpty ?? true
-                                          ? SizedBox.shrink()
-                                          : Column(
-                                              children: [
-                                                SizedBox(height: spaceMD),
-                                                Container(
-                                                  decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: double.infinity,
-                                                        child: TextButton.icon(
-                                                          onPressed: () async {
-                                                            gitLfsExpanded = !gitLfsExpanded;
-                                                            reloadAll();
-                                                            await GitManager.getAndExcludeLfsFilePaths();
-                                                            reloadAll();
-                                                          },
-                                                          iconAlignment: IconAlignment.end,
-                                                          style: ButtonStyle(
-                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                            padding: WidgetStatePropertyAll(
-                                                              EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
-                                                            ),
-                                                            shape: WidgetStatePropertyAll(
-                                                              RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                side: BorderSide.none,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          icon: FaIcon(
-                                                            gitLfsExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                                                            color: primaryLight,
-                                                            size: textXL,
-                                                          ),
-                                                          label: SizedBox(
-                                                            width: double.infinity,
-                                                            child: Row(
-                                                              children: [
-                                                                AnimatedSize(
-                                                                  duration: Duration(milliseconds: 200),
-                                                                  child: Container(
-                                                                    width: gitLfsExpanded ? null : 0,
-                                                                    decoration: BoxDecoration(),
-                                                                    clipBehavior: Clip.hardEdge,
-                                                                    child: IconButton(
-                                                                      padding: EdgeInsets.zero,
-                                                                      style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                                                      constraints: BoxConstraints(),
-                                                                      onPressed: () async {
-                                                                        await InfoDialog.showDialog(
-                                                                          context,
-                                                                          "Large Files Management",
-                                                                          "Large files over 100 MB cannot be synced because GitSync does not currently support Git Large File Storage (LFS). \n\nThese files have been automatically excluded from synchronization and added to the \".git/info/exclude\" file to prevent sync issues. If you need to manage these large files, you'll need to use Git LFS through the command line or update to a future version of the app that supports LFS functionality. You can modify the excluded files list in the repository settings if needed.",
-                                                                        );
-                                                                        // launchUrl(Uri.parse(autoSyncDocsLink));
-                                                                      },
-                                                                      icon: FaIcon(
-                                                                        FontAwesomeIcons.circleQuestion,
-                                                                        color: primaryLight,
-                                                                        size: textLG,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                SizedBox(width: gitLfsExpanded ? spaceSM : 0),
-                                                                Text(
-                                                                  sprintf(
-                                                                    clientModeEnabledSnapshot.data == true ? "%sLFS Files" : "%sUnsynced Files",
-                                                                    [
-                                                                      (lfsFilePathsSnapshot.data?.length ?? 0) == 0
-                                                                          ? ""
-                                                                          : "(${lfsFilePathsSnapshot.data?.length}) ",
-                                                                    ],
-                                                                  ).toUpperCase(),
-                                                                  style: TextStyle(
-                                                                    color: tertiaryNegative,
-                                                                    fontSize: textMD,
-                                                                    fontWeight: FontWeight.bold,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      AnimatedSize(
-                                                        duration: Duration(milliseconds: 200),
-                                                        child: SizedBox(
-                                                          height: gitLfsExpanded ? null : 0,
-                                                          child: gitLfsExpanded
-                                                              ? Container(
-                                                                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
-                                                                  height: spaceXL * 4,
-                                                                  child: ShaderMask(
-                                                                    shaderCallback: (Rect rect) {
-                                                                      return LinearGradient(
-                                                                        begin: Alignment.topCenter,
-                                                                        end: Alignment.bottomCenter,
-                                                                        colors: [
-                                                                          Colors.transparent,
-                                                                          Colors.transparent,
-                                                                          Colors.transparent,
-                                                                          Colors.black,
-                                                                        ],
-                                                                        stops: [0.0, 0.1, 0.9, 1.0],
-                                                                      ).createShader(rect);
-                                                                    },
-                                                                    blendMode: BlendMode.dstOut,
-                                                                    child: GridView.builder(
-                                                                      shrinkWrap: true,
-                                                                      itemCount: lfsFilePathsSnapshot.data?.length,
-                                                                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                                                        crossAxisCount: 4,
-                                                                        crossAxisSpacing: spaceSM,
-                                                                        mainAxisSpacing: spaceSM,
-                                                                      ),
-                                                                      itemBuilder: (BuildContext context, int index) {
-                                                                        final filePath = (lfsFilePathsSnapshot.data ?? [])[index];
-
-                                                                        return Container(
-                                                                          child: Column(
-                                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                                            children: [
-                                                                              Stack(
-                                                                                clipBehavior: Clip.none,
-                                                                                children: [
-                                                                                  FaIcon(
-                                                                                    FontAwesomeIcons.solidFile,
-                                                                                    color: primaryLight,
-                                                                                    size: textXL,
-                                                                                  ),
-                                                                                  Positioned(
-                                                                                    bottom: -spaceXS,
-                                                                                    left: -spaceXS,
-                                                                                    child: Text(
-                                                                                      "${formatBytes(File(filePath).statSync().size, 0)}",
-                                                                                      maxLines: 1,
-                                                                                      style: TextStyle(
-                                                                                        fontSize: textXS,
-
-                                                                                        shadows: [
-                                                                                          Shadow(offset: Offset(-1, -1), color: tertiaryDark),
-                                                                                          Shadow(offset: Offset(1, -1), color: tertiaryDark),
-                                                                                          Shadow(offset: Offset(1, 1), color: tertiaryDark),
-                                                                                          Shadow(offset: Offset(-1, 1), color: tertiaryDark),
-                                                                                        ],
-                                                                                        color: primaryLight,
-                                                                                        overflow: TextOverflow.ellipsis,
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                              SizedBox(height: spaceXS),
-                                                                              Text(
-                                                                                p.basename(filePath),
-                                                                                maxLines: 1,
-                                                                                style: TextStyle(
-                                                                                  fontSize: textSM,
-                                                                                  color: primaryLight,
-                                                                                  overflow: TextOverflow.ellipsis,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                ),
-                                                                              ),
-                                                                              SizedBox(height: spaceXXXXS),
-                                                                              Text(
-                                                                                "${File(filePath).statSync().modified}".substring(0, 10),
-                                                                                maxLines: 1,
-                                                                                style: TextStyle(
-                                                                                  fontSize: textXS,
-                                                                                  color: primaryLight,
-                                                                                  overflow: TextOverflow.ellipsis,
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              : SizedBox.shrink(),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              SizedBox(height: spaceLG),
-                              ...clientModeEnabledSnapshot.data == true
-                                  ? [
-                                      IntrinsicHeight(
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                                          children: [
-                                            Expanded(
-                                              child: TextButton.icon(
-                                                onPressed: () async {
-                                                  Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
-                                                },
-                                                iconAlignment: IconAlignment.end,
-                                                style: ButtonStyle(
-                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.only(
-                                                        topLeft: cornerRadiusMD,
-                                                        topRight: cornerRadiusSM,
-                                                        bottomLeft: cornerRadiusMD,
-                                                        bottomRight: cornerRadiusSM,
-                                                      ),
-                                                      side: BorderSide.none,
-                                                    ),
-                                                  ),
-                                                  backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                ),
-                                                icon: IconButton(
-                                                  padding: EdgeInsets.zero,
-                                                  style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                                  constraints: BoxConstraints(),
-                                                  onPressed: () async {
-                                                    launchUrl(Uri.parse(repositorySettingsDocsLink));
-                                                  },
-                                                  icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
-                                                ),
-                                                label: Row(
-                                                  children: [
-                                                    FaIcon(FontAwesomeIcons.gear, color: primaryLight, size: textLG),
-                                                    SizedBox(width: spaceSM),
-                                                    Expanded(
-                                                      child: Text(
-                                                        t.repositorySettings,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                          fontFeatures: [FontFeature.enable('smcp')],
-                                                          color: primaryLight,
-                                                          fontSize: textLG,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: spaceSM),
-                                            FutureBuilder(
-                                              future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                              builder: (context, snapshot) => IconButton(
-                                                onPressed: () async {
-                                                  if (!(snapshot.data ?? false)) {
-                                                    if (!(await Permission.notification.request().isGranted)) return;
-                                                  }
-
-                                                  uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                  reloadAll();
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.only(
-                                                        topLeft: cornerRadiusSM,
-                                                        topRight: cornerRadiusMD,
-                                                        bottomLeft: cornerRadiusSM,
-                                                        bottomRight: cornerRadiusMD,
-                                                      ),
-                                                      side: BorderSide.none,
-                                                    ),
-                                                  ),
-                                                ),
-                                                icon: Stack(
-                                                  alignment: Alignment.center,
-                                                  children: [
-                                                    FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
-                                                    FaIcon(
-                                                      demo || snapshot.data == true ? FontAwesomeIcons.solidBell : FontAwesomeIcons.solidBellSlash,
-                                                      color: demo || snapshot.data == true ? primaryPositive : primaryLight,
-                                                      size: textLG - 2,
-                                                      semanticLabel: t.syncMessagesLabel,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(height: spaceMD),
-                                    ]
-                                  : [],
-                              ...clientModeEnabledSnapshot.data == true
-                                  ? [
-                                      TextButton.icon(
+                                      icon: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                        constraints: BoxConstraints(),
                                         onPressed: () async {
-                                          Navigator.of(context).push(createSyncSettingsMainRoute()).then((_) => reloadAll());
+                                          launchUrl(Uri.parse(syncOptionsDocsLink));
                                         },
-                                        iconAlignment: IconAlignment.end,
-                                        style: ButtonStyle(
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
-                                          shape: WidgetStatePropertyAll(
-                                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                          ),
-                                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                        ),
-                                        icon: IconButton(
-                                          padding: EdgeInsets.zero,
-                                          style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                          constraints: BoxConstraints(),
-                                          onPressed: () async {
-                                            launchUrl(Uri.parse(syncOptionsDocsLink));
-                                          },
-                                          icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
-                                        ),
-                                        label: Row(
-                                          children: [
-                                            FaIcon(FontAwesomeIcons.rightLeft, color: primaryLight, size: textLG),
-                                            SizedBox(width: spaceSM),
-                                            Expanded(
-                                              child: Text(
-                                                t.syncSettings,
-                                                style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
                                       ),
-                                      SizedBox(height: spaceMD),
-                                    ]
-                                  : [
-                                      CustomShowcase(
-                                        globalKey: _autoSyncOptionsKey,
-                                        description: t.autoSyncOptionsHint,
-                                        cornerRadius: cornerRadiusMD,
-                                        targetPadding: EdgeInsets.all(spaceSM),
-                                        customTooltipActions: [
-                                          TooltipActionButton(
-                                            backgroundColor: secondaryInfo,
-                                            textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: primaryLight),
-                                            leadIcon: ActionButtonIcon(
-                                              icon: Icon(FontAwesomeIcons.solidFileLines, color: primaryLight, size: textSM),
+                                      label: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.rightLeft, color: primaryLight, size: textLG),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              t.syncSettings,
+                                              style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
                                             ),
-                                            name: t.learnMore.toUpperCase(),
-                                            onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
-                                            type: null,
                                           ),
                                         ],
-                                        child: GroupSyncSettings(),
                                       ),
-                                    ],
-                              SizedBox(height: spaceMD),
-                            ]),
-                      ),
+                                    ),
+                                    SizedBox(height: spaceMD),
+                                  ]
+                                : [
+                                    CustomShowcase(
+                                      globalKey: _autoSyncOptionsKey,
+                                      description: t.autoSyncOptionsHint,
+                                      cornerRadius: cornerRadiusMD,
+                                      targetPadding: EdgeInsets.all(spaceSM),
+                                      customTooltipActions: [
+                                        TooltipActionButton(
+                                          backgroundColor: secondaryInfo,
+                                          textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: primaryLight),
+                                          leadIcon: ActionButtonIcon(
+                                            icon: Icon(FontAwesomeIcons.solidFileLines, color: primaryLight, size: textSM),
+                                          ),
+                                          name: t.learnMore.toUpperCase(),
+                                          onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
+                                          type: null,
+                                        ),
+                                      ],
+                                      child: GroupSyncSettings(),
+                                    ),
+                                  ],
+                            SizedBox(height: spaceMD),
+                          ]),
                     ),
                   ),
                 ],

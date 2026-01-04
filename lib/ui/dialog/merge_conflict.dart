@@ -245,7 +245,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                               Expanded(
                                 child: TextButton.icon(
                                   onPressed: () async =>
-                                      OpenFile.open("${await uiSettingsManager.getGitDirPath(true)}/${conflictingPaths[conflictIndex]}"),
+                                      OpenFile.open("${await uiSettingsManager.gitDirPath?.$2}/${conflictingPaths[conflictIndex]}"),
                                   style: ButtonStyle(
                                     alignment: Alignment.centerLeft,
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

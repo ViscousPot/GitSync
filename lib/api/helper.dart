@@ -227,7 +227,7 @@ String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, Str
 Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
   await uiSettingsManager.setGitDirPath(dir);
 
-  final dirPath = await uiSettingsManager.getGitDirPath();
+  final dirPath = uiSettingsManager.gitDirPath?.$1;
   if (dirPath != null) {
     await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
       if (await Directory('$dirPath/$obsidianPath').exists() && await Directory('$dirPath/$obsidianGitPath').exists()) {

@@ -19,6 +19,7 @@ class SettingsManager extends Storage {
   Future<SettingsManager> reinit({int? repoIndex}) async {
     final repoName = await repoManager.getRepoName(repoIndex ?? await repoManager.getInt(StorageKey.repoman_repoIndex));
     keyNamespace = "$keyPrefix---$repoName";
+    gitDirPath = await getGitDirPath();
     return this;
   }
 
@@ -79,8 +80,10 @@ class SettingsManager extends Storage {
     keyNamespace = newNamespace;
   }
 
+  (String, String)? gitDirPath;
   Future<void> setGitDirPath(String dir, [bookmark = false]) async {
     await setString(StorageKey.setman_gitDirPath, dir);
+    gitDirPath = await getGitDirPath();
 
     if (!bookmark) {
       await setStringNullable(StorageKey.setman_branchName, null);
@@ -90,7 +93,7 @@ class SettingsManager extends Storage {
     }
   }
 
-  Future<String?> getGitDirPath([bool iosGetPath = false]) async {
+  Future<(String, String)?> getGitDirPath() async {
     final bookmarkPath = await getString(StorageKey.setman_gitDirPath);
     if (bookmarkPath.isEmpty) return null;
 
@@ -102,7 +105,7 @@ class SettingsManager extends Storage {
       if (!await Directory('$path/$gitPath').exists() && await File('$path/$gitIndexPath').length() < 1) {
         await File('$path/$gitIndexPath').delete();
       }
-      return path.isEmpty == true ? null : (Platform.isIOS && iosGetPath ? path : bookmarkPath);
+      return path.isEmpty == true ? null : (bookmarkPath, path);
     });
   }
 

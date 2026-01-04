@@ -26,7 +26,7 @@ Future<void> showDialog(
   bool copiedEndCommitReference = false;
   bool commitMessageExpanded = false;
 
-  final dirPath = await uiSettingsManager.getGitDirPath(true);
+  final dirPath = await uiSettingsManager.gitDirPath?.$2;
 
   final diffFiles =
       diff?.diffParts.map(
