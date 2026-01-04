@@ -800,7 +800,7 @@ class GitManager {
         print('Error getting Git remote URL: $e');
         return null;
       }
-    });
+    }, lockedCallback: () async => null);
   }
 
   static String _convertToWebUrl(String remoteUrl) {
