@@ -361,7 +361,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     conflicting = GitManager.getConflicting();
     branchNames = GitManager.getBranchNames();
     branchName = GitManager.getBranchName();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   static final List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote))> remoteActions = [
@@ -1234,9 +1234,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       },
                                                       blendMode: BlendMode.dstOut,
                                                       child:
-                                                          ((recentCommits ?? []).isEmpty &&
-                                                                  fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting) ||
-                                                              conflictingSnapshot.data == null
+                                                          (recentCommits ?? []).isEmpty &&
+                                                              (fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting ||
+                                                                  conflictingSnapshot.connectionState == ConnectionState.waiting)
                                                           ? Center(child: CircularProgressIndicator(color: tertiaryLight))
                                                           : (recentCommits!.isEmpty && conflictingSnapshot.data!.isEmpty
                                                                 ? Center(
@@ -2174,7 +2174,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                                                     await onboardingController?.show();
 
-                                                    if (mounted) reloadAll();
+                                                    reloadAll();
                                                   }
                                                 : null,
                                             style: ButtonStyle(

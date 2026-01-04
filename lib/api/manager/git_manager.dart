@@ -133,6 +133,7 @@ class GitManager {
     } catch (e, stackTrace) {
       Logger.logError(type, e, stackTrace);
     } finally {
+      final locks = await repoManager.getStringList(StorageKey.repoman_locks);
       await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
 
       if (uiLock) {
@@ -594,11 +595,7 @@ class GitManager {
     return result;
   }
 
-  static List<String> branchNames = [];
   static Future<List<String>> getBranchNames([int? repomanRepoindex]) async {
-    if (branchNames.isNotEmpty == true) {
-      return branchNames;
-    }
     final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
 
     final result =
@@ -619,7 +616,6 @@ class GitManager {
         <String>[];
 
     await uiSettingsManager.setStringList(StorageKey.setman_branchNames, result);
-    branchNames = result;
     return result;
   }
 
@@ -748,12 +744,7 @@ class GitManager {
     );
   }
 
-  static (String, String)? remoteUrlLink = null;
   static Future<(String, String)?> getRemoteUrlLink([int? repomanRepoindex]) async {
-    if (remoteUrlLink != null) {
-      return remoteUrlLink;
-    }
-
     final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
     final remoteName = await settingsManager.getRemote();
 
@@ -792,8 +783,6 @@ class GitManager {
         }
 
         String remoteUrl = match.group(1)!.trim();
-
-        remoteUrlLink = (remoteUrl, _convertToWebUrl(remoteUrl));
 
         return (remoteUrl, _convertToWebUrl(remoteUrl));
       } catch (e) {
