@@ -92,9 +92,11 @@ class _SyncLoaderState extends State<SyncLoader> {
 
     return GestureDetector(
       onLongPress: () async {
-        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
         final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
-        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
+        final uiLocks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+        await repoManager.setStringList(StorageKey.repoman_uiLocks, uiLocks.where((lock) => lock != index.toString()).toList());
+        final locks = await repoManager.getStringList(StorageKey.repoman_locks);
+        await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
         gitSyncService.isScheduled = false;
         gitSyncService.isSyncing = false;
         setState(() {});
