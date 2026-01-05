@@ -490,6 +490,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> syncWrapper(Future<void> Function() callback, bool isForceSync) async {
+    await GitManager.clearQueue();
 
     if (!isForceSync) {
       await GitManager.getAndExcludeLfsFilePaths();
@@ -573,6 +574,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.indexOf(text));
       await uiSettingsManager.reinit();
 
+      await GitManager.clearQueue();
       await reloadAll();
     });
   }
@@ -1038,6 +1040,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             }
 
                                             await uiSettingsManager.reinit();
+                                            await GitManager.clearQueue();
                                             await reloadAll();
                                           });
                                         },
@@ -1063,6 +1066,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                                             await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
 
+                                            await GitManager.clearQueue();
                                             await reloadAll();
                                           });
                                         },
@@ -1089,6 +1093,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       dropdownColor: secondaryDark,
                                       onChanged: (value) async {
                                         if (value == null) return;
+                                        await GitManager.clearQueue();
                                         await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                         await uiSettingsManager.reinit();
                                         await reloadAll();
@@ -2154,6 +2159,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                               recentCommits.value = [];
                                                               conflicting.value = [];
                                                               await updateSyncOptions();
+                                                              await GitManager.clearQueue();
                                                               setState(() {});
                                                             },
                                                             constraints: BoxConstraints(),
