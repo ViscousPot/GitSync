@@ -2495,7 +2495,7 @@ abstract class AppLocalizations {
   /// No description provided for @androidLimitedFilepathCharacters.
   ///
   /// In en, this message translates to:
-  /// **'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |'**
+  /// **'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : < > ? \\ |'**
   String get androidLimitedFilepathCharacters;
 
   /// No description provided for @emptyNameOrEmail.

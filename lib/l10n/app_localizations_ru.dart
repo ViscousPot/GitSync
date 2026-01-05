@@ -1228,7 +1228,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get androidLimitedFilepathCharacters =>
-      'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : &lt; &gt; ? \\ |';
+      'This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * / : < > ? \\ |';
 
   @override
   String get emptyNameOrEmail =>

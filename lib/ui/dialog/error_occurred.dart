@@ -1,6 +1,5 @@
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
-import 'package:GitSync/ui/page/settings_main.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
 };
 final GlobalKey errorDialogKey = GlobalKey();
 
-Future<void> showDialog(BuildContext context, String error, Function() callback) {
+Future<void> showDialog(BuildContext context, String error, Function()? callback) {
   bool autoFixing = false;
 
   final autoFixKey = autoFixMessageCallbackMap.keys.firstWhereOrNull((textArray) => textArray.every((text) => error.contains(text)));
@@ -42,11 +41,11 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      expandable: true,
+      expandable: callback != null,
       key: errorDialogKey,
       title: SizedBox(
         child: Text(
-          t.errorOccurredTitle,
+          callback == null ? t.cloneFailed : t.errorOccurredTitle,
           style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -135,16 +134,20 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                 ),
               ),
             ),
-            SizedBox(height: spaceMD),
-            Text(
-              t.errorOccurredMessagePart1,
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
-            ),
-            SizedBox(height: spaceSM),
-            Text(
-              t.errorOccurredMessagePart2,
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
-            ),
+            ...callback == null
+                ? []
+                : [
+                    SizedBox(height: spaceMD),
+                    Text(
+                      t.errorOccurredMessagePart1,
+                      style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                    ),
+                    SizedBox(height: spaceSM),
+                    Text(
+                      t.errorOccurredMessagePart2,
+                      style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                    ),
+                  ],
           ]),
       actions: <Widget>[
         Column(
@@ -181,11 +184,11 @@ Future<void> showDialog(BuildContext context, String error, Function() callback)
                 ),
                 TextButton(
                   child: Text(
-                    t.reportABug.toUpperCase(),
+                    (callback == null ? t.ok : t.reportABug).toUpperCase(),
                     style: TextStyle(color: tertiaryNegative, fontSize: textMD),
                   ),
                   onPressed: () async {
-                    callback();
+                    if (callback != null) callback();
                     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                   },
                 ),

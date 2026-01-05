@@ -44,7 +44,6 @@ const String authMethodMismatchError = "Authentication method mismatch. Use %s c
 const String outOfMemory = "Application ran out of memory!";
 const String invalidRemote = "Invalid remote! Modify this in settings";
 const String largeFile = "Singular files larger than 50MB not supported!";
-const String cloneFailed = "Failed to clone repository!";
 const String directoryNotEmpty = "Folder not empty. Please choose another.";
 const String inaccessibleDirectoryMessage = "Inaccessible directory! Please select a different location.";
 const String autoRebaseFailedException =

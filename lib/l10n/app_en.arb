@@ -451,7 +451,7 @@
     "remoteChangedException": "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.",
     "mergingExceptionMessage": "MERGING",
     "fieldCannotBeEmpty": "Field cannot be empty",
-    "androidLimitedFilepathCharacters": "This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * \/ : &lt; &gt; ? \\ |",
+    "androidLimitedFilepathCharacters": "This issue is due to Android file naming restrictions. Please rename the affected files on a different device and resync.\n\nUnsupported characters: \" * \/ : < > ? \\ |",
     "emptyNameOrEmail": "Your Git configuration is missing an author name or email address. Please update your settings to include your author name and email.",
     "errorReadingZlibStream": "This is a known issue with specific devices which can be fixed with the last legacy version of the app. Please download it for continued access, though some features may be limited",
     "gitObsidianFoundTitle": "Obsidian Git Warning",
