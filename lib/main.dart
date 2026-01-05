@@ -88,14 +88,14 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      await RustLib.init();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
-        await uiSettingsManager.reinit();
         await Logger.init();
         await requestStoragePerm(false);
       });
       initLogger("${(await getTemporaryDirectory()).path}/logs", maxFileCount: 50, maxFileLength: 1 * 1024 * 1024);
-      await RustLib.init();
+      await uiSettingsManager.reinit();
       // Loads premiumManager initial state
       initAsync(() async => await premiumManager.init());
       runApp(const MyApp());
