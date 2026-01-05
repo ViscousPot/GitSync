@@ -102,10 +102,6 @@ class GitManager {
 
       final setman = settingsManager;
 
-      if (uiLock) {
-        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-        await repoManager.setStringList(StorageKey.repoman_uiLocks, [...locks, index.toString()]);
-      }
       T? result;
 
       try {
@@ -124,14 +120,14 @@ class GitManager {
         }
       } catch (e, stackTrace) {
         Logger.logError(type, e, stackTrace);
-      } finally {
-        if (uiLock) {
-          final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-          await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
-        }
       }
 
       return result;
+    }
+
+    if (uiLock) {
+      final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+      await repoManager.setStringList(StorageKey.repoman_uiLocks, [...locks, index.toString()]);
     }
 
     List<String> locks = await repoManager.getStringList(StorageKey.repoman_locks);
@@ -140,8 +136,29 @@ class GitManager {
     runningFuture = CancelableOperation.fromFuture(action(), onCancel: () => null);
     final result = await runningFuture?.value;
 
-    locks = await repoManager.getStringList(StorageKey.repoman_locks);
-    await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+    if (result != null && result is Stream) {
+      result.listen(
+        (_) {},
+        onDone: () async {
+          if (uiLock) {
+            final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+            await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
+          }
+
+          locks = await repoManager.getStringList(StorageKey.repoman_locks);
+          await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+        },
+      );
+    } else {
+      if (uiLock) {
+        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
+      }
+
+      locks = await repoManager.getStringList(StorageKey.repoman_locks);
+      await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+    }
+
     return result;
   }
 
@@ -420,10 +437,10 @@ class GitManager {
     );
   }
 
-  static Future<GitManagerRs.Diff?> getCommitDiff(String startRef, String? endRef) async {
+  static Future<Stream<(String, Map<String, String>)>?> getCommitDiff(String startRef, String? endRef) async {
     return await _runWithLock(await _repoIndex, LogType.CommitDiff, (dirPath) async {
       try {
-        return await GitManagerRs.getCommitDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper);
+        return (await GitManagerRs.getCommitDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper)).asBroadcastStream();
       } catch (e, stackTrace) {
         Logger.logError(LogType.CommitDiff, e, stackTrace);
         return null;
@@ -431,10 +448,10 @@ class GitManager {
     });
   }
 
-  static Future<GitManagerRs.Diff?> getFileDiff(String filePath) async {
+  static Future<Stream<(String, Map<String, String>)>?> getFileDiff(String filePath) async {
     return await _runWithLock(await _repoIndex, LogType.FileDiff, (dirPath) async {
       try {
-        return await GitManagerRs.getFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper);
+        return (await GitManagerRs.getFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper)).asBroadcastStream();
       } catch (e, stackTrace) {
         Logger.logError(LogType.FileDiff, e, stackTrace);
         return null;

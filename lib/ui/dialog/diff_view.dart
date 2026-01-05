@@ -32,37 +32,47 @@ Future<void> showDialog(
 
   final dirPath = await uiSettingsManager.gitDirPath?.$2;
 
-  Future<List<MapEntry<String, String>>> getDiffParts(GitManagerRs.Diff? diffSnapshotData) async {
-    final diffFiles =
-        diffSnapshotData?.diffParts.map(
-          (key, value) => MapEntry(
-            key,
-            value.entries
-                .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
-                .map((entry) => "${entry.key}${entry.value}")
-                .join("\n"),
-          ),
-        ) ??
-        {};
-    List<MapEntry<String, String>> diffs = diffFiles.entries.sortedBy(
-      (entry) => entry.key.contains(conflictSeparator) ? entry.key.split(conflictSeparator).first : entry.key,
+  Future<MapEntry<String, String>> getDiffPart((String, Map<String, String>) diffPart) async {
+    final diffFile = MapEntry(
+      diffPart.$1,
+      diffPart.$2.entries
+          .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
+          .map((entry) => "${entry.key}${entry.value}")
+          .join("\n"),
     );
-
-    if (diffFiles.entries.isEmpty) return [];
-
-    if (diffFiles.keys.first.contains(conflictSeparator)) diffs = diffs.reversed.toList();
-
-    return diffs;
+    return diffFile;
   }
 
   await GitManager.clearQueue();
-  ValueNotifier<GitManagerRs.Diff?> diffNotifier = ValueNotifier(null);
   ValueNotifier<List<MapEntry<String, String>>> diffPartsNotifier = ValueNotifier([]);
+  ValueNotifier<int> insertionsNotifier = ValueNotifier(0);
+  ValueNotifier<int> deletionsNotifier = ValueNotifier(0);
+  ValueNotifier<bool> loading = ValueNotifier(false);
+
   initAsync(() async {
-    diffNotifier.value = await (diffReferences.$1 == null
-        ? GitManager.getFileDiff(diffReferences.$2!)
-        : GitManager.getCommitDiff(diffReferences.$1!, diffReferences.$2));
-    diffPartsNotifier.value = await getDiffParts(diffNotifier.value);
+    loading.value = true;
+    final stream = await (diffReferences.$1 == null
+        ? await GitManager.getFileDiff(diffReferences.$2!)
+        : await GitManager.getCommitDiff(diffReferences.$1!, diffReferences.$2));
+
+    stream?.listen((data) async {
+      final diffPart = await getDiffPart(data);
+      int insertIndex = diffPartsNotifier.value.length == 0
+          ? 0
+          : (diffPart.key.contains(conflictSeparator)
+                ? diffPartsNotifier.value.indexWhere(
+                    (item) =>
+                        (int.tryParse(item.key.split(conflictSeparator).first) ?? 0) <
+                        (int.tryParse(diffPart.key.split(conflictSeparator).first) ?? 0),
+                  )
+                : diffPartsNotifier.value.indexWhere((item) => item.key.compareTo(diffPart.key) > 0));
+      insertIndex = insertIndex < 0 ? diffPartsNotifier.value.length : insertIndex;
+
+      diffPartsNotifier.value = [...diffPartsNotifier.value.slice(0, insertIndex), diffPart, ...diffPartsNotifier.value.slice(insertIndex)];
+
+      insertionsNotifier.value += insertionRegex.allMatches(diffPart.value).length;
+      deletionsNotifier.value += deletionRegex.allMatches(diffPart.value).length;
+    }, onDone: () => loading.value = false);
   });
 
   return await mat.showDialog(
@@ -96,8 +106,8 @@ Future<void> showDialog(
 
         return OrientationBuilder(
           builder: (context, orientation) => ValueListenableBuilder(
-            valueListenable: diffNotifier,
-            builder: (context, diffSnapshot, child) => BaseAlertDialog(
+            valueListenable: diffPartsNotifier,
+            builder: (context, diffPartsSnapshot, child) => BaseAlertDialog(
               expandable: true,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -312,72 +322,70 @@ Future<void> showDialog(
                     ),
                   ],
                   SizedBox(height: spaceXS),
-                  diffSnapshot == null
-                      ? Center(
-                          child: LinearProgressIndicator(
-                            value: null,
-                            backgroundColor: secondaryDark,
-                            color: tertiaryDark,
-                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                          ),
-                        )
-                      : Padding(
-                          padding: EdgeInsets.symmetric(horizontal: spaceXS),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "${diffSnapshot?.diffParts.keys.length ?? 0} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    sprintf(t.additions, [diffSnapshot?.insertions ?? 0]),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(color: tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(width: spaceMD),
-                                  Text(
-                                    sprintf(t.deletions, [diffSnapshot?.deletions ?? 0]),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(color: tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                  ValueListenableBuilder(
+                    valueListenable: loading,
+                    builder: (context, snapshot, child) => Center(
+                      child: LinearProgressIndicator(
+                        value: null,
+                        backgroundColor: snapshot ? secondaryDark : Colors.transparent,
+                        color: snapshot ? tertiaryDark : Colors.transparent,
+                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: spaceXS),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${diffPartsSnapshot.length} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
+                        Row(
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: insertionsNotifier,
+                              builder: (context, snapshot, child) => Text(
+                                sprintf(t.additions, [snapshot]),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(width: spaceMD),
+                            ValueListenableBuilder(
+                              valueListenable: deletionsNotifier,
+                              builder: (context, snapshot, child) => Text(
+                                sprintf(t.deletions, [snapshot]),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               contentPadding: EdgeInsets.only(top: spaceXS),
-              content: ValueListenableBuilder(
-                valueListenable: diffPartsNotifier,
-                builder: (context, diffPartsSnapshot, child) => diffSnapshot == null
-                    ? Center(
-                        child: SizedBox.square(
-                          dimension: spaceXL,
-                          child: CircularProgressIndicator(color: primaryLight),
-                        ),
-                      )
-                    : SizedBox(
-                        width: double.maxFinite,
-                        child: AnimatedListView(
-                          items: diffPartsSnapshot,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          isSameItem: (a, b) => a == b,
-                          itemBuilder: (context, index) => DiffFile(
-                            key: Key(diffPartsSnapshot[index].key),
-                            orientation: orientation,
-                            openedFromFile: openedFromFile,
-                            diffPartsSnapshot[index],
-                            titleText,
-                            index == 0,
-                          ),
-                        ),
-                      ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: AnimatedListView(
+                  items: diffPartsSnapshot,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  isSameItem: (a, b) => a == b,
+                  itemBuilder: (context, index) => DiffFile(
+                    key: Key(diffPartsSnapshot[index].key),
+                    orientation: orientation,
+                    openedFromFile: openedFromFile,
+                    diffPartsSnapshot[index],
+                    titleText,
+                    index == 0,
+                  ),
+                ),
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: <Widget>[],

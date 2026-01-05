@@ -1,3 +1,4 @@
+use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::DartFnFuture;
 use git2::{
     BranchType, CertificateCheckStatus, Cred, DiffOptions, ErrorCode, FetchOptions, PushOptions,
@@ -459,10 +460,11 @@ pub async fn untrack_all(
 }
 
 pub async fn get_file_diff(
+    sink: StreamSink<(String, HashMap<String, String>)>,
     path_string: &String,
     file_path: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Result<Diff, git2::Error> {
+) -> Result<(), git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -482,8 +484,6 @@ pub async fn get_file_diff(
 
     let mut diff_opts = DiffOptions::new();
     diff_opts.pathspec(file_path);
-
-    let mut file_diff = Diff::default();
 
     _log(
         Arc::clone(&log_callback),
@@ -625,13 +625,8 @@ pub async fn get_file_diff(
                     ),
                 );
 
-                file_diff.insertions += insertions;
-                file_diff.deletions += deletions;
-
                 if !commit_diff_parts.is_empty() {
-                    file_diff
-                        .diff_parts
-                        .insert(commit_identifier, commit_diff_parts);
+                    sink.add((commit_identifier, commit_diff_parts)).unwrap();
                 }
             }
         }
@@ -640,21 +635,19 @@ pub async fn get_file_diff(
     _log(
         Arc::clone(&log_callback),
         LogType::Diff,
-        format!(
-            "File history complete - Total Insertions: {}, Total Deletions: {}",
-            file_diff.insertions, file_diff.deletions
-        ),
+        format!("File history complete!",),
     );
 
-    Ok(file_diff)
+    Ok(())
 }
 
 pub async fn get_commit_diff(
+    sink: StreamSink<(String, HashMap<String, String>)>,
     path_string: &String,
     start_ref: &String,
     end_ref: &Option<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Result<Diff, git2::Error> {
+) -> Result<(), git2::Error> {
     init(None);
     let log_callback = Arc::new(log);
 
@@ -673,7 +666,7 @@ pub async fn get_commit_diff(
     let tree2 = match end_ref {
         Some(end) => swl!(repo.revparse_single(end)?.peel_to_commit()?.tree())?,
         None => {
-            let mut tree_builder = swl!(repo.treebuilder(None))?;
+            let tree_builder = swl!(repo.treebuilder(None))?;
             let empty_tree_oid = swl!(tree_builder.write())?;
             swl!(repo.find_tree(empty_tree_oid))?
         }
@@ -689,7 +682,7 @@ pub async fn get_commit_diff(
         "Getting diff stats".to_string(),
     );
 
-    let diff_stats = swl!(diff.stats())?;
+    // let diff_stats = swl!(diff.stats())?;
 
     _log(
         Arc::clone(&log_callback),
@@ -831,11 +824,11 @@ pub async fn get_commit_diff(
 
     let diff_parts = diff_parts.lock().unwrap().clone();
 
-    Ok(Diff {
-        insertions: diff_stats.insertions() as i32,
-        deletions: diff_stats.deletions() as i32,
-        diff_parts: diff_parts,
-    })
+    for (file_key, parts_map) in diff_parts.into_iter() {
+        sink.add((file_key, parts_map)).unwrap();
+    }
+
+    Ok(())
 }
 
 pub async fn get_recent_commits(

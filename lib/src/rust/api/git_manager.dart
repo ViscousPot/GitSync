@@ -48,7 +48,7 @@ Future<void> untrackAll({
   log: log,
 );
 
-Future<Diff> getFileDiff({
+Stream<(String, Map<String, String>)> getFileDiff({
   required String pathString,
   required String filePath,
   required FutureOr<void> Function(LogType, String) log,
@@ -58,7 +58,7 @@ Future<Diff> getFileDiff({
   log: log,
 );
 
-Future<Diff> getCommitDiff({
+Stream<(String, Map<String, String>)> getCommitDiff({
   required String pathString,
   required String startRef,
   String? endRef,
