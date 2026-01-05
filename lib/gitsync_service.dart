@@ -87,16 +87,10 @@ class GitsyncService {
   bool isScheduled = false;
   bool isSyncing = false;
 
-  Future<void> initialise(
-    Function(ServiceInstance) onServiceStart,
-    Function() callbackDispatcher,
-    // Map<String, String> stringMap,
-  ) async {
+  Future<void> initialise(Function(ServiceInstance) onServiceStart, Function() callbackDispatcher) async {
     final service = FlutterBackgroundService();
 
     Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
-
-    // final serviceStrings = ServiceStrings.fromMap(stringMap);
 
     await service.configure(
       androidConfiguration: AndroidConfiguration(autoStart: true, isForegroundMode: false, onStart: onServiceStart),
@@ -172,7 +166,6 @@ class GitsyncService {
         isSyncing = false;
         return;
       }
-
       if ((await GitManager.getConflicting(repomanRepoindex)).isNotEmpty) {
         Fluttertoast.showToast(msg: s.ongoingMergeConflict, toastLength: Toast.LENGTH_SHORT, gravity: null);
         isScheduled = false;
