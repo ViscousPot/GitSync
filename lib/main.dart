@@ -346,22 +346,27 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final _configKey = GlobalKey();
   final _autoSyncOptionsKey = GlobalKey();
 
-  late Future<List<GitManagerRs.Commit>> recentCommits = GitManager.getRecentCommits();
-  late Future<List<String>> conflicting = GitManager.getConflicting();
-  late Future<String?> branchName = GitManager.getBranchName();
-  late Future<List<String>> branchNames = GitManager.getBranchNames();
-  late Future<Map<String, (IconData, Future<void> Function())>> syncOptions = getSyncOptions();
-  late Future<(String, String)?> remoteUrlLink = GitManager.getRemoteUrlLink();
+  ValueNotifier<bool> loadingRecentCommits = ValueNotifier(false);
+  ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
+  ValueNotifier<List<String>> conflicting = ValueNotifier([]);
+  ValueNotifier<String?> branchName = ValueNotifier(null);
+  ValueNotifier<List<String>> branchNames = ValueNotifier([]);
+  ValueNotifier<Map<String, (IconData, Future<void> Function())>> syncOptions = ValueNotifier({});
+  ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
 
-  void reloadAll() {
+  Future<void> reloadAll() async {
+    if (mounted) setState(() {});
     var stack = StackTrace.current;
     print("///////////// badddddddd $stack");
-    syncOptions = getSyncOptions();
-    remoteUrlLink = GitManager.getRemoteUrlLink();
-    recentCommits = GitManager.getRecentCommits();
-    conflicting = GitManager.getConflicting();
-    branchNames = GitManager.getBranchNames();
-    branchName = GitManager.getBranchName();
+    await updateSyncOptions();
+    branchName.value = await GitManager.getBranchName();
+    remoteUrlLink.value = await GitManager.getRemoteUrlLink();
+    branchNames.value = await GitManager.getBranchNames();
+    await updateRecommendedAction();
+    loadingRecentCommits.value = true;
+    recentCommits.value = await GitManager.getRecentCommits();
+    loadingRecentCommits.value = false;
+    conflicting.value = await GitManager.getConflicting();
     if (mounted) setState(() {});
   }
 
@@ -400,6 +405,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // Future.delayed(Duration(seconds: 5), () => Logger.logError(LogType.TEST, "test", StackTrace.fromString("test stack")));
 
     initAsync(() async {
+      await reloadAll();
+      await GitManager.getAndExcludeLfsFilePaths();
+    });
+
+    initAsync(() async {
       String uri = (await HomeWidget.initiallyLaunchedFromHomeWidget()).toString();
       print("////init $uri");
       if (uri == "manualsyncwidget://click?homeWidget") {
@@ -426,7 +436,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         final shortcutSyncIndex = await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex);
         await repoManager.setInt(StorageKey.repoman_repoIndex, shortcutSyncIndex);
         await uiSettingsManager.reinit();
-        reloadAll();
+        await reloadAll();
         await ManualSyncDialog.showDialog(context, () async {});
         return;
       }
@@ -438,26 +448,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     ]);
 
     initAsync(() async {
-      await GitManager.getAndExcludeLfsFilePaths();
-    });
-
-    initAsync(() async {
       if (premiumManager.hasPremiumNotifier.value == false) {
         await premiumManager.cullNonPremium();
-        reloadAll();
+        await reloadAll();
       }
     });
 
     premiumManager.hasPremiumNotifier.addListener(() async {
       if (premiumManager.hasPremiumNotifier.value == false) {
         await premiumManager.cullNonPremium();
-        reloadAll();
+        await reloadAll();
       }
     });
 
     FlutterBackgroundService().on(GitsyncService.MERGE_COMPLETE).listen((event) async {
       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-      reloadAll();
+      await reloadAll();
     });
 
     networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => setState(() {}));
@@ -472,33 +478,46 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         if (!mounted) return;
         await LegacyAppUserDialog.showDialog(context, () async {
           await onboardingController?.show();
-          reloadAll();
+          await reloadAll();
         });
         return;
       }
       final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
       if (step != -1) {
         await onboardingController?.show();
-        reloadAll();
+        await reloadAll();
       }
-
-      await updateRecommendedAction();
-      autoRefreshTimer = Timer.periodic(Duration(seconds: 5), (_) async => await updateRecommendedAction());
     });
 
     super.initState();
+  }
+
+  Future<void> syncWrapper(Future<void> Function() callback, bool isForceSync) async {
+
+    if (!isForceSync) {
+      await GitManager.getAndExcludeLfsFilePaths();
+    }
+
+    await callback();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await reloadAll();
+    });
+    await updateRecommendedAction();
   }
 
   Future<void> launchWidgetManualSync() async {
     final widgetManualSyncIndex = await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex);
     await repoManager.setInt(StorageKey.repoman_repoIndex, widgetManualSyncIndex);
     await uiSettingsManager.reinit();
-    reloadAll();
+    await reloadAll();
     await ManualSyncDialog.showDialog(context, () async {});
   }
 
   Future<void> updateRecommendedAction([int? override]) async {
     if (!await uiSettingsManager.getClientModeEnabled()) return;
+    autoRefreshTimer?.cancel();
+    autoRefreshTimer = Timer(Duration(seconds: 10), () async => await updateRecommendedAction());
 
     updatingRecommendedAction.value = true;
     recommendedAction.value = override ?? await GitManager.getRecommendedAction();
@@ -557,7 +576,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.indexOf(text));
       await uiSettingsManager.reinit();
 
-      reloadAll();
+      await reloadAll();
     });
   }
 
@@ -593,134 +612,128 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     return await uiSettingsManager.getString(StorageKey.setman_lastSyncMethod);
   }
 
-  Future<Map<String, (IconData, Future<void> Function())>> getSyncOptions() async {
+  Future<void> updateSyncOptions() async {
     final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
     final dirPath = uiSettingsManager.gitDirPath?.$1;
     final submodulePaths = dirPath == null ? [] : await GitManager.getSubmodulePaths(dirPath);
-    Map<String, (IconData, Future<void> Function())> syncOptions = {};
+    syncOptions.value = {};
 
-    if ((await GitManager.getConflicting()).isEmpty) {
-      syncOptions.addAll({
-        clientModeEnabled ? t.syncAllChanges : t.syncNow: (
-          FontAwesomeIcons.solidCircleDown,
+    syncOptions.value.addAll({
+      clientModeEnabled ? t.syncAllChanges : t.syncNow: (
+        FontAwesomeIcons.solidCircleDown,
+        () async {
+          if (await GitManager.getBranchName() == null) {
+            await InfoDialog.showDialog(
+              context,
+              "Sync Unavailable on DETACHED HEAD",
+              "You can't sync while on a detached HEAD. That means your repository isn't on a branch right now, so changes can't be pushed. To fix this, click the \"DETACHED HEAD\" label, choose either \"main\" or \"master\" from the dropdown to switch back onto a branch, then press sync again.\n\nIf you're unsure which to pick, choose the branch your project normally uses (often main).\n\nIf you find you're often kicked off the branch you expect to be on, please use the \"Report a bug\" button below to describe the issue and the circumstances (what you were doing, branch names, screenshots if possible) so I can investigate and improve the app.",
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: spaceMD),
+                  ButtonSetting(
+                    text: t.reportABug,
+                    icon: FontAwesomeIcons.bug,
+                    textColor: primaryDark,
+                    iconColor: primaryDark,
+                    buttonColor: tertiaryNegative,
+                    onPressed: () async {
+                      await Logger.reportIssue(context, From.SYNC_DURING_DETACHED_HEAD);
+                    },
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
+          FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC);
+        },
+      ),
+      if (!clientModeEnabled)
+        t.manualSync: (
+          FontAwesomeIcons.listCheck,
           () async {
-            if (await GitManager.getBranchName() == null) {
-              await InfoDialog.showDialog(
-                context,
-                "Sync Unavailable on DETACHED HEAD",
-                "You can't sync while on a detached HEAD. That means your repository isn't on a branch right now, so changes can't be pushed. To fix this, click the \"DETACHED HEAD\" label, choose either \"main\" or \"master\" from the dropdown to switch back onto a branch, then press sync again.\n\nIf you're unsure which to pick, choose the branch your project normally uses (often main).\n\nIf you find you're often kicked off the branch you expect to be on, please use the \"Report a bug\" button below to describe the issue and the circumstances (what you were doing, branch names, screenshots if possible) so I can investigate and improve the app.",
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: spaceMD),
-                    ButtonSetting(
-                      text: t.reportABug,
-                      icon: FontAwesomeIcons.bug,
-                      textColor: primaryDark,
-                      iconColor: primaryDark,
-                      buttonColor: tertiaryNegative,
-                      onPressed: () async {
-                        await Logger.reportIssue(context, From.SYNC_DURING_DETACHED_HEAD);
-                      },
-                    ),
-                  ],
-                ),
-              );
-              return;
-            }
-            FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC);
+            await ManualSyncDialog.showDialog(context, () async {});
           },
         ),
-        if (!clientModeEnabled)
-          t.manualSync: (
-            FontAwesomeIcons.listCheck,
-            () async {
-              await ManualSyncDialog.showDialog(context, () async => await updateRecommendedAction(3));
-            },
-          ),
-        if (dirPath != null && clientModeEnabled && submodulePaths.isNotEmpty)
-          t.updateSubmodules: (
-            FontAwesomeIcons.solidSquareCaretDown,
-            () async {
-              await GitManager.updateSubmodules();
-            },
-          ),
-        if (clientModeEnabled)
-          sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
-            FontAwesomeIcons.caretDown,
-            () async {
-              await GitManager.fetchRemote();
-              await updateRecommendedAction(1);
-            },
-          ),
-        if (!clientModeEnabled)
-          t.downloadChanges: (
-            FontAwesomeIcons.angleDown,
-            () async {
-              final result = await GitManager.downloadChanges(repomanRepoindex, uiSettingsManager, () async {
-                if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-                  Fluttertoast.showToast(msg: t.syncStartPull, toastLength: Toast.LENGTH_LONG, gravity: null);
-                }
-              });
-              if (result == null) return;
-
-              if (result == false && (await GitManager.getUncommittedFilePaths(repomanRepoindex)).isNotEmpty) {
-                Fluttertoast.showToast(msg: t.pullFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
-                return;
-              }
-
+      if (dirPath != null && clientModeEnabled && submodulePaths.isNotEmpty)
+        t.updateSubmodules: (
+          FontAwesomeIcons.solidSquareCaretDown,
+          () async {
+            await GitManager.updateSubmodules();
+          },
+        ),
+      if (clientModeEnabled)
+        sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
+          FontAwesomeIcons.caretDown,
+          () async {
+            await GitManager.fetchRemote();
+          },
+        ),
+      if (!clientModeEnabled)
+        t.downloadChanges: (
+          FontAwesomeIcons.angleDown,
+          () async {
+            final result = await GitManager.downloadChanges(repomanRepoindex, uiSettingsManager, () async {
               if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-                Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
+                Fluttertoast.showToast(msg: t.syncStartPull, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
-            },
-          ),
-        if (clientModeEnabled)
-          t.pullChanges: (
-            FontAwesomeIcons.angleDown,
-            () async {
-              await GitManager.pullChanges();
-            },
-          ),
-        if (clientModeEnabled)
-          t.stageAndCommit: (
-            FontAwesomeIcons.listCheck,
-            () async {
-              await ManualSyncDialog.showDialog(context, () async => await updateRecommendedAction(3));
-            },
-          ),
-        if (!clientModeEnabled)
-          t.uploadChanges: (
-            FontAwesomeIcons.angleUp,
-            () async {
-              final result = await GitManager.uploadChanges(repomanRepoindex, uiSettingsManager, () async {
-                if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-                  Fluttertoast.showToast(msg: t.syncStartPush, toastLength: Toast.LENGTH_LONG, gravity: null);
-                }
-              });
-              if (result == null) return;
+            });
+            if (result == null) return;
 
-              if (result == false) {
-                Fluttertoast.showToast(msg: t.syncNotRequired, toastLength: Toast.LENGTH_LONG, gravity: null);
-                return;
-              }
+            if (result == false && (await GitManager.getUncommittedFilePaths(repomanRepoindex)).isNotEmpty) {
+              Fluttertoast.showToast(msg: t.pullFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
+              return;
+            }
 
+            if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+              Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
+            }
+          },
+        ),
+      if (clientModeEnabled)
+        t.pullChanges: (
+          FontAwesomeIcons.angleDown,
+          () async {
+            await GitManager.pullChanges();
+          },
+        ),
+      if (clientModeEnabled)
+        t.stageAndCommit: (
+          FontAwesomeIcons.listCheck,
+          () async {
+            await ManualSyncDialog.showDialog(context, () async => {});
+          },
+        ),
+      if (!clientModeEnabled)
+        t.uploadChanges: (
+          FontAwesomeIcons.angleUp,
+          () async {
+            final result = await GitManager.uploadChanges(repomanRepoindex, uiSettingsManager, () async {
               if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-                Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
+                Fluttertoast.showToast(msg: t.syncStartPush, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
-            },
-          ),
-        if (clientModeEnabled)
-          t.pushChanges: (
-            FontAwesomeIcons.angleUp,
-            () async {
-              await GitManager.pushChanges();
-            },
-          ),
-      });
-    }
+            });
+            if (result == null) return;
 
-    syncOptions.addAll({
+            if (result == false) {
+              Fluttertoast.showToast(msg: t.syncNotRequired, toastLength: Toast.LENGTH_LONG, gravity: null);
+              return;
+            }
+
+            if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+              Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
+            }
+          },
+        ),
+      if (clientModeEnabled)
+        t.pushChanges: (
+          FontAwesomeIcons.angleUp,
+          () async {
+            await GitManager.pushChanges();
+          },
+        ),
       if (!clientModeEnabled)
         t.uploadAndOverwrite: (
           FontAwesomeIcons.anglesUp,
@@ -730,7 +743,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               await GitManager.uploadAndOverwrite();
               await GitManager.downloadAndOverwrite();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              reloadAll();
+              await reloadAll();
             });
           },
         ),
@@ -742,7 +755,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context);
               await GitManager.downloadAndOverwrite();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              reloadAll();
+              await reloadAll();
             });
           },
         ),
@@ -754,7 +767,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context, push: true);
               await GitManager.forcePush();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              reloadAll();
+              await reloadAll();
             });
           },
         ),
@@ -766,7 +779,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ForcePushPullDialog.showDialog(context);
               await GitManager.forcePull();
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              reloadAll();
+              await reloadAll();
             });
           },
         ),
@@ -774,12 +787,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         FontAwesomeIcons.rightLeft,
         () async {
           await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, !clientModeEnabled);
-          reloadAll();
+          await reloadAll();
         },
       ),
     });
 
-    return syncOptions;
+    Future.delayed(Duration.zero, () async {
+      if ((await GitManager.getConflicting()).isNotEmpty) {
+        syncOptions.value.remove(t.syncAllChanges);
+        syncOptions.value.remove(t.syncNow);
+        syncOptions.value.remove(t.manualSync);
+        syncOptions.value.remove(t.updateSubmodules);
+        syncOptions.value.remove(sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]));
+        syncOptions.value.remove(t.downloadChanges);
+        syncOptions.value.remove(t.pullChanges);
+        syncOptions.value.remove(t.stageAndCommit);
+        syncOptions.value.remove(t.uploadChanges);
+        syncOptions.value.remove(t.pushChanges);
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -803,7 +830,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       gitLfsExpanded = false;
       await updateRecommendedAction();
-      reloadAll();
+      await reloadAll();
     }
     if (state == AppLifecycleState.paused) {
       // if (uiSettingsManager.getOnboardingStep() != 0 && onboardingController?.hasSkipped == false) {
@@ -818,7 +845,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
 
     return AuthDialog.showDialog(context, () async {
-      reloadAll();
+      await reloadAll();
       if ((await uiSettingsManager.getAuthorEmail()).isEmpty || (await uiSettingsManager.getAuthorName()).isEmpty) {
         await AuthorDetailsPromptDialog.showDialog(
           context,
@@ -830,7 +857,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               await showCloneRepoPage();
             } else {
               await onboardingController?.show();
-              reloadAll();
+              await reloadAll();
             }
           },
         );
@@ -840,7 +867,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         await showCloneRepoPage();
       } else {
         await onboardingController?.show();
-        reloadAll();
+        await reloadAll();
       }
     });
   }
@@ -928,11 +955,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               ),
                               onPressed: () async {
                                 if (premiumManager.hasPremiumNotifier.value != true) {
-                                  await UnlockPremiumDialog.showDialog(context, () {
-                                    reloadAll();
-                                    addRepo();
+                                  await UnlockPremiumDialog.showDialog(context, () async {
+                                    setState(() {});
+                                    await addRepo();
                                   });
-                                  reloadAll();
+                                  setState(() {});
                                   return;
                                 }
 
@@ -942,7 +969,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                 }
 
                                 repoSettingsExpanded = !repoSettingsExpanded;
-                                reloadAll();
+                                setState(() {});
 
                                 if (repoSettingsExpanded) {
                                   Future.delayed(
@@ -985,9 +1012,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       IconButton(
                                         style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                                         constraints: BoxConstraints(),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           repoSettingsExpanded = false;
-                                          reloadAll();
+                                          await reloadAll();
 
                                           RemoveContainerDialog.showDialog(context, (deleteContents) async {
                                             if (deleteContents) {
@@ -1014,7 +1041,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             }
 
                                             await uiSettingsManager.reinit();
-                                            reloadAll();
+                                            await reloadAll();
                                           });
                                         },
                                         icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: tertiaryNegative, size: textLG),
@@ -1022,9 +1049,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                       IconButton(
                                         style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                                         constraints: BoxConstraints(),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           repoSettingsExpanded = false;
-                                          reloadAll();
+                                          setState(() {});
 
                                           if (repoNamesSnapshot.data == null || repoIndexSnapshot.data == null) return;
 
@@ -1038,7 +1065,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
 
                                             await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
-                                            reloadAll();
+
+                                            await reloadAll();
                                           });
                                         },
                                         icon: FaIcon(FontAwesomeIcons.squarePen, color: tertiaryInfo, size: textLG),
@@ -1066,7 +1094,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         if (value == null) return;
                                         await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                         await uiSettingsManager.reinit();
-                                        reloadAll();
+                                        await reloadAll();
                                       },
                                       selectedItemBuilder: (context) => List.generate(
                                         repoNamesSnapshot.data!.length,
@@ -1133,663 +1161,665 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       globalKey: _controlKey,
                       cornerRadius: cornerRadiusMD,
                       description: t.controlHint,
-                      child: FutureBuilder(
-                        future: recentCommits,
-                        builder: (context, recentCommitsSnapshot) => FutureBuilder(
+                      child: ValueListenableBuilder(
+                        valueListenable: recentCommits,
+                        builder: (context, recentCommitsSnapshot, child) => FutureBuilder(
                           future: GitManager.getInitialRecentCommits(),
-                          builder: (context, fastRecentCommitsSnapshot) => FutureBuilder(
-                            future: conflicting,
-                            builder: (context, conflictingSnapshot) {
-                              final recentCommits = fastRecentCommitsSnapshot.data;
-                              final items = [
-                                ...((conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
-                                    ? <GitManagerRs.Commit>[]
-                                    : [
-                                        GitManagerRs.Commit(
-                                          timestamp: 0,
-                                          authorUsername: "",
-                                          authorEmail: "",
-                                          reference: mergeConflictReference,
-                                          commitMessage: "",
-                                          additions: 0,
-                                          deletions: 0,
-                                          unpulled: false,
-                                          unpushed: false,
-                                        ),
-                                      ]),
-                                ...recentCommits ?? <GitManagerRs.Commit>[],
-                              ];
+                          builder: (context, fastRecentCommitsSnapshot) => ValueListenableBuilder(
+                            valueListenable: conflicting,
+                            builder: (context, conflictingSnapshot, child) => ValueListenableBuilder(
+                              valueListenable: loadingRecentCommits,
+                              builder: (context, loadingRecentCommitsSnapshot, child) {
+                                final recentCommits = fastRecentCommitsSnapshot.data;
+                                final items = [
+                                  ...((conflictingSnapshot.isEmpty)
+                                      ? <GitManagerRs.Commit>[]
+                                      : [
+                                          GitManagerRs.Commit(
+                                            timestamp: 0,
+                                            authorUsername: "",
+                                            authorEmail: "",
+                                            reference: mergeConflictReference,
+                                            commitMessage: "",
+                                            additions: 0,
+                                            deletions: 0,
+                                            unpulled: false,
+                                            unpushed: false,
+                                          ),
+                                        ]),
+                                  ...recentCommits ?? <GitManagerRs.Commit>[],
+                                ];
 
-                              if (demoConflicting) {
-                                while (items.length < 3) {
-                                  items.add(
-                                    GitManagerRs.Commit(
-                                      timestamp: 0,
-                                      authorUsername: "",
-                                      authorEmail: "",
-                                      reference: "REFERENCE${Random().nextInt(100)}",
-                                      commitMessage: "",
-                                      additions: 0,
-                                      deletions: 0,
-                                      unpulled: false,
-                                      unpushed: false,
-                                    ),
+                                if (demoConflicting) {
+                                  while (items.length < 3) {
+                                    items.add(
+                                      GitManagerRs.Commit(
+                                        timestamp: 0,
+                                        authorUsername: "",
+                                        authorEmail: "",
+                                        reference: "REFERENCE${Random().nextInt(100)}",
+                                        commitMessage: "",
+                                        additions: 0,
+                                        deletions: 0,
+                                        unpulled: false,
+                                        unpushed: false,
+                                      ),
+                                    );
+                                  }
+                                  items[2] = GitManagerRs.Commit(
+                                    timestamp: 0,
+                                    authorUsername: "",
+                                    authorEmail: "",
+                                    reference: mergeConflictReference,
+                                    commitMessage: "",
+                                    additions: 0,
+                                    deletions: 0,
+                                    unpulled: false,
+                                    unpushed: false,
                                   );
                                 }
-                                items[2] = GitManagerRs.Commit(
-                                  timestamp: 0,
-                                  authorUsername: "",
-                                  authorEmail: "",
-                                  reference: mergeConflictReference,
-                                  commitMessage: "",
-                                  additions: 0,
-                                  deletions: 0,
-                                  unpulled: false,
-                                  unpushed: false,
-                                );
-                              }
 
-                              return Column(
-                                verticalDirection: orientation == Orientation.portrait ? VerticalDirection.down : VerticalDirection.up,
-                                children: [
-                                  Expanded(
-                                    flex: orientation == Orientation.portrait ? 0 : 1,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: secondaryDark,
-                                        borderRadius: orientation == Orientation.portrait
-                                            ? BorderRadius.only(
-                                                topLeft: cornerRadiusMD,
-                                                bottomLeft: cornerRadiusSM,
-                                                topRight: cornerRadiusMD,
-                                                bottomRight: cornerRadiusSM,
-                                              )
-                                            : BorderRadius.only(
-                                                topLeft: cornerRadiusSM,
-                                                bottomLeft: cornerRadiusMD,
-                                                topRight: cornerRadiusSM,
-                                                bottomRight: cornerRadiusMD,
-                                              ),
-                                      ),
-                                      padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                      child: Column(
-                                        verticalDirection: orientation == Orientation.portrait ? VerticalDirection.down : VerticalDirection.up,
-                                        children: [
-                                          Expanded(
-                                            flex: orientation == Orientation.portrait ? 0 : 1,
-                                            child: Stack(
-                                              clipBehavior: Clip.none,
-                                              children: [
-                                                SizedBox(
-                                                  height: orientation == Orientation.portrait ? 220 : double.infinity,
-                                                  child: AnimatedBuilder(
-                                                    animation: recentCommitsController,
-                                                    builder: (context, _) => ShaderMask(
-                                                      shaderCallback: (Rect rect) {
-                                                        return LinearGradient(
-                                                          begin: Alignment.topCenter,
-                                                          end: Alignment.bottomCenter,
-                                                          colors: [Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
-                                                          stops: [0.0, 0.1, 0.9, 1.0],
-                                                        ).createShader(rect);
-                                                      },
-                                                      blendMode: BlendMode.dstOut,
-                                                      child:
-                                                          (recentCommits ?? []).isEmpty &&
-                                                              (fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting ||
-                                                                  conflictingSnapshot.connectionState == ConnectionState.waiting)
-                                                          ? Center(child: CircularProgressIndicator(color: tertiaryLight))
-                                                          : (recentCommits!.isEmpty && conflictingSnapshot.data!.isEmpty
-                                                                ? Center(
-                                                                    child: Text(
-                                                                      t.commitsNotFound.toUpperCase(),
-                                                                      style: TextStyle(
-                                                                        color: secondaryLight,
-                                                                        fontWeight: FontWeight.bold,
-                                                                        fontSize: textLG,
-                                                                      ),
-                                                                    ),
-                                                                  )
-                                                                : Column(
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child: AnimatedListView(
-                                                                          controller: recentCommitsController,
-                                                                          items: items,
-                                                                          reverse: true,
-                                                                          isSameItem: (a, b) => a.reference == b.reference,
-                                                                          itemBuilder: (BuildContext context, int index) {
-                                                                            final reference = items[index].reference;
-
-                                                                            if (reference == mergeConflictReference) {
-                                                                              return ItemMergeConflict(
-                                                                                key: Key(reference),
-                                                                                conflictingSnapshot.data!,
-                                                                                () => reloadAll(),
-                                                                              );
-                                                                            }
-
-                                                                            return ItemCommit(
-                                                                              key: Key(reference),
-                                                                              items[index],
-                                                                              index < items.length - 1 ? items[index + 1] : null,
-                                                                            );
-                                                                          },
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  )),
-                                                    ),
-                                                  ),
+                                return Column(
+                                  verticalDirection: orientation == Orientation.portrait ? VerticalDirection.down : VerticalDirection.up,
+                                  children: [
+                                    Expanded(
+                                      flex: orientation == Orientation.portrait ? 0 : 1,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: secondaryDark,
+                                          borderRadius: orientation == Orientation.portrait
+                                              ? BorderRadius.only(
+                                                  topLeft: cornerRadiusMD,
+                                                  bottomLeft: cornerRadiusSM,
+                                                  topRight: cornerRadiusMD,
+                                                  bottomRight: cornerRadiusSM,
+                                                )
+                                              : BorderRadius.only(
+                                                  topLeft: cornerRadiusSM,
+                                                  bottomLeft: cornerRadiusMD,
+                                                  topRight: cornerRadiusSM,
+                                                  bottomRight: cornerRadiusMD,
                                                 ),
-                                                ...(recentCommits?.isNotEmpty == true &&
-                                                        recentCommitsSnapshot.connectionState == ConnectionState.waiting)
-                                                    ? [
-                                                        Positioned(
-                                                          top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
-                                                          left: 0,
-                                                          right: 0,
-                                                          child: LinearProgressIndicator(
-                                                            value: null,
-                                                            backgroundColor: secondaryDark,
-                                                            color: tertiaryDark,
-                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                          ),
-                                                        ),
-                                                      ]
-                                                    : [],
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
-
-                                          FutureBuilder(
-                                            future: branchName,
-                                            builder: (context, branchNameSnapshot) => FutureBuilder(
-                                              future: uiSettingsManager.getStringNullable(StorageKey.setman_branchName),
-                                              builder: (context, fastBranchNameSnapshot) => FutureBuilder(
-                                                future: branchNames,
-                                                builder: (context, branchNamesSnapshot) => FutureBuilder(
-                                                  future: uiSettingsManager.getStringList(StorageKey.setman_branchNames),
-                                                  builder: (context, fastBranchNamesSnapshot) {
-                                                    final branchName = fastBranchNameSnapshot.data ?? branchNameSnapshot.data;
-                                                    final branchNames = fastBranchNamesSnapshot.data == null || fastBranchNamesSnapshot.data!.isEmpty
-                                                        ? branchNamesSnapshot.data
-                                                        : fastBranchNamesSnapshot.data;
-
-                                                    return Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Stack(
-                                                            children: [
-                                                              DropdownButton(
-                                                                isDense: true,
-                                                                isExpanded: true,
-                                                                hint: Text(
-                                                                  t.detachedHead.toUpperCase(),
-                                                                  style: TextStyle(
-                                                                    fontSize: textMD,
-                                                                    fontWeight: FontWeight.bold,
-                                                                    color: secondaryLight,
-                                                                  ),
-                                                                ),
-                                                                padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                                                value: branchNames?.contains(branchName) == true ? branchName : null,
-                                                                menuMaxHeight: 250,
-                                                                dropdownColor: secondaryDark,
-                                                                borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                selectedItemBuilder: (context) => List.generate(
-                                                                  (branchNames ?? []).length,
-                                                                  (index) => Row(
-                                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                                    children: [
-                                                                      Text(
-                                                                        (branchNames ?? [])[index].toUpperCase(),
+                                        ),
+                                        padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
+                                        child: Column(
+                                          verticalDirection: orientation == Orientation.portrait ? VerticalDirection.down : VerticalDirection.up,
+                                          children: [
+                                            Expanded(
+                                              flex: orientation == Orientation.portrait ? 0 : 1,
+                                              child: Stack(
+                                                clipBehavior: Clip.none,
+                                                children: [
+                                                  SizedBox(
+                                                    height: orientation == Orientation.portrait ? 220 : double.infinity,
+                                                    child: AnimatedBuilder(
+                                                      animation: recentCommitsController,
+                                                      builder: (context, _) => ShaderMask(
+                                                        shaderCallback: (Rect rect) {
+                                                          return LinearGradient(
+                                                            begin: Alignment.topCenter,
+                                                            end: Alignment.bottomCenter,
+                                                            colors: [Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
+                                                            stops: [0.0, 0.1, 0.9, 1.0],
+                                                          ).createShader(rect);
+                                                        },
+                                                        blendMode: BlendMode.dstOut,
+                                                        child:
+                                                            (recentCommits ?? []).isEmpty &&
+                                                                (fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting ||
+                                                                    loadingRecentCommitsSnapshot)
+                                                            ? Center(child: CircularProgressIndicator(color: tertiaryLight))
+                                                            : (recentCommits!.isEmpty && conflictingSnapshot.isEmpty
+                                                                  ? Center(
+                                                                      child: Text(
+                                                                        t.commitsNotFound.toUpperCase(),
                                                                         style: TextStyle(
-                                                                          fontSize: textMD,
+                                                                          color: secondaryLight,
                                                                           fontWeight: FontWeight.bold,
-                                                                          color:
-                                                                              !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
-                                                                              ? tertiaryLight
-                                                                              : primaryLight,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                underline: const SizedBox.shrink(),
-                                                                onChanged: !(conflictingSnapshot.data == null || conflictingSnapshot.data!.isEmpty)
-                                                                    ? null
-                                                                    : <String>(value) async {
-                                                                        if (value == branchName) return;
-
-                                                                        await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
-                                                                          await GitManager.checkoutBranch(value);
-                                                                        });
-                                                                        reloadAll();
-                                                                      },
-                                                                items: (branchNames ?? [])
-                                                                    .map(
-                                                                      (item) => DropdownMenuItem(
-                                                                        value: item,
-                                                                        child: Text(
-                                                                          item.toUpperCase(),
-                                                                          style: TextStyle(
-                                                                            fontSize: textSM,
-                                                                            color: primaryLight,
-                                                                            fontWeight: FontWeight.bold,
-                                                                            overflow: TextOverflow.ellipsis,
-                                                                          ),
+                                                                          fontSize: textLG,
                                                                         ),
                                                                       ),
                                                                     )
-                                                                    .toList(),
-                                                              ),
-                                                              Positioned(
-                                                                top: -spaceXXXXS,
-                                                                left: spaceXS,
-                                                                child: Text(
-                                                                  t.currentBranch.toUpperCase(),
-                                                                  style: TextStyle(
-                                                                    color: tertiaryLight,
-                                                                    fontSize: textXXS,
-                                                                    fontWeight: FontWeight.w900,
+                                                                  : Column(
+                                                                      children: [
+                                                                        Expanded(
+                                                                          child: AnimatedListView(
+                                                                            controller: recentCommitsController,
+                                                                            items: items,
+                                                                            reverse: true,
+                                                                            isSameItem: (a, b) => a.reference == b.reference,
+                                                                            itemBuilder: (BuildContext context, int index) {
+                                                                              final reference = items[index].reference;
+
+                                                                              if (reference == mergeConflictReference) {
+                                                                                return ItemMergeConflict(
+                                                                                  key: Key(reference),
+                                                                                  conflictingSnapshot,
+                                                                                  () => reloadAll(),
+                                                                                );
+                                                                              }
+
+                                                                              return ItemCommit(
+                                                                                key: Key(reference),
+                                                                                items[index],
+                                                                                index < items.length - 1 ? items[index + 1] : null,
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    )),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  ...(recentCommits?.isNotEmpty == true && loadingRecentCommitsSnapshot)
+                                                      ? [
+                                                          Positioned(
+                                                            top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
+                                                            left: 0,
+                                                            right: 0,
+                                                            child: LinearProgressIndicator(
+                                                              value: null,
+                                                              backgroundColor: secondaryDark,
+                                                              color: tertiaryDark,
+                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                            ),
+                                                          ),
+                                                        ]
+                                                      : [],
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
+
+                                            ValueListenableBuilder(
+                                              valueListenable: branchName,
+                                              builder: (context, branchNameSnapshot, child) => FutureBuilder(
+                                                future: uiSettingsManager.getStringNullable(StorageKey.setman_branchName),
+                                                builder: (context, fastBranchNameSnapshot) => ValueListenableBuilder(
+                                                  valueListenable: branchNames,
+                                                  builder: (context, branchNamesSnapshot, child) => FutureBuilder(
+                                                    future: uiSettingsManager.getStringList(StorageKey.setman_branchNames),
+                                                    builder: (context, fastBranchNamesSnapshot) {
+                                                      final branchName = fastBranchNameSnapshot.data ?? branchNameSnapshot;
+                                                      final branchNames =
+                                                          fastBranchNamesSnapshot.data == null || fastBranchNamesSnapshot.data!.isEmpty
+                                                          ? branchNamesSnapshot
+                                                          : fastBranchNamesSnapshot.data;
+
+                                                      return Row(
+                                                        children: [
+                                                          Expanded(
+                                                            child: Stack(
+                                                              children: [
+                                                                DropdownButton(
+                                                                  isDense: true,
+                                                                  isExpanded: true,
+                                                                  hint: Text(
+                                                                    t.detachedHead.toUpperCase(),
+                                                                    style: TextStyle(
+                                                                      fontSize: textMD,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: secondaryLight,
+                                                                    ),
+                                                                  ),
+                                                                  padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                                  value: branchNames?.contains(branchName) == true ? branchName : null,
+                                                                  menuMaxHeight: 250,
+                                                                  dropdownColor: secondaryDark,
+                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                  selectedItemBuilder: (context) => List.generate(
+                                                                    (branchNames ?? []).length,
+                                                                    (index) => Row(
+                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                      children: [
+                                                                        Text(
+                                                                          (branchNames ?? [])[index].toUpperCase(),
+                                                                          style: TextStyle(
+                                                                            fontSize: textMD,
+                                                                            fontWeight: FontWeight.bold,
+                                                                            color: !(conflictingSnapshot.isEmpty) ? tertiaryLight : primaryLight,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  underline: const SizedBox.shrink(),
+                                                                  onChanged: !(conflictingSnapshot.isEmpty)
+                                                                      ? null
+                                                                      : <String>(value) async {
+                                                                          if (value == branchName) return;
+
+                                                                          await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
+                                                                            await GitManager.checkoutBranch(value);
+                                                                          });
+                                                                          await reloadAll();
+                                                                        },
+                                                                  items: (branchNames ?? [])
+                                                                      .map(
+                                                                        (item) => DropdownMenuItem(
+                                                                          value: item,
+                                                                          child: Text(
+                                                                            item.toUpperCase(),
+                                                                            style: TextStyle(
+                                                                              fontSize: textSM,
+                                                                              color: primaryLight,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                                Positioned(
+                                                                  top: -spaceXXXXS,
+                                                                  left: spaceXS,
+                                                                  child: Text(
+                                                                    t.currentBranch.toUpperCase(),
+                                                                    style: TextStyle(
+                                                                      color: tertiaryLight,
+                                                                      fontSize: textXXS,
+                                                                      fontWeight: FontWeight.w900,
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        IconButton(
-                                                          onPressed: branchNames?.contains(branchName) == true
-                                                              ? () {
-                                                                  CreateBranchDialog.showDialog(context, (branchName, basedOn) async {
-                                                                    await GitManager.createBranch(branchName, basedOn);
-                                                                    reloadAll();
-                                                                  });
-                                                                }
-                                                              : null,
-                                                          style: ButtonStyle(
-                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                            backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                                            padding: WidgetStatePropertyAll(
-                                                              EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                              ],
                                                             ),
+                                                          ),
+                                                          IconButton(
+                                                            onPressed: branchNames?.contains(branchName) == true
+                                                                ? () {
+                                                                    CreateBranchDialog.showDialog(context, (branchName, basedOn) async {
+                                                                      await GitManager.createBranch(branchName, basedOn);
+                                                                      await reloadAll();
+                                                                    });
+                                                                  }
+                                                                : null,
+                                                            style: ButtonStyle(
+                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                              backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                                              padding: WidgetStatePropertyAll(
+                                                                EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                              ),
+                                                              shape: WidgetStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                  side: BorderSide.none,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            constraints: BoxConstraints(),
+                                                            icon: FaIcon(
+                                                              FontAwesomeIcons.solidSquarePlus,
+                                                              color: branchNames?.contains(branchName) == true ? primaryLight : secondaryLight,
+                                                              size: textXL,
+                                                              semanticLabel: t.addBranchLabel,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: spaceSM),
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: ValueListenableBuilder(
+                                              valueListenable: syncOptions,
+                                              builder: (context, syncOptionsSnapshot, child) => ValueListenableBuilder(
+                                                valueListenable: recommendedAction,
+                                                builder: (context, recommendedActionValue, _) => FutureBuilder(
+                                                  future: getLastSyncOption(),
+                                                  builder: (context, lastSyncMethodSnapshot) => Stack(
+                                                    children: [
+                                                      SizedBox.expand(
+                                                        child: TextButton.icon(
+                                                          key: syncMethodMainButtonKey,
+                                                          onPressed: () async {
+                                                            if (lastSyncMethodSnapshot.data == null) return;
+
+                                                            await syncWrapper(
+                                                              () async {
+                                                                if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
+                                                                  await syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                } else {
+                                                                  await syncOptionsSnapshot.values.first.$2();
+                                                                }
+                                                              },
+                                                              [t.syncAllChanges, t.syncNow].contains(
+                                                                syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                    ? lastSyncMethodSnapshot.data
+                                                                    : syncOptionsSnapshot.keys.first,
+                                                              ),
+                                                            );
+                                                          },
+                                                          style: ButtonStyle(
+                                                            alignment: Alignment.centerLeft,
+                                                            backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
                                                             shape: WidgetStatePropertyAll(
                                                               RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                borderRadius: orientation == Orientation.portrait
+                                                                    ? BorderRadius.only(
+                                                                        topLeft: cornerRadiusSM,
+                                                                        topRight: cornerRadiusSM,
+                                                                        bottomLeft: cornerRadiusMD,
+                                                                        bottomRight: clientModeEnabledSnapshot.data == true
+                                                                            ? cornerRadiusMD
+                                                                            : cornerRadiusSM,
+                                                                      )
+                                                                    : BorderRadius.only(
+                                                                        topLeft: cornerRadiusMD,
+                                                                        bottomRight: cornerRadiusSM,
+                                                                        bottomLeft: cornerRadiusSM,
+                                                                        topRight: clientModeEnabledSnapshot.data == true
+                                                                            ? cornerRadiusMD
+                                                                            : cornerRadiusSM,
+                                                                      ),
                                                                 side: BorderSide.none,
                                                               ),
                                                             ),
                                                           ),
-                                                          constraints: BoxConstraints(),
-                                                          icon: FaIcon(
-                                                            FontAwesomeIcons.solidSquarePlus,
-                                                            color: branchNames?.contains(branchName) == true ? primaryLight : secondaryLight,
-                                                            size: textXL,
-                                                            semanticLabel: t.addBranchLabel,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: spaceSM),
-                                  IntrinsicHeight(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        Expanded(
-                                          child: FutureBuilder(
-                                            future: syncOptions,
-                                            builder: (context, syncOptionsSnapshot) => ValueListenableBuilder(
-                                              valueListenable: recommendedAction,
-                                              builder: (context, recommendedActionValue, _) => FutureBuilder(
-                                                future: getLastSyncOption(),
-                                                builder: (context, lastSyncMethodSnapshot) => Stack(
-                                                  children: [
-                                                    SizedBox.expand(
-                                                      child: TextButton.icon(
-                                                        key: syncMethodMainButtonKey,
-                                                        onPressed: () async {
-                                                          if (syncOptionsSnapshot.data == null || lastSyncMethodSnapshot.data == null) return;
-
-                                                          WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                            reloadAll();
-                                                          });
-
-                                                          await GitManager.getAndExcludeLfsFilePaths();
-
-                                                          if (syncOptionsSnapshot.data?.containsKey(lastSyncMethodSnapshot.data) == true) {
-                                                            await syncOptionsSnapshot.data![lastSyncMethodSnapshot.data]!.$2();
-                                                          } else {
-                                                            await syncOptionsSnapshot.data?.values.first.$2();
-                                                          }
-                                                          WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                            reloadAll();
-                                                          });
-                                                          await updateRecommendedAction();
-                                                        },
-                                                        style: ButtonStyle(
-                                                          alignment: Alignment.centerLeft,
-                                                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
-                                                          shape: WidgetStatePropertyAll(
-                                                            RoundedRectangleBorder(
-                                                              borderRadius: orientation == Orientation.portrait
-                                                                  ? BorderRadius.only(
-                                                                      topLeft: cornerRadiusSM,
-                                                                      topRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusMD,
-                                                                      bottomRight: clientModeEnabledSnapshot.data == true
-                                                                          ? cornerRadiusMD
-                                                                          : cornerRadiusSM,
-                                                                    )
-                                                                  : BorderRadius.only(
-                                                                      topLeft: cornerRadiusMD,
-                                                                      bottomRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusSM,
-                                                                      topRight: clientModeEnabledSnapshot.data == true
-                                                                          ? cornerRadiusMD
-                                                                          : cornerRadiusSM,
-                                                                    ),
-                                                              side: BorderSide.none,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        icon: Stack(
-                                                          clipBehavior: Clip.none,
-                                                          children: [
-                                                            if (clientModeEnabledSnapshot.data == true)
-                                                              Positioned(
-                                                                top: -spaceXXS,
-                                                                bottom: -spaceXXS,
-                                                                left: -spaceXXS,
-                                                                right: -spaceXXS,
-                                                                child: ValueListenableBuilder(
-                                                                  valueListenable: updatingRecommendedAction,
-                                                                  builder: (context, value, child) => value
-                                                                      ? SizedBox(
-                                                                          height: spaceXXL,
-                                                                          width: spaceXXL,
-                                                                          child: CircularProgressIndicator(color: tertiaryDark),
-                                                                        )
-                                                                      : SizedBox.shrink(),
-                                                                ),
-                                                              ),
-                                                            FaIcon(
-                                                              syncOptionsSnapshot.data?[lastSyncMethodSnapshot.data]?.$1 ??
-                                                                  syncOptionsSnapshot.data?.values.first.$1 ??
-                                                                  FontAwesomeIcons.solidCircleDown,
-                                                              color: primaryLight,
-                                                              size: textLG,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        label: Padding(
-                                                          padding: EdgeInsets.only(left: spaceXS),
-                                                          child: Text(
-                                                            ((syncOptionsSnapshot.data?.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                        ? lastSyncMethodSnapshot.data
-                                                                        : syncOptionsSnapshot.data?.keys.first) ??
-                                                                    t.syncNow)
-                                                                .toUpperCase(),
-                                                            style: TextStyle(
-                                                              color: clientModeEnabledSnapshot.data == true && recommendedActionValue != null
-                                                                  ? tertiaryInfo
-                                                                  : primaryLight,
-                                                              fontSize: textMD,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      left: 0,
-                                                      right: 0,
-                                                      top: spaceMD * 4,
-                                                      child: Container(
-                                                        decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                                        margin: EdgeInsets.only(left: spaceMD),
-                                                        child: DropdownButton(
-                                                          key: syncMethodsDropdownKey,
-                                                          borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                          selectedItemBuilder: (context) =>
-                                                              List.generate(syncOptionsSnapshot.data?.length ?? 0, (_) => SizedBox.shrink()),
-                                                          icon: SizedBox.shrink(),
-                                                          underline: const SizedBox.shrink(),
-                                                          menuWidth: clientModeEnabledSnapshot.data == true
-                                                              ? MediaQuery.of(context).size.width - (spaceMD * 2)
-                                                              : null,
-                                                          dropdownColor: secondaryDark,
-                                                          padding: EdgeInsets.zero,
-                                                          onChanged: (value) {},
-                                                          items: (syncOptionsSnapshot.data ?? {}).entries
-                                                              .where(
-                                                                (item) =>
-                                                                    item.key !=
-                                                                    (syncOptionsSnapshot.data?.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                        ? lastSyncMethodSnapshot.data
-                                                                        : syncOptionsSnapshot.data?.keys.first),
-                                                              )
-                                                              .map(
-                                                                (item) => DropdownMenuItem(
-                                                                  onTap: () async {
-                                                                    if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
-                                                                      await uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, item.key);
-                                                                    }
-                                                                    WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                                      reloadAll();
-                                                                    });
-                                                                    await item.value.$2();
-                                                                    WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                                                      reloadAll();
-                                                                    });
-                                                                    await updateRecommendedAction();
-                                                                  },
-                                                                  value: item.key,
-                                                                  child: Row(
-                                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                                    children: [
-                                                                      FaIcon(
-                                                                        item.value.$1,
-                                                                        color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
-                                                                            ? tertiaryInfo
-                                                                            : primaryLight,
-                                                                        size: textLG,
-                                                                      ),
-                                                                      SizedBox(width: spaceMD),
-                                                                      Flexible(
-                                                                        child: Text(
-                                                                          item.key.toUpperCase(),
-                                                                          maxLines: 1,
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                          style: TextStyle(
-                                                                            fontSize: textMD,
-                                                                            color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
-                                                                                ? tertiaryInfo
-                                                                                : primaryLight,
-                                                                            fontWeight: FontWeight.bold,
-                                                                            overflow: TextOverflow.ellipsis,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
+                                                          icon: Stack(
+                                                            clipBehavior: Clip.none,
+                                                            children: [
+                                                              if (clientModeEnabledSnapshot.data == true)
+                                                                Positioned(
+                                                                  top: -spaceXXS,
+                                                                  bottom: -spaceXXS,
+                                                                  left: -spaceXXS,
+                                                                  right: -spaceXXS,
+                                                                  child: ValueListenableBuilder(
+                                                                    valueListenable: updatingRecommendedAction,
+                                                                    builder: (context, value, child) => value
+                                                                        ? SizedBox(
+                                                                            height: spaceXXL,
+                                                                            width: spaceXXL,
+                                                                            child: CircularProgressIndicator(color: tertiaryDark),
+                                                                          )
+                                                                        : SizedBox.shrink(),
                                                                   ),
                                                                 ),
-                                                              )
-                                                              .toList(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      right: 0,
-                                                      top: 0,
-                                                      bottom: 0,
-                                                      child: IconButton(
-                                                        onPressed: () {
-                                                          if (demo) {
-                                                            demoConflicting = true;
-                                                            reloadAll();
-                                                            MergeConflictDialog.showDialog(context, ["Readme.md"])
-                                                                .then((_) {
-                                                                  demoConflicting = false;
-                                                                  reloadAll();
-                                                                })
-                                                                .then((_) => reloadAll());
-
-                                                            return;
-                                                          }
-
-                                                          GestureDetector? detector;
-
-                                                          void searchForGestureDetector(BuildContext? element) {
-                                                            element?.visitChildElements((element) {
-                                                              if (element.widget is GestureDetector) {
-                                                                detector = element.widget as GestureDetector;
-                                                                return;
-                                                              } else {
-                                                                searchForGestureDetector(element);
-                                                              }
-
-                                                              return;
-                                                            });
-                                                          }
-
-                                                          searchForGestureDetector(syncMethodsDropdownKey.currentContext);
-
-                                                          if (detector?.onTap != null) detector?.onTap!();
-                                                        },
-                                                        style: ButtonStyle(
-                                                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                          padding: WidgetStatePropertyAll(
-                                                            EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                              FaIcon(
+                                                                syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
+                                                                    (syncOptionsSnapshot.values.isNotEmpty
+                                                                        ? syncOptionsSnapshot.values.first.$1
+                                                                        : null) ??
+                                                                    FontAwesomeIcons.solidCircleDown,
+                                                                color: primaryLight,
+                                                                size: textLG,
+                                                              ),
+                                                            ],
                                                           ),
-                                                          shape: WidgetStatePropertyAll(
-                                                            RoundedRectangleBorder(
-                                                              borderRadius: orientation == Orientation.portrait
-                                                                  ? BorderRadius.only(
-                                                                      topLeft: cornerRadiusSM,
-                                                                      topRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusMD,
-                                                                      bottomRight: clientModeEnabledSnapshot.data == true
-                                                                          ? cornerRadiusMD
-                                                                          : cornerRadiusSM,
-                                                                    )
-                                                                  : BorderRadius.only(
-                                                                      topLeft: cornerRadiusMD,
-                                                                      bottomRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusSM,
-                                                                      topRight: clientModeEnabledSnapshot.data == true
-                                                                          ? cornerRadiusMD
-                                                                          : cornerRadiusSM,
-                                                                    ),
-                                                              side: BorderSide.none,
+                                                          label: Padding(
+                                                            padding: EdgeInsets.only(left: spaceXS),
+                                                            child: Text(
+                                                              ((syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                          ? lastSyncMethodSnapshot.data
+                                                                          : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                ? syncOptionsSnapshot.keys.first
+                                                                                : "")) ??
+                                                                      t.syncNow)
+                                                                  .toUpperCase(),
+                                                              style: TextStyle(
+                                                                color: clientModeEnabledSnapshot.data == true && recommendedActionValue != null
+                                                                    ? tertiaryInfo
+                                                                    : primaryLight,
+                                                                fontSize: textMD,
+                                                                fontWeight: FontWeight.bold,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                        icon: FaIcon(
-                                                          FontAwesomeIcons.ellipsis,
-                                                          color: primaryLight,
-                                                          size: textLG,
-                                                          semanticLabel: t.moreSyncOptionsLabel,
+                                                      ),
+                                                      Positioned(
+                                                        left: 0,
+                                                        right: 0,
+                                                        top: spaceMD * 4,
+                                                        child: Container(
+                                                          decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                                          margin: EdgeInsets.only(left: spaceMD),
+                                                          child: DropdownButton(
+                                                            key: syncMethodsDropdownKey,
+                                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                            selectedItemBuilder: (context) =>
+                                                                List.generate(syncOptionsSnapshot.length, (_) => SizedBox.shrink()),
+                                                            icon: SizedBox.shrink(),
+                                                            underline: const SizedBox.shrink(),
+                                                            menuWidth: clientModeEnabledSnapshot.data == true
+                                                                ? MediaQuery.of(context).size.width - (spaceMD * 2)
+                                                                : null,
+                                                            dropdownColor: secondaryDark,
+                                                            padding: EdgeInsets.zero,
+                                                            onChanged: (value) {},
+                                                            items: (syncOptionsSnapshot).entries
+                                                                .where(
+                                                                  (item) =>
+                                                                      item.key !=
+                                                                      (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                          ? lastSyncMethodSnapshot.data
+                                                                          : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                ? syncOptionsSnapshot.keys.first
+                                                                                : "")),
+                                                                )
+                                                                .map(
+                                                                  (item) => DropdownMenuItem(
+                                                                    onTap: () async {
+                                                                      if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
+                                                                        await uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, item.key);
+                                                                      }
+
+                                                                      await syncWrapper(
+                                                                        () async => await item.value.$2(),
+                                                                        [t.syncAllChanges, t.syncNow].contains(item.key),
+                                                                      );
+                                                                    },
+                                                                    value: item.key,
+                                                                    child: Row(
+                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                      children: [
+                                                                        FaIcon(
+                                                                          item.value.$1,
+                                                                          color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
+                                                                              ? tertiaryInfo
+                                                                              : primaryLight,
+                                                                          size: textLG,
+                                                                        ),
+                                                                        SizedBox(width: spaceMD),
+                                                                        Flexible(
+                                                                          child: Text(
+                                                                            item.key.toUpperCase(),
+                                                                            maxLines: 1,
+                                                                            overflow: TextOverflow.ellipsis,
+                                                                            style: TextStyle(
+                                                                              fontSize: textMD,
+                                                                              color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
+                                                                                  ? tertiaryInfo
+                                                                                  : primaryLight,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                                .toList(),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                      Positioned(
+                                                        right: 0,
+                                                        top: 0,
+                                                        bottom: 0,
+                                                        child: IconButton(
+                                                          onPressed: () async {
+                                                            if (demo) {
+                                                              demoConflicting = true;
+                                                              await reloadAll();
+                                                              MergeConflictDialog.showDialog(context, ["Readme.md"])
+                                                                  .then((_) async {
+                                                                    demoConflicting = false;
+                                                                    await reloadAll();
+                                                                  })
+                                                                  .then((_) => reloadAll());
+
+                                                              return;
+                                                            }
+
+                                                            GestureDetector? detector;
+
+                                                            void searchForGestureDetector(BuildContext? element) {
+                                                              element?.visitChildElements((element) {
+                                                                if (element.widget is GestureDetector) {
+                                                                  detector = element.widget as GestureDetector;
+                                                                  return;
+                                                                } else {
+                                                                  searchForGestureDetector(element);
+                                                                }
+
+                                                                return;
+                                                              });
+                                                            }
+
+                                                            searchForGestureDetector(syncMethodsDropdownKey.currentContext);
+
+                                                            if (detector?.onTap != null) detector?.onTap!();
+                                                          },
+                                                          style: ButtonStyle(
+                                                            backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                                            padding: WidgetStatePropertyAll(
+                                                              EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                            ),
+                                                            shape: WidgetStatePropertyAll(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius: orientation == Orientation.portrait
+                                                                    ? BorderRadius.only(
+                                                                        topLeft: cornerRadiusSM,
+                                                                        topRight: cornerRadiusSM,
+                                                                        bottomLeft: cornerRadiusMD,
+                                                                        bottomRight: clientModeEnabledSnapshot.data == true
+                                                                            ? cornerRadiusMD
+                                                                            : cornerRadiusSM,
+                                                                      )
+                                                                    : BorderRadius.only(
+                                                                        topLeft: cornerRadiusMD,
+                                                                        bottomRight: cornerRadiusSM,
+                                                                        bottomLeft: cornerRadiusSM,
+                                                                        topRight: clientModeEnabledSnapshot.data == true
+                                                                            ? cornerRadiusMD
+                                                                            : cornerRadiusSM,
+                                                                      ),
+                                                                side: BorderSide.none,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          icon: FaIcon(
+                                                            FontAwesomeIcons.ellipsis,
+                                                            color: primaryLight,
+                                                            size: textLG,
+                                                            semanticLabel: t.moreSyncOptionsLabel,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        ...clientModeEnabledSnapshot.data != true
-                                            ? [
-                                                SizedBox(width: spaceSM),
-                                                IconButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
-                                                  },
-                                                  style: ButtonStyle(
-                                                    backgroundColor: WidgetStatePropertyAll(secondaryDark),
-                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                    shape: WidgetStatePropertyAll(
-                                                      RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                                    ),
-                                                  ),
-                                                  icon: FaIcon(
-                                                    FontAwesomeIcons.gear,
-                                                    color: primaryLight,
-                                                    size: textLG,
-                                                    semanticLabel: t.repositorySettingsLabel,
-                                                  ),
-                                                ),
-                                                SizedBox(width: spaceSM),
-                                                FutureBuilder(
-                                                  future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                                  builder: (context, snapshot) => IconButton(
-                                                    onPressed: () async {
-                                                      if (!(snapshot.data ?? false)) {
-                                                        if (!(await Permission.notification.request().isGranted)) return;
-                                                      }
-
-                                                      uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                      reloadAll();
+                                          ...clientModeEnabledSnapshot.data != true
+                                              ? [
+                                                  SizedBox(width: spaceSM),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).push(createSettingsMainRoute()).then((_) => reloadAll());
                                                     },
                                                     style: ButtonStyle(
                                                       backgroundColor: WidgetStatePropertyAll(secondaryDark),
                                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                                                       shape: WidgetStatePropertyAll(
-                                                        RoundedRectangleBorder(
-                                                          borderRadius: orientation == Orientation.portrait
-                                                              ? BorderRadius.only(
-                                                                  topLeft: cornerRadiusSM,
-                                                                  topRight: cornerRadiusSM,
-                                                                  bottomLeft: cornerRadiusSM,
-                                                                  bottomRight: cornerRadiusMD,
-                                                                )
-                                                              : BorderRadius.only(
-                                                                  topLeft: cornerRadiusSM,
-                                                                  topRight: cornerRadiusMD,
-                                                                  bottomLeft: cornerRadiusSM,
-                                                                  bottomRight: cornerRadiusSM,
-                                                                ),
-                                                          side: BorderSide.none,
-                                                        ),
+                                                        RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                                       ),
                                                     ),
-                                                    icon: Stack(
-                                                      alignment: Alignment.center,
-                                                      children: [
-                                                        FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
-                                                        FaIcon(
-                                                          demo || snapshot.data == true
-                                                              ? FontAwesomeIcons.solidBell
-                                                              : FontAwesomeIcons.solidBellSlash,
-                                                          color: demo || snapshot.data == true ? primaryPositive : primaryLight,
-                                                          size: textLG - 2,
-                                                          semanticLabel: t.syncMessagesLabel,
-                                                        ),
-                                                      ],
+                                                    icon: FaIcon(
+                                                      FontAwesomeIcons.gear,
+                                                      color: primaryLight,
+                                                      size: textLG,
+                                                      semanticLabel: t.repositorySettingsLabel,
                                                     ),
                                                   ),
-                                                ),
-                                              ]
-                                            : [],
-                                      ],
+                                                  SizedBox(width: spaceSM),
+                                                  FutureBuilder(
+                                                    future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
+                                                    builder: (context, snapshot) => IconButton(
+                                                      onPressed: () async {
+                                                        if (!(snapshot.data ?? false)) {
+                                                          if (!(await Permission.notification.request().isGranted)) return;
+                                                        }
+
+                                                        uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
+                                                        await reloadAll();
+                                                      },
+                                                      style: ButtonStyle(
+                                                        backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                        shape: WidgetStatePropertyAll(
+                                                          RoundedRectangleBorder(
+                                                            borderRadius: orientation == Orientation.portrait
+                                                                ? BorderRadius.only(
+                                                                    topLeft: cornerRadiusSM,
+                                                                    topRight: cornerRadiusSM,
+                                                                    bottomLeft: cornerRadiusSM,
+                                                                    bottomRight: cornerRadiusMD,
+                                                                  )
+                                                                : BorderRadius.only(
+                                                                    topLeft: cornerRadiusSM,
+                                                                    topRight: cornerRadiusMD,
+                                                                    bottomLeft: cornerRadiusSM,
+                                                                    bottomRight: cornerRadiusSM,
+                                                                  ),
+                                                            side: BorderSide.none,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      icon: Stack(
+                                                        alignment: Alignment.center,
+                                                        children: [
+                                                          FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
+                                                          FaIcon(
+                                                            demo || snapshot.data == true
+                                                                ? FontAwesomeIcons.solidBell
+                                                                : FontAwesomeIcons.solidBellSlash,
+                                                            color: demo || snapshot.data == true ? primaryPositive : primaryLight,
+                                                            size: textLG - 2,
+                                                            semanticLabel: t.syncMessagesLabel,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ]
+                                              : [],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -1826,9 +1856,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: [
-                                        FutureBuilder(
-                                          future: remoteUrlLink,
-                                          builder: (context, snapshot) => Expanded(
+                                        ValueListenableBuilder(
+                                          valueListenable: remoteUrlLink,
+                                          builder: (context, snapshot, child) => Expanded(
                                             child: Stack(
                                               children: [
                                                 Container(
@@ -1854,8 +1884,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                     icon: Padding(
                                                       padding: EdgeInsets.symmetric(horizontal: spaceSM),
                                                       child: FaIcon(
-                                                        snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
-                                                        color: snapshot.data != null ? secondaryLight : primaryNegative,
+                                                        snapshot != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
+                                                        color: snapshot != null ? secondaryLight : primaryNegative,
                                                         size: textLG,
                                                       ),
                                                     ),
@@ -1879,7 +1909,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                             child: ExtendedText(
                                                               demo
                                                                   ? "https://github.com/ViscousTests/TestObsidianVault.git"
-                                                                  : (snapshot.data == null ? t.repoNotFound : snapshot.data!.$1),
+                                                                  : (snapshot == null ? t.repoNotFound : snapshot.$1),
                                                               maxLines: 1,
                                                               textAlign: TextAlign.left,
                                                               softWrap: false,
@@ -1895,7 +1925,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                 ),
                                                               ),
                                                               style: TextStyle(
-                                                                color: snapshot.data != null ? primaryLight : secondaryLight,
+                                                                color: snapshot != null ? primaryLight : secondaryLight,
                                                                 fontSize: textMD,
                                                                 fontWeight: FontWeight.w400,
                                                               ),
@@ -1913,8 +1943,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         //   reloadAll();
                                                         // }),
                                                         onTap: () async {
-                                                          await remoteActions[index].$2(context, snapshot.data);
-                                                          reloadAll();
+                                                          await remoteActions[index].$2(context, snapshot);
+                                                          await reloadAll();
                                                         },
                                                         child: Row(
                                                           children: [
@@ -2093,7 +2123,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                               : (uiSettingsManager.gitDirPath?.$2 == null
                                                                     ? t.repoNotFound
                                                                     : (Platform.isIOS
-                                                                              ? uiSettingsManager.gitDirPath?.$2?.split("/").last
+                                                                              ? uiSettingsManager.gitDirPath?.$2.split("/").last
                                                                               : uiSettingsManager.gitDirPath?.$2) ??
                                                                           ""),
                                                           maxLines: 1,
@@ -2121,7 +2151,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                         : IconButton(
                                                             onPressed: () async {
                                                               await uiSettingsManager.setGitDirPath("");
-                                                              reloadAll();
+                                                              branchName.value = null;
+                                                              remoteUrlLink.value = null;
+                                                              branchNames.value = [];
+                                                              recentCommits.value = [];
+                                                              conflicting.value = [];
+                                                              await updateSyncOptions();
+                                                              setState(() {});
                                                             },
                                                             constraints: BoxConstraints(),
                                                             style: ButtonStyle(
@@ -2173,7 +2209,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                                                   await onboardingController?.show();
 
-                                                  reloadAll();
+                                                  await reloadAll();
                                                 }
                                               : null,
                                           style: ButtonStyle(
@@ -2259,9 +2295,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       child: TextButton.icon(
                                                         onPressed: () async {
                                                           gitLfsExpanded = !gitLfsExpanded;
-                                                          reloadAll();
+                                                          setState(() {});
                                                           await GitManager.getAndExcludeLfsFilePaths();
-                                                          reloadAll();
+                                                          setState(() {});
                                                         },
                                                         iconAlignment: IconAlignment.end,
                                                         style: ButtonStyle(
@@ -2499,7 +2535,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                 }
 
                                                 uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                reloadAll();
+                                                await reloadAll();
                                               },
                                               style: ButtonStyle(
                                                 backgroundColor: WidgetStatePropertyAll(secondaryDark),
