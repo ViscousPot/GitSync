@@ -355,8 +355,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Future<void> reloadAll() async {
     if (mounted) setState(() {});
-    var stack = StackTrace.current;
-    print("///////////// badddddddd $stack");
     await updateSyncOptions();
     branchName.value = await GitManager.getBranchName();
     remoteUrlLink.value = await GitManager.getRemoteUrlLink();
