@@ -8,11 +8,16 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.11.1"
-git2 = { version = "0.20.2", features = ["vendored-libgit2"] }
-openssl = { version = "0.10.35", features = ["vendored"] }
+git2 = { version = "0.20.2" }
 ssh-key = { version = "0.6.7", features = ["crypto", "encryption"] }
 osshkeys = "0.7.0"
 regex = "1.10.2"
+libssh2-sys = { version = "0.3.1" }
+
+[features]
+default = ["vendored"]
+vendored = ["git2/vendored-libgit2", "git2/vendored-openssl"]
+zlib-ng-compat = ["libssh2-sys/zlib-ng-compat"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
