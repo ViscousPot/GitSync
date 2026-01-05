@@ -90,6 +90,7 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       await RustLib.init();
       initAsync(() async {
+        await repoManager.setStringList(StorageKey.repoman_locks, []);
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
         await Logger.init();
         await requestStoragePerm(false);
