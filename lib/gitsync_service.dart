@@ -110,15 +110,6 @@ class GitsyncService {
   }
 
   Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false]) async {
-    if (!await hasNetworkConnection()) {
-      Workmanager().registerOneOffTask(
-        "$networkScheduledSyncKey$repomanRepoindex",
-        networkScheduledSyncKey,
-        inputData: {repoIndex: repomanRepoindex},
-        constraints: Constraints(networkType: NetworkType.connected),
-      );
-      return;
-    }
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
@@ -191,15 +182,6 @@ class GitsyncService {
         bool? pullResult = null;
         bool? pushResult = null;
 
-        if (!await hasNetworkConnection()) {
-          Workmanager().registerOneOffTask(
-            "$networkScheduledSyncKey$repomanRepoindex",
-            networkScheduledSyncKey,
-            inputData: {repoIndex: repomanRepoindex},
-            constraints: Constraints(networkType: NetworkType.connected),
-          );
-          return;
-        }
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
         final recommendedAction = await GitManager.getRecommendedAction();
@@ -217,15 +199,6 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Pull Repo Failed");
-                if (!await hasNetworkConnection()) {
-                  Workmanager().registerOneOffTask(
-                    "$networkScheduledSyncKey$repomanRepoindex",
-                    networkScheduledSyncKey,
-                    inputData: {repoIndex: repomanRepoindex},
-                    constraints: Constraints(networkType: NetworkType.connected),
-                  );
-                  return;
-                }
                 return;
               }
             case true:
@@ -236,16 +209,6 @@ class GitsyncService {
               {
                 Logger.gmLog(type: LogType.Sync, "Pull Not Required");
               }
-          }
-
-          if (!await hasNetworkConnection()) {
-            Workmanager().registerOneOffTask(
-              "$networkScheduledSyncKey$repomanRepoindex",
-              networkScheduledSyncKey,
-              inputData: {repoIndex: repomanRepoindex},
-              constraints: Constraints(networkType: NetworkType.connected),
-            );
-            return;
           }
         }
 
@@ -261,15 +224,6 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Push Repo Failed");
-                if (!await hasNetworkConnection()) {
-                  Workmanager().registerOneOffTask(
-                    "$networkScheduledSyncKey$repomanRepoindex",
-                    networkScheduledSyncKey,
-                    inputData: {repoIndex: repomanRepoindex},
-                    constraints: Constraints(networkType: NetworkType.connected),
-                  );
-                  return;
-                }
                 return;
               }
             case true:
