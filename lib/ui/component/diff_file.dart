@@ -375,7 +375,7 @@ class _DiffFileState extends State<DiffFile> {
             ),
             SizedBox(height: spaceXS),
           ],
-          expanded
+          expanded && widget.entry.value.isNotEmpty
               ? AnimatedSize(
                   duration: Duration(milliseconds: 200),
                   child: SizedBox(
