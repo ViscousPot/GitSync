@@ -169,6 +169,9 @@ class GitsyncService {
       }
       Logger.gmLog(type: LogType.Sync, "Start Sync");
 
+      bool? pullResult = null;
+      bool? pushResult = null;
+
       await () async {
         final gitDirPath = settingsManager.gitDirPath?.$1;
 
@@ -179,9 +182,6 @@ class GitsyncService {
         }
 
         bool synced = false;
-        bool? pullResult = null;
-        bool? pushResult = null;
-
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
         final recommendedAction = await GitManager.getRecommendedAction();
@@ -236,19 +236,17 @@ class GitsyncService {
               }
           }
         }
-
-        if (!(pushResult == true || pullResult == true)) {
-          if (forced) {
-            _displaySyncMessage(settingsManager, s.syncNotRequired);
-          }
-          return;
-        } else {
-          _displaySyncMessage(settingsManager, s.syncComplete);
-        }
-
-        Logger.dismissError(null);
       }();
 
+      if (!(pushResult == true || pullResult == true)) {
+        if (forced) {
+          _displaySyncMessage(settingsManager, s.syncNotRequired);
+        }
+      } else {
+        _displaySyncMessage(settingsManager, s.syncComplete);
+      }
+
+      Logger.dismissError(null);
       Logger.gmLog(type: LogType.Sync, "Sync Complete!");
       isSyncing = false;
 
