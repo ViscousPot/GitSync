@@ -2162,6 +2162,12 @@ abstract class AppLocalizations {
   /// **'file(s) changed'**
   String get filesChanged;
 
+  /// No description provided for @commits.
+  ///
+  /// In en, this message translates to:
+  /// **'commits'**
+  String get commits;
+
   /// No description provided for @defaultContainerName.
   ///
   /// In en, this message translates to:

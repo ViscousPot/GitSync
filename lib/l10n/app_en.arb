@@ -386,6 +386,7 @@
     "fileDiff": "File Diff",
     "openEditFile": "Open/Edit File",
     "filesChanged": "file(s) changed",
+    "commits": "commits",
 
 
     "@@x-REPO_MANAGEMENT": "",

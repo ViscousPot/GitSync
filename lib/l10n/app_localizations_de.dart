@@ -1061,6 +1061,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get filesChanged => 'file(s) changed';
 
   @override
+  String get commits => 'commits';
+
+  @override
   String get defaultContainerName => 'Alias';
 
   @override

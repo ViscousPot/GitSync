@@ -327,7 +327,7 @@ Future<void> showDialog(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${diffSnapshot.data?.diffParts.keys.length ?? 0} ${t.filesChanged}",
+                                "${diffSnapshot?.diffParts.keys.length ?? 0} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                               ),
