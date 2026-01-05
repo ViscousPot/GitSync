@@ -193,6 +193,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                       children: [
                                         Container(
                                           child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               TextButton.icon(
                                                 onPressed: () {
@@ -228,6 +229,16 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                   style: TextStyle(fontWeight: FontWeight.bold, color: primaryLight),
                                                 ),
                                               ),
+                                              uncommittedFilePathsSnapshot.connectionState == ConnectionState.waiting ||
+                                                      stagedFilePathsSnapshot.connectionState == ConnectionState.waiting
+                                                  ? Padding(
+                                                      padding: EdgeInsetsGeometry.only(right: spaceSM),
+                                                      child: SizedBox.square(
+                                                        dimension: spaceMD,
+                                                        child: CircularProgressIndicator(color: primaryLight),
+                                                      ),
+                                                    )
+                                                  : SizedBox.shrink(),
                                             ],
                                           ),
                                         ),
