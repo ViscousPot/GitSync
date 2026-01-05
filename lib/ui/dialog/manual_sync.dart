@@ -1,4 +1,5 @@
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
@@ -28,6 +29,16 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
   bool staging = false;
   bool unstaging = false;
 
+  await GitManager.clearQueue();
+  Future<List<(String, int)>> uncommitedFilePaths = GitManager.getUncommittedFilePaths();
+  Future<List<(String, int)>> stagedFilePaths = GitManager.getStagedFilePaths();
+
+  Future<void> reload() async {
+    await GitManager.clearQueue();
+    uncommitedFilePaths = GitManager.getUncommittedFilePaths();
+    stagedFilePaths = GitManager.getStagedFilePaths();
+  }
+
   return mat.showDialog(
     context: context,
     barrierColor: Colors.transparent,
@@ -48,9 +59,9 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
             return msg;
           });
           return FutureBuilder(
-            future: GitManager.getUncommittedFilePaths(),
+            future: uncommitedFilePaths,
             builder: (context, uncommittedFilePathsSnapshot) => FutureBuilder(
-              future: GitManager.getStagedFilePaths(),
+              future: stagedFilePaths,
               builder: (context, stagedFilePathsSnapshot) {
                 final List<(String, int)> filePaths = clientModeEnabled
                     ? [
@@ -123,6 +134,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                           await GitManager.commitChanges(syncMessageController.text.isEmpty ? null : syncMessageController.text);
                                           await updateRecommendedActionCallback();
                                           uploading = false;
+                                          await reload();
                                           setState(() {});
                                         }
                                       : null,
@@ -367,6 +379,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                           );
                                           await GitManager.discardChanges(selectedFiles);
                                           selectedFiles.clear();
+                                          await reload();
                                           setState(() {});
                                         });
                                       }
@@ -407,6 +420,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                               (file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file),
                                             );
                                             unstaging = false;
+                                            await reload();
                                             setState(() {});
                                           }
                                         : null,
@@ -464,6 +478,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                               (file) => !(stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file),
                                             );
                                             staging = false;
+                                            await reload();
                                             setState(() {});
                                           }
                                         : null,
@@ -521,6 +536,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
 
                                         selectedFiles.clear();
                                         uploading = false;
+                                        await reload();
                                         setState(() {});
                                       }
                                     : null,
