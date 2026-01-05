@@ -312,17 +312,19 @@ class _DiffFileState extends State<DiffFile> {
                           print(recentCommits);
                           print(commitIndex);
 
-                          final diff = await GitManager.getCommitDiff(commit.reference, prevCommit?.reference);
-
-                          await DiffViewDialog.showDialog(context, diff, commit.reference.substring(0, 7), (commit, prevCommit), widget.filePath);
+                          await DiffViewDialog.showDialog(
+                            context,
+                            (commit.reference, prevCommit?.reference),
+                            commit.reference.substring(0, 7),
+                            (commit, prevCommit),
+                            widget.filePath,
+                          );
                         }
                       } else {
                         if (widget.openedFromFile != null && widget.entry.key == widget.openedFromFile) {
                           await Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         } else {
-                          final diff = await GitManager.getFileDiff(widget.entry.key);
-                          if (diff == null) return;
-                          await DiffViewDialog.showDialog(context, diff, widget.entry.key, null, widget.filePath);
+                          await DiffViewDialog.showDialog(context, (null, widget.entry.key), widget.entry.key, null, widget.filePath);
                         }
                       }
                     },

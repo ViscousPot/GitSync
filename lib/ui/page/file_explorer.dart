@@ -56,12 +56,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
       (t.viewGitLog, t.viewGitLogDescription),
       (List<String> selectedPaths) async {
         final path = selectedPathsNotifier.value[0];
-        final diff = await GitManager.getFileDiff(path.replaceAll("${widget.path}/", ""));
-        if (diff == null) return;
-        await DiffViewDialog.showDialog(context, diff, path.replaceAll("${widget.path}/", ""), null);
-
-        print(diff.deletions);
-        print(diff.insertions);
+        await DiffViewDialog.showDialog(context, (null, path.replaceAll("${widget.path}/", "")), path.replaceAll("${widget.path}/", ""), null);
       },
     ),
   ];

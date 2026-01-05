@@ -99,9 +99,12 @@ class _ItemCommit extends State<ItemCommit> {
             print(widget.commit.reference);
             print(widget.prevCommit?.reference);
 
-            final diff = await GitManager.getCommitDiff(widget.commit.reference, widget.prevCommit?.reference);
-
-            DiffViewDialog.showDialog(context, diff, widget.commit.reference.substring(0, 7), (widget.commit, widget.prevCommit));
+            DiffViewDialog.showDialog(
+              context,
+              (widget.commit.reference, widget.prevCommit?.reference),
+              widget.commit.reference.substring(0, 7),
+              (widget.commit, widget.prevCommit),
+            );
           },
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(
