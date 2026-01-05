@@ -1,7 +1,9 @@
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/diff_file.dart';
+import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart' as mat;
@@ -9,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import 'package:sprintf/sprintf.dart';
 import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
@@ -31,10 +32,38 @@ Future<void> showDialog(
 
   final dirPath = await uiSettingsManager.gitDirPath?.$2;
 
+  Future<List<MapEntry<String, String>>> getDiffParts(GitManagerRs.Diff? diffSnapshotData) async {
+    final diffFiles =
+        diffSnapshotData?.diffParts.map(
+          (key, value) => MapEntry(
+            key,
+            value.entries
+                .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
+                .map((entry) => "${entry.key}${entry.value}")
+                .join("\n"),
+          ),
+        ) ??
+        {};
+    List<MapEntry<String, String>> diffs = diffFiles.entries.sortedBy(
+      (entry) => entry.key.contains(conflictSeparator) ? entry.key.split(conflictSeparator).first : entry.key,
+    );
+
+    if (diffFiles.entries.isEmpty) return [];
+
+    if (diffFiles.keys.first.contains(conflictSeparator)) diffs = diffs.reversed.toList();
+
+    return diffs;
+  }
+
   await GitManager.clearQueue();
-  final diffFuture = diffReferences.$1 == null
-      ? GitManager.getFileDiff(diffReferences.$2!)
-      : GitManager.getCommitDiff(diffReferences.$1!, diffReferences.$2);
+  ValueNotifier<GitManagerRs.Diff?> diffNotifier = ValueNotifier(null);
+  ValueNotifier<List<MapEntry<String, String>>> diffPartsNotifier = ValueNotifier([]);
+  initAsync(() async {
+    diffNotifier.value = await (diffReferences.$1 == null
+        ? GitManager.getFileDiff(diffReferences.$2!)
+        : GitManager.getCommitDiff(diffReferences.$1!, diffReferences.$2));
+    diffPartsNotifier.value = await getDiffParts(diffNotifier.value);
+  });
 
   return await mat.showDialog(
     context: parentContext,
@@ -66,9 +95,9 @@ Future<void> showDialog(
         }
 
         return OrientationBuilder(
-          builder: (context, orientation) => FutureBuilder(
-            future: diffFuture,
-            builder: (context, diffSnapshot) => BaseAlertDialog(
+          builder: (context, orientation) => ValueListenableBuilder(
+            valueListenable: diffNotifier,
+            builder: (context, diffSnapshot, child) => BaseAlertDialog(
               expandable: true,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -283,7 +312,7 @@ Future<void> showDialog(
                     ),
                   ],
                   SizedBox(height: spaceXS),
-                  diffSnapshot.data == null
+                  diffSnapshot == null
                       ? Center(
                           child: LinearProgressIndicator(
                             value: null,
@@ -305,13 +334,13 @@ Future<void> showDialog(
                               Row(
                                 children: [
                                   Text(
-                                    sprintf(t.additions, [diffSnapshot.data?.insertions ?? 0]),
+                                    sprintf(t.additions, [diffSnapshot?.insertions ?? 0]),
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(color: tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: spaceMD),
                                   Text(
-                                    sprintf(t.deletions, [diffSnapshot.data?.deletions ?? 0]),
+                                    sprintf(t.deletions, [diffSnapshot?.deletions ?? 0]),
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(color: tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
@@ -323,43 +352,33 @@ Future<void> showDialog(
                 ],
               ),
               contentPadding: EdgeInsets.only(top: spaceXS),
-              contentBuilder: (expanded) {
-                if (diffSnapshot.data == null)
-                  return Center(
-                    child: SizedBox.square(
-                      dimension: spaceXL,
-                      child: CircularProgressIndicator(color: primaryLight),
-                    ),
-                  );
-                final diffFiles =
-                    diffSnapshot.data?.diffParts.map(
-                      (key, value) => MapEntry(
-                        key,
-                        value.entries
-                            .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
-                            .map((entry) => "${entry.key}${entry.value}")
-                            .join("\n"),
+              content: ValueListenableBuilder(
+                valueListenable: diffPartsNotifier,
+                builder: (context, diffPartsSnapshot, child) => diffSnapshot == null
+                    ? Center(
+                        child: SizedBox.square(
+                          dimension: spaceXL,
+                          child: CircularProgressIndicator(color: primaryLight),
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.maxFinite,
+                        child: AnimatedListView(
+                          items: diffPartsSnapshot,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          isSameItem: (a, b) => a == b,
+                          itemBuilder: (context, index) => DiffFile(
+                            key: Key(diffPartsSnapshot[index].key),
+                            orientation: orientation,
+                            openedFromFile: openedFromFile,
+                            diffPartsSnapshot[index],
+                            titleText,
+                            index == 0,
+                          ),
+                        ),
                       ),
-                    ) ??
-                    {};
-                List<Widget> children = diffFiles.entries
-                    .sortedBy((entry) => entry.key.contains(conflictSeparator) ? entry.key.split(conflictSeparator).first : entry.key)
-                    .indexed
-                    .map(
-                      (indexedEntry) => DiffFile(
-                        key: Key(indexedEntry.$2.key),
-                        orientation: orientation,
-                        openedFromFile: openedFromFile,
-                        indexedEntry.$2,
-                        titleText,
-                        diffFiles.keys.first.contains(conflictSeparator) ? indexedEntry.$1 == diffFiles.entries.length - 1 : indexedEntry.$1 == 0,
-                      ),
-                    )
-                    .toList();
-
-                if (diffFiles.keys.first.contains(conflictSeparator)) children = children.reversed.toList();
-                return SingleChildScrollView(child: ListBody(children: children));
-              },
+              ),
               actionsAlignment: MainAxisAlignment.center,
               actions: <Widget>[],
             ),
