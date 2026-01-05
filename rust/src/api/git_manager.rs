@@ -6,7 +6,12 @@ use git2::{
 };
 use osshkeys::{KeyPair, KeyType};
 use ssh_key::{HashAlg, LineEnding, PrivateKey};
-use std::{collections::HashMap, env, fs, path::Path, path::PathBuf, sync::Arc};
+use std::{
+    collections::HashMap,
+    env, fs,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 
 pub struct Commit {
     pub timestamp: i64,
@@ -692,10 +697,38 @@ pub async fn get_commit_diff(
         "Getting diff hunks".to_string(),
     );
 
-    let mut diff_parts: HashMap<String, HashMap<String, String>> = HashMap::new();
-
+    let diff_parts: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
     swl!(diff.foreach(
-        &mut |_: git2::DiffDelta, _: f32| -> bool { true },
+        &mut |delta: git2::DiffDelta, _: f32| -> bool {
+            let old_path = delta
+                .old_file()
+                .path()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|| "Unknown".to_string());
+            let new_path = delta
+                .new_file()
+                .path()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|| "Unknown".to_string());
+
+            let file_key = if old_path == new_path {
+                new_path
+            } else {
+                format!("{}=>{}", old_path, new_path)
+            };
+
+            use git2::Delta;
+            match delta.status() {
+                Delta::Added | Delta::Copied | Delta::Renamed => {
+                    let mut parts = diff_parts.lock().unwrap();
+                    parts.entry(file_key).or_default();
+                }
+                _ => {}
+            }
+
+            true
+        },
         None,
         Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
         Some(&mut |delta: git2::DiffDelta,
@@ -729,9 +762,10 @@ pub async fn get_commit_diff(
 
             let line_text = String::from_utf8_lossy(line.content()).to_string();
 
+            let mut parts = diff_parts.lock().unwrap();
             match line.origin() {
                 '+' => {
-                    diff_parts
+                    parts
                         .entry(file_path_key.clone())
                         .or_default()
                         .entry(hunk_header.clone())
@@ -747,7 +781,7 @@ pub async fn get_commit_diff(
                         });
                 }
                 '-' => {
-                    diff_parts
+                    parts
                         .entry(file_path_key.clone())
                         .or_default()
                         .entry(hunk_header.clone())
@@ -769,7 +803,7 @@ pub async fn get_commit_diff(
                 'H' => {}
                 'B' => {}
                 ' ' => {
-                    diff_parts
+                    parts
                         .entry(file_path_key.clone())
                         .or_default()
                         .entry(hunk_header.clone())
@@ -794,6 +828,8 @@ pub async fn get_commit_diff(
             true
         })
     ))?;
+
+    let diff_parts = diff_parts.lock().unwrap().clone();
 
     Ok(Diff {
         insertions: diff_stats.insertions() as i32,
