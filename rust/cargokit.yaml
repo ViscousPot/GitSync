@@ -1,0 +1,5 @@
+cargo:
+  debug: # Configuration of cargo execution during debug builds
+    extra_flags: ["--features", "vendored"]
+  release: # Configuration of cargo execution for release builds
+    extra_flags: ["--features", "vendored"]
