@@ -166,10 +166,16 @@ class GitManager {
     bool result = await isLocked(waitForUnlock: false);
     print(result);
     while (result) {
-      final locks = await repoManager.getStringList(StorageKey.repoman_locks);
       final index = await _repoIndex;
-      await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
-      await runningFuture?.cancel();
+
+      final uiLocks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+      if (uiLocks.contains(index.toString())) {
+        await isLocked(waitForUnlock: true);
+      } else {
+        final locks = await repoManager.getStringList(StorageKey.repoman_locks);
+        await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+        await runningFuture?.cancel();
+      }
       result = await isLocked(waitForUnlock: false);
       print(result);
     }
