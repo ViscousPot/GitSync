@@ -248,6 +248,9 @@ class GitsyncService {
 
       Logger.dismissError(null);
       Logger.gmLog(type: LogType.Sync, "Sync Complete!");
+
+      await GitManager.getRecentCommits();
+
       isSyncing = false;
 
       if (isScheduled) {
