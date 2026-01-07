@@ -243,13 +243,12 @@ class GitsyncService {
           await _displaySyncMessage(settingsManager, s.syncNotRequired);
         }
       } else {
+        await GitManager.getRecentCommits();
         await _displaySyncMessage(settingsManager, s.syncComplete);
       }
 
       Logger.dismissError(null);
       Logger.gmLog(type: LogType.Sync, "Sync Complete!");
-
-      await GitManager.getRecentCommits();
 
       isSyncing = false;
 
