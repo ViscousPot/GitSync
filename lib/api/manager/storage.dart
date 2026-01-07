@@ -113,14 +113,14 @@ class Storage<T extends StorageKey> {
 
     if (N == getType<String?>() || N == getType<String>()) {
       if (null is N) {
-        return (value == "null" ? null : value) as N;
+        return (value == "null" || value == null ? null : value) as N;
       }
 
       return (value ?? defaultValue) as N;
     }
 
     if (N == getType<int?>() || N == getType<int>()) {
-      final finalValue = (value == null ? null : int.tryParse(value));
+      final finalValue = (value == "null" || value == null ? null : int.tryParse(value));
 
       if (null is N) {
         return finalValue as N;
@@ -130,7 +130,7 @@ class Storage<T extends StorageKey> {
     }
 
     if (N == getType<bool?>() || N == getType<bool>()) {
-      final finalValue = (value == null ? null : value == "true");
+      final finalValue = (value == "null" || value == null ? null : value == "true");
 
       if (null is N) {
         return finalValue as N;
@@ -140,7 +140,7 @@ class Storage<T extends StorageKey> {
     }
 
     if (N == getType<List<String>?>() || N == getType<List<String>>()) {
-      final finalValue = (value?.isEmpty == true ? null : value)?.split(",");
+      final finalValue = (value == "null" || value == null || value.isEmpty == true ? null : value)?.split(",");
 
       if (null is N) {
         return finalValue as N;
