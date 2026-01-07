@@ -114,13 +114,13 @@ class GitsyncService {
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
     if (isScheduled) {
-      _displaySyncMessage(settingsManager, s.syncInProgress);
+      await _displaySyncMessage(settingsManager, s.syncInProgress);
       return;
     } else {
       if (isSyncing) {
         isScheduled = true;
         Logger.gmLog(type: LogType.Sync, "Sync Scheduled");
-        _displaySyncMessage(settingsManager, s.syncScheduled);
+        await _displaySyncMessage(settingsManager, s.syncScheduled);
         return;
       } else {
         if (immediate) {
@@ -132,9 +132,9 @@ class GitsyncService {
     }
   }
 
-  void _displaySyncMessage(SettingsManager settingsManager, String message) async {
+  Future<void> _displaySyncMessage(SettingsManager settingsManager, String message) async {
     if (await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-      Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
+      await Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
     }
   }
 
@@ -165,7 +165,7 @@ class GitsyncService {
       }
 
       if (forced) {
-        _displaySyncMessage(settingsManager, s.detectingChanges);
+        await _displaySyncMessage(settingsManager, s.detectingChanges);
       }
       Logger.gmLog(type: LogType.Sync, "Start Sync");
 
@@ -190,9 +190,9 @@ class GitsyncService {
 
         if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
-          pullResult = await GitManager.downloadChanges(repomanRepoindex, settingsManager, () {
+          pullResult = await GitManager.downloadChanges(repomanRepoindex, settingsManager, () async {
             synced = true;
-            _displaySyncMessage(settingsManager, s.syncStartPull);
+            await _displaySyncMessage(settingsManager, s.syncStartPull);
           });
 
           switch (pullResult) {
@@ -214,9 +214,9 @@ class GitsyncService {
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
-          pushResult = await GitManager.uploadChanges(repomanRepoindex, settingsManager, () {
+          pushResult = await GitManager.uploadChanges(repomanRepoindex, settingsManager, () async {
             if (!synced) {
-              _displaySyncMessage(settingsManager, s.syncStartPush);
+              await _displaySyncMessage(settingsManager, s.syncStartPush);
             }
           });
 
@@ -240,10 +240,10 @@ class GitsyncService {
 
       if (!(pushResult == true || pullResult == true)) {
         if (forced) {
-          _displaySyncMessage(settingsManager, s.syncNotRequired);
+          await _displaySyncMessage(settingsManager, s.syncNotRequired);
         }
       } else {
-        _displaySyncMessage(settingsManager, s.syncComplete);
+        await _displaySyncMessage(settingsManager, s.syncComplete);
       }
 
       Logger.dismissError(null);
