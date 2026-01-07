@@ -242,6 +242,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     HomeWidget.setAppGroupId('group.ForceSyncWidget');
     HomeWidget.registerInteractivityCallback(backgroundCallback);
+    initAsync(() async {
+      colours.reloadTheme(context);
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -360,6 +364,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   ValueNotifier<bool> fsLoader = ValueNotifier(false);
 
   Future<void> reloadAll() async {
+    await colours.reloadTheme(context);
     if (mounted) setState(() {});
     await updateSyncOptions();
     branchName.value = await GitManager.getBranchName();

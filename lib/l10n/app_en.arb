@@ -306,6 +306,9 @@
 
     "@@x-GLOBAL_SETTINGS_PAGE": "",
     "globalSettings": "Global Settings",
+    "darkMode": "Dark\nMode",
+    "lightMode": "Light\nMode",
+    "system": "System",
     "language": "Language",
     "browseEditDir": "Browse & Edit Directory",
     "enableLineWrap": "Enable Line Wrap in Editors",

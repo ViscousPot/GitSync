@@ -825,6 +825,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get globalSettings => '全局设置';
 
   @override
+  String get darkMode => 'Dark\nMode';
+
+  @override
+  String get lightMode => 'Light\nMode';
+
+  @override
+  String get system => 'System';
+
+  @override
   String get language => '语言';
 
   @override
