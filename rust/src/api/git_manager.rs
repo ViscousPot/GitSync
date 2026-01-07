@@ -913,10 +913,14 @@ pub async fn get_recent_commits(
             ))?,
         };
 
+        // START OF SLOWER SECTION
+
         let (additions, deletions) = match diff.stats() {
             Ok(s) => (s.insertions() as i32, s.deletions() as i32),
             Err(_) => (0, 0),
         };
+
+        // -----
 
         let (ahead_local, _) = if let Some(local_oid) = local_oid {
             swl!(repo.graph_ahead_behind(oid, local_oid))?
@@ -930,6 +934,8 @@ pub async fn get_recent_commits(
         };
         let unpulled = ahead_local > 0;
         let unpushed = ahead_remote > 0;
+
+        // END OF SLOWER SECTION
 
         commits.push(Commit {
             timestamp: time,
