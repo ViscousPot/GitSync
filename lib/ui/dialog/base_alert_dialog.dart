@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
@@ -146,8 +145,8 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                             ),
-                            color: primaryLight,
-                            disabledColor: tertiaryLight,
+                            color: colours.primaryLight,
+                            disabledColor: colours.tertiaryLight,
                             iconSize: textMD,
                           ),
                           expanded
@@ -162,8 +161,8 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     visualDensity: VisualDensity.compact,
                                   ),
-                                  color: primaryLight,
-                                  disabledColor: tertiaryLight,
+                                  color: colours.primaryLight,
+                                  disabledColor: colours.tertiaryLight,
                                   iconSize: textLG,
                                 )
                               : SizedBox.shrink(),
@@ -181,7 +180,7 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
           actionsAlignment: widget.actionsAlignment,
           actionsPadding: widget.contentPadding ?? EdgeInsets.only(right: spaceSM * 2, left: spaceSM * 2, bottom: spaceSM, top: spaceSM),
           insetPadding: widget.insetPadding ?? EdgeInsets.all(expanded ? 0 : spaceLG),
-          backgroundColor: widget.backgroundColor ?? primaryDark,
+          backgroundColor: widget.backgroundColor ?? colours.primaryDark,
           shape: widget.shape ?? RoundedRectangleBorder(borderRadius: expanded ? BorderRadius.zero : BorderRadius.all(cornerRadiusMD)),
           scrollable: widget.scrollable,
         ),

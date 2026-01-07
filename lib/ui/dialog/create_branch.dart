@@ -2,7 +2,6 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -19,7 +18,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.createBranch,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -31,20 +30,20 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
                 controller: textController,
                 maxLines: 1,
                 style: TextStyle(
-                  color: primaryLight,
+                  color: colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: secondaryDark,
+                  fillColor: colours.secondaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
                     t.createBranchName.toUpperCase(),
-                    style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -62,18 +61,18 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
                       future: GitManager.getBranchNames(),
                       builder: (context, branchNamesSnapshot) => Container(
                         width: double.infinity,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: secondaryDark),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
                         child: DropdownButton(
                           isDense: true,
                           isExpanded: true,
                           hint: Text(
                             t.detachedHead.toUpperCase(),
-                            style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: secondaryLight),
+                            style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.secondaryLight),
                           ),
                           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                           value: branchNamesSnapshot.data?.contains(branchNameSnapshot.data) == true ? branchNameSnapshot.data : null,
                           menuMaxHeight: 250,
-                          dropdownColor: secondaryDark,
+                          dropdownColor: colours.secondaryDark,
                           borderRadius: BorderRadius.all(cornerRadiusSM),
                           selectedItemBuilder: (context) => List.generate(
                             (branchNamesSnapshot.data ?? []).length,
@@ -82,7 +81,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
                               children: [
                                 Text(
                                   (branchNamesSnapshot.data ?? [])[index].toUpperCase(),
-                                  style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: primaryLight),
+                                  style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.primaryLight),
                                 ),
                               ],
                             ),
@@ -100,7 +99,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
                                     item.toUpperCase(),
                                     style: TextStyle(
                                       fontSize: textSM,
-                                      color: primaryLight,
+                                      color: colours.primaryLight,
                                       fontWeight: FontWeight.bold,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -117,7 +116,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
                     left: spaceMD,
                     child: Text(
                       t.createBranchBasedOn.toUpperCase(),
-                      style: TextStyle(color: secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -129,7 +128,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: primaryLight, fontSize: textMD),
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -145,7 +144,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
             child: Text(
               t.add.toUpperCase(),
               style: TextStyle(
-                color: (textController.text.isNotEmpty && basedOnBranchName != null) ? primaryPositive : secondaryPositive,
+                color: (textController.text.isNotEmpty && basedOnBranchName != null) ? colours.primaryPositive : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

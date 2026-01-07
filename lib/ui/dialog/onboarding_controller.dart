@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
@@ -65,7 +64,7 @@ class OnboardingController {
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.authDialogTitle,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -73,7 +72,7 @@ class OnboardingController {
             children: [
               Text(
                 t.authDialogMessage,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -87,7 +86,7 @@ class OnboardingController {
             ),
             child: Text(
               t.skip.toUpperCase(),
-              style: TextStyle(color: secondaryLight, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -100,7 +99,7 @@ class OnboardingController {
             ),
             child: Text(
               t.ok.toUpperCase(),
-              style: TextStyle(color: primaryPositive, fontSize: textSM),
+              style: TextStyle(color: colours.primaryPositive, fontSize: textSM),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -121,7 +120,7 @@ class OnboardingController {
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.almostThereDialogTitle,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -129,7 +128,7 @@ class OnboardingController {
             children: [
               Text(
                 Platform.isAndroid ? t.almostThereDialogMessageAndroid : t.almostThereDialogMessageIos,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceMD),
               Row(
@@ -141,16 +140,16 @@ class OnboardingController {
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,
-                      backgroundColor: WidgetStatePropertyAll(tertiaryInfo),
+                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity: VisualDensity.compact,
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
-                    icon: FaIcon(FontAwesomeIcons.solidFileLines, color: secondaryDark, size: textSM),
+                    icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.secondaryDark, size: textSM),
                     // icon:
                     label: Text(
                       t.documentation.toUpperCase(),
-                      style: TextStyle(color: primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -167,7 +166,7 @@ class OnboardingController {
             ),
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: secondaryLight, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -180,7 +179,7 @@ class OnboardingController {
             ),
             child: Text(
               t.ok.toUpperCase(),
-              style: TextStyle(color: primaryPositive, fontSize: textSM),
+              style: TextStyle(color: colours.primaryPositive, fontSize: textSM),
             ),
             onPressed: () async {
               await repoManager.setOnboardingStep(2);
@@ -207,7 +206,7 @@ class OnboardingController {
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.allFilesAccessDialogTitle,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -215,7 +214,7 @@ class OnboardingController {
             children: [
               Text(
                 t.allFilesAccessDialogMessage,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -231,7 +230,7 @@ class OnboardingController {
               ),
               child: Text(
                 (snapshot.data == true ? t.done : t.ok).toUpperCase(),
-                style: TextStyle(color: primaryPositive, fontSize: textSM),
+                style: TextStyle(color: colours.primaryPositive, fontSize: textSM),
               ),
               onPressed: () async {
                 if (await requestStoragePerm()) {
@@ -266,7 +265,7 @@ class OnboardingController {
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.notificationDialogTitle,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -274,7 +273,7 @@ class OnboardingController {
             children: [
               Text(
                 t.notificationDialogMessage,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -288,7 +287,7 @@ class OnboardingController {
             ),
             child: Text(
               t.skip.toUpperCase(),
-              style: TextStyle(color: secondaryLight, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -304,7 +303,7 @@ class OnboardingController {
               ),
               child: Text(
                 (snapshot.data == true ? t.done : t.ok).toUpperCase(),
-                style: TextStyle(color: primaryPositive, fontSize: textSM),
+                style: TextStyle(color: colours.primaryPositive, fontSize: textSM),
               ),
               onPressed: () async {
                 if (await Permission.notification.request().isGranted) {
@@ -336,7 +335,7 @@ class OnboardingController {
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.welcome,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -344,7 +343,7 @@ class OnboardingController {
             children: [
               Text(
                 t.welcomeMessage,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -358,7 +357,7 @@ class OnboardingController {
             ),
             child: Text(
               t.welcomeNeutral.toUpperCase(),
-              style: TextStyle(color: secondaryLight, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
             ),
             onPressed: () async {
               hasSkipped = true;
@@ -373,7 +372,7 @@ class OnboardingController {
             ),
             child: Text(
               t.welcomeNegative.toUpperCase(),
-              style: TextStyle(color: secondaryLight, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
             ),
             onPressed: () async {
               hasSkipped = true;
@@ -389,7 +388,7 @@ class OnboardingController {
             ),
             child: Text(
               t.welcomePositive.toUpperCase(),
-              style: TextStyle(color: primaryPositive, fontSize: textSM),
+              style: TextStyle(color: colours.primaryPositive, fontSize: textSM),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;

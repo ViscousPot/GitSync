@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog show showDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:GitSync/ui/page/image_viewer.dart';
@@ -83,7 +84,7 @@ Future<bool> requestStoragePerm([bool request = true]) async {
 
 Widget getBackButton(BuildContext context, Function() onPressed) => IconButton(
   onPressed: onPressed,
-  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: primaryLight, size: textLG, semanticLabel: t.backLabel),
+  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
 );
 
 void debounce(String index, int milliseconds, VoidCallback callback) {
@@ -201,7 +202,7 @@ TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableText
   toolbarBuilder: (context, child) => Material(
     borderRadius: const BorderRadius.all(cornerRadiusMax),
     clipBehavior: Clip.antiAlias,
-    color: primaryDark,
+    color: colours.primaryDark,
     elevation: 1.0,
     type: MaterialType.card,
     child: child,
@@ -213,7 +214,7 @@ TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableText
       onPressed: indexedButtonItem.$2.onPressed,
       child: Text(
         AdaptiveTextSelectionToolbar.getButtonLabel(context, indexedButtonItem.$2),
-        style: TextStyle(fontSize: textMD, color: primaryLight, fontWeight: FontWeight.w500),
+        style: TextStyle(fontSize: textMD, color: colours.primaryLight, fontWeight: FontWeight.w500),
       ),
     );
   }).toList(),

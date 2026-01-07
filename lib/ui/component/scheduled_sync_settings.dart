@@ -5,7 +5,6 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
@@ -59,7 +58,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
       child: FutureBuilder(
         future: uiSettingsManager.getBool(StorageKey.setman_scheduledSyncSettingsExpanded),
         builder: (context, snapshot) => Column(
@@ -81,7 +80,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                   ),
                   icon: FaIcon(
                     (snapshot.data ?? false) ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                    color: primaryLight,
+                    color: colours.primaryLight,
                     size: textXL,
                   ),
                   label: SizedBox(
@@ -102,7 +101,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontFeatures: [FontFeature.enable('smcp')],
-                                  color: primaryLight,
+                                  color: colours.primaryLight,
                                   fontSize: textLG,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -111,7 +110,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                 SizedBox(height: spaceXXXXS),
                                 Text(
                                   t.scheduledSyncDescription,
-                                  style: TextStyle(color: secondaryLight, fontSize: textMD),
+                                  style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
                                 ),
                               ],
                             ],
@@ -141,7 +140,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                             onPressed: () async {
                               launchUrl(Uri.parse(scheduledSyncDocsLink));
                             },
-                            icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
+                            icon: FaIcon(FontAwesomeIcons.circleQuestion, color: colours.primaryLight, size: textLG),
                           ),
                         )
                       : SizedBox.shrink(),
@@ -166,7 +165,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                             children: [
                               Container(
                                 margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                 child: DropdownButton(
                                   isDense: true,
                                   padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
@@ -174,7 +173,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                   menuMaxHeight: 250,
                                   borderRadius: BorderRadius.all(cornerRadiusSM),
                                   underline: const SizedBox.shrink(),
-                                  dropdownColor: tertiaryDark,
+                                  dropdownColor: colours.tertiaryDark,
                                   onChanged: (value) {},
                                   items: [true, false].map((item) {
                                     return DropdownMenuItem(
@@ -192,7 +191,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                         children: [
                                           FaIcon(
                                             (item ? FontAwesomeIcons.arrowsRotate : FontAwesomeIcons.ban),
-                                            color: (!item ? tertiaryNegative : primaryLight),
+                                            color: (!item ? colours.tertiaryNegative : colours.primaryLight),
                                             size: textSM,
                                           ),
                                           SizedBox(width: spaceXS),
@@ -200,7 +199,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                             (item ? t.sync : t.dontSync).toUpperCase(),
                                             style: TextStyle(
                                               fontSize: textSM,
-                                              color: primaryLight,
+                                              color: colours.primaryLight,
                                               fontWeight: FontWeight.bold,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -221,7 +220,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                               t.iosDefaultSyncRate.toUpperCase(),
                                               style: TextStyle(
                                                 fontSize: textSM,
-                                                color: primaryLight,
+                                                color: colours.primaryLight,
                                                 fontWeight: FontWeight.bold,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -233,7 +232,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                               t.aboutEvery.toUpperCase(),
                                               style: TextStyle(
                                                 fontSize: textSM,
-                                                color: primaryLight,
+                                                color: colours.primaryLight,
                                                 fontWeight: FontWeight.bold,
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -242,7 +241,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                             Container(
                                               width: spaceXL,
                                               margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                              decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                               child: TextField(
                                                 contextMenuBuilder: globalContextMenuBuilder,
                                                 maxLines: 1,
@@ -263,7 +262,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                                   }),
                                                 ],
                                                 style: TextStyle(
-                                                  color: primaryLight,
+                                                  color: colours.primaryLight,
                                                   fontWeight: FontWeight.bold,
                                                   decoration: TextDecoration.none,
                                                   decorationThickness: 0,
@@ -288,7 +287,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                             SizedBox(width: spaceXS),
                                             Container(
                                               margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                              decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                               child: DropdownButton(
                                                 isDense: true,
                                                 padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
@@ -296,7 +295,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                                 menuMaxHeight: 250,
                                                 borderRadius: BorderRadius.all(cornerRadiusSM),
                                                 underline: const SizedBox.shrink(),
-                                                dropdownColor: primaryDark,
+                                                dropdownColor: colours.primaryDark,
                                                 onChanged: (value) async {
                                                   await setScheduledSync(value, (value == "min" ? 15 : 1));
                                                 },
@@ -309,7 +308,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                                                           "$item(s)".toUpperCase(),
                                                           style: TextStyle(
                                                             fontSize: textSM,
-                                                            color: primaryLight,
+                                                            color: colours.primaryLight,
                                                             fontWeight: FontWeight.bold,
                                                             overflow: TextOverflow.ellipsis,
                                                           ),

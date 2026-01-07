@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -13,7 +12,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.submodulesFoundTitle,
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -21,7 +20,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
           children: [
             Text(
               t.submodulesFoundMessage,
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -30,7 +29,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: primaryLight, fontSize: textMD),
+            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -39,7 +38,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         TextButton(
           child: Text(
             t.submodulesFoundAction.toUpperCase(),
-            style: TextStyle(color: tertiaryPositive, fontSize: textMD),
+            style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             await callback();

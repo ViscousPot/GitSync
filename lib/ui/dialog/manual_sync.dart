@@ -1,5 +1,4 @@
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/src/rust/api/git_manager.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
@@ -11,7 +10,6 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/ui/dialog/confirm_discard_changes.dart' as ConfirmDiscardChangesDialog;
@@ -76,7 +74,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                     child: Text(
                       (clientModeEnabled ? t.stageAndCommit : t.manualSync).toUpperCase(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                     ),
                   ),
                   contentBuilder: (expanded) =>
@@ -86,7 +84,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                         Text(
                           t.manualSyncMsg,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                         ),
                         SizedBox(height: spaceMD + spaceSM),
                         IntrinsicHeight(
@@ -99,21 +97,21 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                   controller: syncMessageController,
                                   maxLines: null,
                                   style: TextStyle(
-                                    color: primaryLight,
+                                    color: colours.primaryLight,
                                     fontWeight: FontWeight.bold,
                                     decoration: TextDecoration.none,
                                     decorationThickness: 0,
                                     fontSize: textMD,
                                   ),
                                   decoration: InputDecoration(
-                                    fillColor: secondaryDark,
+                                    fillColor: colours.secondaryDark,
                                     filled: true,
                                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                                     hintText: defaultSyncMessage,
                                     isCollapsed: true,
                                     label: Text(
                                       t.commitMessage.toUpperCase(),
-                                      style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                     ),
                                     floatingLabelBehavior: FloatingLabelBehavior.always,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -141,7 +139,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                   style: ButtonStyle(
                                     alignment: Alignment.center,
                                     backgroundColor: WidgetStatePropertyAll(
-                                      (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? primaryPositive : tertiaryDark,
+                                      (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? colours.primaryPositive : colours.tertiaryDark,
                                     ),
                                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM * 1.15)),
                                     shape: WidgetStatePropertyAll(
@@ -153,13 +151,13 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                           height: textSM,
                                           width: textSM,
                                           margin: EdgeInsets.only(right: spaceXXXS),
-                                          child: CircularProgressIndicator(color: tertiaryDark),
+                                          child: CircularProgressIndicator(color: colours.tertiaryDark),
                                         )
                                       : null,
                                   label: Text(
                                     t.commit.toUpperCase(),
                                     style: TextStyle(
-                                      color: (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? tertiaryDark : tertiaryLight,
+                                      color: (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? colours.tertiaryDark : colours.tertiaryLight,
                                       fontSize: textSM,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -171,7 +169,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                         SizedBox(height: spaceMD),
                         (expanded ? (Widget child) => Expanded(child: child) : (child) => child)(
                           Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: secondaryDark),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
                             padding: EdgeInsets.only(left: spaceXXS, right: spaceXXS, bottom: spaceXXS, top: spaceXXXS),
                             child: SizedBox(
                               height: expanded ? null : MediaQuery.sizeOf(context).height / 3,
@@ -181,12 +179,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                       ? uncommittedFilePathsSnapshot.data == null &&
                                             (stagedFilePathsSnapshot.data == null || stagedFilePathsSnapshot.data?.isEmpty == true)
                                       : uncommittedFilePathsSnapshot.data == null)
-                                  ? Center(child: CircularProgressIndicator(color: tertiaryLight))
+                                  ? Center(child: CircularProgressIndicator(color: colours.tertiaryLight))
                                   : filePaths.isEmpty
                                   ? Center(
                                       child: Text(
                                         t.noUncommittedChanges.toUpperCase(),
-                                        style: TextStyle(fontWeight: FontWeight.bold, color: primaryLight, fontSize: textMD),
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: colours.primaryLight, fontSize: textMD),
                                       ),
                                     )
                                   : Column(
@@ -201,7 +199,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                     selectedFiles.clear();
                                                   } else {
                                                     selectedFiles.clear();
-                                                    selectedFiles.addAll(filePaths.map((item) => item.$1).toList() ?? []);
+                                                    selectedFiles.addAll(filePaths.map((item) => item.$1).toList());
                                                   }
 
                                                   setState(() {});
@@ -221,12 +219,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                           selectedFiles.length == uncommittedFilePathsSnapshot.data?.length
                                                       ? FontAwesomeIcons.solidCircleCheck
                                                       : (selectedFiles.isEmpty ? FontAwesomeIcons.circleCheck : FontAwesomeIcons.circleMinus),
-                                                  color: selectedFiles.isNotEmpty ? secondaryInfo : tertiaryInfo,
+                                                  color: selectedFiles.isNotEmpty ? colours.secondaryInfo : colours.tertiaryInfo,
                                                   size: textMD,
                                                 ),
                                                 label: Text(
                                                   (selectedFiles.isNotEmpty ? t.deselectAll : t.selectAll).toUpperCase(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, color: primaryLight),
+                                                  style: TextStyle(fontWeight: FontWeight.bold, color: colours.primaryLight),
                                                 ),
                                               ),
                                               uncommittedFilePathsSnapshot.connectionState == ConnectionState.waiting ||
@@ -235,7 +233,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                       padding: EdgeInsetsGeometry.only(right: spaceSM),
                                                       child: SizedBox.square(
                                                         dimension: spaceMD,
-                                                        child: CircularProgressIndicator(color: primaryLight),
+                                                        child: CircularProgressIndicator(color: colours.primaryLight),
                                                       ),
                                                     )
                                                   : SizedBox.shrink(),
@@ -253,22 +251,28 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
 
                                               (IconData, (Color, Color)) infoIcon = (
                                                 FontAwesomeIcons.solidSquarePlus,
-                                                (tertiaryPositive, primaryPositive),
+                                                (colours.tertiaryPositive, colours.primaryPositive),
                                               );
                                               switch (fileType) {
                                                 case 1:
                                                   {
-                                                    infoIcon = (FontAwesomeIcons.squarePen, (tertiaryWarning, primaryWarning));
+                                                    infoIcon = (FontAwesomeIcons.squarePen, (colours.tertiaryWarning, colours.primaryWarning));
                                                     break;
                                                   }
                                                 case 2:
                                                   {
-                                                    infoIcon = (FontAwesomeIcons.solidSquareMinus, (tertiaryNegative, tertiaryNegative));
+                                                    infoIcon = (
+                                                      FontAwesomeIcons.solidSquareMinus,
+                                                      (colours.tertiaryNegative, colours.tertiaryNegative),
+                                                    );
                                                     break;
                                                   }
                                                 case 3:
                                                   {
-                                                    infoIcon = (FontAwesomeIcons.solidSquarePlus, (tertiaryPositive, primaryPositive));
+                                                    infoIcon = (
+                                                      FontAwesomeIcons.solidSquarePlus,
+                                                      (colours.tertiaryPositive, colours.primaryPositive),
+                                                    );
                                                     break;
                                                   }
                                               }
@@ -277,7 +281,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                 key: Key(fileName),
                                                 style: ButtonStyle(
                                                   backgroundColor: WidgetStatePropertyAll(
-                                                    clientModeEnabled && isStagedFile() ? secondaryPositive : primaryDark,
+                                                    clientModeEnabled && isStagedFile() ? colours.secondaryPositive : colours.primaryDark,
                                                   ),
                                                   padding: WidgetStatePropertyAll(
                                                     EdgeInsets.symmetric(vertical: spaceXS, horizontal: spaceXS + spaceXXXS),
@@ -310,7 +314,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                         Positioned.fill(
                                                           child: FaIcon(
                                                             FontAwesomeIcons.circleCheck,
-                                                            color: selectedFiles.contains(fileName) ? tertiaryInfo : Colors.transparent,
+                                                            color: selectedFiles.contains(fileName) ? colours.tertiaryInfo : Colors.transparent,
                                                             size: textMD,
                                                           ),
                                                         ),
@@ -319,8 +323,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                               ? FontAwesomeIcons.solidCircleCheck
                                                               : FontAwesomeIcons.circleCheck,
                                                           color: selectedFiles.contains(fileName)
-                                                              ? (clientModeEnabled && isStagedFile() ? primaryInfo : secondaryInfo)
-                                                              : (clientModeEnabled && isStagedFile() ? tertiaryInfo : tertiaryInfo),
+                                                              ? (clientModeEnabled && isStagedFile() ? colours.primaryInfo : colours.secondaryInfo)
+                                                              : (clientModeEnabled && isStagedFile() ? colours.tertiaryInfo : colours.tertiaryInfo),
                                                           size: textMD,
                                                         ),
                                                       ],
@@ -344,10 +348,10 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                                     position: TextOverflowPosition.start,
                                                                     child: Text(
                                                                       "…",
-                                                                      style: TextStyle(color: tertiaryLight, fontSize: textMD),
+                                                                      style: TextStyle(color: colours.tertiaryLight, fontSize: textMD),
                                                                     ),
                                                                   ),
-                                                                  style: TextStyle(color: primaryLight, fontSize: textMD),
+                                                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                                                                 ),
                                                               ),
                                                               SizedBox(width: spaceLG),
@@ -398,7 +402,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                 style: ButtonStyle(
                                   alignment: Alignment.center,
                                   backgroundColor: WidgetStatePropertyAll(
-                                    selectedFiles.isNotEmpty || selectedFiles.isNotEmpty ? secondaryNegative : tertiaryDark,
+                                    selectedFiles.isNotEmpty || selectedFiles.isNotEmpty ? colours.secondaryNegative : colours.tertiaryDark,
                                   ),
                                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                   shape: WidgetStatePropertyAll(
@@ -407,7 +411,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                 ),
                                 icon: FaIcon(
                                   FontAwesomeIcons.eraser,
-                                  color: selectedFiles.isNotEmpty || selectedFiles.isNotEmpty ? primaryLight : tertiaryLight,
+                                  color: selectedFiles.isNotEmpty || selectedFiles.isNotEmpty ? colours.primaryLight : colours.tertiaryLight,
                                   size: textMD,
                                 ),
                               ),
@@ -441,8 +445,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                         selectedFiles
                                                 .where((file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                 .isNotEmpty
-                                            ? tertiaryInfo
-                                            : tertiaryDark,
+                                            ? colours.tertiaryInfo
+                                            : colours.tertiaryDark,
                                       ),
                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                       shape: WidgetStatePropertyAll(
@@ -454,7 +458,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             height: textSM,
                                             width: textSM,
                                             margin: EdgeInsets.only(right: spaceXXXS),
-                                            child: CircularProgressIndicator(color: tertiaryDark),
+                                            child: CircularProgressIndicator(color: colours.tertiaryDark),
                                           )
                                         : null,
                                     label: Text(
@@ -464,8 +468,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             selectedFiles
                                                 .where((file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                 .isNotEmpty
-                                            ? tertiaryDark
-                                            : tertiaryLight,
+                                            ? colours.tertiaryDark
+                                            : colours.tertiaryLight,
                                         fontSize: textSM,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -499,8 +503,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                         selectedFiles
                                                 .where((file) => !(stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                 .isNotEmpty
-                                            ? tertiaryInfo
-                                            : tertiaryDark,
+                                            ? colours.tertiaryInfo
+                                            : colours.tertiaryDark,
                                       ),
                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                       shape: WidgetStatePropertyAll(
@@ -512,7 +516,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             height: textSM,
                                             width: textSM,
                                             margin: EdgeInsets.only(right: spaceXXXS),
-                                            child: CircularProgressIndicator(color: tertiaryDark),
+                                            child: CircularProgressIndicator(color: colours.tertiaryDark),
                                           )
                                         : null,
                                     label: Text(
@@ -522,8 +526,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             selectedFiles
                                                 .where((file) => !(stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                 .isNotEmpty
-                                            ? tertiaryDark
-                                            : tertiaryLight,
+                                            ? colours.tertiaryDark
+                                            : colours.tertiaryLight,
                                         fontSize: textSM,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -553,7 +557,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                     : null,
                                 style: ButtonStyle(
                                   alignment: Alignment.center,
-                                  backgroundColor: WidgetStatePropertyAll(selectedFiles.isNotEmpty ? primaryPositive : tertiaryDark),
+                                  backgroundColor: WidgetStatePropertyAll(selectedFiles.isNotEmpty ? colours.primaryPositive : colours.tertiaryDark),
                                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                   shape: WidgetStatePropertyAll(
                                     RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
@@ -564,13 +568,13 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                         height: textSM,
                                         width: textSM,
                                         margin: EdgeInsets.only(right: spaceXXXS),
-                                        child: CircularProgressIndicator(color: tertiaryDark),
+                                        child: CircularProgressIndicator(color: colours.tertiaryDark),
                                       )
                                     : null,
                                 label: Text(
                                   (uploading ? t.syncStartPull : t.syncNow).toUpperCase(),
                                   style: TextStyle(
-                                    color: selectedFiles.isNotEmpty ? tertiaryDark : tertiaryLight,
+                                    color: selectedFiles.isNotEmpty ? colours.tertiaryDark : colours.tertiaryLight,
                                     fontSize: textSM,
                                     fontWeight: FontWeight.bold,
                                   ),

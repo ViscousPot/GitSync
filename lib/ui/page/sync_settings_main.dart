@@ -1,7 +1,6 @@
 import 'package:GitSync/ui/component/group_sync_settings.dart';
 import 'package:flutter/material.dart';
 import '../../../api/helper.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
@@ -43,7 +42,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryDark,
+      backgroundColor: colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
@@ -52,7 +51,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
         centerTitle: true,
         title: Text(
           t.syncSettings.toUpperCase(),
-          style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(

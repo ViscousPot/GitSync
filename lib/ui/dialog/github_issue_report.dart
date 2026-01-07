@@ -3,7 +3,6 @@ import 'package:GitSync/ui/dialog/info_dialog.dart' as InfoDialog;
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -20,13 +19,13 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
     builder: (BuildContext context) => StatefulBuilder(
       builder: (context, setState) => BaseAlertDialog(
         expandable: true,
-        backgroundColor: secondaryDark,
+        backgroundColor: colours.secondaryDark,
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.reportABug.toUpperCase(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         contentBuilder: (expanded) =>
@@ -42,14 +41,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     padding: EdgeInsets.symmetric(horizontal: spaceMD),
                     child: Text(
                       t.issueReportTitleTitle.toUpperCase(),
-                      style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: spaceMD),
                     child: Text(
                       t.issueReportTitleDesc,
-                      style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(height: spaceSM),
@@ -59,21 +58,21 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     maxLines: 1,
                     minLines: 1,
                     style: TextStyle(
-                      color: primaryLight,
+                      color: colours.primaryLight,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.none,
                       decorationThickness: 0,
                       fontSize: textMD,
                     ),
                     decoration: InputDecoration(
-                      fillColor: tertiaryDark,
+                      fillColor: colours.tertiaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                       isCollapsed: true,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                       errorText: titleController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                      errorStyle: TextStyle(color: tertiaryNegative),
+                      errorStyle: TextStyle(color: colours.tertiaryNegative),
                       isDense: true,
                     ),
                     onChanged: (_) => setState(() {}),
@@ -91,14 +90,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       child: Text(
                         t.issueReportDescTitle.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       child: Text(
                         t.issueReportDescDesc,
-                        style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceSM),
@@ -109,7 +108,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                         maxLines: null,
                         minLines: expanded ? 10 : 3,
                         style: TextStyle(
-                          color: primaryLight,
+                          color: colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
@@ -119,9 +118,9 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                           contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                           border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
                           errorText: descriptionController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                          errorStyle: TextStyle(color: tertiaryNegative),
+                          errorStyle: TextStyle(color: colours.tertiaryNegative),
                           isCollapsed: true,
-                          fillColor: tertiaryDark,
+                          fillColor: colours.tertiaryDark,
                           filled: true,
                           isDense: true,
                         ),
@@ -142,14 +141,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       child: Text(
                         t.issueReportMinimalReproTitle.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       child: Text(
                         t.issueReportMinimalReproDesc,
-                        style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceSM),
@@ -160,7 +159,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                         maxLines: null,
                         minLines: expanded ? 10 : 3,
                         style: TextStyle(
-                          color: primaryLight,
+                          color: colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
@@ -172,8 +171,8 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                           border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
                           isCollapsed: true,
                           errorText: minimalReproController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                          errorStyle: TextStyle(color: tertiaryNegative),
-                          fillColor: tertiaryDark,
+                          errorStyle: TextStyle(color: colours.tertiaryNegative),
+                          fillColor: colours.tertiaryDark,
                           filled: true,
                           isDense: true,
                         ),
@@ -195,7 +194,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     onPressed: () async {
                       openLogViewer(context);
                     },
-                    icon: FaIcon(FontAwesomeIcons.eye, color: tertiaryInfo, size: textSM),
+                    icon: FaIcon(FontAwesomeIcons.eye, color: colours.tertiaryInfo, size: textSM),
                   ),
                   SizedBox(width: spaceXS),
                   TextButton.icon(
@@ -213,13 +212,13 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                     ),
                     icon: FaIcon(
                       includeLogFiles ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                      color: primaryPositive,
+                      color: colours.primaryPositive,
                       size: textSM,
                     ),
                     label: Text(
                       t.includeLogs,
                       textAlign: TextAlign.end,
-                      style: const TextStyle(color: secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                      style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                     ),
                   ),
                 ],
@@ -229,7 +228,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: primaryLight, fontSize: textMD),
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () async {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -240,16 +239,16 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
             icon: FaIcon(
               FontAwesomeIcons.solidPaperPlane,
               color: minimalReproController.text.isEmpty || descriptionController.text.isEmpty || titleController.text.isEmpty
-                  ? tertiaryLight
-                  : primaryPositive,
+                  ? colours.tertiaryLight
+                  : colours.primaryPositive,
               size: textMD,
             ),
             label: Text(
               t.report.toUpperCase(),
               style: TextStyle(
                 color: minimalReproController.text.isEmpty || descriptionController.text.isEmpty || titleController.text.isEmpty
-                    ? tertiaryLight
-                    : primaryPositive,
+                    ? colours.tertiaryLight
+                    : colours.primaryPositive,
                 fontSize: textMD,
               ),
             ),

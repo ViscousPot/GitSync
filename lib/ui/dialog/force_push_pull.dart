@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -16,15 +15,15 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
           children: [
             Text(
               push ? t.forcePushing : t.forcePulling,
-              style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
             ),
             SizedBox(
               height: textXL,
               width: textXL,
               child: Center(
                 child: CircularProgressIndicator(
-                  backgroundColor: secondaryLight,
-                  color: primaryPositive,
+                  backgroundColor: colours.secondaryLight,
+                  color: colours.primaryPositive,
                   semanticsLabel: push ? t.forcePushProgressLabel : t.forcePullProgressLabel,
                 ),
               ),
@@ -36,7 +35,7 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
             children: [
               Text(
                 t.forcePushPullMessage,
-                style: const TextStyle(color: tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceMD),
             ],

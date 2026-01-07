@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
@@ -20,7 +19,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
       child: FutureBuilder(
         future: uiSettingsManager.getBool(StorageKey.setman_otherSyncSettingsExpanded),
         builder: (context, snapshot) => Column(
@@ -42,7 +41,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ),
                   icon: FaIcon(
                     (snapshot.data ?? false) ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                    color: primaryLight,
+                    color: colours.primaryLight,
                     size: textXL,
                   ),
                   label: SizedBox(
@@ -63,7 +62,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontFeatures: [FontFeature.enable('smcp')],
-                                  color: primaryLight,
+                                  color: colours.primaryLight,
                                   fontSize: textLG,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -72,7 +71,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                 SizedBox(height: spaceXXXXS),
                                 Text(
                                   t.quickSyncDescription,
-                                  style: TextStyle(color: secondaryLight, fontSize: textMD),
+                                  style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
                                 ),
                               ],
                             ],
@@ -102,7 +101,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                             onPressed: () async {
                               launchUrl(Uri.parse(quickSyncDocsLink));
                             },
-                            icon: FaIcon(FontAwesomeIcons.circleQuestion, color: primaryLight, size: textLG),
+                            icon: FaIcon(FontAwesomeIcons.circleQuestion, color: colours.primaryLight, size: textLG),
                           ),
                         )
                       : SizedBox.shrink(),
@@ -139,7 +138,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                     await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                                 builder: (context, snapshot) => FaIcon(
                                   snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                  color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                  color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                   size: textLG,
                                 ),
                               ),
@@ -147,7 +146,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                 width: double.infinity,
                                 child: Text(
                                   t.useForTileSync,
-                                  style: TextStyle(color: primaryLight, fontSize: textMD),
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                                 ),
                               ),
                             ),
@@ -176,7 +175,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                     await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                                 builder: (context, snapshot) => FaIcon(
                                   snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                  color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                  color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                   size: textLG,
                                 ),
                               ),
@@ -184,7 +183,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                 width: double.infinity,
                                 child: Text(
                                   t.useForTileManualSync,
-                                  style: TextStyle(color: primaryLight, fontSize: textMD),
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                                 ),
                               ),
                             ),
@@ -209,7 +208,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                   await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                               builder: (context, snapshot) => FaIcon(
                                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                 size: textLG,
                               ),
                             ),
@@ -217,7 +216,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               width: double.infinity,
                               child: Text(
                                 t.useForShortcutSync,
-                                style: TextStyle(color: primaryLight, fontSize: textMD),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                               ),
                             ),
                           ),
@@ -245,7 +244,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                   await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                               builder: (context, snapshot) => FaIcon(
                                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                 size: textLG,
                               ),
                             ),
@@ -253,7 +252,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               width: double.infinity,
                               child: Text(
                                 t.useForShortcutManualSync,
-                                style: TextStyle(color: primaryLight, fontSize: textMD),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                               ),
                             ),
                           ),
@@ -278,7 +277,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                   await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                               builder: (context, snapshot) => FaIcon(
                                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                 size: textLG,
                               ),
                             ),
@@ -286,7 +285,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               width: double.infinity,
                               child: Text(
                                 t.useForWidgetSync,
-                                style: TextStyle(color: primaryLight, fontSize: textMD),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                               ),
                             ),
                           ),
@@ -314,7 +313,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                                   await repoManager.getInt(StorageKey.repoman_repoIndex))(),
                               builder: (context, snapshot) => FaIcon(
                                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? primaryPositive : secondaryLight,
+                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
                                 size: textLG,
                               ),
                             ),
@@ -322,7 +321,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               width: double.infinity,
                               child: Text(
                                 t.useForWidgetManualSync,
-                                style: TextStyle(color: primaryLight, fontSize: textMD),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                               ),
                             ),
                           ),

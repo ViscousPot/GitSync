@@ -9,7 +9,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../api/helper.dart';
 import '../../../api/manager/git_manager.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
@@ -115,14 +114,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: secondaryDark,
+      backgroundColor: colours.secondaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: secondaryDark,
-          systemNavigationBarColor: secondaryDark,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colours.secondaryDark,
+          systemNavigationBarColor: colours.secondaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
@@ -130,7 +129,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
         centerTitle: true,
         title: Text(
           t.settings.toUpperCase(),
-          style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: BetterOrientationBuilder(
@@ -198,14 +197,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                 child: Text(
                                   t.signedCommitsLabel.toUpperCase(),
-                                  style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                 child: Text(
                                   t.signedCommitsDescription,
-                                  style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                 ),
                               ),
                               SizedBox(height: spaceSM),
@@ -213,7 +212,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 future: uiSettingsManager.getStringNullable(StorageKey.setman_gitCommitSigningKey),
                                 builder: (context, gitCommitSigningKeySnapshot) => Container(
                                   width: double.infinity,
-                                  decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                  decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                   child: FutureBuilder(
                                     future: uiSettingsManager.getGitProvider(),
                                     builder: (context, snapshot) => Column(
@@ -240,7 +239,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                       },
                                                       style: ButtonStyle(
                                                         alignment: Alignment.centerLeft,
-                                                        backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                                         shape: WidgetStatePropertyAll(
                                                           RoundedRectangleBorder(
@@ -253,7 +252,9 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                       ),
                                                       icon: FaIcon(
                                                         FontAwesomeIcons.key,
-                                                        color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true ? primaryPositive : primaryLight,
+                                                        color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
+                                                            ? colours.primaryPositive
+                                                            : colours.primaryLight,
                                                       ),
                                                       label: Padding(
                                                         padding: EdgeInsets.only(left: spaceXS),
@@ -264,8 +265,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                               .toUpperCase(),
                                                           style: TextStyle(
                                                             color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                                ? primaryPositive
-                                                                : primaryLight,
+                                                                ? colours.primaryPositive
+                                                                : colours.primaryLight,
                                                             fontSize: textMD,
                                                             fontWeight: FontWeight.bold,
                                                           ),
@@ -294,7 +295,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                             await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
                                                             setState(() {});
                                                           },
-                                                          icon: FaIcon(FontAwesomeIcons.trash, color: tertiaryNegative, size: textMD),
+                                                          icon: FaIcon(FontAwesomeIcons.trash, color: colours.tertiaryNegative, size: textMD),
                                                         )
                                                       : SizedBox.shrink(),
                                                 ],
@@ -311,7 +312,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                 },
                                                 style: ButtonStyle(
                                                   alignment: Alignment.centerLeft,
-                                                  backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                                   shape: WidgetStatePropertyAll(
                                                     RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -324,14 +325,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                   gitCommitSigningKeySnapshot.data != null
                                                       ? FontAwesomeIcons.solidSquareCheck
                                                       : FontAwesomeIcons.squareCheck,
-                                                  color: primaryPositive,
+                                                  color: colours.primaryPositive,
                                                   size: textLG,
                                                 ),
                                                 label: SizedBox(
                                                   width: double.infinity,
                                                   child: Text(
                                                     t.useSshKey.toUpperCase(),
-                                                    style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                                   ),
                                                 ),
                                               )
@@ -365,10 +366,10 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                     Showcase(
                       key: _authorDetailsKey,
                       description: t.authorDetailsShowcasePrompt,
-                      tooltipBackgroundColor: tertiaryInfo,
-                      textColor: secondaryDark,
+                      tooltipBackgroundColor: colours.tertiaryInfo,
+                      textColor: colours.secondaryDark,
                       targetBorderRadius: BorderRadius.all(cornerRadiusMD),
-                      descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: primaryDark),
+                      descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: colours.primaryDark),
                       targetPadding: EdgeInsets.all(spaceSM),
                       child: Column(
                         children: [
@@ -441,7 +442,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                               },
                               style: ButtonStyle(
                                 alignment: Alignment.center,
-                                backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                                 animationDuration: duration,
                                 shape: WidgetStatePropertyAll(
@@ -449,8 +450,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                     borderRadius: BorderRadius.all(cornerRadiusMD),
                                     side: ignoreChanged || unstaging
                                         ? (_borderVisible
-                                              ? BorderSide(color: secondaryLight, width: spaceXXXS)
-                                              : BorderSide(color: secondaryLight.withAlpha(150), width: spaceXXXS - 2))
+                                              ? BorderSide(color: colours.secondaryLight, width: spaceXXXS)
+                                              : BorderSide(color: colours.secondaryLight.withAlpha(150), width: spaceXXXS - 2))
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -461,14 +462,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                   SizedBox(
                                     height: textMD,
                                     width: textMD,
-                                    child: CircularProgressIndicator(color: !unstaging ? Colors.transparent : primaryLight),
+                                    child: CircularProgressIndicator(color: !unstaging ? Colors.transparent : colours.primaryLight),
                                   ),
                                   SizedBox(width: spaceSM),
                                   Padding(
                                     padding: EdgeInsets.only(left: spaceXS),
                                     child: Text(
                                       t.untrackAll.toUpperCase(),
-                                      style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   SizedBox(width: textMD + spaceSM),
@@ -516,11 +517,11 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                     children: [
                                       Text(
                                         t.disableSsl.toUpperCase(),
-                                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         t.disableSslDescription,
-                                        style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -528,7 +529,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 iconAlignment: IconAlignment.end,
                                 icon: FaIcon(
                                   snapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                                  color: primaryPositive,
+                                  color: colours.primaryPositive,
                                   size: textLG,
                                 ),
                               ),
@@ -554,11 +555,11 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                     children: [
                                       Text(
                                         "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})".toUpperCase(),
-                                        style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         t.optimisedSyncDescription,
-                                        style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -566,7 +567,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 iconAlignment: IconAlignment.end,
                                 icon: FaIcon(
                                   optimisedSyncSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                                  color: primaryPositive,
+                                  color: colours.primaryPositive,
                                   size: textLG,
                                 ),
                               ),

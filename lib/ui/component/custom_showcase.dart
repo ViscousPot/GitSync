@@ -1,4 +1,3 @@
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class CustomShowcase extends StatelessWidget {
     key: globalKey,
     targetBorderRadius: cornerRadius == null ? null : BorderRadius.all(cornerRadius!),
     description: description,
-    descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: primaryDark),
+    descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: colours.primaryDark),
     targetPadding: targetPadding ?? EdgeInsets.all(spaceSM),
     tooltipActions: [
       ...customTooltipActions ?? [],
@@ -39,8 +38,8 @@ class CustomShowcase extends StatelessWidget {
           ? [
               TooltipActionButton(
                 type: TooltipDefaultActionType.previous,
-                backgroundColor: primaryLight,
-                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: primaryDark),
+                backgroundColor: colours.primaryLight,
+                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryDark),
                 name: t.previous.toUpperCase(),
               ),
             ]
@@ -49,22 +48,22 @@ class CustomShowcase extends StatelessWidget {
           ? [
               TooltipActionButton(
                 type: TooltipDefaultActionType.next,
-                backgroundColor: primaryLight,
-                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: primaryDark),
+                backgroundColor: colours.primaryLight,
+                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryDark),
                 name: t.next.toUpperCase(),
               ),
             ]
           : [
               TooltipActionButton(
                 type: TooltipDefaultActionType.next,
-                backgroundColor: primaryLight,
-                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: primaryDark),
+                backgroundColor: colours.primaryLight,
+                textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryDark),
                 name: t.finish.toUpperCase(),
               ),
             ],
     ],
-    tooltipBackgroundColor: tertiaryInfo,
-    textColor: secondaryDark,
+    tooltipBackgroundColor: colours.tertiaryInfo,
+    textColor: colours.secondaryDark,
     child: child,
   );
 }

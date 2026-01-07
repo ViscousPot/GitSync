@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
+import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -16,21 +16,21 @@ class ImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: secondaryDark,
+      backgroundColor: colours.secondaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: secondaryDark,
-          systemNavigationBarColor: secondaryDark,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colours.secondaryDark,
+          systemNavigationBarColor: colours.secondaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         title: Text(
           p.basename(path),
-          style: TextStyle(fontSize: textLG, color: primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: Center(

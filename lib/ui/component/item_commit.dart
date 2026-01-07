@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:GitSync/global.dart';
 import 'package:sprintf/sprintf.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:timeago/timeago.dart' as timeago;
@@ -110,10 +108,10 @@ class _ItemCommit extends State<ItemCommit> {
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(
               widget.commit.unpushed
-                  ? tertiaryInfo
+                  ? colours.tertiaryInfo
                   : widget.commit.unpulled
-                  ? tertiaryWarning
-                  : tertiaryDark,
+                  ? colours.tertiaryWarning
+                  : colours.tertiaryDark,
             ),
             padding: WidgetStatePropertyAll(EdgeInsets.zero),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
@@ -124,9 +122,9 @@ class _ItemCommit extends State<ItemCommit> {
           child: CustomPaint(
             painter: ChevronPainter(
               color: widget.commit.unpushed
-                  ? secondaryInfo.withAlpha(70)
+                  ? colours.secondaryInfo.withAlpha(70)
                   : widget.commit.unpulled
-                  ? secondaryWarning.withAlpha(70)
+                  ? colours.secondaryWarning.withAlpha(70)
                   : Colors.transparent,
               stripeWidth: 20,
               facingDown: !widget.commit.unpushed,
@@ -148,7 +146,7 @@ class _ItemCommit extends State<ItemCommit> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? secondaryDark : primaryLight,
+                              color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryDark : colours.primaryLight,
                               fontSize: textMD,
                               fontWeight: FontWeight.w500,
                             ),
@@ -156,7 +154,7 @@ class _ItemCommit extends State<ItemCommit> {
                           Text(
                             "${demo ? "ViscousTests" : widget.commit.authorUsername} ${t.committed} $_relativeCommitDate",
                             style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
+                              color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
                               fontSize: textSM,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -170,14 +168,14 @@ class _ItemCommit extends State<ItemCommit> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: widget.commit.unpulled || widget.commit.unpushed ? tertiaryDark : secondaryLight,
+                            color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
                             borderRadius: BorderRadius.all(cornerRadiusXS),
                           ),
                           padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
                           child: Text(
                             (widget.commit.reference).substring(0, 7).toUpperCase(),
                             style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? secondaryLight : tertiaryDark,
+                              color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
                               fontSize: textXS,
                               fontWeight: FontWeight.bold,
                             ),
@@ -189,7 +187,7 @@ class _ItemCommit extends State<ItemCommit> {
                             Text(
                               sprintf(t.additions, [widget.commit.additions]),
                               style: TextStyle(
-                                color: widget.commit.unpulled || widget.commit.unpushed ? secondaryPositive : tertiaryPositive,
+                                color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryPositive : colours.tertiaryPositive,
                                 fontSize: textXS,
                                 fontWeight: FontWeight.w900,
                               ),
@@ -198,7 +196,7 @@ class _ItemCommit extends State<ItemCommit> {
                             Text(
                               sprintf(t.deletions, [widget.commit.deletions]),
                               style: TextStyle(
-                                color: widget.commit.unpulled || widget.commit.unpushed ? primaryNegative : tertiaryNegative,
+                                color: widget.commit.unpulled || widget.commit.unpushed ? colours.primaryNegative : colours.tertiaryNegative,
                                 fontSize: textXS,
                                 fontWeight: FontWeight.w900,
                               ),

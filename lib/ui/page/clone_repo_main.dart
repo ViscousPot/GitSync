@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../api/helper.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
@@ -192,7 +191,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryDark,
+      backgroundColor: colours.primaryDark,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -202,7 +201,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         title: Text(
           t.cloneRepo,
-          style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -217,7 +216,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                       child: Container(
                         margin: EdgeInsets.only(top: spaceLG, bottom: spaceLG),
                         decoration: BoxDecoration(
-                          color: secondaryDark,
+                          color: colours.secondaryDark,
                           borderRadius: BorderRadius.only(
                             topLeft: cornerRadiusMD,
                             bottomLeft: cornerRadiusSM,
@@ -234,7 +233,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                               controller: searchController,
                               maxLines: 1,
                               style: TextStyle(
-                                color: primaryLight,
+                                color: colours.primaryLight,
                                 decoration: TextDecoration.none,
                                 decorationThickness: 0,
                                 fontSize: textMD,
@@ -242,12 +241,12 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                               ),
                               decoration: InputDecoration(
                                 hintText: t.searchEllipsis,
-                                hintStyle: TextStyle(color: secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                fillColor: tertiaryDark,
+                                hintStyle: TextStyle(color: colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                fillColor: colours.tertiaryDark,
                                 filled: true,
                                 prefixIcon: Padding(
                                   padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
-                                  child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textMD, color: secondaryLight),
+                                  child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textMD, color: colours.secondaryLight),
                                 ),
                                 prefixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
                                 border: const OutlineInputBorder(
@@ -267,7 +266,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                     await InfoDialog.showDialog(context, t.repoSearchLimits, t.repoSearchLimitsDescription);
                                   },
                                   visualDensity: VisualDensity.compact,
-                                  icon: FaIcon(FontAwesomeIcons.circleInfo, color: secondaryLight, size: textMD),
+                                  icon: FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
                                 ),
                                 suffixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
                                 isCollapsed: true,
@@ -315,7 +314,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                         onPressed: () => cloneRepository(repo.value),
                                         style: ButtonStyle(
                                           alignment: Alignment.centerLeft,
-                                          backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                           padding: WidgetStatePropertyAll(
                                             EdgeInsets.only(right: spaceMD, top: spaceSM, bottom: spaceSM, left: spaceXS),
                                           ),
@@ -324,7 +323,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                           ),
                                         ),
                                         iconAlignment: IconAlignment.end,
-                                        icon: FaIcon(FontAwesomeIcons.solidCircleDown, color: primaryPositive, size: textXL),
+                                        icon: FaIcon(FontAwesomeIcons.solidCircleDown, color: colours.primaryPositive, size: textXL),
                                         label: Container(
                                           width: double.infinity,
                                           padding: EdgeInsets.only(left: spaceXS),
@@ -333,7 +332,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                                             maxLines: 1,
                                             style: TextStyle(
                                               overflow: TextOverflow.ellipsis,
-                                              color: primaryLight,
+                                              color: colours.primaryLight,
                                               fontSize: textLG,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -362,11 +361,11 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                           contextMenuBuilder: globalContextMenuBuilder,
                           controller: cloneUrlController,
                           maxLines: 1,
-                          style: TextStyle(color: primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textLG),
+                          style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textLG),
                           decoration: InputDecoration(
                             hintText: t.gitRepoUrlHint,
-                            hintStyle: TextStyle(color: secondaryLight, fontSize: textLG),
-                            fillColor: secondaryDark,
+                            hintStyle: TextStyle(color: colours.secondaryLight, fontSize: textLG),
+                            fillColor: colours.secondaryDark,
                             filled: true,
                             border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                             isCollapsed: true,
@@ -394,7 +393,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                               },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: 0)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -402,14 +401,14 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                         ),
                         icon: FaIcon(
                           FontAwesomeIcons.solidCircleDown,
-                          color: cloneUrlController.text.isEmpty ? secondaryPositive : primaryPositive,
+                          color: cloneUrlController.text.isEmpty ? colours.secondaryPositive : colours.primaryPositive,
                           size: textLG,
                         ),
                         label: Padding(
                           padding: EdgeInsets.only(left: spaceXS),
                           child: Text(
                             t.clone.toUpperCase(),
-                            style: TextStyle(color: cloneUrlController.text.isEmpty ? tertiaryLight : primaryLight, fontSize: textMD),
+                            style: TextStyle(color: cloneUrlController.text.isEmpty ? colours.tertiaryLight : colours.primaryLight, fontSize: textMD),
                           ),
                         ),
                       ),
@@ -421,7 +420,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
             ),
             Column(
               children: [
-                Container(height: 2, color: secondaryDark),
+                Container(height: 2, color: colours.secondaryDark),
                 SizedBox(height: spaceXXL),
                 IntrinsicHeight(
                   child: Row(
@@ -449,20 +448,20 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
                           },
                           style: ButtonStyle(
                             alignment: Alignment.center,
-                            backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                             ),
                           ),
-                          icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: primaryLight, size: textMD),
+                          icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.primaryLight, size: textMD),
                           label: Container(
                             width: double.infinity,
                             padding: EdgeInsets.only(left: spaceXS),
                             child: Text(
                               t.iHaveALocalRepository.toUpperCase(),
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: primaryLight, fontSize: textMD),
+                              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                             ),
                           ),
                         ),
