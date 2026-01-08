@@ -31,7 +31,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:GitSync/global.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../constant/colors.dart';
 import '../constant/dimens.dart';
 import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
 import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;

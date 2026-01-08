@@ -58,7 +58,6 @@ import 'ui/dialog/confirm_force_push_pull.dart' as ConfirmForcePushPullDialog;
 import '../ui/dialog/force_push_pull.dart' as ForcePushPullDialog;
 import '../ui/dialog/manual_sync.dart' as ManualSyncDialog;
 import '../ui/dialog/confirm_branch_checkout.dart' as ConfirmBranchCheckoutDialog;
-import '../constant/colors.dart';
 import '../constant/dimens.dart';
 import '../global.dart';
 import '../ui/component/item_commit.dart';
