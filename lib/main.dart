@@ -1333,7 +1333,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                                   ValueListenableBuilder(
                                                                                     valueListenable: mergeConflictVisible,
                                                                                     builder: (context, snapshot, child) => AnimatedPositioned(
-                                                                                      bottom: snapshot ? -spaceXL : spaceMD,
+                                                                                      bottom: conflictingSnapshot.isEmpty || snapshot
+                                                                                          ? -spaceXL
+                                                                                          : spaceMD,
                                                                                       left: 0,
                                                                                       right: 0,
                                                                                       width: null,
@@ -1341,7 +1343,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                                       child: Center(
                                                                                         child: AnimatedOpacity(
                                                                                           duration: Duration(milliseconds: 200),
-                                                                                          opacity: snapshot ? 0 : 1,
+                                                                                          opacity: conflictingSnapshot.isEmpty || snapshot ? 0 : 1,
                                                                                           child: TextButton(
                                                                                             onPressed: () async {
                                                                                               await recentCommitsController.animateTo(
@@ -1373,16 +1375,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                                             ),
                                                                                             child: AnimatedContainer(
                                                                                               duration: Duration(milliseconds: 200),
-                                                                                              // decoration: BoxDecoration(
-                                                                                              //   color: tertiaryNegative,
-                                                                                              //   borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                                              // ),
-                                                                                              // padding: EdgeInsets.only(
-                                                                                              //   top: spaceSM,
-                                                                                              //   left: spaceSM,
-                                                                                              //   right: spaceSM,
-                                                                                              //   bottom: spaceXXXS,
-                                                                                              // ),
                                                                                               child: Column(
                                                                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1403,14 +1395,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                                                     color: primaryDark,
                                                                                                     size: textMD,
                                                                                                   ),
-                                                                                                  // Text(
-                                                                                                  //   t.mergeConflictItemMessage,
-                                                                                                  //   style: TextStyle(
-                                                                                                  //     color: secondaryDark,
-                                                                                                  //     fontSize: textSM,
-                                                                                                  //     overflow: TextOverflow.ellipsis,
-                                                                                                  //   ),
-                                                                                                  // ),
                                                                                                 ],
                                                                                               ),
                                                                                             ),
