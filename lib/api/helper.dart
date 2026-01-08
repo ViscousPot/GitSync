@@ -11,6 +11,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog show showDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:GitSync/ui/page/image_viewer.dart';
+import 'package:collection/collection.dart';
 import 'package:cryptography/cryptography.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -129,7 +130,18 @@ Future<void> openLogViewer(BuildContext context) async {
     return;
   }
 
-  await Navigator.of(context).push(createCodeEditorRoute(logFiles.map((logFile) => logFile.path).toList(), type: EditorType.LOGS));
+  await Navigator.of(context).push(
+    createCodeEditorRoute(
+      logFiles
+          .map((logFile) => logFile.path)
+          .sorted(
+            (a, b) =>
+                (int.tryParse(b.split("log_").last.replaceAll(".log", "")) ?? 0) - (int.tryParse(a.split("log_").last.replaceAll(".log", "")) ?? 0),
+          )
+          .toList(),
+      type: EditorType.LOGS,
+    ),
+  );
 }
 
 Future<void> sendMergeConflictNotification() async {
