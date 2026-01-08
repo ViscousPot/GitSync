@@ -1203,6 +1203,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             ]),
                                       ...recentCommits ?? <GitManagerRs.Commit>[],
                                     ];
+                                    if (conflictingSnapshot.isEmpty) mergeConflictVisible.value = true;
 
                                     if (demoConflicting) {
                                       while (items.length < 3) {
