@@ -1145,7 +1145,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ),
             ),
           ),
-          body: OrientationBuilder(
+          body: BetterOrientationBuilder(
             builder: (context, orientation) => SingleChildScrollView(
               scrollDirection: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
               child: FutureBuilder(

@@ -39,6 +39,17 @@ const int mergeConflictNotificationId = 1758;
 Map<String, Timer> debounceTimers = {};
 Map<String, VoidCallback> _callbacks = {};
 
+class BetterOrientationBuilder extends StatelessWidget {
+  const BetterOrientationBuilder({super.key, required this.builder});
+
+  final OrientationWidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return builder(context, MediaQuery.of(context).orientation);
+  }
+}
+
 Future<void> initAsync(Future<void> Function() fn) async {
   await Future.delayed(Duration.zero, fn);
 }

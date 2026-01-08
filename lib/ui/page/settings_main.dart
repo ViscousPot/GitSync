@@ -127,7 +127,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
           style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
-      body: OrientationBuilder(
+      body: BetterOrientationBuilder(
         builder: (context, orientation) => ShaderMask(
           shaderCallback: (Rect rect) {
             return LinearGradient(

@@ -104,7 +104,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
           style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
-      body: OrientationBuilder(
+      body: BetterOrientationBuilder(
         builder: (context, orientation) => ShaderMask(
           shaderCallback: (Rect rect) {
             return LinearGradient(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:GitSync/global.dart';
@@ -91,7 +92,7 @@ class _ItemCommit extends State<ItemCommit> {
 
   @override
   Widget build(BuildContext context) {
-    return OrientationBuilder(
+    return BetterOrientationBuilder(
       builder: (context, orientation) => Container(
         margin: orientation == Orientation.portrait ? EdgeInsets.only(top: spaceSM) : EdgeInsets.only(bottom: spaceSM),
         child: TextButton(

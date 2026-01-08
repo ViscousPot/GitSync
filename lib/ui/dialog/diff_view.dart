@@ -104,7 +104,7 @@ Future<void> showDialog(
           });
         }
 
-        return OrientationBuilder(
+        return BetterOrientationBuilder(
           builder: (context, orientation) => ValueListenableBuilder(
             valueListenable: diffPartsNotifier,
             builder: (context, diffPartsSnapshot, child) => BaseAlertDialog(
