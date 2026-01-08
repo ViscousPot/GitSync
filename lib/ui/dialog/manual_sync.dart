@@ -127,7 +127,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                               if (clientModeEnabled) SizedBox(width: spaceSM),
                               if (clientModeEnabled)
                                 TextButton.icon(
-                                  onPressed: (stagedFilePathsSnapshot.data ?? []).isNotEmpty
+                                  onPressed: !uploading && (stagedFilePathsSnapshot.data ?? []).isNotEmpty
                                       ? () async {
                                           uploading = true;
                                           setState(() {});
