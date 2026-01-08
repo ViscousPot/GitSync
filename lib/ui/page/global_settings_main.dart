@@ -153,124 +153,72 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                           ),
                         ))([
-                    FutureBuilder(
-                      future: repoManager.getBoolNullable(StorageKey.repoman_themeMode),
-                      builder: (context, themeModeSnapshot) => Row(
-                        children: [
-                          Expanded(
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: cornerRadiusMD,
-                                  topRight: Radius.zero,
-                                  bottomLeft: cornerRadiusMD,
-                                  bottomRight: Radius.zero,
-                                ),
-                                color: themeModeSnapshot.data == false ? colours.tertiaryInfo : colours.tertiaryDark,
-                              ),
-                              child: TextButton.icon(
-                                onPressed: () async {
-                                  await repoManager.setBoolNullable(StorageKey.repoman_themeMode, false);
-                                  colours.reloadTheme(context);
-                                  setState(() {});
-                                },
-                                style: ButtonStyle(
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    themeModeSnapshot.data == false ? colours.tertiaryInfo : colours.tertiaryDark,
+                    IntrinsicHeight(
+                      child: FutureBuilder(
+                        future: repoManager.getBoolNullable(StorageKey.repoman_themeMode),
+                        builder: (context, themeModeSnapshot) => Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: cornerRadiusMD,
+                                    topRight: Radius.zero,
+                                    bottomLeft: cornerRadiusMD,
+                                    bottomRight: Radius.zero,
                                   ),
-                                  shape: WidgetStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: cornerRadiusMD,
-                                        topRight: Radius.zero,
-                                        bottomLeft: cornerRadiusMD,
-                                        bottomRight: Radius.zero,
-                                      ),
-
-                                      side: themeModeSnapshot.data == false ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
-                                    ),
-                                  ),
+                                  color: themeModeSnapshot.data == false ? colours.tertiaryLight : colours.tertiaryDark,
                                 ),
-                                icon: FaIcon(
-                                  FontAwesomeIcons.solidSun,
-                                  color: themeModeSnapshot.data == false ? colours.tertiaryDark : colours.primaryLight,
-                                  size: textMD,
-                                ),
-                                label: SizedBox(
-                                  width: double.infinity,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      AnimatedDefaultTextStyle(
-                                        child: Text(
-                                          t.lightMode,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
-                                        ),
-                                        style: TextStyle(
-                                          color: themeModeSnapshot.data == false ? colours.tertiaryDark : colours.primaryLight,
-                                          fontSize: textMD,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        duration: Duration(milliseconds: 200),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              decoration: BoxDecoration(borderRadius: BorderRadius.zero, color: colours.tertiaryInfo),
-                              padding: EdgeInsets.symmetric(vertical: 3),
-                              child: Container(
                                 child: TextButton.icon(
                                   onPressed: () async {
-                                    await repoManager.setBoolNullable(StorageKey.repoman_themeMode, null);
+                                    await repoManager.setBoolNullable(StorageKey.repoman_themeMode, false);
                                     colours.reloadTheme(context);
                                     setState(() {});
                                   },
                                   style: ButtonStyle(
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM - 3, horizontal: spaceMD)),
+                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
                                     backgroundColor: WidgetStatePropertyAll(
-                                      themeModeSnapshot.data == null ? colours.tertiaryInfo : colours.tertiaryDark,
+                                      themeModeSnapshot.data == false ? colours.tertiaryLight : colours.tertiaryDark,
                                     ),
-                                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: BorderSide.none)),
+                                    shape: WidgetStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: cornerRadiusMD,
+                                          topRight: Radius.zero,
+                                          bottomLeft: cornerRadiusMD,
+                                          bottomRight: Radius.zero,
+                                        ),
+
+                                        side: themeModeSnapshot.data == false ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryLight),
+                                      ),
+                                    ),
+                                  ),
+                                  icon: FaIcon(
+                                    FontAwesomeIcons.solidSun,
+                                    color: themeModeSnapshot.data == false ? colours.primaryDark : colours.primaryLight,
+                                    size: textMD,
                                   ),
                                   label: SizedBox(
                                     width: double.infinity,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         AnimatedDefaultTextStyle(
                                           child: Text(
-                                            t.system,
+                                            t.lightMode,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                           ),
                                           style: TextStyle(
-                                            color: themeModeSnapshot.data == null ? colours.tertiaryDark : colours.primaryLight,
+                                            color: themeModeSnapshot.data == false ? colours.primaryDark : colours.primaryLight,
                                             fontSize: textMD,
                                             fontWeight: FontWeight.bold,
                                           ),
                                           duration: Duration(milliseconds: 200),
-                                        ),
-                                        SizedBox(height: spaceXXXS),
-                                        Transform.flip(
-                                          flipX: true,
-                                          child: FaIcon(
-                                            FontAwesomeIcons.circleHalfStroke,
-                                            color: themeModeSnapshot.data == null ? colours.tertiaryDark : colours.primaryLight,
-                                            size: textMD,
-                                          ),
                                         ),
                                       ],
                                     ),
@@ -278,75 +226,130 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                                 ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.zero,
-                                  topRight: cornerRadiusMD,
-                                  bottomLeft: Radius.zero,
-                                  bottomRight: cornerRadiusMD,
-                                ),
-                                color: themeModeSnapshot.data == true ? colours.tertiaryInfo : colours.tertiaryDark,
-                              ),
-                              child: TextButton.icon(
-                                onPressed: () async {
-                                  await repoManager.setBoolNullable(StorageKey.repoman_themeMode, true);
-                                  colours.reloadTheme(context);
-                                  setState(() {});
-                                },
-                                style: ButtonStyle(
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    themeModeSnapshot.data == true ? colours.tertiaryInfo : colours.tertiaryDark,
-                                  ),
-                                  shape: WidgetStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.zero,
-                                        topRight: cornerRadiusMD,
-                                        bottomLeft: Radius.zero,
-                                        bottomRight: cornerRadiusMD,
+                            Expanded(
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.zero, color: colours.tertiaryLight),
+                                padding: EdgeInsets.symmetric(vertical: 3),
+                                child: Container(
+                                  child: TextButton.icon(
+                                    onPressed: () async {
+                                      await repoManager.setBoolNullable(StorageKey.repoman_themeMode, null);
+                                      colours.reloadTheme(context);
+                                      setState(() {});
+                                    },
+                                    style: ButtonStyle(
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM - 3, horizontal: spaceMD)),
+                                      backgroundColor: WidgetStatePropertyAll(
+                                        themeModeSnapshot.data == null ? colours.tertiaryLight : colours.tertiaryDark,
                                       ),
-                                      side: themeModeSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
+                                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: BorderSide.none)),
                                     ),
-                                  ),
-                                ),
-                                iconAlignment: IconAlignment.end,
-                                icon: FaIcon(
-                                  FontAwesomeIcons.solidMoon,
-                                  color: themeModeSnapshot.data == true ? colours.tertiaryDark : colours.primaryLight,
-                                  size: textMD,
-                                ),
-                                label: SizedBox(
-                                  width: double.infinity,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      AnimatedDefaultTextStyle(
-                                        child: Text(
-                                          t.darkMode,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
-                                        ),
-                                        style: TextStyle(
-                                          color: themeModeSnapshot.data == true ? colours.tertiaryDark : colours.primaryLight,
-                                          fontSize: textMD,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        duration: Duration(milliseconds: 200),
+                                    label: SizedBox(
+                                      width: double.infinity,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          AnimatedDefaultTextStyle(
+                                            child: Text(
+                                              t.system,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
+                                            ),
+                                            style: TextStyle(
+                                              color: themeModeSnapshot.data == null ? colours.primaryDark : colours.primaryLight,
+                                              fontSize: textMD,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            duration: Duration(milliseconds: 200),
+                                          ),
+                                          SizedBox(height: spaceXXXS),
+                                          Transform.flip(
+                                            flipX: true,
+                                            child: FaIcon(
+                                              FontAwesomeIcons.circleHalfStroke,
+                                              color: themeModeSnapshot.data == null ? colours.primaryDark : colours.primaryLight,
+                                              size: textMD,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.zero,
+                                    topRight: cornerRadiusMD,
+                                    bottomLeft: Radius.zero,
+                                    bottomRight: cornerRadiusMD,
+                                  ),
+                                  color: themeModeSnapshot.data == true ? colours.tertiaryLight : colours.tertiaryDark,
+                                ),
+                                child: TextButton.icon(
+                                  onPressed: () async {
+                                    await repoManager.setBoolNullable(StorageKey.repoman_themeMode, true);
+                                    colours.reloadTheme(context);
+                                    setState(() {});
+                                  },
+                                  style: ButtonStyle(
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
+                                    backgroundColor: WidgetStatePropertyAll(
+                                      themeModeSnapshot.data == true ? colours.tertiaryLight : colours.tertiaryDark,
+                                    ),
+                                    shape: WidgetStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.zero,
+                                          topRight: cornerRadiusMD,
+                                          bottomLeft: Radius.zero,
+                                          bottomRight: cornerRadiusMD,
+                                        ),
+                                        side: themeModeSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryLight),
+                                      ),
+                                    ),
+                                  ),
+                                  iconAlignment: IconAlignment.end,
+                                  icon: FaIcon(
+                                    FontAwesomeIcons.solidMoon,
+                                    color: themeModeSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
+                                    size: textMD,
+                                  ),
+                                  label: SizedBox(
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        AnimatedDefaultTextStyle(
+                                          child: Text(
+                                            t.darkMode,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
+                                          ),
+                                          style: TextStyle(
+                                            color: themeModeSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
+                                            fontSize: textMD,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          duration: Duration(milliseconds: 200),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: spaceMD),

@@ -178,8 +178,9 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                                           thumbColor: WidgetStatePropertyAll(
                                             ((applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false)
                                                 ? colours.primaryPositive
-                                                : colours.secondaryLight,
+                                                : colours.tertiaryDark,
                                           ),
+                                          trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
                                           activeThumbColor: colours.primaryPositive,
                                           inactiveTrackColor: colours.tertiaryLight,
                                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -234,7 +235,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                                           thumbColor: WidgetStatePropertyAll(
                                             ((applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false)
                                                 ? colours.primaryPositive
-                                                : colours.secondaryLight,
+                                                : colours.tertiaryDark,
                                           ),
                                           activeThumbColor: colours.primaryPositive,
                                           inactiveTrackColor: colours.tertiaryLight,

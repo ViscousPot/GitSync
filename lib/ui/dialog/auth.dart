@@ -78,10 +78,10 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.secondaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
               label: Text(
                 t.oauthAllRepos.toUpperCase(),
-                style: TextStyle(color: colours.secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: spaceSM),
@@ -113,10 +113,10 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.secondaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
               label: Text(
                 t.oauthScoped.toUpperCase(),
-                style: TextStyle(color: colours.secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -140,10 +140,10 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
-          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.secondaryDark, size: textLG),
+          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
           label: Text(
             t.oauth.toUpperCase(),
-            style: TextStyle(color: colours.secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
       case GitProvider.HTTPS:
@@ -161,7 +161,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           ),
           child: Text(
             t.login.toUpperCase(),
-            style: TextStyle(color: getHttpsCanLogin() ? colours.secondaryDark : colours.tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(color: getHttpsCanLogin() ? colours.primaryDark : colours.tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
       case GitProvider.SSH:
@@ -191,7 +191,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                   child: Text(
                     (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
                     style: TextStyle(
-                      color: (keyPair != null && !pubKeyCopied) ? colours.tertiaryDark : colours.secondaryDark,
+                      color: (keyPair != null && !pubKeyCopied) ? colours.tertiaryDark : colours.primaryDark,
                       fontSize: textSM,
                       fontWeight: FontWeight.bold,
                     ),
@@ -215,7 +215,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                           ),
                         ),
-                        icon: FaIcon(FontAwesomeIcons.key, color: colours.secondaryDark, size: textSM),
+                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textSM),
                       ),
                     )
                   : SizedBox.shrink(),

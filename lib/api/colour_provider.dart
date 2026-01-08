@@ -18,10 +18,10 @@ class Colours {
 
   Color get primaryPositive => darkMode ? Color(0xFF85F48E) : Color(0xFF3B8E59);
   Color get secondaryPositive => darkMode ? Color(0xFF4F7051) : Color(0xFFA7F3D0);
-  Color get tertiaryPositive => darkMode ? Color(0xFFA7F3D0) : Color(0xFF4F7051);
+  Color get tertiaryPositive => darkMode ? Color(0xFFA7F3D0) : Color(0xFF3E7D45);
 
-  Color get primaryNegative => darkMode ? Color(0xFFC22424) : Color(0xFF9C2B2B);
-  Color get secondaryNegative => darkMode ? Color(0xFF8A1B1B) : Color(0xFFFDA4AF);
+  Color get primaryNegative => darkMode ? Color(0xFFC22424) : Color(0xFFB21F1F);
+  Color get secondaryNegative => darkMode ? Color(0xFF8A1B1B) : Color(0xFFC44D4D);
   Color get tertiaryNegative => darkMode ? Color(0xFFFDA4AF) : Color(0xFF8A1B1B);
 
   Color get primaryWarning => darkMode ? Color(0xFFFFC107) : Color(0xFF8A5B00);
@@ -30,7 +30,7 @@ class Colours {
 
   Color get primaryInfo => darkMode ? Color(0xFF2196F3) : Color(0xFF1976D2);
   Color get secondaryInfo => darkMode ? Color(0xFF1976D2) : Color(0xFF90CAF9);
-  Color get tertiaryInfo => darkMode ? Color(0xFF90CAF9) : Color(0xFF0B57A1);
+  Color get tertiaryInfo => darkMode ? Color(0xFF90CAF9) : Color(0xFF0A4B8D);
 
   Color get gitlabOrange => Color(0xFFFC6D26);
   Color get giteaGreen => Color(0xFF609926);

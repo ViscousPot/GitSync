@@ -55,7 +55,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                 ),
                 icon: FaIcon(
                   FontAwesomeIcons.arrowsRotate,
-                  color: clientModeEnabledSnapshot.data != true ? colours.tertiaryDark : colours.primaryLight,
+                  color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                   size: textMD,
                 ),
                 label: SizedBox(
@@ -71,7 +71,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data != true ? colours.tertiaryDark : colours.primaryLight,
+                          color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -85,7 +85,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data != true ? colours.tertiaryDark : colours.primaryLight,
+                          color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -132,7 +132,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                 iconAlignment: IconAlignment.end,
                 icon: FaIcon(
                   FontAwesomeIcons.codeCompare,
-                  color: clientModeEnabledSnapshot.data == true ? colours.tertiaryDark : colours.primaryLight,
+                  color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
                   size: textMD,
                 ),
                 label: SizedBox(
@@ -148,7 +148,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data == true ? colours.tertiaryDark : colours.primaryLight,
+                          color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -162,7 +162,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data == true ? colours.tertiaryDark : colours.primaryLight,
+                          color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textXS,
                           fontWeight: FontWeight.bold,
                         ),
