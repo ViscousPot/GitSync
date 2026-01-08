@@ -2228,7 +2228,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                       ),
                                                     ),
                                                     child: Row(
-                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
                                                         Flexible(
