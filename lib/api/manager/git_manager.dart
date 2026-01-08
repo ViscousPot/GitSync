@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -72,6 +73,8 @@ class GitManager {
     "error reading file for hashing:": () async => null,
     "failed to parse loose object: invalid header": () async => null,
   };
+
+  static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
   static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
@@ -352,19 +355,23 @@ class GitManager {
   }
 
   static Future<void> pushChanges() async {
-    return await _runWithLock(
-      uiLock: true,
-      await _repoIndex,
-      LogType.PushToRepo,
-      (dirPath) async => await GitManagerRs.pushChanges(
-        pathString: dirPath,
-        remoteName: await _remote(),
-        provider: await _gitProvider(),
-        credentials: await _getCredentials(),
-        log: _logWrapper,
-        mergeConflictCallback: () {},
-      ),
-    );
+    return await _runWithLock(uiLock: true, await _repoIndex, LogType.PushToRepo, (dirPath) async {
+      try {
+        await GitManagerRs.pushChanges(
+          pathString: dirPath,
+          remoteName: await _remote(),
+          provider: await _gitProvider(),
+          credentials: await _getCredentials(),
+          log: _logWrapper,
+          mergeConflictCallback: () {},
+        );
+      } on AnyhowException catch (e, stackTrace) {
+        if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
+          Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: changesDuringRebase);
+        }
+        Logger.logError(LogType.UploadChanges, e.message, stackTrace);
+      }
+    });
   }
 
   static Future<void> forcePull() async {
@@ -965,32 +972,43 @@ class GitManager {
     Function() syncCallback, [
     List<String>? filePaths,
     String? syncMessage,
+    VoidCallback? resyncCallback,
   ]) async {
-    return await _runWithLock(uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
+    Future<bool?> internalFn(String dirPath) async => await GitManagerRs.uploadChanges(
+      pathString: dirPath,
+      remoteName: await settingsManager.getRemote(),
+      provider: (await settingsManager.getGitProvider()).name,
+      author: (await settingsManager.getAuthorName(), await settingsManager.getAuthorEmail()),
+      credentials: await _getCredentials(settingsManager),
+      commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
+      syncCallback: syncCallback,
+      mergeConflictCallback: () {
+        repoManager.setInt(StorageKey.repoman_repoIndex, repomanRepoindex);
+        sendMergeConflictNotification();
+      },
+      filePaths: filePaths,
+      syncMessage: sprintf(syncMessage ?? await settingsManager.getSyncMessage(), [
+        (DateFormat(await settingsManager.getSyncMessageTimeFormat())).format(DateTime.now()),
+      ]),
+      log: _logWrapper,
+    );
+    await _runWithLock(uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
       try {
-        return await GitManagerRs.uploadChanges(
-          pathString: dirPath,
-          remoteName: await settingsManager.getRemote(),
-          provider: (await settingsManager.getGitProvider()).name,
-          author: (await settingsManager.getAuthorName(), await settingsManager.getAuthorEmail()),
-          credentials: await _getCredentials(settingsManager),
-          commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
-          syncCallback: syncCallback,
-          mergeConflictCallback: () {
-            repoManager.setInt(StorageKey.repoman_repoIndex, repomanRepoindex);
-            sendMergeConflictNotification();
-          },
-          filePaths: filePaths,
-          syncMessage: sprintf(syncMessage ?? await settingsManager.getSyncMessage(), [
-            (DateFormat(await settingsManager.getSyncMessageTimeFormat())).format(DateTime.now()),
-          ]),
-          log: _logWrapper,
-        );
+        return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {
+        if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
+          if (resyncCallback != null) {
+            resyncCallback();
+          } else {
+            Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: changesDuringRebase);
+          }
+          return false;
+        }
         final errorContent = await _getErrorContent(e.message);
         Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: errorContent);
       }
       return null;
     });
+    return null;
   }
 }

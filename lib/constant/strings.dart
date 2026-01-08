@@ -30,6 +30,7 @@ const String reportBug = "<GitSync Error> Tap to send a bug report";
 const String applicationError = "Application Error!";
 const String operationInProgressError = "Background operation in progress. Please try again later.";
 const String networkUnavailable = "Network unavailable!";
+const String changesDuringRebase = "The Git operation was unexpectedly interrupted; please try the task again to resume.";
 const String invalidIndexHeaderError = "Invalid index data! Incorrect header signature detected.";
 const String invalidDataInIndexInvalidEntry = "invalid data in index - invalid entry";
 const String invalidDataInIndexExtensionIsTruncated = "invalid data in index - extension is truncated";

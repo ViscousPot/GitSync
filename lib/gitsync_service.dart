@@ -214,11 +214,18 @@ class GitsyncService {
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
-          pushResult = await GitManager.uploadChanges(repomanRepoindex, settingsManager, () async {
-            if (!synced) {
-              await _displaySyncMessage(settingsManager, s.syncStartPush);
-            }
-          });
+          pushResult = await GitManager.uploadChanges(
+            repomanRepoindex,
+            settingsManager,
+            () async {
+              if (!synced) {
+                await _displaySyncMessage(settingsManager, s.syncStartPush);
+              }
+            },
+            null,
+            null,
+            () => debouncedSync(repomanRepoindex),
+          );
 
           switch (pushResult) {
             case null:
@@ -274,12 +281,14 @@ class GitsyncService {
       },
       conflictingaths,
       commitMessage,
+      () => debouncedSync(repomanRepoindex),
     );
 
     switch (pushResult) {
       case null:
         {
           Logger.gmLog(type: LogType.Sync, "Merge Failed");
+          serviceInstance?.invoke(MERGE_COMPLETE);
           return;
         }
       case true:

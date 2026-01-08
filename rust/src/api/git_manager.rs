@@ -1407,9 +1407,15 @@ pub async fn download_changes(
     );
     let repo = swl!(Repository::open(path_string))?;
     set_author(&repo, &author);
-    repo.cleanup_state();
+    swl!(repo.cleanup_state())?;
 
-    fetch_remote_priv(&repo, &remote, &provider, &credentials, &log_callback);
+    swl!(fetch_remote_priv(
+        &repo,
+        &remote,
+        &provider,
+        &credentials,
+        &log_callback
+    ))?;
 
     if pull_changes_priv(
         &repo,
