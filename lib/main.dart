@@ -16,6 +16,7 @@ import 'package:GitSync/ui/dialog/merge_conflict.dart' as MergeConflictDialog;
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:GitSync/ui/page/global_settings_main.dart';
 import 'package:GitSync/ui/page/sync_settings_main.dart';
+import 'package:anchor_scroll_controller/anchor_scroll_controller.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:extended_text/extended_text.dart';
@@ -332,7 +333,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   Timer? autoRefreshTimer;
   StreamSubscription<List<ConnectivityResult>>? networkSubscription;
-  ScrollController recentCommitsController = ScrollController();
+  late AnchorScrollController recentCommitsController = AnchorScrollController(
+    onIndexChanged: (index, userScroll) {
+      mergeConflictVisible.value = index == 0;
+    },
+  );
 
   final syncMethodsDropdownKey = GlobalKey();
   final syncMethodMainButtonKey = GlobalKey();
@@ -350,6 +355,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   ValueNotifier<List<String>> branchNames = ValueNotifier([]);
   ValueNotifier<Map<String, (IconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
+  ValueNotifier<bool> mergeConflictVisible = ValueNotifier(true);
 
   ValueNotifier<bool> fsLoader = ValueNotifier(false);
 
@@ -1291,28 +1297,129 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                       : Column(
                                                                           children: [
                                                                             Expanded(
-                                                                              child: AnimatedListView(
-                                                                                controller: recentCommitsController,
-                                                                                items: items,
-                                                                                reverse: true,
-                                                                                isSameItem: (a, b) => a.reference == b.reference,
-                                                                                itemBuilder: (BuildContext context, int index) {
-                                                                                  final reference = items[index].reference;
+                                                                              child: Stack(
+                                                                                children: [
+                                                                                  AnimatedListView(
+                                                                                    controller: recentCommitsController,
+                                                                                    items: items,
+                                                                                    reverse: true,
+                                                                                    isSameItem: (a, b) => a.reference == b.reference,
+                                                                                    itemBuilder: (BuildContext context, int index) {
+                                                                                      final reference = items[index].reference;
 
-                                                                                  if (reference == mergeConflictReference) {
-                                                                                    return ItemMergeConflict(
-                                                                                      key: Key(reference),
-                                                                                      conflictingSnapshot,
-                                                                                      () => reloadAll(),
-                                                                                    );
-                                                                                  }
+                                                                                      if (reference == mergeConflictReference) {
+                                                                                        return AnchorItemWrapper(
+                                                                                          index: index,
+                                                                                          controller: recentCommitsController,
+                                                                                          child: ItemMergeConflict(
+                                                                                            key: Key(reference),
+                                                                                            conflictingSnapshot,
+                                                                                            () => reloadAll(),
+                                                                                          ),
+                                                                                        );
+                                                                                      }
 
-                                                                                  return ItemCommit(
-                                                                                    key: Key(reference),
-                                                                                    items[index],
-                                                                                    index < items.length - 1 ? items[index + 1] : null,
-                                                                                  );
-                                                                                },
+                                                                                      return AnchorItemWrapper(
+                                                                                        index: index,
+                                                                                        controller: recentCommitsController,
+                                                                                        child: ItemCommit(
+                                                                                          key: Key(reference),
+                                                                                          items[index],
+                                                                                          index < items.length - 1 ? items[index + 1] : null,
+                                                                                        ),
+                                                                                      );
+                                                                                    },
+                                                                                  ),
+                                                                                  ValueListenableBuilder(
+                                                                                    valueListenable: mergeConflictVisible,
+                                                                                    builder: (context, snapshot, child) => AnimatedPositioned(
+                                                                                      bottom: snapshot ? -spaceXL : spaceMD,
+                                                                                      left: 0,
+                                                                                      right: 0,
+                                                                                      width: null,
+                                                                                      duration: Duration(milliseconds: 200),
+                                                                                      child: Center(
+                                                                                        child: AnimatedOpacity(
+                                                                                          duration: Duration(milliseconds: 200),
+                                                                                          opacity: snapshot ? 0 : 1,
+                                                                                          child: TextButton(
+                                                                                            onPressed: () async {
+                                                                                              await recentCommitsController.animateTo(
+                                                                                                0,
+                                                                                                duration: Duration(milliseconds: 200),
+                                                                                                curve: Curves.easeInOut,
+                                                                                              );
+                                                                                              mergeConflictVisible.value = true;
+                                                                                            },
+                                                                                            style: ButtonStyle(
+                                                                                              alignment: Alignment.centerLeft,
+                                                                                              backgroundColor: WidgetStatePropertyAll(
+                                                                                                tertiaryNegative,
+                                                                                              ),
+                                                                                              padding: WidgetStatePropertyAll(
+                                                                                                EdgeInsets.only(
+                                                                                                  top: spaceSM,
+                                                                                                  left: spaceSM,
+                                                                                                  right: spaceSM,
+                                                                                                  bottom: spaceXXXS,
+                                                                                                ),
+                                                                                              ),
+                                                                                              shape: WidgetStatePropertyAll(
+                                                                                                RoundedRectangleBorder(
+                                                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                                                  side: BorderSide.none,
+                                                                                                ),
+                                                                                              ),
+                                                                                            ),
+                                                                                            child: AnimatedContainer(
+                                                                                              duration: Duration(milliseconds: 200),
+                                                                                              // decoration: BoxDecoration(
+                                                                                              //   color: tertiaryNegative,
+                                                                                              //   borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                                              // ),
+                                                                                              // padding: EdgeInsets.only(
+                                                                                              //   top: spaceSM,
+                                                                                              //   left: spaceSM,
+                                                                                              //   right: spaceSM,
+                                                                                              //   bottom: spaceXXXS,
+                                                                                              // ),
+                                                                                              child: Column(
+                                                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                                mainAxisSize: MainAxisSize.max,
+                                                                                                children: [
+                                                                                                  Text(
+                                                                                                    t.mergeConflict.toUpperCase(),
+                                                                                                    style: TextStyle(
+                                                                                                      color: primaryDark,
+                                                                                                      fontSize: textMD,
+                                                                                                      overflow: TextOverflow.ellipsis,
+                                                                                                      fontWeight: FontWeight.bold,
+                                                                                                      height: 1,
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  FaIcon(
+                                                                                                    FontAwesomeIcons.caretDown,
+                                                                                                    color: primaryDark,
+                                                                                                    size: textMD,
+                                                                                                  ),
+                                                                                                  // Text(
+                                                                                                  //   t.mergeConflictItemMessage,
+                                                                                                  //   style: TextStyle(
+                                                                                                  //     color: secondaryDark,
+                                                                                                  //     fontSize: textSM,
+                                                                                                  //     overflow: TextOverflow.ellipsis,
+                                                                                                  //   ),
+                                                                                                  // ),
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
                                                                               ),
                                                                             ),
                                                                           ],
