@@ -668,7 +668,7 @@ class GitManager {
         "";
   }
 
-  static void writeGitignore(String gitignoreString) async {
+  static Future<void> writeGitignore(String gitignoreString) async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
     return await _runWithLock(await _repoIndex, LogType.GitIgnore, (dirPath) async {
@@ -691,7 +691,7 @@ class GitManager {
         "";
   }
 
-  static void writeGitInfoExclude(String gitignoreString) async {
+  static Future<void> writeGitInfoExclude(String gitignoreString) async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
     return await _runWithLock(await _repoIndex, LogType.GitInfoExclude, (dirPath) async {

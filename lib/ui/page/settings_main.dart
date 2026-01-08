@@ -37,6 +37,10 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
 
+  Future<String> readGitignore = GitManager.readGitignore();
+  Future<String> readGitInfoExclude = GitManager.readGitInfoExclude();
+  Future<bool> getDisableSsl = GitManager.getDisableSsl();
+
   static const duration = Duration(seconds: 1);
 
   @override
@@ -88,22 +92,24 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     super.dispose();
   }
 
-  void writeGitignore(String gitignoreString) {
+  void writeGitignore(String gitignoreString) async {
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
       setState(() {});
     }
-    GitManager.writeGitignore(gitignoreString);
+    await GitManager.writeGitignore(gitignoreString);
+    readGitignore = GitManager.readGitignore();
   }
 
-  void writeGitInfoExclude(String gitInfoExcludeString) {
+  void writeGitInfoExclude(String gitInfoExcludeString) async {
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
       setState(() {});
     }
-    GitManager.writeGitInfoExclude(gitInfoExcludeString);
+    await GitManager.writeGitInfoExclude(gitInfoExcludeString);
+    readGitInfoExclude = GitManager.readGitInfoExclude();
   }
 
   @override
@@ -472,7 +478,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             SizedBox(height: spaceMD),
                             ItemSetting(
                               setFn: writeGitignore,
-                              getFn: demo ? () async => "" : GitManager.readGitignore,
+                              getFn: demo ? () async => "" : () => readGitignore,
                               title: t.gitIgnore,
                               description: t.gitIgnoreDescription,
                               hint: t.gitIgnoreHint,
@@ -483,7 +489,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             SizedBox(height: spaceMD),
                             ItemSetting(
                               setFn: writeGitInfoExclude,
-                              getFn: demo ? () async => "" : GitManager.readGitInfoExclude,
+                              getFn: demo ? () async => "" : () => readGitInfoExclude,
                               title: t.gitInfoExclude,
                               description: t.gitInfoExcludeDescription,
                               hint: t.gitInfoExcludeHint,
@@ -493,10 +499,11 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             ),
                             SizedBox(height: spaceSM),
                             FutureBuilder(
-                              future: GitManager.getDisableSsl(),
+                              future: getDisableSsl,
                               builder: (context, snapshot) => TextButton.icon(
                                 onPressed: () async {
                                   await GitManager.setDisableSsl(!(snapshot.data ?? false));
+                                  getDisableSsl = GitManager.getDisableSsl();
                                   setState(() {});
                                 },
                                 style: ButtonStyle(
