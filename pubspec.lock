@@ -359,28 +359,27 @@ packages:
   flutter_secure_storage:
     dependency: "direct main"
     description:
-      path: flutter_secure_storage
-      ref: "6b97b569e0ee377a257abd1b8fe8bc5a5417c440"
-      resolved-ref: "6b97b569e0ee377a257abd1b8fe8bc5a5417c440"
-      url: "https://github.com/ViscousPot/flutter_secure_storage"
-    source: git
-    version: "10.0.0-beta.4"
+      name: flutter_secure_storage
+      sha256: da922f2aab2d733db7e011a6bcc4a825b844892d4edd6df83ff156b09a9b2e40
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.0.0"
   flutter_secure_storage_darwin:
     dependency: transitive
     description:
       name: flutter_secure_storage_darwin
-      sha256: f226f2a572bed96bc6542198ebaec227150786e34311d455a7e2d3d06d951845
+      sha256: "8878c25136a79def1668c75985e8e193d9d7d095453ec28730da0315dc69aee3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.2.0"
   flutter_secure_storage_linux:
     dependency: transitive
     description:
       name: flutter_secure_storage_linux
-      sha256: "9b4b73127e857cd3117d43a70fa3dddadb6e0b253be62e6a6ab85caa0742182c"
+      sha256: "2b5c76dce569ab752d55a1cee6a2242bcc11fdba927078fb88c503f150767cda"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "3.0.0"
   flutter_secure_storage_platform_interface:
     dependency: transitive
     description:
@@ -393,18 +392,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_secure_storage_web
-      sha256: "4c3f233e739545c6cb09286eeec1cc4744138372b985113acc904f7263bef517"
+      sha256: "6a1137df62b84b54261dca582c1c09ea72f4f9a4b2fcee21b025964132d5d0c3"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   flutter_secure_storage_windows:
     dependency: transitive
     description:
       name: flutter_secure_storage_windows
-      sha256: ff32af20f70a8d0e59b2938fc92de35b54a74671041c814275afd80e27df9f21
+      sha256: "3b7c8e068875dfd46719ff57c90d8c459c87f2302ed6b00ff006b3c9fcad1613"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.1.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -414,10 +413,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_web_auth_2
-      sha256: "2483d1fd3c45fe1262446e8d5f5490f01b864f2e7868ffe05b4727e263cc0182"
+      sha256: fb584c8a285722eb98363240f0aac608cc546f8d28080cdf05edfad27ace2af0
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-alpha.3"
+    version: "5.0.0-alpha.7"
   flutter_web_auth_2_platform_interface:
     dependency: transitive
     description:
@@ -614,10 +613,10 @@ packages:
     dependency: "direct main"
     description:
       name: oauth2_client
-      sha256: d6a146049f36ef2da32bdc7a7a9e5671a0e66ea596d8f70a26de4cddfcab4d2e
+      sha256: "51d5d6a76fd2f043411e322a441b6e7b6e260ba9891c528b47df939c948fcc7b"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.2.2"
   open_file:
     dependency: "direct main"
     description:

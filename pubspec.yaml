@@ -15,17 +15,8 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   timeago: ^3.7.0
 
-  # iOS
-  # flutter_secure_storage: ^9.2.4
-  # oauth2_client: ^3.3.0
-
-  # Android
-  flutter_secure_storage:
-    git:
-      url: https://github.com/ViscousPot/flutter_secure_storage
-      ref: 6b97b569e0ee377a257abd1b8fe8bc5a5417c440
-      path: flutter_secure_storage
-  oauth2_client: ^4.1.0
+  flutter_secure_storage: 10.0.0
+  oauth2_client: 4.2.2
 
   file_picker: ^10.3.2
   extended_text: ^15.0.0
@@ -94,11 +85,6 @@ dependency_overrides:
     git:
       url: https://github.com/ViscousPot/flutter_background_service_with_intents
       path: packages/flutter_background_service_ios
-  flutter_secure_storage:
-    git:
-      url: https://github.com/ViscousPot/flutter_secure_storage
-      ref: 6b97b569e0ee377a257abd1b8fe8bc5a5417c440
-      path: flutter_secure_storage
 
 dev_dependencies:
   flutter_test:
