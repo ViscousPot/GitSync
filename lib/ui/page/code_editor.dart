@@ -10,6 +10,7 @@ import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
+import 'package:GitSync/ui/component/code_line_number_render_object.dart';
 import 'package:GitSync/ui/dialog/info_dialog.dart' as InfoDialog;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,45 @@ class LogsChunkAnalyzer implements ReEditor.CodeChunkAnalyzer {
       }
     }
     return false;
+  }
+}
+
+class CodeLineNumber extends LeafRenderObjectWidget {
+  final ReEditor.CodeLineEditingController controller;
+  final ReEditor.CodeIndicatorValueNotifier notifier;
+  final TextStyle focusedTextStyle;
+  final int? minNumberCount;
+  final String Function(int lineIndex)? customLineIndex2Text;
+  final TextStyle Function(int lineIndex) customLineIndex2TextStyle;
+
+  const CodeLineNumber({
+    super.key,
+    required this.notifier,
+    required this.controller,
+    required this.focusedTextStyle,
+    this.minNumberCount,
+    this.customLineIndex2Text,
+    required this.customLineIndex2TextStyle,
+  });
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => CodeLineNumberRenderObject(
+    controller: controller,
+    notifier: notifier,
+    focusedTextStyle: focusedTextStyle,
+    minNumberCount: minNumberCount ?? 3,
+    customLineIndex2Text: customLineIndex2Text,
+    customLineIndex2TextStyle: customLineIndex2TextStyle,
+  );
+
+  @override
+  void updateRenderObject(BuildContext context, covariant CodeLineNumberRenderObject renderObject) {
+    renderObject
+      ..controller = controller
+      ..notifier = notifier
+      ..focusedTextStyle = focusedTextStyle
+      ..minNumberCount = minNumberCount ?? 3;
+    super.updateRenderObject(context, renderObject);
   }
 }
 
@@ -315,18 +355,23 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
           if (hunkHeader != null) {
             deletionStartLineNumber = int.tryParse(hunkHeader.group(1) ?? "") ?? 0;
             insertionStartLineNumber = int.tryParse(hunkHeader.group(3) ?? "") ?? 0;
-            print("//// $deletionStartLineNumber $insertionStartLineNumber");
             hunkStartIndex = indexedLine.$1;
             return ("", "");
           }
 
+          if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null &&
+              RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
+            return (
+              "-$conflictSeparator${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
+              "+$conflictSeparator${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}",
+            );
+          }
           if (RegExp(r"(?<=-{5}deletion-{5}).*$").firstMatch(indexedLine.$2) != null) {
-            return ("${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}", "");
+            return ("-$conflictSeparator${deletionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}", "");
           }
           if (RegExp(r"(?<=\+{5}insertion\+{5}).*$").firstMatch(indexedLine.$2) != null) {
-            return ("", "${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}");
+            return ("", "+$conflictSeparator${insertionStartLineNumber - 1 + (indexedLine.$1 - hunkStartIndex)}");
           }
-          print(indexedLine);
           if (indexedLine.$1 == indexedLines.length - 1 && indexedLine.$2.isEmpty) {
             return ("", "");
           }
@@ -510,20 +555,46 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                       children: [
                         if (widget.type == EditorType.DEFAULT) ReEditor.DefaultCodeLineNumber(controller: editingController, notifier: notifier),
                         if (widget.type == EditorType.DIFF && deletionDiffLineNumbers.any((item) => item.isNotEmpty))
-                          ReEditor.DefaultCodeLineNumber(
-                            controller: editingController,
-                            notifier: notifier,
-                            customLineIndex2Text: (lineIndex) {
-                              return "${deletionDiffLineNumbers.length > lineIndex ? deletionDiffLineNumbers[lineIndex] : ""}";
-                            },
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: spaceXXXXS / 2),
+                            child: CodeLineNumber(
+                              controller: editingController,
+                              notifier: notifier,
+                              focusedTextStyle: TextStyle(color: secondaryLight, fontSize: textMD),
+                              customLineIndex2TextStyle: (lineIndex) {
+                                return TextStyle(
+                                  fontFamily: "RobotoMono",
+                                  color: deletionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "-" ? tertiaryNegative : tertiaryLight,
+                                  fontSize: textMD,
+                                );
+                              },
+                              customLineIndex2Text: (lineIndex) {
+                                return "${deletionDiffLineNumbers.length > lineIndex ? deletionDiffLineNumbers[lineIndex].split(conflictSeparator).last : ""}";
+                              },
+                            ),
                           ),
+                        if (widget.type == EditorType.DIFF &&
+                            insertionDiffLineNumbers.any((item) => item.isNotEmpty) &&
+                            deletionDiffLineNumbers.any((item) => item.isNotEmpty))
+                          Container(width: spaceXXXS),
                         if (widget.type == EditorType.DIFF && insertionDiffLineNumbers.any((item) => item.isNotEmpty))
-                          ReEditor.DefaultCodeLineNumber(
-                            controller: editingController,
-                            notifier: notifier,
-                            customLineIndex2Text: (lineIndex) {
-                              return "${insertionDiffLineNumbers.length > lineIndex ? insertionDiffLineNumbers[lineIndex] : ""}";
-                            },
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: spaceXXXXS / 2),
+                            child: CodeLineNumber(
+                              controller: editingController,
+                              notifier: notifier,
+                              focusedTextStyle: TextStyle(color: secondaryLight, fontSize: textMD),
+                              customLineIndex2TextStyle: (lineIndex) {
+                                return TextStyle(
+                                  fontFamily: "RobotoMono",
+                                  color: insertionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "+" ? tertiaryPositive : tertiaryLight,
+                                  fontSize: textMD,
+                                );
+                              },
+                              customLineIndex2Text: (lineIndex) {
+                                return "${insertionDiffLineNumbers.length > lineIndex ? insertionDiffLineNumbers[lineIndex].split(conflictSeparator).last : ""}";
+                              },
+                            ),
                           ),
                         if (widget.type == EditorType.DEFAULT || widget.type == EditorType.LOGS)
                           ReEditor.DefaultCodeChunkIndicator(width: 20, controller: chunkController, notifier: notifier),
