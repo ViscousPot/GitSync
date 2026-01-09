@@ -763,10 +763,11 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
   }
 }
 
-Route createGlobalSettingsMainRoute({bool onboarding = false}) {
+@pragma('vm:entry-point')
+Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? onboarding) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
-    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(builder: (context) => GlobalSettingsMain(onboarding: onboarding)),
+    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(builder: (context) => GlobalSettingsMain(onboarding: onboarding == true)),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

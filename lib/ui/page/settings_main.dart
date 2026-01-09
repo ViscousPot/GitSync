@@ -25,7 +25,7 @@ class SettingsMain extends StatefulWidget {
   State<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin, RestorationMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
@@ -42,6 +42,20 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   Future<bool> getDisableSsl = GitManager.getDisableSsl();
 
   static const duration = Duration(seconds: 1);
+
+  late final _restorableGlobalSettings = RestorableRouteFuture<String?>(
+    onPresent: (navigator, arguments) {
+      return navigator.restorablePush(createGlobalSettingsMainRoute, arguments: arguments);
+    },
+    onComplete: (result) {},
+  );
+
+  @override
+  String get restorationId => settings_main;
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_restorableGlobalSettings, global_settings_main);
+  }
 
   @override
   void initState() {
@@ -577,7 +591,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
                         Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                        await Navigator.of(context).push(createGlobalSettingsMainRoute());
+                        _restorableGlobalSettings.present(false);
                       },
                     ),
                     SizedBox(height: spaceLG),
@@ -592,11 +606,12 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   }
 }
 
-Route createSettingsMainRoute({bool showcaseAuthorDetails = false}) {
+@pragma('vm:entry-point')
+Route<String?> createSettingsMainRoute(BuildContext context, Object? showcaseAuthorDetails) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        ShowCaseWidget(builder: (context) => SettingsMain(showcaseAuthorDetails: showcaseAuthorDetails)),
+        ShowCaseWidget(builder: (context) => SettingsMain(showcaseAuthorDetails: showcaseAuthorDetails == true)),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;
