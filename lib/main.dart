@@ -659,7 +659,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       ),
       if (!clientModeEnabled)
         t.manualSync: (
-          FontAwesomeIcons.listCheck,
+          FontAwesomeIcons.barsStaggered,
           () async {
             await ManualSyncDialog.showDialog(context, () async {});
           },
@@ -708,7 +708,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ),
       if (clientModeEnabled)
         t.stageAndCommit: (
-          FontAwesomeIcons.listCheck,
+          FontAwesomeIcons.barsStaggered,
           () async {
             await ManualSyncDialog.showDialog(context, () async => {});
           },
