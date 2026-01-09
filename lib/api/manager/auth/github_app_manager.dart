@@ -54,9 +54,9 @@ class GithubAppManager extends GitProviderManager {
           headers: {"Accept": "application/json", "Authorization": "token $accessToken"},
         );
         if (emailResp.statusCode == 200) {
-          final emails = (json.decode(emailResp.body) as List).where((e) => e["visibility"] != "private").toList();
+          final emails = (json.decode(emailResp.body) as List);
           final primaryOrFirst = emails.firstWhere(
-            (e) => e["primary"] == true,
+            (e) => e["visibility"] != "private" && e["primary"] == true,
             orElse: () => emails.firstWhere((e) => e["primary"] == true, orElse: () => emails[0]),
           );
           email = primaryOrFirst?["email"];
