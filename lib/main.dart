@@ -305,8 +305,7 @@ class _MyAppState extends State<MyApp> {
               title: appName,
               reloadLocale: () async {
                 appLocale = repoManager.getStringNullable(StorageKey.repoman_appLocale);
-                setState(() {});
-                ();
+                if (mounted) setState(() {});
               },
             );
           },
@@ -388,7 +387,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    AccessibilityServiceHelper.init(context, setState);
+    AccessibilityServiceHelper.init(context, (fn) => mounted ? setState(fn) : null);
     WidgetsBinding.instance.addObserver(this);
 
     // TODO: Make sure this is commented for release
@@ -469,7 +468,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await reloadAll();
     });
 
-    networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => setState(() {}));
+    networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => mounted ? setState(() {}) : null);
 
     initAsync(() async {
       // TODO: Commented for release
@@ -562,12 +561,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     await Navigator.of(context).push(createGlobalSettingsMainRoute(onboarding: true)).then((_) => reloadAll());
     await repoManager.setOnboardingStep(-1);
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   Future<void> addRepo() async {
     repoSettingsExpanded = false;
-    setState(() {});
+    if (mounted) setState(() {});
 
     AddContainerDialog.showDialog(context, (text) async {
       List<String> repomanReponames = List.from(await repoManager.getStringList(StorageKey.repoman_repoNames));
@@ -811,7 +810,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         syncOptions.value.remove(t.stageAndCommit);
         syncOptions.value.remove(t.uploadChanges);
         syncOptions.value.remove(t.pushChanges);
-        setState(() {});
+        if (mounted) setState(() {});
       }
     });
   }
@@ -965,10 +964,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   onPressed: () async {
                                     if (premiumManager.hasPremiumNotifier.value != true) {
                                       await UnlockPremiumDialog.showDialog(context, () async {
-                                        setState(() {});
+                                        if (mounted) setState(() {});
                                         await addRepo();
                                       });
-                                      setState(() {});
+                                      if (mounted) setState(() {});
                                       return;
                                     }
 
@@ -978,14 +977,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     }
 
                                     repoSettingsExpanded = !repoSettingsExpanded;
-                                    setState(() {});
+                                    if (mounted) setState(() {});
 
                                     if (repoSettingsExpanded) {
                                       Future.delayed(
                                         Duration(seconds: 5),
-                                        () => setState(() {
-                                          repoSettingsExpanded = false;
-                                        }),
+                                        () => mounted
+                                            ? setState(() {
+                                                repoSettingsExpanded = false;
+                                              })
+                                            : null,
                                       );
                                     }
                                   },
@@ -1061,7 +1062,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                             constraints: BoxConstraints(),
                                             onPressed: () async {
                                               repoSettingsExpanded = false;
-                                              setState(() {});
+                                              if (mounted) setState(() {});
 
                                               if (repoNamesSnapshot.data == null || repoIndexSnapshot.data == null) return;
 
@@ -2277,7 +2278,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                                                   conflicting.value = [];
                                                                   await updateSyncOptions();
                                                                   await GitManager.clearQueue();
-                                                                  setState(() {});
+                                                                  if (mounted) setState(() {});
                                                                 },
                                                                 constraints: BoxConstraints(),
                                                                 style: ButtonStyle(

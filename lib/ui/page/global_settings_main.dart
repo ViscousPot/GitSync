@@ -54,7 +54,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
     super.initState();
     _controller.addListener(() {
       atTop = _controller.offset <= 0;
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     _landscapeScrollControllerLeft.addListener(() {
@@ -189,7 +189,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       builder: (context, editorLineWrapSnapshot) => TextButton.icon(
                         onPressed: () async {
                           await repoManager.setBool(StorageKey.repoman_editorLineWrap, !(editorLineWrapSnapshot.data ?? false));
-                          setState(() {});
+                          if (mounted) setState(() {});
                         },
                         style: ButtonStyle(
                           alignment: Alignment.centerLeft,
@@ -223,7 +223,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         builder: (context, excludedFromRecentsSnapshot) => TextButton.icon(
                           onPressed: () async {
                             await AccessibilityServiceHelper.excludeFromRecents(!(excludedFromRecentsSnapshot.data ?? false));
-                            setState(() {});
+                            if (mounted) setState(() {});
                           },
                           style: ButtonStyle(
                             alignment: Alignment.centerLeft,

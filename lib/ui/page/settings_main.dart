@@ -48,7 +48,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     super.initState();
     _controller.addListener(() {
       atTop = _controller.offset <= 0;
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     _landscapeScrollControllerLeft.addListener(() {
@@ -68,9 +68,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     _pulseController.stop();
 
     _pulseController.addListener(() {
-      setState(() {
-        _borderVisible = _pulseController.value > 0.5;
-      });
+      _borderVisible = _pulseController.value > 0.5;
+      if (mounted) setState(() {});
     });
 
     if (widget.showcaseAuthorDetails) {
@@ -82,7 +81,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     initAsync(() async {
       gitDirPath = await uiSettingsManager.getStringNullable(StorageKey.setman_gitDirPath);
       if (gitDirPath == "") gitDirPath = null;
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 
@@ -96,7 +95,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
-      setState(() {});
+      if (mounted) setState(() {});
     }
     await GitManager.writeGitignore(gitignoreString);
     readGitignore = GitManager.readGitignore();
@@ -106,7 +105,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
-      setState(() {});
+      if (mounted) setState(() {});
     }
     await GitManager.writeGitInfoExclude(gitInfoExcludeString);
     readGitInfoExclude = GitManager.readGitInfoExclude();
@@ -235,7 +234,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                             StorageKey.setman_gitCommitSigningPassphrase,
                                                             sshCredentials.$1,
                                                           );
-                                                          setState(() {});
+                                                          if (mounted) setState(() {});
                                                         });
                                                       },
                                                       style: ButtonStyle(
@@ -292,7 +291,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                               null,
                                                             );
                                                             await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
-                                                            setState(() {});
+                                                            if (mounted) setState(() {});
                                                           },
                                                           icon: FaIcon(FontAwesomeIcons.trash, color: tertiaryNegative, size: textMD),
                                                         )
@@ -307,7 +306,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                     StorageKey.setman_gitCommitSigningKey,
                                                     gitCommitSigningKeySnapshot.data == null ? "" : null,
                                                   );
-                                                  setState(() {});
+                                                  if (mounted) setState(() {});
                                                 },
                                                 style: ButtonStyle(
                                                   alignment: Alignment.centerLeft,
@@ -430,14 +429,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             TextButton(
                               onPressed: () async {
                                 unstaging = true;
-                                setState(() {});
+                                if (mounted) setState(() {});
 
                                 await GitManager.untrackAll();
 
                                 unstaging = false;
                                 ignoreChanged = false;
                                 _pulseController.stop();
-                                setState(() {});
+                                if (mounted) setState(() {});
                               },
                               style: ButtonStyle(
                                 alignment: Alignment.center,
@@ -504,7 +503,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 onPressed: () async {
                                   await GitManager.setDisableSsl(!(snapshot.data ?? false));
                                   getDisableSsl = GitManager.getDisableSsl();
-                                  setState(() {});
+                                  if (mounted) setState(() {});
                                 },
                                 style: ButtonStyle(
                                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
@@ -542,7 +541,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                     StorageKey.setman_optimisedSyncExperimental,
                                     !(optimisedSyncSnapshot.data ?? false),
                                   );
-                                  setState(() {});
+                                  if (mounted) setState(() {});
                                 },
                                 style: ButtonStyle(
                                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
