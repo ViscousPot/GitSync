@@ -211,7 +211,7 @@ class _CodeEditor extends State<CodeEditor> {
   int index = 0;
   bool prevEnabled = false;
   bool nextEnabled = true;
-  GlobalKey key = GlobalKey();
+  late GlobalKey key = GlobalKey();
 
   @override
   void initState() {

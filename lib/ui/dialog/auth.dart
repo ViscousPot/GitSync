@@ -20,7 +20,7 @@ import '../../../ui/dialog/base_alert_dialog.dart';
 import 'import_priv_key.dart' as ImportPrivKeyDialog;
 import 'confirm_priv_key_copy.dart' as ConfirmPrivKeyCopyDialog;
 
-final GlobalKey authDialogKey = GlobalKey();
+late final GlobalKey authDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   List<String> repoNames = [...await repoManager.getStringList(StorageKey.repoman_repoNames)];

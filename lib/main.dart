@@ -339,16 +339,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     },
   );
 
-  final syncMethodsDropdownKey = GlobalKey();
-  final syncMethodMainButtonKey = GlobalKey();
-  final _globalSettingsKey = GlobalKey();
-  final _syncProgressKey = GlobalKey();
-  final _addMoreKey = GlobalKey();
-  final _controlKey = GlobalKey();
-  final _configKey = GlobalKey();
-  final _autoSyncOptionsKey = GlobalKey();
 
   ValueNotifier<bool> loadingRecentCommits = ValueNotifier(false);
+  late final syncMethodsDropdownKey = GlobalKey();
+  late final syncMethodMainButtonKey = GlobalKey();
+  late final _globalSettingsKey = GlobalKey();
+  late final _syncProgressKey = GlobalKey();
+  late final _addMoreKey = GlobalKey();
+  late final _controlKey = GlobalKey();
+  late final _configKey = GlobalKey();
+  late final _autoSyncOptionsKey = GlobalKey();
   ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
   ValueNotifier<List<String>> conflicting = ValueNotifier([]);
   ValueNotifier<String?> branchName = ValueNotifier(null);

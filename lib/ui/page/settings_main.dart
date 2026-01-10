@@ -29,7 +29,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
-  final _authorDetailsKey = GlobalKey();
+  late final _authorDetailsKey = GlobalKey();
   bool atTop = true;
   bool unstaging = false;
   bool ignoreChanged = false;

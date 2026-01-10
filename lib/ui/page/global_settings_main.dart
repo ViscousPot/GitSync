@@ -47,7 +47,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
   bool atTop = true;
-  final _uiSetupGuideKey = GlobalKey();
+  late final _uiSetupGuideKey = GlobalKey();
 
   @override
   void initState() {
