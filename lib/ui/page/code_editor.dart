@@ -398,23 +398,30 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
       print(e);
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.type == EditorType.DEFAULT || controller.text.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initAsync(() async {
+        if (widget.type != EditorType.LOGS || controller.text.isEmpty) return;
 
-      final chunkController = ReEditor.CodeChunkController(controller, LogsChunkAnalyzer());
-      while (chunkController.value.isEmpty) {
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-      int offset = 0;
+        final chunkController = ReEditor.CodeChunkController(controller, LogsChunkAnalyzer());
+        try {
+          while (chunkController.value.isEmpty) {
+            await Future.delayed(Duration(milliseconds: 100));
+          }
+          int offset = 0;
 
-      if (widget.type == EditorType.LOGS) {
-        for (final chunk in chunkController.value) {
-          chunkController.collapse(chunk.index - offset);
-          offset += max(0, chunk.end - chunk.index - 1);
+          for (final chunk in chunkController.value) {
+            chunkController.collapse(chunk.index - offset);
+            offset += max(0, chunk.end - chunk.index - 1);
+          }
+          logsCollapsed = true;
+          if (mounted) setState(() {});
+        } catch (e) {
+          if (e.toString().contains("A _CodeLineEditingControllerImpl was used after being disposed.")) {
+            return;
+          }
+          throw e;
         }
-      }
-      logsCollapsed = true;
-      setState(() {});
+      });
     });
 
     languages = {
@@ -439,7 +446,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
       final newBytes = Uint8List.fromList(controller.text.codeUnits);
 
-      if (writeMmap == null) return;
+      if (writeMmap == null || !writeMmap!.isOpen) return;
 
       if (newBytes.length != writeMmap!.writableData.length) {
         File(widget.path!).writeAsStringSync(controller.text);
@@ -458,6 +465,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
     controller.removeListener(_onTextChanged);
     writeMmap?.sync();
     writeMmap?.close();
+    writeMmap = null;
     controller.dispose();
     super.dispose();
   }
