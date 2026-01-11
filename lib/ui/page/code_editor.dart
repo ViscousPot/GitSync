@@ -257,7 +257,7 @@ class _CodeEditor extends State<CodeEditor> {
                               prevEnabled = index > 0;
                               nextEnabled = index < widget.paths.length - 1;
                               key = GlobalKey();
-                              setState(() {});
+                              if (mounted) setState(() {});
                             }
                           : null,
                       icon: FaIcon(FontAwesomeIcons.caretLeft),
@@ -281,7 +281,7 @@ class _CodeEditor extends State<CodeEditor> {
                               prevEnabled = index > 0;
                               nextEnabled = index < widget.paths.length - 1;
                               key = GlobalKey();
-                              setState(() {});
+                              if (mounted) setState(() {});
                             }
                           : null,
                       icon: FaIcon(FontAwesomeIcons.caretRight),
@@ -337,7 +337,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
     initAsync(() async {
       editorLineWrap = await repoManager.getBool(StorageKey.repoman_editorLineWrap);
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     if (widget.type == EditorType.DIFF) {
@@ -382,7 +382,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
         });
         deletionDiffLineNumbers.addAll(diffLineNumbers.map((item) => item.$1));
         insertionDiffLineNumbers.addAll(diffLineNumbers.map((item) => item.$2));
-        setState(() {});
+        if (mounted) setState(() {});
       });
     }
 
@@ -465,7 +465,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      setState(() {});
+      if (mounted) setState(() {});
     }
   }
 
