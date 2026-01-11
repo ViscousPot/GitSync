@@ -473,7 +473,6 @@ class GitManager {
   }
 
   static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
-
   static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {
     return (await uiSettingsManager.getStringList(
       StorageKey.setman_recentCommits,

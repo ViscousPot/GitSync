@@ -25,11 +25,11 @@ class SettingsMain extends StatefulWidget {
   State<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin, RestorationMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
-  final _authorDetailsKey = GlobalKey();
+  late final _authorDetailsKey = GlobalKey();
   bool atTop = true;
   bool unstaging = false;
   bool ignoreChanged = false;
@@ -43,12 +43,26 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
 
   static const duration = Duration(seconds: 1);
 
+  late final _restorableGlobalSettings = RestorableRouteFuture<String?>(
+    onPresent: (navigator, arguments) {
+      return navigator.restorablePush(createGlobalSettingsMainRoute, arguments: arguments);
+    },
+    onComplete: (result) {},
+  );
+
+  @override
+  String get restorationId => settings_main;
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_restorableGlobalSettings, global_settings_main);
+  }
+
   @override
   void initState() {
     super.initState();
     _controller.addListener(() {
       atTop = _controller.offset <= 0;
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     _landscapeScrollControllerLeft.addListener(() {
@@ -68,9 +82,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     _pulseController.stop();
 
     _pulseController.addListener(() {
-      setState(() {
-        _borderVisible = _pulseController.value > 0.5;
-      });
+      _borderVisible = _pulseController.value > 0.5;
+      if (mounted) setState(() {});
     });
 
     if (widget.showcaseAuthorDetails) {
@@ -82,7 +95,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     initAsync(() async {
       gitDirPath = await uiSettingsManager.getStringNullable(StorageKey.setman_gitDirPath);
       if (gitDirPath == "") gitDirPath = null;
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 
@@ -96,7 +109,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
-      setState(() {});
+      if (mounted) setState(() {});
     }
     await GitManager.writeGitignore(gitignoreString);
     readGitignore = GitManager.readGitignore();
@@ -106,7 +119,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
     if (!ignoreChanged) {
       ignoreChanged = true;
       _pulseController.repeat(reverse: true);
-      setState(() {});
+      if (mounted) setState(() {});
     }
     await GitManager.writeGitInfoExclude(gitInfoExcludeString);
     readGitInfoExclude = GitManager.readGitInfoExclude();
@@ -235,7 +248,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                             StorageKey.setman_gitCommitSigningPassphrase,
                                                             sshCredentials.$1,
                                                           );
-                                                          setState(() {});
+                                                          if (mounted) setState(() {});
                                                         });
                                                       },
                                                       style: ButtonStyle(
@@ -292,7 +305,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                               null,
                                                             );
                                                             await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
-                                                            setState(() {});
+                                                            if (mounted) setState(() {});
                                                           },
                                                           icon: FaIcon(FontAwesomeIcons.trash, color: tertiaryNegative, size: textMD),
                                                         )
@@ -307,7 +320,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                                     StorageKey.setman_gitCommitSigningKey,
                                                     gitCommitSigningKeySnapshot.data == null ? "" : null,
                                                   );
-                                                  setState(() {});
+                                                  if (mounted) setState(() {});
                                                 },
                                                 style: ButtonStyle(
                                                   alignment: Alignment.centerLeft,
@@ -430,14 +443,14 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                             TextButton(
                               onPressed: () async {
                                 unstaging = true;
-                                setState(() {});
+                                if (mounted) setState(() {});
 
                                 await GitManager.untrackAll();
 
                                 unstaging = false;
                                 ignoreChanged = false;
                                 _pulseController.stop();
-                                setState(() {});
+                                if (mounted) setState(() {});
                               },
                               style: ButtonStyle(
                                 alignment: Alignment.center,
@@ -504,7 +517,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                 onPressed: () async {
                                   await GitManager.setDisableSsl(!(snapshot.data ?? false));
                                   getDisableSsl = GitManager.getDisableSsl();
-                                  setState(() {});
+                                  if (mounted) setState(() {});
                                 },
                                 style: ButtonStyle(
                                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
@@ -542,7 +555,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                                     StorageKey.setman_optimisedSyncExperimental,
                                     !(optimisedSyncSnapshot.data ?? false),
                                   );
-                                  setState(() {});
+                                  if (mounted) setState(() {});
                                 },
                                 style: ButtonStyle(
                                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
@@ -578,7 +591,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
                         Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                        await Navigator.of(context).push(createGlobalSettingsMainRoute());
+                        _restorableGlobalSettings.present(false);
                       },
                     ),
                     SizedBox(height: spaceLG),
@@ -593,11 +606,12 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   }
 }
 
-Route createSettingsMainRoute({bool showcaseAuthorDetails = false}) {
+@pragma('vm:entry-point')
+Route<String?> createSettingsMainRoute(BuildContext context, Object? showcaseAuthorDetails) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        ShowCaseWidget(builder: (context) => SettingsMain(showcaseAuthorDetails: showcaseAuthorDetails)),
+        ShowCaseWidget(builder: (context) => SettingsMain(showcaseAuthorDetails: showcaseAuthorDetails == true)),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

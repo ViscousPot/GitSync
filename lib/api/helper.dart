@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
@@ -17,6 +16,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -446,4 +446,42 @@ bool viewOrEditFile(BuildContext context, String path, [check = false]) {
     }
   }
   return true;
+}
+
+extension ValueNotifierExtension on RestorableValue<bool> {
+  Future<bool> waitForFalse({Duration? timeout}) {
+    if (value == false) return Future.value(false);
+
+    final completer = Completer<bool>();
+    late void Function() listener;
+
+    listener = () {
+      if (value == false && !completer.isCompleted) {
+        removeListener(listener);
+        completer.complete(false);
+      }
+    };
+
+    addListener(listener);
+
+    Future<bool> result = completer.future.whenComplete(() {
+      try {
+        removeListener(listener);
+      } catch (_) {}
+    });
+
+    if (timeout != null) {
+      result = result.timeout(
+        timeout,
+        onTimeout: () {
+          try {
+            removeListener(listener);
+          } catch (_) {}
+          throw TimeoutException('waitForFalse timed out after $timeout');
+        },
+      );
+    }
+
+    return result;
+  }
 }

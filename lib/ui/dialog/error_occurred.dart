@@ -31,7 +31,7 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
     },
   ),
 };
-final GlobalKey errorDialogKey = GlobalKey();
+late final GlobalKey errorDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext context, String error, Function()? callback) {
   bool autoFixing = false;
