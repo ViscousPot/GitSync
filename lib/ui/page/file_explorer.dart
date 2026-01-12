@@ -36,7 +36,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   final ValueNotifier<bool> loadingMoreNotifier = ValueNotifier(false);
   final ValueNotifier<bool?> copyingMovingNotifier = ValueNotifier(null);
 
-  final moreOptionsDropdownKey = GlobalKey();
+  late final moreOptionsDropdownKey = GlobalKey();
   List<((String, String), Function(List<String>))> get singleSelectOptions => [
     if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
       (

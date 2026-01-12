@@ -54,7 +54,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
   bool initialised = false;
   bool isMerging = false;
   int currentIndex = 0;
-  final GlobalKey dialogKey = GlobalKey();
+  late final GlobalKey dialogKey = GlobalKey();
   List<String> conflictingPaths = [...originalConflictingPaths];
 
   try {

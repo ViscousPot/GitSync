@@ -19,7 +19,7 @@ class OnboardingController {
   final Future<void> Function(bool initialClientModeEnabled) completeUiGuideShowcase;
   final List<GlobalKey> showCaseKeys;
   bool hasSkipped = false;
-  final GlobalKey _currentDialog = GlobalKey();
+  late final GlobalKey _currentDialog = GlobalKey();
 
   OnboardingController(this.context, this.showAuthDialog, this.showCloneRepoPage, this.completeUiGuideShowcase, this.showCaseKeys);
 
