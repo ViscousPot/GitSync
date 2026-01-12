@@ -1,7 +1,6 @@
 import 'package:GitSync/ui/dialog/confirm_clear_data.dart' as ConfirmClearDataDialog;
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -18,7 +17,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.iosClearDataTitle,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -26,12 +25,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
             children: [
               Text(
                 t.iosClearDataMsg,
-                style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceSM),
               Text(
                 t.confirmCloneOverwriteWarning,
-                style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -41,14 +40,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
             builder: (context, setState) => TextButton.icon(
               label: Text(
                 t.iosClearDataAction.toUpperCase(),
-                style: TextStyle(color: tertiaryNegative, fontSize: textMD),
+                style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
               ),
               iconAlignment: IconAlignment.start,
               icon: overwriting
                   ? SizedBox(
                       height: spaceMD,
                       width: spaceMD,
-                      child: CircularProgressIndicator(color: tertiaryNegative),
+                      child: CircularProgressIndicator(color: colours.tertiaryNegative),
                     )
                   : SizedBox.shrink(),
               onPressed: () async {
@@ -67,7 +66,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           TextButton(
             child: Text(
               t.skip.toUpperCase(),
-              style: TextStyle(color: primaryLight, fontSize: textMD),
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;

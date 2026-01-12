@@ -840,6 +840,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get globalSettings => 'Configuración Global';
 
   @override
+  String get darkMode => 'Dark\nMode';
+
+  @override
+  String get lightMode => 'Light\nMode';
+
+  @override
+  String get system => 'System';
+
+  @override
   String get language => 'Idioma';
 
   @override

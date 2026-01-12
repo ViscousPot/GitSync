@@ -1724,6 +1724,24 @@ abstract class AppLocalizations {
   /// **'Global Settings'**
   String get globalSettings;
 
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark\nMode'**
+  String get darkMode;
+
+  /// No description provided for @lightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light\nMode'**
+  String get lightMode;
+
+  /// No description provided for @system.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get system;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:

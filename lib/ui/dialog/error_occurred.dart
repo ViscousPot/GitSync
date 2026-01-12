@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -46,7 +45,7 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
       title: SizedBox(
         child: Text(
           callback == null ? t.cloneFailed : t.errorOccurredTitle,
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       contentBuilder: (expanded) =>
@@ -59,7 +58,7 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                       padding: EdgeInsets.symmetric(horizontal: spaceXS),
                       child: Text(
                         autoFixMessageCallbackMap[autoFixKey]?.$1 ?? "",
-                        style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -82,12 +81,12 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                         },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(cornerRadiusMD),
-                              side: BorderSide(color: primaryPositive, width: spaceXXXS),
+                              side: BorderSide(color: colours.primaryPositive, width: spaceXXXS),
                             ),
                           ),
                         ),
@@ -95,12 +94,12 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                             ? SizedBox(
                                 height: textSM,
                                 width: textSM,
-                                child: CircularProgressIndicator(color: primaryPositive),
+                                child: CircularProgressIndicator(color: colours.primaryPositive),
                               )
-                            : FaIcon(FontAwesomeIcons.hammer, color: primaryPositive, size: textLG),
+                            : FaIcon(FontAwesomeIcons.hammer, color: colours.primaryPositive, size: textLG),
                         label: Text(
                           t.attemptAutoFix.toUpperCase(),
-                          style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -127,7 +126,7 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                     child: SingleChildScrollView(
                       child: Text(
                         error,
-                        style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                        style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
                       ),
                     ),
                   ),
@@ -140,12 +139,12 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                     SizedBox(height: spaceMD),
                     Text(
                       t.errorOccurredMessagePart1,
-                      style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                      style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                     ),
                     SizedBox(height: spaceSM),
                     Text(
                       t.errorOccurredMessagePart2,
-                      style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                      style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                     ),
                   ],
           ]),
@@ -159,15 +158,15 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
-                backgroundColor: WidgetStatePropertyAll(tertiaryInfo),
+                backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: secondaryDark, size: textSM),
+              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.secondaryDark, size: textSM),
               label: Text(
                 t.troubleshooting.toUpperCase(),
-                style: TextStyle(color: primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
             Row(
@@ -176,7 +175,7 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                 TextButton(
                   child: Text(
                     t.dismiss.toUpperCase(),
-                    style: TextStyle(color: primaryLight, fontSize: textMD),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                   ),
                   onPressed: () {
                     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -185,7 +184,7 @@ Future<void> showDialog(BuildContext context, String error, Function()? callback
                 TextButton(
                   child: Text(
                     (callback == null ? t.ok : t.reportABug).toUpperCase(),
-                    style: TextStyle(color: tertiaryNegative, fontSize: textMD),
+                    style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
                   ),
                   onPressed: () async {
                     if (callback != null) callback();

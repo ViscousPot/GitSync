@@ -841,6 +841,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get globalSettings => 'Globale Einstellungen';
 
   @override
+  String get darkMode => 'Dark\nMode';
+
+  @override
+  String get lightMode => 'Light\nMode';
+
+  @override
+  String get system => 'System';
+
+  @override
   String get language => 'Sprache';
 
   @override

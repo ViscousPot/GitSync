@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -15,7 +14,7 @@ Future<void> showDialog(BuildContext context, String issueUrl) {
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.issueReportSuccessTitle,
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -23,7 +22,7 @@ Future<void> showDialog(BuildContext context, String issueUrl) {
           children: [
             Text(
               t.issueReportSuccessMsg,
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -32,7 +31,7 @@ Future<void> showDialog(BuildContext context, String issueUrl) {
         TextButton(
           child: Text(
             t.trackIssue.toUpperCase(),
-            style: TextStyle(color: primaryPositive, fontSize: textMD),
+            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

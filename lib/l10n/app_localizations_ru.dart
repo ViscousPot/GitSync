@@ -838,6 +838,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get globalSettings => 'Глобальные настройки';
 
   @override
+  String get darkMode => 'Dark\nMode';
+
+  @override
+  String get lightMode => 'Light\nMode';
+
+  @override
+  String get system => 'System';
+
+  @override
   String get language => 'Язык';
 
   @override

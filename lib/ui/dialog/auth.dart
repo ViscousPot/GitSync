@@ -12,7 +12,6 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../type/git_provider.dart';
@@ -75,14 +74,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
-                backgroundColor: WidgetStatePropertyAll(primaryPositive),
+                backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
               label: Text(
                 t.oauthAllRepos.toUpperCase(),
-                style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: spaceSM),
@@ -110,14 +109,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
-                backgroundColor: WidgetStatePropertyAll(primaryPositive),
+                backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
               label: Text(
                 t.oauthScoped.toUpperCase(),
-                style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -137,14 +136,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           },
           style: ButtonStyle(
             alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(primaryPositive),
+            backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
-          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
           label: Text(
             t.oauth.toUpperCase(),
-            style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
       case GitProvider.HTTPS:
@@ -156,13 +155,13 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               : null,
           style: ButtonStyle(
             alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(getHttpsCanLogin() ? primaryPositive : secondaryPositive),
+            backgroundColor: WidgetStatePropertyAll(getHttpsCanLogin() ? colours.primaryPositive : colours.secondaryPositive),
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           child: Text(
             t.login.toUpperCase(),
-            style: TextStyle(color: getHttpsCanLogin() ? secondaryDark : tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(color: getHttpsCanLogin() ? colours.primaryDark : colours.tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
       case GitProvider.SSH:
@@ -185,14 +184,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                             : null),
                   style: ButtonStyle(
                     alignment: Alignment.center,
-                    backgroundColor: WidgetStatePropertyAll((keyPair != null && !pubKeyCopied) ? secondaryPositive : primaryPositive),
+                    backgroundColor: WidgetStatePropertyAll((keyPair != null && !pubKeyCopied) ? colours.secondaryPositive : colours.primaryPositive),
                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                   ),
                   child: Text(
                     (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
                     style: TextStyle(
-                      color: (keyPair != null && !pubKeyCopied) ? tertiaryDark : secondaryDark,
+                      color: (keyPair != null && !pubKeyCopied) ? colours.tertiaryDark : colours.primaryDark,
                       fontSize: textSM,
                       fontWeight: FontWeight.bold,
                     ),
@@ -210,13 +209,13 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(primaryPositive),
+                          backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                           ),
                         ),
-                        icon: FaIcon(FontAwesomeIcons.key, color: secondaryDark, size: textSM),
+                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textSM),
                       ),
                     )
                   : SizedBox.shrink(),
@@ -236,7 +235,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           child: Text(
             t.oauthNoAffiliation,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+            style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
           ),
         );
       case GitProvider.HTTPS:
@@ -246,7 +245,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
             Text(
               t.ensureTokenScope,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceLG),
             Row(
@@ -258,7 +257,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.user.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -266,7 +265,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.token.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -282,18 +281,23 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         enableSuggestions: false,
                         autocorrect: false,
                         style: TextStyle(
-                          color: primaryLight,
+                          color: colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
                           fontSize: textMD,
                         ),
                         decoration: InputDecoration(
-                          fillColor: secondaryDark,
+                          fillColor: colours.secondaryDark,
                           filled: true,
                           border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                           hintText: t.exampleUser,
-                          hintStyle: TextStyle(fontSize: textSM, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: tertiaryLight),
+                          hintStyle: TextStyle(
+                            fontSize: textSM,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                            color: colours.tertiaryLight,
+                          ),
                           isCollapsed: true,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -312,18 +316,23 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         enableSuggestions: false,
                         autocorrect: false,
                         style: TextStyle(
-                          color: primaryLight,
+                          color: colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
                           fontSize: textMD,
                         ),
                         decoration: InputDecoration(
-                          fillColor: secondaryDark,
+                          fillColor: colours.secondaryDark,
                           filled: true,
                           border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                           hintText: t.exampleToken,
-                          hintStyle: TextStyle(fontSize: textSM, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: tertiaryLight),
+                          hintStyle: TextStyle(
+                            fontSize: textSM,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                            color: colours.tertiaryLight,
+                          ),
                           isCollapsed: true,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -352,7 +361,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.passphrase.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -360,7 +369,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.privKey.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -368,7 +377,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.pubKey.toUpperCase(),
-                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -386,18 +395,23 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         enableSuggestions: false,
                         autocorrect: false,
                         style: TextStyle(
-                          color: primaryLight,
+                          color: colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
                           fontSize: textMD,
                         ),
                         decoration: InputDecoration(
-                          fillColor: secondaryDark,
+                          fillColor: colours.secondaryDark,
                           filled: true,
                           border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                           hintText: t.optionalLabel.toUpperCase(),
-                          hintStyle: TextStyle(fontSize: textSM, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: tertiaryLight),
+                          hintStyle: TextStyle(
+                            fontSize: textSM,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                            color: colours.tertiaryLight,
+                          ),
                           isCollapsed: true,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -417,7 +431,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                               },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
@@ -426,14 +440,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         iconAlignment: IconAlignment.end,
                         icon: FaIcon(
                           privKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                          color: keyPair == null ? tertiaryLight : (privKeyCopied ? primaryPositive : primaryLight),
+                          color: keyPair == null ? colours.tertiaryLight : (privKeyCopied ? colours.primaryPositive : colours.primaryLight),
                           size: textMD,
                         ),
                         label: Text(
                           keyPair == null ? t.sshPrivKeyExample : keyPair!.$1,
                           maxLines: 1,
                           style: TextStyle(
-                            color: keyPair == null ? tertiaryLight : primaryLight,
+                            color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
                             fontSize: textSM,
                             fontWeight: FontWeight.bold,
                             overflow: TextOverflow.ellipsis,
@@ -451,7 +465,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                               },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(secondaryDark),
+                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
@@ -460,14 +474,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                         iconAlignment: IconAlignment.end,
                         icon: FaIcon(
                           pubKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                          color: keyPair == null ? tertiaryLight : (pubKeyCopied ? primaryPositive : primaryLight),
+                          color: keyPair == null ? colours.tertiaryLight : (pubKeyCopied ? colours.primaryPositive : colours.primaryLight),
                           size: textMD,
                         ),
                         label: Text(
                           keyPair == null ? t.sshPubKeyExample : keyPair!.$2,
                           maxLines: 1,
                           style: TextStyle(
-                            color: keyPair == null ? tertiaryLight : primaryLight,
+                            color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
                             fontSize: textSM,
                             fontWeight: FontWeight.bold,
                             overflow: TextOverflow.ellipsis,
@@ -500,16 +514,16 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 child: Text(
                   t.auth.toUpperCase(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                 ),
               ),
               Container(
-                decoration: BoxDecoration(color: tertiaryLight, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                decoration: BoxDecoration(color: colours.tertiaryLight, borderRadius: BorderRadius.all(cornerRadiusSM)),
                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXS),
                 margin: EdgeInsets.only(top: spaceSM, left: spaceSM, bottom: 24 - spaceSM),
                 child: Text(
                   t.replacesExistingAuth.toUpperCase(),
-                  style: TextStyle(color: primaryDark, fontSize: textXXS, fontWeight: FontWeight.w900, height: 1),
+                  style: TextStyle(color: colours.primaryDark, fontSize: textXXS, fontWeight: FontWeight.w900, height: 1),
                 ),
               ),
             ],
@@ -521,23 +535,28 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               Text(
                 t.selectYourGitProviderAndAuthenticate,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceMD),
               Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: secondaryDark),
+                decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: colours.secondaryDark),
                 child: DropdownButton(
                   borderRadius: BorderRadius.all(cornerRadiusMD),
                   isExpanded: true,
                   padding: const EdgeInsets.only(left: spaceSM),
                   icon: Padding(
                     padding: EdgeInsets.only(right: spaceMD),
-                    child: FaIcon(FontAwesomeIcons.caretDown, color: secondaryLight, size: textMD, semanticLabel: t.authDropdownLabel),
+                    child: FaIcon(FontAwesomeIcons.caretDown, color: colours.secondaryLight, size: textMD, semanticLabel: t.authDropdownLabel),
                   ),
                   value: selectedGitProvider.name,
-                  style: const TextStyle(backgroundColor: secondaryDark, color: tertiaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                  style: TextStyle(
+                    backgroundColor: colours.secondaryDark,
+                    color: colours.tertiaryLight,
+                    fontWeight: FontWeight.bold,
+                    fontSize: textMD,
+                  ),
                   underline: const SizedBox.shrink(),
-                  dropdownColor: secondaryDark,
+                  dropdownColor: colours.secondaryDark,
                   onChanged: (value) {
                     if (value == null) return;
 
@@ -565,7 +584,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                     SizedBox(width: spaceSM),
                                     Text(
                                       e.name.toUpperCase(),
-                                      style: TextStyle(fontSize: textSM, color: primaryLight),
+                                      style: TextStyle(fontSize: textSM, color: colours.primaryLight),
                                     ),
                                   ],
                                 ),
@@ -580,7 +599,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                 onTap: () {},
                                 enabled: false,
                                 child: Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: primaryDark),
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.primaryDark),
                                   child: DropdownButton(
                                     borderRadius: BorderRadius.all(cornerRadiusMD),
                                     isExpanded: true,
@@ -590,31 +609,31 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                       padding: EdgeInsets.only(right: spaceMD),
                                       child: FaIcon(
                                         FontAwesomeIcons.caretDown,
-                                        color: secondaryLight,
+                                        color: colours.secondaryLight,
                                         size: textMD,
                                         semanticLabel: t.authDropdownLabel,
                                       ),
                                     ),
                                     value: null,
                                     // value: selectedGitProvider.name,
-                                    style: const TextStyle(color: tertiaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                                    style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                                     hint: SizedBox(
                                       width: double.infinity,
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          FaIcon(FontAwesomeIcons.solidCopy, color: tertiaryInfo, size: textMD),
+                                          FaIcon(FontAwesomeIcons.solidCopy, color: colours.tertiaryInfo, size: textMD),
                                           SizedBox(width: spaceSM),
                                           Text(
                                             t.copyFromContainer.toUpperCase(),
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(color: tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
+                                            style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                                           ),
                                         ],
                                       ),
                                     ),
                                     underline: const SizedBox.shrink(),
-                                    dropdownColor: primaryDark,
+                                    dropdownColor: colours.primaryDark,
                                     onChanged: (value) {},
                                     items: repoNames
                                         .map(
@@ -641,7 +660,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                             enabled: true,
                                             child: Text(
                                               repo.toUpperCase(),
-                                              style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                             ),
                                           ),
                                         )
@@ -662,7 +681,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                     children: [
                                       Container(
                                         margin: EdgeInsets.symmetric(horizontal: spaceMD),
-                                        color: tertiaryDark,
+                                        color: colours.tertiaryDark,
                                         clipBehavior: Clip.none,
                                         height: 2,
                                         width: double.infinity,
@@ -673,14 +692,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                         bottom: -(textMD + spaceSM + spaceSM) / 2,
                                         child: Center(
                                           child: Container(
-                                            color: secondaryDark,
+                                            color: colours.secondaryDark,
                                             padding: EdgeInsets.all(spaceSM),
                                             child: Text(
                                               t.or.toUpperCase(),
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
-                                                color: primaryPositive,
-                                                backgroundColor: secondaryDark,
+                                                color: colours.primaryPositive,
+                                                backgroundColor: colours.secondaryDark,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -705,17 +724,17 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                   children: [
                                     Text(
                                       t.oauthProviders.toUpperCase(),
-                                      style: TextStyle(color: primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                                     ),
                                     Container(
                                       margin: EdgeInsets.symmetric(horizontal: spaceMD),
-                                      color: tertiaryDark,
+                                      color: colours.tertiaryDark,
                                       height: 2,
                                       width: double.infinity,
                                     ),
                                     Text(
                                       t.gitProtocols.toUpperCase(),
-                                      style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -729,7 +748,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                           child: Center(
                             child: Container(
                               margin: EdgeInsets.symmetric(horizontal: spaceMD),
-                              color: tertiaryDark,
+                              color: colours.tertiaryDark,
                               height: 2,
                               width: double.infinity,
                             ),

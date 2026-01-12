@@ -1,5 +1,4 @@
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
               duration: Duration(milliseconds: 200),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: cornerRadiusMD, topRight: Radius.zero, bottomLeft: cornerRadiusMD, bottomRight: Radius.zero),
-                color: clientModeEnabledSnapshot.data != true ? tertiaryInfo : tertiaryDark,
+                color: clientModeEnabledSnapshot.data != true ? colours.tertiaryInfo : colours.tertiaryDark,
               ),
               child: TextButton.icon(
                 onPressed: () async {
@@ -40,7 +39,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                 style: ButtonStyle(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
-                  backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? tertiaryInfo : tertiaryDark),
+                  backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data != true ? colours.tertiaryInfo : colours.tertiaryDark),
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -50,13 +49,13 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                         bottomRight: Radius.zero,
                       ),
 
-                      side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
+                      side: clientModeEnabledSnapshot.data != true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
                     ),
                   ),
                 ),
                 icon: FaIcon(
                   FontAwesomeIcons.arrowsRotate,
-                  color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
+                  color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                   size: textMD,
                 ),
                 label: SizedBox(
@@ -72,7 +71,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
+                          color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -86,7 +85,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data != true ? tertiaryDark : primaryLight,
+                          color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -103,7 +102,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
               duration: Duration(milliseconds: 200),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: cornerRadiusMD, bottomLeft: Radius.zero, bottomRight: cornerRadiusMD),
-                color: clientModeEnabledSnapshot.data == true ? tertiaryInfo : tertiaryDark,
+                color: clientModeEnabledSnapshot.data == true ? colours.tertiaryInfo : colours.tertiaryDark,
               ),
               child: TextButton.icon(
                 onPressed: () async {
@@ -117,7 +116,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                 style: ButtonStyle(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
-                  backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? tertiaryInfo : tertiaryDark),
+                  backgroundColor: WidgetStatePropertyAll(clientModeEnabledSnapshot.data == true ? colours.tertiaryInfo : colours.tertiaryDark),
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -126,12 +125,16 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                         bottomLeft: Radius.zero,
                         bottomRight: cornerRadiusMD,
                       ),
-                      side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: tertiaryInfo),
+                      side: clientModeEnabledSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
                     ),
                   ),
                 ),
                 iconAlignment: IconAlignment.end,
-                icon: FaIcon(FontAwesomeIcons.codeCompare, color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight, size: textMD),
+                icon: FaIcon(
+                  FontAwesomeIcons.codeCompare,
+                  color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
+                  size: textMD,
+                ),
                 label: SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -145,7 +148,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
+                          color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -159,7 +162,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                         style: TextStyle(
-                          color: clientModeEnabledSnapshot.data == true ? tertiaryDark : primaryLight,
+                          color: clientModeEnabledSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
                           fontSize: textXS,
                           fontWeight: FontWeight.bold,
                         ),

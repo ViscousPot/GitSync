@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
 import '../../../api/helper.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 
 class ItemSetting extends StatefulWidget {
@@ -51,7 +51,7 @@ class _ItemSetting extends State<ItemSetting> {
           padding: EdgeInsets.symmetric(horizontal: spaceMD),
           child: Text(
             widget.title.toUpperCase(),
-            style: TextStyle(color: primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
           ),
         ),
         widget.description == null
@@ -60,7 +60,7 @@ class _ItemSetting extends State<ItemSetting> {
                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                 child: Text(
                   widget.description ?? "",
-                  style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
               ),
         SizedBox(height: spaceSM),
@@ -68,7 +68,7 @@ class _ItemSetting extends State<ItemSetting> {
             ? Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                decoration: BoxDecoration(color: tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
@@ -79,7 +79,7 @@ class _ItemSetting extends State<ItemSetting> {
                       maxLines: widget.maxLines != null && widget.maxLines! < 1 ? null : widget.maxLines,
                       minLines: widget.minLines != null && widget.minLines! < 1 ? 4 : widget.minLines,
                       style: TextStyle(
-                        color: primaryLight,
+                        color: colours.primaryLight,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         decorationThickness: 0,
@@ -104,14 +104,14 @@ class _ItemSetting extends State<ItemSetting> {
                 maxLines: widget.maxLines != null && widget.maxLines! < 1 ? (widget.isTextArea ? null : 1) : widget.maxLines,
                 minLines: widget.minLines != null && widget.minLines! < 1 ? (widget.isTextArea ? 4 : 1) : widget.minLines,
                 style: TextStyle(
-                  color: primaryLight,
+                  color: colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: tertiaryDark,
+                  fillColor: colours.tertiaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                   isCollapsed: true,

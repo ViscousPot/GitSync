@@ -1,6 +1,5 @@
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
@@ -102,12 +101,12 @@ class _DiffFileState extends State<DiffFile> {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(left: spaceSM * 2, right: spaceSM * 2, bottom: spaceSM),
-      decoration: BoxDecoration(color: secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: expanded ? tertiaryDark : Colors.transparent)),
+              border: Border(bottom: BorderSide(color: expanded ? colours.tertiaryDark : Colors.transparent)),
             ),
             child: TextButton.icon(
               onPressed: () async {
@@ -136,8 +135,8 @@ class _DiffFileState extends State<DiffFile> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    FaIcon(FontAwesomeIcons.chevronRight, color: expanded ? Colors.transparent : primaryLight, size: textSM),
-                    FaIcon(FontAwesomeIcons.chevronDown, color: expanded ? secondaryLight : Colors.transparent, size: textSM),
+                    FaIcon(FontAwesomeIcons.chevronRight, color: expanded ? Colors.transparent : colours.primaryLight, size: textSM),
+                    FaIcon(FontAwesomeIcons.chevronDown, color: expanded ? colours.secondaryLight : Colors.transparent, size: textSM),
                   ],
                 ),
               ),
@@ -158,11 +157,11 @@ class _DiffFileState extends State<DiffFile> {
                               children: [
                                 if (widget.orientation == Orientation.portrait && widget.entry.key.contains(conflictSeparator) && !expanded) ...[
                                   Container(
-                                    decoration: BoxDecoration(color: secondaryLight, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                                    decoration: BoxDecoration(color: colours.secondaryLight, borderRadius: BorderRadius.all(cornerRadiusXS)),
                                     padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
                                     child: Text(
                                       widget.entry.key.split(conflictSeparator)[1].substring(0, 7).toUpperCase(),
-                                      style: TextStyle(color: tertiaryDark, fontSize: textXXS, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: colours.tertiaryDark, fontSize: textXXS, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   SizedBox(width: spaceXS),
@@ -178,10 +177,10 @@ class _DiffFileState extends State<DiffFile> {
                                       position: TextOverflowPosition.middle,
                                       child: Text(
                                         "…",
-                                        style: TextStyle(color: primaryLight, fontSize: textMD),
+                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                                       ),
                                     ),
-                                    style: TextStyle(color: primaryLight, fontSize: textMD),
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                                   ),
                                 ),
                               ],
@@ -205,11 +204,14 @@ class _DiffFileState extends State<DiffFile> {
                                           ? (List<Widget> i) => i
                                           : (List<Widget> i) => i.reversed.toList())([
                                             Container(
-                                              decoration: BoxDecoration(color: secondaryLight, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                                              decoration: BoxDecoration(
+                                                color: colours.secondaryLight,
+                                                borderRadius: BorderRadius.all(cornerRadiusXS),
+                                              ),
                                               padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
                                               child: Text(
                                                 widget.entry.key.split(conflictSeparator)[1].substring(0, 7).toUpperCase(),
-                                                style: TextStyle(color: tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
+                                                style: TextStyle(color: colours.tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
                                               ),
                                             ),
                                             SizedBox(width: spaceMD),
@@ -229,10 +231,14 @@ class _DiffFileState extends State<DiffFile> {
                                                   position: TextOverflowPosition.start,
                                                   child: Text(
                                                     "…",
-                                                    style: TextStyle(color: secondaryLight, fontSize: textSM, overflow: TextOverflow.ellipsis),
+                                                    style: TextStyle(
+                                                      color: colours.secondaryLight,
+                                                      fontSize: textSM,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
                                                   ),
                                                 ),
-                                                style: TextStyle(color: secondaryLight, fontSize: textSM, overflow: TextOverflow.ellipsis),
+                                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, overflow: TextOverflow.ellipsis),
                                               ),
                                             ),
                                           ]),
@@ -246,13 +252,13 @@ class _DiffFileState extends State<DiffFile> {
                                         Text(
                                           sprintf(t.additions, [insertions]),
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(color: tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                         SizedBox(width: spaceMD, height: spaceXXS),
                                         Text(
                                           sprintf(t.deletions, [deletions]),
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(color: tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                         // SizedBox(width: spaceSM),
                                       ],
@@ -273,13 +279,13 @@ class _DiffFileState extends State<DiffFile> {
                         Text(
                           sprintf(t.additions, [insertions]),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceMD, height: spaceXXS),
                         Text(
                           sprintf(t.deletions, [deletions]),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceSM),
                       ],
@@ -332,18 +338,18 @@ class _DiffFileState extends State<DiffFile> {
                     style: ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                       visualDensity: VisualDensity.compact,
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     ),
                     icon: FaIcon(
                       widget.entry.key.contains(conflictSeparator) ? FontAwesomeIcons.codeCommit : FontAwesomeIcons.scroll,
-                      color: tertiaryInfo,
+                      color: colours.tertiaryInfo,
                       size: textXS,
                     ),
                     label: Text(
                       "${t.open} ${widget.entry.key.contains(conflictSeparator) ? t.commit : t.fileDiff}".toUpperCase(),
-                      style: TextStyle(color: tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
@@ -359,14 +365,14 @@ class _DiffFileState extends State<DiffFile> {
                     style: ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                       visualDensity: VisualDensity.compact,
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     ),
-                    icon: FaIcon(FontAwesomeIcons.filePen, color: tertiaryInfo, size: textXS),
+                    icon: FaIcon(FontAwesomeIcons.filePen, color: colours.tertiaryInfo, size: textXS),
                     label: Text(
                       t.openEditFile.toUpperCase(),
-                      style: TextStyle(color: tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),

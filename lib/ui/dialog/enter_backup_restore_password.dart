@@ -2,7 +2,6 @@ import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -12,12 +11,12 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: secondaryDark,
+      backgroundColor: colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
           sprintf(t.enterPassword, [(backupRestore ? t.backup : t.restore)]),
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -31,14 +30,14 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
               enableSuggestions: false,
               autocorrect: false,
               style: TextStyle(
-                color: primaryLight,
+                color: colours.primaryLight,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
                 decorationThickness: 0,
                 fontSize: textMD,
               ),
               decoration: InputDecoration(
-                fillColor: tertiaryDark,
+                fillColor: colours.tertiaryDark,
                 filled: true,
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
@@ -53,7 +52,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: primaryLight, fontSize: textMD),
+            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -62,7 +61,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         TextButton(
           child: Text(
             (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
-            style: TextStyle(color: primaryPositive, fontSize: textMD),
+            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             callback(textController.text);

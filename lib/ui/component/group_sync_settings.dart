@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
@@ -32,16 +31,16 @@ class GroupSyncSettings extends StatelessWidget {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-            backgroundColor: WidgetStatePropertyAll(secondaryDark),
+            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
           ),
-          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: primaryLight, size: textXL),
+          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryLight, size: textXL),
           label: SizedBox(
             width: double.infinity,
             child: Text(
               t.otherSyncSettings,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
+              style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: colours.primaryLight, fontSize: textLG),
             ),
           ),
         ),

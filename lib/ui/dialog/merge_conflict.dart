@@ -14,7 +14,6 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/gitsync_service.dart';
 import 'package:open_file/open_file.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
@@ -191,7 +190,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
               child: Text(
                 t.mergeConflict.toUpperCase(),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
               ),
             ),
             contentBuilder: (expanded) =>
@@ -201,7 +200,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                   Text(
                     t.mergeDialogMessage,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                    style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   ),
                   SizedBox(height: spaceMD + spaceSM),
                   TextField(
@@ -209,21 +208,21 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                     controller: commitMessageController,
                     maxLines: null,
                     style: TextStyle(
-                      color: primaryLight,
+                      color: colours.primaryLight,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.none,
                       decorationThickness: 0,
                       fontSize: textMD,
                     ),
                     decoration: InputDecoration(
-                      fillColor: secondaryDark,
+                      fillColor: colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                       hintText: syncMessage,
                       isCollapsed: true,
                       label: Text(
                         t.commitMessage.toUpperCase(),
-                        style: TextStyle(color: secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -236,7 +235,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                   SizedBox(height: spaceMD),
                   (expanded ? (Widget child) => Expanded(child: child) : (child) => child)(
                     Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: secondaryDark),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
                       padding: EdgeInsets.only(left: spaceXXS, right: spaceXXS, bottom: spaceXXS, top: spaceXXXS),
                       child: Column(
                         children: [
@@ -253,12 +252,12 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                       RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                     ),
                                   ),
-                                  icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: primaryLight, size: textMD),
+                                  icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryLight, size: textMD),
                                   label: Text(
                                     conflictingPaths.isEmpty ? "-" : conflictingPaths[conflictIndex].split("/").last.toUpperCase(),
                                     maxLines: 1,
                                     textAlign: TextAlign.start,
-                                    style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -285,15 +284,15 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                         : null,
                                     icon: FaIcon(FontAwesomeIcons.caretLeft),
                                     style: ButtonStyle(
-                                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       ),
                                     ),
-                                    color: primaryLight,
-                                    disabledColor: tertiaryLight,
+                                    color: colours.primaryLight,
+                                    disabledColor: colours.tertiaryLight,
                                     iconSize: textSM,
                                   ),
                                   SizedBox(width: spaceXS),
@@ -322,15 +321,15 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                         : null,
                                     icon: FaIcon(FontAwesomeIcons.caretRight),
                                     style: ButtonStyle(
-                                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       ),
                                     ),
-                                    color: primaryLight,
-                                    disabledColor: tertiaryLight,
+                                    color: colours.primaryLight,
+                                    disabledColor: colours.tertiaryLight,
                                     iconSize: textSM,
                                   ),
                                 ],
@@ -342,7 +341,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                               padding: EdgeInsets.all(spaceXS),
                               child: conflictSections.isEmpty
                                   ? Center(
-                                      child: CircularProgressIndicator(color: primaryLight, padding: EdgeInsets.all(spaceXS)),
+                                      child: CircularProgressIndicator(color: colours.primaryLight, padding: EdgeInsets.all(spaceXS)),
                                     )
                                   : SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
@@ -376,7 +375,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                       padding: EdgeInsets.only(left: spaceSM, top: spaceSM),
                                                       child: Text(
                                                         t.keepChanges.toUpperCase(),
-                                                        style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                                       ),
                                                     ),
                                                     SizedBox(height: spaceXXS),
@@ -395,7 +394,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(tertiaryInfo),
+                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
                                                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                 visualDensity: VisualDensity.compact,
                                                                 padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -413,7 +412,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                               ),
                                                               child: Text(
                                                                 t.local.toUpperCase(),
-                                                                style: TextStyle(color: secondaryDark, fontWeight: FontWeight.bold),
+                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
                                                               ),
                                                             ),
                                                           ),
@@ -428,7 +427,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(tertiaryLight),
+                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryLight),
                                                                 visualDensity: VisualDensity.compact,
                                                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                 padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -446,7 +445,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                               ),
                                                               child: Text(
                                                                 t.both.toUpperCase(),
-                                                                style: TextStyle(color: secondaryDark, fontWeight: FontWeight.bold),
+                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
                                                               ),
                                                             ),
                                                           ),
@@ -460,7 +459,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                                 setState(() {});
                                                               },
                                                               style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(tertiaryWarning),
+                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryWarning),
                                                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                 visualDensity: VisualDensity.compact,
                                                                 padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -478,7 +477,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                               ),
                                                               child: Text(
                                                                 t.remote.toUpperCase(),
-                                                                style: TextStyle(color: secondaryDark, fontWeight: FontWeight.bold),
+                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
                                                               ),
                                                             ),
                                                           ),
@@ -493,7 +492,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                           Text(
                                                             padNumber(item.$1 + line.$1 + 1),
                                                             style: TextStyle(
-                                                              color: tertiaryInfo,
+                                                              color: colours.tertiaryInfo,
                                                               fontSize: textMD,
                                                               fontWeight: FontWeight.bold,
                                                               fontFamily: "Roboto",
@@ -503,7 +502,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                           Text(
                                                             line.$2.trim(),
                                                             style: TextStyle(
-                                                              color: tertiaryInfo,
+                                                              color: colours.tertiaryInfo,
                                                               fontSize: textMD,
                                                               fontWeight: FontWeight.bold,
                                                               fontFamily: "RobotoMono",
@@ -519,7 +518,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                           Text(
                                                             padNumber(item.$1 + line.$1 + 1),
                                                             style: TextStyle(
-                                                              color: tertiaryWarning,
+                                                              color: colours.tertiaryWarning,
                                                               fontSize: textMD,
                                                               fontWeight: FontWeight.bold,
                                                               fontFamily: "Roboto",
@@ -529,7 +528,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                           Text(
                                                             line.$2.trim(),
                                                             style: TextStyle(
-                                                              color: tertiaryWarning,
+                                                              color: colours.tertiaryWarning,
                                                               fontSize: textMD,
                                                               fontWeight: FontWeight.bold,
                                                               fontFamily: "RobotoMono",
@@ -553,7 +552,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                   Text(
                                                     padNumber(item.$1 + 1),
                                                     style: TextStyle(
-                                                      color: tertiaryLight,
+                                                      color: colours.tertiaryLight,
                                                       fontSize: textMD,
                                                       fontWeight: FontWeight.bold,
                                                       fontFamily: "Roboto",
@@ -563,7 +562,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                                   Text(
                                                     item.$2.trim(),
                                                     style: TextStyle(
-                                                      color: secondaryLight,
+                                                      color: colours.secondaryLight,
                                                       fontSize: textMD,
                                                       fontWeight: FontWeight.bold,
                                                       fontFamily: "RobotoMono",
@@ -597,13 +596,13 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,
-                      backgroundColor: WidgetStatePropertyAll(secondaryNegative),
+                      backgroundColor: WidgetStatePropertyAll(colours.secondaryNegative),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
                     child: Text(
                       t.abortMerge.toUpperCase(),
-                      style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
                   TextButton.icon(
@@ -631,7 +630,9 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                     style: ButtonStyle(
                       alignment: Alignment.center,
                       backgroundColor: WidgetStatePropertyAll(
-                        !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1 ? primaryPositive : tertiaryDark,
+                        !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1
+                            ? colours.primaryPositive
+                            : colours.tertiaryDark,
                       ),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
@@ -641,7 +642,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                             height: textSM,
                             width: textSM,
                             margin: EdgeInsets.only(right: spaceXXXS),
-                            child: CircularProgressIndicator(color: tertiaryDark),
+                            child: CircularProgressIndicator(color: colours.tertiaryDark),
                           )
                         : null,
                     label: Text(
@@ -652,7 +653,9 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                               : (conflictIndex == conflictingPaths.length - 1 || conflictingPaths.length <= 1 ? t.merge : "next"))
                           .toUpperCase(),
                       style: TextStyle(
-                        color: !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1 ? tertiaryDark : tertiaryLight,
+                        color: !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1
+                            ? colours.tertiaryDark
+                            : colours.tertiaryLight,
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                       ),

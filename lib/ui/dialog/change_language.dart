@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -21,18 +20,18 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String local
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: secondaryDark,
+      backgroundColor: colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(FontAwesomeIcons.language, color: primaryLight, size: textLG),
+            FaIcon(FontAwesomeIcons.language, color: colours.primaryLight, size: textLG),
             SizedBox(width: spaceSM),
             Text(
               t.language.toUpperCase(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
             ),
             SizedBox(width: spaceLG),
           ],
@@ -54,14 +53,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String local
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-                      backgroundColor: WidgetStatePropertyAll(tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
                     ),
                     label: SizedBox(
                       width: double.infinity,
                       child: Text(
                         locale.value!,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: primaryLight, fontSize: textLG),
+                        style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: colours.primaryLight, fontSize: textLG),
                       ),
                     ),
                   ),

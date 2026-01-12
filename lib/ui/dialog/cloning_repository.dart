@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../api/manager/git_manager.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
@@ -37,7 +36,7 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.cloningRepository,
-            style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: StatefulBuilder(
@@ -48,23 +47,23 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
                 children: [
                   Text(
                     t.cloneMessagePart1,
-                    style: const TextStyle(color: tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textMD),
+                    style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textMD),
                   ),
                   Text(
                     t.cloneMessagePart2,
-                    style: const TextStyle(color: primaryLight, fontSize: textMD),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textMD),
                   ),
                   SizedBox(height: spaceMD),
                   Text(
                     task,
                     maxLines: 1,
-                    style: const TextStyle(color: primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
                   ),
                   SizedBox(height: spaceMD),
                   LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: secondaryLight,
-                    color: primaryPositive,
+                    backgroundColor: colours.secondaryLight,
+                    color: colours.primaryPositive,
                     semanticsLabel: t.cloneProgressLabel,
                   ),
                 ],

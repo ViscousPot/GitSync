@@ -6,9 +6,11 @@ import 'dart:math' as math;
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog show showDialog;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:GitSync/ui/page/image_viewer.dart';
+import 'package:collection/collection.dart';
 import 'package:cryptography/cryptography.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -29,7 +31,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:GitSync/global.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../constant/colors.dart';
 import '../constant/dimens.dart';
 import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
 import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;
@@ -83,7 +84,7 @@ Future<bool> requestStoragePerm([bool request = true]) async {
 
 Widget getBackButton(BuildContext context, Function() onPressed) => IconButton(
   onPressed: onPressed,
-  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: primaryLight, size: textLG, semanticLabel: t.backLabel),
+  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
 );
 
 void debounce(String index, int milliseconds, VoidCallback callback) {
@@ -128,7 +129,18 @@ Future<void> openLogViewer(BuildContext context) async {
     return;
   }
 
-  await Navigator.of(context).push(createCodeEditorRoute(logFiles.map((logFile) => logFile.path).toList(), type: EditorType.LOGS));
+  await Navigator.of(context).push(
+    createCodeEditorRoute(
+      logFiles
+          .map((logFile) => logFile.path)
+          .sorted(
+            (a, b) =>
+                (int.tryParse(b.split("log_").last.replaceAll(".log", "")) ?? 0) - (int.tryParse(a.split("log_").last.replaceAll(".log", "")) ?? 0),
+          )
+          .toList(),
+      type: EditorType.LOGS,
+    ),
+  );
 }
 
 Future<void> sendMergeConflictNotification() async {
@@ -201,7 +213,7 @@ TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableText
   toolbarBuilder: (context, child) => Material(
     borderRadius: const BorderRadius.all(cornerRadiusMax),
     clipBehavior: Clip.antiAlias,
-    color: primaryDark,
+    color: colours.primaryDark,
     elevation: 1.0,
     type: MaterialType.card,
     child: child,
@@ -213,7 +225,7 @@ TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableText
       onPressed: indexedButtonItem.$2.onPressed,
       child: Text(
         AdaptiveTextSelectionToolbar.getButtonLabel(context, indexedButtonItem.$2),
-        style: TextStyle(fontSize: textMD, color: primaryLight, fontWeight: FontWeight.w500),
+        style: TextStyle(fontSize: textMD, color: colours.primaryLight, fontWeight: FontWeight.w500),
       ),
     );
   }).toList(),

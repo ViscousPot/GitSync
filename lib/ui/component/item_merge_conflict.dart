@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../dialog/merge_conflict.dart' as MergeConflictDialog;
 import 'package:GitSync/global.dart';
@@ -36,7 +35,7 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
         },
         style: ButtonStyle(
           alignment: Alignment.centerLeft,
-          backgroundColor: WidgetStatePropertyAll(tertiaryNegative),
+          backgroundColor: WidgetStatePropertyAll(colours.tertiaryNegative),
           padding: WidgetStatePropertyAll(EdgeInsets.all(spaceSM)),
           shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
         ),
@@ -47,11 +46,11 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
           children: [
             Text(
               t.mergeConflict.toUpperCase(),
-              style: TextStyle(color: primaryDark, fontSize: textMD, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colours.primaryDark, fontSize: textMD, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.bold),
             ),
             Text(
               t.mergeConflictItemMessage,
-              style: TextStyle(color: secondaryDark, fontSize: textSM, overflow: TextOverflow.ellipsis),
+              style: TextStyle(color: colours.secondaryDark, fontSize: textSM, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),

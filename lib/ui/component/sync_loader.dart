@@ -4,7 +4,6 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
@@ -122,7 +121,7 @@ class _SyncLoaderState extends State<SyncLoader> {
                 height: spaceMD + spaceXS,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: tertiaryDark, width: 4),
+                  border: Border.all(color: colours.tertiaryDark, width: 4),
                 ),
               ),
             ),
@@ -135,7 +134,7 @@ class _SyncLoaderState extends State<SyncLoader> {
                 width: spaceMD + spaceXS,
                 height: spaceMD + spaceXS,
                 child: CircularProgressIndicator(
-                  color: primaryLight,
+                  color: colours.primaryLight,
                   padding: EdgeInsets.zero,
                   strokeAlign: BorderSide.strokeAlignInside,
                   strokeWidth: 4.2,
@@ -151,7 +150,7 @@ class _SyncLoaderState extends State<SyncLoader> {
               child: SizedBox(
                 width: spaceMD + spaceXS,
                 height: spaceMD + spaceXS,
-                child: FaIcon(FontAwesomeIcons.circleExclamation, color: tertiaryNegative, size: spaceMD + spaceXS),
+                child: FaIcon(FontAwesomeIcons.circleExclamation, color: colours.tertiaryNegative, size: spaceMD + spaceXS),
               ),
             ),
           ),
@@ -164,7 +163,7 @@ class _SyncLoaderState extends State<SyncLoader> {
               child: SizedBox(
                 width: spaceMD + spaceXS,
                 height: spaceMD + spaceXS,
-                child: FaIcon(FontAwesomeIcons.solidCircleCheck, color: primaryPositive, size: spaceMD + spaceXS),
+                child: FaIcon(FontAwesomeIcons.solidCircleCheck, color: colours.primaryPositive, size: spaceMD + spaceXS),
               ),
             ),
           ),

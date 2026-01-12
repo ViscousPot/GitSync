@@ -4,7 +4,6 @@ import 'package:GitSync/global.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import '../../../constant/colors.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 
@@ -21,7 +20,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.confirmRepositoryDelete,
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -29,7 +28,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
           children: [
             Text(
               sprintf(t.confirmRepositoryDeleteMsg, [containerName]),
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceSM),
             StatefulBuilder(
@@ -43,17 +42,21 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
                   padding: EdgeInsets.only(left: spaceSM),
                   child: Text(
                     t.deleteRepoDirectoryCheckbox,
-                    style: TextStyle(color: primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 iconAlignment: IconAlignment.start,
-                icon: FaIcon(deleteContents ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck, color: primaryPositive, size: textLG),
+                icon: FaIcon(
+                  deleteContents ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                  color: colours.primaryPositive,
+                  size: textLG,
+                ),
               ),
             ),
             SizedBox(height: spaceSM),
             Text(
               t.thisActionCannotBeUndone,
-              style: const TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -62,7 +65,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
         TextButton(
           child: Text(
             t.confirm.toUpperCase(),
-            style: TextStyle(color: primaryLight, fontSize: textMD),
+            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
             if (deleteContents) {
@@ -80,7 +83,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: primaryPositive, fontSize: textMD),
+            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

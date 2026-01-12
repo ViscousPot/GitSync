@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 enum StorageKey<T> {
   // Repo Manager
   repoman_appLocale<String?>(name: "appLocale", defaultValue: null),
+  repoman_themeMode<bool?>(name: "themeMode", defaultValue: true),
   repoman_hasGHSponsorPremium<bool>(name: "hasGHSponsorPremium", defaultValue: false),
   repoman_repoIndex<int>(name: "repoIndex", defaultValue: 0),
   repoman_tileSyncIndex<int>(name: "tileSyncIndex", defaultValue: 0),
@@ -113,14 +114,14 @@ class Storage<T extends StorageKey> {
 
     if (N == getType<String?>() || N == getType<String>()) {
       if (null is N) {
-        return (value == "null" ? null : value) as N;
+        return (value == "null" || value == null ? null : value) as N;
       }
 
       return (value ?? defaultValue) as N;
     }
 
     if (N == getType<int?>() || N == getType<int>()) {
-      final finalValue = (value == null ? null : int.tryParse(value));
+      final finalValue = (value == "null" || value == null ? null : int.tryParse(value));
 
       if (null is N) {
         return finalValue as N;
@@ -130,7 +131,7 @@ class Storage<T extends StorageKey> {
     }
 
     if (N == getType<bool?>() || N == getType<bool>()) {
-      final finalValue = (value == null ? null : value == "true");
+      final finalValue = (value == "null" || value == null ? null : value == "true");
 
       if (null is N) {
         return finalValue as N;
@@ -140,7 +141,7 @@ class Storage<T extends StorageKey> {
     }
 
     if (N == getType<List<String>?>() || N == getType<List<String>>()) {
-      final finalValue = (value?.isEmpty == true ? null : value)?.split(",");
+      final finalValue = (value == "null" || value == null || value.isEmpty == true ? null : value)?.split(",");
 
       if (null is N) {
         return finalValue as N;

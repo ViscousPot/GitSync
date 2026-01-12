@@ -2,7 +2,6 @@ import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart' as mat;
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,7 @@ Future<void> showDialog(BuildContext context) async {
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.verifyGhSponsorTitle,
-          style: TextStyle(color: primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -27,12 +26,12 @@ Future<void> showDialog(BuildContext context) async {
           children: [
             Text(
               t.verifyGhSponsorMsg,
-              style: TextStyle(color: primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceSM),
             Text(
               t.verifyGhSponsorNote,
-              style: TextStyle(color: tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -52,14 +51,14 @@ Future<void> showDialog(BuildContext context) async {
             },
             style: ButtonStyle(
               alignment: Alignment.center,
-              backgroundColor: WidgetStatePropertyAll(primaryPositive),
+              backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
               shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
             ),
-            icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: secondaryDark, size: textLG),
+            icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
             label: Text(
               t.oauth.toUpperCase(),
-              style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -79,14 +78,14 @@ Future<void> showDialog(BuildContext context) async {
             },
             style: ButtonStyle(
               alignment: Alignment.center,
-              backgroundColor: WidgetStatePropertyAll(tertiaryLight),
+              backgroundColor: WidgetStatePropertyAll(colours.tertiaryLight),
               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
               shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
             ),
-            icon: FaIcon(FontAwesomeIcons.qrcode, color: secondaryDark, size: textLG),
+            icon: FaIcon(FontAwesomeIcons.qrcode, color: colours.primaryDark, size: textLG),
             label: Text(
               t.usePAT.toUpperCase(),
-              style: TextStyle(color: secondaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
             ),
           ),
         ),

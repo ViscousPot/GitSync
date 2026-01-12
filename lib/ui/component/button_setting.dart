@@ -1,5 +1,5 @@
-import 'package:GitSync/constant/colors.dart';
 import 'package:GitSync/constant/dimens.dart';
+import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -10,9 +10,9 @@ class ButtonSetting extends StatefulWidget {
     required this.onPressed,
     this.sub = false,
     this.loads = false,
-    this.textColor = primaryLight,
-    this.iconColor = primaryLight,
-    this.buttonColor = tertiaryDark,
+    this.textColor,
+    this.iconColor,
+    this.buttonColor,
     this.initiallyExpanded = false,
     this.subButtons,
     super.key,
@@ -23,9 +23,9 @@ class ButtonSetting extends StatefulWidget {
   final bool initiallyExpanded;
   final String text;
   final IconData icon;
-  final Color textColor;
-  final Color iconColor;
-  final Color buttonColor;
+  final Color? textColor;
+  final Color? iconColor;
+  final Color? buttonColor;
   final List<Widget>? subButtons;
   final Future<void> Function()? onPressed;
 
@@ -52,9 +52,9 @@ class _ButtonSettingState extends State<ButtonSetting> {
   Widget getIcon() => widget.loads && loading
       ? SizedBox.square(
           dimension: textXL,
-          child: CircularProgressIndicator(padding: EdgeInsets.all(spaceXXXXS), color: widget.iconColor),
+          child: CircularProgressIndicator(padding: EdgeInsets.all(spaceXXXXS), color: widget.iconColor ?? colours.primaryLight),
         )
-      : FaIcon(widget.icon, color: widget.iconColor, size: textXL);
+      : FaIcon(widget.icon, color: widget.iconColor ?? colours.primaryLight, size: textXL);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
             onPressed: widget.onPressed != null ? onPressed : null,
             style: ButtonStyle(
               alignment: Alignment.centerLeft,
-              backgroundColor: WidgetStatePropertyAll(widget.buttonColor),
+              backgroundColor: WidgetStatePropertyAll(widget.buttonColor ?? colours.tertiaryDark),
               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(borderRadius: widget.sub ? BorderRadius.zero : BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -76,13 +76,13 @@ class _ButtonSettingState extends State<ButtonSetting> {
                 widget.text.toUpperCase(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: widget.textColor, fontSize: textMD, fontWeight: FontWeight.bold),
+                style: TextStyle(color: widget.textColor ?? colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
               ),
             ),
           )
         : Container(
             width: double.infinity,
-            decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: widget.buttonColor),
+            decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusMD), color: widget.buttonColor ?? colours.tertiaryDark),
             clipBehavior: Clip.hardEdge,
             child: Stack(
               clipBehavior: Clip.hardEdge,
@@ -94,7 +94,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
                       onPressed: widget.onPressed != null ? onPressed : null,
                       style: ButtonStyle(
                         alignment: Alignment.centerLeft,
-                        backgroundColor: WidgetStatePropertyAll(widget.buttonColor),
+                        backgroundColor: WidgetStatePropertyAll(widget.buttonColor ?? colours.tertiaryDark),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                       ),
@@ -105,7 +105,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
                           widget.text.toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: widget.textColor, fontSize: textMD, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: widget.textColor ?? colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -125,11 +125,15 @@ class _ButtonSettingState extends State<ButtonSetting> {
                     }),
                     style: ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      backgroundColor: WidgetStatePropertyAll(widget.buttonColor),
+                      backgroundColor: WidgetStatePropertyAll(widget.buttonColor ?? colours.tertiaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                     ),
-                    icon: FaIcon(expanded ? FontAwesomeIcons.caretUp : FontAwesomeIcons.caretDown, color: widget.iconColor, size: textLG),
+                    icon: FaIcon(
+                      expanded ? FontAwesomeIcons.caretUp : FontAwesomeIcons.caretDown,
+                      color: widget.iconColor ?? colours.primaryLight,
+                      size: textLG,
+                    ),
                   ),
                 ),
               ],
