@@ -584,7 +584,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                     SizedBox(width: spaceSM),
                                     Text(
                                       e.name.toUpperCase(),
-                                      style: TextStyle(fontSize: textSM, color: colours.primaryLight),
+                                      style: TextStyle(fontSize: textSM, color: colours.primaryLight, backgroundColor: Colors.transparent),
                                     ),
                                   ],
                                 ),
