@@ -1633,364 +1633,371 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           ),
                                         ),
                                         SizedBox(height: spaceSM),
-                                        IntrinsicHeight(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                            children: [
-                                              Expanded(
-                                                child: ValueListenableBuilder(
-                                                  valueListenable: syncOptions,
-                                                  builder: (context, syncOptionsSnapshot, child) => ValueListenableBuilder(
-                                                    valueListenable: recommendedAction,
-                                                    builder: (context, recommendedActionValue, _) => FutureBuilder(
-                                                      future: getLastSyncOption(),
-                                                      builder: (context, lastSyncMethodSnapshot) => Stack(
-                                                        children: [
-                                                          SizedBox.expand(
-                                                            child: TextButton.icon(
-                                                              key: syncMethodMainButtonKey,
-                                                              onPressed: () async {
-                                                                if (lastSyncMethodSnapshot.data == null) return;
+                                        ValueListenableBuilder(
+                                          valueListenable: syncOptions,
+                                          builder: (context, syncOptionsSnapshot, child) => ValueListenableBuilder(
+                                            valueListenable: recommendedAction,
+                                            builder: (context, recommendedActionValue, _) => FutureBuilder(
+                                              future: getLastSyncOption(),
+                                              builder: (context, lastSyncMethodSnapshot) => Column(
+                                                children: [
+                                                  IntrinsicHeight(
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.max,
+                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Stack(
+                                                            children: [
+                                                              SizedBox.expand(
+                                                                child: TextButton.icon(
+                                                                  key: syncMethodMainButtonKey,
+                                                                  onPressed: () async {
+                                                                    if (lastSyncMethodSnapshot.data == null) return;
 
-                                                                await syncWrapper(
-                                                                  () async {
-                                                                    if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
-                                                                      await syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
-                                                                    } else {
-                                                                      await syncOptionsSnapshot.values.first.$2();
-                                                                    }
+                                                                    await syncWrapper(
+                                                                      () async {
+                                                                        if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
+                                                                          await syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                        } else {
+                                                                          await syncOptionsSnapshot.values.first.$2();
+                                                                        }
+                                                                      },
+                                                                      [t.syncAllChanges, t.syncNow].contains(
+                                                                        syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                            ? lastSyncMethodSnapshot.data
+                                                                            : syncOptionsSnapshot.keys.first,
+                                                                      ),
+                                                                    );
                                                                   },
-                                                                  [t.syncAllChanges, t.syncNow].contains(
-                                                                    syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                        ? lastSyncMethodSnapshot.data
-                                                                        : syncOptionsSnapshot.keys.first,
-                                                                  ),
-                                                                );
-                                                              },
-                                                              style: ButtonStyle(
-                                                                alignment: Alignment.centerLeft,
-                                                                backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: orientation == Orientation.portrait
-                                                                        ? BorderRadius.only(
-                                                                            topLeft: cornerRadiusSM,
-                                                                            topRight: cornerRadiusSM,
-                                                                            bottomLeft: cornerRadiusMD,
-                                                                            bottomRight: clientModeEnabledSnapshot.data == true
-                                                                                ? cornerRadiusMD
-                                                                                : cornerRadiusSM,
-                                                                          )
-                                                                        : BorderRadius.only(
-                                                                            topLeft: cornerRadiusMD,
-                                                                            bottomRight: cornerRadiusSM,
-                                                                            bottomLeft: cornerRadiusSM,
-                                                                            topRight: clientModeEnabledSnapshot.data == true
-                                                                                ? cornerRadiusMD
-                                                                                : cornerRadiusSM,
-                                                                          ),
-                                                                    side: BorderSide.none,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              icon: Stack(
-                                                                clipBehavior: Clip.none,
-                                                                children: [
-                                                                  if (clientModeEnabledSnapshot.data == true)
-                                                                    Positioned(
-                                                                      top: -spaceXXS,
-                                                                      bottom: -spaceXXS,
-                                                                      left: -spaceXXS,
-                                                                      right: -spaceXXS,
-                                                                      child: ValueListenableBuilder(
-                                                                        valueListenable: updatingRecommendedAction,
-                                                                        builder: (context, value, child) => value
-                                                                            ? SizedBox(
-                                                                                height: spaceXXL,
-                                                                                width: spaceXXL,
-                                                                                child: CircularProgressIndicator(color: colours.tertiaryDark),
+                                                                  style: ButtonStyle(
+                                                                    alignment: Alignment.centerLeft,
+                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
+                                                                    shape: WidgetStatePropertyAll(
+                                                                      RoundedRectangleBorder(
+                                                                        borderRadius: orientation == Orientation.portrait
+                                                                            ? BorderRadius.only(
+                                                                                topLeft: cornerRadiusSM,
+                                                                                topRight: cornerRadiusSM,
+                                                                                bottomLeft: cornerRadiusMD,
+                                                                                bottomRight: clientModeEnabledSnapshot.data == true
+                                                                                    ? cornerRadiusMD
+                                                                                    : cornerRadiusSM,
                                                                               )
-                                                                            : SizedBox.shrink(),
+                                                                            : BorderRadius.only(
+                                                                                topLeft: cornerRadiusMD,
+                                                                                bottomRight: cornerRadiusSM,
+                                                                                bottomLeft: cornerRadiusSM,
+                                                                                topRight: clientModeEnabledSnapshot.data == true
+                                                                                    ? cornerRadiusMD
+                                                                                    : cornerRadiusSM,
+                                                                              ),
+                                                                        side: BorderSide.none,
                                                                       ),
                                                                     ),
-                                                                  FaIcon(
-                                                                    syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
-                                                                        (syncOptionsSnapshot.values.isNotEmpty
-                                                                            ? syncOptionsSnapshot.values.first.$1
-                                                                            : null) ??
-                                                                        FontAwesomeIcons.solidCircleDown,
-                                                                    color: colours.primaryLight,
-                                                                    size: textLG,
                                                                   ),
-                                                                ],
-                                                              ),
-                                                              label: Padding(
-                                                                padding: EdgeInsets.only(left: spaceXS),
-                                                                child: Text(
-                                                                  ((syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                              ? lastSyncMethodSnapshot.data
-                                                                              : (syncOptionsSnapshot.keys.isNotEmpty
-                                                                                    ? syncOptionsSnapshot.keys.first
-                                                                                    : "")) ??
-                                                                          t.syncNow)
-                                                                      .toUpperCase(),
-                                                                  style: TextStyle(
-                                                                    color: clientModeEnabledSnapshot.data == true && recommendedActionValue != null
-                                                                        ? colours.tertiaryInfo
-                                                                        : colours.primaryLight,
-                                                                    fontSize: textMD,
-                                                                    fontWeight: FontWeight.bold,
+                                                                  icon: Stack(
+                                                                    clipBehavior: Clip.none,
+                                                                    children: [
+                                                                      if (clientModeEnabledSnapshot.data == true)
+                                                                        Positioned(
+                                                                          top: -spaceXXS,
+                                                                          bottom: -spaceXXS,
+                                                                          left: -spaceXXS,
+                                                                          right: -spaceXXS,
+                                                                          child: ValueListenableBuilder(
+                                                                            valueListenable: updatingRecommendedAction,
+                                                                            builder: (context, value, child) => value
+                                                                                ? SizedBox(
+                                                                                    height: spaceXXL,
+                                                                                    width: spaceXXL,
+                                                                                    child: CircularProgressIndicator(color: colours.tertiaryDark),
+                                                                                  )
+                                                                                : SizedBox.shrink(),
+                                                                          ),
+                                                                        ),
+                                                                      FaIcon(
+                                                                        syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
+                                                                            (syncOptionsSnapshot.values.isNotEmpty
+                                                                                ? syncOptionsSnapshot.values.first.$1
+                                                                                : null) ??
+                                                                            FontAwesomeIcons.solidCircleDown,
+                                                                        color: colours.primaryLight,
+                                                                        size: textLG,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  label: Padding(
+                                                                    padding: EdgeInsets.only(left: spaceXS),
+                                                                    child: Text(
+                                                                      ((syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                                  ? lastSyncMethodSnapshot.data
+                                                                                  : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                        ? syncOptionsSnapshot.keys.first
+                                                                                        : "")) ??
+                                                                              t.syncNow)
+                                                                          .toUpperCase(),
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            clientModeEnabledSnapshot.data == true && recommendedActionValue != null
+                                                                            ? colours.tertiaryInfo
+                                                                            : colours.primaryLight,
+                                                                        fontSize: textMD,
+                                                                        fontWeight: FontWeight.bold,
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                          Positioned(
-                                                            left: 0,
-                                                            right: 0,
-                                                            top: spaceMD * 4,
-                                                            child: Container(
-                                                              decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                                              margin: EdgeInsets.only(left: spaceMD),
-                                                              child: DropdownButton(
-                                                                key: syncMethodsDropdownKey,
-                                                                borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                selectedItemBuilder: (context) =>
-                                                                    List.generate(syncOptionsSnapshot.length, (_) => SizedBox.shrink()),
-                                                                icon: SizedBox.shrink(),
-                                                                underline: const SizedBox.shrink(),
-                                                                menuWidth: clientModeEnabledSnapshot.data == true
-                                                                    ? MediaQuery.of(context).size.width - (spaceMD * 2)
-                                                                    : null,
-                                                                dropdownColor: colours.secondaryDark,
-                                                                padding: EdgeInsets.zero,
-                                                                onChanged: (value) {},
-                                                                items: (syncOptionsSnapshot).entries
-                                                                    .where(
-                                                                      (item) =>
-                                                                          item.key !=
-                                                                          (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                              ? lastSyncMethodSnapshot.data
-                                                                              : (syncOptionsSnapshot.keys.isNotEmpty
-                                                                                    ? syncOptionsSnapshot.keys.first
-                                                                                    : "")),
-                                                                    )
-                                                                    .map(
-                                                                      (item) => DropdownMenuItem(
-                                                                        onTap: () async {
-                                                                          if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
-                                                                            await uiSettingsManager.setString(
-                                                                              StorageKey.setman_lastSyncMethod,
-                                                                              item.key,
-                                                                            );
-                                                                          }
+                                                              Positioned(
+                                                                right: 0,
+                                                                top: 0,
+                                                                bottom: 0,
+                                                                child: IconButton(
+                                                                  onPressed: () async {
+                                                                    if (demo) {
+                                                                      demoConflicting = true;
+                                                                      await reloadAll();
+                                                                      MergeConflictDialog.showDialog(context, ["Readme.md"])
+                                                                          .then((_) async {
+                                                                            demoConflicting = false;
+                                                                            await reloadAll();
+                                                                          })
+                                                                          .then((_) => reloadAll());
 
-                                                                          await syncWrapper(
-                                                                            () async => await item.value.$2(),
-                                                                            [t.syncAllChanges, t.syncNow].contains(item.key),
-                                                                          );
-                                                                        },
-                                                                        value: item.key,
-                                                                        child: Row(
-                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                          children: [
-                                                                            FaIcon(
-                                                                              item.value.$1,
-                                                                              color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
-                                                                                  ? colours.tertiaryInfo
-                                                                                  : colours.primaryLight,
-                                                                              size: textLG,
-                                                                            ),
-                                                                            SizedBox(width: spaceMD),
-                                                                            Flexible(
-                                                                              child: Text(
-                                                                                item.key.toUpperCase(),
-                                                                                maxLines: 1,
-                                                                                overflow: TextOverflow.ellipsis,
-                                                                                style: TextStyle(
-                                                                                  fontSize: textMD,
-                                                                                  color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
-                                                                                      ? colours.tertiaryInfo
-                                                                                      : colours.primaryLight,
-                                                                                  fontWeight: FontWeight.bold,
-                                                                                  overflow: TextOverflow.ellipsis,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                                    )
-                                                                    .toList(),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Positioned(
-                                                            right: 0,
-                                                            top: 0,
-                                                            bottom: 0,
-                                                            child: IconButton(
-                                                              onPressed: () async {
-                                                                if (demo) {
-                                                                  demoConflicting = true;
-                                                                  await reloadAll();
-                                                                  MergeConflictDialog.showDialog(context, ["Readme.md"])
-                                                                      .then((_) async {
-                                                                        demoConflicting = false;
-                                                                        await reloadAll();
-                                                                      })
-                                                                      .then((_) => reloadAll());
-
-                                                                  return;
-                                                                }
-
-                                                                GestureDetector? detector;
-
-                                                                void searchForGestureDetector(BuildContext? element) {
-                                                                  element?.visitChildElements((element) {
-                                                                    if (element.widget is GestureDetector) {
-                                                                      detector = element.widget as GestureDetector;
                                                                       return;
-                                                                    } else {
-                                                                      searchForGestureDetector(element);
                                                                     }
 
-                                                                    return;
-                                                                  });
-                                                                }
+                                                                    GestureDetector? detector;
 
-                                                                searchForGestureDetector(syncMethodsDropdownKey.currentContext);
+                                                                    void searchForGestureDetector(BuildContext? element) {
+                                                                      element?.visitChildElements((element) {
+                                                                        if (element.widget is GestureDetector) {
+                                                                          detector = element.widget as GestureDetector;
+                                                                          return;
+                                                                        } else {
+                                                                          searchForGestureDetector(element);
+                                                                        }
 
-                                                                if (detector?.onTap != null) detector?.onTap!();
-                                                              },
-                                                              style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                padding: WidgetStatePropertyAll(
-                                                                  EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                ),
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: orientation == Orientation.portrait
-                                                                        ? BorderRadius.only(
-                                                                            topLeft: cornerRadiusSM,
-                                                                            topRight: cornerRadiusSM,
-                                                                            bottomLeft: cornerRadiusMD,
-                                                                            bottomRight: clientModeEnabledSnapshot.data == true
-                                                                                ? cornerRadiusMD
-                                                                                : cornerRadiusSM,
-                                                                          )
-                                                                        : BorderRadius.only(
-                                                                            topLeft: cornerRadiusMD,
-                                                                            bottomRight: cornerRadiusSM,
-                                                                            bottomLeft: cornerRadiusSM,
-                                                                            topRight: clientModeEnabledSnapshot.data == true
-                                                                                ? cornerRadiusMD
-                                                                                : cornerRadiusSM,
-                                                                          ),
-                                                                    side: BorderSide.none,
+                                                                        return;
+                                                                      });
+                                                                    }
+
+                                                                    searchForGestureDetector(syncMethodsDropdownKey.currentContext);
+
+                                                                    if (detector?.onTap != null) detector?.onTap!();
+                                                                  },
+                                                                  style: ButtonStyle(
+                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                    padding: WidgetStatePropertyAll(
+                                                                      EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                    ),
+                                                                    shape: WidgetStatePropertyAll(
+                                                                      RoundedRectangleBorder(
+                                                                        borderRadius: orientation == Orientation.portrait
+                                                                            ? BorderRadius.only(
+                                                                                topLeft: cornerRadiusSM,
+                                                                                topRight: cornerRadiusSM,
+                                                                                bottomLeft: cornerRadiusMD,
+                                                                                bottomRight: clientModeEnabledSnapshot.data == true
+                                                                                    ? cornerRadiusMD
+                                                                                    : cornerRadiusSM,
+                                                                              )
+                                                                            : BorderRadius.only(
+                                                                                topLeft: cornerRadiusMD,
+                                                                                bottomRight: cornerRadiusSM,
+                                                                                bottomLeft: cornerRadiusSM,
+                                                                                topRight: clientModeEnabledSnapshot.data == true
+                                                                                    ? cornerRadiusMD
+                                                                                    : cornerRadiusSM,
+                                                                              ),
+                                                                        side: BorderSide.none,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  icon: FaIcon(
+                                                                    FontAwesomeIcons.ellipsis,
+                                                                    color: colours.primaryLight,
+                                                                    size: textLG,
+                                                                    semanticLabel: t.moreSyncOptionsLabel,
                                                                   ),
                                                                 ),
-                                                              ),
-                                                              icon: FaIcon(
-                                                                FontAwesomeIcons.ellipsis,
-                                                                color: colours.primaryLight,
-                                                                size: textLG,
-                                                                semanticLabel: t.moreSyncOptionsLabel,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              ...clientModeEnabledSnapshot.data != true
-                                                  ? [
-                                                      SizedBox(width: spaceSM),
-                                                      IconButton(
-                                                        onPressed: () {
-                                                          _restorableSettingsMain.present();
-                                                        },
-                                                        style: ButtonStyle(
-                                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                          padding: WidgetStatePropertyAll(
-                                                            EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                          ),
-                                                          shape: WidgetStatePropertyAll(
-                                                            RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                              side: BorderSide.none,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        icon: FaIcon(
-                                                          FontAwesomeIcons.gear,
-                                                          color: colours.primaryLight,
-                                                          size: textLG,
-                                                          semanticLabel: t.repositorySettingsLabel,
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: spaceSM),
-                                                      FutureBuilder(
-                                                        future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                                        builder: (context, snapshot) => IconButton(
-                                                          onPressed: () async {
-                                                            if (!(snapshot.data ?? false)) {
-                                                              if (!(await Permission.notification.request().isGranted)) return;
-                                                            }
-
-                                                            uiSettingsManager.setBool(
-                                                              StorageKey.setman_syncMessageEnabled,
-                                                              !(snapshot.data ?? false),
-                                                            );
-                                                            await reloadAll();
-                                                          },
-                                                          style: ButtonStyle(
-                                                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                            padding: WidgetStatePropertyAll(
-                                                              EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                            ),
-                                                            shape: WidgetStatePropertyAll(
-                                                              RoundedRectangleBorder(
-                                                                borderRadius: orientation == Orientation.portrait
-                                                                    ? BorderRadius.only(
-                                                                        topLeft: cornerRadiusSM,
-                                                                        topRight: cornerRadiusSM,
-                                                                        bottomLeft: cornerRadiusSM,
-                                                                        bottomRight: cornerRadiusMD,
-                                                                      )
-                                                                    : BorderRadius.only(
-                                                                        topLeft: cornerRadiusSM,
-                                                                        topRight: cornerRadiusMD,
-                                                                        bottomLeft: cornerRadiusSM,
-                                                                        bottomRight: cornerRadiusSM,
-                                                                      ),
-                                                                side: BorderSide.none,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          icon: Stack(
-                                                            alignment: Alignment.center,
-                                                            children: [
-                                                              FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
-                                                              FaIcon(
-                                                                demo || snapshot.data == true
-                                                                    ? FontAwesomeIcons.solidBell
-                                                                    : FontAwesomeIcons.solidBellSlash,
-                                                                color: demo || snapshot.data == true ? colours.primaryPositive : colours.primaryLight,
-                                                                size: textLG - 2,
-                                                                semanticLabel: t.syncMessagesLabel,
                                                               ),
                                                             ],
                                                           ),
+                                                          //     ),
+                                                          //   ),
+                                                          // ),
                                                         ),
-                                                      ),
-                                                    ]
-                                                  : [],
-                                            ],
+                                                        ...clientModeEnabledSnapshot.data != true
+                                                            ? [
+                                                                SizedBox(width: spaceSM),
+                                                                IconButton(
+                                                                  onPressed: () {
+                                                                    _restorableSettingsMain.present();
+                                                                  },
+                                                                  style: ButtonStyle(
+                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                    padding: WidgetStatePropertyAll(
+                                                                      EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                    ),
+                                                                    shape: WidgetStatePropertyAll(
+                                                                      RoundedRectangleBorder(
+                                                                        borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                        side: BorderSide.none,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  icon: FaIcon(
+                                                                    FontAwesomeIcons.gear,
+                                                                    color: colours.primaryLight,
+                                                                    size: textLG,
+                                                                    semanticLabel: t.repositorySettingsLabel,
+                                                                  ),
+                                                                ),
+                                                                SizedBox(width: spaceSM),
+                                                                FutureBuilder(
+                                                                  future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
+                                                                  builder: (context, snapshot) => IconButton(
+                                                                    onPressed: () async {
+                                                                      if (!(snapshot.data ?? false)) {
+                                                                        if (!(await Permission.notification.request().isGranted)) return;
+                                                                      }
+
+                                                                      uiSettingsManager.setBool(
+                                                                        StorageKey.setman_syncMessageEnabled,
+                                                                        !(snapshot.data ?? false),
+                                                                      );
+                                                                      await reloadAll();
+                                                                    },
+                                                                    style: ButtonStyle(
+                                                                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                      padding: WidgetStatePropertyAll(
+                                                                        EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                      ),
+                                                                      shape: WidgetStatePropertyAll(
+                                                                        RoundedRectangleBorder(
+                                                                          borderRadius: orientation == Orientation.portrait
+                                                                              ? BorderRadius.only(
+                                                                                  topLeft: cornerRadiusSM,
+                                                                                  topRight: cornerRadiusSM,
+                                                                                  bottomLeft: cornerRadiusSM,
+                                                                                  bottomRight: cornerRadiusMD,
+                                                                                )
+                                                                              : BorderRadius.only(
+                                                                                  topLeft: cornerRadiusSM,
+                                                                                  topRight: cornerRadiusMD,
+                                                                                  bottomLeft: cornerRadiusSM,
+                                                                                  bottomRight: cornerRadiusSM,
+                                                                                ),
+                                                                          side: BorderSide.none,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    icon: Stack(
+                                                                      alignment: Alignment.center,
+                                                                      children: [
+                                                                        FaIcon(
+                                                                          FontAwesomeIcons.solidBellSlash,
+                                                                          color: Colors.transparent,
+                                                                          size: textLG - 2,
+                                                                        ),
+                                                                        FaIcon(
+                                                                          demo || snapshot.data == true
+                                                                              ? FontAwesomeIcons.solidBell
+                                                                              : FontAwesomeIcons.solidBellSlash,
+                                                                          color: demo || snapshot.data == true
+                                                                              ? colours.primaryPositive
+                                                                              : colours.primaryLight,
+                                                                          size: textLG - 2,
+                                                                          semanticLabel: t.syncMessagesLabel,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ]
+                                                            : [],
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    height: 0,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                                    margin: EdgeInsets.symmetric(horizontal: spaceMD),
+                                                    padding: EdgeInsets.only(top: spaceLG + spaceXS),
+                                                    child: DropdownButton(
+                                                      key: syncMethodsDropdownKey,
+                                                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                      selectedItemBuilder: (context) =>
+                                                          List.generate(syncOptionsSnapshot.length, (_) => SizedBox.shrink()),
+                                                      icon: SizedBox.shrink(),
+                                                      underline: const SizedBox.shrink(),
+                                                      menuWidth: MediaQuery.of(context).size.width - (spaceMD * 2),
+                                                      // menuWidth: null,
+                                                      dropdownColor: colours.secondaryDark,
+                                                      padding: EdgeInsets.zero,
+                                                      alignment: Alignment.bottomCenter,
+                                                      onChanged: (value) {},
+                                                      items: (syncOptionsSnapshot).entries
+                                                          .where(
+                                                            (item) =>
+                                                                item.key !=
+                                                                (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
+                                                                    ? lastSyncMethodSnapshot.data
+                                                                    : (syncOptionsSnapshot.keys.isNotEmpty ? syncOptionsSnapshot.keys.first : "")),
+                                                          )
+                                                          .map(
+                                                            (item) => DropdownMenuItem(
+                                                              onTap: () async {
+                                                                if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
+                                                                  await uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, item.key);
+                                                                }
+
+                                                                await syncWrapper(
+                                                                  () async => await item.value.$2(),
+                                                                  [t.syncAllChanges, t.syncNow].contains(item.key),
+                                                                );
+                                                              },
+                                                              value: item.key,
+                                                              child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                children: [
+                                                                  FaIcon(
+                                                                    item.value.$1,
+                                                                    color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
+                                                                        ? colours.tertiaryInfo
+                                                                        : colours.primaryLight,
+                                                                    size: textLG,
+                                                                  ),
+                                                                  SizedBox(width: spaceMD),
+                                                                  Flexible(
+                                                                    child: Text(
+                                                                      item.key.toUpperCase(),
+                                                                      maxLines: 1,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      style: TextStyle(
+                                                                        fontSize: textMD,
+                                                                        color: [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
+                                                                            ? colours.tertiaryInfo
+                                                                            : colours.primaryLight,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        overflow: TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -2040,15 +2047,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                   children: [
                                                     Container(
                                                       padding: EdgeInsets.zero,
-                                                      // padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
                                                       decoration: BoxDecoration(
                                                         color: colours.secondaryDark,
                                                         borderRadius: BorderRadius.all(cornerRadiusMD),
                                                       ),
-
                                                       child: DropdownButton(
                                                         borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                        // padding: EdgeInsets.zero,
                                                         padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
                                                         onTap: () {
                                                           if (demo) {
@@ -2056,11 +2060,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             return;
                                                           }
                                                         },
-                                                        //   // icon: FaIcon(
-                                                        //   //   snapshot.data != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
-                                                        //   //   color: snapshot.data != null ? colours.primaryLight : colours.primaryNegative,
-                                                        //   //   size: textLG,
-                                                        //   // ),
                                                         icon: Padding(
                                                           padding: EdgeInsets.symmetric(horizontal: spaceSM),
                                                           child: FaIcon(
@@ -2070,17 +2069,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                           ),
                                                         ),
                                                         value: 0,
-                                                        // style: const TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
-                                                        // isDense: true,
                                                         isExpanded: true,
                                                         underline: const SizedBox.shrink(),
                                                         dropdownColor: colours.secondaryDark,
-                                                        onChanged: (value) async {
-                                                          // await repoManager.setInt(StorageKey.repoman_repoIndex, value);
-                                                          // await uiSettingsManager.reinit();
-                                                          // reloadAll();
-                                                        },
-
+                                                        onChanged: (value) async {},
                                                         selectedItemBuilder: (context) => List.generate(
                                                           remoteActions.length,
                                                           (index) => Row(
@@ -2118,10 +2110,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                           remoteActions.length,
                                                           (index) => DropdownMenuItem(
                                                             value: index,
-                                                            // SetRemoteUrlDialog.showDialog(this.context, snapshot.data?.$1, (newRemoteUrl) async {
-                                                            //   await GitManager.setRemoteUrl(newRemoteUrl);
-                                                            //   reloadAll();
-                                                            // }),
                                                             onTap: () async {
                                                               await remoteActions[index].$2(context, snapshot);
                                                               await reloadAll();
