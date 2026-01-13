@@ -1235,7 +1235,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                 builder: (context, conflictingSnapshot, child) => ListenableBuilder(
                                   listenable: loadingRecentCommits,
                                   builder: (context, child) {
-                                    final recentCommits = recentCommitsSnapshot.isEmpty
+                                    final recentCommits = loadingRecentCommits.value
                                         ? fastRecentCommitsSnapshot.data ?? recentCommitsSnapshot
                                         : recentCommitsSnapshot;
                                     final items = [
