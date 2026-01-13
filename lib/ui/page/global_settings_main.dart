@@ -530,6 +530,8 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             await settingsManager.setStringList(StorageKey.repoman_locks, []);
                           }
 
+                          await uiSettingsManager.reinit();
+
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });
                       },
@@ -925,6 +927,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         await ConfirmClearDataDialog.showDialog(context, () async {
                           await uiSettingsManager.storage.deleteAll();
                           await repoManager.storage.deleteAll();
+                          await uiSettingsManager.reinit();
 
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });
