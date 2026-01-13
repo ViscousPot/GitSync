@@ -16,7 +16,7 @@ import '../../../type/git_provider.dart';
 
 class GitProviderManager {
   // ignore: non_constant_identifier_names
-  static Map<GitProvider, FaIcon> GitProviderIconsMap = {
+  static Map<GitProvider, FaIcon> get GitProviderIconsMap => {
     GitProvider.GITHUB: Platform.isIOS
         ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
         : FaIcon(FontAwesomeIcons.github, size: textMD, color: colours.primaryLight),
