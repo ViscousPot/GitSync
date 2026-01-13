@@ -53,7 +53,7 @@ enum StorageKey<T> {
   setman_gitCommitSigningKey<String?>(name: "gitCommitSigningKey", defaultValue: null),
   setman_gitCommitSigningPassphrase<String?>(name: "gitCommitSigningPassphrase", defaultValue: null),
   setman_clientModeEnabled<bool?>(name: "clientModeEnabled", defaultValue: false, hasDefault: true),
-  setman_optimisedSyncExperimental<bool>(name: "optimisedSyncExperimental", defaultValue: false),
+  setman_optimisedSyncExperimental<bool>(name: "optimisedSyncExperimental", defaultValue: true),
   setman_githubScopedOauth<bool>(name: "githubScopedOauth", defaultValue: false),
 
   // Git Manager
