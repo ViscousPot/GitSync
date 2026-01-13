@@ -903,8 +903,6 @@ class GitManager {
 
           final int sizeThresholdBytes = 100 * 1024 * 1024;
 
-          final time = DateTime.now().millisecondsSinceEpoch;
-
           final List<String> largeFilePaths = [];
 
           await for (var entity in directory.list(recursive: true, followLinks: false)) {
@@ -918,8 +916,6 @@ class GitManager {
               }
             }
           }
-
-          print(DateTime.now().millisecondsSinceEpoch - time);
 
           final gitInfoExcludeFullPath = '$dirPath/$gitInfoExcludePath';
           final file = File(gitInfoExcludeFullPath);
