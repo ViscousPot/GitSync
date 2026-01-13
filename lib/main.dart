@@ -1709,22 +1709,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           child: ValueListenableBuilder(
                                                                             valueListenable: updatingRecommendedAction,
                                                                             builder: (context, value, child) => value
-                                                                                ? SizedBox(
-                                                                                    height: spaceXXL,
-                                                                                    width: spaceXXL,
-                                                                                    child: CircularProgressIndicator(color: colours.tertiaryDark),
-                                                                                  )
+                                                                                ? CircularProgressIndicator(color: colours.tertiaryDark)
                                                                                 : SizedBox.shrink(),
                                                                           ),
                                                                         ),
-                                                                      FaIcon(
-                                                                        syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
-                                                                            (syncOptionsSnapshot.values.isNotEmpty
-                                                                                ? syncOptionsSnapshot.values.first.$1
-                                                                                : null) ??
-                                                                            FontAwesomeIcons.solidCircleDown,
-                                                                        color: colours.primaryLight,
-                                                                        size: textLG,
+                                                                      SizedBox(
+                                                                        height: textLG,
+                                                                        width: textLG,
+                                                                        child: Center(
+                                                                          child: FaIcon(
+                                                                            syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
+                                                                                (syncOptionsSnapshot.values.isNotEmpty
+                                                                                    ? syncOptionsSnapshot.values.first.$1
+                                                                                    : null) ??
+                                                                                FontAwesomeIcons.solidCircleDown,
+                                                                            color: colours.primaryLight,
+                                                                            size: textLG,
+                                                                          ),
+                                                                        ),
                                                                       ),
                                                                     ],
                                                                   ),
