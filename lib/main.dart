@@ -407,11 +407,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     branchName.value = await GitManager.getBranchName();
     remoteUrlLink.value = await GitManager.getRemoteUrlLink();
     branchNames.value = await GitManager.getBranchNames();
+    conflicting.value = await GitManager.getConflicting();
     await updateRecommendedAction();
     loadingRecentCommits.value = true;
     recentCommits.value = await GitManager.getRecentCommits();
     loadingRecentCommits.value = false;
-    conflicting.value = await GitManager.getConflicting();
     if (mounted) setState(() {});
   }
 
