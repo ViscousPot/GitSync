@@ -40,7 +40,12 @@ class GroupSyncSettings extends StatelessWidget {
               t.otherSyncSettings,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: colours.primaryLight, fontSize: textLG),
+              style: TextStyle(
+                fontFeatures: [FontFeature.enable('smcp')],
+                color: colours.primaryLight,
+                fontSize: textLG,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
