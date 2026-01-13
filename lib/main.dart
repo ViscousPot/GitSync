@@ -1333,11 +1333,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             },
                                                             blendMode: BlendMode.dstOut,
                                                             child:
-                                                                (recentCommits ?? []).isEmpty &&
+                                                                recentCommits.isEmpty &&
                                                                     (fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting ||
-                                                                        loadingRecentCommitsSnapshot)
+                                                                        loadingRecentCommits.value)
                                                                 ? Center(child: CircularProgressIndicator(color: colours.tertiaryLight))
-                                                                : (recentCommits!.isEmpty && conflictingSnapshot.isEmpty
+                                                                : (recentCommits.isEmpty && conflictingSnapshot.isEmpty
                                                                       ? Center(
                                                                           child: Text(
                                                                             t.commitsNotFound.toUpperCase(),
@@ -1415,7 +1415,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                             style: ButtonStyle(
                                                                                               alignment: Alignment.centerLeft,
                                                                                               backgroundColor: WidgetStatePropertyAll(
-                                                                                                tertiaryNegative,
+                                                                                                colours.tertiaryNegative,
                                                                                               ),
                                                                                               padding: WidgetStatePropertyAll(
                                                                                                 EdgeInsets.only(
@@ -1442,7 +1442,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                                   Text(
                                                                                                     t.mergeConflict.toUpperCase(),
                                                                                                     style: TextStyle(
-                                                                                                      color: primaryDark,
+                                                                                                      color: colours.primaryDark,
                                                                                                       fontSize: textMD,
                                                                                                       overflow: TextOverflow.ellipsis,
                                                                                                       fontWeight: FontWeight.bold,
@@ -1451,7 +1451,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                                   ),
                                                                                                   FaIcon(
                                                                                                     FontAwesomeIcons.caretDown,
-                                                                                                    color: primaryDark,
+                                                                                                    color: colours.primaryDark,
                                                                                                     size: textMD,
                                                                                                   ),
                                                                                                 ],
@@ -1615,8 +1615,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 icon: FaIcon(
                                                                   FontAwesomeIcons.solidSquarePlus,
                                                                   color: branchNamesValue?.contains(branchNameValue) == true
-                                                                      ? primaryLight
-                                                                      : secondaryLight,
+                                                                      ? colours.primaryLight
+                                                                      : colours.secondaryLight,
                                                                   size: textXL,
                                                                   semanticLabel: t.addBranchLabel,
                                                                 ),

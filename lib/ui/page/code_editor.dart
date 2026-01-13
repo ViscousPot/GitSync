@@ -572,11 +572,13 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                             child: CodeLineNumber(
                               controller: editingController,
                               notifier: notifier,
-                              focusedTextStyle: TextStyle(color: secondaryLight, fontSize: textMD),
+                              focusedTextStyle: TextStyle(color: colours.secondaryLight, fontSize: textMD),
                               customLineIndex2TextStyle: (lineIndex) {
                                 return TextStyle(
                                   fontFamily: "RobotoMono",
-                                  color: deletionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "-" ? tertiaryNegative : tertiaryLight,
+                                  color: deletionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "-"
+                                      ? colours.tertiaryNegative
+                                      : colours.tertiaryLight,
                                   fontSize: textMD,
                                 );
                               },
@@ -595,11 +597,13 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                             child: CodeLineNumber(
                               controller: editingController,
                               notifier: notifier,
-                              focusedTextStyle: TextStyle(color: secondaryLight, fontSize: textMD),
+                              focusedTextStyle: TextStyle(color: colours.secondaryLight, fontSize: textMD),
                               customLineIndex2TextStyle: (lineIndex) {
                                 return TextStyle(
                                   fontFamily: "RobotoMono",
-                                  color: insertionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "+" ? tertiaryPositive : tertiaryLight,
+                                  color: insertionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "+"
+                                      ? colours.tertiaryPositive
+                                      : colours.tertiaryLight,
                                   fontSize: textMD,
                                 );
                               },
