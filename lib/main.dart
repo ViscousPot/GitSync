@@ -1155,6 +1155,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             await GitManager.clearQueue();
                                             await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                             await uiSettingsManager.reinit();
+                                            recentCommits.value.clear();
                                             await reloadAll();
                                           },
                                           selectedItemBuilder: (context) => List.generate(
