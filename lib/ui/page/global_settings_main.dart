@@ -956,6 +956,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                           await uiSettingsManager.storage.deleteAll();
                           await repoManager.storage.deleteAll();
                           await uiSettingsManager.reinit();
+                          premiumManager.hasPremiumNotifier.value = false;
 
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });
