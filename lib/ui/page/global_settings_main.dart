@@ -19,6 +19,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog;
 import 'package:sprintf/sprintf.dart';
@@ -506,6 +507,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       text: t.encryptedRestore,
                       icon: FontAwesomeIcons.arrowRotateLeft,
                       onPressed: () async {
+                        if (!await requestStoragePerm(false) && !await requestStoragePerm()) return;
                         FilePickerResult? result = await FilePicker.platform.pickFiles();
                         if (result == null) return;
 
@@ -520,19 +522,45 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             return;
                           }
 
-                          await repoManager.setAll(settingsMap["repoManager"]);
                           List<dynamic> settingsManagerSettings = settingsMap["settingsManager"];
 
-                          for (var i = 0; i < settingsManagerSettings.length; i++) {
-                            final settingsManager = SettingsManager();
-                            settingsManager.reinit(repoIndex: i);
-                            await settingsManager.setAll(settingsManagerSettings[i]);
-                            await settingsManager.setStringList(StorageKey.repoman_locks, []);
+                          Future<void> importSettings() async {
+                            await repoManager.setAll(settingsMap["repoManager"]);
+
+                            for (var i = 0; i < settingsManagerSettings.length; i++) {
+                              final settingsManager = SettingsManager();
+                              settingsManager.reinit(repoIndex: i);
+                              await settingsManager.setAll(settingsManagerSettings[i]);
+                            }
+
+                            for (var i = 0; i < settingsManagerSettings.length; i++) {
+                              final settingsManager = SettingsManager();
+                              settingsManager.reinit(repoIndex: i);
+                              await settingsManager.setStringList(StorageKey.repoman_locks, []);
+
+                              if (!await Permission.notification.isGranted && await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+                                await settingsManager.setBool(StorageKey.setman_syncMessageEnabled, false);
+                                if (await Permission.notification.request().isGranted) {
+                                  await settingsManager.setBool(StorageKey.setman_syncMessageEnabled, true);
+                                }
+                              }
+                            }
+
+                            await uiSettingsManager.reinit();
+
+                            Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                           }
 
-                          await uiSettingsManager.reinit();
+                          if (settingsManagerSettings.length > 1) {
+                            if (premiumManager.hasPremiumNotifier.value != true) {
+                              await UnlockPremiumDialog.showDialog(context, () async {
+                                await importSettings();
+                              });
+                              return;
+                            }
+                          }
 
-                          Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                          await importSettings();
                         });
                       },
                     ),
