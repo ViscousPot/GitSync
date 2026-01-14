@@ -287,17 +287,13 @@ class _MyAppState extends State<MyApp> {
             cursorColor: colours.secondaryInfo.withAlpha(150),
           ),
         ),
-        builder: (context, child) {
-          return child == null
-              ? SizedBox.shrink()
-              : Container(
-                  color: colours.primaryDark,
-                  child: SafeArea(
-                    top: false,
-                    child: Padding(padding: EdgeInsets.zero, child: child),
-                  ),
-                );
-        },
+        builder: (context, child) => Container(
+          color: colours.primaryDark,
+          child: SafeArea(
+            top: false,
+            child: Padding(padding: EdgeInsets.zero, child: child ?? SizedBox.shrink()),
+          ),
+        ),
         home: ShowCaseWidget(
           blurValue: 3,
           builder: (context) {
