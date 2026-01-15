@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  animated_reorderable_list: ^1.1.5
+  animated_reorderable_list: 1.3.0
   font_awesome_flutter: ^10.8.0
   timeago: ^3.7.0
 

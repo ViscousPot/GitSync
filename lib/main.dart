@@ -1350,10 +1350,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                             Expanded(
                                                                               child: Stack(
                                                                                 children: [
-                                                                                  ListView.builder(
+                                                                                  AnimatedListView(
+                                                                                    key: UniqueKey(),
                                                                                     controller: recentCommitsController,
-                                                                                    itemCount: items.length,
+                                                                                    items: items,
                                                                                     reverse: true,
+                                                                                    isSameItem: (a, b) => a.reference == b.reference,
                                                                                     itemBuilder: (BuildContext context, int index) {
                                                                                       final reference = items[index].reference;
 
