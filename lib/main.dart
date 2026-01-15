@@ -1735,7 +1735,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                   ? lastSyncMethodSnapshot.data
                                                                                   : (syncOptionsSnapshot.keys.isNotEmpty
                                                                                         ? syncOptionsSnapshot.keys.first
-                                                                                        : "")) ??
+                                                                                        : (clientModeEnabledSnapshot.data == true
+                                                                                              ? t.syncAllChanges
+                                                                                              : t.syncNow))) ??
                                                                               t.syncNow)
                                                                           .toUpperCase(),
                                                                       style: TextStyle(
