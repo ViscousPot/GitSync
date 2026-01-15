@@ -86,20 +86,22 @@ jobs:
           keyPassword: ${{ secrets.RELEASE_SIGNING_PASSWORD }}
           buildToolsVersion: 34.0.0
 
-      - uses: jungwinter/split@v2
+      - name: Format App List
         id: signed_files
-        with:
-          msg: ${{ steps.sign_app.outputs.signedFiles }}
-          separator: ":"
+        run: |
+          {
+            echo "signedFiles<<SIGNED_FILES_EOF_DELIMETER"
+            echo "${{ steps.sign_app.outputs.signedFiles }}" | sed 's/:/\n/g'
+            echo "SIGNED_FILES_EOF_DELIMETER"
+          } >> "$GITHUB_OUTPUT"
+
 
       - name: Upload Release Build to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
           path: |
-            ${{ steps.signed_files.outputs._0 }}
-            ${{ steps.signed_files.outputs._1 }}
-            ${{ steps.signed_files.outputs._2 }}
+            ${{ steps.signed_files.outputs.signedFiles }}
             !*-release.apk
 
       - name: Build Changelog
