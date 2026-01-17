@@ -92,6 +92,16 @@ class GitManager {
 
     final settingsManager = await SettingsManager().reinit(repoIndex: index);
 
+    Future<void> unlock() async {
+      if (uiLock) {
+        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
+        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
+      }
+
+      final locks = await repoManager.getStringList(StorageKey.repoman_locks);
+      await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+    }
+
     Future<T?> action() async {
       Future<T?> internalFn(dirPath) async {
         try {
@@ -136,50 +146,36 @@ class GitManager {
     List<String> locks = await repoManager.getStringList(StorageKey.repoman_locks);
     await repoManager.setStringList(StorageKey.repoman_locks, [...locks, index.toString()]);
 
-    runningFuture = CancelableOperation.fromFuture(action(), onCancel: () => null);
+    runningFuture = CancelableOperation.fromFuture(
+      action(),
+      onCancel: () {
+        unlock();
+        return null;
+      },
+    );
     final result = await runningFuture?.value;
 
     if (result != null && result is Stream) {
       result.listen(
         (_) {},
         onDone: () async {
-          if (uiLock) {
-            final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-            await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
-          }
-
-          locks = await repoManager.getStringList(StorageKey.repoman_locks);
-          await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+          unlock();
         },
       );
     } else {
-      if (uiLock) {
-        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
-      }
-
-      locks = await repoManager.getStringList(StorageKey.repoman_locks);
-      await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
+      unlock();
     }
 
     return result;
   }
 
   static Future<void> clearQueue() async {
+    await runningFuture?.cancel();
     bool result = await isLocked(waitForUnlock: false);
     print(result);
     while (result) {
-      final index = await _repoIndex;
-
-      final uiLocks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-      if (uiLocks.contains(index.toString())) {
-        await isLocked(waitForUnlock: true);
-      } else {
-        final locks = await repoManager.getStringList(StorageKey.repoman_locks);
-        await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
-        await runningFuture?.cancel();
-      }
-      result = await isLocked(waitForUnlock: false);
+      await runningFuture?.cancel();
+      result = await isLocked(waitForUnlock: true);
       print(result);
     }
   }
