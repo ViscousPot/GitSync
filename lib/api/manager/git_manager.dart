@@ -319,7 +319,8 @@ class GitManager {
   }
 
   static Future<int?> getRecommendedAction() async {
-    return await _runWithLock(await _repoIndex, LogType.RecommendedActionStatus, (dirPath) async {
+    final repoIndex = await _repoIndex;
+    return await _runWithLock(repoIndex, LogType.RecommendedActionStatus, (dirPath) async {
       try {
         final result = await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
@@ -328,7 +329,9 @@ class GitManager {
           credentials: await _getCredentials(),
           log: _logWrapper,
         );
-        await uiSettingsManager.setIntNullable(StorageKey.setman_recommendedAction, result);
+        final settingsManager = SettingsManager();
+        settingsManager.reinit(repoIndex: repoIndex);
+        await settingsManager.setIntNullable(StorageKey.setman_recommendedAction, result);
         return result;
       } catch (e, stackTrace) {
         Logger.logError(LogType.RecommendedActionStatus, e, stackTrace, causeError: false);
@@ -480,7 +483,8 @@ class GitManager {
   }
 
   static Future<List<GitManagerRs.Commit>> getRecentCommits() async {
-    final result = await _runWithLock(await _repoIndex, LogType.RecentCommits, (dirPath) async {
+    final repoIndex = await _repoIndex;
+    final result = await _runWithLock(repoIndex, LogType.RecentCommits, (dirPath) async {
       try {
         return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), log: _logWrapper);
       } catch (e, stackTrace) {
@@ -493,8 +497,10 @@ class GitManager {
       }
     });
 
+    final settingsManager = SettingsManager();
+    settingsManager.reinit(repoIndex: repoIndex);
     if (result != null)
-      await uiSettingsManager.setStringList(
+      await settingsManager.setStringList(
         StorageKey.setman_recentCommits,
         result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
       );
@@ -886,16 +892,20 @@ class GitManager {
   }
 
   static Future<List<String>> getSubmodulePaths(String repoPath) async {
-    return await _runWithLock(await _repoIndex, LogType.GetSubmodules, (dirPath) async {
+    final repoIndex = await _repoIndex;
+    return await _runWithLock(repoIndex, LogType.GetSubmodules, (dirPath) async {
           final submodulePaths = await GitManagerRs.getSubmodulePaths(pathString: dirPath);
-          await uiSettingsManager.setStringList(StorageKey.setman_submodulePaths, submodulePaths);
+          final settingsManager = SettingsManager();
+          settingsManager.reinit(repoIndex: repoIndex);
+          await settingsManager.setStringList(StorageKey.setman_submodulePaths, submodulePaths);
           return submodulePaths;
         }) ??
         [];
   }
 
   static Future<List<String>> getAndExcludeLfsFilePaths([int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.GetAndExcludeLfs, (dirPath) async {
+    final repoIndex = repomanRepoindex ?? await _repoIndex;
+    return await _runWithLock(repoIndex, LogType.GetAndExcludeLfs, (dirPath) async {
           final Directory directory = Directory(dirPath);
           if (!await directory.exists()) {
             throw Exception('Directory does not exist');
@@ -932,7 +942,9 @@ class GitManager {
             }
           }
 
-          await uiSettingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
+          final settingsManager = SettingsManager();
+          settingsManager.reinit(repoIndex: repoIndex);
+          await settingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
 
           return largeFilePaths;
         }) ??
