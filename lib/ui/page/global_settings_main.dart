@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
@@ -539,7 +540,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             for (var i = 0; i < settingsManagerSettings.length; i++) {
                               final settingsManager = SettingsManager();
                               settingsManager.reinit(repoIndex: i);
-                              await settingsManager.setStringList(StorageKey.repoman_locks, []);
+                              await GitManager.clearLocks();
 
                               if (!await Permission.notification.isGranted && await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
                                 await settingsManager.setBool(StorageKey.setman_syncMessageEnabled, false);

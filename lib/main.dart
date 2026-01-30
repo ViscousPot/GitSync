@@ -98,7 +98,6 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       await RustLib.init();
       initAsync(() async {
-        await repoManager.setStringList(StorageKey.repoman_locks, []);
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
         await Logger.init();
         await requestStoragePerm(false);
@@ -161,18 +160,6 @@ void callbackDispatcher() async {
         return Future.value(true);
       }
 
-      if (task.contains(networkScheduledSyncKey)) {
-        final int repoIndex =
-            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
-
-        if (Platform.isIOS) {
-          await gitSyncService.debouncedSync(repoIndex, true, true);
-        } else {
-          FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
-        }
-
-        return Future.value(true);
-      }
       return Future.value(false);
     } catch (e) {
       return Future.error(e);

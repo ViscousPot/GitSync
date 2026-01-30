@@ -50,7 +50,6 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
         scheduledSyncSetDebounceReference,
         inputData: {"repoIndex": repoIndex},
         frequency: Duration(minutes: multiplier * rate),
-        constraints: Constraints(networkType: NetworkType.connected),
       );
     });
   }
