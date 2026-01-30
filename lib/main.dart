@@ -755,6 +755,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     //     .listen((event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList());
 
     // TODO: put behind an on for all the sync option fns?
+    //
+    syncOptions.value.addAll({
+      t.syncNow: (FontAwesomeIcons.solidCircleDown, () async => FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC)),
+    });
+
+    checkPreviousCrash();
 
     initAsync(() async {
       reloadAll();
