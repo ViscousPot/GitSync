@@ -663,8 +663,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
   Future<void> reloadAll() async {
     final token = ++_reloadToken;
-    print(token);
-    print(_reloadToken);
     await colours.reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
