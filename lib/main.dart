@@ -1535,8 +1535,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                   width: orientation == Orientation.portrait
                       ? null
                       : MediaQuery.of(context).size.width -
-                            (MediaQuery.of(context).systemGestureInsets.right == 48 || MediaQuery.of(context).systemGestureInsets.left == 48
-                                ? MediaQuery.of(context).systemGestureInsets.right + MediaQuery.of(context).systemGestureInsets.left
+                            (MediaQuery.of(context).systemGestureInsets.right > 0 || MediaQuery.of(context).systemGestureInsets.left > 0
+                                ? (MediaQuery.of(context).systemGestureInsets.left > MediaQuery.of(context).systemGestureInsets.right
+                                      ? (MediaQuery.of(context).systemGestureInsets.left - MediaQuery.of(context).systemGestureInsets.right)
+                                      : (MediaQuery.of(context).systemGestureInsets.right - MediaQuery.of(context).systemGestureInsets.left))
                                 : 0),
                   padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
                   child: Flex(
