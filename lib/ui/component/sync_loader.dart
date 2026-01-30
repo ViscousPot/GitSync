@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
@@ -9,6 +10,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SyncLoader extends StatefulWidget {
   const SyncLoader({super.key, required this.syncProgressKey, required this.reload});
@@ -91,6 +93,14 @@ class _SyncLoaderState extends State<SyncLoader> {
 
     return GestureDetector(
       onLongPress: () async {
+        try {
+          Directory('${(await getApplicationDocumentsDirectory()).path}/queues').deleteSync(recursive: true);
+        } catch (e) {}
+        try {
+          Directory('${(await getApplicationDocumentsDirectory()).path}/queues').createSync(recursive: true);
+        } catch (e) {}
+        print("////// deleted");
+
         final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
         final uiLocks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
         await repoManager.setStringList(StorageKey.repoman_uiLocks, uiLocks.where((lock) => lock != index.toString()).toList());

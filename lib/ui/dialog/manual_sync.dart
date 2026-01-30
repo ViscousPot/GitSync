@@ -1,10 +1,12 @@
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/logger.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
@@ -14,7 +16,7 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/ui/dialog/confirm_discard_changes.dart' as ConfirmDiscardChangesDialog;
 
-Future<void> showDialog(BuildContext context, Future<void> Function() updateRecommendedActionCallback) async {
+Future<void> showDialog(BuildContext context) async {
   final syncMessageController = TextEditingController();
   final selectedFiles = <String>[];
   final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
@@ -26,15 +28,29 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
   bool uploading = false;
   bool staging = false;
   bool unstaging = false;
+  StateSetter? setStater;
 
-  await GitManager.clearQueue();
-  Future<List<(String, int)>> uncommitedFilePaths = GitManager.getUncommittedFilePaths();
-  Future<List<(String, int)>> stagedFilePaths = GitManager.getStagedFilePaths();
+  Future<List<(String, int)>> uncommitedFilePaths = runGitOperation<List<(String, int)>>(
+    LogType.UncommittedFiles,
+    (event) => event?["result"].map<(String, int)>((item) => ("${item[0]}", int.parse("${item[1]}"))).toList() ?? [],
+  );
+  Future<List<(String, int)>> stagedFilePaths = runGitOperation<List<(String, int)>>(
+    LogType.StagedFiles,
+    (event) => event?["result"].map<(String, int)>((item) => ("${item[0]}", int.parse("${item[1]}"))).toList() ?? [],
+  );
 
   Future<void> reload() async {
-    await GitManager.clearQueue();
-    uncommitedFilePaths = GitManager.getUncommittedFilePaths();
-    stagedFilePaths = GitManager.getStagedFilePaths();
+    uncommitedFilePaths = runGitOperation<List<(String, int)>>(
+      LogType.UncommittedFiles,
+      (event) => event?["result"].map<(String, int)>((item) => ("${item[0]}", int.parse("${item[1]}"))).toList() ?? [],
+    );
+
+    stagedFilePaths = runGitOperation<List<(String, int)>>(
+      LogType.StagedFiles,
+      (event) => event?["result"].map<(String, int)>((item) => ("${item[0]}", int.parse("${item[1]}"))).toList(),
+    );
+
+    if (context.mounted) setStater?.call(() {});
   }
 
   return mat.showDialog(
@@ -44,6 +60,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
       canPop: !uploading,
       child: StatefulBuilder(
         builder: (context, setState) {
+          setStater = setState;
           SystemChannels.lifecycle.setMessageHandler((msg) async {
             if (msg == appLifecycleStateResumed) {
               try {
@@ -118,7 +135,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                     isDense: true,
                                   ),
                                   onChanged: (_) {
-                                    setState(() {});
+                                    if (context.mounted) setState(() {});
                                   },
                                 ),
                               ),
@@ -128,12 +145,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                   onPressed: !uploading && (stagedFilePathsSnapshot.data ?? []).isNotEmpty
                                       ? () async {
                                           uploading = true;
-                                          setState(() {});
-                                          await GitManager.commitChanges(syncMessageController.text.isEmpty ? null : syncMessageController.text);
-                                          await updateRecommendedActionCallback();
+                                          if (context.mounted) setState(() {});
+
+                                          await runGitOperation(LogType.Commit, (event) => event, {
+                                            "syncMessage": syncMessageController.text.isEmpty ? null : syncMessageController.text,
+                                          });
                                           uploading = false;
                                           await reload();
-                                          setState(() {});
+                                          if (context.mounted) setStater?.call(() {});
                                         }
                                       : null,
                                   style: ButtonStyle(
@@ -202,7 +221,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                     selectedFiles.addAll(filePaths.map((item) => item.$1).toList());
                                                   }
 
-                                                  setState(() {});
+                                                  if (context.mounted) setState(() {});
                                                 },
                                                 style: ButtonStyle(
                                                   alignment: Alignment.center,
@@ -304,7 +323,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                                       selectedFiles.add(fileName);
                                                     }
                                                   }
-                                                  setState(() {});
+                                                  if (context.mounted) setState(() {});
                                                 },
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -387,15 +406,16 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                 onPressed: selectedFiles.isNotEmpty || selectedFiles.isNotEmpty
                                     ? () async {
                                         ConfirmDiscardChangesDialog.showDialog(context, selectedFiles, () async {
-                                          await GitManager.unstageFilePaths(
-                                            selectedFiles
+                                          await runGitOperation(LogType.Unstage, (event) => event, {
+                                            "paths": selectedFiles
                                                 .where((file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                 .toList(),
-                                          );
-                                          await GitManager.discardChanges(selectedFiles);
+                                          });
+
+                                          await runGitOperation(LogType.DiscardChanges, (event) => event, {"paths": selectedFiles});
                                           selectedFiles.clear();
                                           await reload();
-                                          setState(() {});
+                                          if (context.mounted) setState(() {});
                                         });
                                       }
                                     : null,
@@ -425,18 +445,19 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             .isNotEmpty
                                         ? () async {
                                             unstaging = true;
-                                            setState(() {});
-                                            await GitManager.unstageFilePaths(
-                                              selectedFiles
+                                            if (context.mounted) setState(() {});
+
+                                            await runGitOperation<Map<String, dynamic>?>(LogType.Unstage, (event) => event, {
+                                              "paths": selectedFiles
                                                   .where((file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                   .toList(),
-                                            );
+                                            });
                                             selectedFiles.removeWhere(
-                                              (file) => (stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file),
+                                              (file) => ((stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file) == true),
                                             );
                                             unstaging = false;
                                             await reload();
-                                            setState(() {});
+                                            if (context.mounted) setStater?.call(() {});
                                           }
                                         : null,
                                     style: ButtonStyle(
@@ -483,18 +504,18 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                             .isNotEmpty
                                         ? () async {
                                             staging = true;
-                                            setState(() {});
-                                            await GitManager.stageFilePaths(
-                                              selectedFiles
+                                            if (context.mounted) setState(() {});
+                                            await runGitOperation<Map<String, dynamic>?>(LogType.Stage, (event) => event, {
+                                              "paths": selectedFiles
                                                   .where((file) => !(stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file))
                                                   .toList(),
-                                            );
+                                            });
                                             selectedFiles.removeWhere(
-                                              (file) => !(stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file),
+                                              (file) => !((stagedFilePathsSnapshot.data ?? []).map((file) => file.$1).contains(file) == true),
                                             );
                                             staging = false;
                                             await reload();
-                                            setState(() {});
+                                            if (context.mounted) setState(() {});
                                           }
                                         : null,
                                     style: ButtonStyle(
@@ -539,20 +560,19 @@ Future<void> showDialog(BuildContext context, Future<void> Function() updateReco
                                 onPressed: selectedFiles.isNotEmpty
                                     ? () async {
                                         uploading = true;
-                                        setState(() {});
+                                        if (context.mounted) setState(() {});
 
-                                        await GitManager.uploadChanges(
-                                          await repoManager.getInt(StorageKey.repoman_repoIndex),
-                                          uiSettingsManager,
-                                          () {},
-                                          selectedFiles,
-                                          syncMessageController.text.isEmpty ? null : syncMessageController.text,
-                                        );
+                                        await runGitOperation(LogType.UploadChanges, (event) => event, {
+                                          "repomanRepoindex": await repoManager.getInt(StorageKey.repoman_repoIndex),
+                                          "filePaths": selectedFiles,
+                                          "syncMessage": syncMessageController.text.isEmpty ? null : syncMessageController.text,
+                                        });
+                                        FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {});
 
                                         selectedFiles.clear();
                                         uploading = false;
                                         await reload();
-                                        setState(() {});
+                                        if (context.mounted) setState(() {});
                                       }
                                     : null,
                                 style: ButtonStyle(

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/dialog/prompt_disable_ssl.dart' as PromptDisableSslDialog;
@@ -158,7 +159,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
             await setGitDirPathGetSubmodules(context, selectedDirectory!);
             if (repoUrl.startsWith("http") && !repoUrl.startsWith("https")) {
               await PromptDisableSslDialog.showDialog(context, () async {
-                GitManager.setDisableSsl(true);
+                await runGitOperation(LogType.SetDisableSsl, (event) => event, {"disable": true});
               });
             }
             await repoManager.setOnboardingStep(4);
@@ -178,7 +179,9 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver {
         await ConfirmCloneOverwriteDialog.showDialog(
           context,
           () async {
-            await GitManager.deleteDirContents(selectedDirectory!);
+            print("////wee $selectedDirectory");
+            await runGitOperation(LogType.DiscardDir, (event) => event, {"dirPath": selectedDirectory});
+            print("////oui");
           },
           () async {
             await startClone();

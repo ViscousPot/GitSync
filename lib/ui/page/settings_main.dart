@@ -1,4 +1,6 @@
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
@@ -16,8 +18,9 @@ import '../../../ui/component/item_setting.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
 
 class SettingsMain extends StatefulWidget {
-  const SettingsMain({super.key, this.showcaseAuthorDetails = false});
+  const SettingsMain(this.recentCommits, {super.key, this.showcaseAuthorDetails = false});
 
+  final List<GitManagerRs.Commit> recentCommits;
   final bool showcaseAuthorDetails;
 
   @override
@@ -36,9 +39,9 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
 
-  Future<String> readGitignore = GitManager.readGitignore();
-  Future<String> readGitInfoExclude = GitManager.readGitInfoExclude();
-  Future<bool> getDisableSsl = GitManager.getDisableSsl();
+  Future<String> readGitignore = runGitOperation<String>(LogType.ReadGitIgnore, (event) => event?["result"] ?? "");
+  Future<String> readGitInfoExclude = runGitOperation<String>(LogType.ReadGitInfoExclude, (event) => event?["result"] ?? "");
+  Future<bool> getDisableSsl = runGitOperation<bool>(LogType.GetDisableSsl, (event) => event?["result"] ?? false);
 
   static const duration = Duration(seconds: 1);
 
@@ -110,8 +113,9 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
       _pulseController.repeat(reverse: true);
       if (mounted) setState(() {});
     }
-    await GitManager.writeGitignore(gitignoreString);
-    readGitignore = GitManager.readGitignore();
+
+    await runGitOperation(LogType.WriteGitIgnore, (event) => event, {"gitignoreString": gitignoreString});
+    readGitignore = runGitOperation<String>(LogType.ReadGitIgnore, (event) => event?["result"] ?? "");
   }
 
   void writeGitInfoExclude(String gitInfoExcludeString) async {
@@ -120,8 +124,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
       _pulseController.repeat(reverse: true);
       if (mounted) setState(() {});
     }
-    await GitManager.writeGitInfoExclude(gitInfoExcludeString);
-    readGitInfoExclude = GitManager.readGitInfoExclude();
+    await runGitOperation(LogType.WriteGitInfoExclude, (event) => event, {"gitInfoExcludeString": gitInfoExcludeString});
+    readGitInfoExclude = runGitOperation<String>(LogType.ReadGitInfoExclude, (event) => event?["result"] ?? "");
   }
 
   @override
@@ -445,9 +449,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                               onPressed: () async {
                                 unstaging = true;
                                 if (mounted) setState(() {});
-
-                                await GitManager.untrackAll();
-
+                                await runGitOperation(LogType.UntrackAll, (event) => event);
                                 unstaging = false;
                                 ignoreChanged = false;
                                 _pulseController.stop();
@@ -516,8 +518,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                               future: getDisableSsl,
                               builder: (context, snapshot) => TextButton.icon(
                                 onPressed: () async {
-                                  await GitManager.setDisableSsl(!(snapshot.data ?? false));
-                                  getDisableSsl = GitManager.getDisableSsl();
+                                  await runGitOperation(LogType.SetDisableSsl, (event) => event, {"disable": !(snapshot.data ?? false)});
+                                  getDisableSsl = runGitOperation<bool>(LogType.GetDisableSsl, (event) => event?["result"] ?? false);
                                   if (mounted) setState(() {});
                                 },
                                 style: ButtonStyle(
@@ -592,7 +594,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
                         Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                        _restorableGlobalSettings.present(false);
+                        _restorableGlobalSettings.present({"recentCommits": widget.recentCommits, "onboarding": true});
                       },
                     ),
                     SizedBox(height: spaceLG),
@@ -608,11 +610,13 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Sin
 }
 
 @pragma('vm:entry-point')
-Route<String?> createSettingsMainRoute(BuildContext context, Object? showcaseAuthorDetails) {
+Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
+  (args as Map<String, dynamic>);
+
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) =>
-        ShowCaseWidget(builder: (context) => SettingsMain(showcaseAuthorDetails: showcaseAuthorDetails == true)),
+        ShowCaseWidget(builder: (context) => SettingsMain(args["recentCommits"], showcaseAuthorDetails: args["showcaseAuthorDetails"] == true)),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

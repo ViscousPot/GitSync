@@ -1,4 +1,5 @@
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
@@ -18,6 +19,7 @@ import '../../../ui/dialog/base_alert_dialog.dart';
 
 Future<void> showDialog(
   BuildContext parentContext,
+  List<GitManagerRs.Commit> recentCommits,
   (String?, String?) diffReferences,
   String titleText,
   (GitManagerRs.Commit, GitManagerRs.Commit?)? data, [
@@ -31,47 +33,71 @@ Future<void> showDialog(
 
   final dirPath = await uiSettingsManager.gitDirPath?.$2;
 
-  Future<MapEntry<String, String>> getDiffPart((String, Map<String, String>) diffPart) async {
-    final diffFile = MapEntry(
-      diffPart.$1,
-      diffPart.$2.entries
-          .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
-          .map((entry) => "${entry.key}${entry.value}")
-          .join("\n"),
+  Future<List<MapEntry<String, String>>> getDiffParts(GitManagerRs.Diff? diffSnapshotData) async {
+    final diffFiles =
+        diffSnapshotData?.diffParts.map(
+          (key, value) => MapEntry(
+            key,
+            value.entries
+                .sortedBy((entry) => (int.tryParse(RegExp(r'\+([^,]+),').firstMatch(entry.key)?.group(1) ?? "") ?? 0))
+                .map((entry) => "${entry.key}${entry.value}")
+                .join("\n"),
+          ),
+        ) ??
+        {};
+    List<MapEntry<String, String>> diffs = diffFiles.entries.sortedBy(
+      (entry) => entry.key.contains(conflictSeparator) ? entry.key.split(conflictSeparator).first : entry.key,
     );
-    return diffFile;
+    if (diffFiles.entries.isEmpty) return [];
+
+    if (diffFiles.keys.first.contains(conflictSeparator)) diffs = diffs.reversed.toList();
+
+    return diffs;
   }
 
-  await GitManager.clearQueue();
+  ValueNotifier<GitManagerRs.Diff?> diffNotifier = ValueNotifier(null);
   ValueNotifier<List<MapEntry<String, String>>> diffPartsNotifier = ValueNotifier([]);
-  ValueNotifier<int> insertionsNotifier = ValueNotifier(0);
-  ValueNotifier<int> deletionsNotifier = ValueNotifier(0);
   ValueNotifier<bool> loading = ValueNotifier(false);
 
   initAsync(() async {
     loading.value = true;
-    final stream = await (diffReferences.$1 == null
-        ? await GitManager.getFileDiff(diffReferences.$2!)
-        : await GitManager.getCommitDiff(diffReferences.$1!, diffReferences.$2));
+    diffNotifier.value = await (diffReferences.$1 == null
+        ? runGitOperation(
+            LogType.FileDiff,
+            (event) => event == null
+                ? null
+                : GitManagerRs.Diff(
+                    insertions: event["insertions"],
+                    deletions: event["deletions"],
+                    diffParts: event["diffParts"].map<String, Map<String, String>>(
+                      (key, value) => MapEntry<String, Map<String, String>>(
+                        "$key",
+                        value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+                      ),
+                    ),
+                  ),
+            {"filePath": diffReferences.$2!},
+          )
+        : runGitOperation(
+            LogType.CommitDiff,
+            (event) => event == null
+                ? null
+                : GitManagerRs.Diff(
+                    insertions: event["insertions"],
+                    deletions: event["deletions"],
+                    diffParts: event["diffParts"].map<String, Map<String, String>>(
+                      (key, value) => MapEntry<String, Map<String, String>>(
+                        "$key",
+                        value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+                      ),
+                    ),
+                  ),
+            {"startRef": diffReferences.$1!, "endRef": diffReferences.$2!},
+          ));
 
-    stream?.listen((data) async {
-      final diffPart = await getDiffPart(data);
-      int insertIndex = diffPartsNotifier.value.length == 0
-          ? 0
-          : (diffPart.key.contains(conflictSeparator)
-                ? diffPartsNotifier.value.indexWhere(
-                    (item) =>
-                        (int.tryParse(item.key.split(conflictSeparator).first) ?? 0) <
-                        (int.tryParse(diffPart.key.split(conflictSeparator).first) ?? 0),
-                  )
-                : diffPartsNotifier.value.indexWhere((item) => item.key.compareTo(diffPart.key) > 0));
-      insertIndex = insertIndex < 0 ? diffPartsNotifier.value.length : insertIndex;
-
-      diffPartsNotifier.value = [...diffPartsNotifier.value.slice(0, insertIndex), diffPart, ...diffPartsNotifier.value.slice(insertIndex)];
-
-      insertionsNotifier.value += insertionRegex.allMatches(diffPart.value).length;
-      deletionsNotifier.value += deletionRegex.allMatches(diffPart.value).length;
-    }, onDone: () => loading.value = false);
+    print(diffNotifier.value);
+    diffPartsNotifier.value = await getDiffParts(diffNotifier.value);
+    loading.value = false;
   });
 
   return await mat.showDialog(
@@ -105,8 +131,8 @@ Future<void> showDialog(
 
         return BetterOrientationBuilder(
           builder: (context, orientation) => ValueListenableBuilder(
-            valueListenable: diffPartsNotifier,
-            builder: (context, diffPartsSnapshot, child) => BaseAlertDialog(
+            valueListenable: diffNotifier,
+            builder: (context, diffSnapshot, child) => BaseAlertDialog(
               expandable: true,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -332,59 +358,74 @@ Future<void> showDialog(
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: spaceXS),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "${diffPartsSnapshot.length} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          children: [
-                            ValueListenableBuilder(
-                              valueListenable: insertionsNotifier,
-                              builder: (context, snapshot, child) => Text(
-                                sprintf(t.additions, [snapshot]),
+                  diffSnapshot == null
+                      ? Center(
+                          child: LinearProgressIndicator(
+                            value: null,
+                            backgroundColor: colours.secondaryDark,
+                            color: colours.tertiaryDark,
+                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                          ),
+                        )
+                      : Padding(
+                          padding: EdgeInsets.symmetric(horizontal: spaceXS),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${diffSnapshot.diffParts.keys.length} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                // style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                               ),
-                            ),
-                            SizedBox(width: spaceMD),
-                            ValueListenableBuilder(
-                              valueListenable: deletionsNotifier,
-                              builder: (context, snapshot, child) => Text(
-                                sprintf(t.deletions, [snapshot]),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                              Row(
+                                children: [
+                                  Text(
+                                    sprintf(t.additions, [diffSnapshot.insertions]),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(width: spaceMD),
+                                  Text(
+                                    sprintf(t.deletions, [diffSnapshot.deletions]),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
               contentPadding: EdgeInsets.only(top: spaceXS),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: AnimatedListView(
-                  items: diffPartsSnapshot,
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  isSameItem: (a, b) => a == b,
-                  itemBuilder: (context, index) => DiffFile(
-                    key: Key(diffPartsSnapshot[index].key),
-                    orientation: orientation,
-                    openedFromFile: openedFromFile,
-                    diffPartsSnapshot[index],
-                    titleText,
-                    index == 0,
-                  ),
-                ),
+              content: ValueListenableBuilder(
+                valueListenable: diffPartsNotifier,
+                builder: (context, diffPartsSnapshot, child) => diffSnapshot == null
+                    ? Center(
+                        child: SizedBox.square(
+                          dimension: spaceXL,
+                          child: CircularProgressIndicator(color: colours.primaryLight),
+                        ),
+                      )
+                    : SizedBox(
+                        width: double.maxFinite,
+                        child: AnimatedListView(
+                          items: diffPartsSnapshot,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          isSameItem: (a, b) => a == b,
+                          itemBuilder: (context, index) => DiffFile(
+                            key: Key(diffPartsSnapshot[index].key),
+                            orientation: orientation,
+                            openedFromFile: openedFromFile,
+                            recentCommits,
+                            diffPartsSnapshot[index],
+                            titleText,
+                            index == 0,
+                          ),
+                        ),
+                      ),
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: <Widget>[],

@@ -20,7 +20,7 @@ class AccessibilityServiceHelper {
               await repoManager.setInt(StorageKey.repoman_repoIndex, await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex));
               await uiSettingsManager.reinit();
               setState(() {});
-              await ManualSyncDialog.showDialog(context, () async {});
+              await ManualSyncDialog.showDialog(context);
             }
         }
       }

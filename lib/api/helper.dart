@@ -29,7 +29,6 @@ import 'package:ios_document_picker/ios_document_picker.dart';
 import 'package:ios_document_picker/types.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:GitSync/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constant/dimens.dart';
 import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
@@ -261,7 +260,11 @@ Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async 
     });
   }
 
-  final submodulePaths = await GitManager.getSubmodulePaths(dir);
+  final submodulePaths = await runGitOperation<List<String>>(
+    LogType.GetSubmodules,
+    (event) => event?["result"].map<String>((path) => "$path").toList() ?? [],
+    {"dir": dir},
+  );
 
   Future<void> addSubmodules() async {
     List<String> repomanReponames = List.from(await repoManager.getStringList(StorageKey.repoman_repoNames));

@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/type/git_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../logger.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import '../manager/settings_manager.dart';
@@ -63,6 +64,12 @@ extension CommitJson on GitManagerRs.Commit {
   }
 }
 
+Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? event) transformer, [Map<String, dynamic>? arg]) async {
+  FlutterBackgroundService().invoke(type.name, arg);
+  final event = await FlutterBackgroundService().on(type.name).first;
+  return transformer(event);
+}
+
 class GitManager {
   static final Map<String, Future<String?> Function()> _errorContentMap = {
     "failed to parse signature - Signature cannot have an empty name or email": () async => missingAuthorDetailsError,
@@ -78,29 +85,24 @@ class GitManager {
 
   static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
-  static CancelableOperation? runningFuture = null;
-
-  static Future<T?> _runWithLock<T>(
+  static FutureOr<T?> _runWithLock<T>(
+    FutureOr<T?> Function({
+      required String queueDir,
+      required int index,
+      required int priority,
+      required String fnName,
+      required FutureOr<T?> Function() function,
+    })?
+    typedRunWithLock,
     int index,
     LogType type,
     Future<T?> Function(String dirPath) fn, {
+    int priority = 3,
     bool expectGitDir = true,
     String? dirPath = null,
     bool uiLock = false,
   }) async {
-    await isLocked(waitForUnlock: true);
-
-    final settingsManager = await SettingsManager().reinit(repoIndex: index);
-
-    Future<void> unlock() async {
-      if (uiLock) {
-        final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-        await repoManager.setStringList(StorageKey.repoman_uiLocks, locks.where((lock) => lock != index.toString()).toList());
-      }
-
-      final locks = await repoManager.getStringList(StorageKey.repoman_locks);
-      await repoManager.setStringList(StorageKey.repoman_locks, [...locks.where((item) => item != index.toString())]);
-    }
+    final fnName = type.name;
 
     Future<T?> action() async {
       Future<T?> internalFn(dirPath) async {
@@ -113,78 +115,58 @@ class GitManager {
         return null;
       }
 
-      final setman = settingsManager;
+      final setman = await SettingsManager().reinit(repoIndex: index);
 
       T? result;
 
-      try {
-        if (dirPath == null) {
-          dirPath = setman.gitDirPath?.$1;
-          if (dirPath == null) return null;
-        }
-        if (dirPath!.isNotEmpty) {
-          result = await useDirectory(dirPath!, (bookmarkPath) async => await setman.setGitDirPath(bookmarkPath, true), (dirPath) async {
-            if (expectGitDir && !isGitDir(dirPath)) return null;
-            Logger.gmLog(type: type, ".git folder found");
-            return await internalFn(dirPath);
-          });
-        } else {
-          result = await internalFn(dirPath);
-        }
-      } catch (e, stackTrace) {
-        Logger.logError(type, e, stackTrace);
+      if (dirPath == null) {
+        dirPath = setman.gitDirPath?.$1;
+        if (dirPath == null) return null;
+      }
+      if (dirPath!.isNotEmpty) {
+        result = await useDirectory(dirPath!, (bookmarkPath) async => await setman.setGitDirPath(bookmarkPath, true), (dirPath) async {
+          if (expectGitDir && !isGitDir(dirPath)) return null;
+          Logger.gmLog(type: type, ".git folder found");
+          return await internalFn(dirPath);
+        });
+      } else {
+        result = await internalFn(dirPath);
       }
 
       return result;
     }
 
-    if (uiLock) {
-      final locks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-      await repoManager.setStringList(StorageKey.repoman_uiLocks, [...locks, index.toString()]);
+    if (typedRunWithLock == null) {
+      try {
+        return await action();
+      } catch (e, stackTrace) {
+        Logger.logError(type, e, stackTrace);
+      }
     }
 
-    List<String> locks = await repoManager.getStringList(StorageKey.repoman_locks);
-    await repoManager.setStringList(StorageKey.repoman_locks, [...locks, index.toString()]);
-
-    runningFuture = CancelableOperation.fromFuture(
-      action(),
-      onCancel: () {
-        unlock();
-        return null;
-      },
-    );
-    final result = await runningFuture?.value;
-
-    if (result != null && result is Stream) {
-      result.listen(
-        (_) {},
-        onDone: () async {
-          unlock();
-        },
+    try {
+      return await typedRunWithLock!(
+        queueDir: (await getApplicationDocumentsDirectory()).path,
+        index: index,
+        priority: priority,
+        fnName: fnName,
+        function: action,
       );
-    } else {
-      unlock();
+    } catch (e, stackTrace) {
+      Logger.logError(type, e, stackTrace);
     }
-
-    return result;
-  }
-
-  static Future<void> clearQueue() async {
-    await runningFuture?.cancel();
-    bool result = await isLocked(waitForUnlock: false);
-    print(result);
-    while (result) {
-      await runningFuture?.cancel();
-      result = await isLocked(waitForUnlock: true);
-      print(result);
-    }
+    return null;
   }
 
   static Future<bool> isLocked({waitForUnlock = true, bool ui = false}) async {
     Future<bool> internal() async {
-      final locks = await repoManager.getStringList(ui ? StorageKey.repoman_uiLocks : StorageKey.repoman_locks);
-      final locked = locks.contains((await repoManager.getInt(StorageKey.repoman_repoIndex)).toString());
-      return locked;
+      return GitManagerRs.isLocked(
+        queueDir: (await getApplicationDocumentsDirectory()).path,
+        index: await repoManager.getInt(StorageKey.repoman_repoIndex),
+      );
+      // final locks = await repoManager.getStringList(ui ? StorageKey.repoman_uiLocks : StorageKey.repoman_locks);
+      // final locked = locks.contains((await repoManager.getInt(StorageKey.repoman_repoIndex)).toString());
+      // return locked;
     }
 
     if (!waitForUnlock) return await internal();
@@ -229,24 +211,32 @@ class GitManager {
 
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
 
-    final result = await _runWithLock(dirPath: repoPath, uiLock: true, expectGitDir: false, await repoIndex, LogType.CloneRepo, (dirPath) async {
-      try {
-        await GitManagerRs.cloneRepository(
-          url: repoUrl,
-          pathString: dirPath,
-          provider: await _gitProvider(),
-          credentials: await _getCredentials(),
-          author: await _author(),
-          cloneTaskCallback: cloneTaskCallback,
-          cloneProgressCallback: cloneProgressCallback,
-          log: _logWrapper,
-        );
-        return "";
-      } on AnyhowException catch (e, stackTrace) {
-        Logger.logError(LogType.CloneRepo, e.message, stackTrace, causeError: false);
-        return await _getErrorContent(e.message) ?? e.message.split(";").first;
-      }
-    });
+    final result = await _runWithLock(
+      GitManagerRs.stringRunWithLock,
+      dirPath: repoPath,
+      uiLock: true,
+      expectGitDir: false,
+      await repoIndex,
+      LogType.Clone,
+      (dirPath) async {
+        try {
+          await GitManagerRs.cloneRepository(
+            url: repoUrl,
+            pathString: dirPath,
+            provider: await _gitProvider(),
+            credentials: await _getCredentials(),
+            author: await _author(),
+            cloneTaskCallback: cloneTaskCallback,
+            cloneProgressCallback: cloneProgressCallback,
+            log: _logWrapper,
+          );
+          return "";
+        } on AnyhowException catch (e, stackTrace) {
+          Logger.logError(LogType.Clone, e.message, stackTrace, causeError: false);
+          return await _getErrorContent(e.message) ?? e.message.split(";").first;
+        }
+      },
+    );
 
     if (result?.isEmpty == true) return null;
     if (result == null) return inaccessibleDirectoryMessage;
@@ -256,6 +246,7 @@ class GitManager {
 
   static Future<void> updateSubmodules() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
       LogType.UpdateSubmodules,
       (dirPath) async => await GitManagerRs.updateSubmodules(
@@ -269,6 +260,7 @@ class GitManager {
 
   static Future<void> fetchRemote() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.FetchRemote,
@@ -284,6 +276,7 @@ class GitManager {
 
   static Future<void> pullChanges() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.PullFromRepo,
@@ -299,6 +292,7 @@ class GitManager {
 
   static Future<void> stageFilePaths(List<String> paths) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.Stage,
@@ -308,6 +302,7 @@ class GitManager {
 
   static Future<void> unstageFilePaths(List<String> paths) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
       LogType.Unstage,
       (dirPath) async => await GitManagerRs.unstageFilePaths(pathString: dirPath, paths: paths, log: _logWrapper),
@@ -316,7 +311,7 @@ class GitManager {
 
   static Future<int?> getRecommendedAction() async {
     final repoIndex = await _repoIndex;
-    return await _runWithLock(repoIndex, LogType.RecommendedActionStatus, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.intRunWithLock, repoIndex, LogType.RecommendedAction, (dirPath) async {
       try {
         final result = await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
@@ -326,11 +321,11 @@ class GitManager {
           log: _logWrapper,
         );
         final settingsManager = SettingsManager();
-        settingsManager.reinit(repoIndex: repoIndex);
+        await settingsManager.reinit(repoIndex: repoIndex);
         await settingsManager.setIntNullable(StorageKey.setman_recommendedAction, result);
         return result;
       } catch (e, stackTrace) {
-        Logger.logError(LogType.RecommendedActionStatus, e, stackTrace, causeError: false);
+        Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
         return null;
       }
     });
@@ -338,6 +333,7 @@ class GitManager {
 
   static Future<void> commitChanges(String? syncMessage) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.Commit,
@@ -354,7 +350,7 @@ class GitManager {
   }
 
   static Future<void> pushChanges() async {
-    return await _runWithLock(uiLock: true, await _repoIndex, LogType.PushToRepo, (dirPath) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, uiLock: true, await _repoIndex, LogType.PushToRepo, (dirPath) async {
       try {
         await GitManagerRs.pushChanges(
           pathString: dirPath,
@@ -366,15 +362,16 @@ class GitManager {
         );
       } on AnyhowException catch (e, stackTrace) {
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
-          Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: changesDuringRebase);
+          Logger.logError(LogType.PushToRepo, e.message, stackTrace, errorContent: changesDuringRebase);
         }
-        Logger.logError(LogType.UploadChanges, e.message, stackTrace);
+        Logger.logError(LogType.PushToRepo, e.message, stackTrace);
       }
     });
   }
 
   static Future<void> forcePull() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.ForcePull,
@@ -384,6 +381,7 @@ class GitManager {
 
   static Future<void> forcePush() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
       LogType.ForcePush,
@@ -399,9 +397,10 @@ class GitManager {
 
   static Future<void> downloadAndOverwrite() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
-      LogType.ForcePull,
+      LogType.DownloadAndOverwrite,
       (dirPath) async => await GitManagerRs.downloadAndOverwrite(
         pathString: dirPath,
         remoteName: await _remote(),
@@ -415,9 +414,10 @@ class GitManager {
 
   static Future<void> uploadAndOverwrite() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       uiLock: true,
       await _repoIndex,
-      LogType.ForcePush,
+      LogType.UploadAndOverwrite,
       (dirPath) async => await GitManagerRs.uploadAndOverwrite(
         pathString: dirPath,
         remoteName: await _remote(),
@@ -435,6 +435,7 @@ class GitManager {
 
   static Future<void> discardChanges(List<String> filePaths) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
       LogType.DiscardChanges,
       (dirPath) async => await GitManagerRs.discardChanges(pathString: dirPath, filePaths: filePaths, log: _logWrapper),
@@ -443,16 +444,17 @@ class GitManager {
 
   static Future<void> untrackAll([List<String>? filePaths = null]) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
-      LogType.Untrack,
+      LogType.UntrackAll,
       (dirPath) async => await GitManagerRs.untrackAll(pathString: dirPath, filePaths: filePaths, log: _logWrapper),
     );
   }
 
-  static Future<Stream<(String, Map<String, String>)>?> getCommitDiff(String startRef, String? endRef) async {
-    return await _runWithLock(await _repoIndex, LogType.CommitDiff, (dirPath) async {
+  static Future<GitManagerRs.Diff?> getCommitDiff(String startRef, String? endRef) async {
+    return await _runWithLock(null, await _repoIndex, LogType.CommitDiff, (dirPath) async {
       try {
-        return (await GitManagerRs.getCommitDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper)).asBroadcastStream();
+        return (await GitManagerRs.getCommitDiff(pathString: dirPath, startRef: startRef, endRef: endRef, log: _logWrapper));
       } catch (e, stackTrace) {
         Logger.logError(LogType.CommitDiff, e, stackTrace);
         return null;
@@ -460,10 +462,10 @@ class GitManager {
     });
   }
 
-  static Future<Stream<(String, Map<String, String>)>?> getFileDiff(String filePath) async {
-    return await _runWithLock(await _repoIndex, LogType.FileDiff, (dirPath) async {
+  static Future<GitManagerRs.Diff?> getFileDiff(String filePath) async {
+    return await _runWithLock(null, await _repoIndex, LogType.FileDiff, (dirPath) async {
       try {
-        return (await GitManagerRs.getFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper)).asBroadcastStream();
+        return (await GitManagerRs.getFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper));
       } catch (e, stackTrace) {
         Logger.logError(LogType.FileDiff, e, stackTrace);
         return null;
@@ -480,7 +482,7 @@ class GitManager {
 
   static Future<List<GitManagerRs.Commit>> getRecentCommits() async {
     final repoIndex = await _repoIndex;
-    final result = await _runWithLock(repoIndex, LogType.RecentCommits, (dirPath) async {
+    final result = await _runWithLock(priority: 1, GitManagerRs.commitListRunWithLock, repoIndex, LogType.RecentCommits, (dirPath) async {
       try {
         return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), log: _logWrapper);
       } catch (e, stackTrace) {
@@ -494,7 +496,7 @@ class GitManager {
     });
 
     final settingsManager = SettingsManager();
-    settingsManager.reinit(repoIndex: repoIndex);
+    await settingsManager.reinit(repoIndex: repoIndex);
     if (result != null)
       await settingsManager.setStringList(
         StorageKey.setman_recentCommits,
@@ -505,7 +507,9 @@ class GitManager {
 
   static Future<List<String>> getConflicting([int? repomanRepoindex]) async {
     final result =
-        await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.ConflictingFiles, (dirPath) async {
+        await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ConflictingFiles, (
+          dirPath,
+        ) async {
           try {
             return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
@@ -534,7 +538,9 @@ class GitManager {
     }
 
     final result =
-        await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.UncommittedFiles, (dirPath) async {
+        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.UncommittedFiles, (
+          dirPath,
+        ) async {
           try {
             return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
@@ -556,13 +562,13 @@ class GitManager {
     return result;
   }
 
-  static Future<List<(String, int)>> getStagedFilePaths([int? repomanRepoindex]) async {
+  static Future<List<(String, int)>> getStagedFilePaths() async {
     if (demo) {
       return [("storage/external/example/file_staged.md", 1)];
     }
 
     final result =
-        await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.StagedFiles, (dirPath) async {
+        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _repoIndex, LogType.StagedFiles, (dirPath) async {
           try {
             return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
@@ -576,56 +582,52 @@ class GitManager {
         }) ??
         <(String, int)>[];
 
-    final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
-
-    await settingsManager.setStringList(StorageKey.setman_stagedFilePaths, result.map((item) => "${item.$1}$conflictSeparator${item.$2}").toList());
+    await uiSettingsManager.setStringList(StorageKey.setman_stagedFilePaths, result.map((item) => "${item.$1}$conflictSeparator${item.$2}").toList());
     return result;
   }
 
   static Future<void> abortMerge() async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
       LogType.AbortMerge,
       (dirPath) async => await GitManagerRs.abortMerge(pathString: dirPath, log: _logWrapper),
     );
   }
 
-  static Future<String?> getBranchName([int? repomanRepoindex]) async {
-    final result = await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.GetBranchName, (dirPath) async {
+  static Future<String?> getBranchName() async {
+    final result = await _runWithLock(priority: 1, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.BranchName, (dirPath) async {
       try {
         return (await GitManagerRs.getBranchName(pathString: dirPath, log: _logWrapper));
       } catch (e, stackTrace) {
-        Logger.logError(LogType.GetBranchName, e, stackTrace);
+        Logger.logError(LogType.BranchName, e, stackTrace);
         return repositoryNotFound;
       }
     });
 
-    final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
-    await settingsManager.setStringNullable(StorageKey.setman_branchName, result);
+    await uiSettingsManager.setStringNullable(StorageKey.setman_branchName, result);
     return result;
   }
 
-  static Future<List<String>> getBranchNames([int? repomanRepoindex]) async {
+  static Future<List<String>> getBranchNames() async {
     final result =
-        await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.GetBranchName, (dirPath) async {
-          final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
+        await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, await _repoIndex, LogType.BranchNames, (dirPath) async {
           try {
-            return (await GitManagerRs.getBranchNames(pathString: dirPath, remote: await settingsManager.getRemote(), log: _logWrapper));
+            return (await GitManagerRs.getBranchNames(pathString: dirPath, remote: await uiSettingsManager.getRemote(), log: _logWrapper));
           } catch (e, stackTrace) {
-            Logger.logError(LogType.GetBranchName, e, stackTrace);
+            Logger.logError(LogType.BranchNames, e, stackTrace);
           }
           return null;
         }) ??
         <String>[];
 
-    final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
-    await settingsManager.setStringList(StorageKey.setman_branchNames, result);
+    await uiSettingsManager.setStringList(StorageKey.setman_branchNames, result);
     return result;
   }
 
-  static Future<void> setRemoteUrl(String newRemoteUrl, [int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.SetRemoteUrl, (dirPath) async {
-      final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
+  static Future<void> setRemoteUrl(String newRemoteUrl) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.SetRemoteUrl, (dirPath) async {
+      final settingsManager = uiSettingsManager;
       await GitManagerRs.setRemoteUrl(
         pathString: dirPath,
         remoteName: await settingsManager.getRemote(),
@@ -635,16 +637,16 @@ class GitManager {
     });
   }
 
-  static Future<void> checkoutBranch(String branchName, [int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.CheckoutBranch, (dirPath) async {
-      final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
+  static Future<void> checkoutBranch(String branchName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CheckoutBranch, (dirPath) async {
+      final settingsManager = uiSettingsManager;
       await GitManagerRs.checkoutBranch(pathString: dirPath, remote: await settingsManager.getRemote(), branchName: branchName, log: _logWrapper);
     });
   }
 
-  static Future<void> createBranch(String branchName, String basedOn, [int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.CreateBranch, (dirPath) async {
-      final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
+  static Future<void> createBranch(String branchName, String basedOn) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CreateBranch, (dirPath) async {
+      final settingsManager = uiSettingsManager;
       await GitManagerRs.createBranch(
         pathString: dirPath,
         remoteName: await settingsManager.getRemote(),
@@ -660,7 +662,7 @@ class GitManager {
   static Future<String> readGitignore() async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return "";
-    return await _runWithLock(await _repoIndex, LogType.GitIgnore, (dirPath) async {
+    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$gitDirPath/$gitIgnorePath';
           final file = File(gitignorePath);
           if (!file.existsSync()) return '';
@@ -672,7 +674,7 @@ class GitManager {
   static Future<void> writeGitignore(String gitignoreString) async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
-    return await _runWithLock(await _repoIndex, LogType.GitIgnore, (dirPath) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.WriteGitIgnore, (dirPath) async {
       final gitignorePath = '$gitDirPath/$gitIgnorePath';
       final file = File(gitignorePath);
       if (!file.existsSync()) file.createSync();
@@ -683,7 +685,7 @@ class GitManager {
   static Future<String> readGitInfoExclude() async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return "";
-    return await _runWithLock(await _repoIndex, LogType.GitInfoExclude, (dirPath) async {
+    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitInfoExclude, (dirPath) async {
           final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
           final file = File(gitInfoExcludeFullPath);
           if (!file.existsSync()) return '';
@@ -692,10 +694,10 @@ class GitManager {
         "";
   }
 
-  static Future<void> writeGitInfoExclude(String gitignoreString) async {
+  static Future<void> writeGitInfoExclude(String gitInfoExcludeString) async {
     final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
     if (gitDirPath == null) return;
-    return await _runWithLock(await _repoIndex, LogType.GitInfoExclude, (dirPath) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.WriteGitInfoExclude, (dirPath) async {
       final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
       final file = File(gitInfoExcludeFullPath);
       final parentDir = file.parent;
@@ -703,13 +705,20 @@ class GitManager {
         parentDir.createSync(recursive: true);
       }
       if (!file.existsSync()) file.createSync();
-      file.writeAsStringSync(gitignoreString, mode: FileMode.write);
+      file.writeAsStringSync(gitInfoExcludeString, mode: FileMode.write);
     });
   }
 
   static Future<bool> getDisableSsl() async {
     final result =
-        await _runWithLock(await _repoIndex, LogType.DisableSsl, (dirPath) async => await GitManagerRs.getDisableSsl(gitDir: dirPath)) ?? false;
+        await _runWithLock(
+          priority: 2,
+          GitManagerRs.boolRunWithLock,
+          await _repoIndex,
+          LogType.GetDisableSsl,
+          (dirPath) async => await GitManagerRs.getDisableSsl(gitDir: dirPath),
+        ) ??
+        false;
 
     await uiSettingsManager.setBool(StorageKey.setman_disableSsl, result);
     return result;
@@ -717,14 +726,16 @@ class GitManager {
 
   static Future<void> setDisableSsl(bool disable) async {
     return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
       await _repoIndex,
-      LogType.DisableSsl,
+      LogType.SetDisableSsl,
       (dirPath) async => await GitManagerRs.setDisableSsl(gitDir: dirPath, disable: disable),
     );
   }
 
   static Future<(String, String)?> generateKeyPair(String passphrase) async {
     return await _runWithLock(
+      GitManagerRs.stringPairRunWithLock,
       await _repoIndex,
       LogType.GenerateKeyPair,
       (_) async => await GitManagerRs.generateSshKey(format: "ed25519", passphrase: passphrase, log: _logWrapper),
@@ -732,10 +743,9 @@ class GitManager {
     );
   }
 
-  static Future<(String, String)?> getRemoteUrlLink([int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.GetRemoteUrlLink, (dirPath) async {
-      final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
-      final remoteName = await settingsManager.getRemote();
+  static Future<(String, String)?> getRemoteUrlLink() async {
+    final result = await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _repoIndex, LogType.GetRemoteUrlLink, (dirPath) async {
+      final remoteName = await uiSettingsManager.getRemote();
 
       try {
         String gitConfigPath = path.join(dirPath, '.git', 'config');
@@ -758,6 +768,10 @@ class GitManager {
 
         final configContent = await configFile.readAsString();
 
+        print(configContent);
+
+        print(remoteName);
+
         final remoteUrlPattern = RegExp(r'\[remote\s+"' + remoteName + r'"\]\s+url\s*=\s*([^\n]+)');
         final match = remoteUrlPattern.firstMatch(configContent);
 
@@ -767,12 +781,21 @@ class GitManager {
 
         String remoteUrl = match.group(1)!.trim();
 
+        print(remoteUrl);
+        print(_convertToWebUrl(remoteUrl));
+
         return (remoteUrl, _convertToWebUrl(remoteUrl));
       } catch (e) {
         print('Error getting Git remote URL: $e');
         return null;
       }
     });
+
+    print("////?weee $result");
+
+    await uiSettingsManager.setStringList(StorageKey.setman_remoteUrlLink, result == null ? [] : [result.$1, result.$2]);
+
+    return result;
   }
 
   static String _convertToWebUrl(String remoteUrl) {
@@ -813,8 +836,8 @@ class GitManager {
     return remoteUrl;
   }
 
-  static Future<void> deleteDirContents([String? dirPath, int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, dirPath: dirPath, LogType.DiscardDir, (dirPath) async {
+  static Future<void> deleteDirContents([String? dirPath]) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, dirPath: dirPath, LogType.DiscardDir, (dirPath) async {
       final dir = Directory(dirPath);
       try {
         if (Platform.isIOS) {
@@ -869,8 +892,8 @@ class GitManager {
     });
   }
 
-  static Future<void> deleteGitIndex([int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.DiscardGitIndex, (dirPath) async {
+  static Future<void> deleteGitIndex() async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.DiscardGitIndex, (dirPath) async {
       final file = File("$dirPath/$gitIndexPath");
       if (await file.exists()) {
         await file.delete();
@@ -879,7 +902,7 @@ class GitManager {
   }
 
   static Future<void> deleteFetchHead([int? repomanRepoindex]) async {
-    return await _runWithLock(repomanRepoindex ?? await _repoIndex, LogType.DiscardFetchHead, (dirPath) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.DiscardFetchHead, (dirPath) async {
       final file = File("$dirPath/$gitFetchHeadPath");
       if (await file.exists()) {
         await file.delete();
@@ -889,10 +912,10 @@ class GitManager {
 
   static Future<List<String>> getSubmodulePaths(String repoPath) async {
     final repoIndex = await _repoIndex;
-    return await _runWithLock(repoIndex, LogType.GetSubmodules, (dirPath) async {
+    return await _runWithLock(priority: 2, GitManagerRs.stringListRunWithLock, repoIndex, LogType.GetSubmodules, (dirPath) async {
           final submodulePaths = await GitManagerRs.getSubmodulePaths(pathString: dirPath);
           final settingsManager = SettingsManager();
-          settingsManager.reinit(repoIndex: repoIndex);
+          await settingsManager.reinit(repoIndex: repoIndex);
           await settingsManager.setStringList(StorageKey.setman_submodulePaths, submodulePaths);
           return submodulePaths;
         }) ??
@@ -901,7 +924,7 @@ class GitManager {
 
   static Future<List<String>> getAndExcludeLfsFilePaths([int? repomanRepoindex]) async {
     final repoIndex = repomanRepoindex ?? await _repoIndex;
-    return await _runWithLock(repoIndex, LogType.GetAndExcludeLfs, (dirPath) async {
+    return await _runWithLock(GitManagerRs.stringListRunWithLock, repoIndex, LogType.GetAndExcludeLfs, (dirPath) async {
           final Directory directory = Directory(dirPath);
           if (!await directory.exists()) {
             throw Exception('Directory does not exist');
@@ -939,7 +962,7 @@ class GitManager {
           }
 
           final settingsManager = SettingsManager();
-          settingsManager.reinit(repoIndex: repoIndex);
+          await settingsManager.reinit(repoIndex: repoIndex);
           await settingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
 
           return largeFilePaths;
@@ -947,9 +970,25 @@ class GitManager {
         [];
   }
 
+  static Future<bool?> downloadChanges(int repomanRepoindex, Function() syncCallback) async {
+    final settingsManager = await SettingsManager().reinit(repoIndex: repomanRepoindex);
+    return await backgroundDownloadChanges(repomanRepoindex, settingsManager, syncCallback);
+  }
+
+  static Future<bool?> uploadChanges(
+    int repomanRepoindex,
+    Function() syncCallback, [
+    List<String>? filePaths,
+    String? syncMessage,
+    VoidCallback? resyncCallback,
+  ]) async {
+    final settingsManager = await SettingsManager().reinit(repoIndex: repomanRepoindex);
+    return await backgroundUploadChanges(repomanRepoindex, settingsManager, syncCallback, filePaths, syncMessage, resyncCallback);
+  }
+
   // Background Accessible
-  static Future<bool?> downloadChanges(int repomanRepoindex, SettingsManager settingsManager, Function() syncCallback) async {
-    return await _runWithLock(uiLock: true, repomanRepoindex, LogType.DownloadChanges, (dirPath) async {
+  static Future<bool?> backgroundDownloadChanges(int repomanRepoindex, SettingsManager settingsManager, Function() syncCallback) async {
+    return await _runWithLock(GitManagerRs.boolRunWithLock, uiLock: true, repomanRepoindex, LogType.DownloadChanges, (dirPath) async {
       try {
         return await GitManagerRs.downloadChanges(
           pathString: dirPath,
@@ -969,7 +1008,7 @@ class GitManager {
     });
   }
 
-  static Future<bool?> uploadChanges(
+  static Future<bool?> backgroundUploadChanges(
     int repomanRepoindex,
     SettingsManager settingsManager,
     Function() syncCallback, [
@@ -995,7 +1034,7 @@ class GitManager {
       ]),
       log: _logWrapper,
     );
-    await _runWithLock(uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
+    await _runWithLock(GitManagerRs.boolRunWithLock, uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {

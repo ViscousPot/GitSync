@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
-import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/main.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -31,56 +30,54 @@ enum LogType {
 
   Global,
   AccessibilityService,
-  Sync,
-  CloneRepo,
+
   SelectDirectory,
+  GetRepos,
+  Sync,
+  SyncException,
 
-  GitStatus,
-  RecommendedActionStatus,
-  CommitDiff,
-  FileDiff,
-
-  GetBranchName,
-  CheckoutBranch,
-  CreateBranch,
-
-  GitIgnore,
-  GitInfoExclude,
-
+  Clone,
   UpdateSubmodules,
-  GetSubmodules,
-  GetAndExcludeLfs,
-
   FetchRemote,
   PullFromRepo,
   Stage,
   Unstage,
-  Untrack,
+  RecommendedAction,
   Commit,
   PushToRepo,
   ForcePull,
   ForcePush,
-  DownloadChanges,
-  UploadChanges,
-
+  DownloadAndOverwrite,
+  UploadAndOverwrite,
+  DiscardChanges,
+  UntrackAll,
+  CommitDiff,
+  FileDiff,
   RecentCommits,
   ConflictingFiles,
   UncommittedFiles,
   StagedFiles,
-
+  AbortMerge,
+  BranchName,
+  BranchNames,
   SetRemoteUrl,
-  GetRemoteUrlLink,
-  DisableSsl,
+  CheckoutBranch,
+  CreateBranch,
+  ReadGitIgnore,
+  WriteGitIgnore,
+  ReadGitInfoExclude,
+  WriteGitInfoExclude,
+  GetDisableSsl,
+  SetDisableSsl,
   GenerateKeyPair,
-
+  GetRemoteUrlLink,
   DiscardDir,
   DiscardGitIndex,
   DiscardFetchHead,
-
-  GetRepos,
-  DiscardChanges,
-  AbortMerge,
-  SyncException,
+  GetSubmodules,
+  GetAndExcludeLfs,
+  DownloadChanges,
+  UploadChanges,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }
@@ -259,7 +256,7 @@ $logs
 **App Version:** $appVersion
 
 **Git Provider:** ${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}
-**Repo URL:** ${(await GitManager.getRemoteUrlLink())?.$1}
+**Repo URL:** ${await uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink)}
 
 ${await AccessibilityServiceHelper.isAccessibilityServiceEnabled() ? """
 **App Sync**

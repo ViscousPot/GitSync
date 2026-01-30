@@ -1,14 +1,18 @@
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-Future<void> showDialog(BuildContext context, Future<void> Function(String branchName, String basedOn) callback) async {
+Future<void> showDialog(
+  BuildContext context,
+  String? branchName,
+  List<String>? branchNames,
+  Future<void> Function(String branchName, String basedOn) callback,
+) async {
   final textController = TextEditingController();
-  String? basedOnBranchName = await GitManager.getBranchName();
+  String? basedOnBranchName = branchName;
 
   return mat.showDialog(
     context: context,
@@ -55,60 +59,54 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String branc
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  FutureBuilder(
-                    future: GitManager.getBranchName(),
-                    builder: (context, branchNameSnapshot) => FutureBuilder(
-                      future: GitManager.getBranchNames(),
-                      builder: (context, branchNamesSnapshot) => Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
-                        child: DropdownButton(
-                          isDense: true,
-                          isExpanded: true,
-                          hint: Text(
-                            t.detachedHead.toUpperCase(),
-                            style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.secondaryLight),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                          value: branchNamesSnapshot.data?.contains(branchNameSnapshot.data) == true ? branchNameSnapshot.data : null,
-                          menuMaxHeight: 250,
-                          dropdownColor: colours.secondaryDark,
-                          borderRadius: BorderRadius.all(cornerRadiusSM),
-                          selectedItemBuilder: (context) => List.generate(
-                            (branchNamesSnapshot.data ?? []).length,
-                            (index) => Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  (branchNamesSnapshot.data ?? [])[index].toUpperCase(),
-                                  style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.primaryLight),
-                                ),
-                              ],
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
+                    child: DropdownButton(
+                      isDense: true,
+                      isExpanded: true,
+                      hint: Text(
+                        t.detachedHead.toUpperCase(),
+                        style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.secondaryLight),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                      value: branchNames?.contains(branchName) == true ? branchName : null,
+                      menuMaxHeight: 250,
+                      dropdownColor: colours.secondaryDark,
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      selectedItemBuilder: (context) => List.generate(
+                        (branchNames ?? []).length,
+                        (index) => Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              (branchNames ?? [])[index].toUpperCase(),
+                              style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.primaryLight),
                             ),
-                          ),
-                          underline: const SizedBox.shrink(),
-                          onChanged: <String>(value) async {
-                            basedOnBranchName = value;
-                            setState(() {});
-                          },
-                          items: (branchNamesSnapshot.data ?? [])
-                              .map(
-                                (item) => DropdownMenuItem(
-                                  value: item,
-                                  child: Text(
-                                    item.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: textSM,
-                                      color: colours.primaryLight,
-                                      fontWeight: FontWeight.bold,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                          ],
                         ),
                       ),
+                      underline: const SizedBox.shrink(),
+                      onChanged: <String>(value) async {
+                        basedOnBranchName = value;
+                        setState(() {});
+                      },
+                      items: (branchNames ?? [])
+                          .map(
+                            (item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(
+                                item.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: textSM,
+                                  color: colours.primaryLight,
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                   Positioned(

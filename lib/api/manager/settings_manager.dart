@@ -87,9 +87,11 @@ class SettingsManager extends Storage {
 
     if (!bookmark) {
       await setStringNullable(StorageKey.setman_branchName, null);
+      await setIntNullable(StorageKey.setman_recommendedAction, null);
       await setStringList(StorageKey.setman_branchNames, []);
       await setStringList(StorageKey.setman_recentCommits, []);
       await setStringList(StorageKey.setman_lfsFilePaths, []);
+      await setStringList(StorageKey.setman_remoteUrlLink, []);
     }
   }
 

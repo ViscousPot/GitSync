@@ -591,8 +591,8 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                     onPressed: () async {
                       if (isMerging) return;
 
-                      await GitManager.abortMerge();
-                      Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                      await runGitOperation(LogType.AbortMerge, (event) => event);
+                      Navigator.of(parentContext).canPop() ? Navigator.pop(parentContext) : null;
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,

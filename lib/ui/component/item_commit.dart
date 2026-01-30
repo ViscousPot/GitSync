@@ -54,10 +54,11 @@ class ChevronPainter extends CustomPainter {
 }
 
 class ItemCommit extends StatefulWidget {
-  const ItemCommit(this.commit, this.prevCommit, {super.key});
+  const ItemCommit(this.commit, this.prevCommit, this.recentCommits, {super.key});
 
   final GitManagerRs.Commit commit;
   final GitManagerRs.Commit? prevCommit;
+  final List<GitManagerRs.Commit> recentCommits;
 
   @override
   State<ItemCommit> createState() => _ItemCommit();
@@ -100,6 +101,7 @@ class _ItemCommit extends State<ItemCommit> {
 
             DiffViewDialog.showDialog(
               context,
+              widget.recentCommits,
               (widget.commit.reference, widget.prevCommit?.reference),
               widget.commit.reference.substring(0, 7),
               (widget.commit, widget.prevCommit),
