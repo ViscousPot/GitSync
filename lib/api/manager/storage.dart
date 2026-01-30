@@ -28,6 +28,8 @@ enum StorageKey<T> {
   repoman_defaultAuthorEmail<String>(name: "defaultAuthorEmail", defaultValue: ""),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
   repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: false),
+  repoman_appCrashFlag<bool>(name: "appCrashFlag", defaultValue: false),
+  repoman_serviceCrashFlag<bool>(name: "serviceCrashFlag", defaultValue: false),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),

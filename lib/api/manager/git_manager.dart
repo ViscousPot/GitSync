@@ -174,6 +174,15 @@ class GitManager {
     return await waitFor(internal, maxWaitSeconds: 300);
   }
 
+  static Future<void> clearLocks() async {
+    try {
+      Directory('${(await getApplicationDocumentsDirectory()).path}/queues').deleteSync(recursive: true);
+    } catch (e) {}
+    try {
+      Directory('${(await getApplicationDocumentsDirectory()).path}/queues').createSync(recursive: true);
+    } catch (e) {}
+  }
+
   static FutureOr<void> _logWrapper(GitManagerRs.LogType type, String message) {
     Logger.gmLog(
       type: LogType.values.firstWhereOrNull((logType) => logType.name.toLowerCase() == type.name.toLowerCase()) ?? LogType.Global,

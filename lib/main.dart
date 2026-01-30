@@ -184,6 +184,8 @@ void callbackDispatcher() async {
 void onServiceStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
+  checkPreviousCrash(true);
+
   serviceInstance = service;
   await RustLib.init();
 
@@ -484,7 +486,7 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on("stop").listen((event) async {
-    await repoManager.setStringList(StorageKey.repoman_locks, []);
+    clearCrashFlag(true);
     service.stopSelf();
   });
 
@@ -893,7 +895,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await repoManager.storage.deleteAll();
       });
 
-      await repoManager.setStringList(StorageKey.repoman_locks, []);
+      await GitManager.clearLocks();
       await prefs.setBool('is_first_app_launch', false);
     }
   }
@@ -1192,6 +1194,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+
+    clearCrashFlag();
 
     loadingRecentCommits.dispose();
     branchName.dispose();
