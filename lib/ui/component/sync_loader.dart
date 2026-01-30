@@ -38,12 +38,19 @@ class _SyncLoaderState extends State<SyncLoader> {
     opacity = 0.0;
 
     initAsync(() async {
-      locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+      try {
+        locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+      } catch (e) {
+        locked = false;
+      }
       erroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
       setState(() {});
       lockedTimer = Timer.periodic(const Duration(milliseconds: 200), (_) async {
         final newErroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
-        final newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+        bool newLocked = false;
+        try {
+          newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+        } catch (e) {}
 
         if (newErroring != erroring) {
           erroring = newErroring;
@@ -63,6 +70,7 @@ class _SyncLoaderState extends State<SyncLoader> {
   @override
   void dispose() {
     hideCheckTimer?.cancel();
+    lockedTimer?.cancel();
 
     super.dispose();
   }
