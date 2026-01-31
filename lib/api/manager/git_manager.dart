@@ -669,10 +669,8 @@ class GitManager {
   }
 
   static Future<String> readGitignore() async {
-    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
-    if (gitDirPath == null) return "";
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
-          final gitignorePath = '$gitDirPath/$gitIgnorePath';
+          final gitignorePath = '$dirPath/$gitIgnorePath';
           final file = File(gitignorePath);
           if (!file.existsSync()) return '';
           return file.readAsStringSync();
@@ -681,10 +679,8 @@ class GitManager {
   }
 
   static Future<void> writeGitignore(String gitignoreString) async {
-    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
-    if (gitDirPath == null) return;
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.WriteGitIgnore, (dirPath) async {
-      final gitignorePath = '$gitDirPath/$gitIgnorePath';
+      final gitignorePath = '$dirPath/$gitIgnorePath';
       final file = File(gitignorePath);
       if (!file.existsSync()) file.createSync();
       file.writeAsStringSync(gitignoreString, mode: FileMode.write);
@@ -692,10 +688,8 @@ class GitManager {
   }
 
   static Future<String> readGitInfoExclude() async {
-    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
-    if (gitDirPath == null) return "";
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitInfoExclude, (dirPath) async {
-          final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
+          final gitInfoExcludeFullPath = '$dirPath/$gitInfoExcludePath';
           final file = File(gitInfoExcludeFullPath);
           if (!file.existsSync()) return '';
           return file.readAsStringSync();
@@ -704,10 +698,8 @@ class GitManager {
   }
 
   static Future<void> writeGitInfoExclude(String gitInfoExcludeString) async {
-    final gitDirPath = (uiSettingsManager.gitDirPath?.$1);
-    if (gitDirPath == null) return;
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.WriteGitInfoExclude, (dirPath) async {
-      final gitInfoExcludeFullPath = '$gitDirPath/$gitInfoExcludePath';
+      final gitInfoExcludeFullPath = '$dirPath/$gitInfoExcludePath';
       final file = File(gitInfoExcludeFullPath);
       final parentDir = file.parent;
       if (!parentDir.existsSync()) {

@@ -339,7 +339,6 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.ReadGitIgnore.name).listen((event) async {
-    if (event == null) return;
     final result = await GitManager.readGitignore();
     service.invoke(LogType.ReadGitIgnore.name, {"result": result});
   });
@@ -351,7 +350,6 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.ReadGitInfoExclude.name).listen((event) async {
-    if (event == null) return;
     final result = await GitManager.readGitInfoExclude();
     service.invoke(LogType.ReadGitInfoExclude.name, {"result": result});
   });
@@ -363,7 +361,6 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.GetDisableSsl.name).listen((event) async {
-    if (event == null) return;
     final result = await GitManager.getDisableSsl();
     service.invoke(LogType.GetDisableSsl.name, {"result": result});
   });
