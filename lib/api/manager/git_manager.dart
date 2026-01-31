@@ -146,7 +146,7 @@ class GitManager {
 
     try {
       return await typedRunWithLock!(
-        queueDir: (await getApplicationDocumentsDirectory()).path,
+        queueDir: (await getApplicationSupportDirectory()).path,
         index: index,
         priority: priority,
         fnName: fnName,
@@ -161,7 +161,7 @@ class GitManager {
   static Future<bool> isLocked({waitForUnlock = true, bool ui = false}) async {
     Future<bool> internal() async {
       return GitManagerRs.isLocked(
-        queueDir: (await getApplicationDocumentsDirectory()).path,
+        queueDir: (await getApplicationSupportDirectory()).path,
         index: await repoManager.getInt(StorageKey.repoman_repoIndex),
       );
       // final locks = await repoManager.getStringList(ui ? StorageKey.repoman_uiLocks : StorageKey.repoman_locks);
@@ -176,10 +176,10 @@ class GitManager {
 
   static Future<void> clearLocks() async {
     try {
-      Directory('${(await getApplicationDocumentsDirectory()).path}/queues').deleteSync(recursive: true);
+      Directory('${(await getApplicationSupportDirectory()).path}/queues').deleteSync(recursive: true);
     } catch (e) {}
     try {
-      Directory('${(await getApplicationDocumentsDirectory()).path}/queues').createSync(recursive: true);
+      Directory('${(await getApplicationSupportDirectory()).path}/queues').createSync(recursive: true);
     } catch (e) {}
   }
 

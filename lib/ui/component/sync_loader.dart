@@ -102,10 +102,10 @@ class _SyncLoaderState extends State<SyncLoader> {
     return GestureDetector(
       onLongPress: () async {
         try {
-          Directory('${(await getApplicationDocumentsDirectory()).path}/queues').deleteSync(recursive: true);
+          Directory('${(await getApplicationSupportDirectory()).path}/queues').deleteSync(recursive: true);
         } catch (e) {}
         try {
-          Directory('${(await getApplicationDocumentsDirectory()).path}/queues').createSync(recursive: true);
+          Directory('${(await getApplicationSupportDirectory()).path}/queues').createSync(recursive: true);
         } catch (e) {}
         print("////// deleted");
 
