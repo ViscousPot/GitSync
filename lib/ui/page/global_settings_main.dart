@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
@@ -34,8 +36,10 @@ import '../dialog/confirm_clear_data.dart' as ConfirmClearDataDialog;
 import '../dialog/enter_backup_restore_password.dart' as EnterBackupRestorePasswordDialog;
 
 class GlobalSettingsMain extends StatefulWidget {
-  const GlobalSettingsMain({super.key, this.onboarding = false});
+  const GlobalSettingsMain(this.recentCommits, {super.key, this.onboarding = false});
+
   final bool onboarding;
+  final List<GitManagerRs.Commit> recentCommits;
 
   @override
   State<GlobalSettingsMain> createState() => _GlobalSettingsMain();
@@ -378,7 +382,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         if (selectedDirectory == null) return;
 
                         await useDirectory(selectedDirectory, (_) async {}, (path) async {
-                          await Navigator.of(context).push(createFileExplorerRoute(path));
+                          await Navigator.of(context).push(createFileExplorerRoute(widget.recentCommits, path));
                         });
                       },
                     ),
@@ -536,7 +540,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             for (var i = 0; i < settingsManagerSettings.length; i++) {
                               final settingsManager = SettingsManager();
                               settingsManager.reinit(repoIndex: i);
-                              await settingsManager.setStringList(StorageKey.repoman_locks, []);
+                              await GitManager.clearLocks();
 
                               if (!await Permission.notification.isGranted && await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
                                 await settingsManager.setBool(StorageKey.setman_syncMessageEnabled, false);
@@ -976,10 +980,17 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
 }
 
 @pragma('vm:entry-point')
-Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? onboarding) {
+Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args) {
+  (args as Map<String, dynamic>);
+
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
-    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(builder: (context) => GlobalSettingsMain(onboarding: onboarding == true)),
+    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
+      builder: (context) => GlobalSettingsMain(
+        args["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
+        onboarding: args["onboarding"] == true,
+      ),
+    ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

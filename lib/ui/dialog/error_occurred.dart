@@ -1,3 +1,4 @@
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:collection/collection.dart';
@@ -11,11 +12,11 @@ import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
 final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])?)> autoFixMessageCallbackMap = {
-  [invalidIndexHeaderError]: (null, GitManager.deleteGitIndex),
-  [invalidDataInIndexInvalidEntry]: (null, GitManager.deleteGitIndex),
-  [invalidDataInIndexExtensionIsTruncated]: (null, GitManager.deleteGitIndex),
-  [corruptedLooseFetchHead]: (null, GitManager.deleteFetchHead),
-  [theIndexIsLocked]: (null, GitManager.deleteGitIndex),
+  [invalidIndexHeaderError]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
+  [invalidDataInIndexInvalidEntry]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
+  [invalidDataInIndexExtensionIsTruncated]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
+  [corruptedLooseFetchHead]: (null, ([_]) async => await runGitOperation(LogType.DiscardFetchHead, (event) => event)),
+  [theIndexIsLocked]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
   [androidInvalidCharacterInFilenamePrefix, androidInvalidCharacterInFilenameSuffix]: (
     t.androidLimitedFilepathCharacters,
     ([int? repomanRepoindex]) async {

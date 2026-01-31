@@ -1,4 +1,3 @@
-use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::DartFnFuture;
 use git2::{
     BranchType, CertificateCheckStatus, Cred, DiffOptions, ErrorCode, FetchOptions, PushOptions,
@@ -13,6 +12,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
+use uuid::Uuid;
 
 pub struct Commit {
     pub timestamp: i64,
@@ -35,23 +35,58 @@ pub struct Diff {
 
 // Also add to lib/api/logger.dart:21
 pub enum LogType {
+    TEST,
+
     Global,
     AccessibilityService,
-    Sync,
-    GitStatus,
-    AbortMerge,
-    Diff,
-    Commit,
-    GetRepos,
-    CloneRepo,
+
     SelectDirectory,
+    GetRepos,
+    Sync,
+    SyncException,
+
+    Clone,
+    UpdateSubmodules,
+    FetchRemote,
     PullFromRepo,
+    Stage,
+    Unstage,
+    RecommendedAction,
+    Commit,
     PushToRepo,
     ForcePull,
     ForcePush,
+    DownloadAndOverwrite,
+    UploadAndOverwrite,
+    DiscardChanges,
+    UntrackAll,
+    CommitDiff,
+    FileDiff,
     RecentCommits,
-    Stage,
-    SyncException,
+    ConflictingFiles,
+    UncommittedFiles,
+    StagedFiles,
+    AbortMerge,
+    BranchName,
+    BranchNames,
+    SetRemoteUrl,
+    CheckoutBranch,
+    CreateBranch,
+    ReadGitIgnore,
+    WriteGitIgnore,
+    ReadGitInfoExclude,
+    WriteGitInfoExclude,
+    GetDisableSsl,
+    SetDisableSsl,
+    GenerateKeyPair,
+    GetRemoteUrlLink,
+    DiscardDir,
+    DiscardGitIndex,
+    DiscardFetchHead,
+    GetSubmodules,
+    GetAndExcludeLfs,
+    DownloadChanges,
+    UploadChanges,
 }
 
 trait WithLine {
@@ -70,6 +105,327 @@ macro_rules! swl {
     ($expr:expr) => {
         ($expr).safe_wline(line!())?
     };
+}
+
+pub async fn commit_list_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<Vec<Commit>>> + Send + Sync + 'static,
+) -> Result<Option<Vec<Commit>>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn string_list_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<Vec<String>>> + Send + Sync + 'static,
+) -> Result<Option<Vec<String>>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn string_int_list_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<Vec<(String, i32)>>> + Send + Sync + 'static,
+) -> Result<Option<Vec<(String, i32)>>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+// pub async fn string_map_stream_run_with_lock(
+//     sink: StreamSink<(String, HashMap<String, String>)>,
+//     queue_dir: &str,
+//     index: i32,
+//     priority: i32,
+//     function: impl Fn() -> DartFnFuture<Option<StreamSink<(String, HashMap<String, String>)>>>
+//         + Send
+//         + Sync
+//         + 'static,
+// ) -> Result<(), git2::Error> {
+//     Ok(())
+//     // run_with_lock(queue_dir, index, priority, function).await
+// }
+
+pub async fn string_pair_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<(String, String)>> + Send + Sync + 'static,
+) -> Result<Option<(String, String)>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn string_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<String>> + Send + Sync + 'static,
+) -> Result<Option<String>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn int_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<i32>> + Send + Sync + 'static,
+) -> Result<Option<i32>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn bool_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<bool>> + Send + Sync + 'static,
+) -> Result<Option<bool>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn void_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+async fn run_with_lock<T>(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<T> + Send + Sync + 'static,
+) -> Result<T, git2::Error> {
+    use nix::fcntl::{Flock, FlockArg};
+    use std::fs;
+    use std::io::{Read, Seek, SeekFrom, Write};
+    init(None);
+
+    let queues_dir = format!("{}/queues", queue_dir);
+    fs::create_dir_all(&queues_dir)
+        .map_err(|e| git2::Error::from_str(&format!("Failed to create queues directory: {}", e)))?;
+
+    let queue_file_path = format!("{}/flock_queue_{}", queues_dir, index);
+
+    let identifier = format!(
+        "{}:{}:{}",
+        priority,
+        fn_name.to_string(),
+        Uuid::new_v4().to_string()
+    );
+
+    let mut flock = match Flock::lock(
+        fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&queue_file_path)
+            .unwrap(),
+        FlockArg::LockExclusive,
+    ) {
+        Ok(flock) => flock,
+        Err((_file, err)) => {
+            return Err(git2::Error::from_str(&format!(
+                "Error locking file: {}",
+                err
+            )))
+        }
+    };
+
+    let mut queue_contents = String::new();
+
+    flock.read_to_string(&mut queue_contents).unwrap();
+
+    let mut queue_entries: Vec<_> = queue_contents
+        .split('\n')
+        .filter(|entry| !entry.is_empty() || !entry.trim().is_empty())
+        .collect();
+
+    let new_priority: i32 = priority;
+    if new_priority == 0 {
+        queue_entries = queue_entries
+            .into_iter()
+            .enumerate()
+            .filter(|(i, entry)| {
+                if *i == 0 {
+                    true
+                } else {
+                    let parts: Vec<&str> = entry.split(':').collect();
+                    if parts.len() >= 2 {
+                        parts[0] != "0" || parts[1] != fn_name
+                    } else {
+                        true
+                    }
+                }
+            })
+            .map(|(_, e)| e)
+            .collect();
+    }
+
+    let insert_index = queue_entries
+        .iter()
+        .enumerate()
+        .skip(1)
+        .find(|(_, entry)| {
+            let entry_priority: i32 = entry.split(':').next().unwrap_or("0").parse().unwrap_or(0);
+            new_priority > entry_priority
+        })
+        .map(|(idx, _)| idx)
+        .unwrap_or(queue_entries.len());
+
+    let final_insert_index = if queue_entries.len() > 0 {
+        std::cmp::max(1, insert_index)
+    } else {
+        0
+    };
+
+    if final_insert_index > queue_entries.len() {
+        queue_entries.push(&identifier);
+    } else {
+        queue_entries.insert(final_insert_index, &identifier);
+    }
+
+    flock.seek(SeekFrom::Start(0)).unwrap();
+    flock.set_len(0).unwrap(); // Truncate the file
+    flock
+        .write_all(queue_entries.join("\n").as_bytes())
+        .unwrap();
+
+    flock.unlock().unwrap();
+
+    loop {
+        let mut read_flock = match Flock::lock(
+            fs::OpenOptions::new()
+                .read(true)
+                .open(&queue_file_path)
+                .unwrap(),
+            FlockArg::LockExclusive,
+        ) {
+            Ok(read_flock) => read_flock,
+            Err((_file, err)) => {
+                return Err(git2::Error::from_str(&format!(
+                    "Error locking file for reading: {}",
+                    err
+                )));
+            }
+        };
+
+        let mut buf = [0; 1024];
+        let bytes_read = read_flock.read(&mut buf).unwrap();
+        let string = std::str::from_utf8(&buf[..bytes_read]).unwrap();
+
+        if string.starts_with(&identifier) {
+            read_flock.unlock().unwrap();
+            break;
+        }
+
+        read_flock.unlock().unwrap();
+
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+
+    let result = function().await;
+
+    let mut flock = match Flock::lock(
+        fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&queue_file_path)
+            .unwrap(),
+        FlockArg::LockExclusive,
+    ) {
+        Ok(flock) => flock,
+        Err((_file, err)) => {
+            return Err(git2::Error::from_str(&format!(
+                "Error locking file: {}",
+                err
+            )))
+        }
+    };
+
+    let mut queue_contents = String::new();
+
+    flock.read_to_string(&mut queue_contents).unwrap();
+
+    let mut queue_entries: Vec<_> = queue_contents
+        .split('\n')
+        .filter(|entry| !entry.is_empty() || !entry.trim().is_empty())
+        .collect();
+
+    if queue_entries[0] == identifier {
+        queue_entries.remove(0);
+    } else {
+        return Err(git2::Error::from_str(&format!(
+            "Identifier not found in queue"
+        )));
+    }
+
+    flock.seek(SeekFrom::Start(0)).unwrap();
+    flock.set_len(0).unwrap(); // Truncate the file
+    flock
+        .write_all(queue_entries.join("\n").as_bytes())
+        .unwrap();
+
+    flock.unlock().unwrap();
+
+    Ok(result)
+}
+
+pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error> {
+    use nix::fcntl::{Flock, FlockArg};
+    use std::fs;
+    use std::io::Read;
+    let queue_file_path = format!("{}/queues/flock_queue_{}", queue_dir, index);
+
+    let mut read_flock = match Flock::lock(
+        fs::OpenOptions::new()
+            .read(true)
+            .open(&queue_file_path)
+            .map_err(|e| git2::Error::from_str(&format!("Error opening queue file: {}", e)))?,
+        FlockArg::LockExclusive,
+    ) {
+        Ok(flock) => flock,
+        Err((_file, err)) => {
+            return Err(git2::Error::from_str(&format!(
+                "Error locking file for reading: {}",
+                err
+            )))
+        }
+    };
+
+    let mut queue_contents = String::new();
+    read_flock
+        .read_to_string(&mut queue_contents)
+        .map_err(|e| git2::Error::from_str(&format!("Error reading queue file: {}", e)))?;
+
+    let queue_entries: Vec<&str> = queue_contents
+        .split('\n')
+        .filter(|entry| !entry.is_empty())
+        .collect();
+
+    if let Some(first_entry) = queue_entries.get(0) {
+        let parts: Vec<&str> = first_entry.split(':').collect();
+        if parts.len() > 0 {
+            let priority: i32 = parts[0].parse().unwrap_or(0);
+            return Ok(priority == 3);
+        }
+    }
+
+    read_flock.unlock().unwrap();
+
+    Ok(false)
 }
 
 pub fn init(homepath: Option<String>) {
@@ -121,8 +477,8 @@ fn get_default_callbacks<'cb>(
 
 fn set_author(repo: &Repository, author: &(String, String)) {
     let mut config = repo.config().unwrap();
-    config.set_str("user.name", &author.0);
-    config.set_str("user.email", &author.1);
+    config.set_str("user.name", &author.0).unwrap();
+    config.set_str("user.email", &author.1).unwrap();
 }
 
 fn _log(
@@ -159,14 +515,13 @@ pub async fn clone_repository(
     clone_progress_callback: impl Fn(i32) -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let clone_task_callback = Arc::new(clone_task_callback);
     let clone_progress_callback = Arc::new(clone_progress_callback);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::CloneRepo,
+        LogType::Clone,
         "Cloning Repo".to_string(),
     );
 
@@ -209,11 +564,11 @@ pub async fn clone_repository(
     let repo = swl!(builder.clone(url.as_str(), path))?;
 
     set_author(&repo, &author);
-    repo.cleanup_state();
+    repo.cleanup_state().unwrap();
 
     _log(
         Arc::clone(&log_callback),
-        LogType::CloneRepo,
+        LogType::Clone,
         "Repository cloned successfully".to_string(),
     );
 
@@ -222,7 +577,7 @@ pub async fn clone_repository(
 
         _log(
             Arc::clone(&log_callback),
-            LogType::CloneRepo,
+            LogType::Clone,
             format!("Processing submodule: {}", sm_name),
         );
 
@@ -242,7 +597,7 @@ pub async fn clone_repository(
                 if let Some(target_commit_id) = head.target() {
                     _log(
                         Arc::clone(&log_callback),
-                        LogType::CloneRepo,
+                        LogType::Clone,
                         format!("Submodule {} is at commit: {}", sm_name, target_commit_id),
                     );
 
@@ -270,7 +625,7 @@ pub async fn clone_repository(
 
                                                     _log(
                                                         Arc::clone(&log_callback),
-                                                        LogType::CloneRepo,
+                                                        LogType::Clone,
                                                         format!("Successfully checked out branch '{}' in submodule {}", branch_name, sm_name),
                                                     );
                                                     found_branch = true;
@@ -297,7 +652,7 @@ pub async fn clone_repository(
 
                                                                     _log(
                                                                         Arc::clone(&log_callback),
-                                                                        LogType::CloneRepo,
+                                                                        LogType::Clone,
                                                                         format!("Found branch '{}' containing commit, checked out in submodule {}", branch_name, sm_name),
                                                                     );
                                                                     found_branch = true;
@@ -357,7 +712,7 @@ pub async fn clone_repository(
 
                                                             _log(
                                                                 Arc::clone(&log_callback),
-                                                                LogType::CloneRepo,
+                                                                LogType::Clone,
                                                                 format!("Created and checked out local branch '{}' from '{}' in submodule {}", local_branch_name, remote_branch_name, sm_name),
                                                             );
                                                             found_branch = true;
@@ -376,7 +731,7 @@ pub async fn clone_repository(
                     if !found_branch {
                         _log(
                             Arc::clone(&log_callback),
-                            LogType::CloneRepo,
+                            LogType::Clone,
                             format!("No branch found containing commit in submodule {}, staying in detached HEAD", sm_name),
                         );
                     }
@@ -388,11 +743,11 @@ pub async fn clone_repository(
     }))?;
 
     set_author(&repo, &author);
-    repo.cleanup_state();
+    repo.cleanup_state().unwrap();
 
     _log(
         Arc::clone(&log_callback),
-        LogType::CloneRepo,
+        LogType::Clone,
         "Submodules updated successfully".to_string(),
     );
 
@@ -460,16 +815,15 @@ pub async fn untrack_all(
 }
 
 pub async fn get_file_diff(
-    sink: StreamSink<(String, HashMap<String, String>)>,
     path_string: &String,
     file_path: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Result<(), git2::Error> {
+) -> Result<Diff, git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::FileDiff,
         "Opening repository".to_string(),
     );
 
@@ -478,16 +832,18 @@ pub async fn get_file_diff(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::FileDiff,
         "Preparing diff options".to_string(),
     );
 
     let mut diff_opts = DiffOptions::new();
     diff_opts.pathspec(file_path);
 
+    let mut file_diff = Diff::default();
+
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::FileDiff,
         "Preparing revision walk".to_string(),
     );
 
@@ -497,7 +853,7 @@ pub async fn get_file_diff(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::FileDiff,
         "Starting commit traversal".to_string(),
     );
 
@@ -507,7 +863,7 @@ pub async fn get_file_diff(
 
         _log(
             Arc::clone(&log_callback),
-            LogType::Diff,
+            LogType::FileDiff,
             format!("Processing commit: {}", commit.id()),
         );
 
@@ -523,14 +879,14 @@ pub async fn get_file_diff(
         };
         _log(
             Arc::clone(&log_callback),
-            LogType::Diff,
+            LogType::FileDiff,
             format!("Number of deltas: {}", diff.deltas().count()),
         );
 
         for delta in diff.deltas() {
             _log(
                 Arc::clone(&log_callback),
-                LogType::Diff,
+                LogType::FileDiff,
                 format!(
                     "Found file: {}",
                     delta
@@ -544,7 +900,7 @@ pub async fn get_file_diff(
             if delta.new_file().path().map(|p| p.to_str()) == Some(Some(file_path)) {
                 _log(
                     Arc::clone(&log_callback),
-                    LogType::Diff,
+                    LogType::FileDiff,
                     format!("Found changes in file: {}", file_path),
                 );
 
@@ -563,7 +919,7 @@ pub async fn get_file_diff(
                 let insertion_marker: &str = "+++++insertion+++++";
                 let deletion_marker: &str = "-----deletion-----";
 
-                diff.print(git2::DiffFormat::Patch, |delta, hunk, line| {
+                diff.print(git2::DiffFormat::Patch, |_delta, hunk, line| {
                     let line_content = String::from_utf8_lossy(line.content()).to_string();
 
                     let hunk_header = hunk
@@ -607,7 +963,7 @@ pub async fn get_file_diff(
                         _ => {
                             _log(
                                 Arc::clone(&log_callback),
-                                LogType::Diff,
+                                LogType::FileDiff,
                                 format!("Unhandled diff line origin: {}", line.origin()),
                             );
                         }
@@ -618,15 +974,19 @@ pub async fn get_file_diff(
 
                 _log(
                     Arc::clone(&log_callback),
-                    LogType::Diff,
+                    LogType::FileDiff,
                     format!(
                         "Commit {} - Insertions: {}, Deletions: {}",
                         commit_hash, insertions, deletions
                     ),
                 );
 
+                file_diff.insertions += insertions;
+                file_diff.deletions += deletions;
                 if !commit_diff_parts.is_empty() {
-                    sink.add((commit_identifier, commit_diff_parts)).unwrap();
+                    file_diff
+                        .diff_parts
+                        .insert(commit_identifier, commit_diff_parts);
                 }
             }
         }
@@ -634,21 +994,22 @@ pub async fn get_file_diff(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
-        format!("File history complete!",),
+        LogType::FileDiff,
+        format!(
+            "File history complete - Total Insertions: {}, Total Deletions: {}",
+            file_diff.insertions, file_diff.deletions
+        ),
     );
 
-    Ok(())
+    Ok(file_diff)
 }
 
 pub async fn get_commit_diff(
-    sink: StreamSink<(String, HashMap<String, String>)>,
     path_string: &String,
     start_ref: &String,
     end_ref: &Option<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Result<(), git2::Error> {
-    init(None);
+) -> Result<Diff, git2::Error> {
     let log_callback = Arc::new(log);
 
     let insertion_marker: &str = "+++++insertion+++++";
@@ -656,7 +1017,7 @@ pub async fn get_commit_diff(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::CommitDiff,
         "Getting local directory".to_string(),
     );
 
@@ -678,15 +1039,15 @@ pub async fn get_commit_diff(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::CommitDiff,
         "Getting diff stats".to_string(),
     );
 
-    // let diff_stats = swl!(diff.stats())?;
+    let diff_stats = swl!(diff.stats())?;
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Diff,
+        LogType::CommitDiff,
         "Getting diff hunks".to_string(),
     );
 
@@ -812,7 +1173,7 @@ pub async fn get_commit_diff(
                 _ => {
                     _log(
                         Arc::clone(&log_callback),
-                        LogType::Diff,
+                        LogType::CommitDiff,
                         format!("Other: {}", line.origin()),
                     );
                 }
@@ -823,12 +1184,11 @@ pub async fn get_commit_diff(
     ))?;
 
     let diff_parts = diff_parts.lock().unwrap().clone();
-
-    for (file_key, parts_map) in diff_parts.into_iter() {
-        sink.add((file_key, parts_map)).unwrap();
-    }
-
-    Ok(())
+    Ok(Diff {
+        insertions: diff_stats.insertions() as i32,
+        deletions: diff_stats.deletions() as i32,
+        diff_parts: diff_parts,
+    })
 }
 
 pub async fn get_recent_commits(
@@ -836,7 +1196,6 @@ pub async fn get_recent_commits(
     remote_name: &str,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Vec<Commit>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -1083,19 +1442,18 @@ pub async fn update_submodules(
     credentials: &(String, String),
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::UpdateSubmodules,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::UpdateSubmodules,
         "Getting local directory".to_string(),
     );
 
@@ -1148,19 +1506,18 @@ pub async fn fetch_remote(
     credentials: &(String, String),
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<bool>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::FetchRemote,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::FetchRemote,
         "Getting local directory".to_string(),
     );
 
@@ -1200,19 +1557,18 @@ pub async fn pull_changes(
     sync_callback: impl Fn() -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<bool>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::PullFromRepo,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::PullFromRepo,
         "Getting local directory".to_string(),
     );
 
@@ -1397,12 +1753,11 @@ pub async fn download_changes(
     sync_callback: impl Fn() -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<bool>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::PullFromRepo,
+        LogType::DownloadChanges,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(path_string))?;
@@ -1440,19 +1795,18 @@ pub async fn push_changes(
     merge_conflict_callback: impl Fn() -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<bool>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::PushToRepo,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::PushToRepo,
         "Getting local directory".to_string(),
     );
 
@@ -1670,7 +2024,6 @@ pub async fn stage_file_paths(
     paths: Vec<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -1723,7 +2076,6 @@ pub async fn unstage_file_paths(
     paths: Vec<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -1767,7 +2119,6 @@ pub async fn get_recommended_action(
     credentials: &(String, String),
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<i32>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
     let repo = swl!(git2::Repository::open(path_string))?;
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
@@ -1788,7 +2139,7 @@ pub async fn get_recommended_action(
         } else {
             _log(
                 Arc::clone(&log_callback),
-                LogType::GitStatus,
+                LogType::RecommendedAction,
                 format!(
                     "Recommending action 0: No local tracking reference found. Expected ref: {}",
                     tracking_ref_name
@@ -1800,12 +2151,12 @@ pub async fn get_recommended_action(
         if !found {
             _log(
                 Arc::clone(&log_callback),
-                LogType::GitStatus,
+                LogType::RecommendedAction,
                 format!("Recommending action 0: Remote reference differs from local tracking reference. Ref: {}", tracking_ref_name)
             );
             return Ok(Some(0));
         }
-        remote.disconnect();
+        remote.disconnect().unwrap();
     }
 
     if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
@@ -1813,7 +2164,7 @@ pub async fn get_recommended_action(
     {
         _log(
             Arc::clone(&log_callback),
-            LogType::GitStatus,
+            LogType::RecommendedAction,
             "Recommending action 2: Staged or uncommitted files exist".to_string(),
         );
         return Ok(Some(2));
@@ -1832,21 +2183,21 @@ pub async fn get_recommended_action(
                         if ahead > 0 {
                             _log(
                                 Arc::clone(&log_callback),
-                                LogType::GitStatus,
+                                LogType::RecommendedAction,
                                 format!("Recommending action 3: Local branch is ahead of remote by {} commits", ahead)
                             );
                             return Ok(Some(3));
                         } else if behind > 0 {
                             _log(
                                 Arc::clone(&log_callback),
-                                LogType::GitStatus,
+                                LogType::RecommendedAction,
                                 format!("Recommending action 1: Local branch is behind remote by {} commits", behind)
                             );
                             return Ok(Some(1));
                         }
                         _log(
                             Arc::clone(&log_callback),
-                            LogType::GitStatus,
+                            LogType::RecommendedAction,
                             "Recommending action 3: Unhandled commit difference".to_string(),
                         );
                         return Ok(Some(3));
@@ -1866,7 +2217,6 @@ pub async fn commit_changes(
     sync_message: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -1940,7 +2290,6 @@ pub async fn upload_changes(
     merge_conflict_callback: impl Fn() -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Option<bool>, git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -2087,7 +2436,6 @@ pub async fn force_pull(
     path_string: String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -2096,7 +2444,7 @@ pub async fn force_pull(
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
-    repo.cleanup_state();
+    repo.cleanup_state().unwrap();
 
     let fetch_commit = swl!(repo
         .find_reference("FETCH_HEAD")
@@ -2185,7 +2533,6 @@ pub async fn force_push(
     credentials: (String, String),
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -2296,7 +2643,6 @@ pub async fn upload_and_overwrite(
     sync_message: String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -2453,7 +2799,6 @@ pub async fn download_and_overwrite(
     author: (String, String),
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
@@ -2463,7 +2808,7 @@ pub async fn download_and_overwrite(
     );
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
-    repo.cleanup_state();
+    repo.cleanup_state().unwrap();
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
 
@@ -2571,7 +2916,7 @@ pub async fn discard_changes(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::DiscardChanges,
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(path_string))?;
@@ -2607,7 +2952,7 @@ pub async fn get_conflicting(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::ConflictingFiles,
         "Getting local directory".to_string(),
     );
     let repo = match Repository::open(path_string) {
@@ -2636,12 +2981,11 @@ pub async fn get_staged_file_paths(
     path_string: &str,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Vec<(String, i32)> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::StagedFiles,
         "Getting local directory".to_string(),
     );
     let repo = match Repository::open(path_string) {
@@ -2658,7 +3002,7 @@ fn get_staged_file_paths_priv(
 ) -> Vec<(String, i32)> {
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::StagedFiles,
         "Getting staged files".to_string(),
     );
 
@@ -2711,12 +3055,11 @@ pub async fn get_uncommitted_file_paths(
     path_string: &str,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Vec<(String, i32)> {
-    init(None);
     let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::UncommittedFiles,
         "Getting local directory".to_string(),
     );
     let repo = match Repository::open(path_string) {
@@ -2726,7 +3069,7 @@ pub async fn get_uncommitted_file_paths(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::UncommittedFiles,
         "Getting local directory".to_string(),
     );
 
@@ -2748,7 +3091,7 @@ fn get_uncommitted_file_paths_priv(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::UncommittedFiles,
         "Getting uncommitted file paths".to_string(),
     );
 
@@ -2915,7 +3258,7 @@ pub async fn get_branch_names(
     let log_callback = Arc::new(log);
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::BranchNames,
         "Getting local directory".to_string(),
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
@@ -2964,7 +3307,7 @@ pub async fn set_remote_url(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::SetRemoteUrl,
         "Getting local directory".to_string(),
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
@@ -2983,7 +3326,7 @@ pub async fn checkout_branch(
 
     _log(
         Arc::clone(&log_callback),
-        LogType::GitStatus,
+        LogType::CheckoutBranch,
         "Getting local directory".to_string(),
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
@@ -2999,14 +3342,6 @@ pub async fn checkout_branch(
                     .target()
                     .ok_or_else(|| git2::Error::from_str("Invalid remote branch")))?;
                 swl!(repo.branch(branch_name, &repo.find_commit(target)?, false))?
-
-                // match repo.find_branch(&format!("{}/{}", &remote, &branch_name), git2::BranchType::Remote).unwrap() {
-                //     Some(remote_branch) => {
-
-                //         remote_branch
-                //     },
-                //     None => return Err(Error::from_str(&format!("Branch '{}' not found", branch_name)))
-                // }
             } else {
                 return Err(e).map_err(|e| {
                     git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
@@ -3015,25 +3350,12 @@ pub async fn checkout_branch(
         }
     };
 
-    // Get the commit that the branch points to
     let object = swl!(branch.get().peel(git2::ObjectType::Commit))?;
-    // let commit = object.as_commit().ok_or_else(|| {
-    //     git2::Error::from_str("Could not find commit for branch")
-    // })?;
 
-    // Create a checkout builder
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
-    checkout_builder.force(); // Force checkout (discarding local changes)
+    checkout_builder.force();
 
-    // Set HEAD to the branch's commit
     swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))?;
-
-    // Update HEAD ref to point to the branch
-    // let refname = branch.get().name().ok_or_else(|| {
-    //     git2::Error::from_str("Could not get branch reference name")
-    // })?;
-
-    // repo.set_head(refname)?;
 
     let refname = format!("refs/heads/{}", branch_name);
     swl!(repo.set_head(&refname))?;

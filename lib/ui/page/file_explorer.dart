@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/dialog/create_folder.dart' as CreateFolderDialog;
 import 'package:GitSync/ui/dialog/create_file.dart' as CreateFileDialog;
 import 'package:GitSync/ui/dialog/diff_view.dart' as DiffViewDialog;
@@ -20,9 +22,10 @@ import '../../../constant/strings.dart';
 import 'package:path/path.dart' as p;
 
 class FileExplorer extends StatefulWidget {
-  const FileExplorer({super.key, required this.path});
+  const FileExplorer(this.recentCommits, {super.key, required this.path});
 
   final String path;
+  final List<GitManagerRs.Commit> recentCommits;
 
   @override
   State<FileExplorer> createState() => _FileExplorer();
@@ -42,52 +45,79 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
       (
         (t.openFile, t.openFileDescription),
         (List<String> selectedPaths) async {
+          loadingMoreNotifier.value = true;
           print("${selectedPathsNotifier.value[0]}");
           initAsync(() async {
             viewOrEditFile(context, selectedPathsNotifier.value[0]);
           });
+          loadingMoreNotifier.value = false;
+          selectedPathsNotifier.value = [];
         },
       ),
     (
       (t.viewGitLog, t.viewGitLogDescription),
       (List<String> selectedPaths) async {
+        loadingMoreNotifier.value = true;
         final path = selectedPathsNotifier.value[0];
-        await DiffViewDialog.showDialog(context, (null, path.replaceAll("${widget.path}/", "")), path.replaceAll("${widget.path}/", ""), null);
+        await DiffViewDialog.showDialog(
+          context,
+          widget.recentCommits,
+          (null, path.replaceAll("${widget.path}/", "")),
+          path.replaceAll("${widget.path}/", ""),
+          null,
+        );
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
   ];
 
-  List<((String, String), Function(List<String>))> get ignoreAndUntrackOptions => [
+  List<((String, String), void Function(List<String>))> get ignoreAndUntrackOptions => [
     (
       (t.ignoreUntrack, t.ignoreUntrackDescription),
       (List<String> selectedPaths) async {
+        loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitIgnorePath);
-        await GitManager.untrackAll(selectedPaths);
+        await runGitOperation(LogType.UntrackAll, (event) => event, {"filePaths": selectedPaths});
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
     (
       (t.excludeUntrack, t.excludeUntrackDescription),
       (List<String> selectedPaths) async {
+        loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitInfoExcludePath);
-        await GitManager.untrackAll(selectedPaths);
+        await runGitOperation(LogType.UntrackAll, (event) => event, {"filePaths": selectedPaths});
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
     (
       (t.ignoreOnly, t.ignoreOnlyDescription),
       (List<String> selectedPaths) async {
+        loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitIgnorePath);
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
     (
       (t.excludeOnly, t.excludeOnlyDescription),
       (List<String> selectedPaths) async {
+        loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitInfoExcludePath);
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
     (
       (t.untrack, t.untrackDescription),
       (List<String> selectedPaths) async {
-        await GitManager.untrackAll(selectedPaths);
+        loadingMoreNotifier.value = true;
+        await runGitOperation(LogType.UntrackAll, (event) => event, {"filePaths": selectedPaths});
+        loadingMoreNotifier.value = false;
+        selectedPathsNotifier.value = [];
       },
     ),
   ];
@@ -304,10 +334,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                             if (option is ((String, String), dynamic Function(List<String>))) {
                                               return DropdownMenuItem(
                                                 onTap: () async {
-                                                  loadingMoreNotifier.value = true;
-                                                  await option.$2(selectedPaths.map((path) => path.replaceFirst("${widget.path}/", "")).toList());
-                                                  loadingMoreNotifier.value = false;
-                                                  selectedPathsNotifier.value = [];
+                                                  option.$2(selectedPaths.map((path) => path.replaceFirst("${widget.path}/", "")).toList());
                                                 },
                                                 value: option.$1.$1,
                                                 child: Padding(
@@ -687,10 +714,10 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   }
 }
 
-Route createFileExplorerRoute(String path) {
+Route createFileExplorerRoute(List<GitManagerRs.Commit> recentCommits, String path) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: file_explorer),
-    pageBuilder: (context, animation, secondaryAnimation) => FileExplorer(path: path),
+    pageBuilder: (context, animation, secondaryAnimation) => FileExplorer(recentCommits, path: path),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

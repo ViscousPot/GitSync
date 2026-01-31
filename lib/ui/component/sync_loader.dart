@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
@@ -9,6 +10,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SyncLoader extends StatefulWidget {
   const SyncLoader({super.key, required this.syncProgressKey, required this.reload});
@@ -36,12 +38,19 @@ class _SyncLoaderState extends State<SyncLoader> {
     opacity = 0.0;
 
     initAsync(() async {
-      locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+      try {
+        locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+      } catch (e) {
+        locked = false;
+      }
       erroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
       setState(() {});
       lockedTimer = Timer.periodic(const Duration(milliseconds: 200), (_) async {
         final newErroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
-        final newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+        bool newLocked = false;
+        try {
+          newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+        } catch (e) {}
 
         if (newErroring != erroring) {
           erroring = newErroring;
@@ -61,6 +70,7 @@ class _SyncLoaderState extends State<SyncLoader> {
   @override
   void dispose() {
     hideCheckTimer?.cancel();
+    lockedTimer?.cancel();
 
     super.dispose();
   }
@@ -91,11 +101,14 @@ class _SyncLoaderState extends State<SyncLoader> {
 
     return GestureDetector(
       onLongPress: () async {
-        final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
-        final uiLocks = await repoManager.getStringList(StorageKey.repoman_uiLocks);
-        await repoManager.setStringList(StorageKey.repoman_uiLocks, uiLocks.where((lock) => lock != index.toString()).toList());
-        final locks = await repoManager.getStringList(StorageKey.repoman_locks);
-        await repoManager.setStringList(StorageKey.repoman_locks, locks.where((lock) => lock != index.toString()).toList());
+        try {
+          Directory('${(await getApplicationSupportDirectory()).path}/queues').deleteSync(recursive: true);
+        } catch (e) {}
+        try {
+          Directory('${(await getApplicationSupportDirectory()).path}/queues').createSync(recursive: true);
+        } catch (e) {}
+        print("////// deleted");
+
         gitSyncService.isScheduled = false;
         gitSyncService.isSyncing = false;
         setState(() {});

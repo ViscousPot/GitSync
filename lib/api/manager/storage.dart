@@ -17,8 +17,6 @@ enum StorageKey<T> {
   repoman_erroring<String?>(name: "erroring", defaultValue: null),
   repoman_ghSponsorToken<String?>(name: "ghSponsorToken", defaultValue: null),
   repoman_repoNames<List<String>>(name: "repoNames", defaultValue: <String>["main"]),
-  repoman_locks<List<String>>(name: "locks", defaultValue: <String>[]),
-  repoman_uiLocks<List<String>>(name: "uiLocks", defaultValue: <String>[]),
   repoman_showGithubAppRedirectDisclosure<bool>(name: "showGithubAppRedirectDisclosure", defaultValue: true),
   repoman_reportIssueToken<String?>(name: "reportIssueToken", defaultValue: null),
   repoman_defaultClientModeEnabled<bool>(name: "defaultClientModeEnabled", defaultValue: false),
@@ -28,6 +26,8 @@ enum StorageKey<T> {
   repoman_defaultAuthorEmail<String>(name: "defaultAuthorEmail", defaultValue: ""),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
   repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: false),
+  repoman_appCrashFlag<bool>(name: "appCrashFlag", defaultValue: false),
+  repoman_serviceCrashFlag<bool>(name: "serviceCrashFlag", defaultValue: false),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),
@@ -63,6 +63,7 @@ enum StorageKey<T> {
   setman_conflicting<List<String>>(name: "conflicting", defaultValue: []),
   setman_uncommittedFilePaths<List<String>>(name: "uncommittedFilePaths", defaultValue: []),
   setman_stagedFilePaths<List<String>>(name: "stagedFilePaths", defaultValue: []),
+  setman_remoteUrlLink<List<String>>(name: "remoteUrlLink", defaultValue: []),
   setman_branchName<String?>(name: "branchName", defaultValue: null),
   setman_branchNames<List<String>>(name: "branchNames", defaultValue: []),
   setman_disableSsl<bool>(name: "disableSsl", defaultValue: false),

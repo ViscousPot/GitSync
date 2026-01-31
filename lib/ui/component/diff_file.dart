@@ -1,8 +1,8 @@
 import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +16,9 @@ final insertionRegex = RegExp(r'\+{5}insertion\+{5}');
 final deletionRegex = RegExp(r'-{5}deletion-{5}');
 
 class DiffFile extends StatefulWidget {
-  DiffFile(this.entry, this.filePath, this.expandedDefault, {required this.orientation, required this.openedFromFile, super.key});
+  DiffFile(this.recentCommits, this.entry, this.filePath, this.expandedDefault, {required this.orientation, required this.openedFromFile, super.key});
 
+  final List<GitManagerRs.Commit> recentCommits;
   final MapEntry<String, String> entry;
   final String filePath;
   final bool expandedDefault;
@@ -311,15 +312,15 @@ class _DiffFileState extends State<DiffFile> {
                         } else {
                           final reference = widget.entry.key.split(conflictSeparator)[1];
                           print(reference);
-                          final recentCommits = await GitManager.getRecentCommits();
-                          final commitIndex = recentCommits.indexWhere((commit) => commit.reference == reference);
-                          final commit = recentCommits[commitIndex];
-                          final prevCommit = commitIndex + 1 >= recentCommits.length ? null : recentCommits[commitIndex + 1];
-                          print(recentCommits);
+                          final commitIndex = widget.recentCommits.indexWhere((commit) => commit.reference == reference);
+                          final commit = widget.recentCommits[commitIndex];
+                          final prevCommit = commitIndex + 1 >= widget.recentCommits.length ? null : widget.recentCommits[commitIndex + 1];
+                          print(widget.recentCommits);
                           print(commitIndex);
 
                           await DiffViewDialog.showDialog(
                             context,
+                            widget.recentCommits,
                             (commit.reference, prevCommit?.reference),
                             commit.reference.substring(0, 7),
                             (commit, prevCommit),
@@ -330,7 +331,14 @@ class _DiffFileState extends State<DiffFile> {
                         if (widget.openedFromFile != null && widget.entry.key == widget.openedFromFile) {
                           await Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         } else {
-                          await DiffViewDialog.showDialog(context, (null, widget.entry.key), widget.entry.key, null, widget.filePath);
+                          await DiffViewDialog.showDialog(
+                            context,
+                            widget.recentCommits,
+                            (null, widget.entry.key),
+                            widget.entry.key,
+                            null,
+                            widget.filePath,
+                          );
                         }
                       }
                     },

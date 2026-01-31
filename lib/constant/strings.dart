@@ -111,7 +111,6 @@ const dismissErrorDebounceReference = "dismiss_error";
 const refreshDebounceReference = "refresh";
 
 const scheduledSyncKey = "scheduled_sync_";
-const networkScheduledSyncKey = "network_scheduled_sync_";
 
 final sshPattern = RegExp(r'^(ssh://[^@]+@|git@)[a-zA-Z0-9.-]+([:/])(\S+)/(\S+)(\.git)?$');
 final httpsPattern = RegExp(r'^(https?://)[a-zA-Z0-9.-]+([:/])(\S+)/(\S+)(\.git)?$');

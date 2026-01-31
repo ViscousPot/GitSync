@@ -190,7 +190,7 @@ class GitsyncService {
 
         if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
-          pullResult = await GitManager.downloadChanges(repomanRepoindex, settingsManager, () async {
+          pullResult = await GitManager.backgroundDownloadChanges(repomanRepoindex, settingsManager, () async {
             synced = true;
             await _displaySyncMessage(settingsManager, s.syncStartPull);
           });
@@ -214,7 +214,7 @@ class GitsyncService {
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
-          pushResult = await GitManager.uploadChanges(
+          pushResult = await GitManager.backgroundUploadChanges(
             repomanRepoindex,
             settingsManager,
             () async {
@@ -250,7 +250,6 @@ class GitsyncService {
           await _displaySyncMessage(settingsManager, s.syncNotRequired);
         }
       } else {
-        await GitManager.getRecentCommits();
         await _displaySyncMessage(settingsManager, s.syncComplete);
       }
 
@@ -273,7 +272,7 @@ class GitsyncService {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
-    final pushResult = await GitManager.uploadChanges(
+    final pushResult = await GitManager.backgroundUploadChanges(
       repomanRepoindex,
       settingsManager,
       () {

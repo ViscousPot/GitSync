@@ -1,4 +1,5 @@
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
@@ -174,8 +175,12 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 child: TextButton(
                   onPressed: keyPair == null
                       ? () async {
-                          keyPair = await GitManager.generateKeyPair(passphraseController.text);
-                          setState(() {});
+                          keyPair = await runGitOperation(
+                            LogType.GenerateKeyPair,
+                            (event) => event == null || event["result"] == null ? null : (event["result"][0], event["result"][1]),
+                            {"passphrase": passphraseController.text},
+                          );
+                          if (context.mounted) setState(() {});
                         }
                       : (pubKeyCopied
                             ? () async {

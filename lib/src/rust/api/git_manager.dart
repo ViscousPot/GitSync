@@ -6,9 +6,126 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `_log`, `commit`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `pull_changes_priv`, `push_changes_priv`, `set_author`, `update_submodules_priv`
+// These functions are ignored because they are not marked as `pub`: `_log`, `commit`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `pull_changes_priv`, `push_changes_priv`, `run_with_lock`, `set_author`, `update_submodules_priv`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`
 // These functions are ignored (category: IgnoreBecauseNotAllowedOwner): `safe_wline`
+
+Future<List<Commit>?> commitListRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<List<Commit>?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerCommitListRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<List<String>?> stringListRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<List<String>?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerStringListRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<List<(String, int)>?> stringIntListRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<List<(String, int)>?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerStringIntListRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<(String, String)?> stringPairRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<(String, String)?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerStringPairRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<String?> stringRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<String?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerStringRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<int?> intRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<int?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerIntRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<bool?> boolRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<bool?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerBoolRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<void> voidRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<void> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerVoidRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
+Future<bool> isLocked({required String queueDir, required int index}) => RustLib
+    .instance
+    .api
+    .crateApiGitManagerIsLocked(queueDir: queueDir, index: index);
 
 Future<void> init({String? homepath}) =>
     RustLib.instance.api.crateApiGitManagerInit(homepath: homepath);
@@ -48,7 +165,7 @@ Future<void> untrackAll({
   log: log,
 );
 
-Stream<(String, Map<String, String>)> getFileDiff({
+Future<Diff> getFileDiff({
   required String pathString,
   required String filePath,
   required FutureOr<void> Function(LogType, String) log,
@@ -58,7 +175,7 @@ Stream<(String, Map<String, String>)> getFileDiff({
   log: log,
 );
 
-Stream<(String, Map<String, String>)> getCommitDiff({
+Future<Diff> getCommitDiff({
   required String pathString,
   required String startRef,
   String? endRef,
@@ -495,21 +612,53 @@ class Diff {
 }
 
 enum LogType {
+  test,
   global,
   accessibilityService,
-  sync_,
-  gitStatus,
-  abortMerge,
-  diff,
-  commit,
-  getRepos,
-  cloneRepo,
   selectDirectory,
+  getRepos,
+  sync_,
+  syncException,
+  clone,
+  updateSubmodules,
+  fetchRemote,
   pullFromRepo,
+  stage,
+  unstage,
+  recommendedAction,
+  commit,
   pushToRepo,
   forcePull,
   forcePush,
+  downloadAndOverwrite,
+  uploadAndOverwrite,
+  discardChanges,
+  untrackAll,
+  commitDiff,
+  fileDiff,
   recentCommits,
-  stage,
-  syncException,
+  conflictingFiles,
+  uncommittedFiles,
+  stagedFiles,
+  abortMerge,
+  branchName,
+  branchNames,
+  setRemoteUrl,
+  checkoutBranch,
+  createBranch,
+  readGitIgnore,
+  writeGitIgnore,
+  readGitInfoExclude,
+  writeGitInfoExclude,
+  getDisableSsl,
+  setDisableSsl,
+  generateKeyPair,
+  getRemoteUrlLink,
+  discardDir,
+  discardGitIndex,
+  discardFetchHead,
+  getSubmodules,
+  getAndExcludeLfs,
+  downloadChanges,
+  uploadChanges,
 }

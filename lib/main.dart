@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
@@ -95,9 +96,10 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      DartPluginRegistrant.ensureInitialized();
+
       await RustLib.init();
       initAsync(() async {
-        await repoManager.setStringList(StorageKey.repoman_locks, []);
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
         await Logger.init();
         await requestStoragePerm(false);
@@ -160,18 +162,6 @@ void callbackDispatcher() async {
         return Future.value(true);
       }
 
-      if (task.contains(networkScheduledSyncKey)) {
-        final int repoIndex =
-            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
-
-        if (Platform.isIOS) {
-          await gitSyncService.debouncedSync(repoIndex, true, true);
-        } else {
-          FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
-        }
-
-        return Future.value(true);
-      }
       return Future.value(false);
     } catch (e) {
       return Future.error(e);
@@ -181,10 +171,268 @@ void callbackDispatcher() async {
 
 @pragma('vm:entry-point')
 void onServiceStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
+  checkPreviousCrash(true);
 
   serviceInstance = service;
   await RustLib.init();
+
+  service.on(LogType.Clone.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.clone(
+      event["repoUrl"],
+      event["repoPath"],
+      (task) => service.invoke("cloneTaskCallback", {"task": task}),
+      (progress) => service.invoke("cloneProgressCallback", {"progress": progress}),
+    );
+
+    service.invoke(LogType.Clone.name, {"result": result});
+  });
+
+  service.on(LogType.UpdateSubmodules.name).listen((event) async {
+    await GitManager.updateSubmodules();
+    service.invoke(LogType.UpdateSubmodules.name);
+  });
+
+  service.on(LogType.FetchRemote.name).listen((event) async {
+    await GitManager.fetchRemote();
+    service.invoke(LogType.FetchRemote.name);
+  });
+
+  service.on(LogType.PullFromRepo.name).listen((event) async {
+    await GitManager.pullChanges();
+    service.invoke(LogType.PullFromRepo.name);
+  });
+
+  service.on(LogType.Stage.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.stageFilePaths(event["paths"].map<String>((path) => "$path").toList());
+    service.invoke(LogType.Stage.name);
+  });
+
+  service.on(LogType.Unstage.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.unstageFilePaths(event["paths"].map<String>((path) => "$path").toList());
+    service.invoke(LogType.Unstage.name);
+  });
+
+  service.on(LogType.RecommendedAction.name).listen((event) async {
+    final result = await GitManager.getRecommendedAction();
+    service.invoke(LogType.RecommendedAction.name, {"result": result});
+  });
+
+  service.on(LogType.Commit.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.commitChanges(event["syncMessage"]);
+    service.invoke(LogType.Commit.name);
+  });
+
+  service.on(LogType.PushToRepo.name).listen((event) async {
+    await GitManager.pushChanges();
+    service.invoke(LogType.PushToRepo.name);
+  });
+
+  service.on(LogType.ForcePull.name).listen((event) async {
+    await GitManager.forcePull();
+    service.invoke(LogType.ForcePull.name);
+  });
+
+  service.on(LogType.ForcePush.name).listen((event) async {
+    await GitManager.forcePush();
+    service.invoke(LogType.ForcePush.name);
+  });
+
+  service.on(LogType.DownloadAndOverwrite.name).listen((event) async {
+    await GitManager.downloadAndOverwrite();
+    service.invoke(LogType.DownloadAndOverwrite.name);
+  });
+
+  service.on(LogType.UploadAndOverwrite.name).listen((event) async {
+    await GitManager.uploadAndOverwrite();
+    service.invoke(LogType.UploadAndOverwrite.name);
+  });
+
+  service.on(LogType.DiscardChanges.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.discardChanges(event["paths"].map<String>((path) => "$path").toList());
+    service.invoke(LogType.DiscardChanges.name);
+  });
+
+  service.on(LogType.UntrackAll.name).listen((event) async {
+    await GitManager.untrackAll(event == null || !event.keys.contains("filePaths") ? null : event["filePaths"]);
+    service.invoke(LogType.UntrackAll.name);
+  });
+
+  service.on(LogType.CommitDiff.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.getCommitDiff(event["startRef"], event["endRef"]);
+    service.invoke(
+      LogType.CommitDiff.name,
+      result == null ? null : {"insertions": result.insertions, "deletions": result.deletions, "diffParts": result.diffParts},
+    );
+  });
+
+  service.on(LogType.FileDiff.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.getFileDiff(event["filePath"]);
+    service.invoke(
+      LogType.FileDiff.name,
+      result == null ? null : {"insertions": result.insertions, "deletions": result.deletions, "diffParts": result.diffParts},
+    );
+  });
+
+  service.on(LogType.RecentCommits.name).listen((event) async {
+    final result = await GitManager.getRecentCommits();
+    print(result);
+    service.invoke(LogType.RecentCommits.name, {"result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList()});
+  });
+
+  service.on(LogType.ConflictingFiles.name).listen((event) async {
+    final result = await GitManager.getConflicting();
+    service.invoke(LogType.ConflictingFiles.name, {"result": result.map<String>((path) => "$path").toList()});
+  });
+
+  service.on(LogType.UncommittedFiles.name).listen((event) async {
+    final result = await GitManager.getUncommittedFilePaths(event?["repomanRepoindex"]);
+    service.invoke(LogType.UncommittedFiles.name, {
+      "result": result.map<List<String>>((path) => [path.$1, "${path.$2}"]).toList(),
+    });
+  });
+
+  service.on(LogType.StagedFiles.name).listen((event) async {
+    final result = await GitManager.getStagedFilePaths();
+    service.invoke(LogType.StagedFiles.name, {
+      "result": result.map((item) => [item.$1, "${item.$2}"]).toList(),
+    });
+  });
+
+  service.on(LogType.AbortMerge.name).listen((event) async {
+    await GitManager.abortMerge();
+    service.invoke(LogType.AbortMerge.name);
+  });
+
+  service.on(LogType.BranchName.name).listen((event) async {
+    final result = await GitManager.getBranchName();
+    service.invoke(LogType.BranchName.name, {"result": result});
+  });
+
+  service.on(LogType.BranchNames.name).listen((event) async {
+    final result = await GitManager.getBranchNames();
+    service.invoke(LogType.BranchNames.name, {"result": result.map<String>((branch) => "$branch").toList()});
+  });
+
+  service.on(LogType.SetRemoteUrl.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.setRemoteUrl(event["newRemoteUrl"]);
+    service.invoke(LogType.SetRemoteUrl.name);
+  });
+
+  service.on(LogType.CheckoutBranch.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.checkoutBranch(event["branchName"]);
+    service.invoke(LogType.CheckoutBranch.name);
+  });
+
+  service.on(LogType.CreateBranch.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.createBranch(event["branchName"], event["basedOn"]);
+    service.invoke(LogType.CreateBranch.name);
+  });
+
+  service.on(LogType.ReadGitIgnore.name).listen((event) async {
+    final result = await GitManager.readGitignore();
+    service.invoke(LogType.ReadGitIgnore.name, {"result": result});
+  });
+
+  service.on(LogType.WriteGitIgnore.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.writeGitignore(event["gitignoreString"]);
+    service.invoke(LogType.WriteGitIgnore.name);
+  });
+
+  service.on(LogType.ReadGitInfoExclude.name).listen((event) async {
+    final result = await GitManager.readGitInfoExclude();
+    service.invoke(LogType.ReadGitInfoExclude.name, {"result": result});
+  });
+
+  service.on(LogType.WriteGitInfoExclude.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.writeGitInfoExclude(event["gitInfoExcludeString"]);
+    service.invoke(LogType.WriteGitInfoExclude.name);
+  });
+
+  service.on(LogType.GetDisableSsl.name).listen((event) async {
+    final result = await GitManager.getDisableSsl();
+    service.invoke(LogType.GetDisableSsl.name, {"result": result});
+  });
+
+  service.on(LogType.SetDisableSsl.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.setDisableSsl(event["disable"]);
+    service.invoke(LogType.SetDisableSsl.name);
+  });
+
+  service.on(LogType.GenerateKeyPair.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.generateKeyPair(event["passphrase"]);
+    service.invoke(LogType.GenerateKeyPair.name, {
+      "result": result == null ? null : [result.$1, result.$2],
+    });
+  });
+
+  service.on(LogType.GetRemoteUrlLink.name).listen((event) async {
+    final result = await GitManager.getRemoteUrlLink();
+    service.invoke(LogType.GetRemoteUrlLink.name, {
+      "result": result == null ? null : [result.$1, result.$2],
+    });
+  });
+
+  service.on(LogType.DiscardDir.name).listen((event) async {
+    if (event == null) return;
+
+    await GitManager.deleteDirContents(event["dirPath"]);
+    service.invoke(LogType.DiscardDir.name);
+  });
+
+  service.on(LogType.DiscardGitIndex.name).listen((event) async {
+    await GitManager.deleteGitIndex();
+    service.invoke(LogType.DiscardGitIndex.name);
+  });
+
+  service.on(LogType.DiscardFetchHead.name).listen((event) async {
+    await GitManager.deleteFetchHead();
+    service.invoke(LogType.DiscardFetchHead.name);
+  });
+
+  service.on(LogType.GetSubmodules.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.getSubmodulePaths(event["dir"]);
+    service.invoke(LogType.GetSubmodules.name, {"result": result.map<String>((branch) => "$branch").toList()});
+  });
+
+  service.on(LogType.GetAndExcludeLfs.name).listen((event) async {
+    final result = await GitManager.getAndExcludeLfsFilePaths(event?["repomanRepoindex"]);
+    service.invoke(LogType.GetAndExcludeLfs.name, {"result": result.map<String>((path) => "$path").toList()});
+  });
+
+  service.on(LogType.DownloadChanges.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.downloadChanges(event["repomanRepoindex"], () => service.invoke("downloadChanges-syncCallback"));
+    service.invoke(LogType.DownloadChanges.name, {"result": result});
+  });
+
+  service.on(LogType.UploadChanges.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.uploadChanges(
+      event["repomanRepoindex"],
+      () => service.invoke("uploadChanges-syncCallback"),
+      event["filePaths"]?.map<String>((path) => "$path").toList(),
+      event["syncMessage"],
+      () => service.invoke("uploadChanges-resyncCallback"),
+    );
+    service.invoke(LogType.UploadChanges.name, {"result": result});
+  });
+
+  // --------------------------------------------------------- //
 
   service.on(GitsyncService.ACCESSIBILITY_EVENT).listen((event) {
     print(GitsyncService.ACCESSIBILITY_EVENT);
@@ -222,7 +470,7 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on("stop").listen((event) async {
-    await repoManager.setStringList(StorageKey.repoman_locks, []);
+    clearCrashFlag(true);
     service.stopSelf();
   });
 
@@ -356,6 +604,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       reloadAll();
     },
   );
+
   late final _restorableSettingsMain = RestorableRouteFuture<String?>(
     onPresent: (navigator, arguments) {
       return navigator.restorablePush(createSettingsMainRoute, arguments: arguments);
@@ -396,17 +645,45 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
   ValueNotifier<bool> fsLoader = ValueNotifier(false);
 
+  int _reloadToken = 0;
+
   Future<void> reloadAll() async {
+    final token = ++_reloadToken;
     await colours.reloadTheme(context);
+    if (token != _reloadToken) return;
     if (mounted) setState(() {});
     await updateSyncOptions();
-    branchName.value = await GitManager.getBranchName();
-    remoteUrlLink.value = await GitManager.getRemoteUrlLink();
-    branchNames.value = await GitManager.getBranchNames();
-    conflicting.value = await GitManager.getConflicting();
+    if (token != _reloadToken) return;
+    final newConflicting = await runGitOperation<List<String>>(
+      LogType.ConflictingFiles,
+      (event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList(),
+    );
+    if (token != _reloadToken) return;
+    conflicting.value = newConflicting;
+    final newBranchName = await runGitOperation<String?>(LogType.BranchName, (event) => event?["result"]);
+    if (token != _reloadToken) return;
+    branchName.value = newBranchName;
+    final newRemoteUrlLink = await runGitOperation<(String, String)?>(
+      LogType.GetRemoteUrlLink,
+      (event) => event == null || event["result"] == null ? null : (event["result"][0], event["result"][1]),
+    );
+    if (token != _reloadToken) return;
+    remoteUrlLink.value = newRemoteUrlLink;
+    final newBranchNames = await runGitOperation<List<String>>(
+      LogType.BranchNames,
+      (event) => event?["result"].map<String>((path) => "$path").toList(),
+    );
+    if (token != _reloadToken) return;
+    branchNames.value = newBranchNames;
     await updateRecommendedAction();
+    if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
-    recentCommits.value = await GitManager.getRecentCommits();
+    final newRecentCommits = await runGitOperation<List<GitManagerRs.Commit>>(
+      LogType.RecentCommits,
+      (event) => event?["result"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
+    );
+    if (token != _reloadToken) return;
+    recentCommits.value = newRecentCommits;
     loadingRecentCommits.value = false;
     if (mounted) setState(() {});
   }
@@ -419,10 +696,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     (
       (t.modifyRemoteUrl, FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textMD)),
       (BuildContext context, (String, String)? remote) async {
-        await SetRemoteUrlDialog.showDialog(context, remote?.$1, (newRemoteUrl) async => await GitManager.setRemoteUrl(newRemoteUrl));
+        await SetRemoteUrlDialog.showDialog(
+          context,
+          remote?.$1,
+          (newRemoteUrl) async => await runGitOperation(LogType.SetRemoteUrl, (event) => event, {"newRemoteUrl": newRemoteUrl}),
+        );
       },
     ),
   ];
+
+  Future<void> syncOptionCompletionCallback([event]) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await reloadAll();
+    });
+  }
 
   @override
   void initState() {
@@ -445,9 +732,25 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     // Logger.logError(LogType.TEST, "test", StackTrace.fromString("test stack"));
     // Future.delayed(Duration(seconds: 5), () => Logger.logError(LogType.TEST, "test", StackTrace.fromString("test stack")));
 
+    // FlutterBackgroundService().on(LogType.FetchRemote.name).listen(syncOptionCompletionCallback);
+    // FlutterBackgroundService().on(LogType.PullFromRepo.name).listen(syncOptionCompletionCallback);
+    // FlutterBackgroundService().on(LogType.Stage.name).listen(syncOptionCompletionCallback);
+    // FlutterBackgroundService().on(LogType.Commit.name).listen(syncOptionCompletionCallback);
+
+    // FlutterBackgroundService()
+    //     .on(LogType.ConflictingFiles.name)
+    //     .listen((event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList());
+
+    // TODO: put behind an on for all the sync option fns?
+    //
+    syncOptions.value.addAll({
+      t.syncNow: (FontAwesomeIcons.solidCircleDown, () async => FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC)),
+    });
+
+    checkPreviousCrash();
+
     initAsync(() async {
-      await reloadAll();
-      await GitManager.getAndExcludeLfsFilePaths();
+      reloadAll();
     });
 
     initAsync(() async {
@@ -478,7 +781,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await repoManager.setInt(StorageKey.repoman_repoIndex, shortcutSyncIndex);
         await uiSettingsManager.reinit();
         await reloadAll();
-        await ManualSyncDialog.showDialog(context, () async {});
+        await ManualSyncDialog.showDialog(context);
         return;
       }
     });
@@ -534,20 +837,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   }
 
   Future<void> syncWrapper(Future<void> Function() callback, bool isForceSync) async {
-    await GitManager.clearQueue();
-
     fsLoader.value = true;
     if (!isForceSync) {
-      await GitManager.getAndExcludeLfsFilePaths();
+      await runGitOperation(LogType.GetAndExcludeLfs, (event) => event?["result"].map<String>((path) => "$path").toList(), null);
     }
     fsLoader.value = false;
 
     await callback();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await reloadAll();
-    });
-    await updateRecommendedAction();
   }
 
   Future<void> launchWidgetManualSync() async {
@@ -555,16 +851,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await repoManager.setInt(StorageKey.repoman_repoIndex, widgetManualSyncIndex);
     await uiSettingsManager.reinit();
     await reloadAll();
-    await ManualSyncDialog.showDialog(context, () async {});
+    await ManualSyncDialog.showDialog(context);
   }
 
   Future<void> updateRecommendedAction([int? override]) async {
     if (!await uiSettingsManager.getClientModeEnabled()) return;
     autoRefreshTimer?.cancel();
     autoRefreshTimer = Timer(Duration(seconds: 10), () async => await updateRecommendedAction());
-
     updatingRecommendedAction.value = true;
-    recommendedAction.value = override ?? await GitManager.getRecommendedAction();
+    if (override != null) {
+      recommendedAction.value = override;
+      updatingRecommendedAction.value = false;
+      return;
+    }
+
+    recommendedAction.value = await runGitOperation<int?>(LogType.RecommendedAction, (event) {
+      return event?["result"];
+    });
     updatingRecommendedAction.value = false;
   }
 
@@ -577,7 +880,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await repoManager.storage.deleteAll();
       });
 
-      await repoManager.setStringList(StorageKey.repoman_locks, []);
+      await GitManager.clearLocks();
       await prefs.setBool('is_first_app_launch', false);
     }
   }
@@ -596,8 +899,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     ]);
   }
 
+  List<String> getStringRecentCommits() {
+    return recentCommits.value.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList();
+  }
+
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
-    _restorableGlobalSettings.present(true);
+    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
     await repoManager.setOnboardingStep(-1);
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
@@ -620,7 +927,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.indexOf(text));
       await uiSettingsManager.reinit();
 
-      await GitManager.clearQueue();
       await reloadAll();
     });
   }
@@ -661,14 +967,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
     final dirPath = uiSettingsManager.gitDirPath?.$1;
-    final submodulePaths = dirPath == null ? [] : await GitManager.getSubmodulePaths(dirPath);
+
+    final submodulePaths = dirPath == null
+        ? []
+        : await runGitOperation<List<String>>(LogType.GetSubmodules, (event) => event?["result"].map<String>((path) => "$path").toList() ?? [], {
+            "dir": dirPath,
+          });
+    ;
     syncOptions.value = {};
 
     syncOptions.value.addAll({
       clientModeEnabled ? t.syncAllChanges : t.syncNow: (
         FontAwesomeIcons.solidCircleDown,
         () async {
-          if (await GitManager.getBranchName() == null) {
+          if (branchName.value == null) {
             await InfoDialog.showDialog(
               context,
               "Sync Unavailable on DETACHED HEAD",
@@ -699,35 +1011,44 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         t.manualSync: (
           FontAwesomeIcons.barsStaggered,
           () async {
-            await ManualSyncDialog.showDialog(context, () async {});
+            await ManualSyncDialog.showDialog(context);
+            await syncOptionCompletionCallback();
           },
         ),
       if (dirPath != null && clientModeEnabled && submodulePaths.isNotEmpty)
         t.updateSubmodules: (
           FontAwesomeIcons.solidSquareCaretDown,
           () async {
-            await GitManager.updateSubmodules();
+            await runGitOperation(LogType.UpdateSubmodules, (event) => event);
+            await syncOptionCompletionCallback();
           },
         ),
       if (clientModeEnabled)
         sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
           FontAwesomeIcons.caretDown,
           () async {
-            await GitManager.fetchRemote();
+            await runGitOperation(LogType.FetchRemote, (event) => event);
+            await syncOptionCompletionCallback();
           },
         ),
       if (!clientModeEnabled)
         t.downloadChanges: (
           FontAwesomeIcons.angleDown,
           () async {
-            final result = await GitManager.downloadChanges(repomanRepoindex, uiSettingsManager, () async {
+            final result = await runGitOperation(LogType.DownloadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
+            FlutterBackgroundService().on("downloadChanges-syncCallback").first.then((_) async {
               if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
                 Fluttertoast.showToast(msg: t.syncStartPull, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
             });
             if (result == null) return;
 
-            if (result == false && (await GitManager.getUncommittedFilePaths(repomanRepoindex)).isNotEmpty) {
+            if (result == false &&
+                (await runGitOperation<List<(String, int)>>(
+                  LogType.UncommittedFiles,
+                  (event) => event?["result"].map<(String, int)>((item) => ("${item[0]}", int.parse("${item[1]}"))).toList() ?? [],
+                  {"repomanRepoindex": repomanRepoindex},
+                )).isNotEmpty) {
               Fluttertoast.showToast(msg: t.pullFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
               return;
             }
@@ -735,27 +1056,31 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
               Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
             }
+            await syncOptionCompletionCallback();
           },
         ),
       if (clientModeEnabled)
         t.pullChanges: (
           FontAwesomeIcons.angleDown,
           () async {
-            await GitManager.pullChanges();
+            await runGitOperation(LogType.PullFromRepo, (event) => event);
+            await syncOptionCompletionCallback();
           },
         ),
       if (clientModeEnabled)
         t.stageAndCommit: (
           FontAwesomeIcons.barsStaggered,
           () async {
-            await ManualSyncDialog.showDialog(context, () async => {});
+            await ManualSyncDialog.showDialog(context);
+            await syncOptionCompletionCallback();
           },
         ),
       if (!clientModeEnabled)
         t.uploadChanges: (
           FontAwesomeIcons.angleUp,
           () async {
-            final result = await GitManager.uploadChanges(repomanRepoindex, uiSettingsManager, () async {
+            final result = await runGitOperation(LogType.UploadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
+            FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {
               if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
                 Fluttertoast.showToast(msg: t.syncStartPush, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
@@ -770,13 +1095,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
               Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
             }
+            await syncOptionCompletionCallback();
           },
         ),
       if (clientModeEnabled)
         t.pushChanges: (
           FontAwesomeIcons.angleUp,
           () async {
-            await GitManager.pushChanges();
+            await runGitOperation(LogType.PushToRepo, (event) => event);
+            await syncOptionCompletionCallback();
           },
         ),
       if (!clientModeEnabled)
@@ -785,10 +1112,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
               ForcePushPullDialog.showDialog(context, push: true);
-              await GitManager.uploadAndOverwrite();
-              await GitManager.downloadAndOverwrite();
+              await runGitOperation(LogType.UploadAndOverwrite, (event) => event);
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              await reloadAll();
+              syncOptionCompletionCallback();
             });
           },
         ),
@@ -798,9 +1124,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             ConfirmForcePushPullDialog.showDialog(context, () async {
               ForcePushPullDialog.showDialog(context);
-              await GitManager.downloadAndOverwrite();
+              await runGitOperation(LogType.DownloadAndOverwrite, (event) => event);
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              await reloadAll();
+              syncOptionCompletionCallback();
             });
           },
         ),
@@ -810,9 +1136,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
               ForcePushPullDialog.showDialog(context, push: true);
-              await GitManager.forcePush();
+              await runGitOperation(LogType.ForcePush, (event) => event);
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              await reloadAll();
+              await syncOptionCompletionCallback();
             });
           },
         ),
@@ -822,9 +1148,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             ConfirmForcePushPullDialog.showDialog(context, () async {
               ForcePushPullDialog.showDialog(context);
-              await GitManager.forcePull();
+              await runGitOperation(LogType.ForcePull, (event) => event);
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-              await reloadAll();
+              await syncOptionCompletionCallback();
             });
           },
         ),
@@ -838,7 +1164,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     Future.delayed(Duration.zero, () async {
-      if ((await GitManager.getConflicting()).isNotEmpty) {
+      if (conflicting.value.isNotEmpty) {
         syncOptions.value.remove(t.syncAllChanges);
         syncOptions.value.remove(t.syncNow);
         syncOptions.value.remove(t.manualSync);
@@ -857,6 +1183,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+
+    clearCrashFlag();
 
     loadingRecentCommits.dispose();
     branchName.dispose();
@@ -879,10 +1207,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       gitLfsExpanded = false;
-      await updateRecommendedAction();
       await reloadAll();
     }
     if (state == AppLifecycleState.paused) {
+      autoRefreshTimer?.cancel();
       // if (uiSettingsManager.getOnboardingStep() != 0 && onboardingController?.hasSkipped == false) {
       //   onboardingController?.dismissAll();
       // }
@@ -900,7 +1228,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
-            _restorableSettingsMain.present(true);
+            _restorableSettingsMain.present({"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true});
           },
           () async {
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
@@ -962,7 +1290,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
                   onPressed: () async {
-                    _restorableGlobalSettings.present();
+                    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
                     widget.reloadLocale();
                   },
                   icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
@@ -1074,7 +1402,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                               RemoveContainerDialog.showDialog(context, (deleteContents) async {
                                                 if (deleteContents) {
-                                                  await GitManager.deleteDirContents();
+                                                  await runGitOperation(LogType.DiscardDir, (event) => event, {"dirPath": null});
                                                 }
 
                                                 await uiSettingsManager.clearAll();
@@ -1097,7 +1425,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                 }
 
                                                 await uiSettingsManager.reinit();
-                                                await GitManager.clearQueue();
                                                 await reloadAll();
                                               });
                                             },
@@ -1124,7 +1451,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                                   await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
 
-                                                  await GitManager.clearQueue();
                                                   await reloadAll();
                                                 },
                                               );
@@ -1152,7 +1478,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           dropdownColor: colours.secondaryDark,
                                           onChanged: (value) async {
                                             if (value == null) return;
-                                            await GitManager.clearQueue();
                                             await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                             await uiSettingsManager.reinit();
                                             recentCommits.value.clear();
@@ -1208,8 +1533,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                   width: orientation == Orientation.portrait
                       ? null
                       : MediaQuery.of(context).size.width -
-                            (MediaQuery.of(context).systemGestureInsets.right == 48 || MediaQuery.of(context).systemGestureInsets.left == 48
-                                ? MediaQuery.of(context).systemGestureInsets.right + MediaQuery.of(context).systemGestureInsets.left
+                            (MediaQuery.of(context).systemGestureInsets.right > 0 || MediaQuery.of(context).systemGestureInsets.left > 0
+                                ? (MediaQuery.of(context).systemGestureInsets.left > MediaQuery.of(context).systemGestureInsets.right
+                                      ? (MediaQuery.of(context).systemGestureInsets.left - MediaQuery.of(context).systemGestureInsets.right)
+                                      : (MediaQuery.of(context).systemGestureInsets.right - MediaQuery.of(context).systemGestureInsets.left))
                                 : 0),
                   padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
                   child: Flex(
@@ -1351,11 +1678,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                               child: Stack(
                                                                                 children: [
                                                                                   AnimatedListView(
-                                                                                    key: UniqueKey(),
                                                                                     controller: recentCommitsController,
-                                                                                    items: items,
                                                                                     reverse: true,
+                                                                                    items: items,
                                                                                     isSameItem: (a, b) => a.reference == b.reference,
+                                                                                    removeDuration: Duration.zero,
+                                                                                    removeItemBuilder: (_, _) => SizedBox.shrink(),
                                                                                     itemBuilder: (BuildContext context, int index) {
                                                                                       final reference = items[index].reference;
 
@@ -1378,6 +1706,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                           key: Key(reference),
                                                                                           items[index],
                                                                                           index < items.length - 1 ? items[index + 1] : null,
+                                                                                          recentCommits,
                                                                                         ),
                                                                                       );
                                                                                     },
@@ -1531,14 +1860,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                         (index) => Row(
                                                                           crossAxisAlignment: CrossAxisAlignment.center,
                                                                           children: [
-                                                                            Text(
-                                                                              (branchNamesValue ?? [])[index].toUpperCase(),
-                                                                              style: TextStyle(
-                                                                                fontSize: textMD,
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: !(conflictingSnapshot.isEmpty)
-                                                                                    ? colours.tertiaryLight
-                                                                                    : colours.primaryLight,
+                                                                            Flexible(
+                                                                              child: Text(
+                                                                                (branchNamesValue ?? [])[index].toUpperCase(),
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                                style: TextStyle(
+                                                                                  fontSize: textMD,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  color: !(conflictingSnapshot.isEmpty)
+                                                                                      ? colours.tertiaryLight
+                                                                                      : colours.primaryLight,
+                                                                                ),
                                                                               ),
                                                                             ),
                                                                           ],
@@ -1551,7 +1883,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                               if (value == branchNameValue) return;
 
                                                                               await ConfirmBranchCheckoutDialog.showDialog(context, value, () async {
-                                                                                await GitManager.checkoutBranch(value);
+                                                                                await runGitOperation(LogType.CheckoutBranch, (event) => event, {
+                                                                                  "branchName": value,
+                                                                                });
                                                                               });
                                                                               await reloadAll();
                                                                             },
@@ -1590,9 +1924,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                               IconButton(
                                                                 onPressed: branchNamesValue?.contains(branchNameValue) == true
                                                                     ? () {
-                                                                        CreateBranchDialog.showDialog(context, (branchNameValue, basedOn) async {
-                                                                          await GitManager.createBranch(branchNameValue, basedOn);
-                                                                          await reloadAll();
+                                                                        CreateBranchDialog.showDialog(context, branchNameValue, branchNamesValue, (
+                                                                          branchNameValue,
+
+                                                                          basedOn,
+                                                                        ) async {
+                                                                          await runGitOperation(LogType.CreateBranch, (event) => event, {
+                                                                            "branchName": branchNameValue,
+                                                                            "basedOn": basedOn,
+                                                                          });
+                                                                          await syncOptionCompletionCallback();
                                                                         });
                                                                       }
                                                                     : null,
@@ -1656,12 +1997,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     await syncWrapper(
                                                                       () async {
                                                                         if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
-                                                                          await syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                          syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
                                                                         } else {
                                                                           await syncOptionsSnapshot.values.first.$2();
                                                                         }
                                                                       },
-                                                                      [t.syncAllChanges, t.syncNow].contains(
+                                                                      [
+                                                                        t.syncAllChanges,
+                                                                        t.syncNow,
+                                                                        t.switchToClientMode,
+                                                                        t.switchToSyncMode,
+                                                                      ].contains(
                                                                         syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
                                                                             ? lastSyncMethodSnapshot.data
                                                                             : syncOptionsSnapshot.keys.first,
@@ -1828,16 +2174,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                               ),
                                                             ],
                                                           ),
-                                                          //     ),
-                                                          //   ),
-                                                          // ),
                                                         ),
                                                         ...clientModeEnabledSnapshot.data != true
                                                             ? [
                                                                 SizedBox(width: spaceSM),
                                                                 IconButton(
                                                                   onPressed: () {
-                                                                    _restorableSettingsMain.present();
+                                                                    _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
                                                                   },
                                                                   style: ButtonStyle(
                                                                     backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
@@ -1960,7 +2303,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                                                 await syncWrapper(
                                                                   () async => await item.value.$2(),
-                                                                  [t.syncAllChanges, t.syncNow].contains(item.key),
+                                                                  [
+                                                                    t.syncAllChanges,
+                                                                    t.syncNow,
+                                                                    t.switchToClientMode,
+                                                                    t.switchToSyncMode,
+                                                                  ].contains(item.key),
                                                                 );
                                                               },
                                                               value: item.key,
@@ -2044,110 +2392,123 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           children: [
                                             ValueListenableBuilder(
                                               valueListenable: remoteUrlLink,
-                                              builder: (context, snapshot, child) => Expanded(
-                                                child: Stack(
-                                                  children: [
-                                                    Container(
-                                                      padding: EdgeInsets.zero,
-                                                      decoration: BoxDecoration(
-                                                        color: colours.secondaryDark,
-                                                        borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                      ),
-                                                      child: DropdownButton(
-                                                        borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                        padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
-                                                        onTap: () {
-                                                          if (demo) {
-                                                            ManualSyncDialog.showDialog(context, () async {}).then((_) => reloadAll());
-                                                            return;
-                                                          }
-                                                        },
-                                                        icon: Padding(
-                                                          padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                                          child: FaIcon(
-                                                            snapshot != null ? FontAwesomeIcons.caretDown : FontAwesomeIcons.solidCircleXmark,
-                                                            color: snapshot != null ? colours.secondaryLight : colours.primaryNegative,
-                                                            size: textLG,
+                                              builder: (context, snapshot, child) => FutureBuilder(
+                                                future: uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink),
+                                                builder: (context, fastRemoteUrlLinkSnapshot) {
+                                                  final remoteUrlLinkValue =
+                                                      fastRemoteUrlLinkSnapshot.data == null || fastRemoteUrlLinkSnapshot.data!.isEmpty == true
+                                                      ? snapshot
+                                                      : (fastRemoteUrlLinkSnapshot.data!.first, fastRemoteUrlLinkSnapshot.data!.last);
+                                                  return Expanded(
+                                                    child: Stack(
+                                                      children: [
+                                                        Container(
+                                                          padding: EdgeInsets.zero,
+                                                          decoration: BoxDecoration(
+                                                            color: colours.secondaryDark,
+                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
                                                           ),
-                                                        ),
-                                                        value: 0,
-                                                        isExpanded: true,
-                                                        underline: const SizedBox.shrink(),
-                                                        dropdownColor: colours.secondaryDark,
-                                                        onChanged: (value) async {},
-                                                        selectedItemBuilder: (context) => List.generate(
-                                                          remoteActions.length,
-                                                          (index) => Row(
-                                                            children: [
-                                                              Expanded(
-                                                                child: ExtendedText(
-                                                                  demo
-                                                                      ? "https://github.com/ViscousTests/TestObsidianVault.git"
-                                                                      : (snapshot == null ? t.repoNotFound : snapshot.$1),
-                                                                  maxLines: 1,
-                                                                  textAlign: TextAlign.left,
-                                                                  softWrap: false,
-                                                                  overflowWidget: TextOverflowWidget(
-                                                                    position: TextOverflowPosition.start,
-                                                                    child: Text(
-                                                                      "…",
+                                                          child: DropdownButton(
+                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                            padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
+                                                            onTap: () {
+                                                              if (demo) {
+                                                                ManualSyncDialog.showDialog(context).then((_) => reloadAll());
+                                                                return;
+                                                              }
+                                                            },
+                                                            icon: Padding(
+                                                              padding: EdgeInsets.symmetric(horizontal: spaceSM),
+                                                              child: FaIcon(
+                                                                remoteUrlLinkValue != null
+                                                                    ? FontAwesomeIcons.caretDown
+                                                                    : FontAwesomeIcons.solidCircleXmark,
+                                                                color: remoteUrlLinkValue != null ? colours.secondaryLight : colours.primaryNegative,
+                                                                size: textLG,
+                                                              ),
+                                                            ),
+                                                            value: 0,
+                                                            isExpanded: true,
+                                                            underline: const SizedBox.shrink(),
+                                                            dropdownColor: colours.secondaryDark,
+                                                            onChanged: (value) async {},
+                                                            selectedItemBuilder: (context) => List.generate(
+                                                              remoteActions.length,
+                                                              (index) => Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                    child: ExtendedText(
+                                                                      demo
+                                                                          ? "https://github.com/ViscousTests/TestObsidianVault.git"
+                                                                          : (remoteUrlLinkValue == null ? t.repoNotFound : remoteUrlLinkValue.$1),
+                                                                      maxLines: 1,
+                                                                      textAlign: TextAlign.left,
+                                                                      softWrap: false,
+                                                                      overflowWidget: TextOverflowWidget(
+                                                                        position: TextOverflowPosition.start,
+                                                                        child: Text(
+                                                                          "…",
+                                                                          style: TextStyle(
+                                                                            color: colours.tertiaryLight,
+                                                                            fontSize: textMD,
+                                                                            fontWeight: FontWeight.w400,
+                                                                          ),
+                                                                        ),
+                                                                      ),
                                                                       style: TextStyle(
-                                                                        color: colours.tertiaryLight,
+                                                                        color: remoteUrlLinkValue != null
+                                                                            ? colours.primaryLight
+                                                                            : colours.secondaryLight,
                                                                         fontSize: textMD,
                                                                         fontWeight: FontWeight.w400,
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                  style: TextStyle(
-                                                                    color: snapshot != null ? colours.primaryLight : colours.secondaryLight,
-                                                                    fontSize: textMD,
-                                                                    fontWeight: FontWeight.w400,
-                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            items: List.generate(
+                                                              remoteActions.length,
+                                                              (index) => DropdownMenuItem(
+                                                                value: index,
+                                                                onTap: () async {
+                                                                  await remoteActions[index].$2(context, remoteUrlLinkValue);
+                                                                  await reloadAll();
+                                                                },
+                                                                child: Row(
+                                                                  children: [
+                                                                    remoteActions[index].$1.$2,
+                                                                    SizedBox(width: spaceSM),
+                                                                    Text(
+                                                                      remoteActions[index].$1.$1.toUpperCase(),
+                                                                      style: TextStyle(
+                                                                        fontSize: textXS,
+                                                                        color: colours.primaryLight,
+                                                                        fontWeight: FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        items: List.generate(
-                                                          remoteActions.length,
-                                                          (index) => DropdownMenuItem(
-                                                            value: index,
-                                                            onTap: () async {
-                                                              await remoteActions[index].$2(context, snapshot);
-                                                              await reloadAll();
-                                                            },
-                                                            child: Row(
-                                                              children: [
-                                                                remoteActions[index].$1.$2,
-                                                                SizedBox(width: spaceSM),
-                                                                Text(
-                                                                  remoteActions[index].$1.$1.toUpperCase(),
-                                                                  style: TextStyle(
-                                                                    fontSize: textXS,
-                                                                    color: colours.primaryLight,
-                                                                    fontWeight: FontWeight.bold,
-                                                                  ),
-                                                                ),
-                                                              ],
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      top: spaceXXXXS / 2,
-                                                      left: spaceSM,
-                                                      child: Text(
-                                                        t.remote.toUpperCase(),
-                                                        style: TextStyle(
-                                                          color: colours.tertiaryLight,
-                                                          fontSize: textXXS,
-                                                          fontWeight: FontWeight.w900,
+                                                        Positioned(
+                                                          top: spaceXXXXS / 2,
+                                                          left: spaceSM,
+                                                          child: Text(
+                                                            t.remote.toUpperCase(),
+                                                            style: TextStyle(
+                                                              color: colours.tertiaryLight,
+                                                              fontSize: textXXS,
+                                                              fontWeight: FontWeight.w900,
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                             SizedBox(width: uiSettingsManager.gitDirPath?.$2 == null ? spaceSM : 0),
@@ -2337,11 +2698,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                   await uiSettingsManager.setGitDirPath("");
                                                                   branchName.value = null;
                                                                   remoteUrlLink.value = null;
+                                                                  recommendedAction.value = null;
                                                                   branchNames.value = [];
                                                                   recentCommits.value = [];
                                                                   conflicting.value = [];
                                                                   await updateSyncOptions();
-                                                                  await GitManager.clearQueue();
                                                                   if (mounted) setState(() {});
                                                                 },
                                                                 constraints: BoxConstraints(),
@@ -2433,7 +2794,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                     await uiSettingsManager.getString(StorageKey.setman_gitDirPath),
                                                     (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true),
                                                     (path) async {
-                                                      await Navigator.of(context).push(createFileExplorerRoute(path)).then((_) => reloadAll());
+                                                      await Navigator.of(
+                                                        context,
+                                                      ).push(createFileExplorerRoute(recentCommits.value, path)).then((_) => reloadAll());
                                                     },
                                                   );
                                                 },
@@ -2484,7 +2847,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             onPressed: () async {
                                                               gitLfsExpanded = !gitLfsExpanded;
                                                               if (mounted) setState(() {});
-                                                              await GitManager.getAndExcludeLfsFilePaths();
+                                                              await runGitOperation(
+                                                                LogType.GetAndExcludeLfs,
+                                                                (event) => event?["result"].map<String>((path) => "$path").toList(),
+                                                                null,
+                                                              );
                                                               if (mounted) setState(() {});
                                                             },
                                                             iconAlignment: IconAlignment.end,
@@ -2685,7 +3052,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               Expanded(
                                                 child: TextButton.icon(
                                                   onPressed: () async {
-                                                    _restorableSettingsMain.present();
+                                                    _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
                                                   },
                                                   iconAlignment: IconAlignment.end,
                                                   style: ButtonStyle(
