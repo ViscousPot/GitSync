@@ -65,6 +65,7 @@ extension CommitJson on GitManagerRs.Commit {
 }
 
 Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? event) transformer, [Map<String, dynamic>? arg]) async {
+  if (!await FlutterBackgroundService().isRunning()) await FlutterBackgroundService().startService();
   FlutterBackgroundService().invoke(type.name, arg);
   final event = await FlutterBackgroundService().on(type.name).first;
   return transformer(event);

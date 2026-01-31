@@ -96,6 +96,8 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      DartPluginRegistrant.ensureInitialized();
+
       await RustLib.init();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
@@ -169,8 +171,6 @@ void callbackDispatcher() async {
 
 @pragma('vm:entry-point')
 void onServiceStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-
   checkPreviousCrash(true);
 
   serviceInstance = service;
