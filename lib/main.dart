@@ -901,8 +901,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     ]);
   }
 
+  List<String> getStringRecentCommits() {
+    return recentCommits.value.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList();
+  }
+
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
-    _restorableGlobalSettings.present({"recentCommits": recentCommits.value, "onboarding": true});
+    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
     await repoManager.setOnboardingStep(-1);
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
@@ -1227,7 +1231,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
-            _restorableSettingsMain.present({"recentCommits": recentCommits, "showcaseAuthorDetails": true});
+            _restorableSettingsMain.present({"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true});
           },
           () async {
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
@@ -1289,7 +1293,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
                   onPressed: () async {
-                    _restorableGlobalSettings.present({"recentCommits": recentCommits.value});
+                    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
                     widget.reloadLocale();
                   },
                   icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
@@ -2179,7 +2183,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 SizedBox(width: spaceSM),
                                                                 IconButton(
                                                                   onPressed: () {
-                                                                    _restorableSettingsMain.present({"recentCommits": recentCommits});
+                                                                    _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
                                                                   },
                                                                   style: ButtonStyle(
                                                                     backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
@@ -3051,7 +3055,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               Expanded(
                                                 child: TextButton.icon(
                                                   onPressed: () async {
-                                                    _restorableSettingsMain.present({"recentCommits": recentCommits});
+                                                    _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
                                                   },
                                                   iconAlignment: IconAlignment.end,
                                                   style: ButtonStyle(

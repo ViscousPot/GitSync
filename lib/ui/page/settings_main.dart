@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
@@ -615,8 +617,12 @@ Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        ShowCaseWidget(builder: (context) => SettingsMain(args["recentCommits"], showcaseAuthorDetails: args["showcaseAuthorDetails"] == true)),
+    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
+      builder: (context) => SettingsMain(
+        args["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
+        showcaseAuthorDetails: args["showcaseAuthorDetails"] == true,
+      ),
+    ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;
