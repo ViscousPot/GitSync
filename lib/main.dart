@@ -404,7 +404,7 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.GetSubmodules.name).listen((event) async {
-    if (event == null || event["dir"] == null) return;
+    if (event == null) return;
     final result = await GitManager.getSubmodulePaths(event["dir"]);
     service.invoke(LogType.GetSubmodules.name, {"result": result.map<String>((branch) => "$branch").toList()});
   });
@@ -653,6 +653,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
     await updateSyncOptions();
+    if (token != _reloadToken) return;
     final newConflicting = await runGitOperation<List<String>>(
       LogType.ConflictingFiles,
       (event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList(),
@@ -1206,7 +1207,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       gitLfsExpanded = false;
-      await updateRecommendedAction();
       await reloadAll();
     }
     if (state == AppLifecycleState.paused) {
