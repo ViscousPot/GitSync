@@ -1,7 +1,7 @@
 package com.viscouspot.gitsync.widget
 
-import HomeWidgetGlanceState
-import HomeWidgetGlanceStateDefinition
+import es.antonborri.home_widget.HomeWidgetGlanceState
+import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
 import es.antonborri.home_widget.HomeWidgetBackgroundIntent
 import es.antonborri.home_widget.actionStartActivity
 import android.content.Context
@@ -51,77 +51,80 @@ class ManualSyncAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("manualsyncwidget://click?homeWidget"))
+        val backgroundIntent =
+            HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("manualsyncwidget://click?homeWidget"))
         backgroundIntent.send()
     }
 }
 
 class ManualSyncWidget : GlanceAppWidget() {
 
-  override val stateDefinition: GlanceStateDefinition<*>?
-    get() = HomeWidgetGlanceStateDefinition()
+    override val stateDefinition: GlanceStateDefinition<*>?
+        get() = HomeWidgetGlanceStateDefinition()
 
-  override suspend fun provideGlance(context: Context, id: GlanceId) {
-    provideContent {
-      GlanceContent(context)
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        provideContent {
+            GlanceContent(context)
+        }
     }
-  }
 
-  override val sizeMode: SizeMode = SizeMode.Exact
+    override val sizeMode: SizeMode = SizeMode.Exact
 
-  @Composable
-  private fun GlanceContent(context: Context) {
-    val size = LocalSize.current
-    val width = size.width
+    @Composable
+    private fun GlanceContent(context: Context) {
+        val size = LocalSize.current
+        val width = size.width
 
-    val showLongText = width >= 310.dp
-    val showShortText = width >= 140.dp
+        val showLongText = width >= 310.dp
+        val showShortText = width >= 140.dp
 
-    Row(
-        modifier = GlanceModifier
-            .fillMaxSize()
-            .background(Color(0xFF141414))
-            .clickable(onClick = actionStartActivity<com.viscouspot.gitsync.MainActivity>(
-                context,
-                Uri.parse("manualsyncwidget://click?homeWidget")
-            )),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = GlanceModifier.padding(end = if (showShortText) 16.dp else 0.dp),
-            contentAlignment = Alignment.Center
+        Row(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(Color(0xFF141414))
+                .clickable(
+                    onClick = actionStartActivity<com.viscouspot.gitsync.MainActivity>(
+                        context,
+                        Uri.parse("manualsyncwidget://click?homeWidget")
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                provider = ImageProvider(R.drawable.manual_sync_small),
-                contentDescription = "Force Sync",
-                colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                contentScale = ContentScale.Fit
-            )
-        }
-        
-        if (showShortText && !showLongText) {
-            Text(
-                text = "COMMIT",
-                modifier = GlanceModifier.padding(end = 8.dp),
-                style = TextStyle(
-                    color = ColorProvider(Color.White),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+            Box(
+                modifier = GlanceModifier.padding(end = if (showShortText) 16.dp else 0.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    provider = ImageProvider(R.drawable.manual_sync_small),
+                    contentDescription = "Force Sync",
+                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                    contentScale = ContentScale.Fit
                 )
-            )
-        }
-        
-        if (showLongText) {
-            Text(
-                text = "MANUAL SYNC",
-                style = TextStyle(
-                    color = ColorProvider(Color.White),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+            }
+
+            if (showShortText && !showLongText) {
+                Text(
+                    text = "COMMIT",
+                    modifier = GlanceModifier.padding(end = 8.dp),
+                    style = TextStyle(
+                        color = ColorProvider(Color.White),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
+            }
+
+            if (showLongText) {
+                Text(
+                    text = "MANUAL SYNC",
+                    style = TextStyle(
+                        color = ColorProvider(Color.White),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
         }
     }
- }
 }
