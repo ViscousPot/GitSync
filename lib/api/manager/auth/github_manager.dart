@@ -40,7 +40,10 @@ class GithubManager extends GitProviderManager {
           final emails = (json.decode(emailResp.body) as List);
           final primaryOrFirst = emails.firstWhere(
             (e) => e["visibility"] != "private" && e["primary"] == true,
-            orElse: () => emails.firstWhere((e) => e["primary"] == true, orElse: () => emails[0]),
+            orElse: () => emails.firstWhere(
+              (e) => e["visibility"] != "private",
+              orElse: () => emails.firstWhere((e) => e["primary"] == true, orElse: () => emails[0]),
+            ),
           );
           email = primaryOrFirst?["email"];
         }
