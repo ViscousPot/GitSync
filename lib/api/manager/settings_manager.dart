@@ -83,7 +83,7 @@ class SettingsManager extends Storage {
   (String, String)? gitDirPath;
   Future<void> setGitDirPath(String dir, [bookmark = false]) async {
     await setString(StorageKey.setman_gitDirPath, dir);
-    gitDirPath = await getGitDirPath();
+    if (!bookmark) gitDirPath = await getGitDirPath();
 
     if (!bookmark) {
       await setStringNullable(StorageKey.setman_branchName, null);
