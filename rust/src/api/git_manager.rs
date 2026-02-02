@@ -264,7 +264,7 @@ async fn run_with_lock<T>(
                 } else {
                     let parts: Vec<&str> = entry.split(':').collect();
                     if parts.len() >= 2 {
-                        parts[0] != "0" || parts[1] != fn_name
+                        parts[0] != "1" || parts[1] != fn_name
                     } else {
                         true
                     }
