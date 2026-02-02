@@ -588,6 +588,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   bool gitLfsExpanded = false;
   bool demoConflicting = false;
 
+  bool devTools = kDebugMode;
+  late Future<List<String>> queueFuture = (() async => File(
+    '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+  ).readAsLines())();
+  Timer? queueTimer;
+
   Timer? autoRefreshTimer;
   StreamSubscription<List<ConnectivityResult>>? networkSubscription;
   late AnchorScrollController recentCommitsController = AnchorScrollController(
@@ -747,10 +753,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       t.syncNow: (FontAwesomeIcons.solidCircleDown, () async => FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC)),
     });
 
-    checkPreviousCrash();
+    initAsync(() async {
+      if (kDebugMode) {
+        queueTimer?.cancel();
+        queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
+          queueFuture = File(
+            '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+          ).readAsLines();
+          setState(() {});
+        });
+      }
+    });
 
     initAsync(() async {
-      reloadAll();
+      await checkPreviousCrash();
+    });
+
+    initAsync(() async {
+      await reloadAll();
     });
 
     initAsync(() async {
@@ -1279,6 +1299,33 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               statusBarIconBrightness: Brightness.light,
               systemNavigationBarIconBrightness: Brightness.light,
             ),
+            title: Padding(
+              padding: EdgeInsets.only(left: spaceMD, bottom: spaceXXS),
+              child: GestureDetector(
+                onTap: kDebugMode
+                    ? () {
+                        devTools = !devTools;
+                        if (devTools) {
+                          queueTimer?.cancel();
+                          queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
+                            queueFuture = File(
+                              '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+                            ).readAsLines();
+                            setState(() {});
+                          });
+                        } else {
+                          queueTimer?.cancel();
+                        }
+                        setState(() {});
+                      }
+                    : null,
+                child: Text(
+                  widget.title,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
             actions: [
               CustomShowcase(
                 globalKey: _globalSettingsKey,
@@ -1515,14 +1562,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               ),
               SizedBox(width: spaceMD),
             ],
-            title: Padding(
-              padding: EdgeInsets.only(left: spaceMD, bottom: spaceXXS),
-              child: Text(
-                widget.title,
-                textAlign: TextAlign.right,
-                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
-              ),
-            ),
           ),
           body: BetterOrientationBuilder(
             builder: (context, orientation) => SingleChildScrollView(
@@ -3243,6 +3282,56 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                 : SizedBox.shrink(),
           ),
         ),
+        devTools
+            ? Positioned(
+                left: spaceLG,
+                bottom: spaceLG,
+                child: Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colours.tertiaryDark,
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      border: BoxBorder.all(color: colours.secondaryDark, width: 2),
+                    ),
+                    child: FutureBuilder(
+                      future: queueFuture,
+                      builder: (context, queueSnapshot) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: (queueSnapshot.data == null || queueSnapshot.data!.isEmpty ? ["-:QUEUE EMPTY:EMPTY QUEUE"] : queueSnapshot.data!)
+                            .map((item) {
+                              final parts = item.split(":");
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: spaceLG,
+                                    child: Center(
+                                      child: Text(
+                                        "${parts[0]}".trim(),
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, decoration: TextDecoration.none),
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    "${parts[1]}".trim(),
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                                  ),
+                                  Text(
+                                    "${parts[2]}".trim(),
+                                    style: TextStyle(color: colours.secondaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                                  ),
+                                ],
+                              );
+                            })
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : SizedBox.shrink(),
         Positioned.fill(
           child: ValueListenableBuilder(
             valueListenable: fsLoader,
