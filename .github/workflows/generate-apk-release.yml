@@ -87,7 +87,7 @@ jobs:
           buildToolsVersion: 34.0.0
 
       - name: Format App List
-        id: signed_files
+        id: signed_file_artifacts
         run: |
           {
             echo "signedFiles<<SIGNED_FILES_EOF_DELIMETER"
@@ -95,14 +95,19 @@ jobs:
             echo "SIGNED_FILES_EOF_DELIMETER"
           } >> "$GITHUB_OUTPUT"
 
-
       - name: Upload Release Build to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
           path: |
-            ${{ steps.signed_files.outputs.signedFiles }}
+            ${{ steps.signed_file_artifacts.outputs.signedFiles }}
             !*-release.apk
+
+      - uses: jungwinter/split@v2
+        id: signed_files
+        with:
+          msg: ${{ steps.sign_app.outputs.signedFiles }}
+          separator: ":"
 
       - name: Build Changelog
         id: changelog
