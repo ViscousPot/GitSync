@@ -15,12 +15,12 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
   FlutterBackgroundService().on("cloneTaskCallback").listen((event) async {
     if (event == null) return;
     task = event["task"];
-    setState?.call(() {});
+    if (context.mounted) setState?.call(() {});
   });
   FlutterBackgroundService().on("cloneProgressCallback").listen((event) async {
     if (event == null) return;
     progress = event["progress"] / 100.0;
-    setState?.call(() {});
+    if (context.mounted) setState?.call(() {});
   });
 
   runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir}).then((result) {
@@ -77,6 +77,4 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
       ),
     ),
   );
-
-  // return (setTask, setProgress);
 }
