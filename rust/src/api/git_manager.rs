@@ -305,7 +305,52 @@ async fn run_with_lock<T>(
 
     flock.unlock().unwrap();
 
+    const QUEUE_TIMEOUT_SECS: u64 = 600;
+    let start_time = std::time::Instant::now();
+
     loop {
+        if start_time.elapsed().as_secs() >= QUEUE_TIMEOUT_SECS {
+            let mut timeout_flock = match Flock::lock(
+                fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(&queue_file_path)
+                    .unwrap(),
+                FlockArg::LockExclusive,
+            ) {
+                Ok(f) => f,
+                Err((_file, err)) => {
+                    return Err(git2::Error::from_str(&format!(
+                        "Timeout waiting for queue position, and failed to acquire lock for cleanup: {}",
+                        err
+                    )));
+                }
+            };
+
+            let mut queue_contents = String::new();
+            timeout_flock.read_to_string(&mut queue_contents).unwrap();
+
+            let queue_entries: Vec<_> = queue_contents
+                .split('\n')
+                .filter(|entry| {
+                    *entry != identifier && (!entry.is_empty() || !entry.trim().is_empty())
+                })
+                .collect();
+
+            timeout_flock.seek(SeekFrom::Start(0)).unwrap();
+            timeout_flock.set_len(0).unwrap();
+            timeout_flock
+                .write_all(queue_entries.join("\n").as_bytes())
+                .unwrap();
+
+            timeout_flock.unlock().unwrap();
+
+            return Err(git2::Error::from_str(&format!(
+                "Timeout after {} seconds waiting for queue position",
+                QUEUE_TIMEOUT_SECS
+            )));
+        }
+
         let mut read_flock = match Flock::lock(
             fs::OpenOptions::new()
                 .read(true)
