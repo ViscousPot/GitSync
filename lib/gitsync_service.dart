@@ -263,6 +263,8 @@ class GitsyncService {
         isScheduled = false;
         debouncedSync(repomanRepoindex);
       }
+
+      await GitManager.getRecentCommits(3);
     } catch (e, st) {
       Logger.logError(LogType.SyncException, e, st);
     }
