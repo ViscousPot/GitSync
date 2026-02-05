@@ -587,9 +587,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   bool demoConflicting = false;
 
   bool devTools = kDebugMode;
-  late Future<List<String>> queueFuture = (() async => File(
-    '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
-  ).readAsLines())();
+  late ValueNotifier<List<String>> queueValue = ValueNotifier([]);
   Timer? queueTimer;
 
   Timer? autoRefreshTimer;
@@ -757,10 +755,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       if (kDebugMode) {
         queueTimer?.cancel();
         queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
-          queueFuture = File(
+          queueValue.value = await File(
             '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
           ).readAsLines();
-          setState(() {});
         });
       }
     });
@@ -1297,10 +1294,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                         if (devTools) {
                           queueTimer?.cancel();
                           queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
-                            queueFuture = File(
+                            queueValue.value = await File(
                               '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
                             ).readAsLines();
-                            setState(() {});
                           });
                         } else {
                           queueTimer?.cancel();
@@ -3082,39 +3078,37 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                       borderRadius: BorderRadius.all(cornerRadiusSM),
                       border: BoxBorder.all(color: colours.secondaryDark, width: 2),
                     ),
-                    child: FutureBuilder(
-                      future: queueFuture,
-                      builder: (context, queueSnapshot) => Column(
+                    child: ValueListenableBuilder(
+                      valueListenable: queueValue,
+                      builder: (context, queue, child) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: (queueSnapshot.data == null || queueSnapshot.data!.isEmpty ? ["-:QUEUE EMPTY:EMPTY QUEUE"] : queueSnapshot.data!)
-                            .map((item) {
-                              final parts = item.split(":");
+                        children: (queue.isEmpty ? ["-:QUEUE EMPTY:EMPTY QUEUE"] : queue).map((item) {
+                          final parts = item.split(":");
 
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: spaceLG,
-                                    child: Center(
-                                      child: Text(
-                                        "${parts[0]}".trim(),
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, decoration: TextDecoration.none),
-                                      ),
-                                    ),
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: spaceLG,
+                                child: Center(
+                                  child: Text(
+                                    "${parts[0]}".trim(),
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, decoration: TextDecoration.none),
                                   ),
-                                  Text(
-                                    "${parts[1]}".trim(),
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, decoration: TextDecoration.none),
-                                  ),
-                                  Text(
-                                    "${parts[2]}".trim(),
-                                    style: TextStyle(color: colours.secondaryLight, fontSize: textMD, decoration: TextDecoration.none),
-                                  ),
-                                ],
-                              );
-                            })
-                            .toList(),
+                                ),
+                              ),
+                              Text(
+                                "${parts[1]}".trim(),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                              ),
+                              Text(
+                                "${parts[2]}".trim(),
+                                style: TextStyle(color: colours.secondaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
