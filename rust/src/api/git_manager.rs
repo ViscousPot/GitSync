@@ -381,49 +381,56 @@ async fn run_with_lock<T>(
         std::thread::sleep(std::time::Duration::from_millis(100));
     }
 
-    let result = function().await;
-
-    let mut flock = match Flock::lock(
-        fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(&queue_file_path)
-            .unwrap(),
-        FlockArg::LockExclusive,
-    ) {
-        Ok(flock) => flock,
-        Err((_file, err)) => {
-            return Err(git2::Error::from_str(&format!(
-                "Error locking file: {}",
-                err
-            )))
-        }
-    };
-
-    let mut queue_contents = String::new();
-
-    flock.read_to_string(&mut queue_contents).unwrap();
-
-    let mut queue_entries: Vec<_> = queue_contents
-        .split('\n')
-        .filter(|entry| !entry.is_empty() || !entry.trim().is_empty())
-        .collect();
-
-    if queue_entries[0] == identifier {
-        queue_entries.remove(0);
-    } else {
-        return Err(git2::Error::from_str(&format!(
-            "Identifier not found in queue"
-        )));
+    struct QueueCleanupGuard {
+        queue_file_path: String,
+        identifier: String,
     }
 
-    flock.seek(SeekFrom::Start(0)).unwrap();
-    flock.set_len(0).unwrap(); // Truncate the file
-    flock
-        .write_all(queue_entries.join("\n").as_bytes())
-        .unwrap();
+    impl Drop for QueueCleanupGuard {
+        fn drop(&mut self) {
+            let cleanup = || -> Result<(), Box<dyn std::error::Error>> {
+                let mut flock = match Flock::lock(
+                    fs::OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .open(&self.queue_file_path)?,
+                    FlockArg::LockExclusive,
+                ) {
+                    Ok(flock) => flock,
+                    Err((_file, err)) => return Err(Box::new(err)),
+                };
 
-    flock.unlock().unwrap();
+                let mut queue_contents = String::new();
+                flock.read_to_string(&mut queue_contents)?;
+
+                let queue_entries: Vec<_> = queue_contents
+                    .split('\n')
+                    .filter(|entry| {
+                        *entry != self.identifier && (!entry.is_empty() || !entry.trim().is_empty())
+                    })
+                    .collect();
+
+                flock.seek(SeekFrom::Start(0))?;
+                flock.set_len(0)?;
+                flock.write_all(queue_entries.join("\n").as_bytes())?;
+                if let Err((_, err)) = flock.unlock() {
+                    return Err(Box::new(err) as Box<dyn std::error::Error>);
+                }
+                Ok(())
+            };
+
+            if let Err(e) = cleanup() {
+                eprintln!("Warning: failed to cleanup queue entry: {}", e);
+            }
+        }
+    }
+
+    let _guard = QueueCleanupGuard {
+        queue_file_path: queue_file_path.clone(),
+        identifier: identifier.clone(),
+    };
+
+    let result = function().await;
 
     Ok(result)
 }
