@@ -408,6 +408,11 @@ void onServiceStart(ServiceInstance service) async {
     service.invoke(LogType.GetSubmodules.name, {"result": result.map<String>((branch) => "$branch").toList()});
   });
 
+  service.on(LogType.HasGitFilters.name).listen((event) async {
+    final result = await GitManager.hasGitFilters(event?["repomanRepoindex"]);
+    service.invoke(LogType.HasGitFilters.name, {"result": result});
+  });
+
   service.on(LogType.DownloadChanges.name).listen((event) async {
     if (event == null) return;
     final result = await GitManager.downloadChanges(event["repomanRepoindex"], () => service.invoke("downloadChanges-syncCallback"));
@@ -640,6 +645,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   ValueNotifier<List<String>> branchNames = ValueNotifier([]);
   ValueNotifier<Map<String, (IconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
+  ValueNotifier<bool> hasGitFilters = ValueNotifier(false);
   RestorableBool mergeConflictVisible = RestorableBool(true);
 
   int _reloadToken = 0;
@@ -672,6 +678,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     );
     if (token != _reloadToken) return;
     branchNames.value = newBranchNames;
+    final newHasGitFilters = await runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
+    if (token != _reloadToken) return;
+    hasGitFilters.value = newHasGitFilters;
     await updateRecommendedAction();
     if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
@@ -3006,26 +3015,60 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               ),
             ),
           ),
-          bottomNavigationBar: FutureBuilder(
-            future: hasNetworkConnection(),
-            builder: (context, snapshot) => snapshot.data == false
-                ? Container(
-                    decoration: BoxDecoration(color: colours.tertiaryNegative),
-                    padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: t.youreOffline,
-                            style: TextStyle(fontWeight: FontWeight.bold),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: hasGitFilters,
+                builder: (context, hasFilters, child) => !hasFilters
+                    ? SizedBox.shrink()
+                    : GestureDetector(
+                        onTap: () => launchUrl(Uri.parse(playStoreLink)),
+                        child: Container(
+                          decoration: BoxDecoration(color: colours.tertiaryInfo),
+                          padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
+                          child: Center(
+                            child: Text.rich(
+                              textAlign: TextAlign.center,
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: t.unsupportedGitAttributes,
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(text: " "),
+                                  TextSpan(text: t.tapToOpenPlayStore),
+                                ],
+                              ),
+                            ),
                           ),
-                          TextSpan(text: " "),
-                          TextSpan(text: t.someFeaturesMayNotWork),
-                        ],
+                        ),
                       ),
-                    ),
-                  )
-                : SizedBox.shrink(),
+              ),
+              FutureBuilder(
+                future: hasNetworkConnection(),
+                builder: (context, snapshot) => snapshot.data == false
+                    ? Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(color: colours.tertiaryNegative),
+                        padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
+                        child: Text.rich(
+                          textAlign: TextAlign.center,
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: t.youreOffline,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(text: " "),
+                              TextSpan(text: t.someFeaturesMayNotWork),
+                            ],
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
         devTools

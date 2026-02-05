@@ -658,6 +658,7 @@ enum LogType {
   discardGitIndex,
   discardFetchHead,
   getSubmodules,
+  hasGitFilters,
   downloadChanges,
   uploadChanges,
 }

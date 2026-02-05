@@ -912,6 +912,16 @@ class GitManager {
     });
   }
 
+  static Future<bool> hasGitFilters([int? repomanRepoindex]) async {
+    return await _runWithLock(priority: 2, GitManagerRs.boolRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.HasGitFilters, (dirPath) async {
+          final file = File('$dirPath/$gitAttributesPath');
+          if (!file.existsSync()) return false;
+          final contents = file.readAsStringSync();
+          return RegExp(r'(filter|diff|merge)=').hasMatch(contents);
+        }) ??
+        false;
+  }
+
   static Future<List<String>> getSubmodulePaths(String repoPath) async {
     final repoIndex = await _repoIndex;
     return await _runWithLock(priority: 2, GitManagerRs.stringListRunWithLock, repoIndex, LogType.GetSubmodules, (dirPath) async {

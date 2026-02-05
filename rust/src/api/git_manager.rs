@@ -84,6 +84,7 @@ pub enum LogType {
     DiscardGitIndex,
     DiscardFetchHead,
     GetSubmodules,
+    HasGitFilters,
     DownloadChanges,
     UploadChanges,
 }

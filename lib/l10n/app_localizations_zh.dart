@@ -1139,6 +1139,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get someFeaturesMayNotWork => '某些功能可能无法正常工作。';
 
   @override
+  String get unsupportedGitAttributes => 'This repo uses git features only available in store versions.';
+
+  @override
+  String get tapToOpenPlayStore => 'Tap to update.';
+
+  @override
   String get ongoingMergeConflict => '存在合并冲突';
 
   @override

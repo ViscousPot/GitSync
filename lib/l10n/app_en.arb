@@ -427,6 +427,8 @@
     "troubleshooting": "Troubleshooting",
     "youreOffline": "You're offline.",
     "someFeaturesMayNotWork": "Some features may not work.",
+    "unsupportedGitAttributes": "This repo uses git features only available in store versions.",
+    "tapToOpenPlayStore": "Tap to update.",
     "ongoingMergeConflict": "Ongoing merge conflict",
     "enableAccessibilityService": "Please enable GitSync under \"Installed apps\"",
     "networkUnavailable": "Network unavailable!",

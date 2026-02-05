@@ -22,6 +22,7 @@ const String gitFetchHeadPath = ".git/FETCH_HEAD";
 const String gitMergeHeadPath = ".git/MERGE_HEAD";
 const String gitMergeMsgPath = ".git/MERGE_MSG";
 const String gitInfoExcludePath = ".git/info/exclude";
+const String gitAttributesPath = ".gitattributes";
 
 // Bug Notification
 const String reportABug = "Report a Bug";
@@ -97,6 +98,7 @@ const String githubIssueTemplate =
     "https://www.github.com/ViscousPot/GitSync/issues/new?template=BUG_REPORT.yaml&title=[Bug]:%20(%s)%%20Application%%20Error!&labels=%s,bug&logs=%s";
 const String release1708Link = "https://github.com/ViscousPot/GitSync/releases/tag/v1.708";
 const String githubAppsLink = "https://github.com/apps/git-sync-viscouspotential";
+const String playStoreLink = "https://play.google.com/store/apps/details?id=com.viscouspot.gitsync";
 const String githubInstallationsLink = "https://github.com/settings/installations/%s";
 
 // Constants

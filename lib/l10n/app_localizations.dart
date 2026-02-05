@@ -2348,6 +2348,18 @@ abstract class AppLocalizations {
   /// **'Some features may not work.'**
   String get someFeaturesMayNotWork;
 
+  /// No description provided for @unsupportedGitAttributes.
+  ///
+  /// In en, this message translates to:
+  /// **'This repo uses git features only available in store versions.'**
+  String get unsupportedGitAttributes;
+
+  /// No description provided for @tapToOpenPlayStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to update.'**
+  String get tapToOpenPlayStore;
+
   /// No description provided for @ongoingMergeConflict.
   ///
   /// In en, this message translates to:

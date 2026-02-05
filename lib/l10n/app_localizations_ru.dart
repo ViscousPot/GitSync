@@ -1152,6 +1152,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get someFeaturesMayNotWork => 'Некоторые функции могут не работать.';
 
   @override
+  String get unsupportedGitAttributes => 'This repo uses git features only available in store versions.';
+
+  @override
+  String get tapToOpenPlayStore => 'Tap to update.';
+
+  @override
   String get ongoingMergeConflict => 'Текущий конфликт слияния';
 
   @override
