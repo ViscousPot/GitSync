@@ -157,7 +157,7 @@ class GitsyncService {
         isSyncing = false;
         return;
       }
-      if ((await GitManager.getConflicting(repomanRepoindex)).isNotEmpty) {
+      if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
         Fluttertoast.showToast(msg: s.ongoingMergeConflict, toastLength: Toast.LENGTH_SHORT, gravity: null);
         isScheduled = false;
         isSyncing = false;
@@ -184,7 +184,7 @@ class GitsyncService {
         bool synced = false;
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
-        final recommendedAction = await GitManager.getRecommendedAction();
+        final recommendedAction = await GitManager.getRecommendedAction(3);
 
         if (optimisedSyncFlag && recommendedAction == null) return;
 

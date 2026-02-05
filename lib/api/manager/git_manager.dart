@@ -319,9 +319,9 @@ class GitManager {
     );
   }
 
-  static Future<int?> getRecommendedAction() async {
+  static Future<int?> getRecommendedAction([int priority = 1]) async {
     final repoIndex = await _repoIndex;
-    return await _runWithLock(priority: 1, GitManagerRs.intRunWithLock, repoIndex, LogType.RecommendedAction, (dirPath) async {
+    return await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, repoIndex, LogType.RecommendedAction, (dirPath) async {
       try {
         final result = await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
@@ -490,9 +490,9 @@ class GitManager {
     )).map((item) => CommitJson.fromJson(jsonDecode(stringToBase64.decode(item)))).toList();
   }
 
-  static Future<List<GitManagerRs.Commit>> getRecentCommits() async {
+  static Future<List<GitManagerRs.Commit>> getRecentCommits([priority = 1]) async {
     final repoIndex = await _repoIndex;
-    final result = await _runWithLock(priority: 1, GitManagerRs.commitListRunWithLock, repoIndex, LogType.RecentCommits, (dirPath) async {
+    final result = await _runWithLock(priority: priority, GitManagerRs.commitListRunWithLock, repoIndex, LogType.RecentCommits, (dirPath) async {
       try {
         return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), log: _logWrapper);
       } catch (e, stackTrace) {
@@ -515,9 +515,9 @@ class GitManager {
     return result ?? <GitManagerRs.Commit>[];
   }
 
-  static Future<List<String>> getConflicting([int? repomanRepoindex]) async {
+  static Future<List<String>> getConflicting([int? repomanRepoindex, int priority = 1]) async {
     final result =
-        await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ConflictingFiles, (
+        await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ConflictingFiles, (
           dirPath,
         ) async {
           try {
