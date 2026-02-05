@@ -57,7 +57,6 @@ enum StorageKey<T> {
   setman_githubScopedOauth<bool>(name: "githubScopedOauth", defaultValue: false),
 
   // Git Manager
-  setman_lfsFilePaths<List<String>>(name: "lfsFilePaths", defaultValue: []),
   setman_recommendedAction<int?>(name: "recommendedAction", defaultValue: null),
   setman_recentCommits<List<String>>(name: "recentCommits", defaultValue: []),
   setman_conflicting<List<String>>(name: "conflicting", defaultValue: []),

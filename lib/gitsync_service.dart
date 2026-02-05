@@ -141,7 +141,6 @@ class GitsyncService {
   Future<void> _sync(int repomanRepoindex, [bool forced = false]) async {
     try {
       isSyncing = true;
-      await GitManager.getAndExcludeLfsFilePaths(repomanRepoindex);
 
       final settingsManager = SettingsManager();
       await settingsManager.reinit(repoIndex: repomanRepoindex);

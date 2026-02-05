@@ -75,7 +75,6 @@ enum LogType {
   DiscardGitIndex,
   DiscardFetchHead,
   GetSubmodules,
-  GetAndExcludeLfs,
   DownloadChanges,
   UploadChanges,
 }

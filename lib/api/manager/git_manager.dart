@@ -924,54 +924,6 @@ class GitManager {
         [];
   }
 
-  static Future<List<String>> getAndExcludeLfsFilePaths([int? repomanRepoindex]) async {
-    final repoIndex = repomanRepoindex ?? await _repoIndex;
-    return await _runWithLock(GitManagerRs.stringListRunWithLock, repoIndex, LogType.GetAndExcludeLfs, (dirPath) async {
-          final Directory directory = Directory(dirPath);
-          if (!await directory.exists()) {
-            throw Exception('Directory does not exist');
-          }
-
-          final int sizeThresholdBytes = 100 * 1024 * 1024;
-
-          final List<String> largeFilePaths = [];
-
-          await for (var entity in directory.list(recursive: true, followLinks: false)) {
-            if (entity.path.contains('/.git/')) continue;
-
-            if (entity is File) {
-              final FileStat fileStat = await entity.stat();
-
-              if (fileStat.size > sizeThresholdBytes) {
-                largeFilePaths.add(entity.path);
-              }
-            }
-          }
-
-          final gitInfoExcludeFullPath = '$dirPath/$gitInfoExcludePath';
-          final file = File(gitInfoExcludeFullPath);
-          final parentDir = file.parent;
-          if (!parentDir.existsSync()) {
-            parentDir.createSync(recursive: true);
-          }
-          if (!file.existsSync()) file.createSync();
-          final lines = file.readAsLinesSync();
-          for (final filePath in largeFilePaths) {
-            final ignoreLine = filePath.replaceFirst("$dirPath/", "");
-            if (!lines.contains(ignoreLine)) {
-              file.writeAsStringSync("\n$ignoreLine\n", mode: FileMode.append);
-            }
-          }
-
-          final settingsManager = SettingsManager();
-          await settingsManager.reinit(repoIndex: repoIndex);
-          await settingsManager.setStringList(StorageKey.setman_lfsFilePaths, largeFilePaths);
-
-          return largeFilePaths;
-        }) ??
-        [];
-  }
-
   static Future<bool?> downloadChanges(int repomanRepoindex, Function() syncCallback) async {
     final settingsManager = await SettingsManager().reinit(repoIndex: repomanRepoindex);
     return await backgroundDownloadChanges(repomanRepoindex, settingsManager, syncCallback);

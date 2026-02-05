@@ -33,7 +33,6 @@ import 'package:GitSync/ui/component/item_merge_conflict.dart';
 import 'package:GitSync/ui/dialog/onboarding_controller.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:mixin_logger/mixin_logger.dart';
-import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -409,11 +408,6 @@ void onServiceStart(ServiceInstance service) async {
     service.invoke(LogType.GetSubmodules.name, {"result": result.map<String>((branch) => "$branch").toList()});
   });
 
-  service.on(LogType.GetAndExcludeLfs.name).listen((event) async {
-    final result = await GitManager.getAndExcludeLfsFilePaths(event?["repomanRepoindex"]);
-    service.invoke(LogType.GetAndExcludeLfs.name, {"result": result.map<String>((path) => "$path").toList()});
-  });
-
   service.on(LogType.DownloadChanges.name).listen((event) async {
     if (event == null) return;
     final result = await GitManager.downloadChanges(event["repomanRepoindex"], () => service.invoke("downloadChanges-syncCallback"));
@@ -585,7 +579,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, RestorationMixin {
   bool repoSettingsExpanded = false;
-  bool gitLfsExpanded = false;
   bool demoConflicting = false;
 
   bool devTools = kDebugMode;
@@ -648,8 +641,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   ValueNotifier<Map<String, (IconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
   RestorableBool mergeConflictVisible = RestorableBool(true);
-
-  ValueNotifier<bool> fsLoader = ValueNotifier(false);
 
   int _reloadToken = 0;
 
@@ -854,16 +845,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     super.initState();
-  }
-
-  Future<void> syncWrapper(Future<void> Function() callback, bool isForceSync) async {
-    fsLoader.value = true;
-    if (!isForceSync) {
-      await runGitOperation(LogType.GetAndExcludeLfs, (event) => event?["result"].map<String>((path) => "$path").toList(), null);
-    }
-    fsLoader.value = false;
-
-    await callback();
   }
 
   Future<void> launchWidgetManualSync() async {
@@ -1226,7 +1207,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      gitLfsExpanded = false;
       await reloadAll();
     }
     if (state == AppLifecycleState.paused) {
@@ -2033,25 +2013,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                   onPressed: () async {
                                                                     if (lastSyncMethodSnapshot.data == null) return;
 
-                                                                    await syncWrapper(
-                                                                      () async {
-                                                                        if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
-                                                                          syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
-                                                                        } else {
-                                                                          await syncOptionsSnapshot.values.first.$2();
-                                                                        }
-                                                                      },
-                                                                      [
-                                                                        t.syncAllChanges,
-                                                                        t.syncNow,
-                                                                        t.switchToClientMode,
-                                                                        t.switchToSyncMode,
-                                                                      ].contains(
-                                                                        syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                            ? lastSyncMethodSnapshot.data
-                                                                            : syncOptionsSnapshot.keys.first,
-                                                                      ),
-                                                                    );
+                                                                    if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
+                                                                      syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                    } else {
+                                                                      await syncOptionsSnapshot.values.first.$2();
+                                                                    }
                                                                   },
                                                                   style: ButtonStyle(
                                                                     alignment: Alignment.centerLeft,
@@ -2340,15 +2306,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                   await uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, item.key);
                                                                 }
 
-                                                                await syncWrapper(
-                                                                  () async => await item.value.$2(),
-                                                                  [
-                                                                    t.syncAllChanges,
-                                                                    t.syncNow,
-                                                                    t.switchToClientMode,
-                                                                    t.switchToSyncMode,
-                                                                  ].contains(item.key),
-                                                                );
+                                                                await item.value.$2();
                                                               },
                                                               value: item.key,
                                                               child: Row(
@@ -2865,218 +2823,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           ),
                                         ),
                                       ),
-                                      FutureBuilder(
-                                        future: uiSettingsManager.getStringList(StorageKey.setman_lfsFilePaths),
-                                        builder: (context, lfsFilePathsSnapshot) => lfsFilePathsSnapshot.data?.isEmpty ?? true
-                                            ? SizedBox.shrink()
-                                            : Column(
-                                                children: [
-                                                  SizedBox(height: spaceMD),
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: colours.secondaryDark,
-                                                      borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        SizedBox(
-                                                          width: double.infinity,
-                                                          child: TextButton.icon(
-                                                            onPressed: () async {
-                                                              gitLfsExpanded = !gitLfsExpanded;
-                                                              if (mounted) setState(() {});
-                                                              await runGitOperation(
-                                                                LogType.GetAndExcludeLfs,
-                                                                (event) => event?["result"].map<String>((path) => "$path").toList(),
-                                                                null,
-                                                              );
-                                                              if (mounted) setState(() {});
-                                                            },
-                                                            iconAlignment: IconAlignment.end,
-                                                            style: ButtonStyle(
-                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                              padding: WidgetStatePropertyAll(
-                                                                EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
-                                                              ),
-                                                              shape: WidgetStatePropertyAll(
-                                                                RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                  side: BorderSide.none,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            icon: FaIcon(
-                                                              gitLfsExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                                                              color: colours.primaryLight,
-                                                              size: textXL,
-                                                            ),
-                                                            label: SizedBox(
-                                                              width: double.infinity,
-                                                              child: Row(
-                                                                children: [
-                                                                  AnimatedSize(
-                                                                    duration: Duration(milliseconds: 200),
-                                                                    child: Container(
-                                                                      width: gitLfsExpanded ? null : 0,
-                                                                      decoration: BoxDecoration(),
-                                                                      clipBehavior: Clip.hardEdge,
-                                                                      child: IconButton(
-                                                                        padding: EdgeInsets.zero,
-                                                                        style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                                                        constraints: BoxConstraints(),
-                                                                        onPressed: () async {
-                                                                          await InfoDialog.showDialog(
-                                                                            context,
-                                                                            "Large Files Management",
-                                                                            "Large files over 100 MB cannot be synced because GitSync does not currently support Git Large File Storage (LFS). \n\nThese files have been automatically excluded from synchronization and added to the \".git/info/exclude\" file to prevent sync issues. If you need to manage these large files, you'll need to use Git LFS through the command line or update to a future version of the app that supports LFS functionality. You can modify the excluded files list in the repository settings if needed.",
-                                                                          );
-                                                                          // launchUrl(Uri.parse(autoSyncDocsLink));
-                                                                        },
-                                                                        icon: FaIcon(
-                                                                          FontAwesomeIcons.circleQuestion,
-                                                                          color: colours.primaryLight,
-                                                                          size: textLG,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(width: gitLfsExpanded ? spaceSM : 0),
-                                                                  Text(
-                                                                    sprintf(
-                                                                      clientModeEnabledSnapshot.data == true ? "%sLFS Files" : "%sUnsynced Files",
-                                                                      [
-                                                                        (lfsFilePathsSnapshot.data?.length ?? 0) == 0
-                                                                            ? ""
-                                                                            : "(${lfsFilePathsSnapshot.data?.length}) ",
-                                                                      ],
-                                                                    ).toUpperCase(),
-                                                                    style: TextStyle(
-                                                                      color: colours.tertiaryNegative,
-                                                                      fontSize: textMD,
-                                                                      fontWeight: FontWeight.bold,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        AnimatedSize(
-                                                          duration: Duration(milliseconds: 200),
-                                                          child: SizedBox(
-                                                            height: gitLfsExpanded ? null : 0,
-                                                            child: gitLfsExpanded
-                                                                ? Container(
-                                                                    padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
-                                                                    height: spaceXL * 4,
-                                                                    child: ShaderMask(
-                                                                      shaderCallback: (Rect rect) {
-                                                                        return LinearGradient(
-                                                                          begin: Alignment.topCenter,
-                                                                          end: Alignment.bottomCenter,
-                                                                          colors: [
-                                                                            Colors.transparent,
-                                                                            Colors.transparent,
-                                                                            Colors.transparent,
-                                                                            Colors.black,
-                                                                          ],
-                                                                          stops: [0.0, 0.1, 0.9, 1.0],
-                                                                        ).createShader(rect);
-                                                                      },
-                                                                      blendMode: BlendMode.dstOut,
-                                                                      child: GridView.builder(
-                                                                        shrinkWrap: true,
-                                                                        itemCount: lfsFilePathsSnapshot.data?.length,
-                                                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                                                          crossAxisCount: 4,
-                                                                          crossAxisSpacing: spaceSM,
-                                                                          mainAxisSpacing: spaceSM,
-                                                                        ),
-                                                                        itemBuilder: (BuildContext context, int index) {
-                                                                          final filePath = (lfsFilePathsSnapshot.data ?? [])[index];
-
-                                                                          return Container(
-                                                                            child: Column(
-                                                                              mainAxisAlignment: MainAxisAlignment.center,
-                                                                              children: [
-                                                                                Stack(
-                                                                                  clipBehavior: Clip.none,
-                                                                                  children: [
-                                                                                    FaIcon(
-                                                                                      FontAwesomeIcons.solidFile,
-                                                                                      color: colours.primaryLight,
-                                                                                      size: textXL,
-                                                                                    ),
-                                                                                    Positioned(
-                                                                                      bottom: -spaceXS,
-                                                                                      left: -spaceXS,
-                                                                                      child: Text(
-                                                                                        "${formatBytes(File(filePath).statSync().size, 0)}",
-                                                                                        maxLines: 1,
-                                                                                        style: TextStyle(
-                                                                                          fontSize: textXS,
-
-                                                                                          shadows: [
-                                                                                            Shadow(
-                                                                                              offset: Offset(-1, -1),
-                                                                                              color: colours.tertiaryDark,
-                                                                                            ),
-                                                                                            Shadow(
-                                                                                              offset: Offset(1, -1),
-                                                                                              color: colours.tertiaryDark,
-                                                                                            ),
-                                                                                            Shadow(offset: Offset(1, 1), color: colours.tertiaryDark),
-                                                                                            Shadow(
-                                                                                              offset: Offset(-1, 1),
-                                                                                              color: colours.tertiaryDark,
-                                                                                            ),
-                                                                                          ],
-                                                                                          color: colours.primaryLight,
-                                                                                          overflow: TextOverflow.ellipsis,
-                                                                                          fontWeight: FontWeight.bold,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                                SizedBox(height: spaceXS),
-                                                                                Text(
-                                                                                  p.basename(filePath),
-                                                                                  maxLines: 1,
-                                                                                  style: TextStyle(
-                                                                                    fontSize: textSM,
-                                                                                    color: colours.primaryLight,
-                                                                                    overflow: TextOverflow.ellipsis,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                  ),
-                                                                                ),
-                                                                                SizedBox(height: spaceXXXXS),
-                                                                                Text(
-                                                                                  "${File(filePath).statSync().modified}".substring(0, 10),
-                                                                                  maxLines: 1,
-                                                                                  style: TextStyle(
-                                                                                    fontSize: textXS,
-                                                                                    color: colours.primaryLight,
-                                                                                    overflow: TextOverflow.ellipsis,
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  )
-                                                                : SizedBox.shrink(),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -3332,26 +3078,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                 ),
               )
             : SizedBox.shrink(),
-        Positioned.fill(
-          child: ValueListenableBuilder(
-            valueListenable: fsLoader,
-            builder: (context, snapshot, child) => !snapshot
-                ? SizedBox.shrink()
-                : AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
-                    color: colours.primaryDark.withAlpha(150),
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: Center(
-                      child: SizedBox(
-                        height: spaceXXL,
-                        width: spaceXXL,
-                        child: CircularProgressIndicator(color: colours.tertiaryLight, strokeWidth: spaceXS),
-                      ),
-                    ),
-                  ),
-          ),
-        ),
       ],
     );
   }
