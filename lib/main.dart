@@ -1215,7 +1215,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (state == AppLifecycleState.resumed) {
       await reloadAll();
     }
-    if (state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       autoRefreshTimer?.cancel();
       // if (uiSettingsManager.getOnboardingStep() != 0 && onboardingController?.hasSkipped == false) {
       //   onboardingController?.dismissAll();
