@@ -1509,7 +1509,7 @@ pub async fn update_submodules(
         "Getting local directory".to_string(),
     );
 
-    update_submodules_priv(&repo, &provider, &credentials, &log_callback)
+    tokio::task::block_in_place(|| update_submodules_priv(&repo, &provider, &credentials, &log_callback))
 }
 
 fn update_submodules_priv(
@@ -1624,14 +1624,14 @@ pub async fn pull_changes(
         "Getting local directory".to_string(),
     );
 
-    pull_changes_priv(
+    tokio::task::block_in_place(|| pull_changes_priv(
         &repo,
         &provider,
         &credentials,
         commit_signing_credentials,
         sync_callback,
         &log_callback,
-    )
+    ))
 }
 
 fn pull_changes_priv(
@@ -1824,14 +1824,14 @@ pub async fn download_changes(
         &log_callback
     ))?;
 
-    if pull_changes_priv(
+    if tokio::task::block_in_place(|| pull_changes_priv(
         &repo,
         &provider,
         &credentials,
         commit_signing_credentials,
         sync_callback,
         &log_callback,
-    ) == Ok(Some(false))
+    )) == Ok(Some(false))
     {
         return Ok(Some(false));
     }
@@ -2562,12 +2562,14 @@ pub async fn force_pull(
     let mut reference = swl!(repo.find_reference(&refname))?;
     swl!(reference.set_target(fetch_commit.id(), "force pull"))?;
     swl!(repo.set_head(&refname))?;
-    swl!(repo.checkout_head(Some(
-        git2::build::CheckoutBuilder::new()
-            .force()
-            .allow_conflicts(true)
-            .conflict_style_merge(true),
-    )))?;
+    tokio::task::block_in_place(|| {
+        swl!(repo.checkout_head(Some(
+            git2::build::CheckoutBuilder::new()
+                .force()
+                .allow_conflicts(true)
+                .conflict_style_merge(true),
+        )))
+    })?;
 
     _log(
         Arc::clone(&log_callback),
@@ -2943,12 +2945,14 @@ pub async fn download_and_overwrite(
     let mut reference = swl!(repo.find_reference(&refname))?;
     swl!(reference.set_target(fetch_commit.id(), "force pull"))?;
     swl!(repo.set_head(&refname))?;
-    swl!(repo.checkout_head(Some(
-        git2::build::CheckoutBuilder::new()
-            .force()
-            .allow_conflicts(true)
-            .conflict_style_merge(true),
-    )))?;
+    tokio::task::block_in_place(|| {
+        swl!(repo.checkout_head(Some(
+            git2::build::CheckoutBuilder::new()
+                .force()
+                .allow_conflicts(true)
+                .conflict_style_merge(true),
+        )))
+    })?;
 
     _log(
         Arc::clone(&log_callback),
@@ -2982,7 +2986,9 @@ pub async fn discard_changes(
             checkout.force();
             checkout.path(file_path);
 
-            swl!(repo.checkout_index(Some(&mut index), Some(&mut checkout)))?;
+            tokio::task::block_in_place(|| {
+                swl!(repo.checkout_index(Some(&mut index), Some(&mut checkout)))
+            })?;
         } else {
             let full_path = Path::new(path_string).join(file_path);
 
@@ -3407,7 +3413,9 @@ pub async fn checkout_branch(
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     checkout_builder.force();
 
-    swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))?;
+    tokio::task::block_in_place(|| {
+        swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))
+    })?;
 
     let refname = format!("refs/heads/{}", branch_name);
     swl!(repo.set_head(&refname))?;
@@ -3491,7 +3499,9 @@ pub async fn create_branch(
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     checkout_builder.force();
 
-    swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))?;
+    tokio::task::block_in_place(|| {
+        swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))
+    })?;
 
     let refname = format!("refs/heads/{}", new_branch_name);
     swl!(repo.set_head(&refname))?;
