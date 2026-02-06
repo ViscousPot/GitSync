@@ -1881,7 +1881,17 @@ fn push_changes_priv(
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
 ) -> Result<Option<bool>, git2::Error> {
     let mut remote = swl!(repo.find_remote(&remote_name))?;
-    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    let mut callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error_clone = Arc::clone(&push_error);
+    callbacks.push_update_reference(move |refname, status| {
+        if let Some(msg) = status {
+            *push_error_clone.lock().unwrap() =
+                Some(format!("Remote rejected {}: {}", refname, msg));
+        }
+        Ok(())
+    });
 
     let mut push_options = PushOptions::new();
     push_options.remote_callbacks(callbacks);
@@ -1932,11 +1942,21 @@ fn push_changes_priv(
     );
 
     match remote.push(&[&refname], Some(&mut push_options)) {
-        Ok(_) => _log(
-            Arc::clone(&log_callback),
-            LogType::PushToRepo,
-            "Push successful".to_string(),
-        ),
+        Ok(_) => {
+            if let Some(err) = push_error.lock().unwrap().take() {
+                _log(
+                    Arc::clone(&log_callback),
+                    LogType::PushToRepo,
+                    format!("Push rejected by server: {}", err),
+                );
+                return Err(git2::Error::from_str(&err));
+            }
+            _log(
+                Arc::clone(&log_callback),
+                LogType::PushToRepo,
+                "Push successful".to_string(),
+            );
+        }
         Err(e) if e.code() == ErrorCode::NotFastForward => {
             _log(
                 Arc::clone(&log_callback),
@@ -2059,7 +2079,28 @@ fn push_changes_priv(
                 "Pushing changes".to_string(),
             );
 
-            swl!(remote.push(&[&refname], Some(&mut push_options)))?;
+            let mut callbacks2 = get_default_callbacks(Some(&provider), Some(&credentials));
+            let push_error_clone2 = Arc::clone(&push_error);
+            callbacks2.push_update_reference(move |refname, status| {
+                if let Some(msg) = status {
+                    *push_error_clone2.lock().unwrap() =
+                        Some(format!("Remote rejected {}: {}", refname, msg));
+                }
+                Ok(())
+            });
+            let mut push_options2 = PushOptions::new();
+            push_options2.remote_callbacks(callbacks2);
+
+            swl!(remote.push(&[&refname], Some(&mut push_options2)))?;
+
+            if let Some(err) = push_error.lock().unwrap().take() {
+                _log(
+                    Arc::clone(&log_callback),
+                    LogType::PushToRepo,
+                    format!("Push rejected by server after rebase: {}", err),
+                );
+                return Err(git2::Error::from_str(&err));
+            }
         }
         Err(e) => {
             return Err(e).map_err(|e| {
@@ -2597,7 +2638,17 @@ pub async fn force_push(
     let repo = swl!(Repository::open(&path_string))?;
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
-    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    let mut callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error_clone = Arc::clone(&push_error);
+    callbacks.push_update_reference(move |refname, status| {
+        if let Some(msg) = status {
+            *push_error_clone.lock().unwrap() =
+                Some(format!("Remote rejected {}: {}", refname, msg));
+        }
+        Ok(())
+    });
 
     let mut push_options = PushOptions::new();
     push_options.remote_callbacks(callbacks);
@@ -2676,7 +2727,16 @@ pub async fn force_push(
         "Force pushing changes".to_string(),
     );
 
-    remote.push(&[&refname], Some(&mut push_options)).unwrap();
+    remote.push(&[&refname], Some(&mut push_options))?;
+
+    if let Some(err) = push_error.lock().unwrap().take() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::ForcePush,
+            format!("Force push rejected by server: {}", err),
+        );
+        return Err(git2::Error::from_str(&err));
+    }
 
     _log(
         Arc::clone(&log_callback),
@@ -2755,7 +2815,17 @@ pub async fn upload_and_overwrite(
     }
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
-    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    let mut callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let push_error_clone = Arc::clone(&push_error);
+    callbacks.push_update_reference(move |refname, status| {
+        if let Some(msg) = status {
+            *push_error_clone.lock().unwrap() =
+                Some(format!("Remote rejected {}: {}", refname, msg));
+        }
+        Ok(())
+    });
 
     let mut push_options = PushOptions::new();
     push_options.remote_callbacks(callbacks);
@@ -2834,7 +2904,16 @@ pub async fn upload_and_overwrite(
         "Force pushing changes".to_string(),
     );
 
-    remote.push(&[&refname], Some(&mut push_options)).unwrap();
+    remote.push(&[&refname], Some(&mut push_options))?;
+
+    if let Some(err) = push_error.lock().unwrap().take() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::ForcePush,
+            format!("Force push rejected by server: {}", err),
+        );
+        return Err(git2::Error::from_str(&err));
+    }
 
     _log(
         Arc::clone(&log_callback),
@@ -3519,7 +3598,17 @@ pub async fn create_branch(
     );
 
     let mut remote = swl!(repo.find_remote(remote_name))?;
-    let callbacks = get_default_callbacks(Some(provider), Some(credentials));
+    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    let mut callbacks = get_default_callbacks(Some(provider), Some(credentials));
+    let push_error_clone = Arc::clone(&push_error);
+    callbacks.push_update_reference(move |refname, status| {
+        if let Some(msg) = status {
+            *push_error_clone.lock().unwrap() =
+                Some(format!("Remote rejected {}: {}", refname, msg));
+        }
+        Ok(())
+    });
 
     let mut push_options = PushOptions::new();
     push_options.remote_callbacks(callbacks);
@@ -3531,6 +3620,14 @@ pub async fn create_branch(
 
     match remote.push(&[&refspec], Some(&mut push_options)) {
         Ok(_) => {
+            if let Some(err) = push_error.lock().unwrap().take() {
+                _log(
+                    Arc::clone(&log_callback),
+                    LogType::PushToRepo,
+                    format!("Push rejected by server: {}", err),
+                );
+                return Err(git2::Error::from_str(&err));
+            }
             _log(
                 Arc::clone(&log_callback),
                 LogType::PushToRepo,
