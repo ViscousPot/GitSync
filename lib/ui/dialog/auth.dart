@@ -1,5 +1,3 @@
-import 'package:GitSync/api/helper.dart';
-import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
@@ -7,9 +5,7 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
@@ -17,8 +13,8 @@ import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../type/git_provider.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
-import 'import_priv_key.dart' as ImportPrivKeyDialog;
-import 'confirm_priv_key_copy.dart' as ConfirmPrivKeyCopyDialog;
+import '../component/https_auth_form.dart';
+import '../component/ssh_auth_form.dart';
 
 late final GlobalKey authDialogKey = GlobalKey();
 
@@ -26,18 +22,6 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   List<String> repoNames = [...await repoManager.getStringList(StorageKey.repoman_repoNames)];
   await repoNames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
   GitProvider selectedGitProvider = await uiSettingsManager.getGitProvider();
-
-  final httpsUsernameController = TextEditingController();
-  final httpsTokenController = TextEditingController();
-  final passphraseController = TextEditingController();
-
-  (String, String)? keyPair;
-  bool pubKeyCopied = false;
-  bool privKeyCopied = false;
-
-  bool getHttpsCanLogin() {
-    return !(httpsUsernameController.text.isEmpty || httpsTokenController.text.isEmpty);
-  }
 
   Future<void> finish(BuildContext context, GitProvider selectedGitProvider) async {
     await repoManager.setOnboardingStep(3);
@@ -148,85 +132,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           ),
         );
       case GitProvider.HTTPS:
-        return TextButton(
-          onPressed: getHttpsCanLogin()
-              ? () async {
-                  await setHttpAuth(context, (httpsUsernameController.text.trim(), "", httpsTokenController.text.trim()), selectedGitProvider);
-                }
-              : null,
-          style: ButtonStyle(
-            alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(getHttpsCanLogin() ? colours.primaryPositive : colours.secondaryPositive),
-            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-          ),
-          child: Text(
-            t.login.toUpperCase(),
-            style: TextStyle(color: getHttpsCanLogin() ? colours.primaryDark : colours.tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
-          ),
-        );
+        return SizedBox.shrink();
       case GitProvider.SSH:
-        return SizedBox(
-          width: double.infinity,
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: TextButton(
-                  onPressed: keyPair == null
-                      ? () async {
-                          keyPair = await runGitOperation(
-                            LogType.GenerateKeyPair,
-                            (event) => event == null || event["result"] == null ? null : (event["result"][0], event["result"][1]),
-                            {"passphrase": passphraseController.text},
-                          );
-                          if (context.mounted) setState(() {});
-                        }
-                      : (pubKeyCopied
-                            ? () async {
-                                setSshAuth(parentContext, (passphraseController.text, keyPair!.$1), selectedGitProvider);
-                              }
-                            : null),
-                  style: ButtonStyle(
-                    alignment: Alignment.center,
-                    backgroundColor: WidgetStatePropertyAll((keyPair != null && !pubKeyCopied) ? colours.secondaryPositive : colours.primaryPositive),
-                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-                  ),
-                  child: Text(
-                    (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
-                    style: TextStyle(
-                      color: (keyPair != null && !pubKeyCopied) ? colours.tertiaryDark : colours.primaryDark,
-                      fontSize: textSM,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              keyPair == null
-                  ? Positioned(
-                      right: 0,
-                      child: IconButton(
-                        onPressed: () async {
-                          ImportPrivKeyDialog.showDialog(context, ((String, String) sshCredentials) {
-                            setSshAuth(context, sshCredentials, selectedGitProvider);
-                          });
-                        },
-                        style: ButtonStyle(
-                          alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                          ),
-                        ),
-                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textSM),
-                      ),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-        );
+        return SizedBox.shrink();
     }
   }
 
@@ -244,261 +152,17 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           ),
         );
       case GitProvider.HTTPS:
-        return Column(
-          children: [
-            SizedBox(height: spaceLG),
-            Text(
-              t.ensureTokenScope,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
-            ),
-            SizedBox(height: spaceLG),
-            Row(
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: spaceSM),
-                      child: Text(
-                        t.user.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: spaceMD),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: spaceSM),
-                      child: Text(
-                        t.token.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: spaceMD),
-                Expanded(
-                  child: Column(
-                    children: [
-                      TextField(
-                        contextMenuBuilder: globalContextMenuBuilder,
-                        controller: httpsUsernameController,
-                        maxLines: 1,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.none,
-                          decorationThickness: 0,
-                          fontSize: textMD,
-                        ),
-                        decoration: InputDecoration(
-                          fillColor: colours.secondaryDark,
-                          filled: true,
-                          border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                          hintText: t.exampleUser,
-                          hintStyle: TextStyle(
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                            color: colours.tertiaryLight,
-                          ),
-                          isCollapsed: true,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                          isDense: true,
-                        ),
-                        onChanged: (_) {
-                          setState(() {});
-                        },
-                      ),
-                      SizedBox(height: spaceMD),
-                      TextField(
-                        contextMenuBuilder: globalContextMenuBuilder,
-                        controller: httpsTokenController,
-                        maxLines: 1,
-                        obscureText: true,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.none,
-                          decorationThickness: 0,
-                          fontSize: textMD,
-                        ),
-                        decoration: InputDecoration(
-                          fillColor: colours.secondaryDark,
-                          filled: true,
-                          border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                          hintText: t.exampleToken,
-                          hintStyle: TextStyle(
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                            color: colours.tertiaryLight,
-                          ),
-                          isCollapsed: true,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                          isDense: true,
-                        ),
-                        onChanged: (_) {
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+        return HttpsAuthForm(
+          onAuthenticated: (username, token) async {
+            await setHttpAuth(parentContext, (username, "", token), selectedGitProvider);
+          },
         );
       case GitProvider.SSH:
-        return Column(
-          children: [
-            SizedBox(height: spaceLG),
-            Row(
-              children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: spaceSM),
-                      child: Text(
-                        t.passphrase.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: spaceMD),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: spaceSM),
-                      child: Text(
-                        t.privKey.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: spaceMD),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: spaceSM),
-                      child: Text(
-                        t.pubKey.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: spaceMD),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        contextMenuBuilder: globalContextMenuBuilder,
-                        controller: passphraseController,
-                        maxLines: 1,
-                        obscureText: true,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.none,
-                          decorationThickness: 0,
-                          fontSize: textMD,
-                        ),
-                        decoration: InputDecoration(
-                          fillColor: colours.secondaryDark,
-                          filled: true,
-                          border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                          hintText: t.optionalLabel.toUpperCase(),
-                          hintStyle: TextStyle(
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                            color: colours.tertiaryLight,
-                          ),
-                          isCollapsed: true,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                          isDense: true,
-                        ),
-                      ),
-                      SizedBox(height: spaceSM),
-                      TextButton.icon(
-                        onPressed: keyPair == null
-                            ? null
-                            : () async {
-                                ConfirmPrivKeyCopyDialog.showDialog(parentContext, () {
-                                  Clipboard.setData(ClipboardData(text: keyPair!.$1));
-                                  privKeyCopied = true;
-                                  setState(() {});
-                                });
-                              },
-                        style: ButtonStyle(
-                          alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                          ),
-                        ),
-                        iconAlignment: IconAlignment.end,
-                        icon: FaIcon(
-                          privKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                          color: keyPair == null ? colours.tertiaryLight : (privKeyCopied ? colours.primaryPositive : colours.primaryLight),
-                          size: textMD,
-                        ),
-                        label: Text(
-                          keyPair == null ? t.sshPrivKeyExample : keyPair!.$1,
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: spaceSM),
-                      TextButton.icon(
-                        onPressed: keyPair == null
-                            ? null
-                            : () async {
-                                Clipboard.setData(ClipboardData(text: keyPair!.$2));
-                                pubKeyCopied = true;
-                                setState(() {});
-                              },
-                        style: ButtonStyle(
-                          alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                          ),
-                        ),
-                        iconAlignment: IconAlignment.end,
-                        icon: FaIcon(
-                          pubKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                          color: keyPair == null ? colours.tertiaryLight : (pubKeyCopied ? colours.primaryPositive : colours.primaryLight),
-                          size: textMD,
-                        ),
-                        label: Text(
-                          keyPair == null ? t.sshPubKeyExample : keyPair!.$2,
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+        return SshAuthForm(
+          parentContext: parentContext,
+          onAuthenticated: (passphrase, privateKey) async {
+            await setSshAuth(parentContext, (passphrase, privateKey), selectedGitProvider);
+          },
         );
     }
   }
