@@ -338,24 +338,6 @@ abstract class AppLocalizations {
   /// **'Unlock Premium'**
   String get premiumDialogTitle;
 
-  /// No description provided for @premiumDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This feature is part of the premium experience.\nMake a one-time payment of %s to unlock it and enjoy more powerful tools.\n\nPremium Features:\n • Multi-repo support\n\nAlternatively, connect your GitHub account to check if you\'re an eligible GitHub Sponsor.'**
-  String get premiumDialogMessage;
-
-  /// No description provided for @premiumDialogButtonText.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock for %s'**
-  String get premiumDialogButtonText;
-
-  /// No description provided for @premiumDialogGitHubButtonText.
-  ///
-  /// In en, this message translates to:
-  /// **'Use GitHub Sponsors'**
-  String get premiumDialogGitHubButtonText;
-
   /// No description provided for @restorePurchase.
   ///
   /// In en, this message translates to:
@@ -469,12 +451,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track large binary files'**
   String get premiumTrackLargeFiles;
-
-  /// No description provided for @premiumSeamlessSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Seamless sync integration'**
-  String get premiumSeamlessSync;
 
   /// No description provided for @premiumAutoLfsPullPush.
   ///
@@ -848,12 +824,6 @@ abstract class AppLocalizations {
   /// **'Merging…'**
   String get merging;
 
-  /// No description provided for @resolvingMerge.
-  ///
-  /// In en, this message translates to:
-  /// **'Resolving merge…'**
-  String get resolvingMerge;
-
   /// No description provided for @iosClearDataTitle.
   ///
   /// In en, this message translates to:
@@ -914,18 +884,6 @@ abstract class AppLocalizations {
   /// **'Set Up'**
   String get setUp;
 
-  /// No description provided for @welcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome!'**
-  String get welcome;
-
-  /// No description provided for @welcomeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'It looks like this is your first time here.\n\nWould you like to go through a quick setup to get started?'**
-  String get welcomeMessage;
-
   /// No description provided for @welcomeSetupPrompt.
   ///
   /// In en, this message translates to:
@@ -956,53 +914,11 @@ abstract class AppLocalizations {
   /// **'Enable Notifications'**
   String get notificationDialogTitle;
 
-  /// No description provided for @notificationDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enable notification permissions for the best experience.\n\nThe app uses notifications for \n  • popup sync messages (optional)\n  • bug reports'**
-  String get notificationDialogMessage;
-
   /// No description provided for @allFilesAccessDialogTitle.
   ///
   /// In en, this message translates to:
   /// **'Enable \"All Files Access\"'**
   String get allFilesAccessDialogTitle;
-
-  /// No description provided for @allFilesAccessDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'You cannot use GitSync without granting \"All files access\" permissions! Please enable it for the best experience.\n\nThe app uses \"All files access\" for syncing your repository to the selected directory on the device. The app does not attempt to access any file outside the selected directory.'**
-  String get allFilesAccessDialogMessage;
-
-  /// No description provided for @almostThereDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Almost there!'**
-  String get almostThereDialogTitle;
-
-  /// No description provided for @almostThereDialogMessageAndroid.
-  ///
-  /// In en, this message translates to:
-  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app\n  • From a Quick Tile\n  • Using App Sync\n  • Using a Custom Intent (advanced)'**
-  String get almostThereDialogMessageAndroid;
-
-  /// No description provided for @almostThereDialogMessageIos.
-  ///
-  /// In en, this message translates to:
-  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app'**
-  String get almostThereDialogMessageIos;
-
-  /// No description provided for @authDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Authenticate with a Git Provider'**
-  String get authDialogTitle;
-
-  /// No description provided for @authDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Please authenticate with your chosen git provider and continue on to clone your repo!'**
-  String get authDialogMessage;
 
   /// No description provided for @authorDetailsPromptTitle.
   ///
@@ -1027,18 +943,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to Settings'**
   String get goToSettings;
-
-  /// No description provided for @enableAutosyncTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable App Sync'**
-  String get enableAutosyncTitle;
-
-  /// No description provided for @enableAutosyncMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.'**
-  String get enableAutosyncMessage;
 
   /// No description provided for @onboardingSyncSettingsTitle.
   ///
@@ -1430,12 +1334,6 @@ abstract class AppLocalizations {
   /// **'AUTH'**
   String get auth;
 
-  /// No description provided for @gitDirPathHint.
-  ///
-  /// In en, this message translates to:
-  /// **'/storage/emulated/0/…'**
-  String get gitDirPathHint;
-
   /// No description provided for @openFileExplorer.
   ///
   /// In en, this message translates to:
@@ -1471,12 +1369,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To enhance your experience,\nGitSync uses Android\'s Accessibility Service to detect when apps are opened or closed.\n\nThis helps us provide tailored features without storing or sharing any data.\n\nᴘʟᴇᴀsᴇ ᴇɴᴀʙʟᴇ ɢɪᴛsʏɴᴄ ᴏɴ ᴛʜᴇ ɴᴇxᴛ sᴄʀᴇᴇɴ'**
   String get accessibilityServiceDisclosureMessage;
-
-  /// No description provided for @accessibilityServiceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'To enhance your experience, GitSync uses Android\'s Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \n\n Key Points: \n Purpose: We use this service solely to improve your app experience. \n Privacy: No data is stored or sent elsewhere. \n Control: You can disable these permissions at any time in your device settings.'**
-  String get accessibilityServiceDescription;
 
   /// No description provided for @search.
   ///
@@ -1544,23 +1436,11 @@ abstract class AppLocalizations {
   /// **'Sync'**
   String get sync;
 
-  /// No description provided for @dontSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t Sync'**
-  String get dontSync;
-
   /// No description provided for @iosDefaultSyncRate.
   ///
   /// In en, this message translates to:
   /// **'when iOS allows'**
   String get iosDefaultSyncRate;
-
-  /// No description provided for @aboutEvery.
-  ///
-  /// In en, this message translates to:
-  /// **'~every'**
-  String get aboutEvery;
 
   /// No description provided for @scheduledSync.
   ///
@@ -1646,24 +1526,6 @@ abstract class AppLocalizations {
   /// **'Enhanced Scheduled Sync'**
   String get enhancedScheduledSync;
 
-  /// No description provided for @enhancedScheduledSyncMsg1.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlike the basic sync, this feature uses advanced background updates to deliver fresh data more frequently and reliably.'**
-  String get enhancedScheduledSyncMsg1;
-
-  /// No description provided for @enhancedScheduledSyncMsg2.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync your repositories in the background as often as a sync per minute, even when the app is closed!\n\nEffortless, continuous updates mean your repos are always ready when you are.'**
-  String get enhancedScheduledSyncMsg2;
-
-  /// No description provided for @enhancedScheduledSyncNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Note: Background syncing may be affected by battery saver and Do Not Disturb modes.'**
-  String get enhancedScheduledSyncNote;
-
   /// No description provided for @quickSyncSettings.
   ///
   /// In en, this message translates to:
@@ -1675,12 +1537,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync using customizable quick tiles, shortcuts, or widgets'**
   String get quickSyncDescription;
-
-  /// No description provided for @tileSyncSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Tile Sync Settings'**
-  String get tileSyncSettings;
 
   /// No description provided for @otherSyncSettings.
   ///
@@ -2480,12 +2336,6 @@ abstract class AppLocalizations {
   /// **'Directory'**
   String get directory;
 
-  /// No description provided for @confirmFileDirDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm %s Deletion'**
-  String get confirmFileDirDeleteTitle;
-
   /// No description provided for @confirmFileDirDeleteMsg.
   ///
   /// In en, this message translates to:
@@ -2894,18 +2744,6 @@ abstract class AppLocalizations {
   /// **'Ongoing merge conflict'**
   String get ongoingMergeConflict;
 
-  /// No description provided for @enableAccessibilityService.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enable GitSync under \"Installed apps\"'**
-  String get enableAccessibilityService;
-
-  /// No description provided for @networkUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Network unavailable!'**
-  String get networkUnavailable;
-
   /// No description provided for @networkUnavailableRetry.
   ///
   /// In en, this message translates to:
@@ -2923,24 +2761,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report a Bug'**
   String get reportABug;
-
-  /// No description provided for @reportBug.
-  ///
-  /// In en, this message translates to:
-  /// **'<GitSync Error> Tap to send a bug report'**
-  String get reportBug;
-
-  /// No description provided for @unknownError.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown Error'**
-  String get unknownError;
-
-  /// No description provided for @enableNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable notifications permission to see more.'**
-  String get enableNotifications;
 
   /// No description provided for @errorOccurredTitle.
   ///
@@ -2960,83 +2780,11 @@ abstract class AppLocalizations {
   /// **'Otherwise, you can long-press to copy to clipboard or dismiss and continue.'**
   String get errorOccurredMessagePart2;
 
-  /// No description provided for @applicationError.
-  ///
-  /// In en, this message translates to:
-  /// **'Application Error!'**
-  String get applicationError;
-
-  /// No description provided for @missingAuthorDetailsError.
-  ///
-  /// In en, this message translates to:
-  /// **'Missing repository author details. Please set your name and email in the repository settings.'**
-  String get missingAuthorDetailsError;
-
-  /// No description provided for @outOfMemory.
-  ///
-  /// In en, this message translates to:
-  /// **'Application ran out of memory!'**
-  String get outOfMemory;
-
-  /// No description provided for @invalidRemote.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid remote! Modify this in settings'**
-  String get invalidRemote;
-
-  /// No description provided for @largeFile.
-  ///
-  /// In en, this message translates to:
-  /// **'Singular files larger than 50MB not supported!'**
-  String get largeFile;
-
   /// No description provided for @cloneFailed.
   ///
   /// In en, this message translates to:
   /// **'Failed to clone repository!'**
   String get cloneFailed;
-
-  /// No description provided for @inaccessibleDirectoryMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Inaccessible directory! Please select a different location.'**
-  String get inaccessibleDirectoryMessage;
-
-  /// No description provided for @autoRebaseFailedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.'**
-  String get autoRebaseFailedException;
-
-  /// No description provided for @nonExistingException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref didn\'t exist.'**
-  String get nonExistingException;
-
-  /// No description provided for @rejectedNodeleteException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.'**
-  String get rejectedNodeleteException;
-
-  /// No description provided for @rejectedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected.'**
-  String get rejectedException;
-
-  /// No description provided for @rejectionWithReasonException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected because %s.'**
-  String get rejectionWithReasonException;
-
-  /// No description provided for @remoteChangedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected, because old object id on remote repository wasn\'t the same as defined expected old object.'**
-  String get remoteChangedException;
 
   /// No description provided for @mergingExceptionMessage.
   ///
@@ -3097,12 +2845,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You need to connect your GitHub account to report bugs and track their progress.\nYou can reset this connection anytime in Global Settings.'**
   String get githubIssueOauthMsg;
-
-  /// No description provided for @issueReportMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Logs automatically included with reports'**
-  String get issueReportMessage;
 
   /// No description provided for @includeLogs.
   ///

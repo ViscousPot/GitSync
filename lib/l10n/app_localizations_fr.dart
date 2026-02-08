@@ -126,16 +126,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumDialogTitle => 'Débloquer Premium';
 
   @override
-  String get premiumDialogMessage =>
-      'Cette fonctionnalité fait partie de l\'expérience premium.\nEffectuez un paiement unique de %s pour la débloquer et profiter d\'outils plus puissants.\n\nFonctionnalités Premium :\n • Prise en charge de plusieurs dépôts\n\nAlternativement, connectez votre compte GitHub pour vérifier si vous êtes un sponsor GitHub éligible.';
-
-  @override
-  String get premiumDialogButtonText => 'Débloquer pour %s';
-
-  @override
-  String get premiumDialogGitHubButtonText => 'Utiliser les sponsors GitHub';
-
-  @override
   String get restorePurchase => 'Restaurer l\'achat';
 
   @override
@@ -192,9 +182,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get premiumTrackLargeFiles => 'Track large binary files';
-
-  @override
-  String get premiumSeamlessSync => 'Seamless sync integration';
 
   @override
   String get premiumAutoLfsPullPush => 'Automatic LFS pull/push';
@@ -385,9 +372,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get merging => 'Fusion en cours…';
 
   @override
-  String get resolvingMerge => 'Résolution de la fusion…';
-
-  @override
   String get iosClearDataTitle => 'Est-ce une nouvelle installation ?';
 
   @override
@@ -422,12 +406,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get setUp => 'Configurer';
 
   @override
-  String get welcome => 'Bienvenue !';
-
-  @override
-  String get welcomeMessage => 'Il semble que ce soit votre première visite.\n\nSouhaitez-vous effectuer une configuration rapide pour commencer ?';
-
-  @override
   String get welcomeSetupPrompt => 'Would you like to go through a quick setup to get started?';
 
   @override
@@ -443,32 +421,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get notificationDialogTitle => 'Activer les notifications';
 
   @override
-  String get notificationDialogMessage =>
-      'Veuillez activer les autorisations de notification pour une meilleure expérience.\n\nL\'application utilise les notifications pour :\n  • messages de synchronisation contextuels (facultatif)\n  • rapports de bugs';
-
-  @override
   String get allFilesAccessDialogTitle => 'Activer \"Accès à tous les fichiers\"';
-
-  @override
-  String get allFilesAccessDialogMessage =>
-      'Vous ne pouvez pas utiliser GitSync sans accorder les autorisations \"Accès à tous les fichiers\" ! Veuillez l\'activer pour une meilleure expérience.\n\nL\'application utilise \"Accès à tous les fichiers\" pour synchroniser votre dépôt dans le répertoire sélectionné sur l\'appareil. L\'application ne tente pas d\'accéder à des fichiers en dehors du répertoire sélectionné.';
-
-  @override
-  String get almostThereDialogTitle => 'Presque terminé !';
-
-  @override
-  String get almostThereDialogMessageAndroid =>
-      'Bientôt, nous authentifierons et clonerons votre dépôt sur votre appareil, le préparant pour la synchronisation.\n\nUne fois cela fait, il existe plusieurs façons de déclencher une synchronisation :\n\n  • Depuis l\'application\n  • Depuis une vignette rapide\n  • En utilisant la synchronisation automatique\n  • En utilisant une intention personnalisée (avancé)';
-
-  @override
-  String get almostThereDialogMessageIos =>
-      'Bientôt, nous authentifierons et clonerons votre dépôt sur votre appareil, le préparant pour la synchronisation.\n\nUne fois cela fait, il existe plusieurs façons de déclencher une synchronisation :\n\n  • Depuis l\'application';
-
-  @override
-  String get authDialogTitle => 'S\'authentifier auprès d\'un fournisseur Git';
-
-  @override
-  String get authDialogMessage => 'Veuillez vous authentifier auprès de votre fournisseur Git choisi et continuer pour cloner votre dépôt !';
 
   @override
   String get authorDetailsPromptTitle => 'Détails de l\'auteur requis';
@@ -482,13 +435,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get goToSettings => 'Aller aux paramètres';
-
-  @override
-  String get enableAutosyncTitle => 'Enable App Sync';
-
-  @override
-  String get enableAutosyncMessage =>
-      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
 
   @override
   String get onboardingSyncSettingsTitle => 'Sync Settings';
@@ -686,9 +632,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get auth => 'AUTH';
 
   @override
-  String get gitDirPathHint => '/storage/emulated/0/…';
-
-  @override
   String get openFileExplorer => 'Parcourir & Modifier';
 
   @override
@@ -706,10 +649,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get accessibilityServiceDisclosureMessage =>
       'Pour améliorer votre expérience,\nGitSync utilise le service d\'accessibilité d\'Android pour détecter quand les applications sont ouvertes ou fermées.\n\nCela nous aide à fournir des fonctionnalités personnalisées sans stocker ni partager de données.\n\nᴠᴇᴜɪʟʟᴇᴢ ᴀᴄᴛɪᴠᴇʀ ɢɪᴛsʏɴᴄ sᴜʀ ʟᴀ ᴘʀᴏᴄʜᴀɪɴᴇ Éᴄʀᴀɴ';
-
-  @override
-  String get accessibilityServiceDescription =>
-      'Pour améliorer votre expérience, GitSync utilise le service d\'accessibilité d\'Android pour détecter quand les applications sont ouvertes ou fermées. Cela nous aide à fournir des fonctionnalités personnalisées sans stocker ni partager de données.\n\n Points clés :\n Objectif : Nous utilisons ce service uniquement pour améliorer votre expérience de l\'application.\n Confidentialité : Aucune donnée n\'est stockée ni envoyée ailleurs.\n Contrôle : Vous pouvez désactiver ces autorisations à tout moment dans les paramètres de votre appareil.';
 
   @override
   String get search => 'Rechercher';
@@ -745,13 +684,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sync => 'Synchroniser';
 
   @override
-  String get dontSync => 'Ne pas synchroniser';
-
-  @override
   String get iosDefaultSyncRate => 'quand iOS le permet';
-
-  @override
-  String get aboutEvery => '~toutes les';
 
   @override
   String get scheduledSync => 'Scheduled Sync';
@@ -796,25 +729,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enhancedScheduledSync => 'Synchronisation planifiée améliorée';
 
   @override
-  String get enhancedScheduledSyncMsg1 =>
-      'Contrairement à la synchronisation de base, cette fonctionnalité utilise des mises à jour d\'arrière-plan avancées pour fournir des données fraîches plus fréquemment et de manière plus fiable.';
-
-  @override
-  String get enhancedScheduledSyncMsg2 =>
-      'Synchronisez vos dépôts en arrière-plan aussi souvent qu\'une synchronisation par minute, même lorsque l\'application est fermée !\n\nLes mises à jour continues et sans effort signifient que vos dépôts sont toujours prêts quand vous l\'êtes.';
-
-  @override
-  String get enhancedScheduledSyncNote =>
-      'Remarque : la synchronisation en arrière-plan peut être affectée par les modes d\'économie de batterie et de Ne pas déranger.';
-
-  @override
   String get quickSyncSettings => 'Quick Sync Settings';
 
   @override
   String get quickSyncDescription => 'Sync using customizable quick tiles, shortcuts, or widgets';
-
-  @override
-  String get tileSyncSettings => 'Paramètres de sync de vignette';
 
   @override
   String get otherSyncSettings => 'Autres paramètres de sync';
@@ -1220,9 +1138,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get directory => 'Répertoire';
 
   @override
-  String get confirmFileDirDeleteTitle => 'Confirmer la suppression de %s';
-
-  @override
   String get confirmFileDirDeleteMsg => 'Êtes-vous sûr de vouloir supprimer le %s \"%s\" %s?';
 
   @override
@@ -1429,12 +1344,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ongoingMergeConflict => 'Conflit de fusion en cours';
 
   @override
-  String get enableAccessibilityService => 'Veuillez activer GitSync sous \"Applications installées\"';
-
-  @override
-  String get networkUnavailable => 'Réseau indisponible !';
-
-  @override
   String get networkUnavailableRetry => 'Réseau indisponible !\nGitSync réessaiera lors de la reconnexion';
 
   @override
@@ -1442,15 +1351,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reportABug => 'Signaler un bug';
-
-  @override
-  String get reportBug => '<Erreur GitSync> Appuyez pour envoyer un rapport de bug';
-
-  @override
-  String get unknownError => 'Erreur inconnue';
-
-  @override
-  String get enableNotifications => 'Activez la permission de notification pour en voir plus.';
 
   @override
   String get errorOccurredTitle => 'Une erreur s\'est produite !';
@@ -1463,47 +1363,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorOccurredMessagePart2 => 'Sinon, vous pouvez ignorer et continuer.';
 
   @override
-  String get applicationError => 'Erreur d\'application !';
-
-  @override
-  String get missingAuthorDetailsError =>
-      'Détails de l\'auteur du dépôt manquants. Veuillez définir votre nom et votre e-mail dans les paramètres du dépôt.';
-
-  @override
-  String get outOfMemory => 'L\'application a manqué de mémoire !';
-
-  @override
-  String get invalidRemote => 'Distant invalide ! Modifiez ceci dans les paramètres';
-
-  @override
-  String get largeFile => 'Fichiers uniques de plus de 50 Mo non pris en charge !';
-
-  @override
   String get cloneFailed => 'Échec du clonage du dépôt !';
-
-  @override
-  String get inaccessibleDirectoryMessage => 'Répertoire inaccessible ! Veuillez sélectionner un autre emplacement.';
-
-  @override
-  String get autoRebaseFailedException =>
-      'Le distant est plus avancé que le local et nous n\'avons pas pu effectuer de rebase automatique, car cela entraînerait une mise à jour non fast-forward.';
-
-  @override
-  String get nonExistingException => 'La référence distante n\'existait pas.';
-
-  @override
-  String get rejectedNodeleteException =>
-      'La mise à jour de la référence distante a été rejetée, car le côté distant ne prend pas en charge/n\'autorise pas la suppression des références.';
-
-  @override
-  String get rejectedException => 'La mise à jour de la référence distante a été rejetée.';
-
-  @override
-  String get rejectionWithReasonException => 'La mise à jour de la référence distante a été rejetée car %s.';
-
-  @override
-  String get remoteChangedException =>
-      'La mise à jour de la référence distante a été rejetée, car l\'ancien ID d\'objet dans le dépôt distant n\'était pas le même que celui défini dans l\'ancien objet attendu.';
 
   @override
   String get mergingExceptionMessage => 'FUSION EN COURS';
@@ -1539,9 +1399,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get githubIssueOauthMsg =>
       'Vous devez connecter votre compte GitHub pour signaler les bugs et suivre leur progression.\nVous pouvez réinitialiser cette connexion à tout moment dans les paramètres globaux.';
-
-  @override
-  String get issueReportMessage => 'Journaux automatiquement inclus dans les rapports';
 
   @override
   String get includeLogs => 'Include Log File(s)';

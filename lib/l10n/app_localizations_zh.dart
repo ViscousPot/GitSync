@@ -126,15 +126,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get premiumDialogTitle => '解锁高级版';
 
   @override
-  String get premiumDialogMessage => '多仓库支持是高级会员功能的一部分。\n只需一次支付 %s 即可永久解锁。\n\n高级功能：\n • 多仓库支持\n\n或者，连接您的 GitHub 账户以检查您是否是符合条件的 GitHub 赞助者。';
-
-  @override
-  String get premiumDialogButtonText => '以 %s 解锁';
-
-  @override
-  String get premiumDialogGitHubButtonText => '使用 GitHub 赞助';
-
-  @override
   String get restorePurchase => '恢复购买';
 
   @override
@@ -190,9 +181,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get premiumTrackLargeFiles => 'Track large binary files';
-
-  @override
-  String get premiumSeamlessSync => 'Seamless sync integration';
 
   @override
   String get premiumAutoLfsPullPush => 'Automatic LFS pull/push';
@@ -381,9 +369,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get merging => '合并中…';
 
   @override
-  String get resolvingMerge => '解决合并中…';
-
-  @override
   String get iosClearDataTitle => 'Is this a fresh install?';
 
   @override
@@ -415,12 +400,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setUp => '设置';
 
   @override
-  String get welcome => '欢迎！';
-
-  @override
-  String get welcomeMessage => '看起来这是您的第一次使用 GitSync。\n\n您想要进行引导设置来开始使用吗？';
-
-  @override
   String get welcomeSetupPrompt => 'Would you like to go through a quick setup to get started?';
 
   @override
@@ -436,29 +415,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notificationDialogTitle => '启用通知权限';
 
   @override
-  String get notificationDialogMessage => '请启用通知权限以获得最佳体验。\n\n应用使用通知来：\n  • 弹出同步消息（可选）\n  • 错误报告';
-
-  @override
   String get allFilesAccessDialogTitle => '启用\"所有文件访问权限\"';
-
-  @override
-  String get allFilesAccessDialogMessage => '没有\"所有文件访问权限\"您无法使用 GitSync！请启用它以获得最佳体验。\n\n应用使用\"所有文件访问权限\"将您的仓库同步到设备上选定的目录。应用不会尝试访问所选目录之外的任何文件。';
-
-  @override
-  String get almostThereDialogTitle => '快完成了！';
-
-  @override
-  String get almostThereDialogMessageAndroid =>
-      '很快，我们将进行身份验证并将您的仓库克隆到本地设备上，为同步做准备。\n\n设置完成后，有几种方式可以触发同步：\n\n  • 从应用内\n  • 从快速磁贴\n  • 使用自动同步\n  • 使用自定义 intent （高级）';
-
-  @override
-  String get almostThereDialogMessageIos => '很快，我们将进行身份验证并将您的仓库克隆到设备上，为同步做准备。\n\n设置完成后，有几种方式可以触发同步：\n\n  • 从应用内';
-
-  @override
-  String get authDialogTitle => '使用 Git 服务商进行身份验证';
-
-  @override
-  String get authDialogMessage => '请使用您选择的 Git 服务商进行身份验证，然后克隆您的仓库！';
 
   @override
   String get authorDetailsPromptTitle => '需要提交者信息';
@@ -471,13 +428,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get goToSettings => '前往设置';
-
-  @override
-  String get enableAutosyncTitle => 'Enable App Sync';
-
-  @override
-  String get enableAutosyncMessage =>
-      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
 
   @override
   String get onboardingSyncSettingsTitle => 'Sync Settings';
@@ -675,9 +625,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get auth => '认证';
 
   @override
-  String get gitDirPathHint => '/storage/emulated/0/…';
-
-  @override
   String get openFileExplorer => '浏览及编辑';
 
   @override
@@ -695,10 +642,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get accessibilityServiceDisclosureMessage =>
       '为了增强您的体验，\nGitSync 使用 Android 的无障碍服务来检测应用的打开或关闭。\n\n这帮助我们提供定制功能，而不存储或共享任何数据。\n\n请在下一个屏幕上启用 GitSync';
-
-  @override
-  String get accessibilityServiceDescription =>
-      '为了增强您的体验，GitSync 使用 Android 的无障碍服务来检测应用的打开或关闭。这帮助我们提供定制功能，而不存储或共享任何数据。\n\n要点：\n目的：我们仅使用此服务来改善您的应用体验。\n隐私：不存储或发送数据到其他地方。\n控制：您可以随时在设备设置中禁用这些权限。';
 
   @override
   String get search => '搜索';
@@ -734,13 +677,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sync => '同步';
 
   @override
-  String get dontSync => '不同步';
-
-  @override
   String get iosDefaultSyncRate => '当 iOS 允许时';
-
-  @override
-  String get aboutEvery => '约每';
 
   @override
   String get scheduledSync => 'Scheduled Sync';
@@ -785,22 +722,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get enhancedScheduledSync => '增强定时同步';
 
   @override
-  String get enhancedScheduledSyncMsg1 => '与基本同步不同，此功能使用高级后台更新来更频繁和可靠地提供新数据。';
-
-  @override
-  String get enhancedScheduledSyncMsg2 => '在后台同步您的仓库，频率可达每分钟一次，即使应用关闭时也可以！\n\n轻松的持续更新意味着您的仓库在您需要时总是准备就绪。';
-
-  @override
-  String get enhancedScheduledSyncNote => '注意：后台同步可能会受到省电模式和勿扰模式的影响。';
-
-  @override
   String get quickSyncSettings => 'Quick Sync Settings';
 
   @override
   String get quickSyncDescription => 'Sync using customizable quick tiles, shortcuts, or widgets';
-
-  @override
-  String get tileSyncSettings => '磁贴同步设置';
 
   @override
   String get otherSyncSettings => '其他同步设置';
@@ -1203,9 +1128,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get directory => '目录';
 
   @override
-  String get confirmFileDirDeleteTitle => '确认删除 %s';
-
-  @override
   String get confirmFileDirDeleteMsg => '您确定要删除 %s \"%s\" 及其内容吗？';
 
   @override
@@ -1412,12 +1334,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ongoingMergeConflict => '存在合并冲突';
 
   @override
-  String get enableAccessibilityService => '请在\"已安装的应用\"下启用 GitSync';
-
-  @override
-  String get networkUnavailable => '网络不可用！';
-
-  @override
   String get networkUnavailableRetry => '网络不可用！\nGitSync 将在重新连接时重试';
 
   @override
@@ -1425,15 +1341,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reportABug => '报告错误';
-
-  @override
-  String get reportBug => '<GitSync 错误> 点击发送错误报告';
-
-  @override
-  String get unknownError => '未知错误';
-
-  @override
-  String get enableNotifications => '启用通知权限以查看更多信息。';
 
   @override
   String get errorOccurredTitle => '发生错误！';
@@ -1445,43 +1352,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorOccurredMessagePart2 => '否则，您可以关闭并继续。';
 
   @override
-  String get applicationError => '应用程序错误！';
-
-  @override
-  String get missingAuthorDetailsError => '缺少仓库作者详细信息。请在仓库设置中设置您的姓名和邮箱。';
-
-  @override
-  String get outOfMemory => '内存分配不足！';
-
-  @override
-  String get invalidRemote => '无效远程！在设置中修改此项';
-
-  @override
-  String get largeFile => '不支持大于 50MB 的单个文件！';
-
-  @override
   String get cloneFailed => '克隆仓库失败！';
-
-  @override
-  String get inaccessibleDirectoryMessage => '无法访问目录！请选择不同位置。';
-
-  @override
-  String get autoRebaseFailedException => '远程比本地更超前，我们无法自动为您变基，因为这会导致非快进更新。';
-
-  @override
-  String get nonExistingException => '远程引用不存在。';
-
-  @override
-  String get rejectedNodeleteException => '远程引用更新被拒绝，因为远程端不支持/允许删除引用。';
-
-  @override
-  String get rejectedException => '远程引用更新被拒绝。';
-
-  @override
-  String get rejectionWithReasonException => '远程引用更新被拒绝，因为 %s。';
-
-  @override
-  String get remoteChangedException => '远程引用更新被拒绝，因为远程仓库上的旧对象 ID 与定义的预期旧对象不同。';
 
   @override
   String get mergingExceptionMessage => '合并中';
@@ -1516,9 +1387,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get githubIssueOauthMsg => '您需要连接您的 GitHub 账户来报告错误并跟踪其进度。\n您可以随时在全局设置中重置此连接。';
-
-  @override
-  String get issueReportMessage => '日志自动包含在报告中';
 
   @override
   String get includeLogs => 'Include Log File(s)';
