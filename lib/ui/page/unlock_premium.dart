@@ -396,79 +396,81 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                               t.restorePurchase.toUpperCase(),
                               style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
                             ),
-                            onPressed: () async {},
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                              backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignCenter),
-                                ),
-                              ),
-                            ),
-                            constraints: BoxConstraints(),
                             onPressed: () async {
                               await _verifyGhSponsor();
                             },
-                            icon: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      "github".toUpperCase(),
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
-                                    ),
-                                    SizedBox(height: spaceXXXXS),
-                                    Text(
-                                      "sponsors".toUpperCase(),
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: spaceXS),
-                                FaIcon(FontAwesomeIcons.github, color: colours.premiumBg),
-                              ],
-                            ),
                           ),
                         ),
+                        // Positioned(
+                        //   right: 0,
+                        //   top: 0,
+                        //   bottom: 0,
+                        //   child: IconButton(
+                        //     padding: EdgeInsets.zero,
+                        //     style: ButtonStyle(
+                        //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        //       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                        //       backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
+                        //       shape: WidgetStatePropertyAll(
+                        //         RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.all(cornerRadiusMD),
+                        //           side: BorderSide(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignCenter),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     constraints: BoxConstraints(),
+                        //     onPressed: () async {
+                        //       await _verifyGhSponsor();
+                        //     },
+                        //     icon: Row(
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       children: [
+                        //         Column(
+                        //           mainAxisAlignment: MainAxisAlignment.center,
+                        //           crossAxisAlignment: CrossAxisAlignment.end,
+                        //           children: [
+                        //             Text(
+                        //               "github".toUpperCase(),
+                        //               maxLines: 1,
+                        //               textAlign: TextAlign.center,
+                        //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
+                        //             ),
+                        //             SizedBox(height: spaceXXXXS),
+                        //             Text(
+                        //               "sponsors".toUpperCase(),
+                        //               maxLines: 1,
+                        //               textAlign: TextAlign.center,
+                        //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //         SizedBox(width: spaceXS),
+                        //         FaIcon(FontAwesomeIcons.github, color: colours.premiumBg),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
-                    SizedBox(height: spaceMD),
-                    TextButton(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                        backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                            side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        "enterprise".toUpperCase(),
-                        style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
-                      ),
-                      onPressed: () async {},
-                    ),
+                    // SizedBox(height: spaceMD),
+                    // TextButton(
+                    //   style: ButtonStyle(
+                    //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    //     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                    //     backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
+                    //     shape: WidgetStatePropertyAll(
+                    //       RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.all(cornerRadiusMD),
+                    //         side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   child: Text(
+                    //     "enterprise".toUpperCase(),
+                    //     style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                    //   ),
+                    //   onPressed: () async {},
+                    // ),
                     if (widget.onboarding) ...[
                       SizedBox(height: spaceMD),
                       TextButton(
