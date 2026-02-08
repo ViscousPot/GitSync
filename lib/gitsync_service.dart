@@ -249,6 +249,7 @@ class GitsyncService {
           await _displaySyncMessage(settingsManager, s.syncNotRequired);
         }
       } else {
+        await GitManager.getRecentCommits();
         await _displaySyncMessage(settingsManager, s.syncComplete);
       }
 

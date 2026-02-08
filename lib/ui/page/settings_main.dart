@@ -29,7 +29,7 @@ class SettingsMain extends StatefulWidget {
   State<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin, RestorationMixin {
+class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin, RestorationMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
