@@ -137,15 +137,11 @@
     "authDialogMessage": "¡Por favor, auténticate con tu proveedor git elegido y continúa para clonar tu repositorio!",
     "authorDetailsPromptTitle": "Detalles del Autor Requeridos",
     "authorDetailsPromptMessage": "Faltan tu nombre de autor o email. Por favor, actualízalos en la configuración del repositorio antes de sync.",
-    
+
+    "onboardingOtherSyncDescription": "Explore additional sync methods for your platform",
+    "onboardingTapToConfigure": "Tap to configure",
+
     "goToSettings": "Ir a Configuración",
-    "addMoreHint": "Haz clic en este botón para agregar repositorios adicionales a la aplicación",
-    "globalSettingsHint": "Haz clic en este botón para acceder a la configuración global de la aplicación",
-    "syncProgressHint": "Rastrea el estado de las operaciones de sync activas aquí",
-    "controlHint": "Usa estos controles para sync manualmente o gestionar acciones del repositorio",
-    "configHint": "Configura los ajustes del repositorio e inicializa la configuración usando esta sección",
-    "autoSyncOptionsHint": "Habilita la sync en segundo plano y asegúrate de que tus datos se mantengan actualizados automáticamente usando estos ajustes",
-    "guidedSetupHint": "Haz clic aquí para reiniciar la configuración o la guía de la interfaz cuando necesites un tutorial o quieras revisar la interfaz de nuevo",
 
 
     "@@x-HOME_PAGE": "",

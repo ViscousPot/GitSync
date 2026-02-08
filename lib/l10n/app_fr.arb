@@ -138,14 +138,11 @@
     "authorDetailsPromptTitle": "Détails de l'auteur requis",
     "authorDetailsPromptMessage": "Votre nom ou e-mail d'auteur est manquant. Veuillez les mettre à jour dans les paramètres du dépôt avant de synchroniser.",
     "authorDetailsShowcasePrompt":  "Renseignez vos détails d'auteur",
+
+    "onboardingOtherSyncDescription": "Explore additional sync methods for your platform",
+    "onboardingTapToConfigure": "Tap to configure",
+
     "goToSettings": "Aller aux paramètres",
-    "addMoreHint": "Cliquez sur ce bouton pour ajouter des dépôts supplémentaires à l'application",
-    "globalSettingsHint": "Cliquez sur ce bouton pour accéder aux paramètres globaux de l'application",
-    "syncProgressHint": "Suivez ici l'état des opérations de synchronisation actives",
-    "controlHint": "Utilisez ces contrôles pour synchroniser manuellement ou gérer les actions du dépôt",
-    "configHint": "Configurez les paramètres du dépôt et initialisez la configuration à l'aide de cette section",
-    "autoSyncOptionsHint": "Activez la synchronisation en arrière-plan et assurez-vous que vos données restent à jour automatiquement à l'aide de ces paramètres",
-    "guidedSetupHint": "Cliquez ici pour redémarrer la configuration ou le guide d'interface utilisateur chaque fois que vous avez besoin d'une visite guidée ou que vous souhaitez revoir l'interface utilisateur",
 
 
     "@@x-HOME_PAGE": "",

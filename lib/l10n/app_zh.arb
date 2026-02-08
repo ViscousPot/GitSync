@@ -137,15 +137,11 @@
     "authDialogMessage": "请使用您选择的 Git 服务商进行身份验证，然后克隆您的仓库！",
     "authorDetailsPromptTitle": "需要提交者信息",
     "authorDetailsPromptMessage": "您的提交者昵称或邮箱缺失。请在仓库设置中更新它们。",
-    
+
+    "onboardingOtherSyncDescription": "Explore additional sync methods for your platform",
+    "onboardingTapToConfigure": "Tap to configure",
+
     "goToSettings": "前往设置",
-    "addMoreHint": "点击此按钮向应用添加其他仓库",
-    "globalSettingsHint": "点击此按钮访问全局应用设置",
-    "syncProgressHint": "在此处跟踪活动同步操作的状态",
-    "controlHint": "使用这些控件手动同步或管理仓库操作",
-    "configHint": "使用此部分配置仓库设置并初始化设置",
-    "autoSyncOptionsHint": "使用这些设置启用后台同步并确保您的数据自动保持最新",
-    "guidedSetupHint": "需要演示或想要重新查看界面时，点击此处重新开始设置或界面指南",
 
 
     "@@x-HOME_PAGE": "",
