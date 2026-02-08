@@ -50,7 +50,6 @@ import '../src/rust/frb_generated.dart';
 import '../type/git_provider.dart';
 import '../ui/dialog/auth.dart' as AuthDialog;
 import '../ui/dialog/author_details_prompt.dart' as AuthorDetailsPromptDialog;
-import '../ui/dialog/legacy_app_user.dart' as LegacyAppUserDialog;
 import '../ui/dialog/add_container.dart' as AddContainerDialog;
 import '../ui/dialog/remove_container.dart' as RemoveContainerDialog;
 import '../ui/dialog/rename_container.dart' as RenameContainerDialog;
