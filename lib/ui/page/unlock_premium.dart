@@ -11,11 +11,14 @@ import '../../../constant/dimens.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 
-const double _featureCardHeight = spaceXXXS * 2 +
-    spaceSM * 2 + textXS * 1.5 +
+const double _featureCardHeight =
+    spaceXXXS * 2 +
+    spaceSM * 2 +
+    textXS * 1.5 +
     spaceMD +
     spaceLG +
-    spaceXXXS * 4 + textSM * 1.5 +
+    spaceXXXS * 4 +
+    textSM * 1.5 +
     spaceMD +
     textXL * 1.5 +
     spaceSM +
@@ -331,7 +334,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                         constraints: BoxConstraints(minHeight: constraints.maxHeight),
                         child: Column(
                           children: [
-                            SizedBox(height: spaceMD),
+                            SizedBox(height: spaceLG),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
                               child: SizedBox(
@@ -348,7 +351,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(bottom: spaceLG),
+                              padding: EdgeInsets.only(bottom: spaceXL),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: List.generate(cards.length, (index) {
