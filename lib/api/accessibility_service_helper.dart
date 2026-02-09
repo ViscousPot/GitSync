@@ -31,6 +31,10 @@ class AccessibilityServiceHelper {
     return await _channel.invokeMethod('hasLegacySettings');
   }
 
+  static Future<bool> deleteLegacySettings() async {
+    return await _channel.invokeMethod('deleteLegacySettings');
+  }
+
   static Future<bool> isAccessibilityServiceEnabled() async {
     if (Platform.isIOS) return false;
     final bool isEnabled = await _channel.invokeMethod('isAccessibilityServiceEnabled') ?? false;

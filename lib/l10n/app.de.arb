@@ -137,15 +137,11 @@
     "authDialogMessage": "Bitte authentifizieren Sie sich mit Ihrem gewählten Git-Anbieter und fahren Sie mit dem Klonen Ihres Repos fort!",
     "authorDetailsPromptTitle": "Autor-Details erforderlich",
     "authorDetailsPromptMessage": "Ihr Autorenname oder Ihre E-Mail fehlen. Bitte aktualisieren Sie diese in den Repository-Einstellungen vor der Synchronisation.",
-    
+
+    "onboardingOtherSyncDescription": "Explore additional sync methods for your platform",
+    "onboardingTapToConfigure": "Tap to configure",
+
     "goToSettings": "Zu den Einstellungen",
-    "addMoreHint": "Klicken Sie diese Schaltfläche, um weitere Repositorys zur App hinzuzufügen",
-    "globalSettingsHint": "Klicken Sie diese Schaltfläche, um auf die globalen App-Einstellungen zuzugreifen",
-    "syncProgressHint": "Verfolgen Sie hier den Status aktiver Synchronisationsvorgänge",
-    "controlHint": "Verwenden Sie diese Steuerelemente, um manuell zu synchronisieren oder Repository-Aktionen zu verwalten",
-    "configHint": "Konfigurieren Sie Repository-Einstellungen und initialisieren Sie die Einrichtung mit diesem Bereich",
-    "autoSyncOptionsHint": "Aktivieren Sie Hintergrund-Sync und stellen Sie sicher, dass Ihre Daten automatisch mit diesen Einstellungen auf dem neuesten Stand bleiben",
-    "guidedSetupHint": "Klicken Sie hier, um die Einrichtung oder UI-Führung neu zu starten, wenn Sie eine Anleitung benötigen oder die Benutzeroberfläche erneut überprüfen möchten",
 
 
     

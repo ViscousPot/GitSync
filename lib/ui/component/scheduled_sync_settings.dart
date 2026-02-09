@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/strings.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
@@ -12,7 +12,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:workmanager/workmanager.dart';
 
 class ScheduledSyncSettings extends StatefulWidget {
-  const ScheduledSyncSettings({super.key});
+  final bool isOnboarding;
+
+  const ScheduledSyncSettings({super.key, this.isOnboarding = false});
 
   @override
   State<ScheduledSyncSettings> createState() => _ScheduledSyncSettingsState();
@@ -20,6 +22,19 @@ class ScheduledSyncSettings extends StatefulWidget {
 
 class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
   final recurFrequency = ["never", "min", "hour", "day", "week"];
+
+  String? _customFrequency;
+  int? _customRate;
+  bool _customError = false;
+
+  static const List<(String, String, int)> _presets = [
+    ('interval30min', 'min', 30),
+    ('interval1hour', 'hour', 1),
+    ('interval6hours', 'hour', 6),
+    ('interval12hours', 'hour', 12),
+    ('interval1day', 'day', 1),
+    ('interval1week', 'week', 1),
+  ];
 
   Future<void> setScheduledSync(String? frequency, int rate) async {
     // TODO: run these when repo/container is delete for cleanup
@@ -54,8 +69,356 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
     });
   }
 
+  String _presetLabel(String key) {
+    switch (key) {
+      case 'interval30min':
+        return t.interval30min;
+      case 'interval1hour':
+        return t.interval1hour;
+      case 'interval6hours':
+        return t.interval6hours;
+      case 'interval12hours':
+        return t.interval12hours;
+      case 'interval1day':
+        return t.interval1day;
+      case 'interval1week':
+        return t.interval1week;
+      default:
+        return key;
+    }
+  }
+
+  String _frequencyLabel(String freq) {
+    switch (freq) {
+      case 'min':
+        return t.minutes;
+      case 'hour':
+        return t.hours;
+      case 'day':
+        return t.days;
+      case 'week':
+        return t.weeks;
+      default:
+        return freq;
+    }
+  }
+
+  bool _matchesPreset(String frequency, int rate, (String, String, int) preset) {
+    return frequency == preset.$2 && rate == preset.$3;
+  }
+
+  bool _isCustom(String frequency, int rate) {
+    return _customFrequency != null || !_presets.any((p) => _matchesPreset(frequency, rate, p));
+  }
+
+  Widget _buildEnableToggle(bool isEnabled) {
+    return Padding(
+      padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
+      child: TextButton.icon(
+        onPressed: () async {
+          _customFrequency = null;
+          _customRate = null;
+          _customError = false;
+          if (isEnabled) {
+            await setScheduledSync("never", 1);
+          } else {
+            await setScheduledSync("min", 15);
+          }
+        },
+        iconAlignment: IconAlignment.end,
+        style: ButtonStyle(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: WidgetStatePropertyAll(EdgeInsets.only(left: spaceMD, top: spaceXS, bottom: spaceXS, right: spaceXS)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+        ),
+        icon: Container(
+          margin: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
+          width: spaceLG,
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: Switch(
+              value: isEnabled,
+              onChanged: (value) async {
+                _customFrequency = null;
+                _customRate = null;
+                _customError = false;
+                if (value) {
+                  await setScheduledSync("min", 15);
+                } else {
+                  await setScheduledSync("never", 1);
+                }
+              },
+              padding: EdgeInsets.zero,
+              thumbColor: WidgetStatePropertyAll(isEnabled ? colours.primaryPositive : colours.tertiaryDark),
+              trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
+              activeThumbColor: colours.primaryPositive,
+              inactiveTrackColor: colours.tertiaryLight,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ),
+        label: Text(
+          t.scheduledSync,
+          style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChip(String label, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+        decoration: BoxDecoration(color: selected ? colours.tertiaryInfo : colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        child: Center(
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: selected ? colours.primaryDark : colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIntervalChips(String frequency, int rate) {
+    final isCustomSelected = _isCustom(frequency, rate);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
+          child: Column(
+            spacing: spaceXS,
+            children: [
+              Row(
+                spacing: spaceXS,
+                children: [
+                  ..._presets.slice(0, 3).map((preset) {
+                    final selected = !isCustomSelected && _matchesPreset(frequency, rate, preset);
+                    return Expanded(
+                      child: _buildChip(_presetLabel(preset.$1), selected, () async {
+                        _customFrequency = null;
+                        _customRate = null;
+                        _customError = false;
+                        await setScheduledSync(preset.$2, preset.$3);
+                      }),
+                    );
+                  }),
+                ],
+              ),
+              Row(
+                spacing: spaceXS,
+                children: [
+                  ..._presets.slice(3, 6).map((preset) {
+                    final selected = !isCustomSelected && _matchesPreset(frequency, rate, preset);
+                    return Expanded(
+                      child: _buildChip(_presetLabel(preset.$1), selected, () async {
+                        _customFrequency = null;
+                        _customRate = null;
+                        _customError = false;
+                        await setScheduledSync(preset.$2, preset.$3);
+                      }),
+                    );
+                  }),
+                ],
+              ),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AnimatedSize(
+                      duration: Duration(milliseconds: 200),
+                      child: isCustomSelected ? _buildCustomInputs(frequency, rate) : SizedBox.shrink(),
+                    ),
+                    Expanded(
+                      child: _buildChip(
+                        isCustomSelected ? t.confirm : t.custom,
+                        isCustomSelected,
+                        isCustomSelected
+                            ? () async {
+                                final freq = _customFrequency ?? frequency;
+                                final r = _customRate ?? rate;
+                                final min = freq == "min" ? 15 : 1;
+
+                                if (r < min || r > 1000) {
+                                  setState(() {
+                                    _customError = true;
+                                  });
+                                  return;
+                                }
+
+                                _customFrequency = null;
+                                _customRate = null;
+                                _customError = false;
+                                await setScheduledSync(freq, r);
+                              }
+                            : () {
+                                if (!isCustomSelected) {
+                                  setState(() {
+                                    _customFrequency = frequency;
+                                    _customRate = rate;
+                                  });
+                                }
+                              },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCustomInputs(String frequency, int rate) {
+    final customFreq = _customFrequency ?? frequency;
+    final customRate = _customRate ?? rate;
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            width: spaceXL,
+            decoration: BoxDecoration(
+              color: colours.tertiaryDark,
+              borderRadius: BorderRadius.all(cornerRadiusSM),
+              border: Border.all(color: _customError ? colours.tertiaryNegative : Colors.transparent, width: 1.5),
+            ),
+            child: TextField(
+              contextMenuBuilder: globalContextMenuBuilder,
+              maxLines: 1,
+              controller: TextEditingController(text: customRate.toString()),
+              keyboardType: TextInputType.number,
+              style: TextStyle(
+                color: _customError ? colours.tertiaryNegative : colours.primaryLight,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+                decorationThickness: 0,
+                fontSize: textMD,
+              ),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(borderSide: BorderSide.none),
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
+                hintText: "0",
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                isDense: true,
+              ),
+              onChanged: (value) {
+                _customRate = int.tryParse(value);
+                if (_customError) {
+                  setState(() {
+                    _customError = false;
+                  });
+                }
+              },
+            ),
+          ),
+          SizedBox(width: spaceXS),
+          Container(
+            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            child: DropdownButton(
+              isDense: true,
+              padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
+              value: customFreq,
+              menuMaxHeight: 250,
+              borderRadius: BorderRadius.all(cornerRadiusSM),
+              underline: const SizedBox.shrink(),
+              dropdownColor: colours.primaryDark,
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _customFrequency = value;
+                    _customRate = value == "min" ? 15 : 1;
+                    _customError = false;
+                  });
+                }
+              },
+              items: recurFrequency.sublist(1).map((item) {
+                return DropdownMenuItem(
+                  value: item,
+                  child: Text(
+                    _frequencyLabel(item),
+                    style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          SizedBox(width: spaceXS),
+          // IconButton(
+          //   padding: EdgeInsets.all(spaceXS),
+          //   style: ButtonStyle(
+          //     backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+          //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          //     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
+          //   ),
+          //   constraints: BoxConstraints(),
+          //   onPressed: () async {
+          //   },
+          //   icon: FaIcon(FontAwesomeIcons.check, color: colours.primaryDark, size: textMD),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return FutureBuilder(
+      future: (() async {
+        final parts = (await uiSettingsManager.getString(StorageKey.setman_schedule)).split("|");
+        return (parts.first, int.tryParse(parts.last) ?? 0);
+      })(),
+      builder: (context, scheduleSnapshot) {
+        final frequency = scheduleSnapshot.data?.$1 ?? "never";
+        final rate = scheduleSnapshot.data?.$2 ?? 0;
+        final isEnabled = frequency != "never";
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildEnableToggle(isEnabled),
+            SizedBox(height: spaceXS),
+            AnimatedSize(
+              duration: Duration(milliseconds: 200),
+              child: isEnabled
+                  ? (Platform.isIOS
+                        ? Padding(
+                            padding: widget.isOnboarding
+                                ? EdgeInsets.only(bottom: spaceSM)
+                                : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceMD + spaceXS, bottom: spaceSM),
+                            child: Text(
+                              t.iosDefaultSyncRate,
+                              style: TextStyle(fontSize: textMD, color: colours.tertiaryLight),
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.only(bottom: spaceSM),
+                            child: _buildIntervalChips(frequency, rate),
+                          ))
+                  : SizedBox.shrink(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.isOnboarding) {
+      return _buildBody();
+    }
+
     return Container(
       decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
       child: FutureBuilder(
@@ -148,183 +511,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
             ),
             AnimatedSize(
               duration: Duration(milliseconds: 200),
-              child: Container(
-                height: (snapshot.data ?? false) ? null : 0,
-                padding: EdgeInsets.symmetric(horizontal: spaceMD + spaceXS, vertical: 0),
-                child: (snapshot.data ?? false)
-                    ? FutureBuilder(
-                        future: (() async {
-                          final parts = (await uiSettingsManager.getString(StorageKey.setman_schedule)).split("|");
-                          return (parts.first, int.tryParse(parts.last) ?? 0);
-                        })(),
-                        builder: (context, scheduleSnapshot) => SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                child: DropdownButton(
-                                  isDense: true,
-                                  padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
-                                  value: scheduleSnapshot.data?.$1 != "never",
-                                  menuMaxHeight: 250,
-                                  borderRadius: BorderRadius.all(cornerRadiusSM),
-                                  underline: const SizedBox.shrink(),
-                                  dropdownColor: colours.tertiaryDark,
-                                  onChanged: (value) {},
-                                  items: [true, false].map((item) {
-                                    return DropdownMenuItem(
-                                      value: item,
-                                      onTap: () async {
-                                        if (item == true) {
-                                          await setScheduledSync("min", 15);
-                                          return;
-                                        } else {
-                                          await setScheduledSync("never", 1);
-                                        }
-                                        if (item == false) return;
-                                      },
-                                      child: Row(
-                                        children: [
-                                          FaIcon(
-                                            (item ? FontAwesomeIcons.arrowsRotate : FontAwesomeIcons.ban),
-                                            color: (!item ? colours.tertiaryNegative : colours.primaryLight),
-                                            size: textSM,
-                                          ),
-                                          SizedBox(width: spaceXS),
-                                          Text(
-                                            (item ? t.sync : t.dontSync).toUpperCase(),
-                                            style: TextStyle(
-                                              fontSize: textSM,
-                                              color: colours.primaryLight,
-                                              fontWeight: FontWeight.bold,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                              // enhancedScheduledSync == true ?  :
-                              ...scheduleSnapshot.data?.$1 == "never"
-                                  ? []
-                                  : (Platform.isIOS
-                                        ? [
-                                            SizedBox(width: spaceSM),
-                                            Text(
-                                              t.iosDefaultSyncRate.toUpperCase(),
-                                              style: TextStyle(
-                                                fontSize: textSM,
-                                                color: colours.primaryLight,
-                                                fontWeight: FontWeight.bold,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ]
-                                        : [
-                                            SizedBox(width: spaceSM),
-                                            Text(
-                                              t.aboutEvery.toUpperCase(),
-                                              style: TextStyle(
-                                                fontSize: textSM,
-                                                color: colours.primaryLight,
-                                                fontWeight: FontWeight.bold,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            SizedBox(width: spaceXS),
-                                            Container(
-                                              width: spaceXL,
-                                              margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                              child: TextField(
-                                                contextMenuBuilder: globalContextMenuBuilder,
-                                                maxLines: 1,
-                                                controller: TextEditingController(text: scheduleSnapshot.data?.$2.toString()),
-                                                keyboardType: TextInputType.number,
-                                                inputFormatters: [
-                                                  FilteringTextInputFormatter.digitsOnly,
-                                                  TextInputFormatter.withFunction((oldValue, newValue) {
-                                                    final text = newValue.text;
-                                                    if (text.isEmpty) {
-                                                      return newValue;
-                                                    }
-                                                    final value = int.tryParse(text);
-                                                    if (value == null || value < (scheduleSnapshot.data?.$1 == "min" ? 15 : 1) || value > 1000) {
-                                                      return oldValue;
-                                                    }
-                                                    return newValue;
-                                                  }),
-                                                ],
-                                                style: TextStyle(
-                                                  color: colours.primaryLight,
-                                                  fontWeight: FontWeight.bold,
-                                                  decoration: TextDecoration.none,
-                                                  decorationThickness: 0,
-                                                  fontSize: textMD,
-                                                ),
-                                                decoration: InputDecoration(
-                                                  border: const OutlineInputBorder(borderSide: BorderSide.none),
-                                                  isCollapsed: true,
-                                                  contentPadding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
-                                                  hintText: "0",
-                                                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                  isDense: true,
-                                                ),
-                                                onChanged: (value) async {
-                                                  await setScheduledSync(
-                                                    scheduleSnapshot.data?.$1,
-                                                    int.tryParse(value) ?? (scheduleSnapshot.data?.$1 == "min" ? 15 : 1),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(width: spaceXS),
-                                            Container(
-                                              margin: EdgeInsets.symmetric(vertical: spaceSM, horizontal: 0),
-                                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                              child: DropdownButton(
-                                                isDense: true,
-                                                padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
-                                                value: scheduleSnapshot.data?.$1,
-                                                menuMaxHeight: 250,
-                                                borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                underline: const SizedBox.shrink(),
-                                                dropdownColor: colours.primaryDark,
-                                                onChanged: (value) async {
-                                                  await setScheduledSync(value, (value == "min" ? 15 : 1));
-                                                },
-                                                items: recurFrequency.sublist(1).map((item) {
-                                                  return DropdownMenuItem(
-                                                    value: item,
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                          "$item(s)".toUpperCase(),
-                                                          style: TextStyle(
-                                                            fontSize: textSM,
-                                                            color: colours.primaryLight,
-                                                            fontWeight: FontWeight.bold,
-                                                            overflow: TextOverflow.ellipsis,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                          ]),
-                            ],
-                          ),
-                        ),
-                      )
-                    : null,
-              ),
+              child: SizedBox(height: (snapshot.data ?? false) ? null : 0, child: (snapshot.data ?? false) ? _buildBody() : null),
             ),
           ],
         ),

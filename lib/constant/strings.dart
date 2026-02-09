@@ -6,9 +6,11 @@ const String settings_main = "/settings_main";
 const String file_explorer = "/file_explorer";
 const String code_editor = "/code_editor";
 const String clone_repo_main = "/clone_repo_main";
+const String onboarding_setup = "/onboarding_setup";
 const String sync_settings_main = "/sync_settings_main";
-const String image_viewer = "/clone_repo_main";
+const String image_viewer = "/image_viewer";
 const String global_settings_main = "/global_settings_main";
+const String unlock_premium = "/unlock_premium";
 
 // Paths
 const String gitIgnorePath = ".gitignore";

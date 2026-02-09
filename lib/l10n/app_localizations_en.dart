@@ -126,16 +126,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumDialogTitle => 'Unlock Premium';
 
   @override
-  String get premiumDialogMessage =>
-      'This feature is part of the premium experience.\nMake a one-time payment of %s to unlock it and enjoy more powerful tools.\n\nPremium Features:\n • Multi-repo support\n\nAlternatively, connect your GitHub account to check if you\'re an eligible GitHub Sponsor.';
-
-  @override
-  String get premiumDialogButtonText => 'Unlock for %s';
-
-  @override
-  String get premiumDialogGitHubButtonText => 'Use GitHub Sponsors';
-
-  @override
   String get restorePurchase => 'Restore Purchase';
 
   @override
@@ -147,6 +137,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verifyGhSponsorNote => 'Note: new sponsorships may take up to 1 day to become available in the app.';
+
+  @override
+  String get premiumStoreOnlyBanner => 'Store version only — Get it on the App Store or Play Store';
+
+  @override
+  String get premiumMultiRepoTitle => 'Manage Multiple Repos';
+
+  @override
+  String get premiumMultiRepoSubtitle => 'One app. All your repositories.\nEach with its own credentials and settings.';
+
+  @override
+  String get premiumUnlimitedContainers => 'Unlimited containers';
+
+  @override
+  String get premiumIndependentAuth => 'Independent auth per repo';
+
+  @override
+  String get premiumAutoAddSubmodules => 'Auto-add submodules';
+
+  @override
+  String get premiumEnhancedSyncSubtitle => 'Automated background sync on iOS.\nAs low as once per minute.';
+
+  @override
+  String get premiumSyncPerMinute => 'Sync as often as every minute';
+
+  @override
+  String get premiumServerTriggered => 'Server push notifications';
+
+  @override
+  String get premiumWorksAppClosed => 'Works even when app is closed';
+
+  @override
+  String get premiumReliableDelivery => 'Reliable, on-schedule delivery';
+
+  @override
+  String get premiumGitLfsTitle => 'Git LFS';
+
+  @override
+  String get premiumGitLfsSubtitle => 'Full support for Git Large File Storage.\nSync repos with large binary files effortlessly.';
+
+  @override
+  String get premiumFullLfsSupport => 'Full Git LFS support';
+
+  @override
+  String get premiumTrackLargeFiles => 'Track large binary files';
+
+  @override
+  String get premiumAutoLfsPullPush => 'Automatic LFS pull/push';
+
+  @override
+  String get premiumGitFiltersTitle => 'Git Filters';
+
+  @override
+  String get premiumGitFiltersSubtitle => 'Support for git filters including git-lfs,\ngit-crypt, and more coming soon.';
+
+  @override
+  String get premiumGitLfsFilter => 'git-lfs filter';
+
+  @override
+  String get premiumGitCryptFilter => 'git-crypt filter';
+
+  @override
+  String get premiumMoreFiltersSoon => 'More filters coming soon';
+
+  @override
+  String get premiumGitHooksTitle => 'Git Hooks';
+
+  @override
+  String get premiumGitHooksSubtitle => 'Run pre-commit hooks automatically\nbefore every sync.';
+
+  @override
+  String get premiumHookTrailingWhitespace => 'trailing-whitespace';
+
+  @override
+  String get premiumHookEndOfFileFixer => 'end-of-file-fixer';
+
+  @override
+  String get premiumHookCheckYamlJson => 'check-yaml / check-json';
+
+  @override
+  String get premiumHookMixedLineEnding => 'mixed-line-ending';
+
+  @override
+  String get premiumHookDetectPrivateKey => 'detect-private-key';
 
   @override
   String get switchToClientMode => 'Switch to Client Mode…';
@@ -296,9 +370,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get merging => 'Merging…';
 
   @override
-  String get resolvingMerge => 'Resolving merge…';
-
-  @override
   String get iosClearDataTitle => 'Is this a fresh install?';
 
   @override
@@ -331,10 +402,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setUp => 'Set Up';
 
   @override
-  String get welcome => 'Welcome!';
-
-  @override
-  String get welcomeMessage => 'It looks like this is your first time here.\n\nWould you like to go through a quick setup to get started?';
+  String get welcomeSetupPrompt => 'Would you like to go through a quick setup to get started?';
 
   @override
   String get welcomePositive => 'Let\'s go';
@@ -349,32 +417,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationDialogTitle => 'Enable Notifications';
 
   @override
-  String get notificationDialogMessage =>
-      'Please enable notification permissions for the best experience.\n\nThe app uses notifications for \n  • popup sync messages (optional)\n  • bug reports';
-
-  @override
   String get allFilesAccessDialogTitle => 'Enable \"All Files Access\"';
-
-  @override
-  String get allFilesAccessDialogMessage =>
-      'You cannot use GitSync without granting \"All files access\" permissions! Please enable it for the best experience.\n\nThe app uses \"All files access\" for syncing your repository to the selected directory on the device. The app does not attempt to access any file outside the selected directory.';
-
-  @override
-  String get almostThereDialogTitle => 'Almost there!';
-
-  @override
-  String get almostThereDialogMessageAndroid =>
-      'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app\n  • From a Quick Tile\n  • Using App Sync\n  • Using a Custom Intent (advanced)';
-
-  @override
-  String get almostThereDialogMessageIos =>
-      'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app';
-
-  @override
-  String get authDialogTitle => 'Authenticate with a Git Provider';
-
-  @override
-  String get authDialogMessage => 'Please authenticate with your chosen git provider and continue on to clone your repo!';
 
   @override
   String get authorDetailsPromptTitle => 'Author Details Required';
@@ -389,32 +432,160 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goToSettings => 'Go to Settings';
 
   @override
-  String get enableAutosyncTitle => 'Enable App Sync';
+  String get onboardingSyncSettingsTitle => 'Sync Settings';
 
   @override
-  String get enableAutosyncMessage =>
-      'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.';
+  String get onboardingSyncSettingsSubtitle => 'Choose how to keep your repos in sync.';
 
   @override
-  String get addMoreHint => 'Click this button to add additional repositories to the app';
+  String get onboardingAppSyncFeatureOpen => 'Trigger sync on app open';
 
   @override
-  String get globalSettingsHint => 'Click this button to access the global app settings';
+  String get onboardingAppSyncFeatureClose => 'Trigger sync on app close';
 
   @override
-  String get syncProgressHint => 'Track the status of active sync operations here';
+  String get onboardingAppSyncFeatureSelect => 'Select which apps to monitor';
 
   @override
-  String get controlHint => 'Use these controls to manually sync or manage repository actions';
+  String get onboardingScheduledSyncFeatureFreq => 'Set your preferred sync frequency';
 
   @override
-  String get configHint => 'Configure repository settings and initialize setup using this section';
+  String get onboardingScheduledSyncFeatureCustom => 'Choose custom intervals on Android';
 
   @override
-  String get autoSyncOptionsHint => 'Enable background sync and ensure your data stays up-to-date automatically using these settings';
+  String get onboardingScheduledSyncFeatureBg => 'Works in the background';
 
   @override
-  String get guidedSetupHint => 'Click here to restart the setup or UI guide whenever you need a walkthrough or want to review the UI again';
+  String get onboardingQuickSyncFeatureTile => 'Sync via Quick Settings tile';
+
+  @override
+  String get onboardingQuickSyncFeatureShortcut => 'Sync via app shortcuts';
+
+  @override
+  String get onboardingQuickSyncFeatureWidget => 'Sync via home screen widget';
+
+  @override
+  String get onboardingOtherSyncFeatureAndroid => 'Android intents';
+
+  @override
+  String get onboardingOtherSyncFeatureIos => 'iOS intents';
+
+  @override
+  String get onboardingOtherSyncDescription => 'Explore additional sync methods for your platform';
+
+  @override
+  String get onboardingTapToConfigure => 'Tap to configure';
+
+  @override
+  String get showcaseGlobalSettingsTitle => 'Global Settings';
+
+  @override
+  String get showcaseGlobalSettingsSubtitle => 'Your app-wide preferences and tools.';
+
+  @override
+  String get showcaseGlobalSettingsFeatureTheme => 'Adjust theme, language, and display options';
+
+  @override
+  String get showcaseGlobalSettingsFeatureBackup => 'Back up or restore your configuration';
+
+  @override
+  String get showcaseGlobalSettingsFeatureSetup => 'Restart the guided setup or UI tour';
+
+  @override
+  String get showcaseSyncProgressTitle => 'Sync Status';
+
+  @override
+  String get showcaseSyncProgressSubtitle => 'See what\'s happening at a glance.';
+
+  @override
+  String get showcaseSyncProgressFeatureWatch => 'Watch active sync operations in real time';
+
+  @override
+  String get showcaseSyncProgressFeatureConfirm => 'Confirms when a sync completes successfully';
+
+  @override
+  String get showcaseSyncProgressFeatureErrors => 'Tap to view errors or open the log viewer';
+
+  @override
+  String get showcaseAddMoreTitle => 'Your Containers';
+
+  @override
+  String get showcaseAddMoreSubtitle => 'Manage multiple repositories in one place.';
+
+  @override
+  String get showcaseAddMoreFeatureSwitch => 'Switch between repo containers instantly';
+
+  @override
+  String get showcaseAddMoreFeatureManage => 'Rename or delete containers as needed';
+
+  @override
+  String get showcaseAddMoreFeaturePremium => 'Add more containers with Premium';
+
+  @override
+  String get showcaseControlTitle => 'Sync Controls';
+
+  @override
+  String get showcaseControlSubtitle => 'Your hands-on sync and commit tools.';
+
+  @override
+  String get showcaseControlFeatureSync => 'Trigger a manual sync with one tap';
+
+  @override
+  String get showcaseControlFeatureHistory => 'View your recent commit history';
+
+  @override
+  String get showcaseControlFeatureConflicts => 'Resolve merge conflicts when they arise';
+
+  @override
+  String get showcaseControlFeatureMore => 'Access force push, force pull, and more';
+
+  @override
+  String get showcaseAutoSyncTitle => 'Auto Sync';
+
+  @override
+  String get showcaseAutoSyncSubtitle => 'Keep your repos in sync automatically.';
+
+  @override
+  String get showcaseAutoSyncFeatureApp => 'Sync when selected apps open or close';
+
+  @override
+  String get showcaseAutoSyncFeatureSchedule => 'Schedule periodic background syncs';
+
+  @override
+  String get showcaseAutoSyncFeatureQuick => 'Sync via quick tiles, shortcuts, or widgets';
+
+  @override
+  String get showcaseAutoSyncFeaturePremium => 'Unlock enhanced sync rates with Premium';
+
+  @override
+  String get showcaseSetupGuideTitle => 'Setup & Guide';
+
+  @override
+  String get showcaseSetupGuideSubtitle => 'Revisit the walkthrough anytime.';
+
+  @override
+  String get showcaseSetupGuideFeatureSetup => 'Re-run the guided setup from scratch';
+
+  @override
+  String get showcaseSetupGuideFeatureTour => 'Take a quick tour of the UI highlights';
+
+  @override
+  String get showcaseRepoTitle => 'Your Repository';
+
+  @override
+  String get showcaseRepoSubtitle => 'Your command center for managing this repository.';
+
+  @override
+  String get showcaseRepoFeatureAuth => 'Authenticate with your git provider';
+
+  @override
+  String get showcaseRepoFeatureDir => 'Switch or select your local directory';
+
+  @override
+  String get showcaseRepoFeatureBrowse => 'Browse and edit files directly';
+
+  @override
+  String get showcaseRepoFeatureRemote => 'View or change the remote URL';
 
   @override
   String get currentBranch => 'Current Branch';
@@ -456,9 +627,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth => 'AUTH';
 
   @override
-  String get gitDirPathHint => '/storage/emulated/0/…';
-
-  @override
   String get openFileExplorer => 'Browse & Edit';
 
   @override
@@ -476,10 +644,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accessibilityServiceDisclosureMessage =>
       'To enhance your experience,\nGitSync uses Android\'s Accessibility Service to detect when apps are opened or closed.\n\nThis helps us provide tailored features without storing or sharing any data.\n\nᴘʟᴇᴀsᴇ ᴇɴᴀʙʟᴇ ɢɪᴛsʏɴᴄ ᴏɴ ᴛʜᴇ ɴᴇxᴛ sᴄʀᴇᴇɴ';
-
-  @override
-  String get accessibilityServiceDescription =>
-      'To enhance your experience, GitSync uses Android\'s Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \n\n Key Points: \n Purpose: We use this service solely to improve your app experience. \n Privacy: No data is stored or sent elsewhere. \n Control: You can disable these permissions at any time in your device settings.';
 
   @override
   String get search => 'Search';
@@ -515,36 +679,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sync => 'Sync';
 
   @override
-  String get dontSync => 'Don\'t Sync';
-
-  @override
   String get iosDefaultSyncRate => 'when iOS allows';
 
   @override
-  String get aboutEvery => '~every';
+  String get scheduledSync => 'Scheduled Sync';
+
+  @override
+  String get custom => 'Custom';
+
+  @override
+  String get interval15min => '15 min';
+
+  @override
+  String get interval30min => '30 min';
+
+  @override
+  String get interval1hour => '1 hour';
+
+  @override
+  String get interval6hours => '6 hours';
+
+  @override
+  String get interval12hours => '12 hours';
+
+  @override
+  String get interval1day => '1 day';
+
+  @override
+  String get interval1week => '1 week';
+
+  @override
+  String get minutes => 'minute(s)';
+
+  @override
+  String get hours => 'hour(s)';
+
+  @override
+  String get days => 'day(s)';
+
+  @override
+  String get weeks => 'week(s)';
 
   @override
   String get enhancedScheduledSync => 'Enhanced Scheduled Sync';
-
-  @override
-  String get enhancedScheduledSyncMsg1 =>
-      'Unlike the basic sync, this feature uses advanced background updates to deliver fresh data more frequently and reliably.';
-
-  @override
-  String get enhancedScheduledSyncMsg2 =>
-      'Sync your repositories in the background as often as a sync per minute, even when the app is closed!\n\nEffortless, continuous updates mean your repos are always ready when you are.';
-
-  @override
-  String get enhancedScheduledSyncNote => 'Note: Background syncing may be affected by battery saver and Do Not Disturb modes.';
 
   @override
   String get quickSyncSettings => 'Quick Sync Settings';
 
   @override
   String get quickSyncDescription => 'Sync using customizable quick tiles, shortcuts, or widgets';
-
-  @override
-  String get tileSyncSettings => 'Tile Sync Settings';
 
   @override
   String get otherSyncSettings => 'Other Sync Settings';
@@ -949,9 +1132,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get directory => 'Directory';
 
   @override
-  String get confirmFileDirDeleteTitle => 'Confirm %s Deletion';
-
-  @override
   String get confirmFileDirDeleteMsg => 'Are you sure you want to delete the %s \"%s\" %s?';
 
   @override
@@ -1158,12 +1338,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ongoingMergeConflict => 'Ongoing merge conflict';
 
   @override
-  String get enableAccessibilityService => 'Please enable GitSync under \"Installed apps\"';
-
-  @override
-  String get networkUnavailable => 'Network unavailable!';
-
-  @override
   String get networkUnavailableRetry => 'Network unavailable!\nGitSync will retry when reconnected';
 
   @override
@@ -1171,15 +1345,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportABug => 'Report a Bug';
-
-  @override
-  String get reportBug => '<GitSync Error> Tap to send a bug report';
-
-  @override
-  String get unknownError => 'Unknown Error';
-
-  @override
-  String get enableNotifications => 'Enable notifications permission to see more.';
 
   @override
   String get errorOccurredTitle => 'An Error Occurred!';
@@ -1191,45 +1356,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorOccurredMessagePart2 => 'Otherwise, you can long-press to copy to clipboard or dismiss and continue.';
 
   @override
-  String get applicationError => 'Application Error!';
-
-  @override
-  String get missingAuthorDetailsError => 'Missing repository author details. Please set your name and email in the repository settings.';
-
-  @override
-  String get outOfMemory => 'Application ran out of memory!';
-
-  @override
-  String get invalidRemote => 'Invalid remote! Modify this in settings';
-
-  @override
-  String get largeFile => 'Singular files larger than 50MB not supported!';
-
-  @override
   String get cloneFailed => 'Failed to clone repository!';
-
-  @override
-  String get inaccessibleDirectoryMessage => 'Inaccessible directory! Please select a different location.';
-
-  @override
-  String get autoRebaseFailedException =>
-      'Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.';
-
-  @override
-  String get nonExistingException => 'Remote ref didn\'t exist.';
-
-  @override
-  String get rejectedNodeleteException => 'Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.';
-
-  @override
-  String get rejectedException => 'Remote ref update was rejected.';
-
-  @override
-  String get rejectionWithReasonException => 'Remote ref update was rejected because %s.';
-
-  @override
-  String get remoteChangedException =>
-      'Remote ref update was rejected, because old object id on remote repository wasn\'t the same as defined expected old object.';
 
   @override
   String get mergingExceptionMessage => 'MERGING';
@@ -1265,9 +1392,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get githubIssueOauthMsg =>
       'You need to connect your GitHub account to report bugs and track their progress.\nYou can reset this connection anytime in Global Settings.';
-
-  @override
-  String get issueReportMessage => 'Logs automatically included with reports';
 
   @override
   String get includeLogs => 'Include Log File(s)';

@@ -7,7 +7,7 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
-import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog show showDialog;
+import 'package:GitSync/ui/page/unlock_premium.dart';
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:GitSync/ui/page/image_viewer.dart';
 import 'package:collection/collection.dart';
@@ -333,9 +333,10 @@ Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async 
   if (submodulePaths.isNotEmpty) {
     await SubmodulesFoundDialog.showDialog(context, () async {
       if (premiumManager.hasPremiumNotifier.value != true) {
-        await UnlockPremiumDialog.showDialog(context, () async {
+        final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+        if (result == true) {
           await addSubmodules();
-        });
+        }
         return;
       }
       await addSubmodules();

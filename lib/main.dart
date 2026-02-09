@@ -16,6 +16,7 @@ import 'package:GitSync/ui/dialog/info_dialog.dart' as InfoDialog;
 import 'package:GitSync/ui/dialog/merge_conflict.dart' as MergeConflictDialog;
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:GitSync/ui/page/global_settings_main.dart';
+import 'package:GitSync/ui/page/onboarding_setup.dart';
 import 'package:GitSync/ui/page/sync_settings_main.dart';
 import 'package:anchor_scroll_controller/anchor_scroll_controller.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
@@ -30,7 +31,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/ui/component/item_merge_conflict.dart';
-import 'package:GitSync/ui/dialog/onboarding_controller.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:mixin_logger/mixin_logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -50,11 +50,10 @@ import '../src/rust/frb_generated.dart';
 import '../type/git_provider.dart';
 import '../ui/dialog/auth.dart' as AuthDialog;
 import '../ui/dialog/author_details_prompt.dart' as AuthorDetailsPromptDialog;
-import '../ui/dialog/legacy_app_user.dart' as LegacyAppUserDialog;
 import '../ui/dialog/add_container.dart' as AddContainerDialog;
 import '../ui/dialog/remove_container.dart' as RemoveContainerDialog;
 import '../ui/dialog/rename_container.dart' as RenameContainerDialog;
-import '../ui/dialog/unlock_premium.dart' as UnlockPremiumDialog;
+import 'package:GitSync/ui/page/unlock_premium.dart';
 import 'ui/dialog/confirm_force_push_pull.dart' as ConfirmForcePushPullDialog;
 import '../ui/dialog/force_push_pull.dart' as ForcePushPullDialog;
 import '../ui/dialog/manual_sync.dart' as ManualSyncDialog;
@@ -582,7 +581,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, RestorationMixin {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, RestorationMixin, TickerProviderStateMixin {
   bool repoSettingsExpanded = false;
   bool demoConflicting = false;
 
@@ -602,7 +601,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     onPresent: (navigator, arguments) {
       return navigator.restorablePush(createGlobalSettingsMainRoute, arguments: arguments);
     },
-    onComplete: (result) {
+    onComplete: (result) async {
+      if (result == "guided_setup") {
+        _restorableOnboardingSetup.present({});
+      } else if (result == "ui_guide") {
+        _triggerUiGuideShowcase();
+      }
       reloadAll();
     },
   );
@@ -616,12 +620,36 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     },
   );
 
+  late final _restorableOnboardingSetup = RestorableRouteFuture<String?>(
+    onPresent: (navigator, arguments) {
+      return navigator.restorablePush(createOnboardingSetupRoute, arguments: arguments);
+    },
+    onComplete: (result) async {
+      final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
+      if (step == 5) {
+        await _triggerUiGuideShowcase();
+      }
+      reloadAll();
+    },
+  );
+
+  late final _restorableUnlockPremium = RestorableRouteFuture<bool?>(
+    onPresent: (navigator, arguments) {
+      return navigator.restorablePush(createUnlockPremiumRoute, arguments: arguments);
+    },
+    onComplete: (result) {
+      reloadAll();
+    },
+  );
+
   @override
   String get restorationId => 'homepage';
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
     registerForRestoration(_restorableGlobalSettings, global_settings_main);
     registerForRestoration(_restorableSettingsMain, settings_main);
+    registerForRestoration(_restorableOnboardingSetup, onboarding_setup);
+    registerForRestoration(_restorableUnlockPremium, unlock_premium);
     registerForRestoration(loadingRecentCommits, 'loadingRecentCommits');
     registerForRestoration(mergeConflictVisible, 'mergeConflictVisible');
     registerForRestoration(branchName, 'branchName');
@@ -755,9 +783,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       if (kDebugMode) {
         queueTimer?.cancel();
         queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
-          queueValue.value = await File(
-            '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
-          ).readAsLines();
+          try {
+            queueValue.value = await File(
+              '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+            ).readAsLines();
+          } catch (e) {
+            queueValue.value = [];
+          }
         });
       }
     });
@@ -830,23 +862,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => mounted ? setState(() {}) : null);
 
     initAsync(() async {
-      // TODO: Commented for release
-      // await repoManager.setInt(StorageKey.repoman_onboardingStep, 0);
-
       await promptClearKeychainValues();
 
       if (await repoManager.hasLegacySettings()) {
         if (!mounted) return;
-        await LegacyAppUserDialog.showDialog(context, () async {
-          await onboardingController?.show();
-          await reloadAll();
-        });
+
+        _restorableOnboardingSetup.present({"legacy": true});
         return;
       }
       final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
-      if (step != -1) {
-        await onboardingController?.show();
-        await reloadAll();
+      if (step == 5) {
+        _triggerUiGuideShowcase();
+      } else if (step != -1) {
+        _restorableOnboardingSetup.present({});
       }
     });
 
@@ -895,15 +923,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    onboardingController = OnboardingController(context, showAuthDialog, showCloneRepoPage, completeUiGuideShowcase, [
-      _globalSettingsKey,
-      _syncProgressKey,
-      _addMoreKey,
-      _controlKey,
-      _configKey,
-      _autoSyncOptionsKey,
-    ]);
   }
 
   List<String> getStringRecentCommits() {
@@ -913,8 +932,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
     _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
     await repoManager.setOnboardingStep(-1);
+    await AccessibilityServiceHelper.deleteLegacySettings();
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
+  }
+
+  Future<void> _triggerUiGuideShowcase() async {
+    final initialClientModeEnabled = await uiSettingsManager.getClientModeEnabled();
+    await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
+    ShowCaseWidget.of(context).startShowCase([_configKey, _autoSyncOptionsKey, _controlKey, _globalSettingsKey, _syncProgressKey, _addMoreKey]);
+    while (!ShowCaseWidget.of(context).isShowCaseCompleted) {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+    await completeUiGuideShowcase(initialClientModeEnabled);
   }
 
   Future<void> addRepo() async {
@@ -943,10 +973,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     return provider == GitProvider.SSH
         ? (await uiSettingsManager.getGitSshAuthCredentials()).$2.isNotEmpty
         : (await uiSettingsManager.getGitHttpAuthCredentials()).$2.isNotEmpty;
-    // if (authenticated) {
-    //   await uiSettingsManager.setOnboardingStep(3);
-    //   await onboardingController?.dismissAll();
-    // }
   }
 
   Future<bool> isGithubOauth() async {
@@ -1217,9 +1243,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     }
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       autoRefreshTimer?.cancel();
-      // if (uiSettingsManager.getOnboardingStep() != 0 && onboardingController?.hasSkipped == false) {
-      //   onboardingController?.dismissAll();
-      // }
     }
   }
 
@@ -1240,8 +1263,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
               await showCloneRepoPage();
             } else {
-              await onboardingController?.show();
-              await reloadAll();
+              _restorableOnboardingSetup.present({});
             }
           },
         );
@@ -1250,8 +1272,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
         await showCloneRepoPage();
       } else {
-        await onboardingController?.show();
-        await reloadAll();
+        _restorableOnboardingSetup.present({});
       }
     });
   }
@@ -1294,9 +1315,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                         if (devTools) {
                           queueTimer?.cancel();
                           queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
-                            queueValue.value = await File(
-                              '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
-                            ).readAsLines();
+                            try {
+                              queueValue.value = await File(
+                                '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+                              ).readAsLines();
+                            } catch (e) {
+                              queueValue.value = [];
+                            }
                           });
                         } else {
                           queueTimer?.cancel();
@@ -1314,9 +1339,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             actions: [
               CustomShowcase(
                 globalKey: _globalSettingsKey,
-                description: t.globalSettingsHint,
                 cornerRadius: cornerRadiusMax,
-                first: true,
+                richContent: ShowcaseTooltipContent(
+                  title: t.showcaseGlobalSettingsTitle,
+                  subtitle: t.showcaseGlobalSettingsSubtitle,
+                  featureRows: [
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.sliders, text: t.showcaseGlobalSettingsFeatureTheme),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFloppyDisk, text: t.showcaseGlobalSettingsFeatureBackup),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseGlobalSettingsFeatureSetup),
+                  ],
+                ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
@@ -1333,8 +1365,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               SizedBox(width: spaceSM),
               CustomShowcase(
                 globalKey: _addMoreKey,
-                description: t.addMoreHint,
                 cornerRadius: cornerRadiusMax,
+                richContent: ShowcaseTooltipContent(
+                  title: t.showcaseAddMoreTitle,
+                  subtitle: t.showcaseAddMoreSubtitle,
+                  featureRows: [
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFolderOpen, text: t.showcaseAddMoreFeatureSwitch),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.squarePen, text: t.showcaseAddMoreFeatureManage),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: t.showcaseAddMoreFeaturePremium),
+                  ],
+                ),
                 customTooltipActions: [
                   TooltipActionButton(
                     backgroundColor: colours.secondaryInfo,
@@ -1366,11 +1406,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS)),
                                   ),
                                   onPressed: () async {
+                                    if (demo) {
+                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      if (result == true) {
+                                        if (mounted) setState(() {});
+                                      }
+                                    }
+
                                     if (premiumManager.hasPremiumNotifier.value != true) {
-                                      await UnlockPremiumDialog.showDialog(context, () async {
+                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      if (result == true) {
                                         if (mounted) setState(() {});
                                         await addRepo();
-                                      });
+                                      }
                                       if (mounted) setState(() {});
                                       return;
                                     }
@@ -1573,7 +1621,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                         child: CustomShowcase(
                           globalKey: _controlKey,
                           cornerRadius: cornerRadiusMD,
-                          description: t.controlHint,
+                          richContent: ShowcaseTooltipContent(
+                            title: t.showcaseControlTitle,
+                            subtitle: t.showcaseControlSubtitle,
+                            featureRows: [
+                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseControlFeatureSync),
+                              ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseControlFeatureHistory),
+                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleXmark, text: t.showcaseControlFeatureConflicts),
+                              ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: t.showcaseControlFeatureMore),
+                            ],
+                          ),
                           child: ValueListenableBuilder(
                             valueListenable: recentCommits,
                             builder: (context, recentCommitsSnapshot, child) => FutureBuilder(
@@ -2385,7 +2442,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                 CustomShowcase(
                                   cornerRadius: cornerRadiusMD,
                                   globalKey: _configKey,
-                                  description: t.configHint,
+                                  first: true,
+                                  richContent: ShowcaseTooltipContent(
+                                    title: t.showcaseRepoTitle,
+                                    subtitle: t.showcaseRepoSubtitle,
+                                    arrowUp: false,
+                                    featureRows: [
+                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: t.showcaseRepoFeatureAuth),
+                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: t.showcaseRepoFeatureDir),
+                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.filePen, text: t.showcaseRepoFeatureBrowse),
+                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: t.showcaseRepoFeatureRemote),
+                                    ],
+                                  ),
                                   child: Column(
                                     children: [
                                       IntrinsicHeight(
@@ -2754,9 +2822,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                       if (!mounted) return;
                                                       await setGitDirPathGetSubmodules(context, selectedDirectory);
                                                       await repoManager.setOnboardingStep(4);
-
-                                                      await onboardingController?.show();
-
                                                       await reloadAll();
                                                     }
                                                   : null,
@@ -2983,8 +3048,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                     : [
                                         CustomShowcase(
                                           globalKey: _autoSyncOptionsKey,
-                                          description: t.autoSyncOptionsHint,
                                           cornerRadius: cornerRadiusMD,
+                                          richContent: ShowcaseTooltipContent(
+                                            title: t.showcaseAutoSyncTitle,
+                                            subtitle: t.showcaseAutoSyncSubtitle,
+                                            arrowUp: false,
+                                            featureRows: [
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidBell, text: t.showcaseAutoSyncFeatureApp),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseAutoSyncFeatureSchedule),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.barsStaggered, text: t.showcaseAutoSyncFeatureQuick),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: t.showcaseAutoSyncFeaturePremium),
+                                            ],
+                                          ),
                                           targetPadding: EdgeInsets.all(spaceSM),
                                           customTooltipActions: [
                                             TooltipActionButton(

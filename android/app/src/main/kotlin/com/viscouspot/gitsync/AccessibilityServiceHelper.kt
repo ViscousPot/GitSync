@@ -26,23 +26,50 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
                 val prefsFiles = prefsDir.listFiles()
                 result.success(prefsFiles.filter { it.isFile && it.name == "git_sync_repos.xml" }.size == 1)
             }
+
+            "deleteLegacySettings" -> {
+                try {
+                    val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
+                    val legacySettingsFile = File(prefsDir, "git_sync_repos.xml")
+
+                    if (legacySettingsFile.exists()) {
+                        val deleted = legacySettingsFile.delete()
+                        result.success(deleted)
+                    } else {
+                        // File doesn't exist, consider it a successful operation
+                        result.success(true)
+                    }
+                } catch (e: Exception) {
+                    // Handle any potential exceptions during file deletion
+                    result.error(
+                        "DELETE_LEGACY_SETTINGS_ERROR",
+                        "Failed to delete legacy settings: ${e.localizedMessage}",
+                        null
+                    )
+                }
+            }
+
             "isAccessibilityServiceEnabled" -> {
                 val isEnabled = isAccessibilityServiceEnabled(context)
                 result.success(isEnabled)
             }
+
             "openAccessibilitySettings" -> {
                 openAccessibilitySettings()
                 result.success(null)
             }
+
             "isExcludedFromRecents" -> {
                 val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val tasks = activityManager.appTasks
                 var excluded = false;
                 tasks.forEach { appTask ->
-                    excluded = excluded || (appTask.taskInfo.baseIntent.flags and Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0;
+                    excluded =
+                        excluded || (appTask.taskInfo.baseIntent.flags and Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0;
                 }
                 result.success(excluded)
             }
+
             "enableExcludeFromRecents" -> {
                 val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val tasks = activityManager.appTasks
@@ -51,6 +78,7 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
                 }
                 result.success(null)
             }
+
             "disableExcludeFromRecents" -> {
                 val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val tasks = activityManager.appTasks
@@ -59,12 +87,13 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
                 }
                 result.success(null)
             }
+
             "getDeviceApplications" -> {
                 val intent = Intent(Intent.ACTION_MAIN, null)
                 intent.addCategory(Intent.CATEGORY_LAUNCHER)
                 val apps = context.packageManager.queryIntentActivities(intent, PackageManager.GET_META_DATA)
 
-                val packageNames =  apps.map {
+                val packageNames = apps.map {
                     it.activityInfo.packageName
                 }.sortedBy {
                     context.packageManager.getApplicationLabel(
@@ -73,15 +102,23 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
                 }
                 result.success(packageNames)
             }
+
             "getApplicationLabel" -> {
-                val label = context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(call.arguments as String, 0)).toString()
+                val label = context.packageManager.getApplicationLabel(
+                    context.packageManager.getApplicationInfo(
+                        call.arguments as String,
+                        0
+                    )
+                ).toString()
                 result.success(label)
             }
+
             "getApplicationIcon" -> {
                 val icon = context.packageManager.getApplicationIcon(call.arguments as String)
                 val byteArray = bitmapToByteArray(drawableToBitmap(icon))
                 result.success(byteArray)
             }
+
             else -> result.notImplemented()
         }
     }

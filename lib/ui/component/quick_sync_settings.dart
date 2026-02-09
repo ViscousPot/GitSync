@@ -9,15 +9,250 @@ import 'package:GitSync/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class QuickSyncSettings extends StatefulWidget {
-  const QuickSyncSettings({super.key});
+  final bool isOnboarding;
+
+  const QuickSyncSettings({super.key, this.isOnboarding = false});
 
   @override
   State<QuickSyncSettings> createState() => _QuickSyncSettingsState();
 }
 
 class _QuickSyncSettingsState extends State<QuickSyncSettings> {
+  Widget _buildBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!Platform.isIOS)
+          TextButton.icon(
+            onPressed: () async {
+              await repoManager.setInt(StorageKey.repoman_tileSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
+              setState(() {});
+            },
+            iconAlignment: IconAlignment.end,
+            style: ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: WidgetStatePropertyAll(
+                widget.isOnboarding
+                    ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                    : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+              ),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+              ),
+            ),
+            icon: FutureBuilder(
+              future: (() async =>
+                  await repoManager.getInt(StorageKey.repoman_tileSyncIndex) ==
+                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+              builder: (context, snapshot) => FaIcon(
+                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+                size: textLG,
+              ),
+            ),
+            label: SizedBox(
+              width: double.infinity,
+              child: Text(
+                t.useForTileSync,
+                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              ),
+            ),
+          ),
+        if (!Platform.isIOS)
+          TextButton.icon(
+            onPressed: () async {
+              await repoManager.setInt(
+                StorageKey.repoman_tileManualSyncIndex,
+                await repoManager.getInt(StorageKey.repoman_repoIndex),
+              );
+              setState(() {});
+            },
+            iconAlignment: IconAlignment.end,
+            style: ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: WidgetStatePropertyAll(
+                widget.isOnboarding
+                    ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                    : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+              ),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+              ),
+            ),
+            icon: FutureBuilder(
+              future: (() async =>
+                  await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) ==
+                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+              builder: (context, snapshot) => FaIcon(
+                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+                size: textLG,
+              ),
+            ),
+            label: SizedBox(
+              width: double.infinity,
+              child: Text(
+                t.useForTileManualSync,
+                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              ),
+            ),
+          ),
+        TextButton.icon(
+          onPressed: () async {
+            await repoManager.setInt(StorageKey.repoman_shortcutSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
+            setState(() {});
+          },
+          iconAlignment: IconAlignment.end,
+          style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll(
+              widget.isOnboarding
+                  ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                  : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+            ),
+          ),
+          icon: FutureBuilder(
+            future: (() async =>
+                await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex) ==
+                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+            builder: (context, snapshot) => FaIcon(
+              snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+              color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+              size: textLG,
+            ),
+          ),
+          label: SizedBox(
+            width: double.infinity,
+            child: Text(
+              t.useForShortcutSync,
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () async {
+            await repoManager.setInt(
+              StorageKey.repoman_shortcutManualSyncIndex,
+              await repoManager.getInt(StorageKey.repoman_repoIndex),
+            );
+            setState(() {});
+          },
+          iconAlignment: IconAlignment.end,
+          style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll(
+              widget.isOnboarding
+                  ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                  : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+            ),
+          ),
+          icon: FutureBuilder(
+            future: (() async =>
+                await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex) ==
+                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+            builder: (context, snapshot) => FaIcon(
+              snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+              color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+              size: textLG,
+            ),
+          ),
+          label: SizedBox(
+            width: double.infinity,
+            child: Text(
+              t.useForShortcutManualSync,
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () async {
+            await repoManager.setInt(StorageKey.repoman_widgetSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
+            setState(() {});
+          },
+          iconAlignment: IconAlignment.end,
+          style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll(
+              widget.isOnboarding
+                  ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                  : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+            ),
+          ),
+          icon: FutureBuilder(
+            future: (() async =>
+                await repoManager.getInt(StorageKey.repoman_widgetSyncIndex) ==
+                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+            builder: (context, snapshot) => FaIcon(
+              snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+              color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+              size: textLG,
+            ),
+          ),
+          label: SizedBox(
+            width: double.infinity,
+            child: Text(
+              t.useForWidgetSync,
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () async {
+            await repoManager.setInt(
+              StorageKey.repoman_widgetManualSyncIndex,
+              await repoManager.getInt(StorageKey.repoman_repoIndex),
+            );
+            setState(() {});
+          },
+          iconAlignment: IconAlignment.end,
+          style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll(
+              widget.isOnboarding
+                  ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
+                  : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+            ),
+          ),
+          icon: FutureBuilder(
+            future: (() async =>
+                await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex) ==
+                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+            builder: (context, snapshot) => FaIcon(
+              snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+              color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
+              size: textLG,
+            ),
+          ),
+          label: SizedBox(
+            width: double.infinity,
+            child: Text(
+              t.useForWidgetManualSync,
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.isOnboarding) {
+      return _buildBody();
+    }
+
     return Container(
       decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
       child: FutureBuilder(
@@ -112,222 +347,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
               duration: Duration(milliseconds: 200),
               child: SizedBox(
                 height: (snapshot.data ?? false) ? null : 0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: (snapshot.data ?? false)
-                      ? [
-                          if (!Platform.isIOS)
-                            TextButton.icon(
-                              onPressed: () async {
-                                await repoManager.setInt(StorageKey.repoman_tileSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
-                                setState(() {});
-                              },
-                              iconAlignment: IconAlignment.end,
-                              style: ButtonStyle(
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                padding: WidgetStatePropertyAll(
-                                  EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                                ),
-                                shape: WidgetStatePropertyAll(
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                ),
-                              ),
-                              icon: FutureBuilder(
-                                future: (() async =>
-                                    await repoManager.getInt(StorageKey.repoman_tileSyncIndex) ==
-                                    await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                                builder: (context, snapshot) => FaIcon(
-                                  snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                  color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                  size: textLG,
-                                ),
-                              ),
-                              label: SizedBox(
-                                width: double.infinity,
-                                child: Text(
-                                  t.useForTileSync,
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                                ),
-                              ),
-                            ),
-                          if (!Platform.isIOS)
-                            TextButton.icon(
-                              onPressed: () async {
-                                await repoManager.setInt(
-                                  StorageKey.repoman_tileManualSyncIndex,
-                                  await repoManager.getInt(StorageKey.repoman_repoIndex),
-                                );
-                                setState(() {});
-                              },
-                              iconAlignment: IconAlignment.end,
-                              style: ButtonStyle(
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                padding: WidgetStatePropertyAll(
-                                  EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                                ),
-                                shape: WidgetStatePropertyAll(
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                ),
-                              ),
-                              icon: FutureBuilder(
-                                future: (() async =>
-                                    await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) ==
-                                    await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                                builder: (context, snapshot) => FaIcon(
-                                  snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                  color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                  size: textLG,
-                                ),
-                              ),
-                              label: SizedBox(
-                                width: double.infinity,
-                                child: Text(
-                                  t.useForTileManualSync,
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                                ),
-                              ),
-                            ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              await repoManager.setInt(StorageKey.repoman_shortcutSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
-                              setState(() {});
-                            },
-                            iconAlignment: IconAlignment.end,
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(
-                                EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                              ),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                              ),
-                            ),
-                            icon: FutureBuilder(
-                              future: (() async =>
-                                  await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex) ==
-                                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                              builder: (context, snapshot) => FaIcon(
-                                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                size: textLG,
-                              ),
-                            ),
-                            label: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                t.useForShortcutSync,
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                              ),
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              await repoManager.setInt(
-                                StorageKey.repoman_shortcutManualSyncIndex,
-                                await repoManager.getInt(StorageKey.repoman_repoIndex),
-                              );
-                              setState(() {});
-                            },
-                            iconAlignment: IconAlignment.end,
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(
-                                EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                              ),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                              ),
-                            ),
-                            icon: FutureBuilder(
-                              future: (() async =>
-                                  await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex) ==
-                                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                              builder: (context, snapshot) => FaIcon(
-                                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                size: textLG,
-                              ),
-                            ),
-                            label: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                t.useForShortcutManualSync,
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                              ),
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              await repoManager.setInt(StorageKey.repoman_widgetSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
-                              setState(() {});
-                            },
-                            iconAlignment: IconAlignment.end,
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(
-                                EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                              ),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                              ),
-                            ),
-                            icon: FutureBuilder(
-                              future: (() async =>
-                                  await repoManager.getInt(StorageKey.repoman_widgetSyncIndex) ==
-                                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                              builder: (context, snapshot) => FaIcon(
-                                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                size: textLG,
-                              ),
-                            ),
-                            label: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                t.useForWidgetSync,
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                              ),
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              await repoManager.setInt(
-                                StorageKey.repoman_widgetManualSyncIndex,
-                                await repoManager.getInt(StorageKey.repoman_repoIndex),
-                              );
-                              setState(() {});
-                            },
-                            iconAlignment: IconAlignment.end,
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(
-                                EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
-                              ),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                              ),
-                            ),
-                            icon: FutureBuilder(
-                              future: (() async =>
-                                  await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex) ==
-                                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
-                              builder: (context, snapshot) => FaIcon(
-                                snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-                                color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
-                                size: textLG,
-                              ),
-                            ),
-                            label: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                t.useForWidgetManualSync,
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                              ),
-                            ),
-                          ),
-                        ]
-                      : [],
-                ),
+                child: (snapshot.data ?? false) ? _buildBody() : SizedBox.shrink(),
               ),
             ),
           ],

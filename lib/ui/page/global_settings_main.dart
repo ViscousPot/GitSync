@@ -23,7 +23,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:GitSync/ui/dialog/unlock_premium.dart' as UnlockPremiumDialog;
+import 'package:GitSync/ui/page/unlock_premium.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../api/helper.dart';
@@ -45,7 +45,7 @@ class GlobalSettingsMain extends StatefulWidget {
   State<GlobalSettingsMain> createState() => _GlobalSettingsMain();
 }
 
-class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingObserver {
+class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   final _controller = ScrollController();
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
@@ -557,9 +557,10 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
 
                           if (settingsManagerSettings.length > 1) {
                             if (premiumManager.hasPremiumNotifier.value != true) {
-                              await UnlockPremiumDialog.showDialog(context, () async {
+                              final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                              if (result == true) {
                                 await importSettings();
-                              });
+                              }
                               return;
                             }
                           }
@@ -731,9 +732,18 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     SizedBox(height: spaceMD),
                     CustomShowcase(
                       globalKey: _uiSetupGuideKey,
-                      description: t.guidedSetupHint,
                       cornerRadius: cornerRadiusMD,
+                      first: true,
                       last: true,
+                      richContent: ShowcaseTooltipContent(
+                        title: t.showcaseSetupGuideTitle,
+                        subtitle: t.showcaseSetupGuideSubtitle,
+                        arrowUp: true,
+                        featureRows: [
+                          ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseSetupGuideFeatureSetup),
+                          ShowcaseFeatureRow(icon: FontAwesomeIcons.route, text: t.showcaseSetupGuideFeatureTour),
+                        ],
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -742,9 +752,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             icon: FontAwesomeIcons.chalkboardUser,
                             onPressed: () async {
                               await repoManager.setInt(StorageKey.repoman_onboardingStep, 0);
-                              Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                              await onboardingController?.show();
-                              if (mounted) setState(() {});
+                              Navigator.of(context).canPop() ? Navigator.pop(context, "guided_setup") : null;
                             },
                           ),
                           SizedBox(height: spaceMD),
@@ -753,9 +761,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             icon: FontAwesomeIcons.route,
                             onPressed: () async {
                               await repoManager.setInt(StorageKey.repoman_onboardingStep, 4);
-                              Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                              await onboardingController?.show();
-                              if (mounted) setState(() {});
+                              Navigator.of(context).canPop() ? Navigator.pop(context, "ui_guide") : null;
                             },
                           ),
                         ],
@@ -895,8 +901,8 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                           if (hasPremium == true) {
                             await launchUrl(Uri.parse(contributeLink));
                           } else {
-                            await UnlockPremiumDialog.showDialog(context, () => mounted ? setState(() {}) : null);
-                            if (mounted) setState(() {});
+                            final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                            if (result == true && mounted) setState(() {});
                           }
                         },
                       ),

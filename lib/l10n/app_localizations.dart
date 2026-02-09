@@ -338,24 +338,6 @@ abstract class AppLocalizations {
   /// **'Unlock Premium'**
   String get premiumDialogTitle;
 
-  /// No description provided for @premiumDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This feature is part of the premium experience.\nMake a one-time payment of %s to unlock it and enjoy more powerful tools.\n\nPremium Features:\n • Multi-repo support\n\nAlternatively, connect your GitHub account to check if you\'re an eligible GitHub Sponsor.'**
-  String get premiumDialogMessage;
-
-  /// No description provided for @premiumDialogButtonText.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock for %s'**
-  String get premiumDialogButtonText;
-
-  /// No description provided for @premiumDialogGitHubButtonText.
-  ///
-  /// In en, this message translates to:
-  /// **'Use GitHub Sponsors'**
-  String get premiumDialogGitHubButtonText;
-
   /// No description provided for @restorePurchase.
   ///
   /// In en, this message translates to:
@@ -379,6 +361,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note: new sponsorships may take up to 1 day to become available in the app.'**
   String get verifyGhSponsorNote;
+
+  /// No description provided for @premiumStoreOnlyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Store version only — Get it on the App Store or Play Store'**
+  String get premiumStoreOnlyBanner;
+
+  /// No description provided for @premiumMultiRepoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Multiple Repos'**
+  String get premiumMultiRepoTitle;
+
+  /// No description provided for @premiumMultiRepoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One app. All your repositories.\nEach with its own credentials and settings.'**
+  String get premiumMultiRepoSubtitle;
+
+  /// No description provided for @premiumUnlimitedContainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited containers'**
+  String get premiumUnlimitedContainers;
+
+  /// No description provided for @premiumIndependentAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Independent auth per repo'**
+  String get premiumIndependentAuth;
+
+  /// No description provided for @premiumAutoAddSubmodules.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-add submodules'**
+  String get premiumAutoAddSubmodules;
+
+  /// No description provided for @premiumEnhancedSyncSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated background sync on iOS.\nAs low as once per minute.'**
+  String get premiumEnhancedSyncSubtitle;
+
+  /// No description provided for @premiumSyncPerMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync as often as every minute'**
+  String get premiumSyncPerMinute;
+
+  /// No description provided for @premiumServerTriggered.
+  ///
+  /// In en, this message translates to:
+  /// **'Server push notifications'**
+  String get premiumServerTriggered;
+
+  /// No description provided for @premiumWorksAppClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Works even when app is closed'**
+  String get premiumWorksAppClosed;
+
+  /// No description provided for @premiumReliableDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Reliable, on-schedule delivery'**
+  String get premiumReliableDelivery;
+
+  /// No description provided for @premiumGitLfsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Git LFS'**
+  String get premiumGitLfsTitle;
+
+  /// No description provided for @premiumGitLfsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Full support for Git Large File Storage.\nSync repos with large binary files effortlessly.'**
+  String get premiumGitLfsSubtitle;
+
+  /// No description provided for @premiumFullLfsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Git LFS support'**
+  String get premiumFullLfsSupport;
+
+  /// No description provided for @premiumTrackLargeFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Track large binary files'**
+  String get premiumTrackLargeFiles;
+
+  /// No description provided for @premiumAutoLfsPullPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic LFS pull/push'**
+  String get premiumAutoLfsPullPush;
+
+  /// No description provided for @premiumGitFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Git Filters'**
+  String get premiumGitFiltersTitle;
+
+  /// No description provided for @premiumGitFiltersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Support for git filters including git-lfs,\ngit-crypt, and more coming soon.'**
+  String get premiumGitFiltersSubtitle;
+
+  /// No description provided for @premiumGitLfsFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'git-lfs filter'**
+  String get premiumGitLfsFilter;
+
+  /// No description provided for @premiumGitCryptFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'git-crypt filter'**
+  String get premiumGitCryptFilter;
+
+  /// No description provided for @premiumMoreFiltersSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'More filters coming soon'**
+  String get premiumMoreFiltersSoon;
+
+  /// No description provided for @premiumGitHooksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Git Hooks'**
+  String get premiumGitHooksTitle;
+
+  /// No description provided for @premiumGitHooksSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run pre-commit hooks automatically\nbefore every sync.'**
+  String get premiumGitHooksSubtitle;
+
+  /// No description provided for @premiumHookTrailingWhitespace.
+  ///
+  /// In en, this message translates to:
+  /// **'trailing-whitespace'**
+  String get premiumHookTrailingWhitespace;
+
+  /// No description provided for @premiumHookEndOfFileFixer.
+  ///
+  /// In en, this message translates to:
+  /// **'end-of-file-fixer'**
+  String get premiumHookEndOfFileFixer;
+
+  /// No description provided for @premiumHookCheckYamlJson.
+  ///
+  /// In en, this message translates to:
+  /// **'check-yaml / check-json'**
+  String get premiumHookCheckYamlJson;
+
+  /// No description provided for @premiumHookMixedLineEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'mixed-line-ending'**
+  String get premiumHookMixedLineEnding;
+
+  /// No description provided for @premiumHookDetectPrivateKey.
+  ///
+  /// In en, this message translates to:
+  /// **'detect-private-key'**
+  String get premiumHookDetectPrivateKey;
 
   /// No description provided for @switchToClientMode.
   ///
@@ -674,12 +824,6 @@ abstract class AppLocalizations {
   /// **'Merging…'**
   String get merging;
 
-  /// No description provided for @resolvingMerge.
-  ///
-  /// In en, this message translates to:
-  /// **'Resolving merge…'**
-  String get resolvingMerge;
-
   /// No description provided for @iosClearDataTitle.
   ///
   /// In en, this message translates to:
@@ -740,17 +884,11 @@ abstract class AppLocalizations {
   /// **'Set Up'**
   String get setUp;
 
-  /// No description provided for @welcome.
+  /// No description provided for @welcomeSetupPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Welcome!'**
-  String get welcome;
-
-  /// No description provided for @welcomeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'It looks like this is your first time here.\n\nWould you like to go through a quick setup to get started?'**
-  String get welcomeMessage;
+  /// **'Would you like to go through a quick setup to get started?'**
+  String get welcomeSetupPrompt;
 
   /// No description provided for @welcomePositive.
   ///
@@ -776,53 +914,11 @@ abstract class AppLocalizations {
   /// **'Enable Notifications'**
   String get notificationDialogTitle;
 
-  /// No description provided for @notificationDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enable notification permissions for the best experience.\n\nThe app uses notifications for \n  • popup sync messages (optional)\n  • bug reports'**
-  String get notificationDialogMessage;
-
   /// No description provided for @allFilesAccessDialogTitle.
   ///
   /// In en, this message translates to:
   /// **'Enable \"All Files Access\"'**
   String get allFilesAccessDialogTitle;
-
-  /// No description provided for @allFilesAccessDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'You cannot use GitSync without granting \"All files access\" permissions! Please enable it for the best experience.\n\nThe app uses \"All files access\" for syncing your repository to the selected directory on the device. The app does not attempt to access any file outside the selected directory.'**
-  String get allFilesAccessDialogMessage;
-
-  /// No description provided for @almostThereDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Almost there!'**
-  String get almostThereDialogTitle;
-
-  /// No description provided for @almostThereDialogMessageAndroid.
-  ///
-  /// In en, this message translates to:
-  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app\n  • From a Quick Tile\n  • Using App Sync\n  • Using a Custom Intent (advanced)'**
-  String get almostThereDialogMessageAndroid;
-
-  /// No description provided for @almostThereDialogMessageIos.
-  ///
-  /// In en, this message translates to:
-  /// **'Soon, we\'ll authenticate and clone your repo to your device, preparing it for syncing.\n\nOnce that\'s set, there are several ways to trigger a sync:\n\n  • From within the app'**
-  String get almostThereDialogMessageIos;
-
-  /// No description provided for @authDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Authenticate with a Git Provider'**
-  String get authDialogTitle;
-
-  /// No description provided for @authDialogMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Please authenticate with your chosen git provider and continue on to clone your repo!'**
-  String get authDialogMessage;
 
   /// No description provided for @authorDetailsPromptTitle.
   ///
@@ -848,59 +944,317 @@ abstract class AppLocalizations {
   /// **'Go to Settings'**
   String get goToSettings;
 
-  /// No description provided for @enableAutosyncTitle.
+  /// No description provided for @onboardingSyncSettingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Enable App Sync'**
-  String get enableAutosyncTitle;
+  /// **'Sync Settings'**
+  String get onboardingSyncSettingsTitle;
 
-  /// No description provided for @enableAutosyncMessage.
+  /// No description provided for @onboardingSyncSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Keep your data up-to-date effortlessly. Turn on App Sync to automatically sync in the background whenever apps are opened or closed.'**
-  String get enableAutosyncMessage;
+  /// **'Choose how to keep your repos in sync.'**
+  String get onboardingSyncSettingsSubtitle;
 
-  /// No description provided for @addMoreHint.
+  /// No description provided for @onboardingAppSyncFeatureOpen.
   ///
   /// In en, this message translates to:
-  /// **'Click this button to add additional repositories to the app'**
-  String get addMoreHint;
+  /// **'Trigger sync on app open'**
+  String get onboardingAppSyncFeatureOpen;
 
-  /// No description provided for @globalSettingsHint.
+  /// No description provided for @onboardingAppSyncFeatureClose.
   ///
   /// In en, this message translates to:
-  /// **'Click this button to access the global app settings'**
-  String get globalSettingsHint;
+  /// **'Trigger sync on app close'**
+  String get onboardingAppSyncFeatureClose;
 
-  /// No description provided for @syncProgressHint.
+  /// No description provided for @onboardingAppSyncFeatureSelect.
   ///
   /// In en, this message translates to:
-  /// **'Track the status of active sync operations here'**
-  String get syncProgressHint;
+  /// **'Select which apps to monitor'**
+  String get onboardingAppSyncFeatureSelect;
 
-  /// No description provided for @controlHint.
+  /// No description provided for @onboardingScheduledSyncFeatureFreq.
   ///
   /// In en, this message translates to:
-  /// **'Use these controls to manually sync or manage repository actions'**
-  String get controlHint;
+  /// **'Set your preferred sync frequency'**
+  String get onboardingScheduledSyncFeatureFreq;
 
-  /// No description provided for @configHint.
+  /// No description provided for @onboardingScheduledSyncFeatureCustom.
   ///
   /// In en, this message translates to:
-  /// **'Configure repository settings and initialize setup using this section'**
-  String get configHint;
+  /// **'Choose custom intervals on Android'**
+  String get onboardingScheduledSyncFeatureCustom;
 
-  /// No description provided for @autoSyncOptionsHint.
+  /// No description provided for @onboardingScheduledSyncFeatureBg.
   ///
   /// In en, this message translates to:
-  /// **'Enable background sync and ensure your data stays up-to-date automatically using these settings'**
-  String get autoSyncOptionsHint;
+  /// **'Works in the background'**
+  String get onboardingScheduledSyncFeatureBg;
 
-  /// No description provided for @guidedSetupHint.
+  /// No description provided for @onboardingQuickSyncFeatureTile.
   ///
   /// In en, this message translates to:
-  /// **'Click here to restart the setup or UI guide whenever you need a walkthrough or want to review the UI again'**
-  String get guidedSetupHint;
+  /// **'Sync via Quick Settings tile'**
+  String get onboardingQuickSyncFeatureTile;
+
+  /// No description provided for @onboardingQuickSyncFeatureShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync via app shortcuts'**
+  String get onboardingQuickSyncFeatureShortcut;
+
+  /// No description provided for @onboardingQuickSyncFeatureWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync via home screen widget'**
+  String get onboardingQuickSyncFeatureWidget;
+
+  /// No description provided for @onboardingOtherSyncFeatureAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android intents'**
+  String get onboardingOtherSyncFeatureAndroid;
+
+  /// No description provided for @onboardingOtherSyncFeatureIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS intents'**
+  String get onboardingOtherSyncFeatureIos;
+
+  /// No description provided for @onboardingOtherSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore additional sync methods for your platform'**
+  String get onboardingOtherSyncDescription;
+
+  /// No description provided for @onboardingTapToConfigure.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to configure'**
+  String get onboardingTapToConfigure;
+
+  /// No description provided for @showcaseGlobalSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Settings'**
+  String get showcaseGlobalSettingsTitle;
+
+  /// No description provided for @showcaseGlobalSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your app-wide preferences and tools.'**
+  String get showcaseGlobalSettingsSubtitle;
+
+  /// No description provided for @showcaseGlobalSettingsFeatureTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust theme, language, and display options'**
+  String get showcaseGlobalSettingsFeatureTheme;
+
+  /// No description provided for @showcaseGlobalSettingsFeatureBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up or restore your configuration'**
+  String get showcaseGlobalSettingsFeatureBackup;
+
+  /// No description provided for @showcaseGlobalSettingsFeatureSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart the guided setup or UI tour'**
+  String get showcaseGlobalSettingsFeatureSetup;
+
+  /// No description provided for @showcaseSyncProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Status'**
+  String get showcaseSyncProgressTitle;
+
+  /// No description provided for @showcaseSyncProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See what\'s happening at a glance.'**
+  String get showcaseSyncProgressSubtitle;
+
+  /// No description provided for @showcaseSyncProgressFeatureWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch active sync operations in real time'**
+  String get showcaseSyncProgressFeatureWatch;
+
+  /// No description provided for @showcaseSyncProgressFeatureConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirms when a sync completes successfully'**
+  String get showcaseSyncProgressFeatureConfirm;
+
+  /// No description provided for @showcaseSyncProgressFeatureErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to view errors or open the log viewer'**
+  String get showcaseSyncProgressFeatureErrors;
+
+  /// No description provided for @showcaseAddMoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Containers'**
+  String get showcaseAddMoreTitle;
+
+  /// No description provided for @showcaseAddMoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage multiple repositories in one place.'**
+  String get showcaseAddMoreSubtitle;
+
+  /// No description provided for @showcaseAddMoreFeatureSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between repo containers instantly'**
+  String get showcaseAddMoreFeatureSwitch;
+
+  /// No description provided for @showcaseAddMoreFeatureManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename or delete containers as needed'**
+  String get showcaseAddMoreFeatureManage;
+
+  /// No description provided for @showcaseAddMoreFeaturePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more containers with Premium'**
+  String get showcaseAddMoreFeaturePremium;
+
+  /// No description provided for @showcaseControlTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Controls'**
+  String get showcaseControlTitle;
+
+  /// No description provided for @showcaseControlSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your hands-on sync and commit tools.'**
+  String get showcaseControlSubtitle;
+
+  /// No description provided for @showcaseControlFeatureSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger a manual sync with one tap'**
+  String get showcaseControlFeatureSync;
+
+  /// No description provided for @showcaseControlFeatureHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View your recent commit history'**
+  String get showcaseControlFeatureHistory;
+
+  /// No description provided for @showcaseControlFeatureConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve merge conflicts when they arise'**
+  String get showcaseControlFeatureConflicts;
+
+  /// No description provided for @showcaseControlFeatureMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Access force push, force pull, and more'**
+  String get showcaseControlFeatureMore;
+
+  /// No description provided for @showcaseAutoSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Sync'**
+  String get showcaseAutoSyncTitle;
+
+  /// No description provided for @showcaseAutoSyncSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your repos in sync automatically.'**
+  String get showcaseAutoSyncSubtitle;
+
+  /// No description provided for @showcaseAutoSyncFeatureApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync when selected apps open or close'**
+  String get showcaseAutoSyncFeatureApp;
+
+  /// No description provided for @showcaseAutoSyncFeatureSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule periodic background syncs'**
+  String get showcaseAutoSyncFeatureSchedule;
+
+  /// No description provided for @showcaseAutoSyncFeatureQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync via quick tiles, shortcuts, or widgets'**
+  String get showcaseAutoSyncFeatureQuick;
+
+  /// No description provided for @showcaseAutoSyncFeaturePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock enhanced sync rates with Premium'**
+  String get showcaseAutoSyncFeaturePremium;
+
+  /// No description provided for @showcaseSetupGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup & Guide'**
+  String get showcaseSetupGuideTitle;
+
+  /// No description provided for @showcaseSetupGuideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revisit the walkthrough anytime.'**
+  String get showcaseSetupGuideSubtitle;
+
+  /// No description provided for @showcaseSetupGuideFeatureSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-run the guided setup from scratch'**
+  String get showcaseSetupGuideFeatureSetup;
+
+  /// No description provided for @showcaseSetupGuideFeatureTour.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a quick tour of the UI highlights'**
+  String get showcaseSetupGuideFeatureTour;
+
+  /// No description provided for @showcaseRepoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Repository'**
+  String get showcaseRepoTitle;
+
+  /// No description provided for @showcaseRepoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your command center for managing this repository.'**
+  String get showcaseRepoSubtitle;
+
+  /// No description provided for @showcaseRepoFeatureAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate with your git provider'**
+  String get showcaseRepoFeatureAuth;
+
+  /// No description provided for @showcaseRepoFeatureDir.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch or select your local directory'**
+  String get showcaseRepoFeatureDir;
+
+  /// No description provided for @showcaseRepoFeatureBrowse.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and edit files directly'**
+  String get showcaseRepoFeatureBrowse;
+
+  /// No description provided for @showcaseRepoFeatureRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'View or change the remote URL'**
+  String get showcaseRepoFeatureRemote;
 
   /// No description provided for @currentBranch.
   ///
@@ -980,12 +1334,6 @@ abstract class AppLocalizations {
   /// **'AUTH'**
   String get auth;
 
-  /// No description provided for @gitDirPathHint.
-  ///
-  /// In en, this message translates to:
-  /// **'/storage/emulated/0/…'**
-  String get gitDirPathHint;
-
   /// No description provided for @openFileExplorer.
   ///
   /// In en, this message translates to:
@@ -1021,12 +1369,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To enhance your experience,\nGitSync uses Android\'s Accessibility Service to detect when apps are opened or closed.\n\nThis helps us provide tailored features without storing or sharing any data.\n\nᴘʟᴇᴀsᴇ ᴇɴᴀʙʟᴇ ɢɪᴛsʏɴᴄ ᴏɴ ᴛʜᴇ ɴᴇxᴛ sᴄʀᴇᴇɴ'**
   String get accessibilityServiceDisclosureMessage;
-
-  /// No description provided for @accessibilityServiceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'To enhance your experience, GitSync uses Android\'s Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \n\n Key Points: \n Purpose: We use this service solely to improve your app experience. \n Privacy: No data is stored or sent elsewhere. \n Control: You can disable these permissions at any time in your device settings.'**
-  String get accessibilityServiceDescription;
 
   /// No description provided for @search.
   ///
@@ -1094,47 +1436,95 @@ abstract class AppLocalizations {
   /// **'Sync'**
   String get sync;
 
-  /// No description provided for @dontSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t Sync'**
-  String get dontSync;
-
   /// No description provided for @iosDefaultSyncRate.
   ///
   /// In en, this message translates to:
   /// **'when iOS allows'**
   String get iosDefaultSyncRate;
 
-  /// No description provided for @aboutEvery.
+  /// No description provided for @scheduledSync.
   ///
   /// In en, this message translates to:
-  /// **'~every'**
-  String get aboutEvery;
+  /// **'Scheduled Sync'**
+  String get scheduledSync;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @interval15min.
+  ///
+  /// In en, this message translates to:
+  /// **'15 min'**
+  String get interval15min;
+
+  /// No description provided for @interval30min.
+  ///
+  /// In en, this message translates to:
+  /// **'30 min'**
+  String get interval30min;
+
+  /// No description provided for @interval1hour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get interval1hour;
+
+  /// No description provided for @interval6hours.
+  ///
+  /// In en, this message translates to:
+  /// **'6 hours'**
+  String get interval6hours;
+
+  /// No description provided for @interval12hours.
+  ///
+  /// In en, this message translates to:
+  /// **'12 hours'**
+  String get interval12hours;
+
+  /// No description provided for @interval1day.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day'**
+  String get interval1day;
+
+  /// No description provided for @interval1week.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week'**
+  String get interval1week;
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minute(s)'**
+  String get minutes;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hour(s)'**
+  String get hours;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'day(s)'**
+  String get days;
+
+  /// No description provided for @weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'week(s)'**
+  String get weeks;
 
   /// No description provided for @enhancedScheduledSync.
   ///
   /// In en, this message translates to:
   /// **'Enhanced Scheduled Sync'**
   String get enhancedScheduledSync;
-
-  /// No description provided for @enhancedScheduledSyncMsg1.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlike the basic sync, this feature uses advanced background updates to deliver fresh data more frequently and reliably.'**
-  String get enhancedScheduledSyncMsg1;
-
-  /// No description provided for @enhancedScheduledSyncMsg2.
-  ///
-  /// In en, this message translates to:
-  /// **'Sync your repositories in the background as often as a sync per minute, even when the app is closed!\n\nEffortless, continuous updates mean your repos are always ready when you are.'**
-  String get enhancedScheduledSyncMsg2;
-
-  /// No description provided for @enhancedScheduledSyncNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Note: Background syncing may be affected by battery saver and Do Not Disturb modes.'**
-  String get enhancedScheduledSyncNote;
 
   /// No description provided for @quickSyncSettings.
   ///
@@ -1147,12 +1537,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync using customizable quick tiles, shortcuts, or widgets'**
   String get quickSyncDescription;
-
-  /// No description provided for @tileSyncSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Tile Sync Settings'**
-  String get tileSyncSettings;
 
   /// No description provided for @otherSyncSettings.
   ///
@@ -1952,12 +2336,6 @@ abstract class AppLocalizations {
   /// **'Directory'**
   String get directory;
 
-  /// No description provided for @confirmFileDirDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm %s Deletion'**
-  String get confirmFileDirDeleteTitle;
-
   /// No description provided for @confirmFileDirDeleteMsg.
   ///
   /// In en, this message translates to:
@@ -2366,18 +2744,6 @@ abstract class AppLocalizations {
   /// **'Ongoing merge conflict'**
   String get ongoingMergeConflict;
 
-  /// No description provided for @enableAccessibilityService.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enable GitSync under \"Installed apps\"'**
-  String get enableAccessibilityService;
-
-  /// No description provided for @networkUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Network unavailable!'**
-  String get networkUnavailable;
-
   /// No description provided for @networkUnavailableRetry.
   ///
   /// In en, this message translates to:
@@ -2395,24 +2761,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report a Bug'**
   String get reportABug;
-
-  /// No description provided for @reportBug.
-  ///
-  /// In en, this message translates to:
-  /// **'<GitSync Error> Tap to send a bug report'**
-  String get reportBug;
-
-  /// No description provided for @unknownError.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown Error'**
-  String get unknownError;
-
-  /// No description provided for @enableNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable notifications permission to see more.'**
-  String get enableNotifications;
 
   /// No description provided for @errorOccurredTitle.
   ///
@@ -2432,83 +2780,11 @@ abstract class AppLocalizations {
   /// **'Otherwise, you can long-press to copy to clipboard or dismiss and continue.'**
   String get errorOccurredMessagePart2;
 
-  /// No description provided for @applicationError.
-  ///
-  /// In en, this message translates to:
-  /// **'Application Error!'**
-  String get applicationError;
-
-  /// No description provided for @missingAuthorDetailsError.
-  ///
-  /// In en, this message translates to:
-  /// **'Missing repository author details. Please set your name and email in the repository settings.'**
-  String get missingAuthorDetailsError;
-
-  /// No description provided for @outOfMemory.
-  ///
-  /// In en, this message translates to:
-  /// **'Application ran out of memory!'**
-  String get outOfMemory;
-
-  /// No description provided for @invalidRemote.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid remote! Modify this in settings'**
-  String get invalidRemote;
-
-  /// No description provided for @largeFile.
-  ///
-  /// In en, this message translates to:
-  /// **'Singular files larger than 50MB not supported!'**
-  String get largeFile;
-
   /// No description provided for @cloneFailed.
   ///
   /// In en, this message translates to:
   /// **'Failed to clone repository!'**
   String get cloneFailed;
-
-  /// No description provided for @inaccessibleDirectoryMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Inaccessible directory! Please select a different location.'**
-  String get inaccessibleDirectoryMessage;
-
-  /// No description provided for @autoRebaseFailedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.'**
-  String get autoRebaseFailedException;
-
-  /// No description provided for @nonExistingException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref didn\'t exist.'**
-  String get nonExistingException;
-
-  /// No description provided for @rejectedNodeleteException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.'**
-  String get rejectedNodeleteException;
-
-  /// No description provided for @rejectedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected.'**
-  String get rejectedException;
-
-  /// No description provided for @rejectionWithReasonException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected because %s.'**
-  String get rejectionWithReasonException;
-
-  /// No description provided for @remoteChangedException.
-  ///
-  /// In en, this message translates to:
-  /// **'Remote ref update was rejected, because old object id on remote repository wasn\'t the same as defined expected old object.'**
-  String get remoteChangedException;
 
   /// No description provided for @mergingExceptionMessage.
   ///
@@ -2569,12 +2845,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You need to connect your GitHub account to report bugs and track their progress.\nYou can reset this connection anytime in Global Settings.'**
   String get githubIssueOauthMsg;
-
-  /// No description provided for @issueReportMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Logs automatically included with reports'**
-  String get issueReportMessage;
 
   /// No description provided for @includeLogs.
   ///

@@ -12,6 +12,7 @@ class BaseAlertDialog extends StatefulWidget {
     super.key,
     this.scrollable = false,
     this.expandable = false,
+    this.expanded = false,
     // forward all AlertDialog params
     this.icon,
     this.iconPadding,
@@ -42,6 +43,7 @@ class BaseAlertDialog extends StatefulWidget {
   });
 
   final bool expandable;
+  final bool expanded;
   final Widget? icon;
   final EdgeInsetsGeometry? iconPadding;
   final Color? iconColor;
@@ -79,7 +81,7 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
   @override
   void initState() {
     initAsync(() async {
-      expanded = widget.expandable && await uiSettingsManager.getClientModeEnabled();
+      expanded = widget.expanded || widget.expandable && await uiSettingsManager.getClientModeEnabled();
       setState(() {});
     });
     super.initState();
@@ -127,7 +129,7 @@ class _BaseAlertDialogState extends State<BaseAlertDialog> {
             clipBehavior: Clip.none,
             children: [
               Padding(padding: titlePadding, child: widget.title ?? SizedBox()),
-              widget.expandable
+              !widget.expanded && widget.expandable
                   ? Positioned(
                       top: spaceXXXS,
                       right: spaceXXXS,

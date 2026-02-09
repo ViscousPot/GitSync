@@ -45,7 +45,7 @@ class ImageViewer extends StatelessWidget {
 
 Route createImageViewerRoute({required String path}) {
   return PageRouteBuilder(
-    settings: const RouteSettings(name: clone_repo_main),
+    settings: const RouteSettings(name: image_viewer),
     pageBuilder: (context, animation, secondaryAnimation) => ImageViewer(path: path),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);

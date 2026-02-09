@@ -12,7 +12,7 @@ class SyncSettingsMain extends StatefulWidget {
   State<SyncSettingsMain> createState() => _SyncSettingsMain();
 }
 
-class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   final _controller = ScrollController();
   bool atTop = true;
 

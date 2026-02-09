@@ -127,8 +127,16 @@ class _SyncLoaderState extends State<SyncLoader> {
             alignment: Alignment.center,
             child: CustomShowcase(
               globalKey: widget.syncProgressKey,
-              description: t.syncProgressHint,
               cornerRadius: cornerRadiusMax,
+              richContent: ShowcaseTooltipContent(
+                title: t.showcaseSyncProgressTitle,
+                subtitle: t.showcaseSyncProgressSubtitle,
+                featureRows: [
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseSyncProgressFeatureWatch),
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleCheck, text: t.showcaseSyncProgressFeatureConfirm),
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.bug, text: t.showcaseSyncProgressFeatureErrors),
+                ],
+              ),
               child: Container(
                 width: spaceMD + spaceXS,
                 height: spaceMD + spaceXS,
