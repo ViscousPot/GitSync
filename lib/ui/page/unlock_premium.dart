@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:GitSync/global.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:re_highlight/styles/base16/solarized-light.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/dimens.dart';
@@ -298,31 +299,53 @@ class _UnlockPremiumState extends State<UnlockPremium> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: spaceXL, right: spaceXL, top: spaceXL, bottom: 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.only(left: spaceXL, right: Platform.isIOS ? spaceXL - spaceSM : spaceXL, top: Platform.isIOS ? spaceXL - spaceSM : spaceXL, bottom: 0),
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    Container(
-                      width: spaceXL,
-                      height: spaceXL,
-                      decoration: BoxDecoration(
-                        border: BoxBorder.all(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignOutside),
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        image: DecorationImage(fit: BoxFit.fill, image: AssetImage('assets/app_icon.png')),
+                    Padding(
+                      padding: EdgeInsets.only(top: Platform.isIOS ? spaceSM : 0, right: Platform.isIOS ? spaceSM : 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: spaceXL,
+                            height: spaceXL,
+                            decoration: BoxDecoration(
+                              border: BoxBorder.all(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignOutside),
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              image: DecorationImage(fit: BoxFit.fill, image: AssetImage('assets/app_icon.png')),
+                            ),
+                          ),
+                          SizedBox(height: spaceLG),
+                          Row(
+                            children: [
+                              FaIcon(FontAwesomeIcons.solidGem, color: colours.premiumAccent, size: textLG * 2),
+                              SizedBox(width: spaceSM),
+                              Text(
+                                "Premium",
+                                style: TextStyle(color: colours.primaryLight, fontSize: textLG * 2, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: spaceLG),
-                    Row(
-                      children: [
-                        FaIcon(FontAwesomeIcons.solidGem, color: colours.premiumAccent, size: textLG * 2),
-                        SizedBox(width: spaceSM),
-                        Text(
-                          "Premium",
-                          style: TextStyle(color: colours.primaryLight, fontSize: textLG * 2, fontWeight: FontWeight.bold),
+                    if (Platform.isIOS)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                          constraints: BoxConstraints(),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                          },
+                          icon: FaIcon(FontAwesomeIcons.solidCircleXmark, color: colours.premiumAccent, size: spaceSM * 2),
                         ),
-                      ],
-                    ),
+                      ),
                   ],
                 ),
               ),

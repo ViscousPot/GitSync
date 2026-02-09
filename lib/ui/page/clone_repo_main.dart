@@ -248,14 +248,13 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                   ),
                 ],
               ),
+            SizedBox(height: spaceLG),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
                     child: SizedBox(
-                      height: constraints.maxHeight < MediaQuery.of(context).size.height / 1.1
-                          ? MediaQuery.of(context).size.height / 1.1
-                          : constraints.maxHeight,
+                      height: constraints.maxHeight < spaceXXL * 2 * 5.5 ? spaceXXL * 2 * 5.5 : constraints.maxHeight,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -264,7 +263,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                               : [
                                   Expanded(
                                     child: Container(
-                                      margin: EdgeInsets.only(top: spaceLG, bottom: spaceLG),
+                                      margin: EdgeInsets.only(bottom: spaceLG),
                                       decoration: BoxDecoration(
                                         color: colours.secondaryDark,
                                         borderRadius: BorderRadius.only(
