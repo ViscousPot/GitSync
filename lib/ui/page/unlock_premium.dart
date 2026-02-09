@@ -11,6 +11,17 @@ import '../../../constant/dimens.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 
+const double _featureCardHeight = spaceXXXS * 2 +
+    spaceSM * 2 + textXS * 1.5 +
+    spaceMD +
+    spaceLG +
+    spaceXXXS * 4 + textSM * 1.5 +
+    spaceMD +
+    textXL * 1.5 +
+    spaceSM +
+    textSM * 1.5 +
+    5 * (spaceXXXS * 2 + textMD * 1.5);
+
 class UnlockPremium extends StatefulWidget {
   const UnlockPremium({super.key, this.onboarding = false});
   final bool onboarding;
@@ -324,7 +335,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
                               child: SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.5,
+                                height: _featureCardHeight,
                                 child: PageView(
                                   controller: pageController,
                                   onPageChanged: (index) {
