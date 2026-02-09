@@ -203,7 +203,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
         ],
       ),
 
-      if (!Platform.isIOS)
+      if (Platform.isIOS)
         _featureCard(
           showStoreBanner: true,
           badgeIcons: [
@@ -313,192 +313,210 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                 ),
               ),
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spaceXL, vertical: spaceXL),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          width: double.maxFinite,
-                          margin: EdgeInsets.only(bottom: spaceMD),
-                          child: PageView(
-                            controller: pageController,
-                            onPageChanged: (index) {
-                              setState(() {
-                                currentPage = index;
-                              });
-                            },
-                            children: cards,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(cards.length, (index) {
-                          final isActive = currentPage == index;
-                          return AnimatedContainer(
-                            duration: Duration(milliseconds: 200),
-                            margin: EdgeInsets.symmetric(horizontal: spaceXXXS),
-                            width: spaceXS,
-                            height: spaceXS,
-                            decoration: BoxDecoration(
-                              color: isActive ? colours.premiumAccent : colours.premiumAccent.withValues(alpha: 0.3),
-                              shape: BoxShape.circle,
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(bottom: spaceSM, left: spaceMD, right: spaceMD),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextButton(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                        backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
-                      ),
-                      child: Text(
-                        sprintf("purchase now — %s", [price]).toUpperCase(),
-                        style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.bold, fontSize: textMD),
-                      ),
-                      onPressed: () async {
-                        await launchUrl(Uri.parse(contributeLink));
-                        if (context.mounted) {
-                          await _verifyGhSponsor();
-                        }
-                      },
-                    ),
-                    SizedBox(height: spaceMD),
-                    Stack(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                        child: Column(
+                          children: [
+                            SizedBox(height: spaceMD),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
+                              child: SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: PageView(
+                                  controller: pageController,
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      currentPage = index;
+                                    });
+                                  },
+                                  children: cards,
                                 ),
                               ),
                             ),
-                            child: Text(
-                              t.restorePurchase.toUpperCase(),
-                              style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: spaceLG),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(cards.length, (index) {
+                                  final isActive = currentPage == index;
+                                  return AnimatedContainer(
+                                    duration: Duration(milliseconds: 200),
+                                    margin: EdgeInsets.symmetric(horizontal: spaceXXXS),
+                                    width: spaceXS,
+                                    height: spaceXS,
+                                    decoration: BoxDecoration(
+                                      color: isActive ? colours.premiumAccent : colours.premiumAccent.withValues(alpha: 0.3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  );
+                                }),
+                              ),
                             ),
-                            onPressed: () async {
-                              await _verifyGhSponsor();
-                            },
-                          ),
-                        ),
-                        // Positioned(
-                        //   right: 0,
-                        //   top: 0,
-                        //   bottom: 0,
-                        //   child: IconButton(
-                        //     padding: EdgeInsets.zero,
-                        //     style: ButtonStyle(
-                        //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        //       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                        //       backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
-                        //       shape: WidgetStatePropertyAll(
-                        //         RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.all(cornerRadiusMD),
-                        //           side: BorderSide(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignCenter),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     constraints: BoxConstraints(),
-                        //     onPressed: () async {
-                        //       await _verifyGhSponsor();
-                        //     },
-                        //     icon: Row(
-                        //       crossAxisAlignment: CrossAxisAlignment.center,
-                        //       children: [
-                        //         Column(
-                        //           mainAxisAlignment: MainAxisAlignment.center,
-                        //           crossAxisAlignment: CrossAxisAlignment.end,
-                        //           children: [
-                        //             Text(
-                        //               "github".toUpperCase(),
-                        //               maxLines: 1,
-                        //               textAlign: TextAlign.center,
-                        //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
-                        //             ),
-                        //             SizedBox(height: spaceXXXXS),
-                        //             Text(
-                        //               "sponsors".toUpperCase(),
-                        //               maxLines: 1,
-                        //               textAlign: TextAlign.center,
-                        //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //         SizedBox(width: spaceXS),
-                        //         FaIcon(FontAwesomeIcons.github, color: colours.premiumBg),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                    // SizedBox(height: spaceMD),
-                    // TextButton(
-                    //   style: ButtonStyle(
-                    //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    //     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                    //     backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
-                    //     shape: WidgetStatePropertyAll(
-                    //       RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.all(cornerRadiusMD),
-                    //         side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   child: Text(
-                    //     "enterprise".toUpperCase(),
-                    //     style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
-                    //   ),
-                    //   onPressed: () async {},
-                    // ),
-                    if (widget.onboarding) ...[
-                      SizedBox(height: spaceMD),
-                      TextButton(
-                        style: ButtonStyle(
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(cornerRadiusMD),
-                              side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: spaceSM, left: spaceMD, right: spaceMD),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextButton(
+                                    style: ButtonStyle(
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                                      backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
+                                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
+                                    ),
+                                    child: Text(
+                                      sprintf("purchase now — %s", [price]).toUpperCase(),
+                                      style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.bold, fontSize: textMD),
+                                    ),
+                                    onPressed: () async {
+                                      await launchUrl(Uri.parse(contributeLink));
+                                      if (context.mounted) {
+                                        await _verifyGhSponsor();
+                                      }
+                                    },
+                                  ),
+                                  SizedBox(height: spaceMD),
+                                  Stack(
+                                    children: [
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton(
+                                          style: ButtonStyle(
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                                            backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
+                                            shape: WidgetStatePropertyAll(
+                                              RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                side: BorderSide(
+                                                  width: spaceXXXS,
+                                                  color: colours.premiumBorder,
+                                                  strokeAlign: BorderSide.strokeAlignCenter,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            t.restorePurchase.toUpperCase(),
+                                            style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                                          ),
+                                          onPressed: () async {
+                                            await _verifyGhSponsor();
+                                          },
+                                        ),
+                                      ),
+                                      // Positioned(
+                                      //   right: 0,
+                                      //   top: 0,
+                                      //   bottom: 0,
+                                      //   child: IconButton(
+                                      //     padding: EdgeInsets.zero,
+                                      //     style: ButtonStyle(
+                                      //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      //       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                                      //       backgroundColor: WidgetStatePropertyAll(colours.premiumAccent),
+                                      //       shape: WidgetStatePropertyAll(
+                                      //         RoundedRectangleBorder(
+                                      //           borderRadius: BorderRadius.all(cornerRadiusMD),
+                                      //           side: BorderSide(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignCenter),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //     constraints: BoxConstraints(),
+                                      //     onPressed: () async {
+                                      //       await _verifyGhSponsor();
+                                      //     },
+                                      //     icon: Row(
+                                      //       crossAxisAlignment: CrossAxisAlignment.center,
+                                      //       children: [
+                                      //         Column(
+                                      //           mainAxisAlignment: MainAxisAlignment.center,
+                                      //           crossAxisAlignment: CrossAxisAlignment.end,
+                                      //           children: [
+                                      //             Text(
+                                      //               "github".toUpperCase(),
+                                      //               maxLines: 1,
+                                      //               textAlign: TextAlign.center,
+                                      //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
+                                      //             ),
+                                      //             SizedBox(height: spaceXXXXS),
+                                      //             Text(
+                                      //               "sponsors".toUpperCase(),
+                                      //               maxLines: 1,
+                                      //               textAlign: TextAlign.center,
+                                      //               style: TextStyle(color: colours.premiumBg, fontWeight: FontWeight.w900, fontSize: textXS, height: 1),
+                                      //             ),
+                                      //           ],
+                                      //         ),
+                                      //         SizedBox(width: spaceXS),
+                                      //         FaIcon(FontAwesomeIcons.github, color: colours.premiumBg),
+                                      //       ],
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                  // SizedBox(height: spaceMD),
+                                  // TextButton(
+                                  //   style: ButtonStyle(
+                                  //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  //     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                                  //     backgroundColor: WidgetStatePropertyAll(colours.premiumSurface),
+                                  //     shape: WidgetStatePropertyAll(
+                                  //       RoundedRectangleBorder(
+                                  //         borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  //         side: BorderSide(width: spaceXXXS, color: colours.premiumBorder, strokeAlign: BorderSide.strokeAlignCenter),
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  //   child: Text(
+                                  //     "enterprise".toUpperCase(),
+                                  //     style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                                  //   ),
+                                  //   onPressed: () async {},
+                                  // ),
+                                  if (widget.onboarding) ...[
+                                    SizedBox(height: spaceMD),
+                                    TextButton(
+                                      style: ButtonStyle(
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                            side: BorderSide(
+                                              width: spaceXXXS,
+                                              color: colours.premiumBorder,
+                                              strokeAlign: BorderSide.strokeAlignCenter,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.skip.toUpperCase(),
+                                        style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                                      ),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                  ],
+                                  SizedBox(height: spaceSM),
+                                  Text(
+                                    "Purchased via GitHub Sponsors · may take up to 1 day to activate\nRestore Purchase · sign in with GitHub to verify sponsor status\nEnterprise · volume licensing and custom billing for teams",
+                                    style: TextStyle(color: colours.premiumTextSecondary, fontSize: textXXS, fontFamily: 'AtkinsonHyperlegible'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        child: Text(
-                          t.skip.toUpperCase(),
-                          style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
-                        ),
-                        onPressed: () => Navigator.pop(context),
                       ),
-                    ],
-                    SizedBox(height: spaceSM),
-                    Text(
-                      "Purchased via GitHub Sponsors · may take up to 1 day to activate\nRestore Purchase · sign in with GitHub to verify sponsor status\nEnterprise · volume licensing and custom billing for teams",
-                      style: TextStyle(color: colours.premiumTextSecondary, fontSize: textXXS, fontFamily: 'AtkinsonHyperlegible'),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],

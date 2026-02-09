@@ -204,6 +204,8 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   final _syncPageController = PageController();
   final _expandedSyncCard = ValueNotifier<int>(-1); // -1 = none expanded
 
+  final clientSyncModeScrollController = ScrollController();
+
   @override
   String? get restorationId => 'onboarding_setup';
 
@@ -250,6 +252,11 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
       if (screenIndex.value == Screen.ClientSyncMode) {
         clientModeEnabled.value = await uiSettingsManager.getBoolNullable(StorageKey.setman_clientModeEnabled, true) ?? false;
+        clientSyncModeScrollController.animateTo(
+          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
       }
     });
   }
@@ -637,7 +644,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(width: MediaQuery.of(context).size.width, height: spaceXXL * 3),
+                      SizedBox(width: MediaQuery.of(context).size.width, height: spaceXXL * 2.5),
                       Text(
                         "Effortless File Syncing",
                         textAlign: TextAlign.center,
@@ -721,102 +728,102 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: buttonWidth,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(cornerRadiusMD),
-                                side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: spaceLG),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                              backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
+                                ),
                               ),
                             ),
-                          ),
-                          child: Text(
-                            t.welcomeNeutral.toUpperCase(),
-                            style: TextStyle(
-                              color: colours.tertiaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: textMD,
-                              fontFamily: "AtkinsonHyperlegible",
-                            ),
-                          ),
-                          onPressed: () async {
-                            hasSkipped = true;
-                            await _controller.reverse();
-                            screenIndex.value = Screen.ClientSyncMode;
-                          },
-                        ),
-                      ),
-                      SizedBox(width: spaceSM),
-                      SizedBox(
-                        width: buttonWidth,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(cornerRadiusMD),
-                                side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
+                            child: Text(
+                              t.welcomeNeutral.toUpperCase(),
+                              style: TextStyle(
+                                color: colours.tertiaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
                               ),
                             ),
+                            onPressed: () async {
+                              hasSkipped = true;
+                              await _controller.reverse();
+                              screenIndex.value = Screen.ClientSyncMode;
+                            },
                           ),
-                          child: Text(
-                            t.welcomeNegative.toUpperCase(),
-                            style: TextStyle(
-                              color: colours.tertiaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: textMD,
-                              fontFamily: "AtkinsonHyperlegible",
-                            ),
-                          ),
-                          onPressed: () async {
-                            hasSkipped = true;
-                            await repoManager.setOnboardingStep(-1);
-                            await _controller.reverse();
-                            screenIndex.value = Screen.ClientSyncMode;
-                          },
                         ),
-                      ),
-                      SizedBox(width: spaceSM),
-                      SizedBox(
-                        width: buttonWidth,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(cornerRadiusMD),
-                                side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                        SizedBox(width: spaceSM),
+                        SizedBox(
+                          child: TextButton(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                              backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
+                                ),
                               ),
                             ),
-                          ),
-                          child: Text(
-                            t.welcomePositive.toUpperCase(),
-                            style: TextStyle(
-                              color: colours.secondaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: textMD,
-                              fontFamily: "AtkinsonHyperlegible",
+                            child: Text(
+                              t.welcomeNegative.toUpperCase(),
+                              style: TextStyle(
+                                color: colours.tertiaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
+                              ),
                             ),
+                            onPressed: () async {
+                              hasSkipped = true;
+                              await repoManager.setOnboardingStep(-1);
+                              await _controller.reverse();
+                              screenIndex.value = Screen.ClientSyncMode;
+                            },
                           ),
-                          onPressed: () async {
-                            await _controller.reverse();
-                            screenIndex.value = Screen.ClientSyncMode;
-                          },
                         ),
-                      ),
-                    ],
+                        SizedBox(width: spaceSM),
+                        Expanded(
+                          child: TextButton(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              t.welcomePositive.toUpperCase(),
+                              style: TextStyle(
+                                color: colours.secondaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
+                              ),
+                            ),
+                            onPressed: () async {
+                              await _controller.reverse();
+                              screenIndex.value = Screen.ClientSyncMode;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -928,178 +935,209 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: spaceLG),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () async {
-                            clientModeEnabled.value = true;
-                            await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, true);
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
-                                  decoration: BoxDecoration(
-                                    color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                    borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
-                                    border: BoxBorder.all(
-                                      width: spaceXS,
-                                      color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                      strokeAlign: BorderSide.strokeAlignOutside,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      AnimatedDefaultTextStyle(
-                                        duration: Duration(milliseconds: 200),
-                                        style: TextStyle(
-                                          color: isClientMode ? colours.tertiaryInfo : colours.primaryLight,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: textXL,
-                                          fontFamily: "AtkinsonHyperlegible",
+                      SizedBox(height: spaceMD),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => SingleChildScrollView(
+                            controller: clientSyncModeScrollController,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        clientModeEnabled.value = true;
+                                        clientSyncModeScrollController.animateTo(
+                                          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+                                          duration: Duration(milliseconds: 200),
+                                          curve: Curves.easeInOut,
+                                        );
+                                        await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, true);
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(spaceMD).add(EdgeInsets.only(top: spaceMD)),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            AnimatedContainer(
+                                              duration: Duration(milliseconds: 200),
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                              decoration: BoxDecoration(
+                                                color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  AnimatedDefaultTextStyle(
+                                                    duration: Duration(milliseconds: 200),
+                                                    style: TextStyle(
+                                                      color: isClientMode ? colours.tertiaryInfo : colours.primaryLight,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: textXL,
+                                                      fontFamily: "AtkinsonHyperlegible",
+                                                    ),
+                                                    child: Text("Client Mode"),
+                                                  ),
+                                                  SizedBox(width: spaceSM),
+                                                  FaIcon(
+                                                    FontAwesomeIcons.codeCompare,
+                                                    color: isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
+                                                    size: textXL,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            AnimatedContainer(
+                                              duration: Duration(milliseconds: 200),
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                              decoration: BoxDecoration(
+                                                color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: AnimatedDefaultTextStyle(
+                                                duration: Duration(milliseconds: 200),
+                                                style: TextStyle(
+                                                  color: isClientMode ? colours.primaryLight : colours.secondaryLight,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: textSM,
+                                                  fontFamily: "AtkinsonHyperlegible",
+                                                ),
+                                                child: Text("Everything you would expect from a git client", textAlign: TextAlign.end),
+                                              ),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                _modeFeatureItem(FontAwesomeIcons.codeBranch, "Branch management", isClientMode),
+                                                _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, "Manual commit & push", isClientMode),
+                                                _modeFeatureItem(FontAwesomeIcons.codePullRequest, "Diff viewer", isClientMode, false, true),
+                                              ],
+                                            ),
+                                          ],
                                         ),
-                                        child: Text("Client Mode"),
                                       ),
-                                      SizedBox(width: spaceSM),
-                                      FaIcon(
-                                        FontAwesomeIcons.codeCompare,
-                                        color: isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
-                                        size: textXL,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
-                                  decoration: BoxDecoration(
-                                    color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                    borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
-                                    border: BoxBorder.all(
-                                      width: spaceXS,
-                                      color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                      strokeAlign: BorderSide.strokeAlignOutside,
                                     ),
                                   ),
-                                  child: AnimatedDefaultTextStyle(
-                                    duration: Duration(milliseconds: 200),
-                                    style: TextStyle(
-                                      color: isClientMode ? colours.primaryLight : colours.secondaryLight,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: textSM,
-                                      fontFamily: "AtkinsonHyperlegible",
+                                  SizedBox(height: spaceMD),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        clientModeEnabled.value = false;
+                                        clientSyncModeScrollController.animateTo(
+                                          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+                                          duration: Duration(milliseconds: 200),
+                                          curve: Curves.easeInOut,
+                                        );
+                                        await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(spaceMD).add(EdgeInsets.only(bottom: spaceMD)),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            AnimatedContainer(
+                                              duration: Duration(milliseconds: 200),
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                              decoration: BoxDecoration(
+                                                color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  FaIcon(
+                                                    FontAwesomeIcons.arrowsRotate,
+                                                    color: !isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
+                                                    size: textXL,
+                                                  ),
+                                                  SizedBox(width: spaceSM),
+                                                  AnimatedDefaultTextStyle(
+                                                    duration: Duration(milliseconds: 200),
+                                                    style: TextStyle(
+                                                      color: !isClientMode ? colours.tertiaryInfo : colours.primaryLight,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: textXL,
+                                                      fontFamily: "AtkinsonHyperlegible",
+                                                    ),
+                                                    child: Text("Sync Mode"),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            AnimatedContainer(
+                                              duration: Duration(milliseconds: 200),
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                              decoration: BoxDecoration(
+                                                color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: AnimatedDefaultTextStyle(
+                                                duration: Duration(milliseconds: 200),
+                                                style: TextStyle(
+                                                  color: !isClientMode ? colours.primaryLight : colours.secondaryLight,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: textSM,
+                                                  fontFamily: "AtkinsonHyperlegible",
+                                                ),
+                                                child: Text("Automated file syncing in the background"),
+                                              ),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                _modeFeatureItem(FontAwesomeIcons.clockRotateLeft, "Auto commit & push", !isClientMode, true),
+                                                _modeFeatureItem(FontAwesomeIcons.gear, "Background operation", !isClientMode, true),
+                                                _modeFeatureItem(
+                                                  FontAwesomeIcons.triangleExclamation,
+                                                  "Easy conflict resolution",
+                                                  !isClientMode,
+                                                  true,
+                                                  true,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    child: Text("Everything you would expect from a git client", textAlign: TextAlign.end),
                                   ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    _modeFeatureItem(FontAwesomeIcons.codeBranch, "Branch management", isClientMode),
-                                    _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, "Manual commit & push", isClientMode),
-                                    _modeFeatureItem(FontAwesomeIcons.codePullRequest, "Diff viewer", isClientMode, false, true),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      Expanded(child: SizedBox()),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () async {
-                            clientModeEnabled.value = false;
-                            await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
-                                  decoration: BoxDecoration(
-                                    color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                    borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
-                                    border: BoxBorder.all(
-                                      width: spaceXS,
-                                      color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                      strokeAlign: BorderSide.strokeAlignOutside,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      FaIcon(
-                                        FontAwesomeIcons.arrowsRotate,
-                                        color: !isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
-                                        size: textXL,
-                                      ),
-                                      SizedBox(width: spaceSM),
-                                      AnimatedDefaultTextStyle(
-                                        duration: Duration(milliseconds: 200),
-                                        style: TextStyle(
-                                          color: !isClientMode ? colours.tertiaryInfo : colours.primaryLight,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: textXL,
-                                          fontFamily: "AtkinsonHyperlegible",
-                                        ),
-                                        child: Text("Sync Mode"),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
-                                  decoration: BoxDecoration(
-                                    color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                    borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
-                                    border: BoxBorder.all(
-                                      width: spaceXS,
-                                      color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                      strokeAlign: BorderSide.strokeAlignOutside,
-                                    ),
-                                  ),
-                                  child: AnimatedDefaultTextStyle(
-                                    duration: Duration(milliseconds: 200),
-                                    style: TextStyle(
-                                      color: !isClientMode ? colours.primaryLight : colours.secondaryLight,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: textSM,
-                                      fontFamily: "AtkinsonHyperlegible",
-                                    ),
-                                    child: Text("Automated file syncing in the background"),
-                                  ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _modeFeatureItem(FontAwesomeIcons.clockRotateLeft, "Auto commit & push", !isClientMode, true),
-                                    _modeFeatureItem(FontAwesomeIcons.gear, "Background operation", !isClientMode, true),
-                                    _modeFeatureItem(FontAwesomeIcons.triangleExclamation, "Easy conflict resolution", !isClientMode, true, true),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: spaceXL),
                     ],
                   ),
                 ),
                 Column(
                   children: [
+                    SizedBox(height: spaceLG),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -1277,74 +1315,146 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: spaceXXL),
-                    Padding(
-                      padding: EdgeInsets.only(right: spaceXL),
-                      child: Padding(
-                        padding: EdgeInsets.all(spaceMD),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    SizedBox(height: spaceMD),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          controller: clientSyncModeScrollController,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryPositive, size: textXL),
-                                SizedBox(width: spaceSM),
-                                Text(
-                                  "File Explorer",
-                                  style: TextStyle(
-                                    color: colours.primaryLight,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: textXL,
-                                    fontFamily: "AtkinsonHyperlegible",
+                                Padding(
+                                  padding: EdgeInsets.only(right: spaceXL, top: spaceLG),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                        decoration: BoxDecoration(
+                                          color: colours.tertiaryDark,
+                                          borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
+                                          border: BoxBorder.all(
+                                            width: spaceXS,
+                                            color: colours.tertiaryDark,
+                                            strokeAlign: BorderSide.strokeAlignOutside,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryPositive, size: textXL),
+                                            SizedBox(width: spaceSM),
+                                            Text(
+                                              "File Explorer",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: textXL,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                        decoration: BoxDecoration(
+                                          color: colours.tertiaryDark,
+                                          borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
+                                          border: BoxBorder.all(
+                                            width: spaceXS,
+                                            color: colours.tertiaryDark,
+                                            strokeAlign: BorderSide.strokeAlignOutside,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, "View hidden files"),
+                                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, "View git log"),
+                                            _browseFeatureItem(FontAwesomeIcons.ban, "Untrack and ignore files"),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: spaceMD),
+                                // Expanded(child: SizedBox()),
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: spaceLG),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                              decoration: BoxDecoration(
+                                                color: colours.tertiaryDark,
+                                                borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: colours.tertiaryDark,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Code Editor",
+                                                    style: TextStyle(
+                                                      color: colours.primaryLight,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: textXL,
+                                                      fontFamily: "AtkinsonHyperlegible",
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: spaceSM),
+                                                  FaIcon(FontAwesomeIcons.code, color: colours.tertiaryNegative, size: textXL),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                              decoration: BoxDecoration(
+                                                color: colours.tertiaryDark,
+                                                borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
+                                                border: BoxBorder.all(
+                                                  width: spaceXS,
+                                                  color: colours.tertiaryDark,
+                                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  _browseFeatureItem(FontAwesomeIcons.paintbrush, "Syntax highlighting"),
+                                                  _browseFeatureItem(FontAwesomeIcons.floppyDisk, "Auto-saving"),
+                                                  _browseFeatureItem(FontAwesomeIcons.flask, "Experimental feature"),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: spaceMD),
-                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, "View hidden files"),
-                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, "View git log"),
-                            _browseFeatureItem(FontAwesomeIcons.ban, "Untrack and ignore files"),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                    Expanded(child: SizedBox()),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Code Editor",
-                                      style: TextStyle(
-                                        color: colours.primaryLight,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: textXL,
-                                        fontFamily: "AtkinsonHyperlegible",
-                                      ),
-                                    ),
-                                    SizedBox(width: spaceSM),
-                                    FaIcon(FontAwesomeIcons.code, color: colours.tertiaryNegative, size: textXL),
-                                  ],
-                                ),
-                                SizedBox(height: spaceMD),
-                                _browseFeatureItem(FontAwesomeIcons.paintbrush, "Syntax highlighting"),
-                                _browseFeatureItem(FontAwesomeIcons.floppyDisk, "Auto-saving"),
-                                _browseFeatureItem(FontAwesomeIcons.flask, "Experimental feature"),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: spaceXXL),
+                    // SizedBox(height: spaceLG),
                   ],
                 ),
               ),
@@ -1907,128 +2017,151 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: spaceXXL),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                      child: Row(
-                        children: [
-                          FaIcon(FontAwesomeIcons.rightToBracket, color: colours.tertiaryInfo, size: textSM),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Text(
-                              "Authenticate with your Git provider",
-                              style: TextStyle(
-                                color: colours.primaryLight,
-                                fontSize: textMD,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
+                    SizedBox(height: spaceLG),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          controller: clientSyncModeScrollController,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
+                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      child: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.rightToBracket, color: colours.tertiaryInfo, size: textSM),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              "Authenticate with your Git provider",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontSize: textMD,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: spaceXXS),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
+                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      child: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textSM),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              "Clone a repository to your device",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontSize: textMD,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: spaceMD),
+                                // Expanded(child: SizedBox()),
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
+                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      child: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryInfo, size: textSM),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              "Configure your sync settings",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontSize: textMD,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: spaceXXS),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
+                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      child: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.solidFileLines, color: colours.tertiaryInfo, size: textSM),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              "Check the wiki if you need help",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontSize: textMD,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: spaceXXS),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
+                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      child: Row(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.solidCircleCheck, color: colours.tertiaryInfo, size: textSM),
+                                          SizedBox(width: spaceSM),
+                                          Expanded(
+                                            child: Text(
+                                              "Then you'll be all set!",
+                                              style: TextStyle(
+                                                color: colours.primaryLight,
+                                                fontSize: textMD,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "AtkinsonHyperlegible",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    SizedBox(height: spaceXXS),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                      child: Row(
-                        children: [
-                          FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textSM),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Text(
-                              "Clone a repository to your device",
-                              style: TextStyle(
-                                color: colours.primaryLight,
-                                fontSize: textMD,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(child: SizedBox()),
-                    // SizedBox(height: spaceXXS),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                      child: Row(
-                        children: [
-                          FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryInfo, size: textSM),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Text(
-                              "Configure your sync settings",
-                              style: TextStyle(
-                                color: colours.primaryLight,
-                                fontSize: textMD,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: spaceXXS),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                      child: Row(
-                        children: [
-                          FaIcon(FontAwesomeIcons.solidFileLines, color: colours.tertiaryInfo, size: textSM),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Text(
-                              "Check the wiki if you need help",
-                              style: TextStyle(
-                                color: colours.primaryLight,
-                                fontSize: textMD,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: spaceXXS),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                      child: Row(
-                        children: [
-                          FaIcon(FontAwesomeIcons.solidCircleCheck, color: colours.tertiaryInfo, size: textSM),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Text(
-                              "Then you'll be all set!",
-                              style: TextStyle(
-                                color: colours.primaryLight,
-                                fontSize: textMD,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: spaceXXL),
+                    SizedBox(height: spaceLG),
                   ],
                 ),
               ),
@@ -2153,32 +2286,27 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
+                  Text(
+                    "Authenticate",
+                    style: TextStyle(
+                      color: colours.primaryLight,
+                      fontSize: textMD * 2,
+                      fontFamily: "AtkinsonHyperlegible",
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: spaceXS),
+                  Text(
+                    "Authenticate with your preferred git provider",
+                    style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: spaceLG),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
-                          Text(
-                            "Authenticate",
-                            style: TextStyle(
-                              color: colours.primaryLight,
-                              fontSize: textMD * 2,
-                              fontFamily: "AtkinsonHyperlegible",
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: spaceXS),
-                          Text(
-                            "Authenticate with your preferred git provider",
-                            style: TextStyle(
-                              color: colours.tertiaryLight,
-                              fontSize: textSM,
-                              fontFamily: "AtkinsonHyperlegible",
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: spaceXL),
                           Column(
                             key: ValueKey('card-list'),
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2534,6 +2662,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       ),
                     ),
                   ),
+                  SizedBox(height: spaceMD),
                   Column(
                     children: [
                       Row(
@@ -2883,7 +3012,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: MediaQuery.of(context).viewInsets.bottom != 0 ? spaceLG : spaceXXL * 3.5),
+                      SizedBox(height: MediaQuery.of(context).viewInsets.bottom != 0 ? spaceLG : spaceLG * 3.5),
                       Expanded(
                         child: ValueListenableBuilder<int>(
                           valueListenable: _syncSettingsPage,
@@ -3044,8 +3173,8 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       child: AnimatedContainer(
                         duration: Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
-                        width: screenIndexValue == Screen.Welcome ? spaceXXL * 3 : spaceXXL,
-                        height: screenIndexValue == Screen.Welcome ? spaceXXL * 3 : spaceXXL,
+                        width: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
+                        height: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
                         child: Image.asset('assets/app_icon.png', fit: BoxFit.cover),
                       ),
                     ),
