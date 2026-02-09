@@ -163,7 +163,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premiumSyncPerMinute => 'Sync as often as every minute';
 
   @override
-  String get premiumServerTriggered => 'Server-triggered push notifications';
+  String get premiumServerTriggered => 'Server push notifications';
 
   @override
   String get premiumWorksAppClosed => 'Works even when app is closed';

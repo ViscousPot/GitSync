@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumServerTriggered.
   ///
   /// In en, this message translates to:
-  /// **'Server-triggered push notifications'**
+  /// **'Server push notifications'**
   String get premiumServerTriggered;
 
   /// No description provided for @premiumWorksAppClosed.

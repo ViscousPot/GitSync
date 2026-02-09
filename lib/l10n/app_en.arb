@@ -66,7 +66,7 @@
 
     "premiumEnhancedSyncSubtitle": "Automated background sync on iOS.\nAs low as once per minute.",
     "premiumSyncPerMinute": "Sync as often as every minute",
-    "premiumServerTriggered": "Server-triggered push notifications",
+    "premiumServerTriggered": "Server push notifications",
     "premiumWorksAppClosed": "Works even when app is closed",
     "premiumReliableDelivery": "Reliable, on-schedule delivery",
 
