@@ -1423,6 +1423,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                     name: t.learnMore.toUpperCase(),
                     onTap: () => launchUrl(Uri.parse(multiRepoDocsLink)),
                     type: null,
+                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                    padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                   ),
                 ],
                 child: FutureBuilder(
@@ -3109,6 +3111,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               name: t.learnMore.toUpperCase(),
                                               onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
                                               type: null,
+                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                             ),
                                           ],
                                           child: GroupSyncSettings(),
