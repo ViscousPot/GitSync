@@ -181,10 +181,14 @@ class GitManager {
 
   static Future<void> clearLocks() async {
     try {
-      Directory('${(await getApplicationSupportDirectory()).path}/queues').deleteSync(recursive: true);
-    } catch (e) {}
-    try {
-      Directory('${(await getApplicationSupportDirectory()).path}/queues').createSync(recursive: true);
+      final dir = Directory('${(await getApplicationSupportDirectory()).path}/queues');
+      if (dir.existsSync()) {
+        for (final entity in dir.listSync()) {
+          if (entity is File) {
+            entity.writeAsStringSync('');
+          }
+        }
+      }
     } catch (e) {}
   }
 
