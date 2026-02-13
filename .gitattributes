@@ -1,0 +1,70 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Force batch scripts to always use CRLF line endings so that if a repo is accessed
+# on a non-Windows system, the batch scripts will still work when checked out.
+*.bat text eol=crlf
+*.BAT text eol=crlf
+*.cmd text eol=crlf
+*.CMD text eol=crlf
+*.ics text eol=crlf
+*.ICS text eol=crlf
+
+# Same as above for Powershell scripts.
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+
+# Force shell scripts to always use LF line endings so that if a repo is accessed
+# on a Windows system, the shell scripts will still work when checked out.
+*.sh text eol=lf
+*.sh chmod=+x
+
+# Force YAML files to always use LF line endings so that if a repo is accessed
+# on a Windows system, the YAML files will still work when checked out.
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Force font files to be treated as binary, so that they are not modified in any way.
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Force image files to be treated as binary, so that they are not modified in any way.
+*.bmp binary
+*.gif binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.tiff binary
+*.webp binary
+# SVG files are actually XML text, so they can be treated as text.
+*.svg text
+
+# Force audio files to be treated as binary, so that they are not modified in any way.
+*.aac binary
+*.avi binary
+*.flac binary
+*.mkv binary
+*.mov binary
+*.mp3 binary
+*.mp4 binary
+*.ogg binary
+*.opus binary
+*.wav binary
+*.webm binary
+*.wmv binary
+
+# Xcode project files — merge=union accepts both sides of conflicts.
+# This is necessary because Xcode often makes non-conflicting changes to the same file, and we don't want to lose any of those changes.
+*.pbxproj merge=union
+
+# iOS storyboard files are XML text.
+*.storyboard text
+
+# Mark auto-generated files so GitHub excludes them from language stats.
+*.g.dart linguist-generated
+*.lock linguist-generated
