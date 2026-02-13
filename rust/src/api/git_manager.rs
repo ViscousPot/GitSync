@@ -2257,7 +2257,7 @@ pub async fn get_recommended_action(
     }
 
     if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
-        || !get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty()
+        || !get_uncommitted_file_paths_priv(&repo, true, &log_callback).is_empty()
     {
         _log(
             Arc::clone(&log_callback),
