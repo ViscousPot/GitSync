@@ -34,7 +34,10 @@ updates:
 
   # Rust (cargo)
   - package-ecosystem: "cargo"
-    directory: "/rust"
+    directories:
+      - "/rust"
+      - "/.maestro"
+      - "/rust/.cargo"
     schedule:
       interval: "weekly"
     labels:
