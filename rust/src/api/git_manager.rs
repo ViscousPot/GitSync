@@ -10,7 +10,11 @@ use std::{
     collections::HashMap,
     env, fs,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, AtomicU64, Ordering},
+        Arc, Mutex,
+    },
+    time::Instant,
 };
 use uuid::Uuid;
 
@@ -1583,6 +1587,49 @@ pub async fn fetch_remote(
     fetch_remote_priv(&repo, &remote, &provider, &credentials, &log_callback)
 }
 
+fn configure_network_timeouts(repo: &Repository) {
+    if let Ok(mut config) = repo.config() {
+        let _ = config.set_i32("http.lowSpeedLimit", 1000); // 1 KB/s minimum
+        let _ = config.set_i32("http.lowSpeedTime", 30); // for 30 consecutive seconds
+    }
+}
+
+struct StallDetector {
+    last_bytes: AtomicU64,
+    last_progress_time: Mutex<Instant>,
+    stall_timeout_secs: u64,
+    stalled: AtomicBool,
+}
+
+impl StallDetector {
+    fn new(stall_timeout_secs: u64) -> Self {
+        Self {
+            last_bytes: AtomicU64::new(0),
+            last_progress_time: Mutex::new(Instant::now()),
+            stall_timeout_secs,
+            stalled: AtomicBool::new(false),
+        }
+    }
+
+    fn check(&self, received_bytes: u64) -> bool {
+        let prev = self.last_bytes.swap(received_bytes, Ordering::Relaxed);
+        if received_bytes > prev {
+            *self.last_progress_time.lock().unwrap() = Instant::now();
+            return true;
+        }
+        let elapsed = self.last_progress_time.lock().unwrap().elapsed().as_secs();
+        if elapsed >= self.stall_timeout_secs {
+            self.stalled.store(true, Ordering::Relaxed);
+            return false; // abort
+        }
+        true
+    }
+
+    fn was_stalled(&self) -> bool {
+        self.stalled.load(Ordering::Relaxed)
+    }
+}
+
 fn fetch_remote_priv(
     repo: &Repository,
     remote: &String,
@@ -1591,8 +1638,14 @@ fn fetch_remote_priv(
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
 ) -> Result<Option<bool>, git2::Error> {
     let mut remote = swl!(repo.find_remote(&remote))?;
+    configure_network_timeouts(repo);
 
-    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let stall_detector = Arc::new(StallDetector::new(30));
+    let sd = Arc::clone(&stall_detector);
+
+    let mut callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    callbacks.transfer_progress(move |stats| sd.check(stats.received_bytes() as u64));
+
     let mut fetch_options = FetchOptions::new();
     fetch_options.prune(git2::FetchPrune::On);
     fetch_options.update_fetchhead(true);
@@ -1604,8 +1657,16 @@ fn fetch_remote_priv(
         LogType::PullFromRepo,
         "Fetching changes".to_string(),
     );
-    swl!(remote.fetch::<&str>(&[], Some(&mut fetch_options), None))?;
-    return Ok(Some(true));
+    match remote.fetch::<&str>(&[], Some(&mut fetch_options), None) {
+        Ok(_) => Ok(Some(true)),
+        Err(e) => {
+            if stall_detector.was_stalled() {
+                Err(git2::Error::from_str("network stall detected: transfer stalled"))
+            } else {
+                Err(e)
+            }
+        }
+    }
 }
 
 pub async fn pull_changes(
@@ -1888,6 +1949,7 @@ fn push_changes_priv(
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
 ) -> Result<Option<bool>, git2::Error> {
     let mut remote = swl!(repo.find_remote(&remote_name))?;
+    configure_network_timeouts(repo);
     let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
 
     let mut callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
@@ -2647,6 +2709,7 @@ pub async fn force_push(
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
+    configure_network_timeouts(&repo);
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
     let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
@@ -2776,6 +2839,7 @@ pub async fn upload_and_overwrite(
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
+    configure_network_timeouts(&repo);
     set_author(&repo, &author);
 
     if repo.state() == RepositoryState::Merge
@@ -2955,6 +3019,7 @@ pub async fn download_and_overwrite(
     repo.cleanup_state().unwrap();
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
+    configure_network_timeouts(&repo);
 
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
     let mut fetch_options = FetchOptions::new();
@@ -3554,6 +3619,7 @@ pub async fn create_branch(
     );
 
     let repo = swl!(Repository::open(Path::new(path_string)))?;
+    configure_network_timeouts(&repo);
 
     let current_branch = get_branch_name_priv(&repo);
 
