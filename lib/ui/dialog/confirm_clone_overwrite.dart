@@ -9,34 +9,35 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
 
   return mat.showDialog(
     context: context,
-    builder: (BuildContext context) => PopScope(
-      canPop: !overwriting,
-      child: BaseAlertDialog(
-        title: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: Text(
-            t.confirmCloneOverwriteTitle,
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+    barrierDismissible: false,
+    builder: (BuildContext context) => StatefulBuilder(
+      builder: (context, setState) => PopScope(
+        canPop: !overwriting,
+        child: BaseAlertDialog(
+          title: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Text(
+              t.confirmCloneOverwriteTitle,
+              style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: [
-              Text(
-                t.confirmCloneOverwriteMsg,
-                style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
-              ),
-              SizedBox(height: spaceSM),
-              Text(
-                t.confirmCloneOverwriteWarning,
-                style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: [
+                Text(
+                  t.confirmCloneOverwriteMsg,
+                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                ),
+                SizedBox(height: spaceSM),
+                Text(
+                  t.confirmCloneOverwriteWarning,
+                  style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: <Widget>[
-          StatefulBuilder(
-            builder: (context, setState) => TextButton.icon(
+          actions: <Widget>[
+            TextButton.icon(
               label: Text(
                 t.confirmCloneOverwriteAction.toUpperCase(),
                 style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
@@ -60,17 +61,19 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
                 await cloneCallback();
               },
             ),
-          ),
-          TextButton(
-            child: Text(
-              t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            TextButton(
+              child: Text(
+                t.cancel.toUpperCase(),
+                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              ),
+              onPressed: overwriting
+                  ? null
+                  : () {
+                      Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                    },
             ),
-            onPressed: () {
-              Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );
