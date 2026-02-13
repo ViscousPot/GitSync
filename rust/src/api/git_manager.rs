@@ -618,6 +618,13 @@ pub async fn clone_repository(
     set_author(&repo, &author);
     repo.cleanup_state().unwrap();
 
+    let mut remote = repo.find_remote("origin")?;
+    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+    let mut fo2 = FetchOptions::new();
+    fo2.update_fetchhead(true);
+    fo2.remote_callbacks(callbacks);
+    let _ = remote.fetch::<&str>(&[], Some(&mut fo2), None);
+
     _log(
         Arc::clone(&log_callback),
         LogType::Clone,
