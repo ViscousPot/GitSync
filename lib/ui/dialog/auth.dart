@@ -59,14 +59,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
-                backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
+                backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryPositive, size: textLG),
               label: Text(
                 t.oauthAllRepos.toUpperCase(),
-                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: spaceSM),
@@ -94,14 +94,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
-                backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
+                backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               ),
-              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryPositive, size: textLG),
               label: Text(
                 t.oauthScoped.toUpperCase(),
-                style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -121,14 +121,14 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           },
           style: ButtonStyle(
             alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
+            backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
-          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryDark, size: textLG),
+          icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryPositive, size: textLG),
           label: Text(
             t.oauth.toUpperCase(),
-            style: TextStyle(color: colours.primaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(color: colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
       case GitProvider.HTTPS:
@@ -284,7 +284,6 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                       ),
                                     ),
                                     value: null,
-                                    // value: selectedGitProvider.name,
                                     style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                                     hint: SizedBox(
                                       width: double.infinity,

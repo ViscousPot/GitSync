@@ -144,13 +144,17 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
               : null,
           style: ButtonStyle(
             alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(canLogin ? colours.primaryPositive : colours.secondaryPositive),
+            backgroundColor: WidgetStatePropertyAll(canLogin ? colours.secondaryPositive : colours.secondaryPositive),
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           child: Text(
             t.login.toUpperCase(),
-            style: TextStyle(color: canLogin ? colours.primaryDark : colours.tertiaryDark, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: canLogin ? colours.primaryPositive : colours.primaryPositive.withAlpha(70),
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

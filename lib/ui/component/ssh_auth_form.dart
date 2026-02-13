@@ -116,9 +116,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                       alignment: Alignment.center,
                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                      shape: WidgetStatePropertyAll(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                      ),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
                     iconAlignment: IconAlignment.end,
                     icon: FaIcon(
@@ -150,9 +148,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                       alignment: Alignment.center,
                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                      shape: WidgetStatePropertyAll(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                      ),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
                     iconAlignment: IconAlignment.end,
                     icon: FaIcon(
@@ -200,14 +196,14 @@ class _SshAuthFormState extends State<SshAuthForm> {
                             : null),
                   style: ButtonStyle(
                     alignment: Alignment.center,
-                    backgroundColor: WidgetStatePropertyAll((keyPair != null && !pubKeyCopied) ? colours.secondaryPositive : colours.primaryPositive),
+                    backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                   ),
                   child: Text(
                     (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
                     style: TextStyle(
-                      color: (keyPair != null && !pubKeyCopied) ? colours.tertiaryDark : colours.primaryDark,
+                      color: (keyPair != null && !pubKeyCopied) ? colours.primaryPositive.withAlpha(70) : colours.primaryPositive,
                       fontSize: textSM,
                       fontWeight: FontWeight.bold,
                     ),
@@ -225,13 +221,13 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(colours.primaryPositive),
+                          backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                           ),
                         ),
-                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textSM),
+                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryPositive, size: textSM),
                       ),
                     )
                   : SizedBox.shrink(),
