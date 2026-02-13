@@ -64,6 +64,7 @@ import '../ui/component/item_commit.dart';
 import '../ui/page/clone_repo_main.dart';
 import '../ui/page/settings_main.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'ui/dialog/confirm_crash_queue_clear.dart' as CrashQueueClearDialog;
 import 'ui/dialog/confirm_reinstall_clear_data.dart' as ConfirmReinstallClearDataDialog;
 import 'ui/dialog/set_remote_url.dart' as SetRemoteUrlDialog;
 import 'package:GitSync/l10n/app_localizations.dart';
@@ -796,7 +797,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     initAsync(() async {
-      await checkPreviousCrash();
+      final crashed = await checkPreviousCrash();
+      if (crashed && !kDebugMode) {
+        CrashQueueClearDialog.showDialog(context);
+      }
     });
 
     initAsync(() async {

@@ -544,5 +544,10 @@
     "report": "Report",
     "issueReportSuccessTitle": "Issue Reported Successfully",
     "issueReportSuccessMsg": "Your issue has been reported. Bookmark this page to track progress and respond to messages. \n\nPlease avoid creating duplicate issues, as that makes resolution harder. \n\nIssues with no activity for 7 days are automatically closed.",
-    "trackIssue": "Track Issue & Respond to Messages"
+    "trackIssue": "Track Issue & Respond to Messages",
+
+    "@@x-CRASH-DETECTION": "",
+    "crashQueueClearTitle": "Reset Sync Queue",
+    "crashQueueClearMsg": "It looks like the app may not have closed properly last time. This can sometimes cause sync operations to get stuck.\n\nWould you like to reset the sync queue?",
+    "crashQueueClearAction": "Reset"
 }

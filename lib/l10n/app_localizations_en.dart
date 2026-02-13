@@ -1436,4 +1436,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackIssue => 'Track Issue & Respond to Messages';
+
+  @override
+  String get crashQueueClearTitle => 'Reset Sync Queue';
+
+  @override
+  String get crashQueueClearMsg =>
+      'It looks like the app may not have closed properly last time. This can sometimes cause sync operations to get stuck.\n\nWould you like to reset the sync queue?';
+
+  @override
+  String get crashQueueClearAction => 'Reset';
 }

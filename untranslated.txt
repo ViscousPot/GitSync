@@ -247,7 +247,10 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ],
 
   "es": [
@@ -498,7 +501,10 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ],
 
   "fr": [
@@ -681,7 +687,10 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ],
 
   "ru": [
@@ -932,7 +941,10 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ],
 
   "zh": [
@@ -1134,7 +1146,10 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ],
 
   "zh_Hant": [
@@ -1608,6 +1623,9 @@
     "report",
     "issueReportSuccessTitle",
     "issueReportSuccessMsg",
-    "trackIssue"
+    "trackIssue",
+    "crashQueueClearTitle",
+    "crashQueueClearMsg",
+    "crashQueueClearAction"
   ]
 }

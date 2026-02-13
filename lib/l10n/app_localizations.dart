@@ -2929,6 +2929,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track Issue & Respond to Messages'**
   String get trackIssue;
+
+  /// No description provided for @crashQueueClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Sync Queue'**
+  String get crashQueueClearTitle;
+
+  /// No description provided for @crashQueueClearMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'It looks like the app may not have closed properly last time. This can sometimes cause sync operations to get stuck.\n\nWould you like to reset the sync queue?'**
+  String get crashQueueClearMsg;
+
+  /// No description provided for @crashQueueClearAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get crashQueueClearAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

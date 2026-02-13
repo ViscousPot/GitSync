@@ -502,15 +502,10 @@ extension ValueNotifierExtension on RestorableValue<bool> {
   }
 }
 
-Future<void> checkPreviousCrash([bool service = false]) async {
+Future<bool> checkPreviousCrash([bool service = false]) async {
   final previousCrashFlag = await repoManager.getBool(service ? StorageKey.repoman_serviceCrashFlag : StorageKey.repoman_appCrashFlag);
-  if (previousCrashFlag == true) {
-    // TODO: Show dialog that crash might have occurred with button to manually clear locks
-    // How to deal with errors resulting from lock clearing
-    // If in dev build/env show extra information that hot-restart can cause this too.
-  }
-
   await repoManager.setBool(service ? StorageKey.repoman_serviceCrashFlag : StorageKey.repoman_appCrashFlag, true);
+  return previousCrashFlag == true;
 }
 
 Future<void> clearCrashFlag([bool service = false]) async {
