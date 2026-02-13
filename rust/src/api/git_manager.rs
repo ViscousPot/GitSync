@@ -2169,6 +2169,10 @@ pub async fn unstage_file_paths(
     paths: Vec<String>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
+    if paths.is_empty() {
+        return Ok(());
+    }
+
     let log_callback = Arc::new(log);
 
     _log(
