@@ -22,6 +22,7 @@ class ServiceStrings {
   final String syncScheduled;
   final String detectingChanges;
   final String ongoingMergeConflict;
+  final String networkStallRetry;
 
   const ServiceStrings({
     required this.syncStartPull,
@@ -32,6 +33,7 @@ class ServiceStrings {
     required this.syncScheduled,
     required this.detectingChanges,
     required this.ongoingMergeConflict,
+    required this.networkStallRetry,
   });
 
   factory ServiceStrings.fromMap(Map<String, dynamic> map) {
@@ -44,6 +46,7 @@ class ServiceStrings {
       syncScheduled: map['syncScheduled'] ?? '',
       detectingChanges: map['detectingChanges'] ?? '',
       ongoingMergeConflict: map['ongoingMergeConflict'] ?? '',
+      networkStallRetry: map['networkStallRetry'] ?? '',
     );
   }
 
@@ -57,6 +60,7 @@ class ServiceStrings {
       'syncScheduled': syncScheduled,
       'detectingChanges': detectingChanges,
       'ongoingMergeConflict': ongoingMergeConflict,
+      'networkStallRetry': networkStallRetry,
     };
   }
 }
@@ -83,6 +87,7 @@ class GitsyncService {
     syncScheduled: "Sync Scheduled",
     detectingChanges: "Detecting Changes…",
     ongoingMergeConflict: "Ongoing merge conflict",
+    networkStallRetry: "Poor network — will retry shortly",
   );
   bool isScheduled = false;
   bool isSyncing = false;
@@ -136,6 +141,12 @@ class GitsyncService {
     if (await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
       await Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
     }
+  }
+
+  void _scheduleStallRetry(int repomanRepoindex) {
+    Future.delayed(const Duration(seconds: 30), () {
+      debouncedSync(repomanRepoindex);
+    });
   }
 
   Future<void> _sync(int repomanRepoindex, [bool forced = false]) async {
@@ -198,6 +209,10 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Pull Repo Failed");
+                if (GitManager.lastOperationWasNetworkStall) {
+                  await _displaySyncMessage(settingsManager, s.networkStallRetry);
+                  _scheduleStallRetry(repomanRepoindex);
+                }
                 return;
               }
             case true:
@@ -230,6 +245,10 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Push Repo Failed");
+                if (GitManager.lastOperationWasNetworkStall) {
+                  await _displaySyncMessage(settingsManager, s.networkStallRetry);
+                  _scheduleStallRetry(repomanRepoindex);
+                }
                 return;
               }
             case true:

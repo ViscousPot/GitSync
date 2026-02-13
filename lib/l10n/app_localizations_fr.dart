@@ -1344,6 +1344,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ongoingMergeConflict => 'Conflit de fusion en cours';
 
   @override
+  String get networkStallRetry => 'Poor network — will retry shortly';
+
+  @override
   String get networkUnavailableRetry => 'Réseau indisponible !\nGitSync réessaiera lors de la reconnexion';
 
   @override

@@ -84,6 +84,10 @@ class GitManager {
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
+  static bool lastOperationWasNetworkStall = false;
+  static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
+  static bool _isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
+
   static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
   static FutureOr<T?> _runWithLock<T>(
@@ -965,6 +969,12 @@ class GitManager {
           log: _logWrapper,
         );
       } on AnyhowException catch (e, stackTrace) {
+        if (_isNetworkStallError(e.message)) {
+          Logger.gmLog(type: LogType.DownloadChanges, "Network stall - will retry");
+          lastOperationWasNetworkStall = true;
+          return null;
+        }
+        lastOperationWasNetworkStall = false;
         final errorContent = await _getErrorContent(e.message);
         Logger.logError(LogType.DownloadChanges, e.message, stackTrace, errorContent: errorContent);
       }
@@ -1002,6 +1012,12 @@ class GitManager {
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {
+        if (_isNetworkStallError(e.message)) {
+          Logger.gmLog(type: LogType.UploadChanges, "Network stall - will retry");
+          lastOperationWasNetworkStall = true;
+          return null;
+        }
+        lastOperationWasNetworkStall = false;
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
           if (resyncCallback != null) {
             resyncCallback();

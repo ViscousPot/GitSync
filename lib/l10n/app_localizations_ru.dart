@@ -1339,6 +1339,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ongoingMergeConflict => 'Текущий конфликт слияния';
 
   @override
+  String get networkStallRetry => 'Poor network — will retry shortly';
+
+  @override
   String get networkUnavailableRetry => 'Сеть недоступна!\nGitSync повторит попытку при подключении';
 
   @override

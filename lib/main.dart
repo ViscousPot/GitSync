@@ -555,6 +555,7 @@ class _MyAppState extends State<MyApp> {
                 syncScheduled: t.syncScheduled,
                 detectingChanges: t.detectingChanges,
                 ongoingMergeConflict: t.ongoingMergeConflict,
+                networkStallRetry: t.networkStallRetry,
               ).toMap(),
             );
             return MyHomePage(

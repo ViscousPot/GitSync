@@ -238,6 +238,7 @@
     "troubleshooting",
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
+    "networkStallRetry",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
@@ -248,6 +249,7 @@
     "includeLogFiles",
     "includeLogFilesDescription"
   ],
+
   "es": [
     "previous",
     "next",
@@ -487,6 +489,7 @@
     "troubleshooting",
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
+    "networkStallRetry",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
@@ -497,6 +500,7 @@
     "includeLogFiles",
     "includeLogFilesDescription"
   ],
+
   "fr": [
     "premiumStoreOnlyBanner",
     "premiumMultiRepoTitle",
@@ -668,6 +672,7 @@
     "troubleshooting",
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
+    "networkStallRetry",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
@@ -678,6 +683,7 @@
     "includeLogFiles",
     "includeLogFilesDescription"
   ],
+
   "ru": [
     "previous",
     "next",
@@ -917,6 +923,7 @@
     "troubleshooting",
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
+    "networkStallRetry",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
@@ -927,6 +934,7 @@
     "includeLogFiles",
     "includeLogFilesDescription"
   ],
+
   "zh": [
     "ios",
     "android",
@@ -1117,6 +1125,7 @@
     "troubleshooting",
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
+    "networkStallRetry",
     "androidLimitedFilepathCharacters",
     "emptyNameOrEmail",
     "errorReadingZlibStream",
@@ -1127,6 +1136,7 @@
     "includeLogFiles",
     "includeLogFilesDescription"
   ],
+
   "zh_Hant": [
     "dismiss",
     "skip",
@@ -1568,6 +1578,7 @@
     "unsupportedGitAttributes",
     "tapToOpenPlayStore",
     "ongoingMergeConflict",
+    "networkStallRetry",
     "networkUnavailableRetry",
     "pullFailed",
     "reportABug",

@@ -2744,6 +2744,12 @@ abstract class AppLocalizations {
   /// **'Ongoing merge conflict'**
   String get ongoingMergeConflict;
 
+  /// No description provided for @networkStallRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor network — will retry shortly'**
+  String get networkStallRetry;
+
   /// No description provided for @networkUnavailableRetry.
   ///
   /// In en, this message translates to:

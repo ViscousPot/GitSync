@@ -511,6 +511,7 @@
     "unsupportedGitAttributes": "This repo uses git features only available in store versions.",
     "tapToOpenPlayStore": "Tap to update.",
     "ongoingMergeConflict": "Ongoing merge conflict",
+    "networkStallRetry": "Poor network — will retry shortly",
     "networkUnavailableRetry": "Network unavailable!\nGitSync will retry when reconnected",
     "pullFailed": "Pull failed! Please check for uncommitted changes and try again.",
     "reportABug": "Report a Bug",

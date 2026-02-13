@@ -1334,6 +1334,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ongoingMergeConflict => '存在合并冲突';
 
   @override
+  String get networkStallRetry => 'Poor network — will retry shortly';
+
+  @override
   String get networkUnavailableRetry => '网络不可用！\nGitSync 将在重新连接时重试';
 
   @override
