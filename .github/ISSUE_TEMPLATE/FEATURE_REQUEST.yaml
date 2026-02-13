@@ -1,7 +1,6 @@
-
 name: Feature Request
-description: template for missing feature
-title: '[Feature]: '
+description: Template for missing feature
+title: "[Feature]: "
 body:
   - type: textarea
     attributes:
@@ -17,4 +16,3 @@ body:
     attributes:
       label: Describe alternatives you've considered
       description: Have you considered any alternative solutions or workarounds?
-
