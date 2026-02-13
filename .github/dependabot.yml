@@ -1,0 +1,59 @@
+---
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "github_actions"
+      - "chore"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Dart/Flutter (pub)
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "chore"
+    groups:
+      app-dependencies:
+        patterns:
+          - "*"
+        dependency-type: "production"
+      dev-dependencies:
+        patterns:
+          - "*"
+        dependency-type: "development"
+
+  # Rust (cargo)
+  - package-ecosystem: "cargo"
+    directory: "/rust"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "chore"
+    groups:
+      rust-dependencies:
+        patterns:
+          - "*"
+
+  # Android (gradle)
+  - package-ecosystem: "gradle"
+    directory: "/android"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "chore"
+    groups:
+      android-dependencies:
+        patterns:
+          - "*"
