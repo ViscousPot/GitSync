@@ -1008,7 +1008,7 @@ class GitManager {
       ]),
       log: _logWrapper,
     );
-    await _runWithLock(GitManagerRs.boolRunWithLock, uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
+    return await _runWithLock(GitManagerRs.boolRunWithLock, uiLock: true, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {
@@ -1031,6 +1031,5 @@ class GitManager {
       }
       return null;
     });
-    return null;
   }
 }
