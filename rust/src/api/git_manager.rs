@@ -205,7 +205,7 @@ pub async fn void_run_with_lock(
     run_with_lock(queue_dir, index, priority, fn_name, function).await
 }
 
-async fn run_with_lock<T>(
+async fn run_with_lock<T: Default>(
     queue_dir: &str,
     index: i32,
     priority: i32,
@@ -230,15 +230,14 @@ async fn run_with_lock<T>(
         Uuid::new_v4().to_string()
     );
 
-    let mut flock = match Flock::lock(
-        fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .open(&queue_file_path)
-            .unwrap(),
-        FlockArg::LockExclusive,
-    ) {
+    let initial_file = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(&queue_file_path)
+        .map_err(|e| git2::Error::from_str(&format!("Failed to open queue file: {}", e)))?;
+
+    let mut flock = match Flock::lock(initial_file, FlockArg::LockExclusive) {
         Ok(flock) => flock,
         Err((_file, err)) => {
             return Err(git2::Error::from_str(&format!(
@@ -314,25 +313,25 @@ async fn run_with_lock<T>(
 
     loop {
         if start_time.elapsed().as_secs() >= QUEUE_TIMEOUT_SECS {
-            let mut timeout_flock = match Flock::lock(
-                fs::OpenOptions::new()
-                    .read(true)
-                    .write(true)
-                    .open(&queue_file_path)
-                    .unwrap(),
-                FlockArg::LockExclusive,
-            ) {
+            let timeout_file = match fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&queue_file_path)
+            {
                 Ok(f) => f,
-                Err((_file, err)) => {
-                    return Err(git2::Error::from_str(&format!(
-                        "Timeout waiting for queue position, and failed to acquire lock for cleanup: {}",
-                        err
-                    )));
-                }
+                Err(_) => return Ok(T::default()),
+            };
+
+            let mut timeout_flock = match Flock::lock(timeout_file, FlockArg::LockExclusive) {
+                Ok(f) => f,
+                Err(_) => return Ok(T::default()),
             };
 
             let mut queue_contents = String::new();
-            timeout_flock.read_to_string(&mut queue_contents).unwrap();
+            if timeout_flock.read_to_string(&mut queue_contents).is_err() {
+                let _ = timeout_flock.unlock();
+                return Ok(T::default());
+            }
 
             let queue_entries: Vec<_> = queue_contents
                 .split('\n')
@@ -341,13 +340,10 @@ async fn run_with_lock<T>(
                 })
                 .collect();
 
-            timeout_flock.seek(SeekFrom::Start(0)).unwrap();
-            timeout_flock.set_len(0).unwrap();
-            timeout_flock
-                .write_all(queue_entries.join("\n").as_bytes())
-                .unwrap();
-
-            timeout_flock.unlock().unwrap();
+            let _ = timeout_flock.seek(SeekFrom::Start(0));
+            let _ = timeout_flock.set_len(0);
+            let _ = timeout_flock.write_all(queue_entries.join("\n").as_bytes());
+            let _ = timeout_flock.unlock();
 
             return Err(git2::Error::from_str(&format!(
                 "Timeout after {} seconds waiting for queue position",
@@ -355,32 +351,34 @@ async fn run_with_lock<T>(
             )));
         }
 
-        let mut read_flock = match Flock::lock(
-            fs::OpenOptions::new()
-                .read(true)
-                .open(&queue_file_path)
-                .unwrap(),
-            FlockArg::LockExclusive,
-        ) {
+        let read_file = match fs::OpenOptions::new()
+            .read(true)
+            .open(&queue_file_path)
+        {
+            Ok(f) => f,
+            Err(_) => return Ok(T::default()),
+        };
+
+        let mut read_flock = match Flock::lock(read_file, FlockArg::LockExclusive) {
             Ok(read_flock) => read_flock,
-            Err((_file, err)) => {
-                return Err(git2::Error::from_str(&format!(
-                    "Error locking file for reading: {}",
-                    err
-                )));
-            }
+            Err(_) => return Ok(T::default()),
         };
 
         let mut buf = [0; 1024];
-        let bytes_read = read_flock.read(&mut buf).unwrap();
-        let string = std::str::from_utf8(&buf[..bytes_read]).unwrap();
+        let bytes_read = read_flock.read(&mut buf).unwrap_or(0);
+        let string = std::str::from_utf8(&buf[..bytes_read]).unwrap_or("");
+
+        if !string.contains(&*identifier) {
+            let _ = read_flock.unlock();
+            return Ok(T::default());
+        }
 
         if string.starts_with(&identifier) {
-            read_flock.unlock().unwrap();
+            let _ = read_flock.unlock();
             break;
         }
 
-        read_flock.unlock().unwrap();
+        let _ = read_flock.unlock();
 
         std::thread::sleep(std::time::Duration::from_millis(100));
     }
