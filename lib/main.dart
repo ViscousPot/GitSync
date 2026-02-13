@@ -800,6 +800,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     initAsync(() async {
+      final cachedAction = await GitManager.getInitialRecommendedAction();
+      if (cachedAction != null && recommendedAction.value == null) {
+        recommendedAction.value = cachedAction;
+      }
+    });
+
+    initAsync(() async {
       await reloadAll();
     });
 
@@ -890,14 +897,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await ManualSyncDialog.showDialog(context);
   }
 
-  Future<void> updateRecommendedAction([int? override]) async {
+  Future<void> updateRecommendedAction({int? override, bool useOverride = false}) async {
     if (!await uiSettingsManager.getClientModeEnabled()) return;
     autoRefreshTimer?.cancel();
-    autoRefreshTimer = Timer(Duration(seconds: 10), () async => await updateRecommendedAction());
+    final startTime = DateTime.now();
     updatingRecommendedAction.value = true;
-    if (override != null) {
+    if (useOverride) {
       recommendedAction.value = override;
       updatingRecommendedAction.value = false;
+      _scheduleNextRecommendedAction(startTime);
       return;
     }
 
@@ -905,6 +913,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       return event?["result"];
     });
     updatingRecommendedAction.value = false;
+    _scheduleNextRecommendedAction(startTime);
+  }
+
+  void _scheduleNextRecommendedAction(DateTime startTime) {
+    autoRefreshTimer?.cancel();
+    const minDelay = Duration(seconds: 20);
+    final elapsed = DateTime.now().difference(startTime);
+    final remaining = minDelay - elapsed;
+    if (remaining <= Duration.zero) {
+      autoRefreshTimer = Timer(Duration.zero, () async => await updateRecommendedAction());
+    } else {
+      autoRefreshTimer = Timer(remaining, () async => await updateRecommendedAction());
+    }
   }
 
   Future<void> promptClearKeychainValues() async {
@@ -1062,6 +1083,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           FontAwesomeIcons.caretDown,
           () async {
             await runGitOperation(LogType.FetchRemote, (event) => event);
+            if (recommendedAction.value == 0) {
+              await updateRecommendedAction(override: 1, useOverride: true);
+            }
             await syncOptionCompletionCallback();
           },
         ),
@@ -1098,6 +1122,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           FontAwesomeIcons.angleDown,
           () async {
             await runGitOperation(LogType.PullFromRepo, (event) => event);
+            if (recommendedAction.value == 1) {
+              await updateRecommendedAction(override: null, useOverride: true);
+            }
             await syncOptionCompletionCallback();
           },
         ),
@@ -1106,6 +1133,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           FontAwesomeIcons.barsStaggered,
           () async {
             await ManualSyncDialog.showDialog(context);
+            if (recommendedAction.value == 2) {
+              await updateRecommendedAction(override: 3, useOverride: true);
+            }
             await syncOptionCompletionCallback();
           },
         ),
@@ -1137,6 +1167,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           FontAwesomeIcons.angleUp,
           () async {
             await runGitOperation(LogType.PushToRepo, (event) => event);
+            if (recommendedAction.value == 3) {
+              await updateRecommendedAction(override: null, useOverride: true);
+            }
             await syncOptionCompletionCallback();
           },
         ),

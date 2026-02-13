@@ -487,6 +487,10 @@ class GitManager {
     });
   }
 
+  static Future<int?> getInitialRecommendedAction() async {
+    return await uiSettingsManager.getIntNullable(StorageKey.setman_recommendedAction);
+  }
+
   static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
   static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {
     return (await uiSettingsManager.getStringList(
