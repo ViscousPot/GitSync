@@ -241,6 +241,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     if (widget.legacy) {
       screenIndex.value = Screen.LegacyAppUser;
     } else {
@@ -275,6 +276,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _controller.dispose();
     _wiggleController.dispose();
     _syncSettingsPage.dispose();
@@ -1729,6 +1731,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           _notificationBulletItem("Merge conflict alerts"),
                           _notificationBulletItem("Bug report notifications"),
                         ],
+                      ),
+                    ),
+                    SizedBox(height: spaceSM),
+                    Text(
+                      "All notifications are off by default.",
+                      style: TextStyle(
+                        color: colours.tertiaryLight,
+                        fontSize: textSM,
+                        fontFamily: "AtkinsonHyperlegible",
                       ),
                     ),
                   ],
