@@ -18,7 +18,7 @@ class ItemSetting extends StatefulWidget {
     this.isTextArea = false,
   });
 
-  final String title;
+  final String? title;
   final String? description;
   final String? hint;
   final bool isTextArea;
@@ -47,13 +47,15 @@ class _ItemSetting extends State<ItemSetting> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.max,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: spaceMD),
-          child: Text(
-            widget.title.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-          ),
-        ),
+        widget.title == null
+            ? SizedBox.shrink()
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                child: Text(
+                  widget.title!.toUpperCase(),
+                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                ),
+              ),
         widget.description == null
             ? SizedBox.shrink()
             : Padding(
@@ -63,7 +65,7 @@ class _ItemSetting extends State<ItemSetting> {
                   style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
               ),
-        SizedBox(height: spaceSM),
+        SizedBox(height: widget.description == null && widget.title == null ? 0 : spaceSM),
         widget.isTextArea
             ? Container(
                 width: double.infinity,
