@@ -1,0 +1,21 @@
+# CODEOWNERS file
+# These owners will be automatically requested for review when someone opens a PR
+
+# Default owner for everything in the repo
+* @ViscousPot
+
+# Dependency files (for dependabot PRs)
+
+# GitHub Actions
+.github/workflows/ @ViscousPot
+
+# Dart/Flutter (pub)
+pubspec.yaml @ViscousPot
+pubspec.lock @ViscousPot
+
+# Rust (cargo)
+rust/Cargo.toml @ViscousPot
+rust/Cargo.lock @ViscousPot
+
+# Android (gradle)
+android/ @ViscousPot
