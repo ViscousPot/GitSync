@@ -6,7 +6,7 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `_log`, `check`, `commit`, `configure_network_timeouts`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `new`, `pull_changes_priv`, `push_changes_priv`, `run_with_lock`, `set_author`, `update_submodules_priv`, `was_stalled`
+// These functions are ignored because they are not marked as `pub`: `_log`, `check`, `commit`, `configure_network_timeouts`, `fast_forward`, `fetch_remote_priv`, `get_branch_name_priv`, `get_default_callbacks`, `get_staged_file_paths_priv`, `get_uncommitted_file_paths_priv`, `has_local_changes_priv`, `new`, `pull_changes_priv`, `push_changes_priv`, `run_with_lock`, `set_author`, `update_submodules_priv`, `was_stalled`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `StallDetector`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`
 // These functions are ignored (category: IgnoreBecauseNotAllowedOwner): `safe_wline`

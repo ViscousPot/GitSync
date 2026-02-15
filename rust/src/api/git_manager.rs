@@ -351,10 +351,7 @@ async fn run_with_lock<T: Default>(
             )));
         }
 
-        let read_file = match fs::OpenOptions::new()
-            .read(true)
-            .open(&queue_file_path)
-        {
+        let read_file = match fs::OpenOptions::new().read(true).open(&queue_file_path) {
             Ok(f) => f,
             Err(_) => return Ok(T::default()),
         };
@@ -1534,7 +1531,9 @@ pub async fn update_submodules(
         "Getting local directory".to_string(),
     );
 
-    tokio::task::block_in_place(|| update_submodules_priv(&repo, &provider, &credentials, &log_callback))
+    tokio::task::block_in_place(|| {
+        update_submodules_priv(&repo, &provider, &credentials, &log_callback)
+    })
 }
 
 fn update_submodules_priv(
@@ -1675,7 +1674,9 @@ fn fetch_remote_priv(
         Ok(_) => Ok(Some(true)),
         Err(e) => {
             if stall_detector.was_stalled() {
-                Err(git2::Error::from_str("network stall detected: transfer stalled"))
+                Err(git2::Error::from_str(
+                    "network stall detected: transfer stalled",
+                ))
             } else {
                 Err(e)
             }
@@ -1706,14 +1707,16 @@ pub async fn pull_changes(
         "Getting local directory".to_string(),
     );
 
-    tokio::task::block_in_place(|| pull_changes_priv(
-        &repo,
-        &provider,
-        &credentials,
-        commit_signing_credentials,
-        sync_callback,
-        &log_callback,
-    ))
+    tokio::task::block_in_place(|| {
+        pull_changes_priv(
+            &repo,
+            &provider,
+            &credentials,
+            commit_signing_credentials,
+            sync_callback,
+            &log_callback,
+        )
+    })
 }
 
 fn pull_changes_priv(
@@ -1906,14 +1909,16 @@ pub async fn download_changes(
         &log_callback
     ))?;
 
-    if tokio::task::block_in_place(|| pull_changes_priv(
-        &repo,
-        &provider,
-        &credentials,
-        commit_signing_credentials,
-        sync_callback,
-        &log_callback,
-    )) == Ok(Some(false))
+    if tokio::task::block_in_place(|| {
+        pull_changes_priv(
+            &repo,
+            &provider,
+            &credentials,
+            commit_signing_credentials,
+            sync_callback,
+            &log_callback,
+        )
+    }) == Ok(Some(false))
     {
         return Ok(Some(false));
     }
@@ -2492,10 +2497,12 @@ pub async fn upload_changes(
 
     let mut index = swl!(repo.index())?;
 
-    // Store the initial index state to compare later
     let has_conflicts = index.has_conflicts();
     let initial_tree_oid = if !has_conflicts {
-        Some(swl!(index.write_tree())?)
+        match swl!(index.write_tree()) {
+            Ok(oid) => Some(oid),
+            Err(_) => None,
+        }
     } else {
         None
     };
@@ -3631,9 +3638,7 @@ pub async fn checkout_branch(
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     checkout_builder.force();
 
-    tokio::task::block_in_place(|| {
-        swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))
-    })?;
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
 
     let refname = format!("refs/heads/{}", branch_name);
     swl!(repo.set_head(&refname))?;
@@ -3718,9 +3723,7 @@ pub async fn create_branch(
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     checkout_builder.force();
 
-    tokio::task::block_in_place(|| {
-        swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))
-    })?;
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
 
     let refname = format!("refs/heads/{}", new_branch_name);
     swl!(repo.set_head(&refname))?;
