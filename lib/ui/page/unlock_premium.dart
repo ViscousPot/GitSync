@@ -36,7 +36,7 @@ class UnlockPremium extends StatefulWidget {
 class _UnlockPremiumState extends State<UnlockPremium> {
   final pageController = PageController();
   int currentPage = 0;
-  final price = "\$15.00";
+  final price = "\$20.00";
 
   Widget _featureRow(IconData icon, String text) {
     return Padding(
@@ -299,7 +299,12 @@ class _UnlockPremiumState extends State<UnlockPremium> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: spaceXL, right: Platform.isIOS ? spaceXL - spaceSM : spaceXL, top: Platform.isIOS ? spaceXL - spaceSM : spaceXL, bottom: 0),
+                padding: EdgeInsets.only(
+                  left: spaceXL,
+                  right: Platform.isIOS ? spaceXL - spaceSM : spaceXL,
+                  top: Platform.isIOS ? spaceXL - spaceSM : spaceXL,
+                  bottom: 0,
+                ),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
