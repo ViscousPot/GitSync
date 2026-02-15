@@ -257,7 +257,9 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.UntrackAll.name).listen((event) async {
-    await GitManager.untrackAll(event == null || !event.keys.contains("filePaths") ? null : event["filePaths"]);
+    await GitManager.untrackAll(
+      event == null || !event.keys.contains("filePaths") ? null : event["filePaths"].map<String>((filePath) => "$filePath").toList(),
+    );
     service.invoke(LogType.UntrackAll.name);
   });
 
