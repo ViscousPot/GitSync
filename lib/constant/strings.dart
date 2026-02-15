@@ -91,7 +91,7 @@ const String autoSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-opt
 const String tileSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/quick-tile";
 const String quickSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/quick-sync";
 const String enhancedShcheduledSyncDocsLink =
-    "https://gitsync.viscouspotenti.al/wiki/sync-options/background/scheduled#enhanced-scheduled-sync-ios-only";
+    "https://gitsync.viscouspotenti.al/wiki/sync-options/background/scheduled-sync#enhanced-scheduled-sync-ios-only";
 const String repositorySettingsDocsLink = "https://gitsync.viscouspotenti.al/wiki/repository-settings";
 const String syncOptionsDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options";
 const String syncOptionsBGDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background";
