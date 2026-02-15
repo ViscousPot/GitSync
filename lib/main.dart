@@ -1138,8 +1138,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         t.stageAndCommit: (
           FontAwesomeIcons.barsStaggered,
           () async {
-            await ManualSyncDialog.showDialog(context);
-            if (recommendedAction.value == 2) {
+            final committed = await ManualSyncDialog.showDialog(context);
+            if (committed && recommendedAction.value == 2) {
               await updateRecommendedAction(override: 3, useOverride: true);
             }
             await syncOptionCompletionCallback();
