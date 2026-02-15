@@ -1428,7 +1428,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                       icon: Icon(FontAwesomeIcons.solidFileLines, color: colours.primaryLight, size: textSM),
                     ),
                     name: t.learnMore.toUpperCase(),
-                    onTap: () => launchUrl(Uri.parse(multiRepoDocsLink)),
+                    onTap: () => launchUrl(Uri.parse(premiumDocsLink)),
                     type: null,
                     borderRadius: BorderRadius.all(cornerRadiusMD),
                     padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
