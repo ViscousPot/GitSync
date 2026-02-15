@@ -194,7 +194,7 @@ class GitsyncService {
         bool synced = false;
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
-        final recommendedAction = await GitManager.getRecommendedAction(3);
+        int? recommendedAction = await GitManager.getRecommendedAction(3);
 
         if (optimisedSyncFlag && recommendedAction == null) return;
 
@@ -225,6 +225,9 @@ class GitsyncService {
               }
           }
         }
+
+        recommendedAction = await GitManager.getRecommendedAction(3);
+        if (optimisedSyncFlag && recommendedAction == null) return;
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
