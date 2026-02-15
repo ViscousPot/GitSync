@@ -404,6 +404,11 @@ void onServiceStart(ServiceInstance service) async {
     service.invoke(LogType.DiscardFetchHead.name);
   });
 
+  service.on(LogType.PruneCorruptedObjects.name).listen((event) async {
+    await GitManager.pruneCorruptedObjects();
+    service.invoke(LogType.PruneCorruptedObjects.name);
+  });
+
   service.on(LogType.GetSubmodules.name).listen((event) async {
     if (event == null) return;
     final result = await GitManager.getSubmodulePaths(event["dir"]);

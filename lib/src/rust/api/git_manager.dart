@@ -531,6 +531,11 @@ Future<void> createBranch({
   log: log,
 );
 
+Future<void> pruneCorruptedLooseObjects({required String pathString}) => RustLib
+    .instance
+    .api
+    .crateApiGitManagerPruneCorruptedLooseObjects(pathString: pathString);
+
 abstract class WithLine {
   Future<WithLine> safeWline({required int line});
 }
@@ -660,6 +665,7 @@ enum LogType {
   discardDir,
   discardGitIndex,
   discardFetchHead,
+  pruneCorruptedObjects,
   getSubmodules,
   hasGitFilters,
   downloadChanges,

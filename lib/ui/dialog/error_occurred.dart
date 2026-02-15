@@ -16,6 +16,7 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
   [invalidDataInIndexInvalidEntry]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
   [invalidDataInIndexExtensionIsTruncated]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
   [corruptedLooseFetchHead]: (null, ([_]) async => await runGitOperation(LogType.DiscardFetchHead, (event) => event)),
+  [corruptedLooseObjectError]: (null, ([_]) async => await runGitOperation(LogType.PruneCorruptedObjects, (event) => event)),
   [theIndexIsLocked]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
   [androidInvalidCharacterInFilenamePrefix, androidInvalidCharacterInFilenameSuffix]: (
     t.androidLimitedFilepathCharacters,

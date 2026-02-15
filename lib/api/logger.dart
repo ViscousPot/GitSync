@@ -74,6 +74,7 @@ enum LogType {
   DiscardDir,
   DiscardGitIndex,
   DiscardFetchHead,
+  PruneCorruptedObjects,
   GetSubmodules,
   HasGitFilters,
   DownloadChanges,

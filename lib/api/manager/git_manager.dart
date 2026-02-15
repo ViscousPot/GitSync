@@ -79,7 +79,7 @@ class GitManager {
     "invalid data in index - incorrect header signature": () async => invalidIndexHeaderError,
     "cannot push because a reference that you are trying to update on the remote contains commits that are not present locally.": () async => null,
     "error reading file for hashing:": () async => null,
-    "failed to parse loose object: invalid header": () async => null,
+    "failed to parse loose object: invalid header": () async => corruptedLooseObjectError,
   };
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
@@ -925,6 +925,12 @@ class GitManager {
       if (await file.exists()) {
         await file.delete();
       }
+    });
+  }
+
+  static Future<void> pruneCorruptedObjects() async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.PruneCorruptedObjects, (dirPath) async {
+      await GitManagerRs.pruneCorruptedLooseObjects(pathString: dirPath);
     });
   }
 

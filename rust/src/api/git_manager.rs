@@ -87,6 +87,7 @@ pub enum LogType {
     DiscardDir,
     DiscardGitIndex,
     DiscardFetchHead,
+    PruneCorruptedObjects,
     GetSubmodules,
     HasGitFilters,
     DownloadChanges,
@@ -3805,6 +3806,73 @@ pub async fn create_branch(
             new_branch_name, upstream_name
         ),
     );
+
+    Ok(())
+}
+
+pub async fn prune_corrupted_loose_objects(path_string: String) -> Result<(), git2::Error> {
+    let repo = swl!(Repository::open(&path_string))?;
+    let odb = swl!(repo.odb())?;
+    let objects_dir = Path::new(&path_string).join(".git").join("objects");
+    let mut pruned = 0u32;
+
+    if !objects_dir.is_dir() {
+        return Ok(());
+    }
+
+    let entries = match fs::read_dir(&objects_dir) {
+        Ok(e) => e,
+        Err(_) => return Ok(()),
+    };
+
+    for dir_entry in entries.flatten() {
+        let dir_name = dir_entry.file_name();
+        let dir_name_str = match dir_name.to_str() {
+            Some(s) => s,
+            None => continue,
+        };
+
+        // Only look at 2-char hex prefix directories
+        if dir_name_str.len() != 2 || !dir_name_str.chars().all(|c| c.is_ascii_hexdigit()) {
+            continue;
+        }
+
+        let sub_entries = match fs::read_dir(dir_entry.path()) {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+
+        for file_entry in sub_entries.flatten() {
+            let file_name = file_entry.file_name();
+            let file_name_str = match file_name.to_str() {
+                Some(s) => s,
+                None => continue,
+            };
+
+            // Loose object filenames are 38 hex chars
+            if file_name_str.len() != 38 || !file_name_str.chars().all(|c| c.is_ascii_hexdigit()) {
+                continue;
+            }
+
+            let hex = format!("{}{}", dir_name_str, file_name_str);
+            let oid = match git2::Oid::from_str(&hex) {
+                Ok(o) => o,
+                Err(_) => continue,
+            };
+
+            if let Err(e) = odb.read_header(oid) {
+                let msg = e.message().to_lowercase();
+                if msg.contains("failed to parse loose object") {
+                    let _ = fs::remove_file(file_entry.path());
+                    pruned += 1;
+                }
+            }
+        }
+    }
+
+    if pruned > 0 {
+        let _ = odb.refresh();
+    }
 
     Ok(())
 }
