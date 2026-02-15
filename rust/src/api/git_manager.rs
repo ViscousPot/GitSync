@@ -2339,9 +2339,7 @@ pub async fn get_recommended_action(
         remote.disconnect().unwrap();
     }
 
-    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
-        || !get_uncommitted_file_paths_priv(&repo, true, &log_callback).is_empty()
-    {
+    if has_local_changes_priv(&repo, &log_callback) {
         _log(
             Arc::clone(&log_callback),
             LogType::RecommendedAction,
@@ -3312,6 +3310,7 @@ fn get_uncommitted_file_paths_priv(
     opts.include_untracked(include_untracked);
     opts.include_ignored(false);
     opts.update_index(true);
+    opts.show(git2::StatusShow::Workdir);
     let statuses = repo.statuses(Some(&mut opts)).unwrap();
 
     let mut file_paths = Vec::new();
@@ -3357,6 +3356,56 @@ fn get_uncommitted_file_paths_priv(
     }
 
     file_paths
+}
+
+fn has_local_changes_priv(
+    repo: &Repository,
+    log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
+) -> bool {
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RecommendedAction,
+        "Checking for local changes".to_string(),
+    );
+
+    let mut opts = StatusOptions::new();
+    opts.include_untracked(true);
+    opts.include_ignored(false);
+    opts.update_index(true);
+    let statuses = match repo.statuses(Some(&mut opts)) {
+        Ok(s) => s,
+        Err(_) => return false,
+    };
+
+    let index_flags = Status::INDEX_NEW | Status::INDEX_MODIFIED | Status::INDEX_DELETED;
+    let wt_flags = Status::WT_NEW | Status::WT_MODIFIED | Status::WT_DELETED;
+    let relevant_flags = index_flags | wt_flags;
+
+    for entry in statuses.iter() {
+        let path = entry.path().unwrap_or_default();
+
+        if path.ends_with('/') && repo.find_submodule(&path[..path.len() - 1]).is_ok() {
+            continue;
+        }
+
+        if let Ok(mut submodule) = repo.find_submodule(path) {
+            submodule.reload(true).ok();
+            let head_oid = submodule.head_id();
+            let index_oid = submodule.index_id();
+            let workdir_oid = submodule.workdir_id();
+
+            if head_oid != index_oid || head_oid != workdir_oid {
+                return true;
+            }
+            continue;
+        }
+
+        if entry.status().intersects(relevant_flags) {
+            return true;
+        }
+    }
+
+    false
 }
 
 pub async fn abort_merge(
