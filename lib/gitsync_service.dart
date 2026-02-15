@@ -179,8 +179,8 @@ class GitsyncService {
       }
       Logger.gmLog(type: LogType.Sync, "Start Sync");
 
-      bool? pullResult = null;
-      bool? pushResult = null;
+      bool? pullResult = false;
+      bool? pushResult = false;
 
       await () async {
         final gitDirPath = settingsManager.gitDirPath?.$1;
@@ -272,8 +272,10 @@ class GitsyncService {
         await _displaySyncMessage(settingsManager, s.syncComplete);
       }
 
-      Logger.dismissError(null);
-      Logger.gmLog(type: LogType.Sync, "Sync Complete!");
+      if (!(pushResult == null || pullResult == null)) {
+        Logger.dismissError(null);
+        Logger.gmLog(type: LogType.Sync, "Sync Complete!");
+      }
 
       isSyncing = false;
 
