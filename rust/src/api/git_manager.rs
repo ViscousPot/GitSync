@@ -1255,6 +1255,7 @@ pub async fn get_commit_diff(
 pub async fn get_recent_commits(
     path_string: &String,
     remote_name: &str,
+    cached_diff_stats: HashMap<String, (i32, i32)>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Vec<Commit>, git2::Error> {
     let log_callback = Arc::new(log);
@@ -1293,6 +1294,34 @@ pub async fn get_recent_commits(
         }
     }
 
+    // Build unpulled/unpushed OID sets via bounded revwalks
+    let mut unpulled_oids = std::collections::HashSet::new();
+    let mut unpushed_oids = std::collections::HashSet::new();
+
+    if let (Some(l_oid), Some(r_oid)) = (local_oid, remote_oid) {
+        // Unpulled: commits reachable from remote but not from local
+        let mut rw = swl!(repo.revwalk())?;
+        if rw.push(r_oid).is_ok() {
+            let _ = rw.hide(l_oid);
+            for oid_result in rw.take(50) {
+                if let Ok(oid) = oid_result {
+                    unpulled_oids.insert(oid);
+                }
+            }
+        }
+
+        // Unpushed: commits reachable from local but not from remote
+        let mut rw = swl!(repo.revwalk())?;
+        if rw.push(l_oid).is_ok() {
+            let _ = rw.hide(r_oid);
+            for oid_result in rw.take(50) {
+                if let Ok(oid) = oid_result {
+                    unpushed_oids.insert(oid);
+                }
+            }
+        }
+    }
+
     swl!(revwalk.set_sorting(git2::Sort::TOPOLOGICAL | git2::Sort::TIME))?;
 
     let mut commits: Vec<Commit> = Vec::new();
@@ -1318,44 +1347,31 @@ pub async fn get_recent_commits(
             .to_string();
         let reference = format!("{}", oid);
 
-        let parent = commit.parent(0).ok();
-        let mut diff_opts = DiffOptions::new();
-        let diff = match parent {
-            Some(parent_commit) => repo.diff_tree_to_tree(
-                Some(&swl!(parent_commit.tree())?),
-                Some(&swl!(commit.tree())?),
-                Some(&mut diff_opts),
-            )?,
-            None => swl!(repo.diff_tree_to_tree(
-                None,
-                Some(&swl!(commit.tree())?),
-                Some(&mut diff_opts)
-            ))?,
-        };
-
-        // START OF SLOWER SECTION
-
-        let (additions, deletions) = match diff.stats() {
-            Ok(s) => (s.insertions() as i32, s.deletions() as i32),
-            Err(_) => (0, 0),
-        };
-
-        // -----
-
-        let (ahead_local, _) = if let Some(local_oid) = local_oid {
-            swl!(repo.graph_ahead_behind(oid, local_oid))?
+        let (additions, deletions) = if let Some(&(a, d)) = cached_diff_stats.get(&reference) {
+            (a, d)
         } else {
-            (0, 0)
+            let parent = commit.parent(0).ok();
+            let mut diff_opts = DiffOptions::new();
+            let diff = match parent {
+                Some(parent_commit) => repo.diff_tree_to_tree(
+                    Some(&swl!(parent_commit.tree())?),
+                    Some(&swl!(commit.tree())?),
+                    Some(&mut diff_opts),
+                )?,
+                None => swl!(repo.diff_tree_to_tree(
+                    None,
+                    Some(&swl!(commit.tree())?),
+                    Some(&mut diff_opts)
+                ))?,
+            };
+            match diff.stats() {
+                Ok(s) => (s.insertions() as i32, s.deletions() as i32),
+                Err(_) => (0, 0),
+            }
         };
-        let (ahead_remote, _) = if let Some(remote_oid) = remote_oid {
-            swl!(repo.graph_ahead_behind(oid, remote_oid))?
-        } else {
-            (0, 0)
-        };
-        let unpulled = ahead_local > 0;
-        let unpushed = ahead_remote > 0;
 
-        // END OF SLOWER SECTION
+        let unpulled = unpulled_oids.contains(&oid);
+        let unpushed = unpushed_oids.contains(&oid);
 
         commits.push(Commit {
             timestamp: time,

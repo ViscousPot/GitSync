@@ -504,9 +504,13 @@ class GitManager {
 
   static Future<List<GitManagerRs.Commit>> getRecentCommits([priority = 1]) async {
     final repoIndex = await _repoIndex;
+    final cachedCommits = await getInitialRecentCommits();
+    final cachedDiffStats = <String, (int, int)>{
+      for (final c in cachedCommits) c.reference: (c.additions, c.deletions),
+    };
     final result = await _runWithLock(priority: priority, GitManagerRs.commitListRunWithLock, repoIndex, LogType.RecentCommits, (dirPath) async {
       try {
-        return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), log: _logWrapper);
+        return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), cachedDiffStats: cachedDiffStats, log: _logWrapper);
       } catch (e, stackTrace) {
         if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
           await File('$dirPath/$gitIndexPath').delete();

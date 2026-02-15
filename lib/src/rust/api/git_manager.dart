@@ -191,10 +191,12 @@ Future<Diff> getCommitDiff({
 Future<List<Commit>> getRecentCommits({
   required String pathString,
   required String remoteName,
+  required Map<String, (int, int)> cachedDiffStats,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerGetRecentCommits(
   pathString: pathString,
   remoteName: remoteName,
+  cachedDiffStats: cachedDiffStats,
   log: log,
 );
 
