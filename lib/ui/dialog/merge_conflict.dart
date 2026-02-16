@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/main.dart';
@@ -13,6 +15,8 @@ import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/gitsync_service.dart';
+import 'package:mmap2/mmap2.dart';
+import 'package:mmap2_flutter/mmap2_flutter.dart';
 import 'package:open_file/open_file.dart';
 import '../../../constant/dimens.dart';
 import '../../../global.dart';
@@ -63,6 +67,8 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
     print(e);
   }
 
+  MmapFlutter.initialize();
+
   final syncMessage = await uiSettingsManager.getSyncMessage();
   final scrollController = AnchorScrollController();
   final commitMessageController = TextEditingController();
@@ -77,6 +83,18 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
   int conflictIndex = 0;
   List<(int, String)> conflictSections = [];
   bool updating = false;
+  Mmap? writeMmap;
+
+  void mapFile(String filePath) {
+    writeMmap?.close();
+    writeMmap = Mmap.fromFile(filePath, mode: AccessMode.write);
+  }
+
+  void closeMmap() {
+    writeMmap?.sync();
+    writeMmap?.close();
+    writeMmap = null;
+  }
 
   print(conflictingPaths);
 
@@ -96,10 +114,12 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
       if (bookmarkPath.isEmpty) return;
 
       await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
-        final file = File("$path/${conflictingPaths[conflictIndex]}");
+        final filePath = "$path/${conflictingPaths[conflictIndex]}";
+        closeMmap();
+        mapFile(filePath);
 
         List<String> conflictStringSections = [];
-        List<String> lines = await file.readAsLines();
+        List<String> lines = utf8.decode(writeMmap!.writableData, allowMalformed: true).split('\n');
         StringBuffer conflictBuffer = StringBuffer();
         bool inConflict = false;
 
@@ -149,8 +169,21 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
     if (bookmarkPath.isEmpty) return;
 
     await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
-      final file = File("$path/${conflictingPaths[conflictIndex]}");
-      await file.writeAsString(conflictSections.map((section) => section.$2).join('\n'));
+      final filePath = "$path/${conflictingPaths[conflictIndex]}";
+      final text = conflictSections.map((section) => section.$2).join('\n');
+      final newBytes = Uint8List.fromList(utf8.encode(text));
+
+      if (writeMmap != null && writeMmap!.isOpen) {
+        if (newBytes.length != writeMmap!.writableData.length) {
+          File(filePath).writeAsStringSync(text);
+          mapFile(filePath);
+        } else {
+          writeMmap!.writableData.setAll(0, newBytes);
+          writeMmap!.sync();
+        }
+      } else {
+        File(filePath).writeAsStringSync(text);
+      }
 
       for (var indexedSection in conflictSections.indexed) {
         conflictSections[indexedSection.$1] = (indexedSection.$1, indexedSection.$2.$2);
@@ -163,6 +196,9 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
     barrierColor: Colors.transparent,
     builder: (BuildContext context) => PopScope(
       canPop: !isMerging,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) closeMmap();
+      },
       child: StatefulBuilder(
         key: dialogKey,
         builder: (context, setState) {
@@ -591,6 +627,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                     onPressed: () async {
                       if (isMerging) return;
 
+                      closeMmap();
                       await runGitOperation(LogType.AbortMerge, (event) => event);
                       Navigator.of(parentContext).canPop() ? Navigator.pop(parentContext) : null;
                     },
@@ -620,6 +657,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
 
                             isMerging = true;
 
+                            closeMmap();
                             FlutterBackgroundService().invoke(GitsyncService.MERGE, {
                               COMMIT_MESSAGE: commitMessageController.text.isEmpty ? syncMessage : commitMessageController.text,
                               CONFLICTING_PATHS: originalConflictingPaths.join(conflictSeparator),
