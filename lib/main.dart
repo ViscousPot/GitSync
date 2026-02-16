@@ -929,7 +929,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
   void _scheduleNextRecommendedAction(DateTime startTime) {
     autoRefreshTimer?.cancel();
-    const minDelay = Duration(seconds: 20);
+    const minDelay = Duration(seconds: 10);
     final elapsed = DateTime.now().difference(startTime);
     final remaining = minDelay - elapsed;
     if (remaining <= Duration.zero) {
