@@ -916,6 +916,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (useOverride) {
       recommendedAction.value = override;
       updatingRecommendedAction.value = false;
+      await updateSyncOptions();
       _scheduleNextRecommendedAction(startTime);
       return;
     }
@@ -924,6 +925,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       return event?["result"];
     });
     updatingRecommendedAction.value = false;
+    await updateSyncOptions();
     _scheduleNextRecommendedAction(startTime);
   }
 
