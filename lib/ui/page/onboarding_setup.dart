@@ -316,14 +316,14 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
       case Screen.EnableNotifications:
         _controller.reverse().then((_) {
           if (!mounted) return;
-          screenIndex.value = Screen.BrowseAndEdit;
+          screenIndex.value = hasSkipped ? Screen.ClientSyncMode : Screen.BrowseAndEdit;
           _isBackNavigating = false;
         });
 
       case Screen.EnableAllFilesAccess:
         _controller.reverse().then((_) {
           if (!mounted) return;
-          screenIndex.value = _notificationsScreenWasShown ? Screen.EnableNotifications : Screen.BrowseAndEdit;
+          screenIndex.value = _notificationsScreenWasShown ? Screen.EnableNotifications : (hasSkipped ? Screen.ClientSyncMode : Screen.BrowseAndEdit);
           _isBackNavigating = false;
         });
 
@@ -456,6 +456,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: [Shadow(blurRadius: 10.0, color: colours.primaryDark, offset: Offset.zero)],
                       ),
                     ),
                   ),
@@ -570,7 +571,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
   Future<void> showAlmostThereOrSkip() async {
     await repoManager.setOnboardingStep(1);
-    if (hasSkipped) return;
+    if (hasSkipped) {
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
     await _controller.reverse();
     screenIndex.value = Screen.AlmostThere;
   }
@@ -1194,7 +1198,11 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                             ),
                             onPressed: () async {
                               await _controller.reverse();
-                              screenIndex.value = Screen.BrowseAndEdit;
+                              if (hasSkipped) {
+                                await showNotificationsOrNext();
+                              } else {
+                                screenIndex.value = Screen.BrowseAndEdit;
+                              }
                             },
                           ),
                         ),
@@ -1736,11 +1744,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     SizedBox(height: spaceSM),
                     Text(
                       "All notifications are off by default.",
-                      style: TextStyle(
-                        color: colours.tertiaryLight,
-                        fontSize: textSM,
-                        fontFamily: "AtkinsonHyperlegible",
-                      ),
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
                     ),
                   ],
                 ),
@@ -1752,13 +1756,21 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     builder: (context, child) {
                       return Transform.rotate(angle: _wiggleAnimation.value, child: child);
                     },
-                    child: GestureDetector(
-                      onTap: () async {
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      constraints: BoxConstraints(),
+                      onPressed: () async {
                         if (await Permission.notification.request().isGranted) {
                           await showAllFilesAccessOrNext();
                         }
                       },
-                      child: FaIcon(FontAwesomeIcons.solidBell, color: colours.tertiaryPositive, size: spaceXXL),
+                      icon: FaIcon(
+                        semanticLabel: "tap to grant notifications",
+                        FontAwesomeIcons.solidBell,
+                        color: colours.tertiaryPositive,
+                        size: spaceXXL,
+                      ),
                     ),
                   ),
                 ),
@@ -1895,13 +1907,21 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     builder: (context, child) {
                       return Transform.rotate(angle: _wiggleAnimation.value, child: child);
                     },
-                    child: GestureDetector(
-                      onTap: () async {
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      constraints: BoxConstraints(),
+                      onPressed: () async {
                         if (await requestStoragePerm()) {
                           await showAlmostThereOrSkip();
                         }
                       },
-                      child: FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryPositive, size: spaceXXL),
+                      icon: FaIcon(
+                        FontAwesomeIcons.folderOpen,
+                        semanticLabel: "tap to grant file access",
+                        color: colours.tertiaryPositive,
+                        size: spaceXXL,
+                      ),
                     ),
                   ),
                 ),
