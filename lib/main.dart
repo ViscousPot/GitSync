@@ -1304,7 +1304,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
-            _restorableSettingsMain.present({"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true});
+            await Navigator.of(context).push(
+              createSettingsMainRoute(context, {"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true}),
+            );
+            await reloadAll();
+            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
+              await showCloneRepoPage();
+            } else {
+              _restorableOnboardingSetup.present({});
+            }
           },
           () async {
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {

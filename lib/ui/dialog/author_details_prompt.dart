@@ -44,7 +44,6 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
             await successCallback();
-            await callback();
           },
         ),
       ],
