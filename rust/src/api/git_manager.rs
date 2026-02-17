@@ -260,7 +260,7 @@ async fn run_with_lock<T: Default>(
         .collect();
 
     let new_priority: i32 = priority;
-    if new_priority == 0 {
+    if new_priority == 1 {
         queue_entries = queue_entries
             .into_iter()
             .enumerate()
