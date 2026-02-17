@@ -254,7 +254,7 @@ async fn run_with_lock<T: Default>(
 
     let mut queue_entries: Vec<_> = queue_contents
         .split('\n')
-        .filter(|entry| !entry.is_empty() || !entry.trim().is_empty())
+        .filter(|entry| !entry.trim().is_empty())
         .collect();
 
     let new_priority: i32 = priority;
@@ -337,7 +337,7 @@ async fn run_with_lock<T: Default>(
             let queue_entries: Vec<_> = queue_contents
                 .split('\n')
                 .filter(|entry| {
-                    *entry != identifier && (!entry.is_empty() || !entry.trim().is_empty())
+                    *entry != identifier && !entry.trim().is_empty()
                 })
                 .collect();
 
@@ -406,7 +406,7 @@ async fn run_with_lock<T: Default>(
                 let queue_entries: Vec<_> = queue_contents
                     .split('\n')
                     .filter(|entry| {
-                        *entry != self.identifier && (!entry.is_empty() || !entry.trim().is_empty())
+                        *entry != self.identifier && !entry.trim().is_empty()
                     })
                     .collect();
 
@@ -464,7 +464,7 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
 
     let queue_entries: Vec<&str> = queue_contents
         .split('\n')
-        .filter(|entry| !entry.is_empty())
+        .filter(|entry| !entry.trim().is_empty())
         .collect();
 
     if let Some(first_entry) = queue_entries.get(0) {
