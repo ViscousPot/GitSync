@@ -189,7 +189,9 @@ class GitManager {
           }
         }
       }
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      Logger.logError(LogType.Global, e, stackTrace);
+    }
   }
 
   static FutureOr<void> _logWrapper(GitManagerRs.LogType type, String message) {
