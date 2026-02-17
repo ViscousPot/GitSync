@@ -493,9 +493,9 @@ pub fn init(homepath: Option<String>) {
 
     flutter_rust_bridge::setup_default_user_utils();
 
-    // unsafe {
-    //     set_verify_owner_validation(false).unwrap();
-    // }
+    unsafe {
+        git2::opts::set_verify_owner_validation(false).unwrap();
+    }
 
     if let Ok(mut config) = git2::Config::open_default() {
         let _ = config.set_str("safe.directory", "*");
