@@ -1304,9 +1304,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
-            await Navigator.of(context).push(
-              createSettingsMainRoute(context, {"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true}),
-            );
+            await Navigator.of(
+              context,
+            ).push(createSettingsMainRoute(context, {"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true}));
             await reloadAll();
             if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
               await showCloneRepoPage();
@@ -2503,7 +2503,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                   richContent: ShowcaseTooltipContent(
                                     title: t.showcaseRepoTitle,
                                     subtitle: t.showcaseRepoSubtitle,
-                                    arrowUp: false,
                                     featureRows: [
                                       ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: t.showcaseRepoFeatureAuth),
                                       ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: t.showcaseRepoFeatureDir),
@@ -3109,7 +3108,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           richContent: ShowcaseTooltipContent(
                                             title: t.showcaseAutoSyncTitle,
                                             subtitle: t.showcaseAutoSyncSubtitle,
-                                            arrowUp: false,
                                             featureRows: [
                                               ShowcaseFeatureRow(icon: FontAwesomeIcons.solidBell, text: t.showcaseAutoSyncFeatureApp),
                                               ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseAutoSyncFeatureSchedule),

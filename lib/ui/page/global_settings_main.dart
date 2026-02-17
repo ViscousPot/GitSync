@@ -738,7 +738,6 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       richContent: ShowcaseTooltipContent(
                         title: t.showcaseSetupGuideTitle,
                         subtitle: t.showcaseSetupGuideSubtitle,
-                        arrowUp: true,
                         featureRows: [
                           ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseSetupGuideFeatureSetup),
                           ShowcaseFeatureRow(icon: FontAwesomeIcons.route, text: t.showcaseSetupGuideFeatureTour),
