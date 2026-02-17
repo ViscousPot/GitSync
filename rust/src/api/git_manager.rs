@@ -476,13 +476,11 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
 
     if let Some(first_entry) = queue_entries.get(0) {
         let parts: Vec<&str> = first_entry.split(':').collect();
-        if parts.len() > 0 {
+        if !parts.is_empty() {
             let priority: i32 = parts[0].parse().unwrap_or(0);
             return Ok(priority == 3);
         }
     }
-
-    read_flock.unlock().unwrap();
 
     Ok(false)
 }
