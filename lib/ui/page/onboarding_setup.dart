@@ -1775,6 +1775,38 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   ),
                 ),
               ),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          await showAllFilesAccessOrNext();
+                        },
+                        style: ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                          ),
+                        ),
+                        child: Text(
+                          t.skip.toUpperCase(),
+                          style: TextStyle(
+                            color: colours.primaryDark,
+                            fontWeight: FontWeight.bold,
+                            fontSize: textMD,
+                            fontFamily: "AtkinsonHyperlegible",
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: spaceLG),
+                ],
+              ),
             ],
           ),
         ),
@@ -2697,7 +2729,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
                             child: TextButton.icon(
@@ -2726,6 +2758,29 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                   fontSize: textMD,
                                   fontFamily: "AtkinsonHyperlegible",
                                 ),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await repoManager.setOnboardingStep(3);
+                              _showCloneRepoPage();
+                            },
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                              ),
+                            ),
+                            child: Text(
+                              t.skip.toUpperCase(),
+                              style: TextStyle(
+                                color: colours.primaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
                               ),
                             ),
                           ),
