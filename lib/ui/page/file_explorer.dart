@@ -40,6 +40,128 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   final ValueNotifier<bool?> copyingMovingNotifier = ValueNotifier(null);
 
   late final moreOptionsDropdownKey = GlobalKey();
+
+  late final _fileManagerWidget = FileManager(
+    controller: controller,
+    hideHiddenEntity: false,
+    loadingScreen: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
+    builder: (context, snapshot) {
+      final List<FileSystemEntity> entities = snapshot;
+
+      return ValueListenableBuilder(
+        valueListenable: selectedPathsNotifier,
+        builder: (context, selectedPaths, child) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: spaceMD),
+          child: ListView.builder(
+            itemCount: entities.length,
+            itemBuilder: (context, index) {
+              final isHidden = FileManager.basename(entities[index]) == "" || FileManager.basename(entities[index]).startsWith('.');
+              final isFile = FileManager.isFile(entities[index]);
+              final path = entities[index].path;
+              bool longPressTriggered = false;
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: spaceSM),
+                child: Material(
+                  color: selectedPaths.contains(path) ? colours.tertiaryLight : colours.tertiaryDark,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                  child: InkWell(
+                    onTap: () async {
+                      if (selectedPaths.contains(path)) {
+                        selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
+                        return;
+                      }
+                      if (selectedPaths.isNotEmpty) {
+                        selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
+                        return;
+                      }
+                      if (longPressTriggered) return;
+
+                      if (FileManager.isDirectory(entities[index])) {
+                        controller.openDirectory(entities[index]);
+                      } else {
+                        viewOrEditFile(context, path);
+                      }
+                    },
+                    onLongPress: () {
+                      longPressTriggered = true;
+                      if (selectedPaths.contains(path)) {
+                        selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
+                      } else {
+                        selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
+                      }
+                    },
+                    onHighlightChanged: (value) {
+                      if (!value) longPressTriggered = false;
+                    },
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    child: Padding(
+                      padding: EdgeInsets.all(spaceSM),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: textMD,
+                            margin: EdgeInsets.all(spaceXS),
+                            child: FaIcon(
+                              isHidden
+                                  ? (isFile
+                                        ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
+                                              ? FontAwesomeIcons.fileLines
+                                              : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                    ? FontAwesomeIcons.fileImage
+                                                    : FontAwesomeIcons.file))
+                                        : FontAwesomeIcons.folder)
+                                  : (isFile
+                                        ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
+                                              ? FontAwesomeIcons.solidFileLines
+                                              : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                    ? FontAwesomeIcons.solidFileImage
+                                                    : FontAwesomeIcons.solidFile))
+                                        : FontAwesomeIcons.solidFolder),
+                              color: isFile
+                                  ? (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight)
+                                  : (selectedPaths.contains(path) ? colours.tertiaryInfo : colours.primaryInfo),
+                              size: textMD,
+                            ),
+                          ),
+                          SizedBox(width: spaceSM),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  FileManager.basename(entities[index]),
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
+                                ),
+                                FutureBuilder<FileStat>(
+                                  future: entities[index].stat(),
+                                  builder: (context, snapshot) => Text(
+                                    snapshot.hasData
+                                        ? (entities[index] is File
+                                              ? formatBytes(snapshot.data!.size)
+                                              : "${snapshot.data!.modified}".substring(0, 10))
+                                        : "",
+                                    style: TextStyle(
+                                      color: (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight),
+                                      fontSize: textSM,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    },
+  );
   List<((String, String), Function(List<String>))> get singleSelectOptions => [
     if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
       (
@@ -139,11 +261,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   }
 
   void reload() {
-    final destinationPath = controller.getCurrentPath;
-    setState(() {});
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      controller.setCurrentPath = destinationPath;
-    });
+    controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
   }
 
   @override
@@ -517,9 +635,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                           }
 
                                           heldPathsNotifier.value = [];
-                                          WidgetsBinding.instance.addPostFrameCallback((_) async {
-                                            controller.setCurrentPath = destinationPath;
-                                          });
+                                          controller.setCurrentPath = "${destinationPath.replaceFirst(RegExp(r'/$'), '')}/";
                                         },
                                   style: ButtonStyle(
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -588,127 +704,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
             ),
           ],
         ),
-        body: FileManager(
-          controller: controller,
-          hideHiddenEntity: false,
-          loadingScreen: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
-          builder: (context, snapshot) {
-            final List<FileSystemEntity> entities = snapshot;
-
-            return ValueListenableBuilder(
-              valueListenable: selectedPathsNotifier,
-              builder: (context, selectedPaths, child) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                child: ListView.builder(
-                  itemCount: entities.length,
-                  itemBuilder: (context, index) {
-                    final isHidden = FileManager.basename(entities[index]) == "" || FileManager.basename(entities[index]).startsWith('.');
-                    final isFile = FileManager.isFile(entities[index]);
-                    final path = entities[index].path;
-                    bool longPressTriggered = false;
-
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: spaceSM),
-                      child: Material(
-                        color: selectedPaths.contains(path) ? colours.tertiaryLight : colours.tertiaryDark,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                        child: InkWell(
-                          onTap: () async {
-                            if (selectedPaths.contains(path)) {
-                              selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
-                              return;
-                            }
-                            if (selectedPaths.isNotEmpty) {
-                              selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
-                              return;
-                            }
-                            if (longPressTriggered) return;
-
-                            if (FileManager.isDirectory(entities[index])) {
-                              controller.openDirectory(entities[index]);
-                            } else {
-                              viewOrEditFile(context, path);
-                            }
-                          },
-                          onLongPress: () {
-                            longPressTriggered = true;
-                            if (selectedPaths.contains(path)) {
-                              selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
-                            } else {
-                              selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
-                            }
-                          },
-                          onHighlightChanged: (value) {
-                            if (!value) longPressTriggered = false;
-                          },
-                          borderRadius: BorderRadius.all(cornerRadiusSM),
-                          child: Padding(
-                            padding: EdgeInsets.all(spaceSM),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: textMD,
-                                  margin: EdgeInsets.all(spaceXS),
-                                  child: FaIcon(
-                                    isHidden
-                                        ? (isFile
-                                              ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
-                                                    ? FontAwesomeIcons.fileLines
-                                                    : (imageExtensions.any((item) => entities[index].path.endsWith(item))
-                                                          ? FontAwesomeIcons.fileImage
-                                                          : FontAwesomeIcons.file))
-                                              : FontAwesomeIcons.folder)
-                                        : (isFile
-                                              ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
-                                                    ? FontAwesomeIcons.solidFileLines
-                                                    : (imageExtensions.any((item) => entities[index].path.endsWith(item))
-                                                          ? FontAwesomeIcons.solidFileImage
-                                                          : FontAwesomeIcons.solidFile))
-                                              : FontAwesomeIcons.solidFolder),
-                                    color: isFile
-                                        ? (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight)
-                                        : (selectedPaths.contains(path) ? colours.tertiaryInfo : colours.primaryInfo),
-                                    size: textMD,
-                                  ),
-                                ),
-                                SizedBox(width: spaceSM),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        FileManager.basename(entities[index]),
-                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
-                                      ),
-                                      FutureBuilder<FileStat>(
-                                        future: entities[index].stat(),
-                                        builder: (context, snapshot) => Text(
-                                          snapshot.hasData
-                                              ? (entities[index] is File
-                                                    ? formatBytes(snapshot.data!.size)
-                                                    : "${snapshot.data!.modified}".substring(0, 10))
-                                              : "",
-                                          style: TextStyle(
-                                            color: (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight),
-                                            fontSize: textSM,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        ),
+        body: _fileManagerWidget,
       ),
     );
   }
