@@ -890,6 +890,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         return;
       }
       final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
+      if (step != -1 && step != 5) {
+        final gitDirPath = await uiSettingsManager.getString(StorageKey.setman_gitDirPath);
+        if (gitDirPath.isNotEmpty) {
+          await repoManager.setOnboardingStep(-1);
+          return;
+        }
+      }
+
       if (step == 5) {
         _triggerUiGuideShowcase();
       } else if (step != -1) {
