@@ -164,13 +164,11 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "Credentials Not Found");
         Fluttertoast.showToast(msg: "Credentials not found", toastLength: Toast.LENGTH_LONG, gravity: null);
         isScheduled = false;
-        isSyncing = false;
         return;
       }
       if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
         Fluttertoast.showToast(msg: s.ongoingMergeConflict, toastLength: Toast.LENGTH_SHORT, gravity: null);
         isScheduled = false;
-        isSyncing = false;
         return;
       }
 
@@ -280,17 +278,16 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "Sync Complete!");
       }
 
+      await GitManager.getRecentCommits(3);
+    } catch (e, st) {
+      Logger.logError(LogType.SyncException, e, st);
+    } finally {
       isSyncing = false;
-
       if (isScheduled) {
         Logger.gmLog(type: LogType.Sync, "Scheduled Sync Starting");
         isScheduled = false;
         debouncedSync(repomanRepoindex);
       }
-
-      await GitManager.getRecentCommits(3);
-    } catch (e, st) {
-      Logger.logError(LogType.SyncException, e, st);
     }
   }
 
