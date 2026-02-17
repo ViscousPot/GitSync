@@ -370,9 +370,8 @@ async fn run_with_lock<T: Default>(
             Err(_) => return Ok(T::default()),
         };
 
-        let mut buf = [0; 1024];
-        let bytes_read = read_flock.read(&mut buf).unwrap_or(0);
-        let string = std::str::from_utf8(&buf[..bytes_read]).unwrap_or("");
+        let mut string = String::new();
+        read_flock.read_to_string(&mut string).unwrap_or(0);
 
         if !string.contains(&*identifier) {
             let _ = read_flock.unlock();
