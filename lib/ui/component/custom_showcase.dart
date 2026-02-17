@@ -114,22 +114,18 @@ class CustomShowcase extends StatelessWidget {
 }
 
 class ShowcaseTooltipContent extends StatelessWidget {
-  const ShowcaseTooltipContent({super.key, required this.title, this.subtitle, required this.featureRows, this.arrowUp = true});
+  const ShowcaseTooltipContent({super.key, required this.title, this.subtitle, required this.featureRows});
 
   final String title;
   final String? subtitle;
   final List<ShowcaseFeatureRow> featureRows;
-  final bool arrowUp;
-
-  static const _arrowWidth = 16.0;
-  static const _arrowHeight = 8.0;
 
   @override
   Widget build(BuildContext context) => Stack(
     clipBehavior: Clip.none,
     children: [
       Container(
-        margin: EdgeInsets.only(top: arrowUp ? _arrowHeight - 1 : 0, bottom: !arrowUp ? _arrowHeight - 1 : 0),
+        margin: EdgeInsets.zero,
         decoration: BoxDecoration(
           color: colours.showcaseBg,
           border: Border.all(color: colours.showcaseBorder),
@@ -156,72 +152,8 @@ class ShowcaseTooltipContent extends StatelessWidget {
           ],
         ),
       ),
-      Positioned(
-        top: arrowUp ? 0 : null,
-        bottom: !arrowUp ? 0 : null,
-        left: 0,
-        right: 0,
-        child: Center(
-          child: CustomPaint(
-            size: Size(_arrowWidth, _arrowHeight),
-            painter: _TooltipArrowPainter(up: arrowUp, fillColor: colours.showcaseBg, borderColor: colours.showcaseBorder),
-          ),
-        ),
-      ),
     ],
   );
-}
-
-class _TooltipArrowPainter extends CustomPainter {
-  _TooltipArrowPainter({required this.up, required this.fillColor, required this.borderColor});
-
-  final bool up;
-  final Color fillColor;
-  final Color borderColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final fillPath = Path();
-    final borderPath = Path();
-
-    if (up) {
-      fillPath.moveTo(size.width / 2, 0);
-      fillPath.lineTo(size.width, size.height);
-      fillPath.lineTo(0, size.height);
-      fillPath.close();
-
-      borderPath.moveTo(0, size.height);
-      borderPath.lineTo(size.width / 2, 0);
-      borderPath.lineTo(size.width, size.height);
-    } else {
-      fillPath.moveTo(0, 0);
-      fillPath.lineTo(size.width, 0);
-      fillPath.lineTo(size.width / 2, size.height);
-      fillPath.close();
-
-      borderPath.moveTo(0, 0);
-      borderPath.lineTo(size.width / 2, size.height);
-      borderPath.lineTo(size.width, 0);
-    }
-
-    canvas.drawPath(
-      fillPath,
-      Paint()
-        ..color = fillColor
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawPath(
-      borderPath,
-      Paint()
-        ..color = borderColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.0,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _TooltipArrowPainter oldDelegate) =>
-      up != oldDelegate.up || fillColor != oldDelegate.fillColor || borderColor != oldDelegate.borderColor;
 }
 
 class ShowcaseFeatureRow extends StatelessWidget {
