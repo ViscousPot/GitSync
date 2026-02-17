@@ -594,7 +594,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   bool repoSettingsExpanded = false;
   bool demoConflicting = false;
 
-  bool devTools = kDebugMode;
+  bool devTools = false;
   late ValueNotifier<List<String>> queueValue = ValueNotifier([]);
   Timer? queueTimer;
 
