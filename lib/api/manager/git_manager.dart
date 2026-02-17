@@ -176,7 +176,7 @@ class GitManager {
 
     if (!waitForUnlock) return await internal();
 
-    return await waitFor(internal, maxWaitSeconds: 300);
+    return await waitFor(internal, maxWaitSeconds: 660);
   }
 
   static Future<void> clearLocks() async {
