@@ -250,7 +250,9 @@ async fn run_with_lock<T: Default>(
 
     let mut queue_contents = String::new();
 
-    flock.read_to_string(&mut queue_contents).unwrap();
+    flock
+        .read_to_string(&mut queue_contents)
+        .map_err(|e| git2::Error::from_str(&format!("Failed to read queue file: {}", e)))?;
 
     let mut queue_entries: Vec<_> = queue_contents
         .split('\n')
@@ -301,13 +303,19 @@ async fn run_with_lock<T: Default>(
         queue_entries.insert(final_insert_index, &identifier);
     }
 
-    flock.seek(SeekFrom::Start(0)).unwrap();
-    flock.set_len(0).unwrap(); // Truncate the file
+    flock
+        .seek(SeekFrom::Start(0))
+        .map_err(|e| git2::Error::from_str(&format!("Failed to seek queue file: {}", e)))?;
+    flock
+        .set_len(0)
+        .map_err(|e| git2::Error::from_str(&format!("Failed to truncate queue file: {}", e)))?;
     flock
         .write_all(queue_entries.join("\n").as_bytes())
-        .unwrap();
+        .map_err(|e| git2::Error::from_str(&format!("Failed to write queue file: {}", e)))?;
 
-    flock.unlock().unwrap();
+    flock.unlock().map_err(|(_, e)| {
+        git2::Error::from_str(&format!("Failed to unlock queue file: {}", e))
+    })?;
 
     const QUEUE_TIMEOUT_SECS: u64 = 600;
     let start_time = std::time::Instant::now();
