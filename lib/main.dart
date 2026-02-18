@@ -11,9 +11,12 @@ import 'package:GitSync/ui/component/group_sync_settings.dart';
 import 'package:GitSync/ui/component/sync_loader.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/ui/dialog/add_remote.dart' as AddRemoteDialog;
+import 'package:GitSync/ui/dialog/confirm_delete_remote.dart' as ConfirmDeleteRemoteDialog;
 import 'package:GitSync/ui/dialog/create_branch.dart' as CreateBranchDialog;
 import 'package:GitSync/ui/dialog/info_dialog.dart' as InfoDialog;
 import 'package:GitSync/ui/dialog/merge_conflict.dart' as MergeConflictDialog;
+import 'package:GitSync/ui/dialog/rename_remote.dart' as RenameRemoteDialog;
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:GitSync/ui/page/global_settings_main.dart';
 import 'package:GitSync/ui/page/onboarding_setup.dart';
@@ -385,6 +388,29 @@ void onServiceStart(ServiceInstance service) async {
     });
   });
 
+  service.on(LogType.ListRemotes.name).listen((event) async {
+    final result = await GitManager.listRemotes();
+    service.invoke(LogType.ListRemotes.name, {"result": result.map<String>((r) => "$r").toList()});
+  });
+
+  service.on(LogType.AddRemote.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.addRemote(event["name"], event["url"]);
+    service.invoke(LogType.AddRemote.name);
+  });
+
+  service.on(LogType.DeleteRemote.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.deleteRemote(event["name"]);
+    service.invoke(LogType.DeleteRemote.name);
+  });
+
+  service.on(LogType.RenameRemote.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.renameRemote(event["oldName"], event["newName"]);
+    service.invoke(LogType.RenameRemote.name);
+  });
+
   service.on(LogType.DiscardDir.name).listen((event) async {
     if (event == null) return;
 
@@ -678,6 +704,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   ValueNotifier<List<String>> branchNames = ValueNotifier([]);
   ValueNotifier<Map<String, (IconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
+  ValueNotifier<List<String>> remotes = ValueNotifier([]);
   ValueNotifier<bool> hasGitFilters = ValueNotifier(false);
   RestorableBool mergeConflictVisible = RestorableBool(true);
 
@@ -724,6 +751,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     );
     if (token != _reloadToken) return;
     remoteUrlLink.value = newRemoteUrlLink;
+    final newRemotes = await runGitOperation<List<String>>(LogType.ListRemotes, (event) => event?["result"].map<String>((r) => "$r").toList());
+    if (token != _reloadToken) return;
+    remotes.value = newRemotes;
     final newBranchNames = await runGitOperation<List<String>>(
       LogType.BranchNames,
       (event) => event?["result"].map<String>((path) => "$path").toList(),
@@ -748,10 +778,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (mounted) setState(() {});
   }
 
-  static final List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote))> remoteActions = [
+  static List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote), bool enabled)> remoteEllipsisActions(
+    int remoteCount,
+  ) => [
     (
       (t.launchInBrowser, FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryPositive, size: textMD)),
       (BuildContext context, (String, String)? remote) async => remote == null ? null : await launchUrl(Uri.parse(remote.$2)),
+      true,
     ),
     (
       (t.modifyRemoteUrl, FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textMD)),
@@ -762,6 +795,37 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           (newRemoteUrl) async => await runGitOperation(LogType.SetRemoteUrl, (event) => event, {"newRemoteUrl": newRemoteUrl}),
         );
       },
+      true,
+    ),
+    (
+      (t.renameRemote, FaIcon(FontAwesomeIcons.penToSquare, color: colours.tertiaryInfo, size: textMD)),
+      (BuildContext context, (String, String)? remote) async {
+        if (remote == null) return;
+        final currentRemoteName = await uiSettingsManager.getRemote();
+        await RenameRemoteDialog.showDialog(context, currentRemoteName, (newName) async {
+          await runGitOperation(LogType.RenameRemote, (event) => event, {"oldName": currentRemoteName, "newName": newName});
+          await uiSettingsManager.setStringNullable(StorageKey.setman_remote, newName);
+        });
+      },
+      true,
+    ),
+    (
+      (t.deleteRemote, FaIcon(FontAwesomeIcons.trashCan, color: remoteCount > 1 ? colours.tertiaryNegative : colours.tertiaryLight, size: textMD)),
+      (BuildContext context, (String, String)? remote) async {
+        if (remote == null) return;
+        final currentRemoteName = await uiSettingsManager.getRemote();
+        await ConfirmDeleteRemoteDialog.showDialog(context, currentRemoteName, () async {
+          await runGitOperation(LogType.DeleteRemote, (event) => event, {"name": currentRemoteName});
+          final remainingRemotes = await runGitOperation<List<String>>(
+            LogType.ListRemotes,
+            (event) => event?["result"].map<String>((r) => "$r").toList(),
+          );
+          if (remainingRemotes.isNotEmpty) {
+            await uiSettingsManager.setStringNullable(StorageKey.setman_remote, remainingRemotes.first);
+          }
+        });
+      },
+      remoteCount > 1,
     ),
   ];
 
@@ -2537,123 +2601,264 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           children: [
                                             ValueListenableBuilder(
                                               valueListenable: remoteUrlLink,
-                                              builder: (context, snapshot, child) => FutureBuilder(
-                                                future: uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink),
-                                                builder: (context, fastRemoteUrlLinkSnapshot) {
-                                                  final remoteUrlLinkValue =
-                                                      fastRemoteUrlLinkSnapshot.data == null || fastRemoteUrlLinkSnapshot.data!.isEmpty == true
-                                                      ? snapshot
-                                                      : (fastRemoteUrlLinkSnapshot.data!.first, fastRemoteUrlLinkSnapshot.data!.last);
-                                                  return Expanded(
-                                                    child: Stack(
-                                                      children: [
-                                                        Container(
-                                                          padding: EdgeInsets.zero,
-                                                          decoration: BoxDecoration(
-                                                            color: colours.secondaryDark,
-                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                          ),
-                                                          child: DropdownButton(
-                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                            padding: EdgeInsets.only(left: spaceMD, right: spaceXXS, top: 1, bottom: 1),
-                                                            onTap: () {
-                                                              if (demo) {
-                                                                ManualSyncDialog.showDialog(context).then((_) => reloadAll());
-                                                                return;
-                                                              }
-                                                            },
-                                                            icon: Padding(
-                                                              padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                                              child: FaIcon(
-                                                                remoteUrlLinkValue != null
-                                                                    ? FontAwesomeIcons.caretDown
-                                                                    : FontAwesomeIcons.solidCircleXmark,
-                                                                color: remoteUrlLinkValue != null ? colours.secondaryLight : colours.primaryNegative,
-                                                                size: textLG,
-                                                              ),
+                                              builder: (context, snapshot, child) => ValueListenableBuilder(
+                                                valueListenable: remotes,
+                                                builder: (context, remotesSnapshot, child) => FutureBuilder(
+                                                  future: uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink),
+                                                  builder: (context, fastRemoteUrlLinkSnapshot) {
+                                                    final remoteUrlLinkValue =
+                                                        fastRemoteUrlLinkSnapshot.data == null || fastRemoteUrlLinkSnapshot.data!.isEmpty == true
+                                                        ? snapshot
+                                                        : (fastRemoteUrlLinkSnapshot.data!.first, fastRemoteUrlLinkSnapshot.data!.last);
+                                                    final remotesList = remotesSnapshot;
+                                                    final actions = remoteEllipsisActions(remotesList.length);
+                                                    return FutureBuilder<String>(
+                                                      future: uiSettingsManager.getRemote(),
+                                                      builder: (context, currentRemoteSnapshot) {
+                                                        final currentRemoteName = currentRemoteSnapshot.data;
+                                                        // Build dropdown items: "Add Remote" first, then each remote name
+                                                        final dropdownItems = <DropdownMenuItem<String>>[
+                                                          DropdownMenuItem(
+                                                            value: "__add_remote__",
+                                                            child: Row(
+                                                              children: [
+                                                                FaIcon(FontAwesomeIcons.plus, color: colours.primaryPositive, size: textMD),
+                                                                SizedBox(width: spaceSM),
+                                                                Text(
+                                                                  t.addRemote.toUpperCase(),
+                                                                  style: TextStyle(
+                                                                    fontSize: textXS,
+                                                                    color: colours.primaryLight,
+                                                                    fontWeight: FontWeight.bold,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                            value: 0,
-                                                            isExpanded: true,
-                                                            underline: const SizedBox.shrink(),
-                                                            dropdownColor: colours.secondaryDark,
-                                                            onChanged: (value) async {},
-                                                            selectedItemBuilder: (context) => List.generate(
-                                                              remoteActions.length,
-                                                              (index) => Row(
-                                                                children: [
-                                                                  Expanded(
-                                                                    child: ExtendedText(
-                                                                      demo
-                                                                          ? "https://github.com/ViscousTests/TestObsidianVault.git"
-                                                                          : (remoteUrlLinkValue == null ? t.repoNotFound : remoteUrlLinkValue.$1),
-                                                                      maxLines: 1,
-                                                                      textAlign: TextAlign.left,
-                                                                      softWrap: false,
-                                                                      overflowWidget: TextOverflowWidget(
-                                                                        position: TextOverflowPosition.start,
-                                                                        child: Text(
-                                                                          "…",
+                                                          ),
+                                                          ...remotesList.map(
+                                                            (name) => DropdownMenuItem(
+                                                              value: name,
+                                                              child: name == currentRemoteName && remoteUrlLinkValue != null
+                                                                  ? Row(
+                                                                      children: [
+                                                                        Text(
+                                                                          name.toUpperCase(),
                                                                           style: TextStyle(
-                                                                            color: colours.tertiaryLight,
-                                                                            fontSize: textMD,
-                                                                            fontWeight: FontWeight.w400,
+                                                                            fontSize: textXS,
+                                                                            color: colours.primaryLight,
+                                                                            fontWeight: FontWeight.bold,
                                                                           ),
                                                                         ),
-                                                                      ),
-                                                                      style: TextStyle(
-                                                                        color: remoteUrlLinkValue != null
-                                                                            ? colours.primaryLight
-                                                                            : colours.secondaryLight,
-                                                                        fontSize: textMD,
-                                                                        fontWeight: FontWeight.w400,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            items: List.generate(
-                                                              remoteActions.length,
-                                                              (index) => DropdownMenuItem(
-                                                                value: index,
-                                                                onTap: () async {
-                                                                  await remoteActions[index].$2(context, remoteUrlLinkValue);
-                                                                  await reloadAll();
-                                                                },
-                                                                child: Row(
-                                                                  children: [
-                                                                    remoteActions[index].$1.$2,
-                                                                    SizedBox(width: spaceSM),
-                                                                    Text(
-                                                                      remoteActions[index].$1.$1.toUpperCase(),
+                                                                        Text(
+                                                                          " · ",
+                                                                          style: TextStyle(
+                                                                            fontSize: textXS,
+                                                                            color: colours.tertiaryLight,
+                                                                          ),
+                                                                        ),
+                                                                        Flexible(
+                                                                          child: Text(
+                                                                            remoteUrlLinkValue.$1,
+                                                                            style: TextStyle(
+                                                                              fontSize: textXS,
+                                                                              color: colours.tertiaryLight,
+                                                                              fontWeight: FontWeight.w400,
+                                                                            ),
+                                                                            overflow: TextOverflow.ellipsis,
+                                                                            maxLines: 1,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  : Text(
+                                                                      name.toUpperCase(),
                                                                       style: TextStyle(
                                                                         fontSize: textXS,
                                                                         color: colours.primaryLight,
                                                                         fontWeight: FontWeight.bold,
                                                                       ),
                                                                     ),
+                                                            ),
+                                                          ),
+                                                        ];
+                                                        return Expanded(
+                                                          child: Row(
+                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                            children: [
+                                                              Expanded(
+                                                                child: Stack(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding: EdgeInsets.zero,
+                                                                      decoration: BoxDecoration(
+                                                                        color: colours.secondaryDark,
+                                                                        borderRadius: BorderRadius.only(
+                                                                          topLeft: cornerRadiusMD,
+                                                                          bottomLeft: cornerRadiusMD,
+                                                                          topRight: Radius.zero,
+                                                                          bottomRight: Radius.zero,
+                                                                        ),
+                                                                      ),
+                                                                      child: DropdownButton<String>(
+                                                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                        padding: EdgeInsets.only(left: spaceMD, right: 0, top: 1, bottom: 1),
+                                                                        onTap: () {
+                                                                          if (demo) {
+                                                                            ManualSyncDialog.showDialog(context).then((_) => reloadAll());
+                                                                            return;
+                                                                          }
+                                                                        },
+                                                                        icon: Padding(
+                                                                          padding: EdgeInsets.only(left: spaceSM),
+                                                                          child: FaIcon(
+                                                                            remoteUrlLinkValue != null
+                                                                                ? FontAwesomeIcons.caretDown
+                                                                                : FontAwesomeIcons.solidCircleXmark,
+                                                                            color: remoteUrlLinkValue != null
+                                                                                ? colours.secondaryLight
+                                                                                : colours.primaryNegative,
+                                                                            size: textLG,
+                                                                          ),
+                                                                        ),
+                                                                        value: currentRemoteName != null && remotesList.contains(currentRemoteName)
+                                                                            ? currentRemoteName
+                                                                            : null,
+                                                                        isExpanded: true,
+                                                                        underline: const SizedBox.shrink(),
+                                                                        dropdownColor: colours.secondaryDark,
+                                                                        onChanged: (value) async {
+                                                                          if (value == "__add_remote__") {
+                                                                            await AddRemoteDialog.showDialog(context, (name, url) async {
+                                                                              await runGitOperation(LogType.AddRemote, (event) => event, {
+                                                                                "name": name,
+                                                                                "url": url,
+                                                                              });
+                                                                              await uiSettingsManager.setStringNullable(
+                                                                                StorageKey.setman_remote,
+                                                                                name,
+                                                                              );
+                                                                              await reloadAll();
+                                                                            });
+                                                                            return;
+                                                                          }
+                                                                          if (value != null) {
+                                                                            await uiSettingsManager.setStringNullable(
+                                                                              StorageKey.setman_remote,
+                                                                              value,
+                                                                            );
+                                                                            await reloadAll();
+                                                                          }
+                                                                        },
+                                                                        selectedItemBuilder: (context) => List.generate(
+                                                                          dropdownItems.length,
+                                                                          (index) => Row(
+                                                                            children: [
+                                                                              Expanded(
+                                                                                child: ExtendedText(
+                                                                                  demo
+                                                                                      ? "https://github.com/ViscousTests/TestObsidianVault.git"
+                                                                                      : (remoteUrlLinkValue == null
+                                                                                            ? t.repoNotFound
+                                                                                            : remoteUrlLinkValue.$1),
+                                                                                  maxLines: 1,
+                                                                                  textAlign: TextAlign.left,
+                                                                                  softWrap: false,
+                                                                                  overflowWidget: TextOverflowWidget(
+                                                                                    position: TextOverflowPosition.start,
+                                                                                    child: Text(
+                                                                                      "…",
+                                                                                      style: TextStyle(
+                                                                                        color: colours.tertiaryLight,
+                                                                                        fontSize: textMD,
+                                                                                        fontWeight: FontWeight.w400,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  style: TextStyle(
+                                                                                    color: remoteUrlLinkValue != null
+                                                                                        ? colours.primaryLight
+                                                                                        : colours.secondaryLight,
+                                                                                    fontSize: textMD,
+                                                                                    fontWeight: FontWeight.w400,
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        items: dropdownItems,
+                                                                      ),
+                                                                    ),
+                                                                    Positioned(
+                                                                      top: spaceXXXXS / 2,
+                                                                      left: spaceSM,
+                                                                      child: Text(
+                                                                        "${t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}".toUpperCase(),
+                                                                        style: TextStyle(
+                                                                          color: colours.tertiaryLight,
+                                                                          fontSize: textXXS,
+                                                                          fontWeight: FontWeight.w900,
+                                                                        ),
+                                                                      ),
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ),
-                                                            ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                  color: colours.secondaryDark,
+                                                                  borderRadius: BorderRadius.only(
+                                                                    topRight: cornerRadiusMD,
+                                                                    bottomRight: cornerRadiusMD,
+                                                                    topLeft: Radius.zero,
+                                                                    bottomLeft: Radius.zero,
+                                                                  ),
+                                                                ),
+                                                                child: PopupMenuButton<int>(
+                                                                  icon: Padding(
+                                                                    padding: EdgeInsets.symmetric(horizontal: spaceXS),
+                                                                    child: FaIcon(
+                                                                      FontAwesomeIcons.ellipsisVertical,
+                                                                      color: colours.secondaryLight,
+                                                                      size: textLG,
+                                                                    ),
+                                                                  ),
+                                                                  color: colours.secondaryDark,
+                                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                                                  onSelected: (index) async {
+                                                                    await actions[index].$2(context, remoteUrlLinkValue);
+                                                                    await reloadAll();
+                                                                  },
+                                                                  itemBuilder: (context) => List.generate(
+                                                                    actions.length,
+                                                                    (index) => PopupMenuItem(
+                                                                      value: index,
+                                                                      enabled: actions[index].$3,
+                                                                      child: Row(
+                                                                        children: [
+                                                                          actions[index].$1.$2,
+                                                                          SizedBox(width: spaceSM),
+                                                                          Text(
+                                                                            actions[index].$1.$1.toUpperCase(),
+                                                                            style: TextStyle(
+                                                                              fontSize: textXS,
+                                                                              color: actions[index].$3 ? colours.primaryLight : colours.tertiaryLight,
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ),
-                                                        Positioned(
-                                                          top: spaceXXXXS / 2,
-                                                          left: spaceSM,
-                                                          child: Text(
-                                                            t.remote.toUpperCase(),
-                                                            style: TextStyle(
-                                                              color: colours.tertiaryLight,
-                                                              fontSize: textXXS,
-                                                              fontWeight: FontWeight.w900,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                ),
                                               ),
                                             ),
                                             SizedBox(width: uiSettingsManager.gitDirPath?.$2 == null ? spaceSM : 0),

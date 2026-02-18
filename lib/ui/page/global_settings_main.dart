@@ -869,13 +869,6 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       title: t.authorEmailLabel,
                       hint: t.authorEmail,
                     ),
-                    SizedBox(height: spaceMD),
-                    ItemSetting(
-                      setFn: (value) => repoManager.setString(StorageKey.repoman_defaultRemote, value),
-                      getFn: () => repoManager.getString(StorageKey.repoman_defaultRemote),
-                      title: t.remoteLabel,
-                      hint: t.defaultRemote,
-                    ),
 
                     SizedBox(height: spaceLG + spaceMD),
 

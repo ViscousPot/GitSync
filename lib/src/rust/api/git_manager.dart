@@ -511,6 +511,48 @@ Future<void> setRemoteUrl({
   log: log,
 );
 
+Future<List<String>> listRemotes({
+  required String pathString,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerListRemotes(
+  pathString: pathString,
+  log: log,
+);
+
+Future<void> addRemote({
+  required String pathString,
+  required String remoteName,
+  required String remoteUrl,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerAddRemote(
+  pathString: pathString,
+  remoteName: remoteName,
+  remoteUrl: remoteUrl,
+  log: log,
+);
+
+Future<void> deleteRemote({
+  required String pathString,
+  required String remoteName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerDeleteRemote(
+  pathString: pathString,
+  remoteName: remoteName,
+  log: log,
+);
+
+Future<void> renameRemote({
+  required String pathString,
+  required String oldName,
+  required String newName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRenameRemote(
+  pathString: pathString,
+  oldName: oldName,
+  newName: newName,
+  log: log,
+);
+
 Future<void> checkoutBranch({
   required String pathString,
   required String remote,
@@ -689,4 +731,8 @@ enum LogType {
   hasGitFilters,
   downloadChanges,
   uploadChanges,
+  listRemotes,
+  addRemote,
+  deleteRemote,
+  renameRemote,
 }

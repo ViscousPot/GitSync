@@ -79,6 +79,10 @@ enum LogType {
   HasGitFilters,
   DownloadChanges,
   UploadChanges,
+  ListRemotes,
+  AddRemote,
+  DeleteRemote,
+  RenameRemote,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }

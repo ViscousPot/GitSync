@@ -665,6 +665,50 @@ class GitManager {
     });
   }
 
+  static Future<List<String>> listRemotes() async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, await _repoIndex, LogType.ListRemotes, (dirPath) async {
+          try {
+            return (await GitManagerRs.listRemotes(pathString: dirPath, log: _logWrapper));
+          } catch (e, stackTrace) {
+            Logger.logError(LogType.ListRemotes, e, stackTrace);
+          }
+          return null;
+        }) ??
+        <String>[];
+  }
+
+  static Future<void> addRemote(String name, String url) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AddRemote, (dirPath) async {
+      await GitManagerRs.addRemote(
+        pathString: dirPath,
+        remoteName: name,
+        remoteUrl: url,
+        log: _logWrapper,
+      );
+    });
+  }
+
+  static Future<void> deleteRemote(String name) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.DeleteRemote, (dirPath) async {
+      await GitManagerRs.deleteRemote(
+        pathString: dirPath,
+        remoteName: name,
+        log: _logWrapper,
+      );
+    });
+  }
+
+  static Future<void> renameRemote(String oldName, String newName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RenameRemote, (dirPath) async {
+      await GitManagerRs.renameRemote(
+        pathString: dirPath,
+        oldName: oldName,
+        newName: newName,
+        log: _logWrapper,
+      );
+    });
+  }
+
   static Future<void> checkoutBranch(String branchName) async {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CheckoutBranch, (dirPath) async {
       final settingsManager = uiSettingsManager;

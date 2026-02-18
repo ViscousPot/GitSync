@@ -408,13 +408,6 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                         ],
                       ),
                     ),
-                    SizedBox(height: spaceLG),
-                    ItemSetting(
-                      setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_remote, value),
-                      getFn: () => uiSettingsManager.getRemote(),
-                      title: t.remoteLabel,
-                      hint: t.defaultRemote,
-                    ),
                     if (orientation == Orientation.landscape) SizedBox(height: spaceLG),
                   ]),
 

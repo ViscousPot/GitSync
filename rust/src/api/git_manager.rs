@@ -92,6 +92,10 @@ pub enum LogType {
     HasGitFilters,
     DownloadChanges,
     UploadChanges,
+    ListRemotes,
+    AddRemote,
+    DeleteRemote,
+    RenameRemote,
 }
 
 trait WithLine {
@@ -3762,6 +3766,81 @@ pub async fn set_remote_url(
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
     repo.remote_set_url(&remote_name, &new_remote_url)?;
+
+    Ok(())
+}
+
+pub async fn list_remotes(
+    path_string: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Vec<String> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::ListRemotes,
+        "Listing remotes".to_string(),
+    );
+    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let remotes = repo.remotes().unwrap();
+    remotes
+        .iter()
+        .filter_map(|r| r.map(|s| s.to_string()))
+        .collect()
+}
+
+pub async fn add_remote(
+    path_string: &String,
+    remote_name: &String,
+    remote_url: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::AddRemote,
+        "Adding remote".to_string(),
+    );
+    let repo = Repository::open(Path::new(path_string)).unwrap();
+    repo.remote(&remote_name, &remote_url)?;
+
+    Ok(())
+}
+
+pub async fn delete_remote(
+    path_string: &String,
+    remote_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DeleteRemote,
+        "Deleting remote".to_string(),
+    );
+    let repo = Repository::open(Path::new(path_string)).unwrap();
+    repo.remote_delete(&remote_name)?;
+
+    Ok(())
+}
+
+pub async fn rename_remote(
+    path_string: &String,
+    old_name: &String,
+    new_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RenameRemote,
+        "Renaming remote".to_string(),
+    );
+    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let _problematic_refspecs = repo.remote_rename(&old_name, &new_name)?;
 
     Ok(())
 }

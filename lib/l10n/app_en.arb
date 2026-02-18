@@ -490,6 +490,14 @@
     "submodulesFoundAction": "Add Submodules",
 
 
+    "@@x-REMOTE_MANAGEMENT": "",
+    "addRemote": "Add Remote",
+    "deleteRemote": "Delete Remote",
+    "renameRemote": "Rename Remote",
+    "remoteName": "Remote Name",
+    "confirmDeleteRemote": "Are you sure you want to delete the remote \"%s\"?",
+
+
     "@@x-BRANCH_MANAGEMENT": "",
     "confirmBranchCheckoutTitle": "Checkout Branch?",
     "confirmBranchCheckoutMsgPart1": "Are you sure you want to checkout the branch ",

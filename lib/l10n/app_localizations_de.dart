@@ -1294,6 +1294,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submodulesFoundAction => 'Add Submodules';
 
   @override
+  String get addRemote => 'Add Remote';
+
+  @override
+  String get deleteRemote => 'Delete Remote';
+
+  @override
+  String get renameRemote => 'Rename Remote';
+
+  @override
+  String get remoteName => 'Remote Name';
+
+  @override
+  String get confirmDeleteRemote => 'Are you sure you want to delete the remote \"%s\"?';
+
+  @override
   String get confirmBranchCheckoutTitle => 'Branch auschecken?';
 
   @override

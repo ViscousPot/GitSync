@@ -2648,6 +2648,36 @@ abstract class AppLocalizations {
   /// **'Add Submodules'**
   String get submodulesFoundAction;
 
+  /// No description provided for @addRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Remote'**
+  String get addRemote;
+
+  /// No description provided for @deleteRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Remote'**
+  String get deleteRemote;
+
+  /// No description provided for @renameRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Remote'**
+  String get renameRemote;
+
+  /// No description provided for @remoteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Name'**
+  String get remoteName;
+
+  /// No description provided for @confirmDeleteRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the remote \"%s\"?'**
+  String get confirmDeleteRemote;
+
   /// No description provided for @confirmBranchCheckoutTitle.
   ///
   /// In en, this message translates to:
