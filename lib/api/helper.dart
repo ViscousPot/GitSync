@@ -502,12 +502,3 @@ extension ValueNotifierExtension on RestorableValue<bool> {
   }
 }
 
-Future<bool> checkPreviousCrash([bool service = false]) async {
-  final previousCrashFlag = await repoManager.getBool(service ? StorageKey.repoman_serviceCrashFlag : StorageKey.repoman_appCrashFlag);
-  await repoManager.setBool(service ? StorageKey.repoman_serviceCrashFlag : StorageKey.repoman_appCrashFlag, true);
-  return previousCrashFlag == true;
-}
-
-Future<void> clearCrashFlag([bool service = false]) async {
-  await repoManager.setBool(service ? StorageKey.repoman_serviceCrashFlag : StorageKey.repoman_appCrashFlag, false);
-}

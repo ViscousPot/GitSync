@@ -128,6 +128,23 @@ Future<bool> isLocked({required String queueDir, required int index}) => RustLib
     .api
     .crateApiGitManagerIsLocked(queueDir: queueDir, index: index);
 
+/// Clear stale queue files using flock-based liveness detection.
+///
+/// For each `flock_queue_{index}` file in the queues directory:
+/// 1. Try a non-blocking exclusive flock on the corresponding `flock_active_{index}`.
+/// 2. If the flock succeeds, no operation is actively running for that repo,
+///    so the queue file is safe to truncate.
+/// 3. If the flock fails (EWOULDBLOCK), an operation is in progress —
+///    leave the queue file alone.
+///
+/// The OS automatically releases flocks when a process dies, so crashed
+/// processes are correctly detected as "not running".
+Future<void> clearStaleLocks({required String queueDir, required bool force}) =>
+    RustLib.instance.api.crateApiGitManagerClearStaleLocks(
+      queueDir: queueDir,
+      force: force,
+    );
+
 Future<void> init({String? homepath}) =>
     RustLib.instance.api.crateApiGitManagerInit(homepath: homepath);
 

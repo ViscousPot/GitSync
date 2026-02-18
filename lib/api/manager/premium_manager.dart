@@ -67,7 +67,7 @@ class PremiumManager {
     hasPremiumNotifier.value = await _readPremiumStatus();
   }
 
-  Future<void> cullNonPremium() async {
+  Future<bool> cullNonPremium() async {
     final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
     if (repomanReponames.length > 1) {
       List.generate(repomanReponames.length - 1, (index) async {
@@ -76,7 +76,9 @@ class PremiumManager {
       });
       await repoManager.setInt(StorageKey.repoman_repoIndex, 0);
       await repoManager.setStringList(StorageKey.repoman_repoNames, [repomanReponames[0]]);
+      return true;
     }
+    return false;
   }
 
   void dispose() async {

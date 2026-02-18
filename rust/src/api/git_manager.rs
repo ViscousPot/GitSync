@@ -142,20 +142,6 @@ pub async fn string_int_list_run_with_lock(
     run_with_lock(queue_dir, index, priority, fn_name, function).await
 }
 
-// pub async fn string_map_stream_run_with_lock(
-//     sink: StreamSink<(String, HashMap<String, String>)>,
-//     queue_dir: &str,
-//     index: i32,
-//     priority: i32,
-//     function: impl Fn() -> DartFnFuture<Option<StreamSink<(String, HashMap<String, String>)>>>
-//         + Send
-//         + Sync
-//         + 'static,
-// ) -> Result<(), git2::Error> {
-//     Ok(())
-//     // run_with_lock(queue_dir, index, priority, function).await
-// }
-
 pub async fn string_pair_run_with_lock(
     queue_dir: &str,
     index: i32,
@@ -227,8 +213,8 @@ async fn run_with_lock<T: Default>(
     let identifier = format!(
         "{}:{}:{}",
         priority,
-        fn_name.to_string(),
-        Uuid::new_v4().to_string()
+        fn_name,
+        Uuid::new_v4()
     );
 
     let initial_file = fs::OpenOptions::new()
@@ -317,57 +303,111 @@ async fn run_with_lock<T: Default>(
         git2::Error::from_str(&format!("Failed to unlock queue file: {}", e))
     })?;
 
-    const QUEUE_TIMEOUT_SECS: u64 = 600;
-    let start_time = std::time::Instant::now();
+    const MAX_WAIT_SECS: u64 = 600;
+    const PROBE_INTERVAL_SECS: u64 = 30;
+    let overall_start = std::time::Instant::now();
+    let mut last_probe_time = std::time::Instant::now();
+    let active_lock_path = format!("{}/flock_active_{}", queues_dir, index);
 
-    loop {
-        if start_time.elapsed().as_secs() >= QUEUE_TIMEOUT_SECS {
-            let timeout_file = match fs::OpenOptions::new()
+    // _active_flock drops AFTER _guard (declared second) — preserving correct drop order.
+    // Drop order: _guard first (removes queue entry), then _active_flock (releases flock).
+    let _active_flock = loop {
+        let should_probe = last_probe_time.elapsed().as_secs() >= PROBE_INTERVAL_SECS;
+        let hard_timeout = overall_start.elapsed().as_secs() >= MAX_WAIT_SECS;
+
+        if should_probe || hard_timeout {
+            last_probe_time = std::time::Instant::now();
+
+            let probe_queue_file = match fs::OpenOptions::new()
                 .read(true)
                 .write(true)
                 .open(&queue_file_path)
             {
                 Ok(f) => f,
-                Err(_) => return Ok(T::default()),
+                Err(_) => {
+                    // Transient error — skip this probe cycle
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    continue;
+                }
             };
 
-            let mut timeout_flock = match Flock::lock(timeout_file, FlockArg::LockExclusive) {
+            let mut probe_queue_flock = match Flock::lock(probe_queue_file, FlockArg::LockExclusive) {
                 Ok(f) => f,
-                Err(_) => return Ok(T::default()),
+                Err(_) => {
+                    // Transient error — skip this probe cycle
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    continue;
+                }
             };
 
-            let mut queue_contents = String::new();
-            if timeout_flock.read_to_string(&mut queue_contents).is_err() {
-                let _ = timeout_flock.unlock();
-                return Ok(T::default());
+            // Probe the active lock file (non-blocking)
+            let probe_result = match fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .create(true)
+                .open(&active_lock_path)
+            {
+                Ok(f) => Some(Flock::lock(f, FlockArg::LockExclusiveNonblock)),
+                Err(_) => None,
+            };
+
+            match probe_result {
+                Some(Ok(probe_flock)) => {
+                    // Probe succeeded — no operation is actively running.
+                    // Only evict position 0 if it's not us (it's a dead entry).
+                    let _ = probe_flock.unlock();
+
+                    let mut queue_contents = String::new();
+                    let _ = probe_queue_flock.read_to_string(&mut queue_contents);
+                    let entries: Vec<&str> = queue_contents
+                        .split('\n')
+                        .filter(|e| !e.trim().is_empty())
+                        .collect();
+
+                    if entries.first().is_some_and(|e| *e != identifier) {
+                        let remaining: Vec<&str> = entries[1..].to_vec();
+                        let _ = probe_queue_flock.seek(SeekFrom::Start(0));
+                        let _ = probe_queue_flock.set_len(0);
+                        let _ = probe_queue_flock.write_all(remaining.join("\n").as_bytes());
+                    }
+
+                    let _ = probe_queue_flock.unlock();
+                    continue;
+                }
+                Some(Err(_)) | None => {
+                    // Active lock is held (or probe file inaccessible).
+                    if hard_timeout {
+                        // Self-evict and silently give up — next sync will retry
+                        let mut queue_contents = String::new();
+                        let _ = probe_queue_flock.read_to_string(&mut queue_contents);
+                        let queue_entries: Vec<_> = queue_contents
+                            .split('\n')
+                            .filter(|e| !e.trim().is_empty() && *e != identifier)
+                            .collect();
+                        let _ = probe_queue_flock.seek(SeekFrom::Start(0));
+                        let _ = probe_queue_flock.set_len(0);
+                        let _ = probe_queue_flock.write_all(queue_entries.join("\n").as_bytes());
+                        let _ = probe_queue_flock.unlock();
+
+                        return Ok(T::default());
+                    }
+                    let _ = probe_queue_flock.unlock();
+                }
             }
-
-            let queue_entries: Vec<_> = queue_contents
-                .split('\n')
-                .filter(|entry| {
-                    *entry != identifier && !entry.trim().is_empty()
-                })
-                .collect();
-
-            let _ = timeout_flock.seek(SeekFrom::Start(0));
-            let _ = timeout_flock.set_len(0);
-            let _ = timeout_flock.write_all(queue_entries.join("\n").as_bytes());
-            let _ = timeout_flock.unlock();
-
-            return Err(git2::Error::from_str(&format!(
-                "Timeout after {} seconds waiting for queue position",
-                QUEUE_TIMEOUT_SECS
-            )));
         }
 
         let read_file = match fs::OpenOptions::new().read(true).open(&queue_file_path) {
             Ok(f) => f,
-            Err(_) => return Ok(T::default()),
+            Err(e) => return Err(git2::Error::from_str(&format!(
+                "Failed to open queue file during poll: {}", e
+            ))),
         };
 
         let mut read_flock = match Flock::lock(read_file, FlockArg::LockExclusive) {
             Ok(read_flock) => read_flock,
-            Err(_) => return Ok(T::default()),
+            Err((_, e)) => return Err(git2::Error::from_str(&format!(
+                "Failed to lock queue file during poll: {}", e
+            ))),
         };
 
         let mut string = String::new();
@@ -380,13 +420,32 @@ async fn run_with_lock<T: Default>(
 
         if string.starts_with(&identifier) {
             let _ = read_flock.unlock();
-            break;
+
+            // Try non-blocking active lock — if previous op is still releasing,
+            // we'll catch it on the next 100ms poll.
+            let active_file = match fs::OpenOptions::new()
+                .read(true).write(true).create(true)
+                .open(&active_lock_path)
+            {
+                Ok(f) => f,
+                Err(_) => {
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    continue;
+                }
+            };
+            match Flock::lock(active_file, FlockArg::LockExclusiveNonblock) {
+                Ok(flock) => break flock,
+                Err(_) => {
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    continue;
+                }
+            }
         }
 
         let _ = read_flock.unlock();
 
         tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-    }
+    };
 
     struct QueueCleanupGuard {
         queue_file_path: String,
@@ -448,13 +507,17 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
     use std::io::Read;
     let queue_file_path = format!("{}/queues/flock_queue_{}", queue_dir, index);
 
-    let mut read_flock = match Flock::lock(
-        fs::OpenOptions::new()
-            .read(true)
-            .open(&queue_file_path)
-            .map_err(|e| git2::Error::from_str(&format!("Error opening queue file: {}", e)))?,
-        FlockArg::LockExclusive,
-    ) {
+    let file = match fs::OpenOptions::new().read(true).open(&queue_file_path) {
+        Ok(f) => f,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(e) => {
+            return Err(git2::Error::from_str(&format!(
+                "Error opening queue file: {}", e
+            )))
+        }
+    };
+
+    let mut read_flock = match Flock::lock(file, FlockArg::LockExclusive) {
         Ok(flock) => flock,
         Err((_file, err)) => {
             return Err(git2::Error::from_str(&format!(
@@ -483,6 +546,103 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
     }
 
     Ok(false)
+}
+
+/// Clear stale queue files using flock-based liveness detection.
+///
+/// For each `flock_queue_{index}` file in the queues directory:
+/// 1. Try a non-blocking exclusive flock on the corresponding `flock_active_{index}`.
+/// 2. If the flock succeeds, no operation is actively running for that repo,
+///    so the queue file is safe to truncate.
+/// 3. If the flock fails (EWOULDBLOCK), an operation is in progress —
+///    leave the queue file alone.
+///
+/// The OS automatically releases flocks when a process dies, so crashed
+/// processes are correctly detected as "not running".
+pub fn clear_stale_locks(queue_dir: &str, force: bool) -> Result<(), git2::Error> {
+    use nix::fcntl::{Flock, FlockArg};
+    use std::fs;
+    use std::io::{Seek, SeekFrom, Write};
+
+    let queues_dir = format!("{}/queues", queue_dir);
+    let dir = match fs::read_dir(&queues_dir) {
+        Ok(d) => d,
+        Err(_) => return Ok(()), // No queues directory yet — nothing to clear
+    };
+
+    for entry in dir {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+
+        let file_name = entry.file_name();
+        let name = file_name.to_string_lossy();
+
+        // Only process queue files, not active files
+        if !name.starts_with("flock_queue_") {
+            continue;
+        }
+
+        if force {
+            // Debug mode: skip flock probe, clear unconditionally.
+            // Hot restart keeps the native process alive so flocks from
+            // the previous Dart session are still held, making the probe
+            // return EWOULDBLOCK for zombie operations.
+            if let Ok(queue_file) = fs::OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(entry.path())
+            {
+                if let Ok(mut queue_flock) = Flock::lock(queue_file, FlockArg::LockExclusive) {
+                    let _ = queue_flock.seek(SeekFrom::Start(0));
+                    let _ = queue_flock.set_len(0);
+                    let _ = queue_flock.unlock();
+                }
+            }
+            continue;
+        }
+
+        let index_str = name.trim_start_matches("flock_queue_");
+        let active_file_path = format!("{}/flock_active_{}", queues_dir, index_str);
+
+        // Try non-blocking flock on the active file
+        let active_file = match fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&active_file_path)
+        {
+            Ok(f) => f,
+            Err(_) => continue,
+        };
+
+        match Flock::lock(active_file, FlockArg::LockExclusiveNonblock) {
+            Ok(active_flock) => {
+                // Flock succeeded — no active operation. Truncate the queue file.
+                if let Ok(queue_file) = fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(entry.path())
+                {
+                    if let Ok(mut queue_flock) = Flock::lock(queue_file, FlockArg::LockExclusive) {
+                        let _ = queue_flock.seek(SeekFrom::Start(0));
+                        let _ = queue_flock.set_len(0);
+                        let _ = queue_flock.write_all(b"");
+                        let _ = queue_flock.unlock();
+                    }
+                }
+                // Release the active flock probe
+                let _ = active_flock.unlock();
+            }
+            Err(_) => {
+                // Flock failed (EWOULDBLOCK) — active operation in progress.
+                // Leave the queue file alone.
+            }
+        }
+    }
+
+    Ok(())
 }
 
 pub fn init(homepath: Option<String>) {

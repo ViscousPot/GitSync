@@ -64,7 +64,6 @@ import '../ui/component/item_commit.dart';
 import '../ui/page/clone_repo_main.dart';
 import '../ui/page/settings_main.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'ui/dialog/confirm_crash_queue_clear.dart' as CrashQueueClearDialog;
 import 'ui/dialog/confirm_reinstall_clear_data.dart' as ConfirmReinstallClearDataDialog;
 import 'ui/dialog/set_remote_url.dart' as SetRemoteUrlDialog;
 import 'package:GitSync/l10n/app_localizations.dart';
@@ -98,6 +97,7 @@ Future<void> main() async {
       DartPluginRegistrant.ensureInitialized();
 
       await RustLib.init();
+      await GitManager.clearLocks();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
         await Logger.init();
@@ -170,8 +170,6 @@ void callbackDispatcher() async {
 
 @pragma('vm:entry-point')
 void onServiceStart(ServiceInstance service) async {
-  checkPreviousCrash(true);
-
   serviceInstance = service;
   await RustLib.init();
 
@@ -476,7 +474,6 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on("stop").listen((event) async {
-    clearCrashFlag(true);
     service.stopSelf();
   });
 
@@ -712,8 +709,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await colours.reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
-    await updateSyncOptions();
-    if (token != _reloadToken) return;
     final newConflicting = await runGitOperation<List<String>>(
       LogType.ConflictingFiles,
       (event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList(),
@@ -746,6 +741,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       LogType.RecentCommits,
       (event) => event?["result"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
     );
+    if (mounted) setState(() {});
     if (token != _reloadToken) return;
     recentCommits.value = newRecentCommits;
     loadingRecentCommits.value = false;
@@ -827,13 +823,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     initAsync(() async {
-      final crashed = await checkPreviousCrash();
-      if (crashed && !kDebugMode) {
-        CrashQueueClearDialog.showDialog(context);
-      }
-    });
-
-    initAsync(() async {
       final cachedAction = await GitManager.getInitialRecommendedAction();
       if (cachedAction != null && recommendedAction.value == null) {
         recommendedAction.value = cachedAction;
@@ -890,8 +879,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     premiumManager.hasPremiumNotifier.addListener(() async {
-      if (premiumManager.hasPremiumNotifier.value == false) {
-        await premiumManager.cullNonPremium();
+      if (premiumManager.hasPremiumNotifier.value == false && await premiumManager.cullNonPremium()) {
         await reloadAll();
       }
     });
@@ -1296,8 +1284,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     WidgetsBinding.instance.removeObserver(this);
     recentCommitsController.removeListener(_onCommitsScroll);
 
-    clearCrashFlag();
-
     loadingRecentCommits.dispose();
     branchName.dispose();
     branchNames.dispose();
@@ -1318,6 +1304,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
+      await GitManager.clearLocks();
       await reloadAll();
     }
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {

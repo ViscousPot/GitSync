@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
@@ -7,6 +6,7 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,7 +39,7 @@ class _SyncLoaderState extends State<SyncLoader> {
 
     initAsync(() async {
       try {
-        locked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+        locked = await GitManager.isLocked(waitForUnlock: false);
       } catch (e) {
         locked = false;
       }
@@ -49,7 +49,7 @@ class _SyncLoaderState extends State<SyncLoader> {
         final newErroring = (await repoManager.getStringNullable(StorageKey.repoman_erroring))?.isNotEmpty == true;
         bool newLocked = false;
         try {
-          newLocked = await GitManager.isLocked(waitForUnlock: false, ui: true);
+          newLocked = await GitManager.isLocked(waitForUnlock: false);
         } catch (e) {}
 
         if (newErroring != erroring) {
@@ -102,15 +102,14 @@ class _SyncLoaderState extends State<SyncLoader> {
     return GestureDetector(
       onLongPress: () async {
         try {
-          Directory('${(await getApplicationSupportDirectory()).path}/queues').deleteSync(recursive: true);
+          await GitManagerRs.clearStaleLocks(
+            queueDir: (await getApplicationSupportDirectory()).path,
+            force: true,
+          );
         } catch (e) {}
-        try {
-          Directory('${(await getApplicationSupportDirectory()).path}/queues').createSync(recursive: true);
-        } catch (e) {}
-        print("////// deleted");
-
         gitSyncService.isScheduled = false;
         gitSyncService.isSyncing = false;
+        locked = false;
         setState(() {});
       },
       onTap: () async {
