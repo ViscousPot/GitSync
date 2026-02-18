@@ -125,7 +125,6 @@ class Logger {
       final error = await repoManager.getStringNullable(StorageKey.repoman_erroring);
       if (error == null) return;
 
-      await repoManager.setStringNullable(StorageKey.repoman_erroring, null);
       try {
         await notificationsPlugin.cancel(_errorNotificationId);
       } catch (e) {}
@@ -139,7 +138,8 @@ class Logger {
       }
       if (context == null) return;
 
-      await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context, From.ERROR_DIALOG));
+      await ErrorOccurredDialog.showDialog(context, error, () => Logger.reportIssue(context, From.ERROR_DIALOG, errorMessage: error));
+      await repoManager.setStringNullable(StorageKey.repoman_erroring, null);
     });
   }
 
@@ -156,7 +156,7 @@ class Logger {
     await notificationsPlugin.show(_errorNotificationId, reportBug, contentText ?? reportABug, notificationDetails);
   }
 
-  static Future<void> reportIssue(BuildContext context, From from) async {
+  static Future<void> reportIssue(BuildContext context, From from, {String? errorMessage}) async {
     String? reportIssueToken = await repoManager.getStringNullable(StorageKey.repoman_reportIssueToken);
     if (reportIssueToken == "" || reportIssueToken == null) {
       SettingsManager tempSettingsManager = SettingsManager();
@@ -179,7 +179,14 @@ class Logger {
 
     if (reportIssueToken == "" || reportIssueToken == null) return;
 
-    await GithubIssueReportDialog.showDialog(context, (title, description, minimalRepro, includeLogFiles) async {
+    String? initialTitle;
+    if (errorMessage != null) {
+      final errorMatch = RegExp(r'Error: (.+)').firstMatch(errorMessage);
+      final extracted = errorMatch != null ? errorMatch.group(1)! : errorMessage.split('\n').first;
+      initialTitle = 'Error: `$extracted`';
+    }
+
+    await GithubIssueReportDialog.showDialog(context, initialTitle: initialTitle, (title, description, minimalRepro, includeLogFiles) async {
       final logs = !includeLogFiles
           ? ""
           : utf8.decode(utf8.encode((await _generateLogs()).split("\n").reversed.join("\n")).take(62 * 1024).toList(), allowMalformed: true);

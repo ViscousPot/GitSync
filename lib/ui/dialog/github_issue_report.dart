@@ -7,8 +7,8 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-Future<void> showDialog(BuildContext context, Future<void> Function(String, String, String, bool) report) {
-  final titleController = TextEditingController();
+Future<void> showDialog(BuildContext context, Future<void> Function(String, String, String, bool) report, {String? initialTitle}) {
+  final titleController = TextEditingController(text: initialTitle);
   final descriptionController = TextEditingController();
   final minimalReproController = TextEditingController();
   bool includeLogFiles = true;

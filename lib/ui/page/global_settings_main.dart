@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
@@ -608,6 +609,20 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         await Logger.reportIssue(context, From.GLOBAL_SETTINGS);
                       },
                     ),
+                    if (kDebugMode) ...[
+                      SizedBox(height: spaceSM),
+                      ButtonSetting(
+                        text: 'FAKE ERROR',
+                        icon: FontAwesomeIcons.explosion,
+                        textColor: colours.primaryDark,
+                        iconColor: colours.primaryDark,
+                        buttonColor: colours.tertiaryWarning,
+                        onPressed: () async {
+                          Logger.logError(LogType.Sync, 'uncommitted changes exist in index (at line 1291)', StackTrace.current);
+                          await Logger.dismissError(context);
+                        },
+                      ),
+                    ],
                     SizedBox(height: spaceMD),
                     ButtonSetting(
                       text: t.shareLogs,
