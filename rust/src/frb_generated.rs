@@ -1050,6 +1050,7 @@ fn wire__crate__api__git_manager__get_recent_commits_impl(
             let api_remote_name = <String>::sse_decode(&mut deserializer);
             let api_cached_diff_stats =
                 <std::collections::HashMap<String, (i32, i32)>>::sse_decode(&mut deserializer);
+            let api_skip = <usize>::sse_decode(&mut deserializer);
             let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
                 <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
             );
@@ -1061,6 +1062,7 @@ fn wire__crate__api__git_manager__get_recent_commits_impl(
                             &api_path_string,
                             &api_remote_name,
                             api_cached_diff_stats,
+                            api_skip,
                             api_log,
                         )
                         .await?;

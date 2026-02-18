@@ -1259,6 +1259,7 @@ pub async fn get_recent_commits(
     path_string: &String,
     remote_name: &str,
     cached_diff_stats: HashMap<String, (i32, i32)>,
+    skip: usize,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<Vec<Commit>, git2::Error> {
     let log_callback = Arc::new(log);
@@ -1329,7 +1330,7 @@ pub async fn get_recent_commits(
 
     let mut commits: Vec<Commit> = Vec::new();
 
-    for oid_result in revwalk.take(50) {
+    for oid_result in revwalk.skip(skip).take(50) {
         let oid = match oid_result {
             Ok(id) => id,
             Err(_) => continue,

@@ -512,7 +512,7 @@ class GitManager {
     };
     final result = await _runWithLock(priority: priority, GitManagerRs.commitListRunWithLock, repoIndex, LogType.RecentCommits, (dirPath) async {
       try {
-        return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), cachedDiffStats: cachedDiffStats, log: _logWrapper);
+        return await GitManagerRs.getRecentCommits(pathString: dirPath, remoteName: await _remote(), cachedDiffStats: cachedDiffStats, skip: BigInt.zero, log: _logWrapper);
       } catch (e, stackTrace) {
         if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
           await File('$dirPath/$gitIndexPath').delete();
@@ -530,6 +530,35 @@ class GitManager {
         StorageKey.setman_recentCommits,
         result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
       );
+    return result ?? <GitManagerRs.Commit>[];
+  }
+
+  static Future<List<GitManagerRs.Commit>> getMoreRecentCommits(int skip, [priority = 1]) async {
+    final repoIndex = await _repoIndex;
+    final cachedCommits = await getInitialRecentCommits();
+    final cachedDiffStats = <String, (int, int)>{
+      for (final c in cachedCommits) c.reference: (c.additions, c.deletions),
+    };
+    final result = await _runWithLock(
+      priority: priority,
+      GitManagerRs.commitListRunWithLock,
+      repoIndex,
+      LogType.RecentCommits,
+      (dirPath) async {
+        try {
+          return await GitManagerRs.getRecentCommits(
+            pathString: dirPath,
+            remoteName: await _remote(),
+            cachedDiffStats: cachedDiffStats,
+            skip: BigInt.from(skip),
+            log: _logWrapper,
+          );
+        } catch (e, stackTrace) {
+          Logger.logError(LogType.RecentCommits, e, stackTrace);
+          return <GitManagerRs.Commit>[];
+        }
+      },
+    );
     return result ?? <GitManagerRs.Commit>[];
   }
 

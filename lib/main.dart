@@ -604,7 +604,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     onIndexChanged: (index, userScroll) {
       mergeConflictVisible.value = index == 0;
     },
-  );
+  )..addListener(_onCommitsScroll);
 
   late final _restorableGlobalSettings = RestorableRouteFuture<String?>(
     onPresent: (navigator, arguments) {
@@ -674,6 +674,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   late final _autoSyncOptionsKey = GlobalKey();
 
   RestorableBool loadingRecentCommits = RestorableBool(false);
+  bool _hasMoreCommits = true;
   ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
   ValueNotifier<List<String>> conflicting = ValueNotifier([]);
   RestorableStringN branchName = RestorableStringN(null);
@@ -684,6 +685,27 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   RestorableBool mergeConflictVisible = RestorableBool(true);
 
   int _reloadToken = 0;
+
+  void _onCommitsScroll() {
+    if (!_hasMoreCommits) return;
+    if (loadingRecentCommits.value) return;
+    final pos = recentCommitsController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 50) {
+      _loadMoreCommits();
+    }
+  }
+
+  Future<void> _loadMoreCommits() async {
+    loadingRecentCommits.value = true;
+    final currentCount = recentCommits.value.length;
+    final moreCommits = await GitManager.getMoreRecentCommits(currentCount);
+    if (moreCommits.isEmpty) {
+      _hasMoreCommits = false;
+    } else {
+      recentCommits.value = [...recentCommits.value, ...moreCommits];
+    }
+    loadingRecentCommits.value = false;
+  }
 
   Future<void> reloadAll() async {
     final token = ++_reloadToken;
@@ -719,6 +741,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await updateRecommendedAction();
     if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
+    _hasMoreCommits = true;
     final newRecentCommits = await runGitOperation<List<GitManagerRs.Commit>>(
       LogType.RecentCommits,
       (event) => event?["result"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
@@ -1271,6 +1294,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    recentCommitsController.removeListener(_onCommitsScroll);
 
     clearCrashFlag();
 
