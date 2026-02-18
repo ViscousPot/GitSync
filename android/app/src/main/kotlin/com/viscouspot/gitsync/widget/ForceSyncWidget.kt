@@ -33,6 +33,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -86,11 +87,11 @@ class ForceSyncWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = GlanceModifier.padding(end = if (showSyncText) 16.dp else 0.dp),
+                modifier = GlanceModifier.size(48.dp).padding(end = if (showSyncText) 16.dp else 0.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    provider = ImageProvider(R.drawable.sync_now_small),
+                    provider = ImageProvider(R.drawable.sync_now),
                     contentDescription = "Force Sync",
                     colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
                     contentScale = ContentScale.Fit
