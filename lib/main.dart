@@ -2402,7 +2402,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     ),
                                                                     icon: FaIcon(
                                                                       FontAwesomeIcons.ellipsis,
-                                                                      color: colours.primaryLight,
+                                                                      color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                          ? colours.secondaryLight
+                                                                          : colours.primaryLight,
                                                                       size: textLG,
                                                                       semanticLabel: t.moreSyncOptionsLabel,
                                                                     ),
