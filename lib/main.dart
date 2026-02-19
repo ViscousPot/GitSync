@@ -925,7 +925,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         await repoManager.setInt(StorageKey.repoman_repoIndex, shortcutSyncIndex);
         await uiSettingsManager.reinit();
         await reloadAll();
-        await ManualSyncDialog.showDialog(context);
+        await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
         return;
       }
     });
@@ -988,7 +988,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await repoManager.setInt(StorageKey.repoman_repoIndex, widgetManualSyncIndex);
     await uiSettingsManager.reinit();
     await reloadAll();
-    await ManualSyncDialog.showDialog(context);
+    await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
   }
 
   Future<void> updateRecommendedAction({int? override, bool useOverride = false}) async {
@@ -1167,7 +1167,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         t.manualSync: (
           FontAwesomeIcons.barsStaggered,
           () async {
-            await ManualSyncDialog.showDialog(context);
+            await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
             await syncOptionCompletionCallback();
           },
         ),
@@ -1233,7 +1233,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         t.stageAndCommit: (
           FontAwesomeIcons.barsStaggered,
           () async {
-            final committed = await ManualSyncDialog.showDialog(context);
+            final committed = await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
             if (committed && recommendedAction.value == 2) {
               await updateRecommendedAction(override: 3, useOverride: true);
             }

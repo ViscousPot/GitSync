@@ -16,10 +16,13 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/ui/dialog/confirm_discard_changes.dart' as ConfirmDiscardChangesDialog;
 
-Future<bool> showDialog(BuildContext context) async {
+Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
   final syncMessageController = TextEditingController();
   final selectedFiles = <String>[];
   final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
+  final bool resolvedHasRemotes =
+      hasRemotes ??
+      (await runGitOperation<List<String>>(LogType.ListRemotes, (event) => event?["result"].map<String>((r) => "$r").toList()))?.isNotEmpty == true;
 
   if (demo) {
     selectedFiles.add("storage/external/example/file_changed.md");
@@ -564,12 +567,19 @@ Future<bool> showDialog(BuildContext context) async {
                                         uploading = true;
                                         if (context.mounted) setState(() {});
 
-                                        await runGitOperation(LogType.UploadChanges, (event) => event, {
-                                          "repomanRepoindex": await repoManager.getInt(StorageKey.repoman_repoIndex),
-                                          "filePaths": selectedFiles,
-                                          "syncMessage": syncMessageController.text.isEmpty ? null : syncMessageController.text,
-                                        });
-                                        FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {});
+                                        if (resolvedHasRemotes) {
+                                          await runGitOperation(LogType.UploadChanges, (event) => event, {
+                                            "repomanRepoindex": await repoManager.getInt(StorageKey.repoman_repoIndex),
+                                            "filePaths": selectedFiles,
+                                            "syncMessage": syncMessageController.text.isEmpty ? null : syncMessageController.text,
+                                          });
+                                          FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {});
+                                        } else {
+                                          await runGitOperation(LogType.Stage, (event) => event, {"paths": selectedFiles});
+                                          await runGitOperation(LogType.Commit, (event) => event, {
+                                            "syncMessage": syncMessageController.text.isEmpty ? null : syncMessageController.text,
+                                          });
+                                        }
 
                                         selectedFiles.clear();
                                         uploading = false;
