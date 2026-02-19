@@ -2964,11 +2964,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             Visibility(
                                               visible: uiSettingsManager.gitDirPath?.$2 == null,
                                               child: TextButton.icon(
-                                                onPressed: isAuthenticatedSnapshot.data == true
-                                                    ? () async {
-                                                        await showCloneRepoPage();
-                                                      }
-                                                    : null,
+                                                onPressed: () async {
+                                                  await showCloneRepoPage();
+                                                },
                                                 style: ButtonStyle(
                                                   backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                                                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
@@ -2976,11 +2974,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                     RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                                   ),
                                                 ),
-                                                icon: FaIcon(
-                                                  FontAwesomeIcons.cloudArrowDown,
-                                                  color: isAuthenticatedSnapshot.data == true ? colours.primaryLight : colours.tertiaryLight,
-                                                  size: textLG - 2,
-                                                ),
+                                                icon: FaIcon(FontAwesomeIcons.cloudArrowDown, color: colours.primaryLight, size: textLG - 2),
                                                 iconAlignment: IconAlignment.start,
                                                 label: Padding(
                                                   padding: EdgeInsets.only(left: spaceXS),
@@ -3190,24 +3184,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             ),
                                             SizedBox(width: spaceSM),
                                             IconButton(
-                                              onPressed: isAuthenticatedSnapshot.data == true
-                                                  ? () async {
-                                                      String? selectedDirectory;
-                                                      if (await requestStoragePerm()) {
-                                                        selectedDirectory = await pickDirectory();
-                                                      }
-                                                      if (selectedDirectory == null) return;
+                                              onPressed: () async {
+                                                String? selectedDirectory;
+                                                if (await requestStoragePerm()) {
+                                                  selectedDirectory = await pickDirectory();
+                                                }
+                                                if (selectedDirectory == null) return;
 
-                                                      if (!mounted) return;
-                                                      final isRepo = await validateOrInitGitDir(context, selectedDirectory);
-                                                      if (!isRepo) return;
+                                                if (!mounted) return;
+                                                final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                                                if (!isRepo) return;
 
-                                                      if (!mounted) return;
-                                                      await setGitDirPathGetSubmodules(context, selectedDirectory);
-                                                      await repoManager.setOnboardingStep(4);
-                                                      await reloadAll();
-                                                    }
-                                                  : null,
+                                                if (!mounted) return;
+                                                await setGitDirPathGetSubmodules(context, selectedDirectory);
+                                                await repoManager.setOnboardingStep(4);
+                                                await reloadAll();
+                                              },
                                               style: ButtonStyle(
                                                 backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                                                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
@@ -3225,7 +3217,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               ),
                                               icon: FaIcon(
                                                 FontAwesomeIcons.solidFolderOpen,
-                                                color: isAuthenticatedSnapshot.data == true ? colours.primaryLight : colours.tertiaryLight,
+                                                color: colours.primaryLight,
                                                 size: textLG - 2,
                                                 semanticLabel: t.selectDirLabel,
                                               ),
