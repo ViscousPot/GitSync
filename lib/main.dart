@@ -2790,7 +2790,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           ),
                                                                           onTap: () {
                                                                             if (demo) {
-                                                                              ManualSyncDialog.showDialog(context).then((_) => reloadAll());
+                                                                              ManualSyncDialog.showDialog(
+                                                                                context,
+                                                                                hasRemotes: remotes.value.isNotEmpty,
+                                                                              ).then((_) => reloadAll());
                                                                               return;
                                                                             }
                                                                           },
