@@ -182,6 +182,24 @@ abstract class AppLocalizations {
   /// **'Rename'**
   String get rename;
 
+  /// No description provided for @renameDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename the selected file or folder'**
+  String get renameDescription;
+
+  /// No description provided for @selectAllDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all visible files and folders'**
+  String get selectAllDescription;
+
+  /// No description provided for @deselectAllDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all selected files and folders'**
+  String get deselectAllDescription;
+
   /// No description provided for @add.
   ///
   /// In en, this message translates to:

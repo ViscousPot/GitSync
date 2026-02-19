@@ -48,6 +48,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get rename => '重命名';
 
   @override
+  String get renameDescription => 'Rename the selected file or folder';
+
+  @override
+  String get selectAllDescription => 'Select all visible files and folders';
+
+  @override
+  String get deselectAllDescription => 'Deselect all selected files and folders';
+
+  @override
   String get add => '添加';
 
   @override

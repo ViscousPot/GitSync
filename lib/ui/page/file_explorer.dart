@@ -38,6 +38,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   final ValueNotifier<bool> pastingNotifier = ValueNotifier(false);
   final ValueNotifier<bool> loadingMoreNotifier = ValueNotifier(false);
   final ValueNotifier<bool?> copyingMovingNotifier = ValueNotifier(null);
+  final ValueNotifier<List<String>> entityPathsNotifier = ValueNotifier([]);
 
   late final moreOptionsDropdownKey = GlobalKey();
 
@@ -47,6 +48,9 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
     loadingScreen: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
     builder: (context, snapshot) {
       final List<FileSystemEntity> entities = snapshot;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        entityPathsNotifier.value = entities.map((e) => e.path).toList();
+      });
 
       return ValueListenableBuilder(
         valueListenable: selectedPathsNotifier,
@@ -161,17 +165,50 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
     },
   );
   List<((String, String), Function(List<String>))> get singleSelectOptions => [
+    (
+      (t.rename, t.renameDescription),
+      (List<String> _) async {
+        final oldPath = selectedPathsNotifier.value[0];
+        final entity = FileSystemEntity.typeSync(oldPath);
+        if (entity == FileSystemEntityType.notFound) {
+          throw Exception('Path does not exist.');
+        }
+
+        RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (
+          fileName,
+        ) async {
+          final dir = p.dirname(oldPath);
+          final newPath = p.join(dir, fileName);
+
+          try {
+            if (entity == FileSystemEntityType.directory) {
+              await Directory(oldPath).rename(newPath);
+            } else {
+              await File(oldPath).rename(newPath);
+            }
+          } catch (e) {
+            Fluttertoast.showToast(
+              msg: "Failed to rename file/directory: $e",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: null,
+            );
+          }
+          selectedPathsNotifier.value = [];
+          reload();
+        });
+      },
+    ),
     if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
       (
         (t.openFile, t.openFileDescription),
         (List<String> selectedPaths) async {
           loadingMoreNotifier.value = true;
-          print("${selectedPathsNotifier.value[0]}");
+          final path = selectedPathsNotifier.value[0];
+          selectedPathsNotifier.value = [];
           initAsync(() async {
-            viewOrEditFile(context, selectedPathsNotifier.value[0]);
+            viewOrEditFile(context, path);
           });
           loadingMoreNotifier.value = false;
-          selectedPathsNotifier.value = [];
         },
       ),
     (
@@ -191,6 +228,25 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
       },
     ),
   ];
+
+  ((String, String), Function(List<String>)) get selectAllOption {
+    final allSelected = selectedPathsNotifier.value.length >= entityPathsNotifier.value.length &&
+        entityPathsNotifier.value.isNotEmpty &&
+        entityPathsNotifier.value.every((p) => selectedPathsNotifier.value.contains(p));
+    return allSelected
+        ? (
+            (t.deselectAll, t.deselectAllDescription),
+            (List<String> _) {
+              selectedPathsNotifier.value = [];
+            },
+          )
+        : (
+            (t.selectAll, t.selectAllDescription),
+            (List<String> _) {
+              selectedPathsNotifier.value = List.from(entityPathsNotifier.value);
+            },
+          );
+  }
 
   List<((String, String), void Function(List<String>))> get ignoreAndUntrackOptions => [
     (
@@ -415,7 +471,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                       padding: EdgeInsets.zero,
                                       alignment: Alignment.bottomCenter,
                                       onChanged: (value) {},
-                                      items: [if (selectedPaths.length == 1) ...singleSelectOptions, "ignoreAndUntrack", ...ignoreAndUntrackOptions]
+                                      items: [selectAllOption, if (selectedPaths.length == 1) ...singleSelectOptions, "ignoreAndUntrack", ...ignoreAndUntrackOptions]
                                           .map((option) {
                                             if (option is String) {
                                               switch (option) {
@@ -451,8 +507,10 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                             }
                                             if (option is ((String, String), dynamic Function(List<String>))) {
                                               return DropdownMenuItem(
-                                                onTap: () async {
-                                                  option.$2(selectedPaths.map((path) => path.replaceFirst("${widget.path}/", "")).toList());
+                                                onTap: () {
+                                                  Future.delayed(Duration.zero, () {
+                                                    option.$2(selectedPaths.map((path) => path.replaceFirst("${widget.path}/", "")).toList());
+                                                  });
                                                 },
                                                 value: option.$1.$1,
                                                 child: Padding(
@@ -501,46 +559,6 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                 ],
                               ),
                               SizedBox(width: spaceXXS),
-                              if (selectedPaths.length <= 1) ...[
-                                IconButton(
-                                  onPressed: () async {
-                                    final oldPath = selectedPaths[0];
-                                    final entity = FileSystemEntity.typeSync(oldPath);
-                                    if (entity == FileSystemEntityType.notFound) {
-                                      throw Exception('Path does not exist.');
-                                    }
-
-                                    RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (
-                                      fileName,
-                                    ) async {
-                                      final dir = p.dirname(oldPath);
-                                      final newPath = p.join(dir, fileName);
-
-                                      try {
-                                        if (entity == FileSystemEntityType.directory) {
-                                          await Directory(oldPath).rename(newPath);
-                                        } else {
-                                          await File(oldPath).rename(newPath);
-                                        }
-                                      } catch (e) {
-                                        Fluttertoast.showToast(
-                                          msg: "Failed to rename file/directory: $e",
-                                          toastLength: Toast.LENGTH_LONG,
-                                          gravity: null,
-                                        );
-                                      }
-                                      selectedPathsNotifier.value = [];
-                                      reload();
-                                    });
-                                  },
-                                  style: ButtonStyle(
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                                  ),
-                                  icon: FaIcon(FontAwesomeIcons.pen, color: colours.tertiaryInfo, size: textLG),
-                                ),
-                                SizedBox(width: spaceXXS),
-                              ],
                               IconButton(
                                 onPressed: () async {
                                   ConfirmDeleteFileFolderDialog.showDialog(context, selectedPaths, () async {
