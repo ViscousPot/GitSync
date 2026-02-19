@@ -28,202 +28,197 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
             style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
-        contentBuilder: (expanded) =>
-            (expanded
-            ? (List<Widget> children) => Column(children: children)
-            : (List<Widget> children) => SingleChildScrollView(child: ListBody(children: children)))([
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                    child: Text(
-                      t.issueReportTitleTitle.toUpperCase(),
-                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+        contentBuilder: (expanded) => Column(
+              children: [
+                (expanded ? (Widget child) => Expanded(child: child) : (Widget child) => Flexible(child: child))(
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportTitleTitle.toUpperCase(),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportTitleDesc,
+                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(height: spaceSM),
+                            TextField(
+                              contextMenuBuilder: globalContextMenuBuilder,
+                              controller: titleController,
+                              maxLines: 1,
+                              minLines: 1,
+                              style: TextStyle(
+                                color: colours.primaryLight,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.none,
+                                decorationThickness: 0,
+                                fontSize: textMD,
+                              ),
+                              decoration: InputDecoration(
+                                fillColor: colours.tertiaryDark,
+                                filled: true,
+                                border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
+                                isCollapsed: true,
+                                floatingLabelBehavior: FloatingLabelBehavior.always,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                errorText: titleController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                                errorStyle: TextStyle(color: colours.tertiaryNegative),
+                                isDense: true,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: spaceMD),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportDescTitle.toUpperCase(),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportDescDesc,
+                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(height: spaceSM),
+                            TextField(
+                              contextMenuBuilder: globalContextMenuBuilder,
+                              controller: descriptionController,
+                              maxLines: null,
+                              minLines: 3,
+                              style: TextStyle(
+                                color: colours.primaryLight,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.none,
+                                decorationThickness: 0,
+                                fontSize: textMD,
+                              ),
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                errorText: descriptionController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                                errorStyle: TextStyle(color: colours.tertiaryNegative),
+                                isCollapsed: true,
+                                fillColor: colours.tertiaryDark,
+                                filled: true,
+                                isDense: true,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: spaceMD),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportMinimalReproTitle.toUpperCase(),
+                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                              child: Text(
+                                t.issueReportMinimalReproDesc,
+                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(height: spaceSM),
+                            TextField(
+                              contextMenuBuilder: globalContextMenuBuilder,
+                              controller: minimalReproController,
+                              maxLines: null,
+                              minLines: 3,
+                              style: TextStyle(
+                                color: colours.primaryLight,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.none,
+                                decorationThickness: 0,
+                                fontSize: textMD,
+                              ),
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                isCollapsed: true,
+                                errorText: minimalReproController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                                errorStyle: TextStyle(color: colours.tertiaryNegative),
+                                fillColor: colours.tertiaryDark,
+                                filled: true,
+                                isDense: true,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                    child: Text(
-                      t.issueReportTitleDesc,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: spaceSM),
-                  TextField(
-                    contextMenuBuilder: globalContextMenuBuilder,
-                    controller: titleController,
-                    maxLines: 1,
-                    minLines: 1,
-                    style: TextStyle(
-                      color: colours.primaryLight,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                      decorationThickness: 0,
-                      fontSize: textMD,
-                    ),
-                    decoration: InputDecoration(
-                      fillColor: colours.tertiaryDark,
-                      filled: true,
-                      border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
-                      isCollapsed: true,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                      errorText: titleController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                      errorStyle: TextStyle(color: colours.tertiaryNegative),
-                      isDense: true,
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ],
-              ),
-              SizedBox(height: spaceMD),
-              (expanded ? (child) => Expanded(child: child) : (child) => child)(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
+                ),
+                SizedBox(height: spaceMD),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      child: Text(
-                        t.issueReportDescTitle.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                      ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      constraints: BoxConstraints(),
+                      onPressed: () async {
+                        openLogViewer(context);
+                      },
+                      icon: FaIcon(FontAwesomeIcons.eye, color: colours.tertiaryInfo, size: textSM),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      child: Text(
-                        t.issueReportDescDesc,
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    SizedBox(width: spaceXS),
+                    TextButton.icon(
+                      onPressed: () async {
+                        includeLogFiles = !includeLogFiles;
+                        if (includeLogFiles == false) {
+                          await InfoDialog.showDialog(context, t.includeLogFiles, t.includeLogFilesDescription);
+                        }
+                        setState(() {});
+                      },
+                      style: ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                       ),
-                    ),
-                    SizedBox(height: spaceSM),
-                    (expanded ? (child) => Flexible(child: child) : (child) => child)(
-                      TextField(
-                        contextMenuBuilder: globalContextMenuBuilder,
-                        controller: descriptionController,
-                        maxLines: null,
-                        minLines: expanded ? 10 : 3,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.none,
-                          decorationThickness: 0,
-                          fontSize: textMD,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                          border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                          errorText: descriptionController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                          errorStyle: TextStyle(color: colours.tertiaryNegative),
-                          isCollapsed: true,
-                          fillColor: colours.tertiaryDark,
-                          filled: true,
-                          isDense: true,
-                        ),
-                        onChanged: (_) => setState(() {}),
+                      icon: FaIcon(
+                        includeLogFiles ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                        color: colours.primaryPositive,
+                        size: textSM,
+                      ),
+                      label: Text(
+                        t.includeLogs,
+                        textAlign: TextAlign.end,
+                        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: spaceMD),
-              (expanded ? (child) => Expanded(child: child) : (child) => child)(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      child: Text(
-                        t.issueReportMinimalReproTitle.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      child: Text(
-                        t.issueReportMinimalReproDesc,
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: spaceSM),
-                    (expanded ? (child) => Flexible(child: child) : (child) => child)(
-                      TextField(
-                        contextMenuBuilder: globalContextMenuBuilder,
-                        controller: minimalReproController,
-                        maxLines: null,
-                        minLines: expanded ? 10 : 3,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.none,
-                          decorationThickness: 0,
-                          fontSize: textMD,
-                        ),
-
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                          border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                          isCollapsed: true,
-                          errorText: minimalReproController.text.isEmpty ? t.fieldCannotBeEmpty : null,
-                          errorStyle: TextStyle(color: colours.tertiaryNegative),
-                          fillColor: colours.tertiaryDark,
-                          filled: true,
-                          isDense: true,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: spaceMD),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    constraints: BoxConstraints(),
-                    onPressed: () async {
-                      openLogViewer(context);
-                    },
-                    icon: FaIcon(FontAwesomeIcons.eye, color: colours.tertiaryInfo, size: textSM),
-                  ),
-                  SizedBox(width: spaceXS),
-                  TextButton.icon(
-                    onPressed: () async {
-                      includeLogFiles = !includeLogFiles;
-                      if (includeLogFiles == false) {
-                        await InfoDialog.showDialog(context, t.includeLogFiles, t.includeLogFilesDescription);
-                      }
-                      setState(() {});
-                    },
-                    style: ButtonStyle(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
-                    ),
-                    icon: FaIcon(
-                      includeLogFiles ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                      color: colours.primaryPositive,
-                      size: textSM,
-                    ),
-                    label: Text(
-                      t.includeLogs,
-                      textAlign: TextAlign.end,
-                      style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
-                    ),
-                  ),
-                ],
-              ),
-            ]),
+              ],
+            ),
         actions: <Widget>[
           TextButton(
             child: Text(
