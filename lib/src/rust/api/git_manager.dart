@@ -519,6 +519,14 @@ Future<List<String>> listRemotes({
   log: log,
 );
 
+Future<void> initRepository({
+  required String pathString,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerInitRepository(
+  pathString: pathString,
+  log: log,
+);
+
 Future<void> addRemote({
   required String pathString,
   required String remoteName,
@@ -735,4 +743,5 @@ enum LogType {
   addRemote,
   deleteRemote,
   renameRemote,
+  initRepo,
 }

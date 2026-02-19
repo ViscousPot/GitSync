@@ -31,6 +31,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constant/dimens.dart';
+import '../ui/dialog/create_repository.dart' as CreateRepositoryDialog;
 import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
 import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;
 import 'package:http/http.dart' as http;
@@ -245,6 +246,24 @@ Future<bool> waitFor(Future<bool> Function() fn, {int maxWaitSeconds = 30}) asyn
 String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, String? refreshToken) => refreshToken == null
     ? accessToken
     : "$accessToken$conflictSeparator${expirationDate == null ? "" : "${expirationDate.millisecondsSinceEpoch}$conflictSeparator"}$refreshToken";
+
+Future<bool> validateOrInitGitDir(BuildContext context, String dir) async {
+  final isGit = await useDirectory(dir, (_) async {}, (path) async {
+    return GitManager.isGitDir(path);
+  });
+  if (isGit == true) return true;
+
+  bool confirmed = false;
+  await CreateRepositoryDialog.showDialog(context, () {
+    confirmed = true;
+  });
+  if (!confirmed) return false;
+
+  final success = await useDirectory(dir, (_) async {}, (path) async {
+    return await GitManager.initRepository(path);
+  });
+  return success == true;
+}
 
 Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
   await uiSettingsManager.setGitDirPath(dir);

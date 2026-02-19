@@ -665,8 +665,8 @@ class GitManager {
     });
   }
 
-  static Future<List<String>> listRemotes() async {
-    return await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, await _repoIndex, LogType.ListRemotes, (dirPath) async {
+  static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
+    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ListRemotes, (dirPath) async {
           try {
             return (await GitManagerRs.listRemotes(pathString: dirPath, log: _logWrapper));
           } catch (e, stackTrace) {
@@ -693,6 +693,16 @@ class GitManager {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RenameRemote, (dirPath) async {
       await GitManagerRs.renameRemote(pathString: dirPath, oldName: oldName, newName: newName, log: _logWrapper);
     });
+  }
+
+  static Future<bool> initRepository(String dirPath) async {
+    try {
+      await GitManagerRs.initRepository(pathString: dirPath, log: _logWrapper);
+      return true;
+    } catch (e, st) {
+      Logger.logError(LogType.InitRepo, e, st);
+      return false;
+    }
   }
 
   static Future<void> checkoutBranch(String branchName) async {

@@ -96,6 +96,7 @@ pub enum LogType {
     AddRemote,
     DeleteRemote,
     RenameRemote,
+    InitRepo,
 }
 
 trait WithLine {
@@ -3787,6 +3788,21 @@ pub async fn list_remotes(
         .iter()
         .filter_map(|r| r.map(|s| s.to_string()))
         .collect()
+}
+
+pub async fn init_repository(
+    path_string: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::InitRepo,
+        "Initialising repository".to_string(),
+    );
+    Repository::init(Path::new(path_string))?;
+    Ok(())
 }
 
 pub async fn add_remote(

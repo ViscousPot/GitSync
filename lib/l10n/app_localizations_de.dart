@@ -1456,4 +1456,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get trackIssue => 'Problem verfolgen';
+
+  @override
+  String get createNewRepository => 'Create New Repository';
+
+  @override
+  String get noGitRepoFoundMsg => 'No git repository was found in the selected folder. Would you like to create a new one here?';
+
+  @override
+  String get remoteSetupLaterMsg => 'You can set up a remote later to sync with a server.';
+
+  @override
+  String get localOnlyNoRemote => 'Local only — add a remote to sync';
+
+  @override
+  String get noRemoteConfigured => 'No remote configured';
 }

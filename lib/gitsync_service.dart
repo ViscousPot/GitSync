@@ -158,6 +158,13 @@ class GitsyncService {
 
       final provider = await settingsManager.getGitProvider();
 
+      final remotesList = await GitManager.listRemotes(repomanRepoindex, 3);
+      if (remotesList.isEmpty) {
+        Logger.gmLog(type: LogType.Sync, "No remote configured, skipping sync");
+        isScheduled = false;
+        return;
+      }
+
       if (provider == GitProvider.SSH
           ? (await settingsManager.getGitSshAuthCredentials()).$2.isEmpty
           : (await settingsManager.getGitHttpAuthCredentials()).$2.isEmpty) {

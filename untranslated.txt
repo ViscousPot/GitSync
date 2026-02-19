@@ -252,7 +252,12 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ],
 
   "es": [
@@ -508,7 +513,12 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ],
 
   "fr": [
@@ -696,7 +706,12 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ],
 
   "ru": [
@@ -952,7 +967,12 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ],
 
   "zh": [
@@ -1159,7 +1179,12 @@
     "gitObsidianFoundAction",
     "includeLogs",
     "includeLogFiles",
-    "includeLogFilesDescription"
+    "includeLogFilesDescription",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ],
 
   "zh_Hant": [
@@ -1638,6 +1663,11 @@
     "report",
     "issueReportSuccessTitle",
     "issueReportSuccessMsg",
-    "trackIssue"
+    "trackIssue",
+    "createNewRepository",
+    "noGitRepoFoundMsg",
+    "remoteSetupLaterMsg",
+    "localOnlyNoRemote",
+    "noRemoteConfigured"
   ]
 }

@@ -83,6 +83,7 @@ enum LogType {
   AddRemote,
   DeleteRemote,
   RenameRemote,
+  InitRepo,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }

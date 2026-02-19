@@ -500,6 +500,10 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                                       if (selectedDirectory == null) return;
 
                                       if (!mounted) return;
+                                      final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                                      if (!isRepo) return;
+
+                                      if (!mounted) return;
                                       await setGitDirPathGetSubmodules(context, selectedDirectory);
                                       await repoManager.setOnboardingStep(4);
                                       setState(() {});

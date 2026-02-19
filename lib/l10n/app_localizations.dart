@@ -2959,6 +2959,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track Issue & Respond to Messages'**
   String get trackIssue;
+
+  /// No description provided for @createNewRepository.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Repository'**
+  String get createNewRepository;
+
+  /// No description provided for @noGitRepoFoundMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'No git repository was found in the selected folder. Would you like to create a new one here?'**
+  String get noGitRepoFoundMsg;
+
+  /// No description provided for @remoteSetupLaterMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You can set up a remote later to sync with a server.'**
+  String get remoteSetupLaterMsg;
+
+  /// No description provided for @localOnlyNoRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Local only — add a remote to sync'**
+  String get localOnlyNoRemote;
+
+  /// No description provided for @noRemoteConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'No remote configured'**
+  String get noRemoteConfigured;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
