@@ -2226,15 +2226,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 SizedBox.expand(
                                                                   child: TextButton.icon(
                                                                     key: syncMethodMainButtonKey,
-                                                                    onPressed: () async {
-                                                                      if (lastSyncMethodSnapshot.data == null) return;
+                                                                    onPressed: uiSettingsManager.gitDirPath?.$2 == null
+                                                                        ? null
+                                                                        : () async {
+                                                                            if (lastSyncMethodSnapshot.data == null) return;
 
-                                                                      if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true) {
-                                                                        syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
-                                                                      } else {
-                                                                        await syncOptionsSnapshot.values.first.$2();
-                                                                      }
-                                                                    },
+                                                                            if (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) ==
+                                                                                true) {
+                                                                              syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                            } else {
+                                                                              await syncOptionsSnapshot.values.first.$2();
+                                                                            }
+                                                                          },
                                                                     style: ButtonStyle(
                                                                       alignment: Alignment.centerLeft,
                                                                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
@@ -2283,12 +2286,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           width: textLG,
                                                                           child: Center(
                                                                             child: FaIcon(
-                                                                              syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
-                                                                                  (syncOptionsSnapshot.values.isNotEmpty
-                                                                                      ? syncOptionsSnapshot.values.first.$1
-                                                                                      : null) ??
-                                                                                  FontAwesomeIcons.solidCircleDown,
-                                                                              color: colours.primaryLight,
+                                                                              uiSettingsManager.gitDirPath?.$2 == null
+                                                                                  ? FontAwesomeIcons.solidCircleDown
+                                                                                  : syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
+                                                                                        (syncOptionsSnapshot.values.isNotEmpty
+                                                                                            ? syncOptionsSnapshot.values.first.$1
+                                                                                            : null) ??
+                                                                                        FontAwesomeIcons.solidCircleDown,
+                                                                              color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                                  ? colours.secondaryLight
+                                                                                  : colours.primaryLight,
                                                                               size: textLG,
                                                                             ),
                                                                           ),
@@ -2298,20 +2305,27 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     label: Padding(
                                                                       padding: EdgeInsets.only(left: spaceXS),
                                                                       child: Text(
-                                                                        ((syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                                    ? lastSyncMethodSnapshot.data
-                                                                                    : (syncOptionsSnapshot.keys.isNotEmpty
-                                                                                          ? syncOptionsSnapshot.keys.first
-                                                                                          : (clientModeEnabledSnapshot.data == true
-                                                                                                ? t.syncAllChanges
-                                                                                                : t.syncNow))) ??
-                                                                                t.syncNow)
+                                                                        (uiSettingsManager.gitDirPath?.$2 == null
+                                                                                ? (clientModeEnabledSnapshot.data == true
+                                                                                      ? t.syncAllChanges
+                                                                                      : t.syncNow)
+                                                                                : ((syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) ==
+                                                                                              true
+                                                                                          ? lastSyncMethodSnapshot.data
+                                                                                          : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                                ? syncOptionsSnapshot.keys.first
+                                                                                                : (clientModeEnabledSnapshot.data == true
+                                                                                                      ? t.syncAllChanges
+                                                                                                      : t.syncNow))) ??
+                                                                                      t.syncNow))
                                                                             .toUpperCase(),
                                                                         style: TextStyle(
-                                                                          color:
-                                                                              clientModeEnabledSnapshot.data == true && recommendedActionValue != null
-                                                                              ? colours.tertiaryInfo
-                                                                              : colours.primaryLight,
+                                                                          color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                              ? colours.secondaryLight
+                                                                              : (clientModeEnabledSnapshot.data == true &&
+                                                                                        recommendedActionValue != null
+                                                                                    ? colours.tertiaryInfo
+                                                                                    : colours.primaryLight),
                                                                           fontSize: textMD,
                                                                           fontWeight: FontWeight.bold,
                                                                         ),
@@ -2324,39 +2338,41 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                   top: 0,
                                                                   bottom: 0,
                                                                   child: IconButton(
-                                                                    onPressed: () async {
-                                                                      if (demo) {
-                                                                        demoConflicting = true;
-                                                                        await reloadAll();
-                                                                        MergeConflictDialog.showDialog(context, ["Readme.md"])
-                                                                            .then((_) async {
-                                                                              demoConflicting = false;
+                                                                    onPressed: uiSettingsManager.gitDirPath?.$2 == null
+                                                                        ? null
+                                                                        : () async {
+                                                                            if (demo) {
+                                                                              demoConflicting = true;
                                                                               await reloadAll();
-                                                                            })
-                                                                            .then((_) => reloadAll());
+                                                                              MergeConflictDialog.showDialog(context, ["Readme.md"])
+                                                                                  .then((_) async {
+                                                                                    demoConflicting = false;
+                                                                                    await reloadAll();
+                                                                                  })
+                                                                                  .then((_) => reloadAll());
 
-                                                                        return;
-                                                                      }
+                                                                              return;
+                                                                            }
 
-                                                                      GestureDetector? detector;
+                                                                            GestureDetector? detector;
 
-                                                                      void searchForGestureDetector(BuildContext? element) {
-                                                                        element?.visitChildElements((element) {
-                                                                          if (element.widget is GestureDetector) {
-                                                                            detector = element.widget as GestureDetector;
-                                                                            return;
-                                                                          } else {
-                                                                            searchForGestureDetector(element);
-                                                                          }
+                                                                            void searchForGestureDetector(BuildContext? element) {
+                                                                              element?.visitChildElements((element) {
+                                                                                if (element.widget is GestureDetector) {
+                                                                                  detector = element.widget as GestureDetector;
+                                                                                  return;
+                                                                                } else {
+                                                                                  searchForGestureDetector(element);
+                                                                                }
 
-                                                                          return;
-                                                                        });
-                                                                      }
+                                                                                return;
+                                                                              });
+                                                                            }
 
-                                                                      searchForGestureDetector(syncMethodsDropdownKey.currentContext);
+                                                                            searchForGestureDetector(syncMethodsDropdownKey.currentContext);
 
-                                                                      if (detector?.onTap != null) detector?.onTap!();
-                                                                    },
+                                                                            if (detector?.onTap != null) detector?.onTap!();
+                                                                          },
                                                                     style: ButtonStyle(
                                                                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                                                                       padding: WidgetStatePropertyAll(
