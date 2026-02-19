@@ -2746,7 +2746,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                     maxLines: 1,
                                                                                     overflow: TextOverflow.ellipsis,
                                                                                     style: TextStyle(
-                                                                                      color: colours.secondaryLight,
+                                                                                      color: colours.primaryLight,
                                                                                       fontSize: textMD,
                                                                                       fontWeight: FontWeight.w400,
                                                                                     ),
@@ -2757,7 +2757,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                 padding: EdgeInsets.only(left: spaceSM, right: spaceMD),
                                                                                 child: FaIcon(
                                                                                   FontAwesomeIcons.plus,
-                                                                                  color: colours.secondaryLight,
+                                                                                  color: colours.primaryLight,
                                                                                   size: textLG,
                                                                                 ),
                                                                               ),
