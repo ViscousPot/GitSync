@@ -1777,14 +1777,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                               future: GitManager.getInitialRecentCommits(),
                               builder: (context, fastRecentCommitsSnapshot) => ValueListenableBuilder(
                                 valueListenable: conflicting,
-                                builder: (context, conflictingSnapshot, child) => ListenableBuilder(
+                                builder: (context, conflictingSnapshot, child) => FutureBuilder(
+                              future: uiSettingsManager.getStringList(StorageKey.setman_conflicting),
+                              builder: (context, fastConflictingSnapshot) => ListenableBuilder(
                                   listenable: loadingRecentCommits,
                                   builder: (context, child) {
                                     final recentCommits = loadingRecentCommits.value || recentCommitsSnapshot.isEmpty
                                         ? fastRecentCommitsSnapshot.data ?? recentCommitsSnapshot
                                         : recentCommitsSnapshot;
+                                    final conflictingValue = conflictingSnapshot.isEmpty
+                                        ? fastConflictingSnapshot.data ?? conflictingSnapshot
+                                        : conflictingSnapshot;
                                     final items = [
-                                      ...((conflictingSnapshot.isEmpty)
+                                      ...((conflictingValue.isEmpty)
                                           ? <GitManagerRs.Commit>[]
                                           : [
                                               GitManagerRs.Commit(
@@ -1801,7 +1806,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             ]),
                                       ...recentCommits,
                                     ];
-                                    if (conflictingSnapshot.isEmpty) mergeConflictVisible.value = true;
+                                    if (conflictingValue.isEmpty) mergeConflictVisible.value = true;
 
                                     if (demoConflicting) {
                                       while (items.length < 3) {
@@ -1882,7 +1887,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     (fastRecentCommitsSnapshot.connectionState == ConnectionState.waiting ||
                                                                         loadingRecentCommits.value)
                                                                 ? Center(child: CircularProgressIndicator(color: colours.tertiaryLight))
-                                                                : (recentCommits.isEmpty && conflictingSnapshot.isEmpty
+                                                                : (recentCommits.isEmpty && conflictingValue.isEmpty
                                                                       ? Center(
                                                                           child: Text(
                                                                             t.commitsNotFound.toUpperCase(),
@@ -1914,7 +1919,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                           controller: recentCommitsController,
                                                                                           child: ItemMergeConflict(
                                                                                             key: Key(reference),
-                                                                                            conflictingSnapshot,
+                                                                                            conflictingValue,
                                                                                             () => reloadAll(),
                                                                                           ),
                                                                                         );
@@ -1936,7 +1941,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                     listenable: mergeConflictVisible,
                                                                                     builder: (context, child) => AnimatedPositioned(
                                                                                       bottom:
-                                                                                          conflictingSnapshot.isEmpty || mergeConflictVisible.value
+                                                                                          conflictingValue.isEmpty || mergeConflictVisible.value
                                                                                           ? -spaceXL
                                                                                           : spaceMD,
                                                                                       left: 0,
@@ -1947,7 +1952,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                         child: AnimatedOpacity(
                                                                                           duration: Duration(milliseconds: 200),
                                                                                           opacity:
-                                                                                              conflictingSnapshot.isEmpty ||
+                                                                                              conflictingValue.isEmpty ||
                                                                                                   mergeConflictVisible.value
                                                                                               ? 0
                                                                                               : 1,
@@ -2088,7 +2093,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                 style: TextStyle(
                                                                                   fontSize: textMD,
                                                                                   fontWeight: FontWeight.bold,
-                                                                                  color: !(conflictingSnapshot.isEmpty)
+                                                                                  color: !(conflictingValue.isEmpty)
                                                                                       ? colours.tertiaryLight
                                                                                       : colours.primaryLight,
                                                                                 ),
@@ -2098,7 +2103,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                         ),
                                                                       ),
                                                                       underline: const SizedBox.shrink(),
-                                                                      onChanged: !(conflictingSnapshot.isEmpty)
+                                                                      onChanged: !(conflictingValue.isEmpty)
                                                                           ? null
                                                                           : <String>(value) async {
                                                                               if (value == branchNameValue) return;
@@ -2553,6 +2558,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                     );
                                   },
                                 ),
+                              ),
                               ),
                             ),
                           ),
