@@ -2373,6 +2373,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                                                             if (detector?.onTap != null) detector?.onTap!();
                                                                           },
+
                                                                     style: ButtonStyle(
                                                                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
                                                                       padding: WidgetStatePropertyAll(

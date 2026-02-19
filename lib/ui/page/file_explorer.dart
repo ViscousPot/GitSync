@@ -675,7 +675,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
                                 ),
-                                icon: FaIcon(FontAwesomeIcons.folderPlus, color: colours.primaryLight, size: textLG),
+                                icon: FaIcon(FontAwesomeIcons.folderPlus, color: colours.primaryLight, size: textLG, semanticLabel: "create folder"),
                               ),
                               SizedBox(width: spaceXXS),
                               IconButton(
@@ -693,7 +693,12 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
                                 ),
-                                icon: FaIcon(FontAwesomeIcons.fileCirclePlus, color: colours.primaryLight, size: textLG),
+                                icon: FaIcon(
+                                  FontAwesomeIcons.fileCirclePlus,
+                                  color: colours.primaryLight,
+                                  size: textLG,
+                                  semanticLabel: "create file",
+                                ),
                               ),
                               SizedBox(width: spaceMD),
                             ],
