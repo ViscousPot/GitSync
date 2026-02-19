@@ -137,9 +137,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                   future: entities[index].stat(),
                                   builder: (context, snapshot) => Text(
                                     snapshot.hasData
-                                        ? (entities[index] is File
-                                              ? formatBytes(snapshot.data!.size)
-                                              : "${snapshot.data!.modified}".substring(0, 10))
+                                        ? (entities[index] is File ? formatBytes(snapshot.data!.size) : "${snapshot.data!.modified}".substring(0, 10))
                                         : "",
                                     style: TextStyle(
                                       color: (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight),
@@ -261,7 +259,9 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   }
 
   void reload() {
-    controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
+    final normalised = controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '');
+    controller.setCurrentPath = normalised;
+    controller.setCurrentPath = "$normalised/";
   }
 
   @override
@@ -530,7 +530,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                         );
                                       }
                                       selectedPathsNotifier.value = [];
-                                      controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
+                                      reload();
                                     });
                                   },
                                   style: ButtonStyle(
@@ -635,7 +635,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                           }
 
                                           heldPathsNotifier.value = [];
-                                          controller.setCurrentPath = "${destinationPath.replaceFirst(RegExp(r'/$'), '')}/";
+                                          reload();
                                         },
                                   style: ButtonStyle(
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -686,7 +686,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                     } catch (e) {
                                       Fluttertoast.showToast(msg: "Failed to create file: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
                                     }
-                                    controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/";
+                                    reload();
                                   });
                                 },
                                 style: ButtonStyle(
