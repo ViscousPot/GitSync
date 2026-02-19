@@ -679,33 +679,19 @@ class GitManager {
 
   static Future<void> addRemote(String name, String url) async {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AddRemote, (dirPath) async {
-      await GitManagerRs.addRemote(
-        pathString: dirPath,
-        remoteName: name,
-        remoteUrl: url,
-        log: _logWrapper,
-      );
+      await GitManagerRs.addRemote(pathString: dirPath, remoteName: name, remoteUrl: url, log: _logWrapper);
     });
   }
 
   static Future<void> deleteRemote(String name) async {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.DeleteRemote, (dirPath) async {
-      await GitManagerRs.deleteRemote(
-        pathString: dirPath,
-        remoteName: name,
-        log: _logWrapper,
-      );
+      await GitManagerRs.deleteRemote(pathString: dirPath, remoteName: name, log: _logWrapper);
     });
   }
 
   static Future<void> renameRemote(String oldName, String newName) async {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RenameRemote, (dirPath) async {
-      await GitManagerRs.renameRemote(
-        pathString: dirPath,
-        oldName: oldName,
-        newName: newName,
-        log: _logWrapper,
-      );
+      await GitManagerRs.renameRemote(pathString: dirPath, oldName: oldName, newName: newName, log: _logWrapper);
     });
   }
 
