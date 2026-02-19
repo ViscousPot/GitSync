@@ -1050,8 +1050,9 @@ class GitManager {
       credentials: await _getCredentials(settingsManager),
       commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
       syncCallback: syncCallback,
-      mergeConflictCallback: () {
-        repoManager.setInt(StorageKey.repoman_repoIndex, repomanRepoindex);
+      mergeConflictCallback: () async {
+        await repoManager.setInt(StorageKey.repoman_repoIndex, repomanRepoindex);
+        await getConflicting(null, 3);
         sendMergeConflictNotification();
       },
       filePaths: filePaths,
