@@ -2344,12 +2344,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                             if (demo) {
                                                                               demoConflicting = true;
                                                                               await reloadAll();
-                                                                              MergeConflictDialog.showDialog(context, ["Readme.md"])
-                                                                                  .then((_) async {
-                                                                                    demoConflicting = false;
-                                                                                    await reloadAll();
-                                                                                  })
-                                                                                  .then((_) => reloadAll());
+                                                                              MergeConflictDialog.showDialog(context, ["Readme.md"]).then((_) async {
+                                                                                demoConflicting = false;
+                                                                                await reloadAll();
+                                                                              });
 
                                                                               return;
                                                                             }
