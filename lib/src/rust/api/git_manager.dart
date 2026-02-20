@@ -53,6 +53,20 @@ Future<List<(String, int)>?> stringIntListRunWithLock({
   function: function,
 );
 
+Future<List<(String, ConflictType)>?> stringConflicttypeListRunWithLock({
+  required String queueDir,
+  required int index,
+  required int priority,
+  required String fnName,
+  required FutureOr<List<(String, ConflictType)>?> Function() function,
+}) => RustLib.instance.api.crateApiGitManagerStringConflicttypeListRunWithLock(
+  queueDir: queueDir,
+  index: index,
+  priority: priority,
+  fnName: fnName,
+  function: function,
+);
+
 Future<(String, String)?> stringPairRunWithLock({
   required String queueDir,
   required int index,
@@ -439,7 +453,7 @@ Future<void> discardChanges({
   log: log,
 );
 
-Future<List<String>> getConflicting({
+Future<List<(String, ConflictType)>> getConflicting({
   required String pathString,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerGetConflicting(
@@ -659,6 +673,8 @@ class Commit {
           unpulled == other.unpulled &&
           unpushed == other.unpushed;
 }
+
+enum ConflictType { text }
 
 class Diff {
   final int insertions;

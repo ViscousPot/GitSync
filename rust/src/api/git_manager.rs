@@ -37,6 +37,10 @@ pub struct Diff {
     pub diff_parts: HashMap<String, HashMap<String, String>>,
 }
 
+pub enum ConflictType {
+    Text,
+}
+
 // Also add to lib/api/logger.dart:21
 pub enum LogType {
     TEST,
@@ -144,6 +148,16 @@ pub async fn string_int_list_run_with_lock(
     fn_name: &str,
     function: impl Fn() -> DartFnFuture<Option<Vec<(String, i32)>>> + Send + Sync + 'static,
 ) -> Result<Option<Vec<(String, i32)>>, git2::Error> {
+    run_with_lock(queue_dir, index, priority, fn_name, function).await
+}
+
+pub async fn string_conflicttype_list_run_with_lock(
+    queue_dir: &str,
+    index: i32,
+    priority: i32,
+    fn_name: &str,
+    function: impl Fn() -> DartFnFuture<Option<Vec<(String, ConflictType)>>> + Send + Sync + 'static,
+) -> Result<Option<Vec<(String, ConflictType)>>, git2::Error> {
     run_with_lock(queue_dir, index, priority, fn_name, function).await
 }
 
@@ -3351,7 +3365,7 @@ pub async fn discard_changes(
 pub async fn get_conflicting(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<String> {
+) -> Vec<(String, ConflictType)> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -3370,10 +3384,10 @@ pub async fn get_conflicting(
     index.conflicts().unwrap().for_each(|conflict| {
         if let Ok(conflict) = conflict {
             if let Some(ours) = conflict.our {
-                conflicts.push(String::from_utf8_lossy(&ours.path).to_string());
+                conflicts.push((String::from_utf8_lossy(&ours.path).to_string(), ConflictType::Text));
             }
             if let Some(theirs) = conflict.their {
-                conflicts.push(String::from_utf8_lossy(&theirs.path).to_string());
+                conflicts.push((String::from_utf8_lossy(&theirs.path).to_string(), ConflictType::Text));
             }
         }
     });

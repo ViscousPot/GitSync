@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import '../../../constant/dimens.dart';
 import '../dialog/merge_conflict.dart' as MergeConflictDialog;
 import 'package:GitSync/global.dart';
@@ -7,7 +8,7 @@ class ItemMergeConflict extends StatefulWidget {
   const ItemMergeConflict(this.conflictingPaths, this.conflictCallback, {super.key});
 
   final Function() conflictCallback;
-  final List<String> conflictingPaths;
+  final List<(String, GitManagerRs.ConflictType)> conflictingPaths;
 
   @override
   State<ItemMergeConflict> createState() => _ItemMergeConflict();

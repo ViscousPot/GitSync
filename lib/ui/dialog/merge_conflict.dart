@@ -18,6 +18,7 @@ import 'package:GitSync/gitsync_service.dart';
 import 'package:mmap2/mmap2.dart';
 import 'package:mmap2_flutter/mmap2_flutter.dart';
 import 'package:open_file/open_file.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import '../../../constant/dimens.dart';
 import '../../../global.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
@@ -54,13 +55,13 @@ $conflictEnd 77976da35a11db4580b80ae27e8d65caf5208086:gear-update.txt
   (18, "- Notebook & pen"),
 ];
 
-Future<void> showDialog(BuildContext parentContext, List<String> originalConflictingPaths) async {
+Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.ConflictType)> originalConflictingPaths) async {
   bool initialised = false;
   bool isMerging = false;
   bool isAborting = false;
   int currentIndex = 0;
   late final GlobalKey dialogKey = GlobalKey();
-  List<String> conflictingPaths = [...originalConflictingPaths];
+  List<(String, GitManagerRs.ConflictType)> conflictingPaths = [...originalConflictingPaths];
 
   try {
     await Logger.notificationsPlugin.cancel(mergeConflictNotificationId);
@@ -116,7 +117,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
       if (bookmarkPath.isEmpty) return;
 
       await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
-        final filePath = "$path/${conflictingPaths[conflictIndex]}";
+        final filePath = "$path/${conflictingPaths[conflictIndex].$1}";
         closeMmap();
         mapFile(filePath);
 
@@ -171,7 +172,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
     if (bookmarkPath.isEmpty) return;
 
     await useDirectory(bookmarkPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (path) async {
-      final filePath = "$path/${conflictingPaths[conflictIndex]}";
+      final filePath = "$path/${conflictingPaths[conflictIndex].$1}";
       final text = conflictSections.map((section) => section.$2).join('\n');
       final newBytes = Uint8List.fromList(utf8.encode(text));
 
@@ -282,7 +283,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                               Expanded(
                                 child: TextButton.icon(
                                   onPressed: () async =>
-                                      OpenFile.open("${await uiSettingsManager.gitDirPath?.$2}/${conflictingPaths[conflictIndex]}"),
+                                      OpenFile.open("${await uiSettingsManager.gitDirPath?.$2}/${conflictingPaths[conflictIndex].$1}"),
                                   style: ButtonStyle(
                                     alignment: Alignment.centerLeft,
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -292,7 +293,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                                   ),
                                   icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryLight, size: textMD),
                                   label: Text(
-                                    conflictingPaths.isEmpty ? "-" : conflictingPaths[conflictIndex].split("/").last.toUpperCase(),
+                                    conflictingPaths.isEmpty ? "-" : conflictingPaths[conflictIndex].$1.split("/").last.toUpperCase(),
                                     maxLines: 1,
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
@@ -701,7 +702,7 @@ Future<void> showDialog(BuildContext parentContext, List<String> originalConflic
                             closeMmap();
                             FlutterBackgroundService().invoke(GitsyncService.MERGE, {
                               COMMIT_MESSAGE: commitMessageController.text.isEmpty ? syncMessage : commitMessageController.text,
-                              CONFLICTING_PATHS: originalConflictingPaths.join(conflictSeparator),
+                              CONFLICTING_PATHS: originalConflictingPaths.map((e) => e.$1).join(conflictSeparator),
                             });
                             setState(() {});
                           }
