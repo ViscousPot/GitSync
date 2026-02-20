@@ -2283,6 +2283,76 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                       ),
                                                     ),
                                                   ),
+
+                                                  AnimatedSize(
+                                                    duration: Duration(milliseconds: 200),
+                                                    child: FutureBuilder(
+                                                      future: uiSettingsManager.getGitProvider(),
+                                                      builder: (context, providerSnapshot) {
+                                                        final provider = providerSnapshot.data;
+                                                        if (provider == null || provider == GitProvider.HTTPS || provider == GitProvider.SSH) {
+                                                          return SizedBox(width: double.infinity, height: 0);
+                                                        }
+                                                        return Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: TextButton.icon(
+                                                                onPressed: () {},
+                                                                icon: FaIcon(
+                                                                  FontAwesomeIcons.solidCircleDot,
+                                                                  color: colours.showcaseFeatureIcon,
+                                                                  size: textMD,
+                                                                ),
+                                                                label: Text(
+                                                                  'ISSUES',
+                                                                  style: TextStyle(
+                                                                    color: colours.showcaseFeatureIcon,
+                                                                    fontSize: textSM,
+                                                                    fontWeight: FontWeight.bold,
+                                                                  ),
+                                                                ),
+                                                                style: TextButton.styleFrom(
+                                                                  backgroundColor: colours.showcaseBg,
+                                                                  padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                    side: BorderSide(color: colours.showcaseBorder, width: spaceXXXXS),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            SizedBox(width: spaceXS),
+                                                            Expanded(
+                                                              child: TextButton.icon(
+                                                                onPressed: () {},
+                                                                icon: FaIcon(
+                                                                  FontAwesomeIcons.codePullRequest,
+                                                                  color: colours.showcaseFeatureIcon,
+                                                                  size: textMD,
+                                                                ),
+                                                                label: Text(
+                                                                  'PULL REQUESTS',
+                                                                  style: TextStyle(
+                                                                    color: colours.showcaseFeatureIcon,
+                                                                    fontSize: textSM,
+                                                                    fontWeight: FontWeight.bold,
+                                                                  ),
+                                                                ),
+                                                                style: TextButton.styleFrom(
+                                                                  backgroundColor: colours.showcaseBg,
+                                                                  padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                    side: BorderSide(color: colours.showcaseBorder, width: spaceXXXXS),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ),
