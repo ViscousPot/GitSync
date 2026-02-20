@@ -2095,6 +2095,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 ),
                                                               ]
                                                             : [],
+                                                        Positioned(
+                                                          top: orientation == Orientation.portrait ? -spaceXS : null,
+                                                          bottom: orientation == Orientation.portrait ? null : -spaceXS,
+                                                          right: -spaceSM,
+                                                          child: IconButton(
+                                                            padding: EdgeInsets.all(spaceSM),
+                                                            style: ButtonStyle(
+                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                              shape: WidgetStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
+                                                                    topRight: orientation == Orientation.portrait ? cornerRadiusMD : cornerRadiusSM,
+                                                                    bottomRight: orientation == Orientation.portrait
+                                                                        ? cornerRadiusSM
+                                                                        : cornerRadiusMD,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                            ),
+                                                            constraints: BoxConstraints(),
+                                                            onPressed: () async {},
+                                                            icon: FaIcon(
+                                                              FontAwesomeIcons.upRightAndDownLeftFromCenter,
+                                                              size: textMD,
+                                                              color: colours.primaryLight,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
                                                   ),
