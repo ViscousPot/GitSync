@@ -2915,6 +2915,7 @@ impl SseDecode for crate::api::git_manager::Commit {
         let mut var_deletions = <i32>::sse_decode(deserializer);
         let mut var_unpulled = <bool>::sse_decode(deserializer);
         let mut var_unpushed = <bool>::sse_decode(deserializer);
+        let mut var_tags = <Vec<String>>::sse_decode(deserializer);
         return crate::api::git_manager::Commit {
             timestamp: var_timestamp,
             author_username: var_authorUsername,
@@ -2925,6 +2926,7 @@ impl SseDecode for crate::api::git_manager::Commit {
             deletions: var_deletions,
             unpulled: var_unpulled,
             unpushed: var_unpushed,
+            tags: var_tags,
         };
     }
 }
@@ -3520,6 +3522,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::git_manager::Commit {
             self.deletions.into_into_dart().into_dart(),
             self.unpulled.into_into_dart().into_dart(),
             self.unpushed.into_into_dart().into_dart(),
+            self.tags.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3713,6 +3716,7 @@ impl SseEncode for crate::api::git_manager::Commit {
         <i32>::sse_encode(self.deletions, serializer);
         <bool>::sse_encode(self.unpulled, serializer);
         <bool>::sse_encode(self.unpushed, serializer);
+        <Vec<String>>::sse_encode(self.tags, serializer);
     }
 }
 

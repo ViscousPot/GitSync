@@ -633,6 +633,7 @@ class Commit {
   final int deletions;
   final bool unpulled;
   final bool unpushed;
+  final List<String> tags;
 
   const Commit({
     required this.timestamp,
@@ -644,6 +645,7 @@ class Commit {
     required this.deletions,
     required this.unpulled,
     required this.unpushed,
+    required this.tags,
   });
 
   @override
@@ -656,7 +658,8 @@ class Commit {
       additions.hashCode ^
       deletions.hashCode ^
       unpulled.hashCode ^
-      unpushed.hashCode;
+      unpushed.hashCode ^
+      tags.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -671,7 +674,8 @@ class Commit {
           additions == other.additions &&
           deletions == other.deletions &&
           unpulled == other.unpulled &&
-          unpushed == other.unpushed;
+          unpushed == other.unpushed &&
+          tags == other.tags;
 }
 
 enum ConflictType { text }

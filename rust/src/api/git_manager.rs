@@ -28,6 +28,7 @@ pub struct Commit {
     pub deletions: i32,
     pub unpulled: bool,
     pub unpushed: bool,
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Default)]
@@ -1507,6 +1508,22 @@ pub async fn get_recent_commits(
 
     swl!(revwalk.set_sorting(git2::Sort::TOPOLOGICAL | git2::Sort::TIME))?;
 
+    let mut tag_map: std::collections::HashMap<git2::Oid, Vec<String>> = std::collections::HashMap::new();
+    if let Ok(tag_names) = repo.tag_names(None) {
+        for tag_name in tag_names.iter().flatten() {
+            if let Ok(reference) = repo.find_reference(&format!("refs/tags/{}", tag_name)) {
+                let target_oid = if let Ok(tag_obj) = reference.peel(git2::ObjectType::Commit) {
+                    tag_obj.id()
+                } else if let Some(oid) = reference.target() {
+                    oid
+                } else {
+                    continue;
+                };
+                tag_map.entry(target_oid).or_default().push(tag_name.to_string());
+            }
+        }
+    }
+
     let mut commits: Vec<Commit> = Vec::new();
 
     for oid_result in revwalk.skip(skip).take(50) {
@@ -1556,6 +1573,8 @@ pub async fn get_recent_commits(
         let unpulled = unpulled_oids.contains(&oid);
         let unpushed = unpushed_oids.contains(&oid);
 
+        let tags = tag_map.get(&oid).cloned().unwrap_or_default();
+
         commits.push(Commit {
             timestamp: time,
             author_username,
@@ -1566,6 +1585,7 @@ pub async fn get_recent_commits(
             deletions,
             unpushed,
             unpulled,
+            tags,
         });
     }
 

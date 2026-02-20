@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/global.dart';
 import 'package:sprintf/sprintf.dart';
 import '../../../constant/dimens.dart';
@@ -105,6 +106,8 @@ class _ItemCommit extends State<ItemCommit> {
               (widget.commit.reference, widget.prevCommit?.reference),
               widget.commit.reference.substring(0, 7),
               (widget.commit, widget.prevCommit),
+              null,
+              widget.commit.tags,
             );
           },
           style: ButtonStyle(
@@ -166,22 +169,70 @@ class _ItemCommit extends State<ItemCommit> {
                     ),
                     SizedBox(width: spaceXS),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
-                            borderRadius: BorderRadius.all(cornerRadiusXS),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                          child: Text(
-                            (widget.commit.reference).substring(0, 7).toUpperCase(),
-                            style: TextStyle(
-                              color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
-                              fontSize: textXS,
-                              fontWeight: FontWeight.bold,
+                        Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: widget.commit.tags.isEmpty ? 0 : widget.commit.tags.length.clamp(0, 4) * spaceSM),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
+                                  borderRadius: BorderRadius.all(cornerRadiusXS),
+                                  boxShadow: [BoxShadow(color: colours.tertiaryDark, blurRadius: 10, offset: Offset(0, 2))],
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                                child: Text(
+                                  (widget.commit.reference).substring(0, 7).toUpperCase(),
+                                  style: TextStyle(
+                                    color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
+                                    fontSize: textXS,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            for (int i = widget.commit.tags.length.clamp(0, 4) - 1; i >= 0; i--)
+                              Positioned(
+                                right: i * spaceSM,
+                                child: Opacity(
+                                  opacity: (1.0 - (i * 0.3)).clamp(0.0, 1.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
+                                      borderRadius: BorderRadius.all(cornerRadiusXS),
+                                      border: Border.all(
+                                        color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
+                                        width: 1,
+                                      ),
+                                      boxShadow: [BoxShadow(color: colours.tertiaryDark, blurRadius: 10, offset: Offset(0, 2))],
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        FaIcon(
+                                          FontAwesomeIcons.tag,
+                                          size: textXXS,
+                                          color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
+                                        ),
+                                        SizedBox(width: spaceXXXXS),
+                                        Text(
+                                          widget.commit.tags[i].toUpperCase(),
+                                          style: TextStyle(
+                                            color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
+                                            fontSize: textXS,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                         SizedBox(height: spaceXXXS),
                         Row(

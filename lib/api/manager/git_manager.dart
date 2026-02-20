@@ -30,6 +30,7 @@ extension CommitJson on GitManagerRs.Commit {
     'deletions': deletions,
     'unpulled': unpulled,
     'unpushed': unpushed,
+    'tags': tags,
   };
 
   static GitManagerRs.Commit fromJson(Map<String, dynamic> json) {
@@ -44,6 +45,7 @@ extension CommitJson on GitManagerRs.Commit {
         deletions: _parseIntSafely(json['deletions']),
         unpulled: json['unpulled'] as bool? ?? false,
         unpushed: json['unpushed'] as bool? ?? false,
+        tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
       );
     } catch (e) {
       print('Error parsing commit JSON: $e');

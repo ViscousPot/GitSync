@@ -290,7 +290,9 @@ void onServiceStart(ServiceInstance service) async {
 
   service.on(LogType.ConflictingFiles.name).listen((event) async {
     final result = await GitManager.getConflicting();
-    service.invoke(LogType.ConflictingFiles.name, {"result": result.map<List<String>>((item) => [item.$1, item.$2.name]).toList()});
+    service.invoke(LogType.ConflictingFiles.name, {
+      "result": result.map<List<String>>((item) => [item.$1, item.$2.name]).toList(),
+    });
   });
 
   service.on(LogType.UncommittedFiles.name).listen((event) async {
@@ -738,7 +740,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (mounted) setState(() {});
     final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
       LogType.ConflictingFiles,
-      (event) => conflicting.value = (event?["result"] as List).map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String))).toList(),
+      (event) => conflicting.value = (event?["result"] as List)
+          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
+          .toList(),
     );
     if (token != _reloadToken) return;
     conflicting.value = newConflicting;
@@ -1807,6 +1811,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                   deletions: 0,
                                                   unpulled: false,
                                                   unpushed: false,
+                                                  tags: [],
                                                 ),
                                               ]),
                                         ...recentCommits,
@@ -1826,6 +1831,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               deletions: 0,
                                               unpulled: false,
                                               unpushed: false,
+                                              tags: [],
                                             ),
                                           );
                                         }
@@ -1839,6 +1845,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                           deletions: 0,
                                           unpulled: false,
                                           unpushed: false,
+                                          tags: [],
                                         );
                                       }
 
@@ -2344,7 +2351,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                             if (demo) {
                                                                               demoConflicting = true;
                                                                               await reloadAll();
-                                                                              MergeConflictDialog.showDialog(context, [("Readme.md", GitManagerRs.ConflictType.text)]).then((_) async {
+                                                                              MergeConflictDialog.showDialog(context, [
+                                                                                ("Readme.md", GitManagerRs.ConflictType.text),
+                                                                              ]).then((_) async {
                                                                                 demoConflicting = false;
                                                                                 await reloadAll();
                                                                               });
