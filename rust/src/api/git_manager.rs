@@ -230,12 +230,7 @@ async fn run_with_lock<T: Default>(
 
     let queue_file_path = format!("{}/flock_queue_{}", queues_dir, index);
 
-    let identifier = format!(
-        "{}:{}:{}",
-        priority,
-        fn_name,
-        Uuid::new_v4()
-    );
+    let identifier = format!("{}:{}:{}", priority, fn_name, Uuid::new_v4());
 
     let initial_file = fs::OpenOptions::new()
         .read(true)
@@ -319,9 +314,9 @@ async fn run_with_lock<T: Default>(
         .write_all(queue_entries.join("\n").as_bytes())
         .map_err(|e| git2::Error::from_str(&format!("Failed to write queue file: {}", e)))?;
 
-    flock.unlock().map_err(|(_, e)| {
-        git2::Error::from_str(&format!("Failed to unlock queue file: {}", e))
-    })?;
+    flock
+        .unlock()
+        .map_err(|(_, e)| git2::Error::from_str(&format!("Failed to unlock queue file: {}", e)))?;
 
     const MAX_WAIT_SECS: u64 = 600;
     const PROBE_INTERVAL_SECS: u64 = 30;
@@ -351,7 +346,8 @@ async fn run_with_lock<T: Default>(
                 }
             };
 
-            let mut probe_queue_flock = match Flock::lock(probe_queue_file, FlockArg::LockExclusive) {
+            let mut probe_queue_flock = match Flock::lock(probe_queue_file, FlockArg::LockExclusive)
+            {
                 Ok(f) => f,
                 Err(_) => {
                     // Transient error — skip this probe cycle
@@ -418,16 +414,22 @@ async fn run_with_lock<T: Default>(
 
         let read_file = match fs::OpenOptions::new().read(true).open(&queue_file_path) {
             Ok(f) => f,
-            Err(e) => return Err(git2::Error::from_str(&format!(
-                "Failed to open queue file during poll: {}", e
-            ))),
+            Err(e) => {
+                return Err(git2::Error::from_str(&format!(
+                    "Failed to open queue file during poll: {}",
+                    e
+                )))
+            }
         };
 
         let mut read_flock = match Flock::lock(read_file, FlockArg::LockExclusive) {
             Ok(read_flock) => read_flock,
-            Err((_, e)) => return Err(git2::Error::from_str(&format!(
-                "Failed to lock queue file during poll: {}", e
-            ))),
+            Err((_, e)) => {
+                return Err(git2::Error::from_str(&format!(
+                    "Failed to lock queue file during poll: {}",
+                    e
+                )))
+            }
         };
 
         let mut string = String::new();
@@ -444,7 +446,9 @@ async fn run_with_lock<T: Default>(
             // Try non-blocking active lock — if previous op is still releasing,
             // we'll catch it on the next 100ms poll.
             let active_file = match fs::OpenOptions::new()
-                .read(true).write(true).create(true)
+                .read(true)
+                .write(true)
+                .create(true)
                 .open(&active_lock_path)
             {
                 Ok(f) => f,
@@ -491,9 +495,7 @@ async fn run_with_lock<T: Default>(
 
                 let queue_entries: Vec<_> = queue_contents
                     .split('\n')
-                    .filter(|entry| {
-                        *entry != self.identifier && !entry.trim().is_empty()
-                    })
+                    .filter(|entry| *entry != self.identifier && !entry.trim().is_empty())
                     .collect();
 
                 flock.seek(SeekFrom::Start(0))?;
@@ -532,7 +534,8 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
         Err(e) => {
             return Err(git2::Error::from_str(&format!(
-                "Error opening queue file: {}", e
+                "Error opening queue file: {}",
+                e
             )))
         }
     };
@@ -1508,7 +1511,8 @@ pub async fn get_recent_commits(
 
     swl!(revwalk.set_sorting(git2::Sort::TOPOLOGICAL | git2::Sort::TIME))?;
 
-    let mut tag_map: std::collections::HashMap<git2::Oid, Vec<String>> = std::collections::HashMap::new();
+    let mut tag_map: std::collections::HashMap<git2::Oid, Vec<String>> =
+        std::collections::HashMap::new();
     if let Ok(tag_names) = repo.tag_names(None) {
         for tag_name in tag_names.iter().flatten() {
             if let Ok(reference) = repo.find_reference(&format!("refs/tags/{}", tag_name)) {
@@ -1519,7 +1523,10 @@ pub async fn get_recent_commits(
                 } else {
                     continue;
                 };
-                tag_map.entry(target_oid).or_default().push(tag_name.to_string());
+                tag_map
+                    .entry(target_oid)
+                    .or_default()
+                    .push(tag_name.to_string());
             }
         }
     }
@@ -2596,7 +2603,7 @@ pub async fn get_recommended_action(
         }
     }
 
-    Ok(None)
+    Ok(Some(-1))
 }
 
 pub async fn commit_changes(
@@ -3404,10 +3411,16 @@ pub async fn get_conflicting(
     index.conflicts().unwrap().for_each(|conflict| {
         if let Ok(conflict) = conflict {
             if let Some(ours) = conflict.our {
-                conflicts.push((String::from_utf8_lossy(&ours.path).to_string(), ConflictType::Text));
+                conflicts.push((
+                    String::from_utf8_lossy(&ours.path).to_string(),
+                    ConflictType::Text,
+                ));
             }
             if let Some(theirs) = conflict.their {
-                conflicts.push((String::from_utf8_lossy(&theirs.path).to_string(), ConflictType::Text));
+                conflicts.push((
+                    String::from_utf8_lossy(&theirs.path).to_string(),
+                    ConflictType::Text,
+                ));
             }
         }
     });

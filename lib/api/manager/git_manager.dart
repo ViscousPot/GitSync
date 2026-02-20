@@ -313,7 +313,7 @@ class GitManager {
 
   static Future<int?> getRecommendedAction([int priority = 1]) async {
     final repoIndex = await _repoIndex;
-    return await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, repoIndex, LogType.RecommendedAction, (dirPath) async {
+    final result = await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, repoIndex, LogType.RecommendedAction, (dirPath) async {
       try {
         final result = await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
@@ -322,15 +322,18 @@ class GitManager {
           credentials: await _getCredentials(),
           log: _logWrapper,
         );
-        final settingsManager = SettingsManager();
-        await settingsManager.reinit(repoIndex: repoIndex);
-        await settingsManager.setIntNullable(StorageKey.setman_recommendedAction, result);
         return result;
       } catch (e, stackTrace) {
         Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
         return null;
       }
     });
+    if (result != null) {
+      final settingsManager = SettingsManager();
+      await settingsManager.reinit(repoIndex: repoIndex);
+      await settingsManager.setIntNullable(StorageKey.setman_recommendedAction, result);
+    }
+    return result;
   }
 
   static Future<void> commitChanges(String? syncMessage) async {
@@ -536,8 +539,7 @@ class GitManager {
   }
 
   static Future<List<(String, GitManagerRs.ConflictType)>> getInitialConflicting() async {
-    return (await uiSettingsManager.getStringList(StorageKey.setman_conflicting))
-        .map((item) {
+    return (await uiSettingsManager.getStringList(StorageKey.setman_conflicting)).map((item) {
       final decoded = jsonDecode(item) as List;
       return (decoded[0] as String, GitManagerRs.ConflictType.values.byName(decoded[1] as String));
     }).toList();
@@ -545,20 +547,24 @@ class GitManager {
 
   static Future<List<(String, GitManagerRs.ConflictType)>> getConflicting([int? repomanRepoindex, int priority = 1]) async {
     final result =
-        await _runWithLock(priority: priority, GitManagerRs.stringConflicttypeListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ConflictingFiles, (
-          dirPath,
-        ) async {
-          try {
-            return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
-          } catch (e, stackTrace) {
-            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
-              await File('$dirPath/$gitIndexPath').delete();
-            } else {
-              Logger.logError(LogType.ConflictingFiles, e, stackTrace);
+        await _runWithLock(
+          priority: priority,
+          GitManagerRs.stringConflicttypeListRunWithLock,
+          repomanRepoindex ?? await _repoIndex,
+          LogType.ConflictingFiles,
+          (dirPath) async {
+            try {
+              return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
+            } catch (e, stackTrace) {
+              if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
+                await File('$dirPath/$gitIndexPath').delete();
+              } else {
+                Logger.logError(LogType.ConflictingFiles, e, stackTrace);
+              }
+              return <(String, GitManagerRs.ConflictType)>[];
             }
-            return <(String, GitManagerRs.ConflictType)>[];
-          }
-        }) ??
+          },
+        ) ??
         <(String, GitManagerRs.ConflictType)>[];
 
     final settingsManager = repomanRepoindex == null ? uiSettingsManager : await SettingsManager().reinit(repoIndex: repomanRepoindex);
@@ -643,7 +649,9 @@ class GitManager {
       }
     });
 
-    await uiSettingsManager.setStringNullable(StorageKey.setman_branchName, result);
+    if (result != null) {
+      await uiSettingsManager.setStringNullable(StorageKey.setman_branchName, result);
+    }
     return result;
   }
 
@@ -676,7 +684,9 @@ class GitManager {
   }
 
   static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
-    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ListRemotes, (dirPath) async {
+    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.ListRemotes, (
+          dirPath,
+        ) async {
           try {
             return (await GitManagerRs.listRemotes(pathString: dirPath, log: _logWrapper));
           } catch (e, stackTrace) {

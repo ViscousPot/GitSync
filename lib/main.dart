@@ -1109,7 +1109,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   ValueNotifier<bool> updatingRecommendedAction = ValueNotifier(false);
   Future<String> getLastSyncOption() async {
     if (await uiSettingsManager.getClientModeEnabled() == true) {
-      if (recommendedAction.value != null) {
+      if (recommendedAction.value != null && recommendedAction.value! >= 0) {
         return [
           sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]),
           t.pullChanges,
@@ -1140,7 +1140,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         clientModeEnabled ? t.syncAllChanges : t.syncNow: (
           FontAwesomeIcons.solidCircleDown,
           () async {
-            if (branchName.value == null) {
+            if (branchName.value == null || branchName.value!.isEmpty) {
               await InfoDialog.showDialog(
                 context,
                 "Sync Unavailable on DETACHED HEAD",
@@ -1228,7 +1228,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             await runGitOperation(LogType.PullFromRepo, (event) => event);
             if (recommendedAction.value == 1) {
-              await updateRecommendedAction(override: null, useOverride: true);
+              await updateRecommendedAction(override: -1, useOverride: true);
             }
             await syncOptionCompletionCallback();
           },
@@ -1273,7 +1273,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           () async {
             await runGitOperation(LogType.PushToRepo, (event) => event);
             if (recommendedAction.value == 3) {
-              await updateRecommendedAction(override: null, useOverride: true);
+              await updateRecommendedAction(override: -1, useOverride: true);
             }
             await syncOptionCompletionCallback();
           },
@@ -2330,7 +2330,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           color: uiSettingsManager.gitDirPath?.$2 == null
                                                                               ? colours.secondaryLight
                                                                               : (clientModeEnabledSnapshot.data == true &&
-                                                                                        recommendedActionValue != null
+                                                                                        recommendedActionValue != null &&
+                                                                                        recommendedActionValue >= 0
                                                                                     ? colours.tertiaryInfo
                                                                                     : colours.primaryLight),
                                                                           fontSize: textMD,
