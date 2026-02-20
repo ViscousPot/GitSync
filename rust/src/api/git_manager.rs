@@ -523,7 +523,7 @@ async fn run_with_lock<T: Default>(
     Ok(result)
 }
 
-pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error> {
+pub async fn is_locked(queue_dir: &str, index: i32) -> Result<Option<String>, git2::Error> {
     use nix::fcntl::{Flock, FlockArg};
     use std::fs;
     use std::io::Read;
@@ -531,7 +531,7 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
 
     let file = match fs::OpenOptions::new().read(true).open(&queue_file_path) {
         Ok(f) => f,
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
         Err(e) => {
             return Err(git2::Error::from_str(&format!(
                 "Error opening queue file: {}",
@@ -562,13 +562,15 @@ pub async fn is_locked(queue_dir: &str, index: i32) -> Result<bool, git2::Error>
 
     if let Some(first_entry) = queue_entries.get(0) {
         let parts: Vec<&str> = first_entry.split(':').collect();
-        if !parts.is_empty() {
+        if parts.len() >= 2 {
             let priority: i32 = parts[0].parse().unwrap_or(0);
-            return Ok(priority == 3);
+            if priority == 3 {
+                return Ok(Some(parts[1].to_string()));
+            }
         }
     }
 
-    Ok(false)
+    Ok(None)
 }
 
 /// Clear stale queue files using flock-based liveness detection.

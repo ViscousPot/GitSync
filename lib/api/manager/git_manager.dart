@@ -164,8 +164,8 @@ class GitManager {
     return null;
   }
 
-  static Future<bool> isLocked({waitForUnlock = true}) async {
-    Future<bool> internal() async {
+  static Future<String?> isLocked({waitForUnlock = true}) async {
+    Future<String?> internal() async {
       return GitManagerRs.isLocked(
         queueDir: (await getApplicationSupportDirectory()).path,
         index: await repoManager.getInt(StorageKey.repoman_repoIndex),
@@ -218,7 +218,7 @@ class GitManager {
 
   // UI Accessible Only
   static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback) async {
-    if (await isLocked()) return operationInProgressError;
+    if (await isLocked() != null) return operationInProgressError;
 
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
 

@@ -137,10 +137,11 @@ Future<void> voidRunWithLock({
   function: function,
 );
 
-Future<bool> isLocked({required String queueDir, required int index}) => RustLib
-    .instance
-    .api
-    .crateApiGitManagerIsLocked(queueDir: queueDir, index: index);
+Future<String?> isLocked({required String queueDir, required int index}) =>
+    RustLib.instance.api.crateApiGitManagerIsLocked(
+      queueDir: queueDir,
+      index: index,
+    );
 
 /// Clear stale queue files using flock-based liveness detection.
 ///

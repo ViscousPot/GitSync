@@ -231,16 +231,16 @@ TextSelectionToolbar globalContextMenuBuilder(BuildContext context, EditableText
   }).toList(),
 );
 
-Future<bool> waitFor(Future<bool> Function() fn, {int maxWaitSeconds = 30}) async {
+Future<T?> waitFor<T>(Future<T?> Function() fn, {int maxWaitSeconds = 30}) async {
   final end = DateTime.now().add(Duration(seconds: maxWaitSeconds));
   while (DateTime.now().isBefore(end)) {
     try {
-      final locked = await fn();
-      if (!locked) return false;
+      final result = await fn();
+      if (result == null) return null;
     } catch (_) {}
     await Future.delayed(const Duration(milliseconds: 100));
   }
-  return true;
+  return await fn();
 }
 
 String buildAccessRefreshToken(String accessToken, DateTime? expirationDate, String? refreshToken) => refreshToken == null
