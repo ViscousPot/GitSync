@@ -36,6 +36,7 @@ class UnlockPremium extends StatefulWidget {
 class _UnlockPremiumState extends State<UnlockPremium> {
   final pageController = PageController();
   int currentPage = 0;
+  bool _restoringPurchase = false;
   final price = "\$20.00";
 
   Widget _featureRow(IconData icon, String text) {
@@ -385,7 +386,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                                 children: List.generate(cards.length, (index) {
                                   final isActive = currentPage == index;
                                   return AnimatedContainer(
-                                    duration: Duration(milliseconds: 200),
+                                    duration: animFast,
                                     margin: EdgeInsets.symmetric(horizontal: spaceXXXS),
                                     width: spaceXS,
                                     height: spaceXS,
@@ -441,13 +442,29 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                                               ),
                                             ),
                                           ),
-                                          child: Text(
-                                            t.restorePurchase.toUpperCase(),
-                                            style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
-                                          ),
-                                          onPressed: () async {
-                                            await _verifyGhSponsor();
-                                          },
+                                          child: _restoringPurchase
+                                              ? SizedBox(
+                                                  height: textMD,
+                                                  width: textMD,
+                                                  child: CircularProgressIndicator(
+                                                    color: colours.premiumTextSecondary,
+                                                    strokeWidth: spaceXXXS,
+                                                  ),
+                                                )
+                                              : Text(
+                                                  t.restorePurchase.toUpperCase(),
+                                                  style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                                                ),
+                                          onPressed: _restoringPurchase
+                                              ? null
+                                              : () async {
+                                                  setState(() => _restoringPurchase = true);
+                                                  try {
+                                                    await _verifyGhSponsor();
+                                                  } finally {
+                                                    if (mounted) setState(() => _restoringPurchase = false);
+                                                  }
+                                                },
                                         ),
                                       ),
                                       // Positioned(
