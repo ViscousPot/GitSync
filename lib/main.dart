@@ -2328,38 +2328,47 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                         final pinned = ShowcaseFeature.fromStorageKeys(data[1] as List<String>);
                                                         final webUrl = remoteUrlLink.value?.$2;
                                                         if (pinned.length == 1) {
-                                                          return ShowcaseFeatureButton(
-                                                            feature: pinned[0],
-                                                            gitProvider: provider,
-                                                            onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
-                                                            onPressed: () => _navigateToExpandedCommits(
-                                                              initialScrollOffset: recentCommitsController.offset,
-                                                              pendingFeature: pinned[0],
+                                                          return Hero(
+                                                            tag: heroShowcaseFeature(pinned[0].storageKey),
+                                                            child: ShowcaseFeatureButton(
+                                                              feature: pinned[0],
+                                                              gitProvider: provider,
+                                                              onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
+                                                              onPressed: () => _navigateToExpandedCommits(
+                                                                initialScrollOffset: recentCommitsController.offset,
+                                                                pendingFeature: pinned[0],
+                                                              ),
                                                             ),
                                                           );
                                                         }
                                                         return Row(
                                                           children: [
                                                             Expanded(
-                                                              child: ShowcaseFeatureButton(
-                                                                feature: pinned[0],
-                                                                gitProvider: provider,
-                                                                onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
-                                                                onPressed: () => _navigateToExpandedCommits(
-                                                                  initialScrollOffset: recentCommitsController.offset,
-                                                                  pendingFeature: pinned[0],
+                                                              child: Hero(
+                                                                tag: heroShowcaseFeature(pinned[0].storageKey),
+                                                                child: ShowcaseFeatureButton(
+                                                                  feature: pinned[0],
+                                                                  gitProvider: provider,
+                                                                  onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
+                                                                  onPressed: () => _navigateToExpandedCommits(
+                                                                    initialScrollOffset: recentCommitsController.offset,
+                                                                    pendingFeature: pinned[0],
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
                                                             SizedBox(width: spaceXS),
                                                             Expanded(
-                                                              child: ShowcaseFeatureButton(
-                                                                feature: pinned[1],
-                                                                gitProvider: provider,
-                                                                onAdd: pinned[1] == ShowcaseFeature.actions ? null : () {},
-                                                                onPressed: () => _navigateToExpandedCommits(
-                                                                  initialScrollOffset: recentCommitsController.offset,
-                                                                  pendingFeature: pinned[1],
+                                                              child: Hero(
+                                                                tag: heroShowcaseFeature(pinned[1].storageKey),
+                                                                child: ShowcaseFeatureButton(
+                                                                  feature: pinned[1],
+                                                                  gitProvider: provider,
+                                                                  onAdd: pinned[1] == ShowcaseFeature.actions ? null : () {},
+                                                                  onPressed: () => _navigateToExpandedCommits(
+                                                                    initialScrollOffset: recentCommitsController.offset,
+                                                                    pendingFeature: pinned[1],
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),

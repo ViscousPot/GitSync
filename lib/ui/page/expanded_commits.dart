@@ -398,34 +398,40 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                           Row(
                                             children: [
                                               Expanded(
-                                                child: ShowcaseFeatureButton(
-                                                  feature: first,
-                                                  gitProvider: widget.gitProvider,
-                                                  isPinned: pinned.contains(first),
-                                                  onPinToggle: () => _handlePinToggle(first),
-                                                  onAdd: first == ShowcaseFeature.actions ? null : () {},
-                                                  onPressed: resolveFeatureOnPressed(
-                                                    context: context,
+                                                child: Hero(
+                                                  tag: heroShowcaseFeature(first.storageKey),
+                                                  child: ShowcaseFeatureButton(
                                                     feature: first,
                                                     gitProvider: widget.gitProvider,
-                                                    remoteWebUrl: widget.remoteWebUrl,
+                                                    isPinned: pinned.contains(first),
+                                                    onPinToggle: () => _handlePinToggle(first),
+                                                    onAdd: first == ShowcaseFeature.actions ? null : () {},
+                                                    onPressed: resolveFeatureOnPressed(
+                                                      context: context,
+                                                      feature: first,
+                                                      gitProvider: widget.gitProvider,
+                                                      remoteWebUrl: widget.remoteWebUrl,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                               if (second != null) ...[
                                                 SizedBox(width: spaceXS),
                                                 Expanded(
-                                                  child: ShowcaseFeatureButton(
-                                                    feature: second,
-                                                    gitProvider: widget.gitProvider,
-                                                    isPinned: pinned.contains(second),
-                                                    onPinToggle: () => _handlePinToggle(second),
-                                                    onAdd: second == ShowcaseFeature.actions ? null : () {},
-                                                    onPressed: resolveFeatureOnPressed(
-                                                      context: context,
+                                                  child: Hero(
+                                                    tag: heroShowcaseFeature(second.storageKey),
+                                                    child: ShowcaseFeatureButton(
                                                       feature: second,
                                                       gitProvider: widget.gitProvider,
-                                                      remoteWebUrl: widget.remoteWebUrl,
+                                                      isPinned: pinned.contains(second),
+                                                      onPinToggle: () => _handlePinToggle(second),
+                                                      onAdd: second == ShowcaseFeature.actions ? null : () {},
+                                                      onPressed: resolveFeatureOnPressed(
+                                                        context: context,
+                                                        feature: second,
+                                                        gitProvider: widget.gitProvider,
+                                                        remoteWebUrl: widget.remoteWebUrl,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

@@ -21,6 +21,7 @@ const String actions_page = "/actions_page";
 const String hero_commits_list = "hero_commits_list";
 const String hero_branch_row = "hero_branch_row";
 const String hero_expand_contract = "hero_expand_contract";
+String heroShowcaseFeature(String key) => 'hero_showcase_$key';
 
 // Paths
 const String gitIgnorePath = ".gitignore";
