@@ -1539,6 +1539,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createBranchBasedOn => 'Based on';
 
   @override
+  String get renameBranch => 'Rename Branch';
+
+  @override
+  String get deleteBranch => 'Delete Branch?';
+
+  @override
+  String get confirmDeleteBranchMsg => 'Are you sure you want to delete the branch \"%s\"?';
+
+  @override
+  String get issues => 'Issues';
+
+  @override
+  String get issueFilterOpen => 'Open';
+
+  @override
+  String get issueFilterClosed => 'Closed';
+
+  @override
+  String get issueFilterAll => 'All';
+
+  @override
+  String get issuesNotFound => 'No issues found…';
+
+  @override
+  String get filterAuthor => 'Author';
+
+  @override
+  String get filterLabels => 'Labels';
+
+  @override
+  String get filterAssignee => 'Assignee';
+
+  @override
+  String get pullRequests => 'Pull Requests';
+
+  @override
+  String get pullRequestsNotFound => 'No pull requests found…';
+
+  @override
+  String get tags => 'Tags';
+
+  @override
+  String get tagsNotFound => 'No tags found…';
+
+  @override
+  String get releases => 'Releases';
+
+  @override
+  String get releasesNotFound => 'No releases found…';
+
+  @override
+  String get preRelease => 'PRE-RELEASE';
+
+  @override
+  String get draft => 'DRAFT';
+
+  @override
+  String get releaseAssets => 'Assets';
+
+  @override
+  String get noAssets => 'No assets';
+
+  @override
+  String get actions => 'Actions';
+
+  @override
+  String get actionsNotFound => 'No actions found…';
+
+  @override
+  String get actionFilterAll => 'All';
+
+  @override
+  String get actionFilterSuccess => 'Success';
+
+  @override
+  String get actionFilterFailed => 'Failed';
+
+  @override
   String get attemptAutoFix => 'Attempt Auto-Fix?';
 
   @override
@@ -1692,4 +1770,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get githubScopedRepoMsg => 'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.';
+
+  @override
+  String get recentCommits => 'Recent Commits';
+
+  @override
+  String get branchManagement => 'Branch Management';
+
+  @override
+  String get providerTools => 'Provider Tools';
 }

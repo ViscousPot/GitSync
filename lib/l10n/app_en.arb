@@ -588,7 +588,35 @@
     "createBranch": "Create New Branch",
     "createBranchName": "Branch Name",
     "createBranchBasedOn": "Based on",
+    "renameBranch": "Rename Branch",
+    "deleteBranch": "Delete Branch?",
+    "confirmDeleteBranchMsg": "Are you sure you want to delete the branch \"%s\"?",
 
+
+    "@@x-ISSUES": "",
+    "issues": "Issues",
+    "issueFilterOpen": "Open",
+    "issueFilterClosed": "Closed",
+    "issueFilterAll": "All",
+    "issuesNotFound": "No issues found…",
+    "filterAuthor": "Author",
+    "filterLabels": "Labels",
+    "filterAssignee": "Assignee",
+    "pullRequests": "Pull Requests",
+    "pullRequestsNotFound": "No pull requests found…",
+    "tags": "Tags",
+    "tagsNotFound": "No tags found…",
+    "releases": "Releases",
+    "releasesNotFound": "No releases found…",
+    "preRelease": "PRE-RELEASE",
+    "draft": "DRAFT",
+    "releaseAssets": "Assets",
+    "noAssets": "No assets",
+    "actions": "Actions",
+    "actionsNotFound": "No actions found…",
+    "actionFilterAll": "All",
+    "actionFilterSuccess": "Success",
+    "actionFilterFailed": "Failed",
 
 
     "@@x-ERRORS": "",
@@ -644,5 +672,10 @@
     "githubScopedLoginTitle": "Step 1: Sign In to GitHub",
     "githubScopedLoginMsg": "You'll be redirected to GitHub to sign in.\n\nLog in with the account that has access to your repositories, then authorize GitSync.",
     "githubScopedRepoTitle": "Step 2: Select Repositories",
-    "githubScopedRepoMsg": "Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app."
+    "githubScopedRepoMsg": "Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.",
+
+    "@@x-EXPANDED_COMMITS": "",
+    "recentCommits": "Recent Commits",
+    "branchManagement": "Branch Management",
+    "providerTools": "Provider Tools"
 }

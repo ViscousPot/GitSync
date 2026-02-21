@@ -3148,6 +3148,162 @@ abstract class AppLocalizations {
   /// **'Based on'**
   String get createBranchBasedOn;
 
+  /// No description provided for @renameBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Branch'**
+  String get renameBranch;
+
+  /// No description provided for @deleteBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Branch?'**
+  String get deleteBranch;
+
+  /// No description provided for @confirmDeleteBranchMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the branch \"%s\"?'**
+  String get confirmDeleteBranchMsg;
+
+  /// No description provided for @issues.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get issues;
+
+  /// No description provided for @issueFilterOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get issueFilterOpen;
+
+  /// No description provided for @issueFilterClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get issueFilterClosed;
+
+  /// No description provided for @issueFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get issueFilterAll;
+
+  /// No description provided for @issuesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No issues found…'**
+  String get issuesNotFound;
+
+  /// No description provided for @filterAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get filterAuthor;
+
+  /// No description provided for @filterLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get filterLabels;
+
+  /// No description provided for @filterAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignee'**
+  String get filterAssignee;
+
+  /// No description provided for @pullRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull Requests'**
+  String get pullRequests;
+
+  /// No description provided for @pullRequestsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No pull requests found…'**
+  String get pullRequestsNotFound;
+
+  /// No description provided for @tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tags;
+
+  /// No description provided for @tagsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags found…'**
+  String get tagsNotFound;
+
+  /// No description provided for @releases.
+  ///
+  /// In en, this message translates to:
+  /// **'Releases'**
+  String get releases;
+
+  /// No description provided for @releasesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No releases found…'**
+  String get releasesNotFound;
+
+  /// No description provided for @preRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'PRE-RELEASE'**
+  String get preRelease;
+
+  /// No description provided for @draft.
+  ///
+  /// In en, this message translates to:
+  /// **'DRAFT'**
+  String get draft;
+
+  /// No description provided for @releaseAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get releaseAssets;
+
+  /// No description provided for @noAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'No assets'**
+  String get noAssets;
+
+  /// No description provided for @actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get actions;
+
+  /// No description provided for @actionsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions found…'**
+  String get actionsNotFound;
+
+  /// No description provided for @actionFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get actionFilterAll;
+
+  /// No description provided for @actionFilterSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get actionFilterSuccess;
+
+  /// No description provided for @actionFilterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get actionFilterFailed;
+
   /// No description provided for @attemptAutoFix.
   ///
   /// In en, this message translates to:
@@ -3441,6 +3597,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.'**
   String get githubScopedRepoMsg;
+
+  /// No description provided for @recentCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Commits'**
+  String get recentCommits;
+
+  /// No description provided for @branchManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Management'**
+  String get branchManagement;
+
+  /// No description provided for @providerTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Tools'**
+  String get providerTools;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
