@@ -197,10 +197,11 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
 enum EditorType { DEFAULT, LOGS, DIFF }
 
 class CodeEditor extends StatefulWidget {
-  const CodeEditor({super.key, required this.paths, this.type = EditorType.DEFAULT});
+  const CodeEditor({super.key, required this.paths, this.type = EditorType.DEFAULT, this.deviceInfoEntries});
 
   final List<String> paths;
   final EditorType type;
+  final List<(String, String)>? deviceInfoEntries;
 
   @override
   State<CodeEditor> createState() => _CodeEditor();
@@ -300,7 +301,46 @@ class _CodeEditor extends State<CodeEditor> {
           ),
         ),
       ),
-      body: Editor(key: key, path: widget.paths[index], type: widget.type),
+      body: Column(
+        children: [
+          if (widget.deviceInfoEntries != null)
+            Container(
+              margin: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
+              padding: EdgeInsets.all(spaceSM),
+              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...widget.deviceInfoEntries!
+                      .map(
+                        (entry) => Padding(
+                          padding: EdgeInsets.symmetric(vertical: spaceXXXXS),
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${entry.$1}: ',
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: entry.$2,
+                                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  SizedBox(width: double.infinity),
+                ],
+              ),
+            ),
+          Expanded(
+            child: Editor(key: key, path: widget.paths[index], type: widget.type),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -706,10 +746,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
   }
 }
 
-Route createCodeEditorRoute(List<String> paths, {EditorType type = EditorType.DEFAULT}) {
+Route createCodeEditorRoute(List<String> paths, {EditorType type = EditorType.DEFAULT, List<(String, String)>? deviceInfoEntries}) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: code_editor),
-    pageBuilder: (context, animation, secondaryAnimation) => CodeEditor(paths: paths, type: type),
+    pageBuilder: (context, animation, secondaryAnimation) => CodeEditor(paths: paths, type: type, deviceInfoEntries: deviceInfoEntries),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

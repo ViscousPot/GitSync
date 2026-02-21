@@ -7,7 +7,7 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-Future<void> showDialog(BuildContext context, Future<void> Function(String, String, String, bool) report, {String? initialTitle}) {
+Future<void> showDialog(BuildContext context, Future<void> Function(String, String, String, bool) report, {String? initialTitle, List<(String, String)>? deviceInfoEntries}) {
   final titleController = TextEditingController(text: initialTitle);
   final descriptionController = TextEditingController();
   final minimalReproController = TextEditingController();
@@ -186,7 +186,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String, Stri
                       style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                       constraints: BoxConstraints(),
                       onPressed: () async {
-                        openLogViewer(context);
+                        openLogViewer(context, deviceInfoEntries: deviceInfoEntries);
                       },
                       icon: FaIcon(FontAwesomeIcons.eye, color: colours.tertiaryInfo, size: textSM),
                     ),

@@ -108,7 +108,7 @@ String formatBytes(int? bytes, [int precision = 2]) {
   return '$formattedSize ${['B', 'KB', 'MB', 'GB', 'TB'][base]}';
 }
 
-Future<void> openLogViewer(BuildContext context) async {
+Future<void> openLogViewer(BuildContext context, {List<(String, String)>? deviceInfoEntries}) async {
   final Directory dir = await getTemporaryDirectory();
   final logsDir = Directory("${dir.path}/logs");
 
@@ -139,6 +139,7 @@ Future<void> openLogViewer(BuildContext context) async {
           )
           .toList(),
       type: EditorType.LOGS,
+      deviceInfoEntries: deviceInfoEntries,
     ),
   );
 }
@@ -520,4 +521,3 @@ extension ValueNotifierExtension on RestorableValue<bool> {
     return result;
   }
 }
-
