@@ -4,6 +4,11 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/type/issue.dart';
+import 'package:GitSync/type/pull_request.dart';
+import 'package:GitSync/type/action_run.dart';
+import 'package:GitSync/type/release.dart';
+import 'package:GitSync/type/tag.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/auth/gitlab_manager.dart';
 import 'package:oauth2_client/github_oauth2_client.dart';
@@ -94,6 +99,55 @@ class GitProviderManager {
     String accessToken,
     String searchString,
     Function(List<(String, String)>) updateCallback,
+    Function(Function()?) nextPageCallback,
+  ) async {}
+
+  Future<void> getIssues(
+    String accessToken,
+    String owner,
+    String repo,
+    String state,
+    String? authorFilter,
+    String? labelFilter,
+    String? assigneeFilter,
+    Function(List<Issue>) updateCallback,
+    Function(Function()?) nextPageCallback,
+  ) async {}
+
+  Future<void> getPullRequests(
+    String accessToken,
+    String owner,
+    String repo,
+    String state,
+    String? authorFilter,
+    String? labelFilter,
+    String? assigneeFilter,
+    Function(List<PullRequest>) updateCallback,
+    Function(Function()?) nextPageCallback,
+  ) async {}
+
+  Future<void> getTags(
+    String accessToken,
+    String owner,
+    String repo,
+    Function(List<Tag>) updateCallback,
+    Function(Function()?) nextPageCallback,
+  ) async {}
+
+  Future<void> getReleases(
+    String accessToken,
+    String owner,
+    String repo,
+    Function(List<Release>) updateCallback,
+    Function(Function()?) nextPageCallback,
+  ) async {}
+
+  Future<void> getActionRuns(
+    String accessToken,
+    String owner,
+    String repo,
+    String state,
+    Function(List<ActionRun>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}
 }

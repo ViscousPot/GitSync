@@ -461,6 +461,15 @@ Future<http.Response> httpGet(Uri url, {Map<String, String>? headers}) => http
       },
     );
 
+Future<http.Response> httpPost(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .post(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
 const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".wbmp"];
 bool viewOrEditFile(BuildContext context, String path, [check = false]) {
   try {
