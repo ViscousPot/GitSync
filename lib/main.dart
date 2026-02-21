@@ -1627,7 +1627,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             constraints: BoxConstraints(),
                                             onPressed: () async {
                                               repoSettingsExpanded = false;
-                                              await reloadAll();
+                                              setState(() {});
 
                                               RemoveContainerDialog.showDialog(context, (deleteContents) async {
                                                 if (deleteContents) {
@@ -1960,10 +1960,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                         left: 0,
                                                                                         right: 0,
                                                                                         width: null,
-                                                                                        duration: Duration(milliseconds: 200),
+                                                                                        duration: animFast,
                                                                                         child: Center(
                                                                                           child: AnimatedOpacity(
-                                                                                            duration: Duration(milliseconds: 200),
+                                                                                            duration: animFast,
                                                                                             opacity:
                                                                                                 conflictingValue.isEmpty || mergeConflictVisible.value
                                                                                                 ? 0
@@ -1972,7 +1972,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                               onPressed: () async {
                                                                                                 await recentCommitsController.animateTo(
                                                                                                   0,
-                                                                                                  duration: Duration(milliseconds: 200),
+                                                                                                  duration: animFast,
                                                                                                   curve: Curves.easeInOut,
                                                                                                 );
                                                                                                 mergeConflictVisible.value = true;
@@ -1998,7 +1998,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                                 ),
                                                                                               ),
                                                                                               child: AnimatedContainer(
-                                                                                                duration: Duration(milliseconds: 200),
+                                                                                                duration: animFast,
                                                                                                 child: Column(
                                                                                                   crossAxisAlignment: CrossAxisAlignment.center,
                                                                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
