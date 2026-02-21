@@ -81,6 +81,8 @@ pub enum LogType {
     SetRemoteUrl,
     CheckoutBranch,
     CreateBranch,
+    RenameBranch,
+    DeleteBranch,
     ReadGitIgnore,
     WriteGitIgnore,
     ReadGitInfoExclude,
@@ -3817,13 +3819,14 @@ pub async fn get_branch_names(
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
 
-    let mut branch_set = std::collections::HashSet::new();
+    let mut local_set = std::collections::HashSet::new();
+    let mut remote_set = std::collections::HashSet::new();
 
     let local_branches = repo.branches(Some(BranchType::Local)).unwrap();
     for branch_result in local_branches {
         if let Ok((branch, _)) = branch_result {
             if let Some(name) = branch.name().ok().flatten() {
-                branch_set.insert(name.to_string());
+                local_set.insert(name.to_string());
             }
         }
     }
@@ -3838,17 +3841,37 @@ pub async fn get_branch_names(
 
                 if let Some(stripped_name) = name.strip_prefix(&format!("{}/", remote.to_string()))
                 {
-                    if !branch_set.contains(stripped_name) {
-                        branch_set.insert(stripped_name.to_string());
-                    }
+                    remote_set.insert(stripped_name.to_string());
                 } else {
-                    branch_set.insert(name.to_string());
+                    remote_set.insert(name.to_string());
                 }
             }
         }
     }
 
-    branch_set.into_iter().collect()
+    let mut all_names: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for name in &local_set {
+        all_names.insert(name.clone());
+    }
+    for name in &remote_set {
+        all_names.insert(name.clone());
+    }
+
+    all_names
+        .into_iter()
+        .map(|name| {
+            let is_local = local_set.contains(&name);
+            let is_remote = remote_set.contains(&name);
+            let location = if is_local && is_remote {
+                "both"
+            } else if is_local {
+                "local"
+            } else {
+                "remote"
+            };
+            format!("{}======={}", name, location)
+        })
+        .collect()
 }
 
 pub async fn set_remote_url(
@@ -4031,8 +4054,6 @@ pub async fn create_branch(
     path_string: &String,
     new_branch_name: &String,
     remote_name: &String,
-    provider: &String,
-    credentials: &(String, String),
     source_branch_name: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
@@ -4048,7 +4069,6 @@ pub async fn create_branch(
     );
 
     let repo = swl!(Repository::open(Path::new(path_string)))?;
-    configure_network_timeouts(&repo);
 
     let current_branch = get_branch_name_priv(&repo);
 
@@ -4095,76 +4115,57 @@ pub async fn create_branch(
         format!("Switched to new branch '{}'", new_branch_name),
     );
 
-    _log(
-        Arc::clone(&log_callback),
-        LogType::PushToRepo,
-        format!("Pushing new branch '{}' to remote", new_branch_name),
-    );
+    Ok(())
+}
 
-    let mut remote = swl!(repo.find_remote(remote_name))?;
-    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
-
-    let mut callbacks = get_default_callbacks(Some(provider), Some(credentials));
-    let push_error_clone = Arc::clone(&push_error);
-    callbacks.push_update_reference(move |refname, status| {
-        if let Some(msg) = status {
-            *push_error_clone.lock().unwrap() =
-                Some(format!("Remote rejected {}: {}", refname, msg));
-        }
-        Ok(())
-    });
-
-    let mut push_options = PushOptions::new();
-    push_options.remote_callbacks(callbacks);
-
-    let refspec = format!(
-        "refs/heads/{}:refs/heads/{}",
-        new_branch_name, new_branch_name
-    );
-
-    match remote.push(&[&refspec], Some(&mut push_options)) {
-        Ok(_) => {
-            if let Some(err) = push_error.lock().unwrap().take() {
-                _log(
-                    Arc::clone(&log_callback),
-                    LogType::PushToRepo,
-                    format!("Push rejected by server: {}", err),
-                );
-                return Err(git2::Error::from_str(&err));
-            }
-            _log(
-                Arc::clone(&log_callback),
-                LogType::PushToRepo,
-                format!("Successfully pushed branch '{}' to remote", new_branch_name),
-            );
-        }
-        Err(e) => {
-            _log(
-                Arc::clone(&log_callback),
-                LogType::PushToRepo,
-                format!(
-                    "Failed to push branch '{}' to remote: {}",
-                    new_branch_name, e
-                ),
-            );
-            return Err(e).map_err(|e| {
-                git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
-            });
-        }
-    }
-
-    // Set the upstream branch for the new branch
-    let mut branch = swl!(repo.find_branch(new_branch_name, BranchType::Local))?;
-    let upstream_name = format!("{}/{}", remote_name, new_branch_name);
-    swl!(branch.set_upstream(Some(&upstream_name)))?;
+pub async fn rename_branch(
+    path_string: &String,
+    old_name: &String,
+    new_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Global,
-        format!(
-            "Set upstream for '{}' to '{}'",
-            new_branch_name, upstream_name
-        ),
+        LogType::RenameBranch,
+        format!("Renaming branch '{}' to '{}'", old_name, new_name),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+    let mut branch = swl!(repo.find_branch(old_name, BranchType::Local))?;
+    swl!(branch.rename(new_name, false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RenameBranch,
+        format!("Branch renamed from '{}' to '{}'", old_name, new_name),
+    );
+
+    Ok(())
+}
+
+pub async fn delete_branch(
+    path_string: &String,
+    branch_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DeleteBranch,
+        format!("Deleting branch '{}'", branch_name),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+    let mut branch = swl!(repo.find_branch(branch_name, BranchType::Local))?;
+    swl!(branch.delete())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DeleteBranch,
+        format!("Branch '{}' deleted", branch_name),
     );
 
     Ok(())

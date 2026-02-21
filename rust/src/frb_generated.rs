@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -201545535;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -123700348;
 
 // Section: executor
 
@@ -448,8 +448,6 @@ fn wire__crate__api__git_manager__create_branch_impl(
             let api_path_string = <String>::sse_decode(&mut deserializer);
             let api_new_branch_name = <String>::sse_decode(&mut deserializer);
             let api_remote_name = <String>::sse_decode(&mut deserializer);
-            let api_provider = <String>::sse_decode(&mut deserializer);
-            let api_credentials = <(String, String)>::sse_decode(&mut deserializer);
             let api_source_branch_name = <String>::sse_decode(&mut deserializer);
             let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
                 <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
@@ -462,9 +460,52 @@ fn wire__crate__api__git_manager__create_branch_impl(
                             &api_path_string,
                             &api_new_branch_name,
                             &api_remote_name,
-                            &api_provider,
-                            &api_credentials,
                             &api_source_branch_name,
+                            api_log,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__git_manager__delete_branch_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "delete_branch",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_path_string = <String>::sse_decode(&mut deserializer);
+            let api_branch_name = <String>::sse_decode(&mut deserializer);
+            let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
+                <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
+            );
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::git_manager::delete_branch(
+                            &api_path_string,
+                            &api_branch_name,
                             api_log,
                         )
                         .await?;
@@ -1717,6 +1758,53 @@ fn wire__crate__api__git_manager__push_changes_impl(
                             &api_provider,
                             &api_credentials,
                             api_merge_conflict_callback,
+                            api_log,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__git_manager__rename_branch_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "rename_branch",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_path_string = <String>::sse_decode(&mut deserializer);
+            let api_old_name = <String>::sse_decode(&mut deserializer);
+            let api_new_name = <String>::sse_decode(&mut deserializer);
+            let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
+                <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
+            );
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::git_manager::rename_branch(
+                            &api_path_string,
+                            &api_old_name,
+                            &api_new_name,
                             api_log,
                         )
                         .await?;
@@ -3117,27 +3205,29 @@ impl SseDecode for crate::api::git_manager::LogType {
             31 => crate::api::git_manager::LogType::SetRemoteUrl,
             32 => crate::api::git_manager::LogType::CheckoutBranch,
             33 => crate::api::git_manager::LogType::CreateBranch,
-            34 => crate::api::git_manager::LogType::ReadGitIgnore,
-            35 => crate::api::git_manager::LogType::WriteGitIgnore,
-            36 => crate::api::git_manager::LogType::ReadGitInfoExclude,
-            37 => crate::api::git_manager::LogType::WriteGitInfoExclude,
-            38 => crate::api::git_manager::LogType::GetDisableSsl,
-            39 => crate::api::git_manager::LogType::SetDisableSsl,
-            40 => crate::api::git_manager::LogType::GenerateKeyPair,
-            41 => crate::api::git_manager::LogType::GetRemoteUrlLink,
-            42 => crate::api::git_manager::LogType::DiscardDir,
-            43 => crate::api::git_manager::LogType::DiscardGitIndex,
-            44 => crate::api::git_manager::LogType::DiscardFetchHead,
-            45 => crate::api::git_manager::LogType::PruneCorruptedObjects,
-            46 => crate::api::git_manager::LogType::GetSubmodules,
-            47 => crate::api::git_manager::LogType::HasGitFilters,
-            48 => crate::api::git_manager::LogType::DownloadChanges,
-            49 => crate::api::git_manager::LogType::UploadChanges,
-            50 => crate::api::git_manager::LogType::ListRemotes,
-            51 => crate::api::git_manager::LogType::AddRemote,
-            52 => crate::api::git_manager::LogType::DeleteRemote,
-            53 => crate::api::git_manager::LogType::RenameRemote,
-            54 => crate::api::git_manager::LogType::InitRepo,
+            34 => crate::api::git_manager::LogType::RenameBranch,
+            35 => crate::api::git_manager::LogType::DeleteBranch,
+            36 => crate::api::git_manager::LogType::ReadGitIgnore,
+            37 => crate::api::git_manager::LogType::WriteGitIgnore,
+            38 => crate::api::git_manager::LogType::ReadGitInfoExclude,
+            39 => crate::api::git_manager::LogType::WriteGitInfoExclude,
+            40 => crate::api::git_manager::LogType::GetDisableSsl,
+            41 => crate::api::git_manager::LogType::SetDisableSsl,
+            42 => crate::api::git_manager::LogType::GenerateKeyPair,
+            43 => crate::api::git_manager::LogType::GetRemoteUrlLink,
+            44 => crate::api::git_manager::LogType::DiscardDir,
+            45 => crate::api::git_manager::LogType::DiscardGitIndex,
+            46 => crate::api::git_manager::LogType::DiscardFetchHead,
+            47 => crate::api::git_manager::LogType::PruneCorruptedObjects,
+            48 => crate::api::git_manager::LogType::GetSubmodules,
+            49 => crate::api::git_manager::LogType::HasGitFilters,
+            50 => crate::api::git_manager::LogType::DownloadChanges,
+            51 => crate::api::git_manager::LogType::UploadChanges,
+            52 => crate::api::git_manager::LogType::ListRemotes,
+            53 => crate::api::git_manager::LogType::AddRemote,
+            54 => crate::api::git_manager::LogType::DeleteRemote,
+            55 => crate::api::git_manager::LogType::RenameRemote,
+            56 => crate::api::git_manager::LogType::InitRepo,
             _ => unreachable!("Invalid variant for LogType: {}", inner),
         };
     }
@@ -3347,145 +3437,147 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         10 => wire__crate__api__git_manager__create_branch_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__git_manager__delete_remote_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__git_manager__diff_default_impl(port, ptr, rust_vec_len, data_len),
-        13 => {
+        11 => wire__crate__api__git_manager__delete_branch_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__git_manager__delete_remote_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__git_manager__diff_default_impl(port, ptr, rust_vec_len, data_len),
+        14 => {
             wire__crate__api__git_manager__discard_changes_impl(port, ptr, rust_vec_len, data_len)
         }
-        14 => wire__crate__api__git_manager__download_and_overwrite_impl(
+        15 => wire__crate__api__git_manager__download_and_overwrite_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        15 => {
+        16 => {
             wire__crate__api__git_manager__download_changes_impl(port, ptr, rust_vec_len, data_len)
         }
-        16 => wire__crate__api__git_manager__fetch_remote_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__git_manager__force_pull_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__git_manager__force_push_impl(port, ptr, rust_vec_len, data_len),
-        19 => {
+        17 => wire__crate__api__git_manager__fetch_remote_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__git_manager__force_pull_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__git_manager__force_push_impl(port, ptr, rust_vec_len, data_len),
+        20 => {
             wire__crate__api__git_manager__generate_ssh_key_impl(port, ptr, rust_vec_len, data_len)
         }
-        20 => {
+        21 => {
             wire__crate__api__git_manager__get_branch_name_impl(port, ptr, rust_vec_len, data_len)
         }
-        21 => {
+        22 => {
             wire__crate__api__git_manager__get_branch_names_impl(port, ptr, rust_vec_len, data_len)
         }
-        22 => {
+        23 => {
             wire__crate__api__git_manager__get_commit_diff_impl(port, ptr, rust_vec_len, data_len)
         }
-        23 => {
+        24 => {
             wire__crate__api__git_manager__get_conflicting_impl(port, ptr, rust_vec_len, data_len)
         }
-        24 => {
+        25 => {
             wire__crate__api__git_manager__get_disable_ssl_impl(port, ptr, rust_vec_len, data_len)
         }
-        25 => wire__crate__api__git_manager__get_file_diff_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api__git_manager__get_recent_commits_impl(
+        26 => wire__crate__api__git_manager__get_file_diff_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__git_manager__get_recent_commits_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        27 => wire__crate__api__git_manager__get_recommended_action_impl(
+        28 => wire__crate__api__git_manager__get_recommended_action_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        28 => wire__crate__api__git_manager__get_staged_file_paths_impl(
+        29 => wire__crate__api__git_manager__get_staged_file_paths_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__api__git_manager__get_submodule_paths_impl(
+        30 => wire__crate__api__git_manager__get_submodule_paths_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        30 => wire__crate__api__git_manager__get_uncommitted_file_paths_impl(
+        31 => wire__crate__api__git_manager__get_uncommitted_file_paths_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        31 => wire__crate__api__git_manager__init_impl(port, ptr, rust_vec_len, data_len),
-        32 => {
+        32 => wire__crate__api__git_manager__init_impl(port, ptr, rust_vec_len, data_len),
+        33 => {
             wire__crate__api__git_manager__init_repository_impl(port, ptr, rust_vec_len, data_len)
         }
-        33 => {
+        34 => {
             wire__crate__api__git_manager__int_run_with_lock_impl(port, ptr, rust_vec_len, data_len)
         }
-        34 => wire__crate__api__git_manager__is_locked_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__git_manager__list_remotes_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__api__git_manager__prune_corrupted_loose_objects_impl(
+        35 => wire__crate__api__git_manager__is_locked_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__git_manager__list_remotes_impl(port, ptr, rust_vec_len, data_len),
+        37 => wire__crate__api__git_manager__prune_corrupted_loose_objects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__api__git_manager__pull_changes_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__api__git_manager__push_changes_impl(port, ptr, rust_vec_len, data_len),
-        39 => wire__crate__api__git_manager__rename_remote_impl(port, ptr, rust_vec_len, data_len),
-        40 => {
+        38 => wire__crate__api__git_manager__pull_changes_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api__git_manager__push_changes_impl(port, ptr, rust_vec_len, data_len),
+        40 => wire__crate__api__git_manager__rename_branch_impl(port, ptr, rust_vec_len, data_len),
+        41 => wire__crate__api__git_manager__rename_remote_impl(port, ptr, rust_vec_len, data_len),
+        42 => {
             wire__crate__api__git_manager__set_disable_ssl_impl(port, ptr, rust_vec_len, data_len)
         }
-        41 => wire__crate__api__git_manager__set_remote_url_impl(port, ptr, rust_vec_len, data_len),
-        42 => {
+        43 => wire__crate__api__git_manager__set_remote_url_impl(port, ptr, rust_vec_len, data_len),
+        44 => {
             wire__crate__api__git_manager__stage_file_paths_impl(port, ptr, rust_vec_len, data_len)
         }
-        43 => wire__crate__api__git_manager__string_conflicttype_list_run_with_lock_impl(
+        45 => wire__crate__api__git_manager__string_conflicttype_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        44 => wire__crate__api__git_manager__string_int_list_run_with_lock_impl(
+        46 => wire__crate__api__git_manager__string_int_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__api__git_manager__string_list_run_with_lock_impl(
+        47 => wire__crate__api__git_manager__string_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        46 => wire__crate__api__git_manager__string_pair_run_with_lock_impl(
+        48 => wire__crate__api__git_manager__string_pair_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        47 => wire__crate__api__git_manager__string_run_with_lock_impl(
+        49 => wire__crate__api__git_manager__string_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        48 => wire__crate__api__git_manager__unstage_file_paths_impl(
+        50 => wire__crate__api__git_manager__unstage_file_paths_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        49 => wire__crate__api__git_manager__untrack_all_impl(port, ptr, rust_vec_len, data_len),
-        50 => {
+        51 => wire__crate__api__git_manager__untrack_all_impl(port, ptr, rust_vec_len, data_len),
+        52 => {
             wire__crate__api__git_manager__update_submodules_impl(port, ptr, rust_vec_len, data_len)
         }
-        51 => wire__crate__api__git_manager__upload_and_overwrite_impl(
+        53 => wire__crate__api__git_manager__upload_and_overwrite_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        52 => wire__crate__api__git_manager__upload_changes_impl(port, ptr, rust_vec_len, data_len),
-        53 => wire__crate__api__git_manager__void_run_with_lock_impl(
+        54 => wire__crate__api__git_manager__upload_changes_impl(port, ptr, rust_vec_len, data_len),
+        55 => wire__crate__api__git_manager__void_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
@@ -3615,27 +3707,29 @@ impl flutter_rust_bridge::IntoDart for crate::api::git_manager::LogType {
             Self::SetRemoteUrl => 31.into_dart(),
             Self::CheckoutBranch => 32.into_dart(),
             Self::CreateBranch => 33.into_dart(),
-            Self::ReadGitIgnore => 34.into_dart(),
-            Self::WriteGitIgnore => 35.into_dart(),
-            Self::ReadGitInfoExclude => 36.into_dart(),
-            Self::WriteGitInfoExclude => 37.into_dart(),
-            Self::GetDisableSsl => 38.into_dart(),
-            Self::SetDisableSsl => 39.into_dart(),
-            Self::GenerateKeyPair => 40.into_dart(),
-            Self::GetRemoteUrlLink => 41.into_dart(),
-            Self::DiscardDir => 42.into_dart(),
-            Self::DiscardGitIndex => 43.into_dart(),
-            Self::DiscardFetchHead => 44.into_dart(),
-            Self::PruneCorruptedObjects => 45.into_dart(),
-            Self::GetSubmodules => 46.into_dart(),
-            Self::HasGitFilters => 47.into_dart(),
-            Self::DownloadChanges => 48.into_dart(),
-            Self::UploadChanges => 49.into_dart(),
-            Self::ListRemotes => 50.into_dart(),
-            Self::AddRemote => 51.into_dart(),
-            Self::DeleteRemote => 52.into_dart(),
-            Self::RenameRemote => 53.into_dart(),
-            Self::InitRepo => 54.into_dart(),
+            Self::RenameBranch => 34.into_dart(),
+            Self::DeleteBranch => 35.into_dart(),
+            Self::ReadGitIgnore => 36.into_dart(),
+            Self::WriteGitIgnore => 37.into_dart(),
+            Self::ReadGitInfoExclude => 38.into_dart(),
+            Self::WriteGitInfoExclude => 39.into_dart(),
+            Self::GetDisableSsl => 40.into_dart(),
+            Self::SetDisableSsl => 41.into_dart(),
+            Self::GenerateKeyPair => 42.into_dart(),
+            Self::GetRemoteUrlLink => 43.into_dart(),
+            Self::DiscardDir => 44.into_dart(),
+            Self::DiscardGitIndex => 45.into_dart(),
+            Self::DiscardFetchHead => 46.into_dart(),
+            Self::PruneCorruptedObjects => 47.into_dart(),
+            Self::GetSubmodules => 48.into_dart(),
+            Self::HasGitFilters => 49.into_dart(),
+            Self::DownloadChanges => 50.into_dart(),
+            Self::UploadChanges => 51.into_dart(),
+            Self::ListRemotes => 52.into_dart(),
+            Self::AddRemote => 53.into_dart(),
+            Self::DeleteRemote => 54.into_dart(),
+            Self::RenameRemote => 55.into_dart(),
+            Self::InitRepo => 56.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -3890,27 +3984,29 @@ impl SseEncode for crate::api::git_manager::LogType {
                 crate::api::git_manager::LogType::SetRemoteUrl => 31,
                 crate::api::git_manager::LogType::CheckoutBranch => 32,
                 crate::api::git_manager::LogType::CreateBranch => 33,
-                crate::api::git_manager::LogType::ReadGitIgnore => 34,
-                crate::api::git_manager::LogType::WriteGitIgnore => 35,
-                crate::api::git_manager::LogType::ReadGitInfoExclude => 36,
-                crate::api::git_manager::LogType::WriteGitInfoExclude => 37,
-                crate::api::git_manager::LogType::GetDisableSsl => 38,
-                crate::api::git_manager::LogType::SetDisableSsl => 39,
-                crate::api::git_manager::LogType::GenerateKeyPair => 40,
-                crate::api::git_manager::LogType::GetRemoteUrlLink => 41,
-                crate::api::git_manager::LogType::DiscardDir => 42,
-                crate::api::git_manager::LogType::DiscardGitIndex => 43,
-                crate::api::git_manager::LogType::DiscardFetchHead => 44,
-                crate::api::git_manager::LogType::PruneCorruptedObjects => 45,
-                crate::api::git_manager::LogType::GetSubmodules => 46,
-                crate::api::git_manager::LogType::HasGitFilters => 47,
-                crate::api::git_manager::LogType::DownloadChanges => 48,
-                crate::api::git_manager::LogType::UploadChanges => 49,
-                crate::api::git_manager::LogType::ListRemotes => 50,
-                crate::api::git_manager::LogType::AddRemote => 51,
-                crate::api::git_manager::LogType::DeleteRemote => 52,
-                crate::api::git_manager::LogType::RenameRemote => 53,
-                crate::api::git_manager::LogType::InitRepo => 54,
+                crate::api::git_manager::LogType::RenameBranch => 34,
+                crate::api::git_manager::LogType::DeleteBranch => 35,
+                crate::api::git_manager::LogType::ReadGitIgnore => 36,
+                crate::api::git_manager::LogType::WriteGitIgnore => 37,
+                crate::api::git_manager::LogType::ReadGitInfoExclude => 38,
+                crate::api::git_manager::LogType::WriteGitInfoExclude => 39,
+                crate::api::git_manager::LogType::GetDisableSsl => 40,
+                crate::api::git_manager::LogType::SetDisableSsl => 41,
+                crate::api::git_manager::LogType::GenerateKeyPair => 42,
+                crate::api::git_manager::LogType::GetRemoteUrlLink => 43,
+                crate::api::git_manager::LogType::DiscardDir => 44,
+                crate::api::git_manager::LogType::DiscardGitIndex => 45,
+                crate::api::git_manager::LogType::DiscardFetchHead => 46,
+                crate::api::git_manager::LogType::PruneCorruptedObjects => 47,
+                crate::api::git_manager::LogType::GetSubmodules => 48,
+                crate::api::git_manager::LogType::HasGitFilters => 49,
+                crate::api::git_manager::LogType::DownloadChanges => 50,
+                crate::api::git_manager::LogType::UploadChanges => 51,
+                crate::api::git_manager::LogType::ListRemotes => 52,
+                crate::api::git_manager::LogType::AddRemote => 53,
+                crate::api::git_manager::LogType::DeleteRemote => 54,
+                crate::api::git_manager::LogType::RenameRemote => 55,
+                crate::api::git_manager::LogType::InitRepo => 56,
                 _ => {
                     unimplemented!("");
                 }

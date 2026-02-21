@@ -672,7 +672,7 @@ class GitManager {
     return result;
   }
 
-  static Future<List<String>> getBranchNames() async {
+  static Future<List<(String, String)>> getBranchNames() async {
     final result =
         await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, await _repoIndex, LogType.BranchNames, (dirPath) async {
           try {
@@ -684,8 +684,13 @@ class GitManager {
         }) ??
         <String>[];
 
-    await uiSettingsManager.setStringList(StorageKey.setman_branchNames, result);
-    return result;
+    final parsed = result.map((entry) {
+      final parts = entry.split(conflictSeparator);
+      return (parts[0], parts.length > 1 ? parts[1] : 'both');
+    }).toList();
+
+    await uiSettingsManager.setStringList(StorageKey.setman_branchNames, parsed.map((e) => e.$1).toList());
+    return parsed;
   }
 
   static Future<void> setRemoteUrl(String newRemoteUrl) async {
@@ -757,10 +762,20 @@ class GitManager {
         remoteName: await settingsManager.getRemote(),
         newBranchName: branchName,
         sourceBranchName: basedOn,
-        provider: (await settingsManager.getGitProvider()).name,
-        credentials: await _getCredentials(settingsManager),
         log: _logWrapper,
       );
+    });
+  }
+
+  static Future<void> renameBranch(String oldName, String newName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RenameBranch, (dirPath) async {
+      await GitManagerRs.renameBranch(pathString: dirPath, oldName: oldName, newName: newName, log: _logWrapper);
+    });
+  }
+
+  static Future<void> deleteBranch(String branchName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.DeleteBranch, (dirPath) async {
+      await GitManagerRs.deleteBranch(pathString: dirPath, branchName: branchName, log: _logWrapper);
     });
   }
 

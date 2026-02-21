@@ -601,17 +601,35 @@ Future<void> createBranch({
   required String pathString,
   required String newBranchName,
   required String remoteName,
-  required String provider,
-  required (String, String) credentials,
   required String sourceBranchName,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerCreateBranch(
   pathString: pathString,
   newBranchName: newBranchName,
   remoteName: remoteName,
-  provider: provider,
-  credentials: credentials,
   sourceBranchName: sourceBranchName,
+  log: log,
+);
+
+Future<void> renameBranch({
+  required String pathString,
+  required String oldName,
+  required String newName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRenameBranch(
+  pathString: pathString,
+  oldName: oldName,
+  newName: newName,
+  log: log,
+);
+
+Future<void> deleteBranch({
+  required String pathString,
+  required String branchName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerDeleteBranch(
+  pathString: pathString,
+  branchName: branchName,
   log: log,
 );
 
@@ -744,6 +762,8 @@ enum LogType {
   setRemoteUrl,
   checkoutBranch,
   createBranch,
+  renameBranch,
+  deleteBranch,
   readGitIgnore,
   writeGitIgnore,
   readGitInfoExclude,
