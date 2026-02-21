@@ -25,6 +25,7 @@ final Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])
     },
   ),
   [emptyNameOrEmail]: (t.emptyNameOrEmail, null),
+  [failedToResolveAddress]: (t.failedToResolveAddressMessage, null),
   [errorReadingZlibStream]: (
     t.errorReadingZlibStream,
     ([int? repomanRepoindex]) async {

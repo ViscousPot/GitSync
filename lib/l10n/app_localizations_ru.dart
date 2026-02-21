@@ -1369,6 +1369,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get networkUnavailableRetry => 'Сеть недоступна!\nGitSync повторит попытку при подключении';
 
   @override
+  String get failedToResolveAddressMessage => 'Could not reach the server. Check your internet connection or verify the repository URL is correct.';
+
+  @override
   String get pullFailed => 'Получение не удалось! Пожалуйста, проверьте незафиксированные изменения и попробуйте снова.';
 
   @override

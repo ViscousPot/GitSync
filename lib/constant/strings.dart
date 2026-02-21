@@ -41,6 +41,7 @@ const String androidInvalidCharacterInFilenamePrefix = "could not open";
 const String androidInvalidCharacterInFilenameSuffix = "for writing: Operation not permitted";
 const String emptyNameOrEmail = "Signature cannot have an empty name or email";
 const String errorReadingZlibStream = "error reading from the zlib stream";
+const String failedToResolveAddress = "failed to resolve address";
 const String theIndexIsLocked = "the index is locked";
 const String corruptedLooseFetchHead = "corrupted loose reference file: FETCH_HEAD";
 const String corruptedLooseObject = "failed to parse loose object";

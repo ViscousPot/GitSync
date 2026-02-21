@@ -2804,6 +2804,12 @@ abstract class AppLocalizations {
   /// **'Network unavailable!\nGitSync will retry when reconnected'**
   String get networkUnavailableRetry;
 
+  /// No description provided for @failedToResolveAddressMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server. Check your internet connection or verify the repository URL is correct.'**
+  String get failedToResolveAddressMessage;
+
   /// No description provided for @pullFailed.
   ///
   /// In en, this message translates to:

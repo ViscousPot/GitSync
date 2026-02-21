@@ -524,6 +524,7 @@
     "ongoingMergeConflict": "Ongoing merge conflict",
     "networkStallRetry": "Poor network — will retry shortly",
     "networkUnavailableRetry": "Network unavailable!\nGitSync will retry when reconnected",
+    "failedToResolveAddressMessage": "Could not reach the server. Check your internet connection or verify the repository URL is correct.",
     "pullFailed": "Pull failed! Please check for uncommitted changes and try again.",
     "reportABug": "Report a Bug",
     "errorOccurredTitle": "An Error Occurred!",

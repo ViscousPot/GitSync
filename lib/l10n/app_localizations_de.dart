@@ -1372,6 +1372,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get networkUnavailableRetry => 'Netzwerk nicht verfügbar!\nGitSync wird es erneut versuchen, wenn die Verbindung wiederhergestellt ist';
 
   @override
+  String get failedToResolveAddressMessage => 'Could not reach the server. Check your internet connection or verify the repository URL is correct.';
+
+  @override
   String get pullFailed => 'Pull fehlgeschlagen! Bitte prüfen Sie auf nicht-commitete Änderungen und versuchen Sie es erneut.';
 
   @override

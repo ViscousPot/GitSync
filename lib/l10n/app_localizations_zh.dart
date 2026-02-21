@@ -1364,6 +1364,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get networkUnavailableRetry => '网络不可用！\nGitSync 将在重新连接时重试';
 
   @override
+  String get failedToResolveAddressMessage => 'Could not reach the server. Check your internet connection or verify the repository URL is correct.';
+
+  @override
   String get pullFailed => '拉取失败！请检查未提交的更改并重试。';
 
   @override
