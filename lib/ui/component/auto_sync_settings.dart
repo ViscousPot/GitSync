@@ -278,7 +278,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                       child: Row(
                         children: [
                           AnimatedSize(
-                            duration: Duration(milliseconds: 200),
+                            duration: animFast,
                             child: SizedBox(width: (expandedSnapshot.data ?? false) ? spaceMD + spaceXXS : 0),
                           ),
                           Flexible(
@@ -311,7 +311,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                     ),
                   ),
                   AnimatedPositioned(
-                    duration: Duration(milliseconds: 200),
+                    duration: animFast,
                     top: 0,
                     left: 0,
                     bottom: 0,
@@ -340,7 +340,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               FutureBuilder(
                 future: uiSettingsManager.getApplicationPackages(),
                 builder: (context, applicationPackagesSnapshot) => AnimatedSize(
-                  duration: Duration(milliseconds: 200),
+                  duration: animFast,
                   child: SizedBox(
                     height: (expandedSnapshot.data ?? false) ? null : 0,
                     child: (expandedSnapshot.data ?? false) ? _buildBody(applicationPackagesSnapshot) : SizedBox.shrink(),

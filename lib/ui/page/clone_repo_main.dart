@@ -229,7 +229,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 500),
+                    duration: animSlow,
                     curve: Curves.easeInOut,
                     width: spaceXXL,
                     height: spaceXXL,

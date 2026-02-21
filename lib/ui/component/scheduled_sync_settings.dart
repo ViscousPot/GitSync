@@ -170,7 +170,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: animFast,
         padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
         decoration: BoxDecoration(color: selected ? colours.tertiaryInfo : colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Center(
@@ -232,7 +232,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AnimatedSize(
-                      duration: Duration(milliseconds: 200),
+                      duration: animFast,
                       child: isCustomSelected ? _buildCustomInputs(frequency, rate) : SizedBox.shrink(),
                     ),
                     Expanded(
@@ -286,7 +286,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: animFast,
             width: spaceXL,
             decoration: BoxDecoration(
               color: colours.tertiaryDark,
@@ -389,7 +389,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
             _buildEnableToggle(isEnabled),
             SizedBox(height: spaceXS),
             AnimatedSize(
-              duration: Duration(milliseconds: 200),
+              duration: animFast,
               child: isEnabled
                   ? (Platform.isIOS
                         ? Padding(
@@ -450,7 +450,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                     child: Row(
                       children: [
                         AnimatedSize(
-                          duration: Duration(milliseconds: 200),
+                          duration: animFast,
                           child: SizedBox(width: (snapshot.data ?? false) ? spaceMD + spaceXXS : 0),
                         ),
                         Flexible(
@@ -483,7 +483,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                   ),
                 ),
                 AnimatedPositioned(
-                  duration: Duration(milliseconds: 200),
+                  duration: animFast,
                   top: 0,
                   left: 0,
                   bottom: 0,
@@ -510,7 +510,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
               ],
             ),
             AnimatedSize(
-              duration: Duration(milliseconds: 200),
+              duration: animFast,
               child: SizedBox(height: (snapshot.data ?? false) ? null : 0, child: (snapshot.data ?? false) ? _buildBody() : null),
             ),
           ],

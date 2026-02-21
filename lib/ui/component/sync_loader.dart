@@ -266,7 +266,7 @@ class _SyncLoaderState extends State<SyncLoader> with TickerProviderStateMixin {
             ),
           AnimatedOpacity(
             opacity: erroring ? 1 : 0,
-            duration: Duration(milliseconds: 500),
+            duration: animSlow,
             curve: Curves.easeInOut,
             child: Align(
               alignment: Alignment.center,
@@ -279,7 +279,7 @@ class _SyncLoaderState extends State<SyncLoader> with TickerProviderStateMixin {
           ),
           AnimatedOpacity(
             opacity: isLocked ? 0 : opacity,
-            duration: Duration(milliseconds: 500),
+            duration: animSlow,
             curve: Curves.easeInOut,
             child: Align(
               alignment: Alignment.center,

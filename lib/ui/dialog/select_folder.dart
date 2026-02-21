@@ -43,7 +43,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
               children: [
                 Expanded(
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
+                    duration: animFast,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                         topLeft: cornerRadiusMD,
@@ -93,7 +93,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                             fontSize: textMD,
                             fontWeight: FontWeight.bold,
                           ),
-                          duration: Duration(milliseconds: 200),
+                          duration: animFast,
                         ),
                       ),
                     ),
@@ -101,7 +101,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                 ),
                 Expanded(
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
+                    duration: animFast,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.zero,
@@ -151,7 +151,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                             fontSize: textMD,
                             fontWeight: FontWeight.bold,
                           ),
-                          duration: Duration(milliseconds: 200),
+                          duration: animFast,
                         ),
                       ),
                     ),

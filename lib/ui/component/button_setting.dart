@@ -110,7 +110,7 @@ class _ButtonSettingState extends State<ButtonSetting> {
                       ),
                     ),
                     AnimatedSize(
-                      duration: Duration(milliseconds: 200),
+                      duration: animFast,
                       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: expanded ? widget.subButtons! : []),
                     ),
                   ],

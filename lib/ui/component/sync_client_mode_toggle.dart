@@ -22,7 +22,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
         children: [
           Expanded(
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
+              duration: animFast,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: cornerRadiusMD, topRight: Radius.zero, bottomLeft: cornerRadiusMD, bottomRight: Radius.zero),
                 color: clientModeEnabledSnapshot.data != true ? colours.tertiaryInfo : colours.tertiaryDark,
@@ -75,7 +75,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
-                        duration: Duration(milliseconds: 200),
+                        duration: animFast,
                       ),
                       SizedBox(height: spaceXXXXS),
                       AnimatedDefaultTextStyle(
@@ -89,7 +89,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
-                        duration: Duration(milliseconds: 200),
+                        duration: animFast,
                       ),
                     ],
                   ),
@@ -99,7 +99,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
           ),
           Expanded(
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
+              duration: animFast,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: cornerRadiusMD, bottomLeft: Radius.zero, bottomRight: cornerRadiusMD),
                 color: clientModeEnabledSnapshot.data == true ? colours.tertiaryInfo : colours.tertiaryDark,
@@ -152,7 +152,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
-                        duration: Duration(milliseconds: 200),
+                        duration: animFast,
                       ),
                       SizedBox(height: spaceXXXXS),
                       AnimatedDefaultTextStyle(
@@ -166,7 +166,7 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                           fontSize: textXS,
                           fontWeight: FontWeight.bold,
                         ),
-                        duration: Duration(milliseconds: 200),
+                        duration: animFast,
                       ),
                     ],
                   ),

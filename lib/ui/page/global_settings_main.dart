@@ -76,7 +76,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
 
     if (widget.onboarding) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await _controller.animateTo(_controller.position.maxScrollExtent / 2, duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+        await _controller.animateTo(_controller.position.maxScrollExtent / 2, duration: animSlow, curve: Curves.easeInOut);
         await Future.delayed(Duration(milliseconds: 200));
         ShowCaseWidget.of(context).startShowCase([_uiSetupGuideKey]);
         while (!ShowCaseWidget.of(context).isShowCaseCompleted) {
@@ -167,7 +167,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                           children: [
                             Expanded(
                               child: AnimatedContainer(
-                                duration: Duration(milliseconds: 200),
+                                duration: animFast,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                     topLeft: cornerRadiusMD,
@@ -224,7 +224,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                                             fontSize: textMD,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                          duration: Duration(milliseconds: 200),
+                                          duration: animFast,
                                         ),
                                       ],
                                     ),
@@ -234,7 +234,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                             Expanded(
                               child: AnimatedContainer(
-                                duration: Duration(milliseconds: 200),
+                                duration: animFast,
                                 decoration: BoxDecoration(borderRadius: BorderRadius.zero, color: colours.tertiaryLight),
                                 padding: EdgeInsets.symmetric(vertical: 3),
                                 child: Container(
@@ -269,7 +269,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                                               fontSize: textMD,
                                               fontWeight: FontWeight.bold,
                                             ),
-                                            duration: Duration(milliseconds: 200),
+                                            duration: animFast,
                                           ),
                                           SizedBox(height: spaceXXXS),
                                           Transform.flip(
@@ -289,7 +289,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             ),
                             Expanded(
                               child: AnimatedContainer(
-                                duration: Duration(milliseconds: 200),
+                                duration: animFast,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.zero,
@@ -346,7 +346,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                                             fontSize: textMD,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                          duration: Duration(milliseconds: 200),
+                                          duration: animFast,
                                         ),
                                       ],
                                     ),

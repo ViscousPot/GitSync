@@ -395,7 +395,7 @@ class CustomAlertDialog extends AlertDialog {
       shape: shape,
       alignment: alignment,
       child: AnimatedSize(
-        duration: Duration(milliseconds: 300),
+        duration: animMedium,
         curve: Curves.easeInOut,
         child: SizedBox(height: expanded ? MediaQuery.of(context).size.height : null, child: dialogChild),
       ),

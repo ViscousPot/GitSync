@@ -284,7 +284,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                     child: Row(
                       children: [
                         AnimatedSize(
-                          duration: Duration(milliseconds: 200),
+                          duration: animFast,
                           child: SizedBox(width: (snapshot.data ?? false) ? spaceMD + spaceXXS : 0),
                         ),
                         Flexible(
@@ -317,7 +317,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ),
                 ),
                 AnimatedPositioned(
-                  duration: Duration(milliseconds: 200),
+                  duration: animFast,
                   top: 0,
                   left: 0,
                   bottom: 0,
@@ -344,7 +344,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
               ],
             ),
             AnimatedSize(
-              duration: Duration(milliseconds: 200),
+              duration: animFast,
               child: SizedBox(
                 height: (snapshot.data ?? false) ? null : 0,
                 child: (snapshot.data ?? false) ? _buildBody() : SizedBox.shrink(),
