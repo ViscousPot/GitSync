@@ -360,7 +360,7 @@
     "invalidRemote": "Ungültiges Remote! Ändern Sie dies in den Einstellungen",
     "largeFile": "Einzelne Dateien größer als 50MB werden nicht unterstützt!",
     "cloneFailed": "Repository konnte nicht geklont werden!",
-    "inaccessibleDirectoryMessage": "Nicht zugängliches Verzeichnis! Bitte wählen Sie einen anderen Standort.",
+    "inaccessibleDirectoryMessage": "Dieser Ordner ist nicht zugänglich. Erstellen Sie einen neuen Ordner am selben Ort mit einem anderen Namen und wählen Sie diesen stattdessen aus.",
     "autoRebaseFailedException": "Remote ist weiter voraus als lokal und wir konnten nicht automatisch für Sie rebasen, da dies ein Non-Fast-Forward-Update verursachen würde.",
     "nonExistingException": "Remote-Ref existierte nicht.",
     "rejectedNodeleteException": "Remote-Ref-Update wurde abgelehnt, weil die Remote-Seite das Löschen von Refs nicht unterstützt/erlaubt.",
