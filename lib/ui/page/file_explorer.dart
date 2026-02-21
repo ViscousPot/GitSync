@@ -54,111 +54,120 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
 
       return ValueListenableBuilder(
         valueListenable: selectedPathsNotifier,
-        builder: (context, selectedPaths, child) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: spaceMD),
-          child: ListView.builder(
-            itemCount: entities.length,
-            itemBuilder: (context, index) {
-              final isHidden = FileManager.basename(entities[index]) == "" || FileManager.basename(entities[index]).startsWith('.');
-              final isFile = FileManager.isFile(entities[index]);
-              final path = entities[index].path;
-              bool longPressTriggered = false;
+        builder: (context, selectedPaths, child) => RefreshIndicator(
+          color: colours.tertiaryDark,
+          onRefresh: () async {
+            reload();
+            await Future.delayed(Duration(milliseconds: 500));
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: spaceMD),
+            child: ListView.builder(
+              itemCount: entities.length,
+              itemBuilder: (context, index) {
+                final isHidden = FileManager.basename(entities[index]) == "" || FileManager.basename(entities[index]).startsWith('.');
+                final isFile = FileManager.isFile(entities[index]);
+                final path = entities[index].path;
+                bool longPressTriggered = false;
 
-              return Padding(
-                padding: EdgeInsets.only(bottom: spaceSM),
-                child: Material(
-                  color: selectedPaths.contains(path) ? colours.tertiaryLight : colours.tertiaryDark,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                  child: InkWell(
-                    onTap: () async {
-                      if (selectedPaths.contains(path)) {
-                        selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
-                        return;
-                      }
-                      if (selectedPaths.isNotEmpty) {
-                        selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
-                        return;
-                      }
-                      if (longPressTriggered) return;
+                return Padding(
+                  padding: EdgeInsets.only(bottom: spaceSM),
+                  child: Material(
+                    color: selectedPaths.contains(path) ? colours.tertiaryLight : colours.tertiaryDark,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                    child: InkWell(
+                      onTap: () async {
+                        if (selectedPaths.contains(path)) {
+                          selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
+                          return;
+                        }
+                        if (selectedPaths.isNotEmpty) {
+                          selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
+                          return;
+                        }
+                        if (longPressTriggered) return;
 
-                      if (FileManager.isDirectory(entities[index])) {
-                        controller.openDirectory(entities[index]);
-                      } else {
-                        viewOrEditFile(context, path);
-                      }
-                    },
-                    onLongPress: () {
-                      longPressTriggered = true;
-                      if (selectedPaths.contains(path)) {
-                        selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
-                      } else {
-                        selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
-                      }
-                    },
-                    onHighlightChanged: (value) {
-                      if (!value) longPressTriggered = false;
-                    },
-                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                    child: Padding(
-                      padding: EdgeInsets.all(spaceSM),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: textMD,
-                            margin: EdgeInsets.all(spaceXS),
-                            child: FaIcon(
-                              isHidden
-                                  ? (isFile
-                                        ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
-                                              ? FontAwesomeIcons.fileLines
-                                              : (imageExtensions.any((item) => entities[index].path.endsWith(item))
-                                                    ? FontAwesomeIcons.fileImage
-                                                    : FontAwesomeIcons.file))
-                                        : FontAwesomeIcons.folder)
-                                  : (isFile
-                                        ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
-                                              ? FontAwesomeIcons.solidFileLines
-                                              : (imageExtensions.any((item) => entities[index].path.endsWith(item))
-                                                    ? FontAwesomeIcons.solidFileImage
-                                                    : FontAwesomeIcons.solidFile))
-                                        : FontAwesomeIcons.solidFolder),
-                              color: isFile
-                                  ? (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight)
-                                  : (selectedPaths.contains(path) ? colours.tertiaryInfo : colours.primaryInfo),
-                              size: textMD,
+                        if (FileManager.isDirectory(entities[index])) {
+                          controller.openDirectory(entities[index]);
+                        } else {
+                          viewOrEditFile(context, path);
+                        }
+                      },
+                      onLongPress: () {
+                        longPressTriggered = true;
+                        if (selectedPaths.contains(path)) {
+                          selectedPathsNotifier.value = selectedPathsNotifier.value.where((p) => p != path).toList();
+                        } else {
+                          selectedPathsNotifier.value = [...selectedPathsNotifier.value, path];
+                        }
+                      },
+                      onHighlightChanged: (value) {
+                        if (!value) longPressTriggered = false;
+                      },
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      child: Padding(
+                        padding: EdgeInsets.all(spaceSM),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: textMD,
+                              margin: EdgeInsets.all(spaceXS),
+                              child: FaIcon(
+                                isHidden
+                                    ? (isFile
+                                          ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
+                                                ? FontAwesomeIcons.fileLines
+                                                : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                      ? FontAwesomeIcons.fileImage
+                                                      : FontAwesomeIcons.file))
+                                          : FontAwesomeIcons.folder)
+                                    : (isFile
+                                          ? (extensionToLanguageMap.keys.contains(p.extension(entities[index].path).replaceFirst('.', ''))
+                                                ? FontAwesomeIcons.solidFileLines
+                                                : (imageExtensions.any((item) => entities[index].path.endsWith(item))
+                                                      ? FontAwesomeIcons.solidFileImage
+                                                      : FontAwesomeIcons.solidFile))
+                                          : FontAwesomeIcons.solidFolder),
+                                color: isFile
+                                    ? (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight)
+                                    : (selectedPaths.contains(path) ? colours.tertiaryInfo : colours.primaryInfo),
+                                size: textMD,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: spaceSM),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  FileManager.basename(entities[index]),
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
-                                ),
-                                FutureBuilder<FileStat>(
-                                  future: entities[index].stat(),
-                                  builder: (context, snapshot) => Text(
-                                    snapshot.hasData
-                                        ? (entities[index] is File ? formatBytes(snapshot.data!.size) : "${snapshot.data!.modified}".substring(0, 10))
-                                        : "",
-                                    style: TextStyle(
-                                      color: (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight),
-                                      fontSize: textSM,
+                            SizedBox(width: spaceSM),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    FileManager.basename(entities[index]),
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, overflow: TextOverflow.ellipsis),
+                                  ),
+                                  FutureBuilder<FileStat>(
+                                    future: entities[index].stat(),
+                                    builder: (context, snapshot) => Text(
+                                      snapshot.hasData
+                                          ? (entities[index] is File
+                                                ? formatBytes(snapshot.data!.size)
+                                                : "${snapshot.data!.modified}".substring(0, 10))
+                                          : "",
+                                      style: TextStyle(
+                                        color: (selectedPaths.contains(path) ? colours.primaryLight : colours.secondaryLight),
+                                        fontSize: textSM,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       );
@@ -174,9 +183,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
           throw Exception('Path does not exist.');
         }
 
-        RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (
-          fileName,
-        ) async {
+        RenameFileFolderDialog.showDialog(context, p.basename(oldPath), entity == FileSystemEntityType.directory, (fileName) async {
           final dir = p.dirname(oldPath);
           final newPath = p.join(dir, fileName);
 
@@ -187,11 +194,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
               await File(oldPath).rename(newPath);
             }
           } catch (e) {
-            Fluttertoast.showToast(
-              msg: "Failed to rename file/directory: $e",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: null,
-            );
+            Fluttertoast.showToast(msg: "Failed to rename file/directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
           }
           selectedPathsNotifier.value = [];
           reload();
@@ -230,7 +233,8 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
   ];
 
   ((String, String), Function(List<String>)) get selectAllOption {
-    final allSelected = selectedPathsNotifier.value.length >= entityPathsNotifier.value.length &&
+    final allSelected =
+        selectedPathsNotifier.value.length >= entityPathsNotifier.value.length &&
         entityPathsNotifier.value.isNotEmpty &&
         entityPathsNotifier.value.every((p) => selectedPathsNotifier.value.contains(p));
     return allSelected
@@ -471,8 +475,13 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                       padding: EdgeInsets.zero,
                                       alignment: Alignment.bottomCenter,
                                       onChanged: (value) {},
-                                      items: [selectAllOption, if (selectedPaths.length == 1) ...singleSelectOptions, "ignoreAndUntrack", ...ignoreAndUntrackOptions]
-                                          .map((option) {
+                                      items:
+                                          [
+                                            selectAllOption,
+                                            if (selectedPaths.length == 1) ...singleSelectOptions,
+                                            "ignoreAndUntrack",
+                                            ...ignoreAndUntrackOptions,
+                                          ].map((option) {
                                             if (option is String) {
                                               switch (option) {
                                                 case "ignoreAndUntrack":
@@ -552,8 +561,7 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                             }
 
                                             return DropdownMenuItem(child: SizedBox.shrink());
-                                          })
-                                          .toList(),
+                                          }).toList(),
                                     ),
                                   ),
                                 ],
