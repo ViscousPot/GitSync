@@ -11,7 +11,7 @@ use std::{
     env, fs,
     path::{Path, PathBuf},
     sync::{
-        atomic::{AtomicBool, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicI32, AtomicU64, Ordering},
         Arc, Mutex,
     },
     time::Instant,
@@ -781,6 +781,7 @@ pub async fn clone_repository(
         true
     });
 
+    let last_progress = Arc::new(AtomicI32::new(-1));
     callbacks.transfer_progress(move |stats| {
         let total = stats.total_objects() as i32;
         let received = stats.indexed_objects() as i32;
@@ -789,10 +790,13 @@ pub async fn clone_repository(
         } else {
             0
         };
-        let callback = Arc::clone(&clone_progress_callback);
-        flutter_rust_bridge::spawn(async move {
-            callback(progress).await;
-        });
+        let prev = last_progress.swap(progress, Ordering::Relaxed);
+        if prev != progress {
+            let callback = Arc::clone(&clone_progress_callback);
+            flutter_rust_bridge::spawn(async move {
+                callback(progress).await;
+            });
+        }
         true
     });
 

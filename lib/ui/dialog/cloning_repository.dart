@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:flutter/material.dart' as mat;
@@ -12,18 +13,20 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
   double progress = 0.0;
   StateSetter? setState;
 
-  FlutterBackgroundService().on("cloneTaskCallback").listen((event) async {
+  final taskSub = FlutterBackgroundService().on("cloneTaskCallback").listen((event) async {
     if (event == null) return;
     task = event["task"];
     if (context.mounted) setState?.call(() {});
   });
-  FlutterBackgroundService().on("cloneProgressCallback").listen((event) async {
+  final progressSub = FlutterBackgroundService().on("cloneProgressCallback").listen((event) async {
     if (event == null) return;
     progress = event["progress"] / 100.0;
     if (context.mounted) setState?.call(() {});
   });
 
   runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir}).then((result) {
+    taskSub.cancel();
+    progressSub.cancel();
     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
     callback(result);
   });
