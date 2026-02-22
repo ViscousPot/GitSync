@@ -320,8 +320,11 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                             decoration: BoxDecoration(
                               border: BoxBorder.all(width: spaceXXXS, color: colours.premiumAccent, strokeAlign: BorderSide.strokeAlignOutside),
                               shape: BoxShape.circle,
-                              color: Colors.white,
-                              image: DecorationImage(fit: BoxFit.fill, image: AssetImage('assets/app_icon.png')),
+                              image: DecorationImage(
+                                fit: BoxFit.fill,
+                                image: AssetImage('assets/app_icon.png'),
+                                colorFilter: ColorFilter.mode(colours.primaryLight, BlendMode.srcATop),
+                              ),
                             ),
                           ),
                           SizedBox(height: spaceLG),
@@ -446,14 +449,15 @@ class _UnlockPremiumState extends State<UnlockPremium> {
                                               ? SizedBox(
                                                   height: textMD,
                                                   width: textMD,
-                                                  child: CircularProgressIndicator(
-                                                    color: colours.premiumTextSecondary,
-                                                    strokeWidth: spaceXXXS,
-                                                  ),
+                                                  child: CircularProgressIndicator(color: colours.premiumTextSecondary, strokeWidth: spaceXXXS),
                                                 )
                                               : Text(
                                                   t.restorePurchase.toUpperCase(),
-                                                  style: TextStyle(color: colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
+                                                  style: TextStyle(
+                                                    color: colours.premiumTextSecondary,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: textMD,
+                                                  ),
                                                 ),
                                           onPressed: _restoringPurchase
                                               ? null
