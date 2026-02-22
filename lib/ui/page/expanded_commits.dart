@@ -28,6 +28,7 @@ class ExpandedCommits extends StatefulWidget {
     required this.onReloadAll,
     this.initialScrollOffset = 0,
     this.pendingFeature,
+    this.isAuthenticated = false,
   });
 
   final ValueNotifier<List<GitManagerRs.Commit>> recentCommits;
@@ -43,6 +44,7 @@ class ExpandedCommits extends StatefulWidget {
   final Future<void> Function() onReloadAll;
   final double initialScrollOffset;
   final ShowcaseFeature? pendingFeature;
+  final bool isAuthenticated;
 
   @override
   State<ExpandedCommits> createState() => _ExpandedCommitsState();
@@ -379,7 +381,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                             ],
                           ),
                           SizedBox(height: spaceMD),
-                          if (isOAuthProvider) ...[
+                          if (isOAuthProvider && widget.isAuthenticated) ...[
                             Stack(
                               clipBehavior: Clip.none,
                               children: [
@@ -486,6 +488,7 @@ Route createExpandedCommitsRoute({
   required Future<void> Function() onReloadAll,
   double initialScrollOffset = 0,
   ShowcaseFeature? pendingFeature,
+  bool isAuthenticated = false,
 }) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: expanded_commits),
@@ -503,6 +506,7 @@ Route createExpandedCommitsRoute({
       onReloadAll: onReloadAll,
       initialScrollOffset: initialScrollOffset,
       pendingFeature: pendingFeature,
+      isAuthenticated: isAuthenticated,
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(opacity: animation, child: child);
