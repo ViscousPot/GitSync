@@ -177,8 +177,23 @@ class _ItemRelease extends StatefulWidget {
   State<_ItemRelease> createState() => _ItemReleaseState();
 }
 
-class _ItemReleaseState extends State<_ItemRelease> {
+class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderStateMixin {
   bool _expanded = false;
+  late final AnimationController _chevronController;
+  late final Animation<double> _chevronTurns;
+
+  @override
+  void initState() {
+    super.initState();
+    _chevronController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+    _chevronTurns = Tween<double>(begin: 0.0, end: 0.5).animate(CurvedAnimation(parent: _chevronController, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _chevronController.dispose();
+    super.dispose();
+  }
 
   Map<String, String> get _authHeaders => switch (widget.gitProvider) {
         GitProvider.GITLAB => {'Authorization': 'Bearer ${widget.accessToken}'},
@@ -211,7 +226,14 @@ class _ItemReleaseState extends State<_ItemRelease> {
     final relativeTime = timeago.format(release.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
 
     return GestureDetector(
-      onTap: () => setState(() => _expanded = !_expanded),
+      onTap: () {
+        setState(() => _expanded = !_expanded);
+        if (_expanded) {
+          _chevronController.forward();
+        } else {
+          _chevronController.reverse();
+        }
+      },
       child: AnimatedSize(
         duration: const Duration(milliseconds: 200),
         alignment: Alignment.topCenter,
@@ -237,6 +259,11 @@ class _ItemReleaseState extends State<_ItemRelease> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
+                  ),
+                  SizedBox(width: spaceXXS),
+                  RotationTransition(
+                    turns: _chevronTurns,
+                    child: FaIcon(FontAwesomeIcons.chevronDown, size: textXS, color: colours.tertiaryLight),
                   ),
                 ],
               ),
