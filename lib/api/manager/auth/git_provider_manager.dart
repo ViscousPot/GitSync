@@ -5,6 +5,7 @@ import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/issue.dart';
+import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/release.dart';
@@ -150,4 +151,24 @@ class GitProviderManager {
     Function(List<ActionRun>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}
+
+  Future<IssueDetail?> getIssueDetail(String accessToken, String owner, String repo, int issueNumber) async {
+    return null;
+  }
+
+  Future<IssueComment?> addIssueComment(String accessToken, String owner, String repo, int issueNumber, String body) async {
+    return null;
+  }
+
+  Future<bool> updateIssueState(String accessToken, String owner, String repo, int issueNumber, String issueId, bool close) async {
+    return false;
+  }
+
+  Future<bool> addReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    return false;
+  }
+
+  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    return false;
+  }
 }

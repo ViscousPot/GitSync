@@ -9,6 +9,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
+import 'package:GitSync/ui/page/issue_detail_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class IssuesPage extends StatefulWidget {
@@ -217,7 +218,37 @@ class _IssuesPageState extends State<IssuesPage> {
                         }
                         return Padding(
                           padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemIssue(issue: _issues[index]),
+                          child: _ItemIssue(
+                            issue: _issues[index],
+                            onTap: () async {
+                              final result = await Navigator.of(context).push(
+                                createIssueDetailPageRoute(
+                                  gitProvider: widget.gitProvider,
+                                  remoteWebUrl: widget.remoteWebUrl,
+                                  accessToken: widget.accessToken,
+                                  githubAppOauth: widget.githubAppOauth,
+                                  issueNumber: _issues[index].number,
+                                  issueTitle: _issues[index].title,
+                                ),
+                              );
+                              // If the issue state was changed, update the list item
+                              if (result is bool && mounted) {
+                                setState(() {
+                                  final old = _issues[index];
+                                  _issues[index] = Issue(
+                                    title: old.title,
+                                    number: old.number,
+                                    isOpen: result,
+                                    authorUsername: old.authorUsername,
+                                    createdAt: old.createdAt,
+                                    commentCount: old.commentCount,
+                                    linkedPrCount: old.linkedPrCount,
+                                    labels: old.labels,
+                                  );
+                                });
+                              }
+                            },
+                          ),
                         );
                       },
                     ),
@@ -290,8 +321,9 @@ class _FilterChip extends StatelessWidget {
 
 class _ItemIssue extends StatelessWidget {
   final Issue issue;
+  final VoidCallback? onTap;
 
-  const _ItemIssue({required this.issue});
+  const _ItemIssue({required this.issue, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +332,7 @@ class _ItemIssue extends StatelessWidget {
         .replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
 
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(spaceSM),
         decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),

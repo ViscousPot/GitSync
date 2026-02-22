@@ -91,6 +91,11 @@ enum LogType {
   GetTags,
   GetReleases,
   GetActionRuns,
+  GetIssueDetail,
+  AddIssueComment,
+  UpdateIssueState,
+  AddReaction,
+  RemoveReaction,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }

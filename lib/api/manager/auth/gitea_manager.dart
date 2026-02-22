@@ -3,6 +3,7 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
+import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
 import 'package:GitSync/type/tag.dart';
@@ -492,6 +493,203 @@ class GiteaManager extends GitProviderManager {
       Logger.logError(LogType.GetActionRuns, e, st);
       updateCallback([]);
       nextPageCallback(null);
+    }
+  }
+
+  @override
+  Future<IssueDetail?> getIssueDetail(String accessToken, String owner, String repo, int issueNumber) async {
+    try {
+      final headers = {"Accept": "application/json", "Authorization": "token $accessToken"};
+
+      // Fetch issue, comments, and reactions in parallel
+      final results = await Future.wait([
+        httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber/comments"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber/reactions"), headers: headers),
+      ]);
+
+      final issueResp = results[0];
+      final commentsResp = results[1];
+      final reactionsResp = results[2];
+
+      if (issueResp.statusCode != 200) return null;
+
+      final issue = json.decode(utf8.decode(issueResp.bodyBytes));
+
+      // Get viewer username
+      final userResp = await httpGet(Uri.parse("https://$_domain/api/v1/user"), headers: headers);
+      final viewerLogin = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["login"] as String? ?? "") : "";
+
+      // Parse viewer permission from repo permissions
+      ViewerPermission permission = ViewerPermission.read;
+      final repoResp = await httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo"), headers: headers);
+      if (repoResp.statusCode == 200) {
+        final repoData = json.decode(utf8.decode(repoResp.bodyBytes));
+        final perms = repoData["permissions"] as Map<String, dynamic>?;
+        if (perms?["admin"] == true) {
+          permission = ViewerPermission.admin;
+        } else if (perms?["push"] == true) {
+          permission = ViewerPermission.write;
+        } else if (perms?["pull"] == true) {
+          permission = ViewerPermission.read;
+        }
+      }
+
+      // Parse issue reactions
+      List<IssueReaction> reactions = [];
+      if (reactionsResp.statusCode == 200) {
+        final reactionList = json.decode(utf8.decode(reactionsResp.bodyBytes)) as List<dynamic>;
+        final Map<String, (int, bool)> counts = {};
+        for (final r in reactionList) {
+          final content = r["type"] as String? ?? "";
+          final isViewer = (r["user"]?["login"] as String? ?? "") == viewerLogin;
+          final existing = counts[content];
+          counts[content] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer);
+        }
+        reactions = counts.entries.map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2)).toList();
+      }
+
+      // Parse comments
+      List<IssueComment> comments = [];
+      if (commentsResp.statusCode == 200) {
+        final commentList = json.decode(utf8.decode(commentsResp.bodyBytes)) as List<dynamic>;
+        for (final c in commentList) {
+          // Fetch per-comment reactions
+          List<IssueReaction> commentReactions = [];
+          try {
+            final crResp = await httpGet(
+              Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/comments/${c["id"]}/reactions"),
+              headers: headers,
+            );
+            if (crResp.statusCode == 200) {
+              final crList = json.decode(utf8.decode(crResp.bodyBytes)) as List<dynamic>;
+              final Map<String, (int, bool)> crCounts = {};
+              for (final r in crList) {
+                final content = r["type"] as String? ?? "";
+                final isViewer = (r["user"]?["login"] as String? ?? "") == viewerLogin;
+                final existing = crCounts[content];
+                crCounts[content] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer);
+              }
+              commentReactions = crCounts.entries.map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2)).toList();
+            }
+          } catch (_) {}
+
+          comments.add(IssueComment(
+            id: "${c["id"]}",
+            authorUsername: c["user"]?["login"] ?? "",
+            body: c["body"] ?? "",
+            createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
+            reactions: commentReactions,
+          ));
+        }
+      }
+
+      return IssueDetail(
+        id: "${issue["id"]}",
+        title: issue["title"] ?? "",
+        number: issue["number"] ?? 0,
+        isOpen: issue["state"] == "open",
+        authorUsername: issue["user"]?["login"] ?? "",
+        createdAt: DateTime.tryParse(issue["created_at"] ?? "") ?? DateTime.now(),
+        body: issue["body"] ?? "",
+        labels: (issue["labels"] as List<dynamic>?)
+                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
+                .toList() ??
+            [],
+        reactions: reactions,
+        comments: comments,
+        viewerPermission: permission,
+      );
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssueDetail, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<IssueComment?> addIssueComment(String accessToken, String owner, String repo, int issueNumber, String body) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber/comments"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/json"},
+        body: json.encode({"body": body}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return IssueComment(
+          id: "${data["id"]}",
+          authorUsername: data["user"]?["login"] ?? "",
+          body: data["body"] ?? "",
+          createdAt: DateTime.tryParse(data["created_at"] ?? "") ?? DateTime.now(),
+        );
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.AddIssueComment, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updateIssueState(String accessToken, String owner, String repo, int issueNumber, String issueId, bool close) async {
+    try {
+      final response = await httpPatch(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"state": close ? "closed" : "open"}),
+      );
+
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.UpdateIssueState, e, st);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> addReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    try {
+      final String url;
+      if (isComment) {
+        url = "https://$_domain/api/v1/repos/$owner/$repo/issues/comments/$targetId/reactions";
+      } else {
+        url = "https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber/reactions";
+      }
+
+      final response = await httpPost(
+        Uri.parse(url),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"content": reaction}),
+      );
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e, st) {
+      Logger.logError(LogType.AddReaction, e, st);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    try {
+      final String url;
+      if (isComment) {
+        url = "https://$_domain/api/v1/repos/$owner/$repo/issues/comments/$targetId/reactions";
+      } else {
+        url = "https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber/reactions";
+      }
+
+      final response = await httpDelete(
+        Uri.parse(url),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"content": reaction}),
+      );
+
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.RemoveReaction, e, st);
+      return false;
     }
   }
 }

@@ -1779,6 +1779,57 @@ class AppLocalizationsFr extends AppLocalizations {
   String get githubScopedRepoMsg => 'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.';
 
   @override
+  String get issueDescription => 'Description';
+
+  @override
+  String get issueNoDescription => 'No description provided';
+
+  @override
+  String get issueComments => 'Comments';
+
+  @override
+  String get issueNoComments => 'No comments yet';
+
+  @override
+  String get issueAddComment => 'Add a comment…';
+
+  @override
+  String get issueSubmitComment => 'Submit';
+
+  @override
+  String get issueCloseIssue => 'Close Issue';
+
+  @override
+  String get issueReopenIssue => 'Reopen Issue';
+
+  @override
+  String get issueAddReaction => 'Add Reaction';
+
+  @override
+  String get issueWriteDisabled => 'You do not have write access';
+
+  @override
+  String get issueStateUpdated => 'Issue state updated';
+
+  @override
+  String get issueCommentAdded => 'Comment added';
+
+  @override
+  String get issueCommentFailed => 'Failed to add comment';
+
+  @override
+  String get issueStateUpdateFailed => 'Failed to update issue state';
+
+  @override
+  String get issueReactionFailed => 'Failed to update reaction';
+
+  @override
+  String get issuePreview => 'Preview';
+
+  @override
+  String get issueWrite => 'Write';
+
+  @override
   String get recentCommits => 'Recent Commits';
 
   @override

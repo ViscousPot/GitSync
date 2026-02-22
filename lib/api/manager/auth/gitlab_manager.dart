@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
+import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
 import 'package:GitSync/type/tag.dart';
@@ -20,7 +22,7 @@ class GitlabManager extends GitProviderManager {
 
   get clientId => gitlabClientId;
   get clientSecret => gitlabClientSecret;
-  get scopes => ["read_user", "read_api", "read_repository", "write_repository"];
+  get scopes => ["read_user", "api", "read_repository", "write_repository"];
 
   OAuth2Client get oauthClient => OAuth2Client(
     authorizeUrl: 'https://gitlab.com/oauth/authorize',
@@ -407,6 +409,226 @@ class GitlabManager extends GitProviderManager {
       Logger.logError(LogType.GetActionRuns, e, st);
       updateCallback([]);
       nextPageCallback(null);
+    }
+  }
+
+  @override
+  Future<IssueDetail?> getIssueDetail(String accessToken, String owner, String repo, int issueNumber) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final headers = {"Authorization": "Bearer $accessToken"};
+
+      // Fetch issue, notes, and award_emoji in parallel
+      final results = await Future.wait([
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes?per_page=100&sort=asc"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/award_emoji"), headers: headers),
+      ]);
+
+      final issueResp = results[0];
+      final notesResp = results[1];
+      final emojiResp = results[2];
+
+      if (issueResp.statusCode != 200) return null;
+
+      final issue = json.decode(utf8.decode(issueResp.bodyBytes));
+
+      // Get viewer username for reaction matching
+      final userResp = await httpGet(Uri.parse("https://$_domain/api/v4/user"), headers: headers);
+      final viewerUsername = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["username"] as String? ?? "") : "";
+
+      // Parse issue reactions
+      final List<IssueReaction> reactions = [];
+      if (emojiResp.statusCode == 200) {
+        final emojis = json.decode(utf8.decode(emojiResp.bodyBytes)) as List<dynamic>;
+        final Map<String, (int, bool, int?)> counts = {};
+        for (final emoji in emojis) {
+          final name = gitlabReactionNamesReverse[emoji["name"] as String? ?? ""] ?? (emoji["name"] as String? ?? "");
+          final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
+          final awardId = emoji["id"] as int?;
+          final existing = counts[name];
+          counts[name] = (
+            (existing?.$1 ?? 0) + 1,
+            (existing?.$2 ?? false) || isViewer,
+            isViewer ? awardId : existing?.$3,
+          );
+        }
+        for (final e in counts.entries) {
+          reactions.add(IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3));
+        }
+      }
+
+      // Parse comments (notes), filtering out system notes
+      final List<IssueComment> comments = [];
+      if (notesResp.statusCode == 200) {
+        final notes = json.decode(utf8.decode(notesResp.bodyBytes)) as List<dynamic>;
+        for (final note in notes) {
+          if (note["system"] == true) continue;
+
+          // Fetch per-note reactions
+          List<IssueReaction> noteReactions = [];
+          try {
+            final noteEmojiResp = await httpGet(
+              Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes/${note["id"]}/award_emoji"),
+              headers: headers,
+            );
+            if (noteEmojiResp.statusCode == 200) {
+              final noteEmojis = json.decode(utf8.decode(noteEmojiResp.bodyBytes)) as List<dynamic>;
+              final Map<String, (int, bool, int?)> noteCounts = {};
+              for (final emoji in noteEmojis) {
+                final name = gitlabReactionNamesReverse[emoji["name"] as String? ?? ""] ?? (emoji["name"] as String? ?? "");
+                final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
+                final awardId = emoji["id"] as int?;
+                final existing = noteCounts[name];
+                noteCounts[name] = (
+                  (existing?.$1 ?? 0) + 1,
+                  (existing?.$2 ?? false) || isViewer,
+                  isViewer ? awardId : existing?.$3,
+                );
+              }
+              noteReactions = noteCounts.entries
+                  .map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3))
+                  .toList();
+            }
+          } catch (_) {}
+
+          comments.add(IssueComment(
+            id: "${note["id"]}",
+            authorUsername: note["author"]?["username"] ?? "",
+            body: note["body"] ?? "",
+            createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
+            reactions: noteReactions,
+          ));
+        }
+      }
+
+      return IssueDetail(
+        id: "${issue["iid"]}",
+        title: issue["title"] ?? "",
+        number: issue["iid"] ?? 0,
+        isOpen: issue["state"] == "opened",
+        authorUsername: issue["author"]?["username"] ?? "",
+        createdAt: DateTime.tryParse(issue["created_at"] ?? "") ?? DateTime.now(),
+        body: issue["description"] ?? "",
+        labels: (issue["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
+        reactions: reactions,
+        comments: comments,
+        viewerPermission: ViewerPermission.write,
+      );
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssueDetail, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<IssueComment?> addIssueComment(String accessToken, String owner, String repo, int issueNumber, String body) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"body": body}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return IssueComment(
+          id: "${data["id"]}",
+          authorUsername: data["author"]?["username"] ?? "",
+          body: data["body"] ?? "",
+          createdAt: DateTime.tryParse(data["created_at"] ?? "") ?? DateTime.now(),
+        );
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.AddIssueComment, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updateIssueState(String accessToken, String owner, String repo, int issueNumber, String issueId, bool close) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final response = await httpPut(
+        Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"state_event": close ? "close" : "reopen"}),
+      );
+
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.UpdateIssueState, e, st);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> addReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final emojiName = gitlabReactionNames[reaction] ?? reaction;
+      final String url;
+      if (isComment) {
+        url = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes/$targetId/award_emoji";
+      } else {
+        url = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/award_emoji";
+      }
+
+      final response = await httpPost(
+        Uri.parse(url),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"name": emojiName}),
+      );
+
+      return response.statusCode == 201;
+    } catch (e, st) {
+      Logger.logError(LogType.AddReaction, e, st);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final emojiName = gitlabReactionNames[reaction] ?? reaction;
+
+      // First find the award emoji ID
+      final String listUrl;
+      if (isComment) {
+        listUrl = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes/$targetId/award_emoji";
+      } else {
+        listUrl = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/award_emoji";
+      }
+
+      final listResp = await httpGet(Uri.parse(listUrl), headers: {"Authorization": "Bearer $accessToken"});
+      if (listResp.statusCode != 200) return false;
+
+      final userResp = await httpGet(Uri.parse("https://$_domain/api/v4/user"), headers: {"Authorization": "Bearer $accessToken"});
+      final viewerUsername = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["username"] as String? ?? "") : "";
+
+      final emojis = json.decode(utf8.decode(listResp.bodyBytes)) as List<dynamic>;
+      final match = emojis.firstWhere(
+        (e) => e["name"] == emojiName && (e["user"]?["username"] ?? "") == viewerUsername,
+        orElse: () => null,
+      );
+      if (match == null) return false;
+
+      final awardId = match["id"];
+      final String deleteUrl;
+      if (isComment) {
+        deleteUrl = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/notes/$targetId/award_emoji/$awardId";
+      } else {
+        deleteUrl = "https://$_domain/api/v4/projects/$projectId/issues/$issueNumber/award_emoji/$awardId";
+      }
+
+      final deleteResp = await httpDelete(Uri.parse(deleteUrl), headers: {"Authorization": "Bearer $accessToken"});
+      return deleteResp.statusCode == 204;
+    } catch (e, st) {
+      Logger.logError(LogType.RemoveReaction, e, st);
+      return false;
     }
   }
 }

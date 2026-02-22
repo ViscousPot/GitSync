@@ -470,6 +470,33 @@ Future<http.Response> httpPost(Uri url, {Map<String, String>? headers, Object? b
       },
     );
 
+Future<http.Response> httpPatch(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .patch(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpPut(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .put(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpDelete(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .delete(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
 const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".wbmp"];
 bool viewOrEditFile(BuildContext context, String path, [check = false]) {
   try {

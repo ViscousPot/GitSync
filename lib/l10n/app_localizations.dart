@@ -3598,6 +3598,108 @@ abstract class AppLocalizations {
   /// **'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.'**
   String get githubScopedRepoMsg;
 
+  /// No description provided for @issueDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get issueDescription;
+
+  /// No description provided for @issueNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description provided'**
+  String get issueNoDescription;
+
+  /// No description provided for @issueComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get issueComments;
+
+  /// No description provided for @issueNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get issueNoComments;
+
+  /// No description provided for @issueAddComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment…'**
+  String get issueAddComment;
+
+  /// No description provided for @issueSubmitComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get issueSubmitComment;
+
+  /// No description provided for @issueCloseIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Issue'**
+  String get issueCloseIssue;
+
+  /// No description provided for @issueReopenIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen Issue'**
+  String get issueReopenIssue;
+
+  /// No description provided for @issueAddReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Reaction'**
+  String get issueAddReaction;
+
+  /// No description provided for @issueWriteDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have write access'**
+  String get issueWriteDisabled;
+
+  /// No description provided for @issueStateUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue state updated'**
+  String get issueStateUpdated;
+
+  /// No description provided for @issueCommentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment added'**
+  String get issueCommentAdded;
+
+  /// No description provided for @issueCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add comment'**
+  String get issueCommentFailed;
+
+  /// No description provided for @issueStateUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update issue state'**
+  String get issueStateUpdateFailed;
+
+  /// No description provided for @issueReactionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update reaction'**
+  String get issueReactionFailed;
+
+  /// No description provided for @issuePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get issuePreview;
+
+  /// No description provided for @issueWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write'**
+  String get issueWrite;
+
   /// No description provided for @recentCommits.
   ///
   /// In en, this message translates to:

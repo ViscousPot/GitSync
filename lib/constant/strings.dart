@@ -17,6 +17,7 @@ const String pull_requests_page = "/pull_requests_page";
 const String tags_page = "/tags_page";
 const String releases_page = "/releases_page";
 const String actions_page = "/actions_page";
+const String issue_detail_page = "/issue_detail_page";
 
 const String hero_commits_list = "hero_commits_list";
 const String hero_branch_row = "hero_branch_row";
