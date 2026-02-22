@@ -192,7 +192,11 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         final issuesData = jsonData["data"]?["repository"]?["issues"];
-        if (issuesData == null) return;
+        if (issuesData == null) {
+          updateCallback([]);
+          nextPageCallback(null);
+          return;
+        }
 
         final nodes = issuesData["nodes"] as List<dynamic>? ?? [];
         final List<Issue> issues = nodes.map((item) {
@@ -227,9 +231,14 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 
@@ -301,7 +310,11 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         final prsData = jsonData["data"]?["repository"]?["pullRequests"];
-        if (prsData == null) return;
+        if (prsData == null) {
+          updateCallback([]);
+          nextPageCallback(null);
+          return;
+        }
 
         final nodes = prsData["nodes"] as List<dynamic>? ?? [];
         final List<PullRequest> prs = nodes.map((item) {
@@ -347,9 +360,14 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 
@@ -405,7 +423,11 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         final refsData = jsonData["data"]?["repository"]?["refs"];
-        if (refsData == null) return;
+        if (refsData == null) {
+          updateCallback([]);
+          nextPageCallback(null);
+          return;
+        }
 
         final nodes = refsData["nodes"] as List<dynamic>? ?? [];
         final List<Tag> tags = nodes.map((item) {
@@ -442,9 +464,14 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetTags, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 

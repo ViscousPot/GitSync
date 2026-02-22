@@ -138,9 +138,14 @@ class GitlabManager extends GitProviderManager {
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 
@@ -205,9 +210,14 @@ class GitlabManager extends GitProviderManager {
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 
@@ -252,9 +262,14 @@ class GitlabManager extends GitProviderManager {
         } else {
           nextPageCallback(null);
         }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetTags, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
     }
   }
 
