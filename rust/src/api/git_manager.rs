@@ -3406,12 +3406,14 @@ pub async fn get_conflicting(
         LogType::ConflictingFiles,
         "Getting local directory".to_string(),
     );
-    let repo = match Repository::open(path_string) {
-        Ok(repo) => repo,
-        Err(_) => return Vec::new(),
+    let Ok(repo) = Repository::open(path_string) else {
+        return Vec::new();
     };
 
-    let index = repo.index().unwrap();
+    let Ok(index) = repo.index() else {
+        return Vec::new();
+    };
+
     let mut conflicts = Vec::new();
 
     index.conflicts().unwrap().for_each(|conflict| {
