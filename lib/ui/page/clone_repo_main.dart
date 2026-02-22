@@ -233,7 +233,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                     curve: Curves.easeInOut,
                     width: spaceXXL,
                     height: spaceXXL,
-                    child: Image.asset('assets/app_icon.png', fit: BoxFit.cover),
+                    child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, color: colours.darkMode ? null : colours.primaryLight),
                   ),
                   SizedBox(height: spaceMD),
                   Text(

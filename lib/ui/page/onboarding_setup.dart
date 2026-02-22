@@ -3261,7 +3261,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         curve: Curves.easeInOut,
                         width: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
                         height: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
-                        child: Image.asset('assets/app_icon.png', fit: BoxFit.cover),
+                        child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, color: colours.darkMode ? null : colours.primaryLight),
                       ),
                     ),
                   ),
