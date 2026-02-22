@@ -6,6 +6,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/release.dart';
@@ -153,6 +154,10 @@ class GitProviderManager {
   ) async {}
 
   Future<IssueDetail?> getIssueDetail(String accessToken, String owner, String repo, int issueNumber) async {
+    return null;
+  }
+
+  Future<PrDetail?> getPrDetail(String accessToken, String owner, String repo, int prNumber) async {
     return null;
   }
 

@@ -6,6 +6,7 @@ import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
 import 'package:GitSync/type/tag.dart';
@@ -247,7 +248,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
   static const String _pullRequestsQuery = """
 query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after: String, \$labels: [String!]) {
   repository(owner: \$owner, name: \$repo) {
-    pullRequests(first: 30, states: \$states, after: \$after, labels: \$labels, orderBy: {field: CREATED_AT, direction: DESC}) {
+    pullRequests(first: 30, states: \$states, after: \$after, labels: \$labels, orderBy: {field: UPDATED_AT, direction: DESC}) {
       nodes {
         title
         number
@@ -778,6 +779,335 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
       );
     } catch (e, st) {
       Logger.logError(LogType.GetIssueDetail, e, st);
+      return null;
+    }
+  }
+
+  static const String _prDetailQuery = """
+query(\$owner: String!, \$repo: String!, \$number: Int!) {
+  repository(owner: \$owner, name: \$repo) {
+    viewerPermission
+    pullRequest(number: \$number) {
+      id
+      title
+      number
+      state
+      body
+      createdAt
+      additions
+      deletions
+      changedFiles
+      baseRefName
+      headRefName
+      headRepositoryOwner { login }
+      author { login }
+      labels(first: 20) {
+        nodes { name color }
+      }
+      reactions(first: 100) {
+        nodes {
+          content
+          user { login }
+        }
+      }
+      timelineItems(first: 100, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_COMMIT, CROSS_REFERENCED_EVENT, HEAD_REF_FORCE_PUSHED_EVENT]) {
+        nodes {
+          __typename
+          ... on IssueComment {
+            id
+            databaseId
+            body
+            createdAt
+            author { login }
+            reactions(first: 50) {
+              nodes {
+                content
+                user { login }
+              }
+            }
+          }
+          ... on PullRequestCommit {
+            commit {
+              oid
+              abbreviatedOid
+              message
+              author { name user { login } }
+              committedDate
+            }
+          }
+          ... on CrossReferencedEvent {
+            actor { login }
+            createdAt
+            isCrossRepository
+            source {
+              __typename
+              ... on PullRequest { number title repository { nameWithOwner } }
+              ... on Issue { number title repository { nameWithOwner } }
+            }
+          }
+          ... on HeadRefForcePushedEvent {
+            actor { login }
+            createdAt
+            beforeCommit { abbreviatedOid }
+            afterCommit { abbreviatedOid }
+          }
+        }
+      }
+      commits(last: 1) {
+        nodes {
+          commit {
+            statusCheckRollup {
+              state
+              contexts(first: 100) {
+                nodes {
+                  __typename
+                  ... on CheckRun {
+                    name
+                    status
+                    conclusion
+                    startedAt
+                    completedAt
+                  }
+                  ... on StatusContext {
+                    context
+                    state
+                    createdAt
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      reviews(first: 50) {
+        nodes {
+          author { login }
+          state
+          createdAt
+        }
+      }
+    }
+  }
+}
+""";
+
+  @override
+  Future<PrDetail?> getPrDetail(String accessToken, String owner, String repo, int prNumber) async {
+    try {
+      // Get viewer login for reaction matching
+      final userResp = await httpGet(
+        Uri.parse("https://api.$_domain/user"),
+        headers: {"Authorization": "token $accessToken"},
+      );
+      final viewerLogin = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["login"] as String? ?? "") : "";
+
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/graphql"),
+        headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"query": _prDetailQuery, "variables": {"owner": owner, "repo": repo, "number": prNumber}}),
+      );
+
+      if (response.statusCode != 200) return null;
+
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+      final repoData = jsonData["data"]?["repository"];
+      final pr = repoData?["pullRequest"];
+      if (pr == null) return null;
+
+      final permStr = repoData?["viewerPermission"] as String? ?? "READ";
+      final permission = switch (permStr) {
+        "ADMIN" => ViewerPermission.admin,
+        "MAINTAIN" => ViewerPermission.maintain,
+        "WRITE" => ViewerPermission.write,
+        "TRIAGE" => ViewerPermission.triage,
+        _ => ViewerPermission.read,
+      };
+
+      final prStateStr = pr["state"] ?? "";
+      final prState = switch (prStateStr) {
+        "OPEN" => PrState.open,
+        "MERGED" => PrState.merged,
+        _ => PrState.closed,
+      };
+
+      // Reactions
+      final reactionNodes = pr["reactions"]?["nodes"] as List<dynamic>? ?? [];
+
+      // Timeline items
+      final timelineNodes = pr["timelineItems"]?["nodes"] as List<dynamic>? ?? [];
+      final List<PrTimelineItem> timelineItems = [];
+      final List<PrCommit> allCommits = [];
+
+      for (final node in timelineNodes) {
+        final typeName = node["__typename"] as String? ?? "";
+        if (typeName == "IssueComment") {
+          final commentReactionNodes = node["reactions"]?["nodes"] as List<dynamic>? ?? [];
+          final comment = IssueComment(
+            id: "${node["databaseId"] ?? node["id"] ?? ""}",
+            authorUsername: node["author"]?["login"] ?? "",
+            body: node["body"] ?? "",
+            createdAt: DateTime.tryParse(node["createdAt"] ?? "") ?? DateTime.now(),
+            reactions: _aggregateReactions(commentReactionNodes, viewerLogin),
+          );
+          timelineItems.add(PrTimelineItem(type: PrTimelineItemType.comment, comment: comment, createdAt: comment.createdAt));
+        } else if (typeName == "PullRequestCommit") {
+          final c = node["commit"];
+          if (c == null) continue;
+          final commit = PrCommit(
+            sha: c["oid"] ?? "",
+            shortSha: c["abbreviatedOid"] ?? (c["oid"] as String? ?? "").substring(0, (c["oid"] as String? ?? "").length.clamp(0, 7)),
+            message: c["message"] ?? "",
+            authorUsername: c["author"]?["user"]?["login"] ?? c["author"]?["name"] ?? "",
+            createdAt: DateTime.tryParse(c["committedDate"] ?? "") ?? DateTime.now(),
+          );
+          allCommits.add(commit);
+          timelineItems.add(PrTimelineItem(type: PrTimelineItemType.commit, commit: commit, createdAt: commit.createdAt));
+        } else if (typeName == "CrossReferencedEvent") {
+          final source = node["source"] as Map<String, dynamic>?;
+          if (source == null) continue;
+          final sourceType = source["__typename"] as String? ?? "";
+          final createdAt = DateTime.tryParse(node["createdAt"] ?? "") ?? DateTime.now();
+          final crossRef = PrCrossReference(
+            sourceType: sourceType,
+            sourceNumber: source["number"] as int? ?? 0,
+            sourceTitle: source["title"] as String? ?? "",
+            isCrossRepository: node["isCrossRepository"] == true,
+            sourceRepoName: node["isCrossRepository"] == true ? (source["repository"]?["nameWithOwner"] as String?) : null,
+            actorUsername: node["actor"]?["login"] ?? "",
+            createdAt: createdAt,
+          );
+          timelineItems.add(PrTimelineItem(type: PrTimelineItemType.crossReference, crossReference: crossRef, createdAt: createdAt));
+        } else if (typeName == "HeadRefForcePushedEvent") {
+          final createdAt = DateTime.tryParse(node["createdAt"] ?? "") ?? DateTime.now();
+          final forcePush = PrForcePush(
+            beforeSha: node["beforeCommit"]?["abbreviatedOid"] ?? "",
+            afterSha: node["afterCommit"]?["abbreviatedOid"] ?? "",
+            actorUsername: node["actor"]?["login"] ?? "",
+            createdAt: createdAt,
+          );
+          timelineItems.add(PrTimelineItem(type: PrTimelineItemType.forcePush, forcePush: forcePush, createdAt: createdAt));
+        }
+      }
+
+      // Check runs
+      final List<PrCheckRun> checkRuns = [];
+      final rollupNode = (pr["commits"]?["nodes"] as List<dynamic>?)?.firstOrNull;
+      final rollup = rollupNode?["commit"]?["statusCheckRollup"];
+      final rollupState = rollup?["state"] as String?;
+      final CheckStatus overallCheckStatus = switch (rollupState) {
+        "SUCCESS" => CheckStatus.success,
+        "FAILURE" || "ERROR" => CheckStatus.failure,
+        "PENDING" || "EXPECTED" => CheckStatus.pending,
+        _ => CheckStatus.none,
+      };
+
+      final contextNodes = rollup?["contexts"]?["nodes"] as List<dynamic>? ?? [];
+      for (final ctx in contextNodes) {
+        final ctxType = ctx["__typename"] as String? ?? "";
+        if (ctxType == "CheckRun") {
+          final statusStr = ctx["status"] as String? ?? "";
+          final CheckRunStatus status = switch (statusStr) {
+            "COMPLETED" => CheckRunStatus.completed,
+            "IN_PROGRESS" => CheckRunStatus.inProgress,
+            _ => CheckRunStatus.queued,
+          };
+          checkRuns.add(PrCheckRun(
+            name: ctx["name"] ?? "",
+            status: status,
+            conclusion: (ctx["conclusion"] as String?)?.toLowerCase(),
+            startedAt: DateTime.tryParse(ctx["startedAt"] ?? ""),
+            completedAt: DateTime.tryParse(ctx["completedAt"] ?? ""),
+          ));
+        } else if (ctxType == "StatusContext") {
+          final stateStr = ctx["state"] as String? ?? "";
+          final CheckRunStatus status = switch (stateStr) {
+            "SUCCESS" || "FAILURE" || "ERROR" => CheckRunStatus.completed,
+            "PENDING" || "EXPECTED" => CheckRunStatus.queued,
+            _ => CheckRunStatus.queued,
+          };
+          final String? conclusion = switch (stateStr) {
+            "SUCCESS" => "success",
+            "FAILURE" => "failure",
+            "ERROR" => "failure",
+            _ => null,
+          };
+          checkRuns.add(PrCheckRun(
+            name: ctx["context"] ?? "",
+            status: status,
+            conclusion: conclusion,
+            startedAt: DateTime.tryParse(ctx["createdAt"] ?? ""),
+          ));
+        }
+      }
+
+      // Changed files (REST API to get patch content)
+      final List<PrChangedFile> changedFiles = [];
+      try {
+        final filesResp = await httpGet(
+          Uri.parse("https://api.$_domain/repos/$owner/$repo/pulls/$prNumber/files?per_page=100"),
+          headers: {"Authorization": "token $accessToken", "Accept": "application/json"},
+        );
+        if (filesResp.statusCode == 200) {
+          final files = json.decode(utf8.decode(filesResp.bodyBytes)) as List<dynamic>;
+          for (final f in files) {
+            changedFiles.add(PrChangedFile(
+              filename: f["filename"] ?? "",
+              additions: f["additions"] as int? ?? 0,
+              deletions: f["deletions"] as int? ?? 0,
+              status: f["status"] ?? "modified",
+              patch: f["patch"] as String?,
+            ));
+          }
+        }
+      } catch (_) {}
+
+      // Reviews
+      final reviewNodes = pr["reviews"]?["nodes"] as List<dynamic>? ?? [];
+      final reviews = reviewNodes.map((r) {
+        final stateStr = r["state"] as String? ?? "";
+        final state = switch (stateStr) {
+          "APPROVED" => PrReviewState.approved,
+          "CHANGES_REQUESTED" => PrReviewState.changesRequested,
+          "COMMENTED" => PrReviewState.commented,
+          "DISMISSED" => PrReviewState.dismissed,
+          _ => PrReviewState.pending,
+        };
+        return PrReview(
+          authorUsername: r["author"]?["login"] ?? "",
+          state: state,
+          createdAt: DateTime.tryParse(r["createdAt"] ?? "") ?? DateTime.now(),
+        );
+      }).toList();
+
+      return PrDetail(
+        id: pr["id"] ?? "",
+        title: pr["title"] ?? "",
+        body: pr["body"] ?? "",
+        authorUsername: pr["author"]?["login"] ?? "",
+        baseBranch: pr["baseRefName"] ?? "",
+        headBranch: pr["headRefName"] ?? "",
+        headRepoOwner: pr["headRepositoryOwner"]?["login"] ?? pr["author"]?["login"] ?? "",
+        number: pr["number"] ?? 0,
+        additions: pr["additions"] as int? ?? 0,
+        deletions: pr["deletions"] as int? ?? 0,
+        changedFileCount: pr["changedFiles"] as int? ?? 0,
+        state: prState,
+        createdAt: DateTime.tryParse(pr["createdAt"] ?? "") ?? DateTime.now(),
+        labels: (pr["labels"]?["nodes"] as List<dynamic>?)
+                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
+                .toList() ??
+            [],
+        reactions: _aggregateReactions(reactionNodes, viewerLogin),
+        timelineItems: timelineItems,
+        commits: allCommits,
+        checkRuns: checkRuns,
+        changedFiles: changedFiles,
+        reviews: reviews,
+        overallCheckStatus: overallCheckStatus,
+        viewerPermission: permission,
+      );
+    } catch (e, st) {
+      Logger.logError(LogType.GetPrDetail, e, st);
       return null;
     }
   }

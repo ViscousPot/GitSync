@@ -8,6 +8,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/pull_request.dart';
+import 'package:GitSync/ui/page/pr_detail_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PullRequestsPage extends StatefulWidget {
@@ -140,7 +141,6 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
               ),
             ),
 
-
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceMD),
               child: Row(
@@ -159,7 +159,6 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
             ),
 
             SizedBox(height: spaceSM),
-
 
             Expanded(
               child: _pullRequests.isEmpty && !_loading
@@ -182,9 +181,24 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                             ),
                           );
                         }
+                        final pr = _pullRequests[index];
                         return Padding(
                           padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemPullRequest(pr: _pullRequests[index]),
+                          child: _ItemPullRequest(
+                            pr: pr,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                createPrDetailPageRoute(
+                                  gitProvider: widget.gitProvider,
+                                  remoteWebUrl: widget.remoteWebUrl,
+                                  accessToken: widget.accessToken,
+                                  githubAppOauth: widget.githubAppOauth,
+                                  prNumber: pr.number,
+                                  prTitle: pr.title,
+                                ),
+                              );
+                            },
+                          ),
                         );
                       },
                     ),
@@ -228,8 +242,9 @@ class _FilterChip extends StatelessWidget {
 
 class _ItemPullRequest extends StatelessWidget {
   final PullRequest pr;
+  final VoidCallback? onTap;
 
-  const _ItemPullRequest({required this.pr});
+  const _ItemPullRequest({required this.pr, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -238,18 +253,17 @@ class _ItemPullRequest extends StatelessWidget {
     final (IconData icon, Color color) = switch (pr.state) {
       PrState.open => (FontAwesomeIcons.codePullRequest, colours.tertiaryPositive),
       PrState.merged => (FontAwesomeIcons.codeMerge, colours.secondaryInfo),
-      PrState.closed => (FontAwesomeIcons.codePullRequest, colours.primaryNegative),
+      PrState.closed => (FontAwesomeIcons.codePullRequest, colours.tertiaryNegative),
     };
 
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(spaceSM),
         decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -280,7 +294,7 @@ class _ItemPullRequest extends StatelessWidget {
                       color: pr.checkStatus == CheckStatus.success
                           ? colours.tertiaryPositive
                           : pr.checkStatus == CheckStatus.failure
-                          ? colours.primaryNegative
+                          ? colours.tertiaryNegative
                           : colours.tertiaryWarning,
                     ),
                   ),

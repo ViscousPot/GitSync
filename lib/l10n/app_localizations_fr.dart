@@ -1830,6 +1830,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String get issueWrite => 'Write';
 
   @override
+  String get prDescription => 'Description';
+
+  @override
+  String get prNoDescription => 'No description provided';
+
+  @override
+  String get prActivity => 'Activity';
+
+  @override
+  String get prNoActivity => 'No activity yet';
+
+  @override
+  String get prCommits => 'Commits';
+
+  @override
+  String get prCommitsNotFound => 'No commits found';
+
+  @override
+  String get prChecks => 'Checks';
+
+  @override
+  String get prChecksNotFound => 'No checks found';
+
+  @override
+  String get prAllChecksPassed => 'All checks passed';
+
+  @override
+  String prChecksFailed(Object count) {
+    return '$count check(s) failed';
+  }
+
+  @override
+  String get prChecksPending => 'Checks pending';
+
+  @override
+  String get prFilesChanged => 'Files Changed';
+
+  @override
+  String get prFilesChangedNotFound => 'No changed files found';
+
+  @override
+  String get prConversation => 'Conversation';
+
+  @override
+  String get prApproved => 'Approved';
+
+  @override
+  String get prChangesRequested => 'Changes Requested';
+
+  @override
+  String get prCommented => 'Commented';
+
+  @override
+  String get prNotFound => 'Pull request not found';
+
+  @override
+  String get prCommentAdded => 'Comment added';
+
+  @override
+  String get prCommentFailed => 'Failed to add comment';
+
+  @override
+  String get prReactionFailed => 'Failed to update reaction';
+
+  @override
+  String get prMentionedInPr => 'mentioned this in pull request';
+
+  @override
+  String get prMentionedInIssue => 'mentioned this in issue';
+
+  @override
+  String prForcePushed(Object after, Object before) {
+    return 'force-pushed from $before to $after';
+  }
+
+  @override
   String get recentCommits => 'Recent Commits';
 
   @override

@@ -3700,6 +3700,150 @@ abstract class AppLocalizations {
   /// **'Write'**
   String get issueWrite;
 
+  /// No description provided for @prDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get prDescription;
+
+  /// No description provided for @prNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description provided'**
+  String get prNoDescription;
+
+  /// No description provided for @prActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get prActivity;
+
+  /// No description provided for @prNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet'**
+  String get prNoActivity;
+
+  /// No description provided for @prCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Commits'**
+  String get prCommits;
+
+  /// No description provided for @prCommitsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No commits found'**
+  String get prCommitsNotFound;
+
+  /// No description provided for @prChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks'**
+  String get prChecks;
+
+  /// No description provided for @prChecksNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No checks found'**
+  String get prChecksNotFound;
+
+  /// No description provided for @prAllChecksPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'All checks passed'**
+  String get prAllChecksPassed;
+
+  /// No description provided for @prChecksFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} check(s) failed'**
+  String prChecksFailed(Object count);
+
+  /// No description provided for @prChecksPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks pending'**
+  String get prChecksPending;
+
+  /// No description provided for @prFilesChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Files Changed'**
+  String get prFilesChanged;
+
+  /// No description provided for @prFilesChangedNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No changed files found'**
+  String get prFilesChangedNotFound;
+
+  /// No description provided for @prConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get prConversation;
+
+  /// No description provided for @prApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get prApproved;
+
+  /// No description provided for @prChangesRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes Requested'**
+  String get prChangesRequested;
+
+  /// No description provided for @prCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'Commented'**
+  String get prCommented;
+
+  /// No description provided for @prNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request not found'**
+  String get prNotFound;
+
+  /// No description provided for @prCommentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment added'**
+  String get prCommentAdded;
+
+  /// No description provided for @prCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add comment'**
+  String get prCommentFailed;
+
+  /// No description provided for @prReactionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update reaction'**
+  String get prReactionFailed;
+
+  /// No description provided for @prMentionedInPr.
+  ///
+  /// In en, this message translates to:
+  /// **'mentioned this in pull request'**
+  String get prMentionedInPr;
+
+  /// No description provided for @prMentionedInIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'mentioned this in issue'**
+  String get prMentionedInIssue;
+
+  /// No description provided for @prForcePushed.
+  ///
+  /// In en, this message translates to:
+  /// **'force-pushed from {before} to {after}'**
+  String prForcePushed(Object after, Object before);
+
   /// No description provided for @recentCommits.
   ///
   /// In en, this message translates to:

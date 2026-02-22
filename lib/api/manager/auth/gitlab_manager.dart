@@ -5,6 +5,7 @@ import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
 import 'package:GitSync/type/tag.dart';
@@ -164,7 +165,7 @@ class GitlabManager extends GitProviderManager {
     Function(Function()?) nextPageCallback,
   ) async {
     final gitlabState = state == "open" ? "opened" : state;
-    var url = "https://$_domain/api/v4/projects/$owner%2F$repo/merge_requests?state=$gitlabState&per_page=30";
+    var url = "https://$_domain/api/v4/projects/$owner%2F$repo/merge_requests?state=$gitlabState&per_page=30&order_by=updated_at&sort=desc";
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&author_username=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
@@ -517,6 +518,277 @@ class GitlabManager extends GitProviderManager {
       );
     } catch (e, st) {
       Logger.logError(LogType.GetIssueDetail, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<PrDetail?> getPrDetail(String accessToken, String owner, String repo, int prNumber) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final headers = {"Authorization": "Bearer $accessToken"};
+
+      // Fetch MR detail, notes, commits, changes, pipelines, and award emoji in parallel
+      final results = await Future.wait([
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/notes?per_page=100&sort=asc"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/commits"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/changes"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/pipelines"), headers: headers),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/award_emoji"), headers: headers),
+      ]);
+
+      final mrResp = results[0];
+      final notesResp = results[1];
+      final commitsResp = results[2];
+      final changesResp = results[3];
+      final pipelinesResp = results[4];
+      final emojiResp = results[5];
+
+      if (mrResp.statusCode != 200) return null;
+
+      final mr = json.decode(utf8.decode(mrResp.bodyBytes));
+
+      // Get viewer username
+      final userResp = await httpGet(Uri.parse("https://$_domain/api/v4/user"), headers: headers);
+      final viewerUsername = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["username"] as String? ?? "") : "";
+
+      // State
+      final stateStr = mr["state"] ?? "";
+      final prState = switch (stateStr) {
+        "opened" => PrState.open,
+        "merged" => PrState.merged,
+        _ => PrState.closed,
+      };
+
+      // MR body reactions
+      final List<IssueReaction> reactions = [];
+      if (emojiResp.statusCode == 200) {
+        final emojis = json.decode(utf8.decode(emojiResp.bodyBytes)) as List<dynamic>;
+        final Map<String, (int, bool, int?)> counts = {};
+        for (final emoji in emojis) {
+          final name = gitlabReactionNamesReverse[emoji["name"] as String? ?? ""] ?? (emoji["name"] as String? ?? "");
+          final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
+          final awardId = emoji["id"] as int?;
+          final existing = counts[name];
+          counts[name] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer, isViewer ? awardId : existing?.$3);
+        }
+        for (final e in counts.entries) {
+          reactions.add(IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3));
+        }
+      }
+
+      // Commits
+      final List<PrCommit> commits = [];
+      if (commitsResp.statusCode == 200) {
+        final commitList = json.decode(utf8.decode(commitsResp.bodyBytes)) as List<dynamic>;
+        for (final c in commitList) {
+          final sha = c["id"] as String? ?? "";
+          commits.add(PrCommit(
+            sha: sha,
+            shortSha: c["short_id"] ?? sha.substring(0, sha.length.clamp(0, 7)),
+            message: c["message"] ?? "",
+            authorUsername: c["author_name"] ?? "",
+            createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
+          ));
+        }
+      }
+
+      // Notes (comments), selectively parsing system notes for cross-references and force pushes
+      final List<IssueComment> commentList = [];
+      final List<PrTimelineItem> systemTimelineItems = [];
+      final crossRefPattern = RegExp(r'mentioned in (!|#)(\d+)');
+      final forcePushPattern = RegExp(r'force[ -]?pushed');
+      if (notesResp.statusCode == 200) {
+        final notes = json.decode(utf8.decode(notesResp.bodyBytes)) as List<dynamic>;
+        for (final note in notes) {
+          if (note["system"] == true) {
+            final body = note["body"] as String? ?? "";
+            final noteCreatedAt = DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now();
+            final noteAuthor = note["author"]?["username"] as String? ?? "";
+
+            final crossRefMatch = crossRefPattern.firstMatch(body);
+            if (crossRefMatch != null) {
+              final isMr = crossRefMatch.group(1) == "!";
+              final refNumber = int.tryParse(crossRefMatch.group(2) ?? "") ?? 0;
+              final crossRef = PrCrossReference(
+                sourceType: isMr ? "PullRequest" : "Issue",
+                sourceNumber: refNumber,
+                sourceTitle: "",
+                isCrossRepository: false,
+                actorUsername: noteAuthor,
+                createdAt: noteCreatedAt,
+              );
+              systemTimelineItems.add(PrTimelineItem(type: PrTimelineItemType.crossReference, crossReference: crossRef, createdAt: noteCreatedAt));
+              continue;
+            }
+
+            if (forcePushPattern.hasMatch(body)) {
+              final shaPattern = RegExp(r'([0-9a-f]{7,40})');
+              final shas = shaPattern.allMatches(body).map((m) => m.group(0)!).toList();
+              final forcePush = PrForcePush(
+                beforeSha: shas.length >= 1 ? shas[0].substring(0, shas[0].length.clamp(0, 7)) : "",
+                afterSha: shas.length >= 2 ? shas[1].substring(0, shas[1].length.clamp(0, 7)) : "",
+                actorUsername: noteAuthor,
+                createdAt: noteCreatedAt,
+              );
+              systemTimelineItems.add(PrTimelineItem(type: PrTimelineItemType.forcePush, forcePush: forcePush, createdAt: noteCreatedAt));
+              continue;
+            }
+
+            // Skip other system notes
+            continue;
+          }
+
+          List<IssueReaction> noteReactions = [];
+          try {
+            final noteEmojiResp = await httpGet(
+              Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests/$prNumber/notes/${note["id"]}/award_emoji"),
+              headers: headers,
+            );
+            if (noteEmojiResp.statusCode == 200) {
+              final noteEmojis = json.decode(utf8.decode(noteEmojiResp.bodyBytes)) as List<dynamic>;
+              final Map<String, (int, bool, int?)> noteCounts = {};
+              for (final emoji in noteEmojis) {
+                final name = gitlabReactionNamesReverse[emoji["name"] as String? ?? ""] ?? (emoji["name"] as String? ?? "");
+                final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
+                final awardId = emoji["id"] as int?;
+                final existing = noteCounts[name];
+                noteCounts[name] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer, isViewer ? awardId : existing?.$3);
+              }
+              noteReactions = noteCounts.entries
+                  .map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3))
+                  .toList();
+            }
+          } catch (_) {}
+
+          commentList.add(IssueComment(
+            id: "${note["id"]}",
+            authorUsername: note["author"]?["username"] ?? "",
+            body: note["body"] ?? "",
+            createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
+            reactions: noteReactions,
+          ));
+        }
+      }
+
+      // Interleave comments + commits + system timeline items into timeline
+      final List<PrTimelineItem> timelineItems = [];
+      for (final comment in commentList) {
+        timelineItems.add(PrTimelineItem(type: PrTimelineItemType.comment, comment: comment, createdAt: comment.createdAt));
+      }
+      for (final commit in commits) {
+        timelineItems.add(PrTimelineItem(type: PrTimelineItemType.commit, commit: commit, createdAt: commit.createdAt));
+      }
+      timelineItems.addAll(systemTimelineItems);
+      timelineItems.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+      // Pipelines → check runs
+      final List<PrCheckRun> checkRuns = [];
+      CheckStatus overallCheckStatus = CheckStatus.none;
+      if (pipelinesResp.statusCode == 200) {
+        final pipelines = json.decode(utf8.decode(pipelinesResp.bodyBytes)) as List<dynamic>;
+        for (final p in pipelines) {
+          final statusStr = p["status"] as String? ?? "";
+          final CheckRunStatus status = switch (statusStr) {
+            "success" || "failed" || "canceled" || "skipped" => CheckRunStatus.completed,
+            "running" => CheckRunStatus.inProgress,
+            _ => CheckRunStatus.queued,
+          };
+          final String? conclusion = switch (statusStr) {
+            "success" => "success",
+            "failed" => "failure",
+            "canceled" => "cancelled",
+            "skipped" => "skipped",
+            _ => null,
+          };
+          checkRuns.add(PrCheckRun(
+            name: "Pipeline #${p["iid"] ?? p["id"] ?? 0}",
+            status: status,
+            conclusion: conclusion,
+            startedAt: DateTime.tryParse(p["created_at"] ?? ""),
+            completedAt: DateTime.tryParse(p["updated_at"] ?? ""),
+          ));
+        }
+        if (pipelines.isNotEmpty) {
+          final latest = pipelines.first["status"] as String? ?? "";
+          overallCheckStatus = switch (latest) {
+            "success" => CheckStatus.success,
+            "failed" => CheckStatus.failure,
+            "running" || "pending" || "created" => CheckStatus.pending,
+            _ => CheckStatus.none,
+          };
+        }
+      }
+
+      // Changed files
+      final List<PrChangedFile> changedFiles = [];
+      int totalAdditions = 0;
+      int totalDeletions = 0;
+      if (changesResp.statusCode == 200) {
+        final changesData = json.decode(utf8.decode(changesResp.bodyBytes));
+        final changes = changesData["changes"] as List<dynamic>? ?? [];
+        for (final f in changes) {
+          final bool newFile = f["new_file"] == true;
+          final bool deletedFile = f["deleted_file"] == true;
+          final bool renamedFile = f["renamed_file"] == true;
+          final status = deletedFile
+              ? "removed"
+              : newFile
+                  ? "added"
+                  : renamedFile
+                      ? "renamed"
+                      : "modified";
+
+          // GitLab doesn't give per-file +/- counts in the changes API, so count diff lines
+          final diff = f["diff"] as String? ?? "";
+          int adds = 0, dels = 0;
+          for (final line in diff.split('\n')) {
+            if (line.startsWith('+') && !line.startsWith('+++')) adds++;
+            if (line.startsWith('-') && !line.startsWith('---')) dels++;
+          }
+          totalAdditions += adds;
+          totalDeletions += dels;
+
+          changedFiles.add(PrChangedFile(
+            filename: f["new_path"] ?? f["old_path"] ?? "",
+            additions: adds,
+            deletions: dels,
+            status: status,
+            patch: diff.isNotEmpty ? diff : null,
+          ));
+        }
+      }
+
+      // Reviews — GitLab doesn't have formal PR reviews; skip
+      final List<PrReview> reviews = [];
+
+      return PrDetail(
+        id: "${mr["iid"]}",
+        title: mr["title"] ?? "",
+        body: mr["description"] ?? "",
+        authorUsername: mr["author"]?["username"] ?? "",
+        baseBranch: mr["target_branch"] ?? "",
+        headBranch: mr["source_branch"] ?? "",
+        headRepoOwner: mr["author"]?["username"] ?? "",
+        number: mr["iid"] ?? 0,
+        additions: totalAdditions,
+        deletions: totalDeletions,
+        changedFileCount: changedFiles.length,
+        state: prState,
+        createdAt: DateTime.tryParse(mr["created_at"] ?? "") ?? DateTime.now(),
+        labels: (mr["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
+        reactions: reactions,
+        timelineItems: timelineItems,
+        commits: commits,
+        checkRuns: checkRuns,
+        changedFiles: changedFiles,
+        reviews: reviews,
+        overallCheckStatus: overallCheckStatus,
+        viewerPermission: ViewerPermission.write,
+      );
+    } catch (e, st) {
+      Logger.logError(LogType.GetPrDetail, e, st);
       return null;
     }
   }
