@@ -477,7 +477,36 @@ class GitManager {
     return await uiSettingsManager.getIntNullable(StorageKey.setman_recommendedAction);
   }
 
-  static const recentCommitsIndexFailures = ["invalid data in index - invalid entry", "failed to read index"];
+  static const _indexCorruptionPatterns = [
+    "invalid data in index - invalid entry",
+    "invalid data in index - incorrect header signature",
+    "invalid data in index - extension is truncated",
+    "failed to read index",
+  ];
+
+  static Future<bool> _tryAutoFixCorruption(String dirPath, dynamic error) async {
+    final errorStr = error.toString();
+
+    if (_indexCorruptionPatterns.any((p) => errorStr.contains(p))) {
+      final indexFile = File('$dirPath/$gitIndexPath');
+      if (await indexFile.exists()) await indexFile.delete();
+      return true;
+    }
+
+    if (errorStr.contains(corruptedLooseFetchHead)) {
+      final file = File('$dirPath/$gitFetchHeadPath');
+      if (await file.exists()) await file.delete();
+      return true;
+    }
+
+    if (errorStr.contains(corruptedLooseObject)) {
+      await GitManagerRs.pruneCorruptedLooseObjects(pathString: dirPath);
+      return true;
+    }
+
+    return false;
+  }
+
   static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {
     return (await uiSettingsManager.getStringList(
       StorageKey.setman_recentCommits,
@@ -498,11 +527,7 @@ class GitManager {
           log: _logWrapper,
         );
       } catch (e, stackTrace) {
-        if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
-          await File('$dirPath/$gitIndexPath').delete();
-        } else {
-          Logger.logError(LogType.RecentCommits, e, stackTrace);
-        }
+        Logger.logError(LogType.RecentCommits, e, stackTrace);
         return <GitManagerRs.Commit>[];
       }
     });
@@ -556,9 +581,7 @@ class GitManager {
             try {
               return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
             } catch (e, stackTrace) {
-              if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
-                await File('$dirPath/$gitIndexPath').delete();
-              } else {
+              if (!await _tryAutoFixCorruption(dirPath, e)) {
                 Logger.logError(LogType.ConflictingFiles, e, stackTrace);
               }
               return <(String, GitManagerRs.ConflictType)>[];
@@ -588,9 +611,7 @@ class GitManager {
           try {
             return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
-            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
-              await File('$dirPath/$gitIndexPath').delete();
-            } else {
+            if (!await _tryAutoFixCorruption(dirPath, e)) {
               Logger.logError(LogType.UncommittedFiles, e, stackTrace);
             }
             return <(String, int)>[];
@@ -616,9 +637,7 @@ class GitManager {
           try {
             return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
           } catch (e, stackTrace) {
-            if (recentCommitsIndexFailures.any((msg) => e.toString().contains(msg))) {
-              await File('$dirPath/$gitIndexPath').delete();
-            } else {
+            if (!await _tryAutoFixCorruption(dirPath, e)) {
               Logger.logError(LogType.StagedFiles, e, stackTrace);
             }
             return <(String, int)>[];
@@ -1057,6 +1076,10 @@ class GitManager {
           return null;
         }
         lastOperationWasNetworkStall = false;
+        if (await _tryAutoFixCorruption(dirPath, e.message)) {
+          Logger.gmLog(type: LogType.DownloadChanges, "Corruption detected and auto-fixed");
+          return null;
+        }
         final errorContent = await _getErrorContent(e.message);
         Logger.logError(LogType.DownloadChanges, e.message, stackTrace, errorContent: errorContent);
       }
@@ -1101,6 +1124,10 @@ class GitManager {
           return null;
         }
         lastOperationWasNetworkStall = false;
+        if (await _tryAutoFixCorruption(dirPath, e.message)) {
+          Logger.gmLog(type: LogType.UploadChanges, "Corruption detected and auto-fixed");
+          return null;
+        }
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
           if (resyncCallback != null) {
             resyncCallback();
