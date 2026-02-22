@@ -860,6 +860,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorName, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorName),
                       title: t.authorNameLabel,
+                      description: t.authorNameDescription,
                       hint: t.authorName,
                     ),
                     SizedBox(height: spaceMD),
@@ -867,6 +868,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorEmail, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorEmail),
                       title: t.authorEmailLabel,
+                      description: t.authorEmailDescription,
                       hint: t.authorEmail,
                     ),
 

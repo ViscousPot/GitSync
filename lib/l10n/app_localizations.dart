@@ -2012,6 +2012,12 @@ abstract class AppLocalizations {
   /// **'author name'**
   String get authorNameLabel;
 
+  /// No description provided for @authorNameDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'used to identify you in commit history'**
+  String get authorNameDescription;
+
   /// No description provided for @authorName.
   ///
   /// In en, this message translates to:
@@ -2023,6 +2029,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'author email'**
   String get authorEmailLabel;
+
+  /// No description provided for @authorEmailDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'attached to your commits for attribution'**
+  String get authorEmailDescription;
 
   /// No description provided for @authorEmail.
   ///

@@ -966,10 +966,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authorNameLabel => '提交昵称';
 
   @override
+  String get authorNameDescription => 'used to identify you in commit history';
+
+  @override
   String get authorName => '张三12';
 
   @override
   String get authorEmailLabel => '提交邮箱';
+
+  @override
+  String get authorEmailDescription => 'attached to your commits for attribution';
 
   @override
   String get authorEmail => 'zhangsan12@example.com';

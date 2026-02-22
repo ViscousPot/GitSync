@@ -971,10 +971,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authorNameLabel => 'имя автора';
 
   @override
+  String get authorNameDescription => 'used to identify you in commit history';
+
+  @override
   String get authorName => 'IvanPetrov12';
 
   @override
   String get authorEmailLabel => 'email автора';
+
+  @override
+  String get authorEmailDescription => 'attached to your commits for attribution';
 
   @override
   String get authorEmail => 'ivan12@petrov.com';

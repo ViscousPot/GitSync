@@ -973,10 +973,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authorNameLabel => 'Autorenname';
 
   @override
+  String get authorNameDescription => 'used to identify you in commit history';
+
+  @override
   String get authorName => 'JohnSmith12';
 
   @override
   String get authorEmailLabel => 'Autoren-E-Mail';
+
+  @override
+  String get authorEmailDescription => 'attached to your commits for attribution';
 
   @override
   String get authorEmail => 'john12@smith.com';
