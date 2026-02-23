@@ -23,7 +23,7 @@ class GitlabManager extends GitProviderManager {
 
   get clientId => gitlabClientId;
   get clientSecret => gitlabClientSecret;
-  get scopes => ["read_user", "api", "read_repository", "write_repository"];
+  get scopes => ["read_user", "api"];
 
   OAuth2Client get oauthClient => OAuth2Client(
     authorizeUrl: 'https://gitlab.com/oauth/authorize',

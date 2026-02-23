@@ -25,7 +25,9 @@ class GithubManager extends GitProviderManager {
 
   get clientId => gitHubClientId;
   get clientSecret => gitHubClientSecret;
-  get scopes => ["user", "user:email", "repo", "workflow"];
+  get scopes => ["user", "user:email", "repo", "workflow", "read:org"];
+
+  bool get supportsTokenRefresh => false;
 
   OAuth2Client get oauthClient => GitHubOAuth2Client(redirectUri: 'gitsync://auth', customUriScheme: 'gitsync');
 
@@ -65,10 +67,8 @@ class GithubManager extends GitProviderManager {
 
   @override
   Future<String?> getToken(String token, Future<void> Function(String p1, DateTime? p2, String p3) setAccessRefreshToken) async {
-    final tokenParts = token.split(conflictSeparator);
-    final accessToken = tokenParts.first;
-
-    return accessToken;
+    if (supportsTokenRefresh) return super.getToken(token, setAccessRefreshToken);
+    return token.split(conflictSeparator).first;
   }
 
   @override

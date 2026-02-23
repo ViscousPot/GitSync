@@ -53,7 +53,7 @@ class GiteaManager extends GitProviderManager {
     Function(List<(String, String)>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
-    await getReposRequest(
+    await _getReposRequest(
       accessToken,
       searchString == "" ? "https://$_domain/api/v1/user/repos" : "https://$_domain/api/v1/user/repos?limit=100",
       searchString == ""
@@ -63,7 +63,7 @@ class GiteaManager extends GitProviderManager {
     );
   }
 
-  Future<void> getReposRequest(
+  Future<void> _getReposRequest(
     String accessToken,
     String url,
     Function(List<(String, String)>) updateCallback,
@@ -83,7 +83,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => getReposRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getReposRequest(accessToken, nextLink, updateCallback, nextPageCallback));
           } else {
             nextPageCallback(null);
           }
