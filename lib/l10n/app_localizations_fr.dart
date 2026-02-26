@@ -381,6 +381,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get merging => 'Fusion en cours…';
 
   @override
+  String get clearSelection => 'Clear Selection';
+
+  @override
+  String get keepSelected => 'Keep Selected';
+
+  @override
   String get iosClearDataTitle => 'Est-ce une nouvelle installation ?';
 
   @override

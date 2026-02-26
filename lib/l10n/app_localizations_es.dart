@@ -381,6 +381,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get merging => 'Fusionando…';
 
   @override
+  String get clearSelection => 'Clear Selection';
+
+  @override
+  String get keepSelected => 'Keep Selected';
+
+  @override
   String get iosClearDataTitle => 'Is this a fresh install?';
 
   @override

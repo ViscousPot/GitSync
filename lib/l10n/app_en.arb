@@ -144,6 +144,8 @@
     "remote": "Remote",
     "merge": "Merge",
     "merging": "Merging…",
+    "clearSelection": "Clear Selection",
+    "keepSelected": "Keep Selected",
 
 
 

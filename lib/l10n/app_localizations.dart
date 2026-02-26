@@ -844,6 +844,18 @@ abstract class AppLocalizations {
   /// **'Merging…'**
   String get merging;
 
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Selection'**
+  String get clearSelection;
+
+  /// No description provided for @keepSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Selected'**
+  String get keepSelected;
+
   /// No description provided for @iosClearDataTitle.
   ///
   /// In en, this message translates to:
