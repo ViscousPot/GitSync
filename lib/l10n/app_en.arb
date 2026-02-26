@@ -146,6 +146,9 @@
     "merging": "Merging…",
     "clearSelection": "Clear Selection",
     "keepSelected": "Keep Selected",
+    "resolveAll": "Resolve All",
+    "allLocal": "All Local",
+    "allRemote": "All Remote",
 
 
 

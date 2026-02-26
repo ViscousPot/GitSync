@@ -856,6 +856,24 @@ abstract class AppLocalizations {
   /// **'Keep Selected'**
   String get keepSelected;
 
+  /// No description provided for @resolveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve All'**
+  String get resolveAll;
+
+  /// No description provided for @allLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'All Local'**
+  String get allLocal;
+
+  /// No description provided for @allRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'All Remote'**
+  String get allRemote;
+
   /// No description provided for @iosClearDataTitle.
   ///
   /// In en, this message translates to:

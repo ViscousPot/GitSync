@@ -224,6 +224,39 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
     });
   }
 
+  Future<void> resolveAllConflicts(String mode, void Function(void Function()) setState) async {
+    isResolvingConflict = true;
+    selectedLines.clear();
+    setState(() {});
+
+    for (int i = conflictSections.length - 1; i >= 0; i--) {
+      final section = conflictSections[i];
+      if (!section.$2.contains(conflictStart)) continue;
+
+      final lines = section.$2.split("\n");
+      final startIdx = lines.indexWhere((line) => line.contains(conflictStart));
+      final midIdx = lines.indexWhere((line) => line.contains(conflictSeparator));
+      final endIdx = lines.indexWhere((line) => line.contains(conflictEnd));
+
+      final remoteLines = lines.sublist(startIdx + 1, midIdx).indexed;
+      final localLines = lines.sublist(midIdx + 1, endIdx).indexed;
+
+      conflictSections.removeAt(i);
+      if (mode == 'local') {
+        conflictSections.insertAll(i, localLines);
+      } else if (mode == 'both') {
+        conflictSections.insertAll(i, remoteLines);
+        conflictSections.insertAll(i, localLines);
+      } else {
+        conflictSections.insertAll(i, remoteLines);
+      }
+    }
+
+    await refreshConflictSectionIndices();
+    isResolvingConflict = false;
+    setState(() {});
+  }
+
   return await mat.showDialog(
     context: parentContext,
     barrierColor: Colors.transparent,
@@ -405,6 +438,84 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                               ),
                             ],
                           ),
+                          if (conflictSections.any((s) => s.$2.contains(conflictStart)))
+                            Padding(
+                              padding: EdgeInsets.only(left: spaceXXS, top: spaceXXS),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    t.resolveAll.toUpperCase(),
+                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(width: spaceXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('local', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryInfo, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.allLocal.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('both', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryLight, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.both.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('remote', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryWarning, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.allRemote.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           (expanded ? (Widget child) => Expanded(child: child) : (child) => child)(
                             Stack(
                               children: [

@@ -384,6 +384,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get keepSelected => 'Keep Selected';
 
   @override
+  String get resolveAll => 'Resolve All';
+
+  @override
+  String get allLocal => 'All Local';
+
+  @override
+  String get allRemote => 'All Remote';
+
+  @override
   String get iosClearDataTitle => '新規インストールですか？';
 
   @override
