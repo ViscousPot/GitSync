@@ -423,7 +423,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                     SizedBox(
                                                       width:
                                                           MediaQuery.of(context).size.width -
-                                                          ((spaceLG * 2) + (spaceSM * 2 * 2) + (spaceXS * 2) + (spaceXXS * 2)),
+                                                          ((expanded ? 0 : (spaceLG * 2)) + (spaceSM * 2 * 2) + (spaceXS * 2) + (spaceXXS * 2)),
                                                       child: Row(
                                                         children: [
                                                           Expanded(
