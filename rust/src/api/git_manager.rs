@@ -3395,6 +3395,26 @@ pub async fn discard_changes(
     Ok(())
 }
 
+pub async fn recreate_deleted_index(
+    path_string: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DiscardGitIndex,
+        "Getting local directory".to_string(),
+    );
+    let repo = swl!(Repository::open(path_string))?;
+
+    let head = swl!(repo.head())?.peel_to_commit()?.into_object();
+
+    swl!(repo.reset(&head, ResetType::Mixed, None))?;
+
+    Ok(())
+}
+
 pub async fn get_conflicting(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
@@ -3406,15 +3426,21 @@ pub async fn get_conflicting(
         LogType::ConflictingFiles,
         "Getting local directory".to_string(),
     );
-    let repo = match Repository::open(path_string) {
-        Ok(repo) => repo,
-        Err(_) => return Vec::new(),
+    let Ok(repo) = Repository::open(path_string) else {
+        return Vec::new();
     };
 
-    let index = repo.index().unwrap();
+    let Ok(index) = repo.index() else {
+        return Vec::new();
+    };
+
+    let Ok(index_conflicts) = index.conflicts() else {
+        return Vec::new();
+    };
+
     let mut conflicts = Vec::new();
 
-    index.conflicts().unwrap().for_each(|conflict| {
+    index_conflicts.for_each(|conflict| {
         if let Ok(conflict) = conflict {
             if let Some(ours) = conflict.our {
                 conflicts.push((

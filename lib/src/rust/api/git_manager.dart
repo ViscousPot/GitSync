@@ -454,6 +454,14 @@ Future<void> discardChanges({
   log: log,
 );
 
+Future<void> recreateDeletedIndex({
+  required String pathString,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRecreateDeletedIndex(
+  pathString: pathString,
+  log: log,
+);
+
 Future<List<(String, ConflictType)>> getConflicting({
   required String pathString,
   required FutureOr<void> Function(LogType, String) log,
