@@ -360,6 +360,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get abortMerge => 'マージを中止';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => '変更を保持';
 
   @override
@@ -375,7 +378,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get merge => 'マージ';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => 'マージ中…';
+
+  @override
+  String get resolving => 'Resolving…';
 
   @override
   String get clearSelection => 'Clear Selection';

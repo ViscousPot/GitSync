@@ -362,6 +362,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get abortMerge => 'Прервать слияние';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => 'Сохранить изменения';
 
   @override
@@ -377,7 +380,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get merge => 'Слияние';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => 'Слияние…';
+
+  @override
+  String get resolving => 'Resolving…';
 
   @override
   String get clearSelection => 'Clear Selection';

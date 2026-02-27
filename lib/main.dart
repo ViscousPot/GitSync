@@ -1935,6 +1935,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                               key: Key(reference),
                                                                                               conflictingValue,
                                                                                               () => reloadAll(),
+                                                                                              clientModeEnabledSnapshot.data ?? false,
                                                                                             ),
                                                                                           );
                                                                                         }

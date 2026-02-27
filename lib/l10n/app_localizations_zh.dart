@@ -360,6 +360,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get abortMerge => '中止合并';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => '保留更改';
 
   @override
@@ -375,7 +378,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get merge => '合并';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => '合并中…';
+
+  @override
+  String get resolving => 'Resolving…';
 
   @override
   String get clearSelection => 'Clear Selection';

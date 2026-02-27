@@ -808,6 +808,12 @@ abstract class AppLocalizations {
   /// **'Abort Merge'**
   String get abortMerge;
 
+  /// No description provided for @resolveLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve Later'**
+  String get resolveLater;
+
   /// No description provided for @keepChanges.
   ///
   /// In en, this message translates to:
@@ -838,11 +844,23 @@ abstract class AppLocalizations {
   /// **'Merge'**
   String get merge;
 
+  /// No description provided for @resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get resolve;
+
   /// No description provided for @merging.
   ///
   /// In en, this message translates to:
   /// **'Merging…'**
   String get merging;
+
+  /// No description provided for @resolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolving…'**
+  String get resolving;
 
   /// No description provided for @clearSelection.
   ///

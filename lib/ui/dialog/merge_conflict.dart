@@ -73,6 +73,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
 
   MmapFlutter.initialize();
 
+  final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
   final syncMessage = await uiSettingsManager.getSyncMessage();
   final scrollController = AnchorScrollController();
   final commitMessageController = TextEditingController();
@@ -897,7 +898,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                           )
                         : null,
                     label: Text(
-                      t.abortMerge.toUpperCase(),
+                      (clientModeEnabled ? t.abortMerge : t.resolveLater).toUpperCase(),
                       style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -944,10 +945,10 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                         : null,
                     label: Text(
                       (isMerging
-                              ? t.merging
-                              // 0 1
-                              // 0 1
-                              : (conflictIndex == conflictingPaths.length - 1 || conflictingPaths.length <= 1 ? t.merge : "next"))
+                              ? (clientModeEnabled ? t.merging : t.resolving)
+                              : (conflictIndex == conflictingPaths.length - 1 || conflictingPaths.length <= 1
+                                    ? (clientModeEnabled ? t.merge : t.resolve)
+                                    : "next"))
                           .toUpperCase(),
                       style: TextStyle(
                         color: !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1

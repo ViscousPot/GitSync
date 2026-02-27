@@ -363,6 +363,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get abortMerge => 'Abandonner la fusion';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => 'Conserver les modifications';
 
   @override
@@ -378,7 +381,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get merge => 'Fusionner';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => 'Fusion en cours…';
+
+  @override
+  String get resolving => 'Resolving…';
 
   @override
   String get clearSelection => 'Clear Selection';
