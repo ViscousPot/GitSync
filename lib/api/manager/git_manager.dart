@@ -490,6 +490,15 @@ class GitManager {
     if (_indexCorruptionPatterns.any((p) => errorStr.contains(p))) {
       final indexFile = File('$dirPath/$gitIndexPath');
       if (await indexFile.exists()) await indexFile.delete();
+
+      await _runWithLock(priority: 1, GitManagerRs.voidRunWithLock, await _repoIndex, LogType.PruneCorruptedObjects, (dirPath) async {
+        try {
+          await GitManagerRs.recreateDeletedIndex(pathString: dirPath, log: _logWrapper);
+        } catch (e, stackTrace) {
+          Logger.logError(LogType.PruneCorruptedObjects, e, stackTrace);
+        }
+      });
+
       return true;
     }
 
