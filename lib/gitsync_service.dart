@@ -298,20 +298,26 @@ class GitsyncService {
     }
   }
 
-  void merge(int repomanRepoindex, String commitMessage, List<String> conflictingaths) async {
+  void merge(int repomanRepoindex, String commitMessage, List<String> conflictingPaths) async {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
-    final pushResult = await GitManager.backgroundUploadChanges(
-      repomanRepoindex,
-      settingsManager,
-      () {
-        Fluttertoast.showToast(msg: resolvingMerge, toastLength: Toast.LENGTH_SHORT, gravity: null);
-      },
-      conflictingaths,
-      commitMessage,
-      () => debouncedSync(repomanRepoindex),
-    );
+    bool? pushResult = false;
+
+    if (await settingsManager.getClientModeEnabled()) {
+      pushResult = await GitManager.backgroundStageAndCommit(repomanRepoindex, settingsManager, conflictingPaths, commitMessage);
+    } else {
+      pushResult = await GitManager.backgroundUploadChanges(
+        repomanRepoindex,
+        settingsManager,
+        () {
+          Fluttertoast.showToast(msg: resolvingMerge, toastLength: Toast.LENGTH_SHORT, gravity: null);
+        },
+        conflictingPaths,
+        commitMessage,
+        () => debouncedSync(repomanRepoindex),
+      );
+    }
 
     switch (pushResult) {
       case null:

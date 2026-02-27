@@ -2629,6 +2629,52 @@ pub async fn commit_changes(
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
 
+    if repo.state() == RepositoryState::Rebase
+        || repo.state() == RepositoryState::RebaseMerge
+    {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::PushToRepo,
+            "Rebase in progress — committing via rebase".to_string(),
+        );
+
+        let mut rebase = swl!(repo.open_rebase(None))?;
+        let sig = swl!(repo
+            .signature()
+            .or_else(|_| Signature::now(&author.0, &author.1)))?;
+
+        swl!(rebase.commit(None, &sig, None))?;
+
+        while let Some(op) = rebase.next() {
+            let commit_id = swl!(op)?.id();
+            let commit = swl!(repo.find_commit(commit_id))?;
+            let author = commit.author().to_owned();
+            match rebase.commit(None, &author, None) {
+                Ok(_) => {}
+                Err(e) if e.code() == ErrorCode::Applied => continue,
+                Err(e) if e.code() == ErrorCode::Unmerged => {
+                    _log(
+                        Arc::clone(&log_callback),
+                        LogType::PushToRepo,
+                        "Subsequent rebase step has conflicts — leaving rebase in progress".to_string(),
+                    );
+                    return Ok(());
+                }
+                Err(e) => return Err(e),
+            }
+        }
+
+        swl!(rebase.finish(None))?;
+
+        _log(
+            Arc::clone(&log_callback),
+            LogType::PushToRepo,
+            "Rebase finished successfully".to_string(),
+        );
+
+        return Ok(());
+    }
+
     _log(
         Arc::clone(&log_callback),
         LogType::PushToRepo,
