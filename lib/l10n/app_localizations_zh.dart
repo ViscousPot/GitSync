@@ -156,7 +156,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get premiumMultiRepoSubtitle => '一个应用，管理所有仓库。\n每个仓库拥有独立的凭证和设置。';
 
   @override
-  String get premiumUnlimitedContainers => '无限容器';
+  String get premiumUnlimitedContainers => '无限仓库';
 
   @override
   String get premiumIndependentAuth => '每个仓库独立认证';
@@ -514,19 +514,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showcaseSyncProgressFeatureErrors => '点击查看错误或打开日志查看器';
 
   @override
-  String get showcaseAddMoreTitle => '您的容器';
+  String get showcaseAddMoreTitle => '您的仓库';
 
   @override
   String get showcaseAddMoreSubtitle => '在一个地方管理多个仓库。';
 
   @override
-  String get showcaseAddMoreFeatureSwitch => '即时切换仓库容器';
+  String get showcaseAddMoreFeatureSwitch => '即时切换仓库仓库';
 
   @override
-  String get showcaseAddMoreFeatureManage => '根据需要重命名或删除容器';
+  String get showcaseAddMoreFeatureManage => '根据需要重命名或删除仓库';
 
   @override
-  String get showcaseAddMoreFeaturePremium => '通过高级版添加更多容器';
+  String get showcaseAddMoreFeaturePremium => '通过高级版添加更多仓库';
 
   @override
   String get showcaseControlTitle => '同步控制';
@@ -770,13 +770,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get oauthNoAffiliation => '通过第三方进行身份验证；\n不表示关联或认可。';
 
   @override
-  String get replacesExistingAuth => '替换现有\n容器认证';
+  String get replacesExistingAuth => '替换现有\n仓库认证';
 
   @override
   String get oauth => 'OAuth';
 
   @override
-  String get copyFromContainer => '从容器复制';
+  String get copyFromContainer => '从仓库复制';
 
   @override
   String get or => '或';
@@ -1264,7 +1264,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get renameRepository => '重命名仓库';
 
   @override
-  String get renameRepositoryMsg => '为仓库容器输入新别名';
+  String get renameRepositoryMsg => '为仓库仓库输入新别名';
 
   @override
   String get addMore => '添加更多';
@@ -1273,13 +1273,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addRepository => '添加仓库';
 
   @override
-  String get addRepositoryMsg => '为您的新仓库容器提供一个唯一别名。这将帮助您以后识别它。';
+  String get addRepositoryMsg => '为您的新仓库仓库提供一个唯一别名。这将帮助您以后识别它。';
 
   @override
   String get confirmRepositoryDelete => '确认删除仓库';
 
   @override
-  String get confirmRepositoryDeleteMsg => '您确定要删除仓库容器 \"%s\" 吗？';
+  String get confirmRepositoryDeleteMsg => '您确定要删除仓库仓库 \"%s\" 吗？';
 
   @override
   String get deleteRepoDirectoryCheckbox => '同时删除仓库的目录及其所有内容';
