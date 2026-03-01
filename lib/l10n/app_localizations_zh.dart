@@ -381,8 +381,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosClearDataTitle => '这是全新安装吗？';
 
   @override
-  String get iosClearDataMsg =>
-      '我们检测到这可能是重新安装，但也可能是误报。在 iOS 上，删除并重新安装应用时，您的钥匙串数据不会被清除，因此某些数据可能仍然安全存储。\n\n如果这不是全新安装，或者您不想重置，可以安全地跳过此步骤。';
+  String get iosClearDataMsg => '我们检测到这可能是重新安装，但也可能是误报。在 iOS 上，删除并重新安装应用时，您的钥匙串数据不会被清除，因此某些数据可能仍然安全存储。\n\n如果这不是全新安装，或者您不想重置，可以安全地跳过此步骤。';
 
   @override
   String get clearDataConfirmTitle => '确认重置应用数据';

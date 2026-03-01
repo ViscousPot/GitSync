@@ -24,6 +24,8 @@ import '../../../global.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:anchor_scroll_controller/anchor_scroll_controller.dart';
 
+typedef SelectedLine = ({bool isLocal, int lineIndex});
+
 final demoConflictSections = [
   (
     0,
@@ -86,6 +88,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
   List<(int, String)> conflictSections = [];
   bool updating = false;
   bool isResolvingConflict = false;
+  Map<int, Set<SelectedLine>> selectedLines = {};
   Mmap? writeMmap;
 
   void mapFile(String filePath) {
@@ -103,6 +106,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
 
   Future<void> updateConflictSections(void Function(void Function())? setState) async {
     try {
+      selectedLines.clear();
+
       if (demo) {
         conflictSections = demoConflictSections;
         return;
@@ -167,6 +172,31 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
     return num1Str.padLeft(targetLength, '0');
   }
 
+  bool isLineSelected(int sectionKey, bool isLocal, int lineIndex) {
+    return selectedLines[sectionKey]?.contains((isLocal: isLocal, lineIndex: lineIndex)) ?? false;
+  }
+
+  void toggleLineSelection(int sectionKey, bool isLocal, int lineIndex, void Function(void Function()) setState) {
+    final key = (isLocal: isLocal, lineIndex: lineIndex);
+    selectedLines.putIfAbsent(sectionKey, () => {});
+    if (selectedLines[sectionKey]!.contains(key)) {
+      selectedLines[sectionKey]!.remove(key);
+      if (selectedLines[sectionKey]!.isEmpty) selectedLines.remove(sectionKey);
+    } else {
+      selectedLines[sectionKey]!.add(key);
+    }
+    setState(() {});
+  }
+
+  bool hasSelection(int sectionKey) {
+    return selectedLines.containsKey(sectionKey) && selectedLines[sectionKey]!.isNotEmpty;
+  }
+
+  void clearSelection(int sectionKey, void Function(void Function()) setState) {
+    selectedLines.remove(sectionKey);
+    setState(() {});
+  }
+
   Future<void> refreshConflictSectionIndices() async {
     final bookmarkPath = await uiSettingsManager.getString(StorageKey.setman_gitDirPath);
     if (bookmarkPath.isEmpty) return;
@@ -192,6 +222,39 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
         conflictSections[indexedSection.$1] = (indexedSection.$1, indexedSection.$2.$2);
       }
     });
+  }
+
+  Future<void> resolveAllConflicts(String mode, void Function(void Function()) setState) async {
+    isResolvingConflict = true;
+    selectedLines.clear();
+    setState(() {});
+
+    for (int i = conflictSections.length - 1; i >= 0; i--) {
+      final section = conflictSections[i];
+      if (!section.$2.contains(conflictStart)) continue;
+
+      final lines = section.$2.split("\n");
+      final startIdx = lines.indexWhere((line) => line.contains(conflictStart));
+      final midIdx = lines.indexWhere((line) => line.contains(conflictSeparator));
+      final endIdx = lines.indexWhere((line) => line.contains(conflictEnd));
+
+      final remoteLines = lines.sublist(startIdx + 1, midIdx).indexed;
+      final localLines = lines.sublist(midIdx + 1, endIdx).indexed;
+
+      conflictSections.removeAt(i);
+      if (mode == 'local') {
+        conflictSections.insertAll(i, localLines);
+      } else if (mode == 'both') {
+        conflictSections.insertAll(i, remoteLines);
+        conflictSections.insertAll(i, localLines);
+      } else {
+        conflictSections.insertAll(i, remoteLines);
+      }
+    }
+
+    await refreshConflictSectionIndices();
+    isResolvingConflict = false;
+    setState(() {});
   }
 
   return await mat.showDialog(
@@ -375,6 +438,84 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                               ),
                             ],
                           ),
+                          if (conflictSections.any((s) => s.$2.contains(conflictStart)))
+                            Padding(
+                              padding: EdgeInsets.only(left: spaceXXS, top: spaceXXS),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    t.resolveAll.toUpperCase(),
+                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(width: spaceXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('local', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryInfo, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.allLocal.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('both', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryLight, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.both.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: isResolvingConflict ? null : () => resolveAllConflicts('remote', setState),
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                        shape: WidgetStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                            side: BorderSide(color: colours.tertiaryWarning, width: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        t.allRemote.toUpperCase(),
+                                        style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           (expanded ? (Widget child) => Expanded(child: child) : (child) => child)(
                             Stack(
                               children: [
@@ -394,251 +535,327 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                               items: conflictSections,
                                               isSameItem: (a, b) => a.$1 == b.$1 && a.$2 == b.$2,
                                               itemBuilder: (BuildContext context, int index) {
-                                            final item = conflictSections[index];
+                                                final item = conflictSections[index];
 
-                                            if (item.$2.contains(conflictStart)) {
-                                              final lines = item.$2.split("\n");
-                                              final startIndex = lines.indexWhere((line) => line.contains(conflictStart));
-                                              final midIndex = lines.indexWhere((line) => line.contains(conflictSeparator));
-                                              final endIndex = lines.indexWhere((line) => line.contains(conflictEnd));
+                                                if (item.$2.contains(conflictStart)) {
+                                                  final lines = item.$2.split("\n");
+                                                  final startIndex = lines.indexWhere((line) => line.contains(conflictStart));
+                                                  final midIndex = lines.indexWhere((line) => line.contains(conflictSeparator));
+                                                  final endIndex = lines.indexWhere((line) => line.contains(conflictEnd));
 
-                                              final remoteLines = lines.sublist(startIndex + 1, midIndex).indexed;
-                                              final localLines = lines.sublist(midIndex + 1, endIndex).indexed;
+                                                  final remoteLines = lines.sublist(startIndex + 1, midIndex).indexed;
+                                                  final localLines = lines.sublist(midIndex + 1, endIndex).indexed;
 
-                                              return AnchorItemWrapper(
-                                                key: Key("${item.$1}//${item.$2}"),
-                                                controller: scrollController,
-                                                index: item.$1,
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Padding(
-                                                      padding: EdgeInsets.only(left: spaceSM, top: spaceSM),
-                                                      child: Text(
-                                                        t.keepChanges.toUpperCase(),
-                                                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: spaceXXS),
-                                                    SizedBox(
-                                                      width:
-                                                          MediaQuery.of(context).size.width -
-                                                          ((spaceLG * 2) + (spaceSM * 2 * 2) + (spaceXS * 2) + (spaceXXS * 2)),
-                                                      child: Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: TextButton(
-                                                              onPressed: isResolvingConflict
-                                                                  ? null
-                                                                  : () async {
-                                                                      isResolvingConflict = true;
-                                                                      setState(() {});
-                                                                      conflictSections.removeAt(index);
-                                                                      conflictSections.insertAll(index, localLines);
-                                                                      await refreshConflictSectionIndices();
-                                                                      isResolvingConflict = false;
-                                                                      setState(() {});
-                                                                    },
-                                                              style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
-                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                visualDensity: VisualDensity.compact,
-                                                                padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.only(
-                                                                      topLeft: cornerRadiusSM,
-                                                                      topRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusSM,
-                                                                      bottomRight: cornerRadiusSM,
+                                                  return AnchorItemWrapper(
+                                                    key: Key("${item.$1}//${item.$2}"),
+                                                    controller: scrollController,
+                                                    index: item.$1,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.only(left: spaceSM, top: spaceSM),
+                                                          child: Text(
+                                                            t.keepChanges.toUpperCase(),
+                                                            style: TextStyle(
+                                                              color: colours.primaryLight,
+                                                              fontSize: textSM,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: spaceXXS),
+                                                        SizedBox(
+                                                          width:
+                                                              MediaQuery.of(context).size.width -
+                                                              ((expanded ? 0 : (spaceLG * 2)) + (spaceSM * 2 * 2) + (spaceXS * 2) + (spaceXXS * 2)),
+                                                          child: hasSelection(item.$1)
+                                                              ? Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child: TextButton(
+                                                                        onPressed: isResolvingConflict
+                                                                            ? null
+                                                                            : () => clearSelection(item.$1, setState),
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                          visualDensity: VisualDensity.compact,
+                                                                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                                                          shape: WidgetStatePropertyAll(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                              side: BorderSide.none,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          t.clearSelection.toUpperCase(),
+                                                                          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                    side: BorderSide.none,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              child: Text(
-                                                                t.local.toUpperCase(),
-                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: spaceXXS),
-                                                          Expanded(
-                                                            child: TextButton(
-                                                              onPressed: isResolvingConflict
-                                                                  ? null
-                                                                  : () async {
-                                                                      isResolvingConflict = true;
-                                                                      setState(() {});
-                                                                      conflictSections.removeAt(index);
-                                                                      conflictSections.insertAll(index, remoteLines);
-                                                                      conflictSections.insertAll(index, localLines);
-                                                                      await refreshConflictSectionIndices();
-                                                                      isResolvingConflict = false;
-                                                                      setState(() {});
-                                                                    },
-                                                              style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryLight),
-                                                                visualDensity: VisualDensity.compact,
-                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.only(
-                                                                      topLeft: cornerRadiusSM,
-                                                                      topRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusSM,
-                                                                      bottomRight: cornerRadiusSM,
+                                                                    SizedBox(width: spaceXXS),
+                                                                    Expanded(
+                                                                      child: TextButton(
+                                                                        onPressed: isResolvingConflict
+                                                                            ? null
+                                                                            : () async {
+                                                                                isResolvingConflict = true;
+                                                                                setState(() {});
+                                                                                final selected = selectedLines[item.$1]!;
+                                                                                final kept = <(int, String)>[];
+                                                                                for (final s
+                                                                                    in selected.where((s) => s.isLocal).toList()
+                                                                                      ..sort((a, b) => a.lineIndex.compareTo(b.lineIndex))) {
+                                                                                  kept.add(localLines.elementAt(s.lineIndex));
+                                                                                }
+                                                                                for (final s
+                                                                                    in selected.where((s) => !s.isLocal).toList()
+                                                                                      ..sort((a, b) => a.lineIndex.compareTo(b.lineIndex))) {
+                                                                                  kept.add(remoteLines.elementAt(s.lineIndex));
+                                                                                }
+                                                                                conflictSections.removeAt(index);
+                                                                                conflictSections.insertAll(index, kept);
+                                                                                selectedLines.remove(item.$1);
+                                                                                await refreshConflictSectionIndices();
+                                                                                isResolvingConflict = false;
+                                                                                setState(() {});
+                                                                              },
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                          visualDensity: VisualDensity.compact,
+                                                                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                                                          shape: WidgetStatePropertyAll(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                              side: BorderSide.none,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          t.keepSelected.toUpperCase(),
+                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                    side: BorderSide.none,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              child: Text(
-                                                                t.both.toUpperCase(),
-                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: spaceXXS),
-                                                          Expanded(
-                                                            child: TextButton(
-                                                              onPressed: isResolvingConflict
-                                                                  ? null
-                                                                  : () async {
-                                                                      isResolvingConflict = true;
-                                                                      setState(() {});
-                                                                      conflictSections.removeAt(index);
-                                                                      conflictSections.insertAll(index, remoteLines);
-                                                                      await refreshConflictSectionIndices();
-                                                                      isResolvingConflict = false;
-                                                                      setState(() {});
-                                                                    },
-                                                              style: ButtonStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryWarning),
-                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                visualDensity: VisualDensity.compact,
-                                                                padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                                                                shape: WidgetStatePropertyAll(
-                                                                  RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.only(
-                                                                      topLeft: cornerRadiusSM,
-                                                                      topRight: cornerRadiusSM,
-                                                                      bottomLeft: cornerRadiusSM,
-                                                                      bottomRight: cornerRadiusSM,
+                                                                  ],
+                                                                )
+                                                              : Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child: TextButton(
+                                                                        onPressed: isResolvingConflict
+                                                                            ? null
+                                                                            : () async {
+                                                                                isResolvingConflict = true;
+                                                                                setState(() {});
+                                                                                conflictSections.removeAt(index);
+                                                                                conflictSections.insertAll(index, localLines);
+                                                                                await refreshConflictSectionIndices();
+                                                                                isResolvingConflict = false;
+                                                                                setState(() {});
+                                                                              },
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                          visualDensity: VisualDensity.compact,
+                                                                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                                                          shape: WidgetStatePropertyAll(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                              side: BorderSide.none,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          t.local.toUpperCase(),
+                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                    side: BorderSide.none,
-                                                                  ),
+                                                                    SizedBox(width: spaceXXS),
+                                                                    Expanded(
+                                                                      child: TextButton(
+                                                                        onPressed: isResolvingConflict
+                                                                            ? null
+                                                                            : () async {
+                                                                                isResolvingConflict = true;
+                                                                                setState(() {});
+                                                                                conflictSections.removeAt(index);
+                                                                                conflictSections.insertAll(index, remoteLines);
+                                                                                conflictSections.insertAll(index, localLines);
+                                                                                await refreshConflictSectionIndices();
+                                                                                isResolvingConflict = false;
+                                                                                setState(() {});
+                                                                              },
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryLight),
+                                                                          visualDensity: VisualDensity.compact,
+                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                                                          shape: WidgetStatePropertyAll(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                              side: BorderSide.none,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          t.both.toUpperCase(),
+                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(width: spaceXXS),
+                                                                    Expanded(
+                                                                      child: TextButton(
+                                                                        onPressed: isResolvingConflict
+                                                                            ? null
+                                                                            : () async {
+                                                                                isResolvingConflict = true;
+                                                                                setState(() {});
+                                                                                conflictSections.removeAt(index);
+                                                                                conflictSections.insertAll(index, remoteLines);
+                                                                                await refreshConflictSectionIndices();
+                                                                                isResolvingConflict = false;
+                                                                                setState(() {});
+                                                                              },
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryWarning),
+                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                          visualDensity: VisualDensity.compact,
+                                                                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                                                                          shape: WidgetStatePropertyAll(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                              side: BorderSide.none,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          t.remote.toUpperCase(),
+                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
+                                                        ),
+                                                        SizedBox(height: spaceXS),
+                                                        ...localLines.map(
+                                                          (line) => GestureDetector(
+                                                            onTap: () => toggleLineSelection(item.$1, true, line.$1, setState),
+                                                            child: Container(
+                                                              color: isLineSelected(item.$1, true, line.$1)
+                                                                  ? colours.tertiaryInfo.withValues(alpha: 0.25)
+                                                                  : Colors.transparent,
+                                                              child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                children: [
+                                                                  Text(
+                                                                    padNumber(item.$1 + line.$1 + 1),
+                                                                    style: TextStyle(
+                                                                      color: colours.tertiaryInfo,
+                                                                      fontSize: textMD,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      fontFamily: "Roboto",
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(width: spaceSM),
+                                                                  Text(
+                                                                    line.$2.trim(),
+                                                                    style: TextStyle(
+                                                                      color: colours.tertiaryInfo,
+                                                                      fontSize: textMD,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      fontFamily: "RobotoMono",
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                              child: Text(
-                                                                t.remote.toUpperCase(),
-                                                                style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        ...remoteLines.map(
+                                                          (line) => GestureDetector(
+                                                            onTap: () => toggleLineSelection(item.$1, false, line.$1, setState),
+                                                            child: Container(
+                                                              color: isLineSelected(item.$1, false, line.$1)
+                                                                  ? colours.tertiaryWarning.withValues(alpha: 0.25)
+                                                                  : Colors.transparent,
+                                                              child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                children: [
+                                                                  Text(
+                                                                    padNumber(item.$1 + line.$1 + 1),
+                                                                    style: TextStyle(
+                                                                      color: colours.tertiaryWarning,
+                                                                      fontSize: textMD,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      fontFamily: "Roboto",
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(width: spaceSM),
+                                                                  Text(
+                                                                    line.$2.trim(),
+                                                                    style: TextStyle(
+                                                                      color: colours.tertiaryWarning,
+                                                                      fontSize: textMD,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      fontFamily: "RobotoMono",
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ),
                                                           ),
-                                                        ],
+                                                        ),
+                                                        SizedBox(height: spaceSM),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }
+                                                return AnchorItemWrapper(
+                                                  key: Key("${item.$1}//${item.$2}"),
+                                                  controller: scrollController,
+                                                  index: item.$1,
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      Text(
+                                                        padNumber(item.$1 + 1),
+                                                        style: TextStyle(
+                                                          color: colours.tertiaryLight,
+                                                          fontSize: textMD,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontFamily: "Roboto",
+                                                        ),
                                                       ),
-                                                    ),
-                                                    SizedBox(height: spaceXS),
-                                                    ...localLines.map(
-                                                      (line) => Row(
-                                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                                        children: [
-                                                          Text(
-                                                            padNumber(item.$1 + line.$1 + 1),
-                                                            style: TextStyle(
-                                                              color: colours.tertiaryInfo,
-                                                              fontSize: textMD,
-                                                              fontWeight: FontWeight.bold,
-                                                              fontFamily: "Roboto",
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: spaceSM),
-                                                          Text(
-                                                            line.$2.trim(),
-                                                            style: TextStyle(
-                                                              color: colours.tertiaryInfo,
-                                                              fontSize: textMD,
-                                                              fontWeight: FontWeight.bold,
-                                                              fontFamily: "RobotoMono",
-                                                            ),
-                                                          ),
-                                                        ],
+                                                      SizedBox(width: spaceSM),
+                                                      Text(
+                                                        item.$2.trim(),
+                                                        style: TextStyle(
+                                                          color: colours.secondaryLight,
+                                                          fontSize: textMD,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontFamily: "RobotoMono",
+                                                        ),
                                                       ),
-                                                    ),
-                                                    ...remoteLines.map(
-                                                      (line) => Row(
-                                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                                        children: [
-                                                          Text(
-                                                            padNumber(item.$1 + line.$1 + 1),
-                                                            style: TextStyle(
-                                                              color: colours.tertiaryWarning,
-                                                              fontSize: textMD,
-                                                              fontWeight: FontWeight.bold,
-                                                              fontFamily: "Roboto",
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: spaceSM),
-                                                          Text(
-                                                            line.$2.trim(),
-                                                            style: TextStyle(
-                                                              color: colours.tertiaryWarning,
-                                                              fontSize: textMD,
-                                                              fontWeight: FontWeight.bold,
-                                                              fontFamily: "RobotoMono",
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: spaceSM),
-                                                  ],
-                                                ),
-                                              );
-                                            }
-                                            return AnchorItemWrapper(
-                                              key: Key("${item.$1}//${item.$2}"),
-                                              controller: scrollController,
-                                              index: item.$1,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    padNumber(item.$1 + 1),
-                                                    style: TextStyle(
-                                                      color: colours.tertiaryLight,
-                                                      fontSize: textMD,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontFamily: "Roboto",
-                                                    ),
+                                                    ],
                                                   ),
-                                                  SizedBox(width: spaceSM),
-                                                  Text(
-                                                    item.$2.trim(),
-                                                    style: TextStyle(
-                                                      color: colours.secondaryLight,
-                                                      fontSize: textMD,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontFamily: "RobotoMono",
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
                                 ),
                                 if (isResolvingConflict)
                                   Positioned.fill(
                                     child: Container(
                                       color: colours.secondaryDark.withValues(alpha: 0.7),
-                                      child: Center(
-                                        child: CircularProgressIndicator(color: colours.primaryLight),
-                                      ),
+                                      child: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
                                     ),
                                   ),
                               ],
