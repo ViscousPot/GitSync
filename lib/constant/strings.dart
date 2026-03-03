@@ -52,7 +52,8 @@ const String outOfMemory = "Application ran out of memory!";
 const String invalidRemote = "Invalid remote! Modify this in settings";
 const String largeFile = "Singular files larger than 50MB not supported!";
 const String directoryNotEmpty = "Folder not empty. Please choose another.";
-const String inaccessibleDirectoryMessage = "This folder is inaccessible. Try creating a new folder in the same location with a different name and selecting that instead.";
+const String inaccessibleDirectoryMessage =
+    "This folder is inaccessible. Try creating a new folder in the same location with a different name and selecting that instead.";
 const String autoRebaseFailedException =
     "Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.";
 const String nonExistingException = "Remote ref didn't exist.";
@@ -128,5 +129,9 @@ const gitSyncNotifyChannelName = "GitSync Merge Conflict";
 
 const gitSyncBugChannelId = "git_sync_bug_channel";
 const gitSyncBugChannelName = "GitSync Bug";
+
+const gitSyncSyncChannelId = "git_sync_sync_channel";
+const gitSyncSyncChannelName = "GitSync Sync Status";
+const int syncStatusNotificationId = 1733;
 
 const bullet = "•";

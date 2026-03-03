@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:GitSync/api/manager/repo_manager.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -137,9 +140,23 @@ class GitsyncService {
     }
   }
 
-  Future<void> _displaySyncMessage(SettingsManager settingsManager, String message) async {
-    if (await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
-      await Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
+  Future<void> _displaySyncMessage(SettingsManager? settingsManager, String message) async {
+    if (settingsManager == null || await settingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+      if (Platform.isIOS) {
+        final active = await Logger.notificationsPlugin.getActiveNotifications();
+        final alreadyShowing = active.any((n) => n.id == syncStatusNotificationId);
+
+        final darwinDetails = DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentList: true,
+          presentBadge: false,
+          presentSound: !alreadyShowing,
+        );
+        await Logger.notificationsPlugin.show(syncStatusNotificationId, appName, message, NotificationDetails(iOS: darwinDetails));
+      } else {
+        await Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
+      }
     }
   }
 
@@ -169,12 +186,12 @@ class GitsyncService {
           ? (await settingsManager.getGitSshAuthCredentials()).$2.isEmpty
           : (await settingsManager.getGitHttpAuthCredentials()).$2.isEmpty) {
         Logger.gmLog(type: LogType.Sync, "Credentials Not Found");
-        Fluttertoast.showToast(msg: "Credentials not found", toastLength: Toast.LENGTH_LONG, gravity: null);
+        _displaySyncMessage(null, "Credentials not found");
         isScheduled = false;
         return;
       }
       if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
-        Fluttertoast.showToast(msg: s.ongoingMergeConflict, toastLength: Toast.LENGTH_SHORT, gravity: null);
+        _displaySyncMessage(null, s.ongoingMergeConflict);
         isScheduled = false;
         return;
       }
@@ -192,7 +209,7 @@ class GitsyncService {
 
         if (gitDirPath == null) {
           Logger.gmLog(type: LogType.Sync, "Repository Not Found");
-          Fluttertoast.showToast(msg: repositoryNotFound, toastLength: Toast.LENGTH_LONG, gravity: null);
+          _displaySyncMessage(null, repositoryNotFound);
           return;
         }
 
@@ -311,7 +328,7 @@ class GitsyncService {
         repomanRepoindex,
         settingsManager,
         () {
-          Fluttertoast.showToast(msg: resolvingMerge, toastLength: Toast.LENGTH_SHORT, gravity: null);
+          _displaySyncMessage(null, resolvingMerge);
         },
         conflictingPaths,
         commitMessage,
