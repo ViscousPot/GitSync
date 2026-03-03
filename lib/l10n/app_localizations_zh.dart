@@ -716,6 +716,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosDefaultSyncRate => '当 iOS 允许时';
 
   @override
+  String get every => 'every';
+
+  @override
   String get scheduledSync => 'Scheduled Sync';
 
   @override

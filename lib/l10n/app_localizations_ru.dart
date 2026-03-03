@@ -719,6 +719,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get iosDefaultSyncRate => 'когда iOS позволяет';
 
   @override
+  String get every => 'every';
+
+  @override
   String get scheduledSync => 'Scheduled Sync';
 
   @override

@@ -718,6 +718,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosDefaultSyncRate => 'when iOS allows';
 
   @override
+  String get every => 'every';
+
+  @override
   String get scheduledSync => 'Scheduled Sync';
 
   @override

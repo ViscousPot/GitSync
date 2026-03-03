@@ -1516,6 +1516,12 @@ abstract class AppLocalizations {
   /// **'when iOS allows'**
   String get iosDefaultSyncRate;
 
+  /// No description provided for @every.
+  ///
+  /// In en, this message translates to:
+  /// **'every'**
+  String get every;
+
   /// No description provided for @scheduledSync.
   ///
   /// In en, this message translates to:

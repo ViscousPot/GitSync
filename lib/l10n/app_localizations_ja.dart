@@ -717,6 +717,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get iosDefaultSyncRate => 'iOSが許可した時';
 
   @override
+  String get every => 'every';
+
+  @override
   String get scheduledSync => 'Scheduled Sync';
 
   @override

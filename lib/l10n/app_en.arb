@@ -276,6 +276,7 @@
     "scheduledSyncDescription": "Automatically syncs periodically in the background",
     "sync": "Sync",
     "iosDefaultSyncRate": "when iOS allows",
+    "every": "every",
     "scheduledSync": "Scheduled Sync",
     "custom": "Custom",
     "interval15min": "15 min",
