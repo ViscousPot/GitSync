@@ -237,6 +237,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get switchToSyncMode => '同期モードに切り替え…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => 'クライアントモード';
 
   @override
@@ -973,10 +976,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get syncMessageLabel => '同期メッセージ';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => '日付と時刻には %s を使用';
 
   @override
   String get syncMessageTimeFormatLabel => '同期メッセージの日時形式';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => '標準的な日時フォーマット構文を使用します';
@@ -991,6 +1000,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get authorNameLabel => '作成者名';
 
   @override
+  String get defaultAuthorNameLabel => 'default author name';
+
+  @override
   String get authorNameDescription => 'used to identify you in commit history';
 
   @override
@@ -998,6 +1010,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get authorEmailLabel => '作成者のメールアドレス';
+
+  @override
+  String get defaultAuthorEmailLabel => 'default author email';
 
   @override
   String get authorEmailDescription => 'attached to your commits for attribution';

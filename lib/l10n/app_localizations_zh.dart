@@ -237,6 +237,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get switchToSyncMode => '切换到同步模式…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => '客户端模式';
 
   @override
@@ -972,10 +975,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncMessageLabel => '同步消息';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => '使用 %s 表示日期和时间';
 
   @override
   String get syncMessageTimeFormatLabel => '同步消息时间格式';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => '使用标准日期时间格式语法';
@@ -990,6 +999,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authorNameLabel => '提交昵称';
 
   @override
+  String get defaultAuthorNameLabel => 'default author name';
+
+  @override
   String get authorNameDescription => 'used to identify you in commit history';
 
   @override
@@ -997,6 +1009,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get authorEmailLabel => '提交邮箱';
+
+  @override
+  String get defaultAuthorEmailLabel => 'default author email';
 
   @override
   String get authorEmailDescription => 'attached to your commits for attribution';

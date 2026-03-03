@@ -562,6 +562,12 @@ abstract class AppLocalizations {
   /// **'Switch to Sync Mode…'**
   String get switchToSyncMode;
 
+  /// No description provided for @defaultTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Default to'**
+  String get defaultTo;
+
   /// No description provided for @clientMode.
   ///
   /// In en, this message translates to:
@@ -2026,6 +2032,12 @@ abstract class AppLocalizations {
   /// **'Sync Message'**
   String get syncMessageLabel;
 
+  /// No description provided for @defaultSyncMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Sync Message'**
+  String get defaultSyncMessageLabel;
+
   /// No description provided for @syncMessageDescription.
   ///
   /// In en, this message translates to:
@@ -2037,6 +2049,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync Message Time Format'**
   String get syncMessageTimeFormatLabel;
+
+  /// No description provided for @defaultSyncMessageTimeFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Sync Message Time Format'**
+  String get defaultSyncMessageTimeFormatLabel;
 
   /// No description provided for @syncMessageTimeFormatDescription.
   ///
@@ -2062,6 +2080,12 @@ abstract class AppLocalizations {
   /// **'author name'**
   String get authorNameLabel;
 
+  /// No description provided for @defaultAuthorNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'default author name'**
+  String get defaultAuthorNameLabel;
+
   /// No description provided for @authorNameDescription.
   ///
   /// In en, this message translates to:
@@ -2079,6 +2103,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'author email'**
   String get authorEmailLabel;
+
+  /// No description provided for @defaultAuthorEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'default author email'**
+  String get defaultAuthorEmailLabel;
 
   /// No description provided for @authorEmailDescription.
   ///

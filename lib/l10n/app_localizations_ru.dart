@@ -238,6 +238,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get switchToSyncMode => 'Switch to Sync Mode…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => 'Client Mode';
 
   @override
@@ -977,10 +980,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get syncMessageLabel => 'Сообщение синхронизации';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => 'используйте %s для даты и времени';
 
   @override
   String get syncMessageTimeFormatLabel => 'Формат времени сообщения синхронизации';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => 'Использует стандартный синтаксис форматирования даты и времени';
@@ -995,6 +1004,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authorNameLabel => 'имя автора';
 
   @override
+  String get defaultAuthorNameLabel => 'default author name';
+
+  @override
   String get authorNameDescription => 'used to identify you in commit history';
 
   @override
@@ -1002,6 +1014,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authorEmailLabel => 'email автора';
+
+  @override
+  String get defaultAuthorEmailLabel => 'default author email';
 
   @override
   String get authorEmailDescription => 'attached to your commits for attribution';

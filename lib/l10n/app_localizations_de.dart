@@ -238,6 +238,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get switchToSyncMode => 'Switch to Sync Mode…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => 'Client Mode';
 
   @override
@@ -979,10 +982,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get syncMessageLabel => 'Sync-Nachricht';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => 'Verwenden Sie %s für Datum und Uhrzeit';
 
   @override
   String get syncMessageTimeFormatLabel => 'Zeitformat für Sync-Nachricht';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => 'Verwendet Standard-Datetime-Formatierungssyntax';
@@ -997,6 +1006,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authorNameLabel => 'Autorenname';
 
   @override
+  String get defaultAuthorNameLabel => 'default author name';
+
+  @override
   String get authorNameDescription => 'used to identify you in commit history';
 
   @override
@@ -1004,6 +1016,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authorEmailLabel => 'Autoren-E-Mail';
+
+  @override
+  String get defaultAuthorEmailLabel => 'default author email';
 
   @override
   String get authorEmailDescription => 'attached to your commits for attribution';
