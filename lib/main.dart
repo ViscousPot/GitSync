@@ -1400,27 +1400,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               context,
             ).push(createSettingsMainRoute(context, {"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true}));
             await reloadAll();
-            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-              await showCloneRepoPage();
-            } else {
-              _restorableOnboardingSetup.present({});
-            }
+            await showCloneRepoPage();
           },
           () async {
-            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-              await showCloneRepoPage();
-            } else {
-              _restorableOnboardingSetup.present({});
-            }
+            await showCloneRepoPage();
           },
         );
         return;
       }
-      if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-        await showCloneRepoPage();
-      } else {
-        _restorableOnboardingSetup.present({});
-      }
+      await showCloneRepoPage();
     });
   }
 
@@ -3212,7 +3200,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                                 if (!mounted) return;
                                                 await setGitDirPathGetSubmodules(context, selectedDirectory);
-                                                await repoManager.setOnboardingStep(4);
                                                 await reloadAll();
                                               },
                                               style: ButtonStyle(
