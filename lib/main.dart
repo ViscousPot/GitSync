@@ -738,14 +738,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await colours.reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
-    final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
-      LogType.ConflictingFiles,
-      (event) => conflicting.value = (event?["result"] as List)
-          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
-          .toList(),
-    );
-    if (token != _reloadToken) return;
-    conflicting.value = newConflicting;
     final newBranchName = await runGitOperation<String?>(LogType.BranchName, (event) => event?["result"]);
     if (token != _reloadToken) return;
     branchName.value = newBranchName;
@@ -767,6 +759,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     final newHasGitFilters = await runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
     if (token != _reloadToken) return;
     hasGitFilters.value = newHasGitFilters;
+    final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
+      LogType.ConflictingFiles,
+      (event) => conflicting.value = (event?["result"] as List)
+          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
+          .toList(),
+    );
+    if (token != _reloadToken) return;
+    conflicting.value = newConflicting;
     await updateRecommendedAction();
     if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
