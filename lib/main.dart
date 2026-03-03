@@ -99,7 +99,7 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       DartPluginRegistrant.ensureInitialized();
 
-      await RustLib.init();
+      if (!RustLib.instance.initialized) await RustLib.init();
       await GitManager.clearLocks();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
@@ -147,7 +147,7 @@ Future<void> backgroundCallback(Uri? data) async {
 void callbackDispatcher() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
-  await RustLib.init();
+  if (!RustLib.instance.initialized) await RustLib.init();
 
   Workmanager().executeTask((task, inputData) async {
     try {
@@ -174,7 +174,7 @@ void callbackDispatcher() async {
 @pragma('vm:entry-point')
 void onServiceStart(ServiceInstance service) async {
   serviceInstance = service;
-  await RustLib.init();
+  if (!RustLib.instance.initialized) await RustLib.init();
 
   service.on(LogType.Clone.name).listen((event) async {
     if (event == null) return;
