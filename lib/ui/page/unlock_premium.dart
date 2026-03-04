@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +38,20 @@ class _UnlockPremiumState extends State<UnlockPremium> {
   int currentPage = 0;
   bool _restoringPurchase = false;
   final price = "\$20.00";
+
+  @override
+  void initState() {
+    super.initState();
+    if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+      Navigator.pop(context, true);
+    }
+    initAsync(() async {
+      await premiumManager.updateGitHubSponsorPremium();
+      if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+        Navigator.pop(context, true);
+      }
+    });
+  }
 
   Widget _featureRow(IconData icon, String text) {
     return Padding(
