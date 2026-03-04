@@ -243,6 +243,64 @@
     "showcaseRepoFeatureBrowse": "Browse and edit files directly",
     "showcaseRepoFeatureRemote": "View or change the remote URL",
 
+    "onboardingClientMode": "Client Mode",
+    "onboardingClientModeDescription": "Everything you would expect from a git client",
+    "onboardingClientFeatureBranch": "Branch management",
+    "onboardingClientFeatureCommit": "Manual commit & push",
+    "onboardingClientFeatureDiff": "Diff viewer",
+    "onboardingSyncMode": "Sync Mode",
+    "onboardingSyncModeDescription": "Automated file syncing in the background",
+    "onboardingSyncFeatureAutoCommit": "Auto commit & push",
+    "onboardingSyncFeatureBackground": "Background operation",
+    "onboardingSyncFeatureConflict": "Easy conflict resolution",
+
+    "onboardingFileExplorer": "File Explorer",
+    "onboardingBrowseFeatureHidden": "View hidden files",
+    "onboardingBrowseFeatureLog": "View git log",
+    "onboardingBrowseFeatureIgnore": "Untrack and ignore files",
+    "onboardingCodeEditor": "Code Editor",
+    "onboardingEditFeatureSyntax": "Syntax highlighting",
+    "onboardingEditFeatureAutosave": "Auto-saving",
+    "onboardingEditFeatureExperimental": "Experimental feature",
+
+    "onboardingNotificationDescription": "Notifications keep you informed about:",
+    "onboardingNotificationFeatureSync": "Sync status updates",
+    "onboardingNotificationFeatureConflict": "Merge conflict alerts",
+    "onboardingNotificationFeatureBug": "Bug report notifications",
+    "onboardingNotificationDefault": "All notifications are off by default.",
+
+    "onboardingFileAccessDescription": "File access is required for:",
+    "onboardingFileAccessFeatureSync": "Syncing your repository",
+    "onboardingFileAccessFeatureReadWrite": "Reading and writing files",
+    "onboardingFileAccessFeatureDirectory": "Accessing your selected directory",
+
+    "onboardingPremiumFeatures": "Premium Features",
+
+    "onboardingWelcomeTitle": "Effortless File Syncing",
+    "onboardingWelcomeDescWorks": "Works\n",
+    "onboardingWelcomeDescBackground": "in the background,\n",
+    "onboardingWelcomeDescYourWork": "your work\n",
+    "onboardingWelcomeDescFocus": "always in focus",
+
+    "onboardingChooseYourFocus": "Choose your focus",
+    "onboardingChangeLaterInSettings": "You can change this later in settings",
+
+    "onboardingBrowseEditTitle": "Browse & Edit",
+    "onboardingBrowseEditSubtitle": "Built-in tools for your files",
+
+    "onboardingAlmostThereTitle": "Almost there!",
+    "onboardingAlmostThereSubtitle": "Here's what's next:",
+    "onboardingStepAuthenticate": "Authenticate with your Git provider",
+    "onboardingStepClone": "Clone a repository to your device",
+    "onboardingStepSyncSettings": "Configure your sync settings",
+    "onboardingStepWiki": "Check the wiki if you need help",
+    "onboardingStepAllSet": "Then you'll be all set!",
+
+    "onboardingAuthTitle": "Authenticate",
+    "onboardingAuthSubtitle": "Authenticate with your preferred git provider",
+
+    "onboardingLaunchWiki": "Launch the wiki",
+
 
     "@@x-HOME_PAGE": "",
     "currentBranch": "Current Branch",

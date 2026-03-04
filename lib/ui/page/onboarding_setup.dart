@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/icons.dart';
@@ -655,7 +654,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width, height: spaceXXL * 2.5),
                       Text(
-                        "Effortless File Syncing",
+                        t.onboardingWelcomeTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: colours.primaryLight,
@@ -676,15 +675,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       style: TextStyle(color: colours.primaryLight, fontSize: textXS * 2, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
                       children: [
                         TextSpan(
-                          text: 'Works\n',
+                          text: t.onboardingWelcomeDescWorks,
                           style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
-                        TextSpan(text: 'in the background,\n'),
+                        TextSpan(text: t.onboardingWelcomeDescBackground),
                         TextSpan(
-                          text: 'your work\n',
+                          text: t.onboardingWelcomeDescYourWork,
                           style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
-                        TextSpan(text: 'always in focus'),
+                        TextSpan(text: t.onboardingWelcomeDescFocus),
                       ],
                     ),
                   ),
@@ -897,7 +896,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                       Text(
-                        "Choose your focus",
+                        t.onboardingChooseYourFocus,
                         style: TextStyle(
                           color: colours.primaryLight,
                           fontSize: textMD * 2,
@@ -908,7 +907,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       ),
                       SizedBox(height: spaceXS),
                       Text(
-                        "You can change this later in settings",
+                        t.onboardingChangeLaterInSettings,
                         style: TextStyle(
                           color: colours.secondaryLight,
                           fontSize: textSM,
@@ -967,7 +966,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
                                                     ),
-                                                    child: Text("Client Mode"),
+                                                    child: Text(t.onboardingClientMode),
                                                   ),
                                                   SizedBox(width: spaceSM),
                                                   FaIcon(
@@ -998,15 +997,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
                                                 ),
-                                                child: Text("Everything you would expect from a git client", textAlign: TextAlign.end),
+                                                child: Text(t.onboardingClientModeDescription, textAlign: TextAlign.end),
                                               ),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
-                                                _modeFeatureItem(FontAwesomeIcons.codeBranch, "Branch management", isClientMode),
-                                                _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, "Manual commit & push", isClientMode),
-                                                _modeFeatureItem(FontAwesomeIcons.codePullRequest, "Diff viewer", isClientMode, false, true),
+                                                _modeFeatureItem(FontAwesomeIcons.codeBranch, t.onboardingClientFeatureBranch, isClientMode),
+                                                _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, t.onboardingClientFeatureCommit, isClientMode),
+                                                _modeFeatureItem(FontAwesomeIcons.codePullRequest, t.onboardingClientFeatureDiff, isClientMode, false, true),
                                               ],
                                             ),
                                           ],
@@ -1061,7 +1060,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
                                                     ),
-                                                    child: Text("Sync Mode"),
+                                                    child: Text(t.onboardingSyncMode),
                                                   ),
                                                 ],
                                               ),
@@ -1086,17 +1085,17 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
                                                 ),
-                                                child: Text("Automated file syncing in the background"),
+                                                child: Text(t.onboardingSyncModeDescription),
                                               ),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                _modeFeatureItem(FontAwesomeIcons.clockRotateLeft, "Auto commit & push", !isClientMode, true),
-                                                _modeFeatureItem(FontAwesomeIcons.gear, "Background operation", !isClientMode, true),
+                                                _modeFeatureItem(FontAwesomeIcons.clockRotateLeft, t.onboardingSyncFeatureAutoCommit, !isClientMode, true),
+                                                _modeFeatureItem(FontAwesomeIcons.gear, t.onboardingSyncFeatureBackground, !isClientMode, true),
                                                 _modeFeatureItem(
                                                   FontAwesomeIcons.triangleExclamation,
-                                                  "Easy conflict resolution",
+                                                  t.onboardingSyncFeatureConflict,
                                                   !isClientMode,
                                                   true,
                                                   true,
@@ -1283,7 +1282,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      "Browse & Edit",
+                      t.onboardingBrowseEditTitle,
                       style: TextStyle(
                         color: colours.primaryLight,
                         fontSize: textMD * 2,
@@ -1294,7 +1293,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      "Built-in tools for your files",
+                      t.onboardingBrowseEditSubtitle,
                       style: TextStyle(
                         color: colours.secondaryLight,
                         fontSize: textSM,
@@ -1336,7 +1335,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryPositive, size: textXL),
                                             SizedBox(width: spaceSM),
                                             Text(
-                                              "File Explorer",
+                                              t.onboardingFileExplorer,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontWeight: FontWeight.bold,
@@ -1361,9 +1360,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, "View hidden files"),
-                                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, "View git log"),
-                                            _browseFeatureItem(FontAwesomeIcons.ban, "Untrack and ignore files"),
+                                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, t.onboardingBrowseFeatureHidden),
+                                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, t.onboardingBrowseFeatureLog),
+                                            _browseFeatureItem(FontAwesomeIcons.ban, t.onboardingBrowseFeatureIgnore),
                                           ],
                                         ),
                                       ),
@@ -1397,7 +1396,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
-                                                    "Code Editor",
+                                                    t.onboardingCodeEditor,
                                                     style: TextStyle(
                                                       color: colours.primaryLight,
                                                       fontWeight: FontWeight.bold,
@@ -1424,9 +1423,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  _browseFeatureItem(FontAwesomeIcons.paintbrush, "Syntax highlighting"),
-                                                  _browseFeatureItem(FontAwesomeIcons.floppyDisk, "Auto-saving"),
-                                                  _browseFeatureItem(FontAwesomeIcons.flask, "Experimental feature"),
+                                                  _browseFeatureItem(FontAwesomeIcons.paintbrush, t.onboardingEditFeatureSyntax),
+                                                  _browseFeatureItem(FontAwesomeIcons.floppyDisk, t.onboardingEditFeatureAutosave),
+                                                  _browseFeatureItem(FontAwesomeIcons.flask, t.onboardingEditFeatureExperimental),
                                                 ],
                                               ),
                                             ),
@@ -1492,7 +1491,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         child: ValueListenableBuilder<bool?>(
                           valueListenable: premiumManager.hasPremiumNotifier,
                           builder: (context, hasPremium, _) => Text(
-                            (hasPremium == true ? t.continueLabel : "Premium Features").toUpperCase(),
+                            (hasPremium == true ? t.continueLabel : t.onboardingPremiumFeatures).toUpperCase(),
                             style: TextStyle(
                               color: colours.secondaryDark,
                               fontWeight: FontWeight.bold,
@@ -1710,7 +1709,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      "Notifications keep you informed about:",
+                      t.onboardingNotificationDescription,
                       style: TextStyle(
                         color: colours.tertiaryLight,
                         fontSize: textSM,
@@ -1725,15 +1724,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _notificationBulletItem("Sync status updates"),
-                          _notificationBulletItem("Merge conflict alerts"),
-                          _notificationBulletItem("Bug report notifications"),
+                          _notificationBulletItem(t.onboardingNotificationFeatureSync),
+                          _notificationBulletItem(t.onboardingNotificationFeatureConflict),
+                          _notificationBulletItem(t.onboardingNotificationFeatureBug),
                         ],
                       ),
                     ),
                     SizedBox(height: spaceSM),
                     Text(
-                      "All notifications are off by default.",
+                      t.onboardingNotificationDefault,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
                     ),
                   ],
@@ -1900,7 +1899,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      "File access is required for:",
+                      t.onboardingFileAccessDescription,
                       style: TextStyle(
                         color: colours.tertiaryLight,
                         fontSize: textSM,
@@ -1915,9 +1914,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _notificationBulletItem("Syncing your repository"),
-                          _notificationBulletItem("Reading and writing files"),
-                          _notificationBulletItem("Accessing your selected directory"),
+                          _notificationBulletItem(t.onboardingFileAccessFeatureSync),
+                          _notificationBulletItem(t.onboardingFileAccessFeatureReadWrite),
+                          _notificationBulletItem(t.onboardingFileAccessFeatureDirectory),
                         ],
                       ),
                     ),
@@ -2054,7 +2053,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      "Almost there!",
+                      t.onboardingAlmostThereTitle,
                       style: TextStyle(
                         color: colours.primaryLight,
                         fontSize: textMD * 2,
@@ -2065,7 +2064,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      "Here's what's next:",
+                      t.onboardingAlmostThereSubtitle,
                       style: TextStyle(
                         color: colours.tertiaryLight,
                         fontSize: textSM,
@@ -2097,7 +2096,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              "Authenticate with your Git provider",
+                                              t.onboardingStepAuthenticate,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontSize: textMD,
@@ -2121,7 +2120,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              "Clone a repository to your device",
+                                              t.onboardingStepClone,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontSize: textMD,
@@ -2150,7 +2149,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              "Configure your sync settings",
+                                              t.onboardingStepSyncSettings,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontSize: textMD,
@@ -2174,7 +2173,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              "Check the wiki if you need help",
+                                              t.onboardingStepWiki,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontSize: textMD,
@@ -2198,7 +2197,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              "Then you'll be all set!",
+                                              t.onboardingStepAllSet,
                                               style: TextStyle(
                                                 color: colours.primaryLight,
                                                 fontSize: textMD,
@@ -2345,7 +2344,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                 children: [
                   SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                   Text(
-                    "Authenticate",
+                    t.onboardingAuthTitle,
                     style: TextStyle(
                       color: colours.primaryLight,
                       fontSize: textMD * 2,
@@ -2356,7 +2355,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   ),
                   SizedBox(height: spaceXS),
                   Text(
-                    "Authenticate with your preferred git provider",
+                    t.onboardingAuthSubtitle,
                     style: TextStyle(
                       color: colours.tertiaryLight,
                       fontSize: textSM,
@@ -2921,7 +2920,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                   ),
                                   SizedBox(width: spaceXXS),
                                   Text(
-                                    settingsBody != null ? t.onboardingTapToConfigure : "Launch the wiki",
+                                    settingsBody != null ? t.onboardingTapToConfigure : t.onboardingLaunchWiki,
                                     style: TextStyle(
                                       color: colours.tertiaryLight,
                                       fontWeight: FontWeight.bold,
