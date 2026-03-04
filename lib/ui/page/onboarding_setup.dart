@@ -1489,13 +1489,16 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                             ),
                           ),
                         ),
-                        child: Text(
-                          "Premium Features".toUpperCase(),
-                          style: TextStyle(
-                            color: colours.secondaryDark,
-                            fontWeight: FontWeight.bold,
-                            fontSize: textMD,
-                            fontFamily: "AtkinsonHyperlegible",
+                        child: ValueListenableBuilder<bool?>(
+                          valueListenable: premiumManager.hasPremiumNotifier,
+                          builder: (context, hasPremium, _) => Text(
+                            (hasPremium == true ? t.continueLabel : "Premium Features").toUpperCase(),
+                            style: TextStyle(
+                              color: colours.secondaryDark,
+                              fontWeight: FontWeight.bold,
+                              fontSize: textMD,
+                              fontFamily: "AtkinsonHyperlegible",
+                            ),
                           ),
                         ),
                         onPressed: () async {
