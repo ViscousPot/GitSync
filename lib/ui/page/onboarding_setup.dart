@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/icons.dart';
@@ -11,7 +12,6 @@ import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/https_auth_form.dart';
 import 'package:GitSync/ui/component/ssh_auth_form.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -365,6 +365,8 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     }
   }
 
+  List<Shadow> get _bgTextShadow => [Shadow(blurRadius: 10.0, color: colours.primaryDark, offset: Offset.zero)];
+
   Widget get legacyAppUser => Stack(
     children: [
       Positioned(
@@ -457,7 +459,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
-                        shadows: [Shadow(blurRadius: 10.0, color: colours.primaryDark, offset: Offset.zero)],
+                        shadows: _bgTextShadow,
                       ),
                     ),
                   ),
@@ -476,6 +478,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontWeight: FontWeight.bold,
                         fontSize: textXS * 2,
                         fontFamily: "AtkinsonHyperlegible",
+                        shadows: _bgTextShadow,
                       ),
                     ),
                   ),
@@ -487,6 +490,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       fontWeight: FontWeight.bold,
                       fontSize: textMD,
                       fontFamily: "AtkinsonHyperlegible",
+                      shadows: _bgTextShadow,
                     ),
                   ),
                   SizedBox(height: spaceSM),
@@ -497,6 +501,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       fontWeight: FontWeight.bold,
                       fontSize: textMD,
                       fontFamily: "AtkinsonHyperlegible",
+                      shadows: _bgTextShadow,
                     ),
                   ),
                   SizedBox(height: spaceXL),
@@ -657,6 +662,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontSize: textXXL,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
+                          shadows: _bgTextShadow,
                         ),
                       ),
                     ],
@@ -667,7 +673,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                   width: double.infinity,
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(color: colours.primaryLight, fontSize: textXS * 2, fontFamily: "AtkinsonHyperlegible"),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textXS * 2, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
                       children: [
                         TextSpan(
                           text: 'Works\n',
@@ -897,6 +903,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontSize: textMD * 2,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
+                          shadows: _bgTextShadow,
                         ),
                       ),
                       SizedBox(height: spaceXS),
@@ -907,6 +914,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontSize: textSM,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
+                          shadows: _bgTextShadow,
                         ),
                       ),
                       SizedBox(height: spaceMD),
@@ -938,15 +946,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           children: [
                                             AnimatedContainer(
                                               duration: animFast,
-                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                              padding: EdgeInsets.only(
+                                                left: spaceSM + spaceXS,
+                                                right: spaceSM + spaceXS,
+                                                bottom: spaceXXXS + spaceXXXS,
+                                                top: spaceXS + spaceXXXS,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: isClientMode ? colours.tertiaryDark : Colors.transparent,
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
-                                                border: BoxBorder.all(
-                                                  width: spaceXS,
-                                                  color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                                  strokeAlign: BorderSide.strokeAlignOutside,
-                                                ),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -972,15 +980,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             ),
                                             AnimatedContainer(
                                               duration: animFast,
-                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                              padding: EdgeInsets.only(
+                                                left: spaceSM + spaceXS,
+                                                right: spaceSM + spaceXS,
+                                                top: spaceXS + spaceXXXS,
+                                                bottom: spaceSM + spaceXXXS,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: isClientMode ? colours.tertiaryDark : Colors.transparent,
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
-                                                border: BoxBorder.all(
-                                                  width: spaceXS,
-                                                  color: isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                                  strokeAlign: BorderSide.strokeAlignOutside,
-                                                ),
                                               ),
                                               child: AnimatedDefaultTextStyle(
                                                 duration: animFast,
@@ -1026,15 +1034,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           children: [
                                             AnimatedContainer(
                                               duration: animFast,
-                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
+                                              padding: EdgeInsets.only(
+                                                left: spaceSM + spaceXS,
+                                                right: spaceSM + spaceXS,
+                                                bottom: spaceXXXS + spaceXXXS,
+                                                top: spaceXS + spaceXXXS,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
-                                                border: BoxBorder.all(
-                                                  width: spaceXS,
-                                                  color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                                  strokeAlign: BorderSide.strokeAlignOutside,
-                                                ),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -1060,15 +1068,15 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             ),
                                             AnimatedContainer(
                                               duration: animFast,
-                                              padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
+                                              padding: EdgeInsets.only(
+                                                left: spaceSM + spaceXS,
+                                                right: spaceSM + spaceXS,
+                                                top: spaceXS + spaceXXXS,
+                                                bottom: spaceSM + spaceXXXS,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
                                                 borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
-                                                border: BoxBorder.all(
-                                                  width: spaceXS,
-                                                  color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
-                                                  strokeAlign: BorderSide.strokeAlignOutside,
-                                                ),
                                               ),
                                               child: AnimatedDefaultTextStyle(
                                                 duration: animFast,
@@ -1281,6 +1289,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceXS),
@@ -1291,6 +1300,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -1513,7 +1523,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   Widget _modeFeatureItem(IconData icon, String text, bool isSelected, [bool right = false, bool last = false]) {
     return AnimatedContainer(
       duration: animFast,
-      padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceXS),
+      padding: EdgeInsets.symmetric(horizontal: spaceSM + spaceXS, vertical: spaceXS + spaceXXXS),
       decoration: BoxDecoration(
         color: isSelected ? colours.tertiaryDark : Colors.transparent,
         borderRadius: BorderRadius.only(
@@ -1521,11 +1531,6 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
           bottomLeft: right && last || !right ? cornerRadiusSM : Radius.zero,
           topRight: right ? cornerRadiusSM : Radius.zero,
           bottomRight: !right && last || right ? cornerRadiusSM : Radius.zero,
-        ),
-        border: BoxBorder.all(
-          width: spaceXS,
-          color: isSelected ? colours.tertiaryDark : Colors.transparent,
-          strokeAlign: BorderSide.strokeAlignOutside,
         ),
       ),
       child: Row(
@@ -1572,12 +1577,24 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
         children: [
           Text(
             "\u2022",
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+            style: TextStyle(
+              color: colours.tertiaryLight,
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+              fontFamily: "AtkinsonHyperlegible",
+              shadows: _bgTextShadow,
+            ),
           ),
           SizedBox(width: spaceSM),
           Text(
             text,
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+            style: TextStyle(
+              color: colours.tertiaryLight,
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+              fontFamily: "AtkinsonHyperlegible",
+              shadows: _bgTextShadow,
+            ),
           ),
         ],
       ),
@@ -1685,6 +1702,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceXS),
@@ -1695,6 +1713,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceSM),
@@ -1712,7 +1731,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                     SizedBox(height: spaceSM),
                     Text(
                       "All notifications are off by default.",
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
                     ),
                   ],
                 ),
@@ -1873,6 +1892,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceXS),
@@ -1883,6 +1903,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceSM),
@@ -2036,6 +2057,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceXS),
@@ -2046,6 +2068,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
                       ),
                     ),
                     SizedBox(height: spaceLG),
@@ -2325,12 +2348,19 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                       fontSize: textMD * 2,
                       fontFamily: "AtkinsonHyperlegible",
                       fontWeight: FontWeight.bold,
+                      shadows: _bgTextShadow,
                     ),
                   ),
                   SizedBox(height: spaceXS),
                   Text(
                     "Authenticate with your preferred git provider",
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: colours.tertiaryLight,
+                      fontSize: textSM,
+                      fontFamily: "AtkinsonHyperlegible",
+                      fontWeight: FontWeight.bold,
+                      shadows: _bgTextShadow,
+                    ),
                   ),
                   SizedBox(height: spaceLG),
                   Expanded(
@@ -2356,6 +2386,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           fontSize: textSM,
                                           fontFamily: "AtkinsonHyperlegible",
                                           fontWeight: FontWeight.bold,
+                                          shadows: _bgTextShadow,
                                         ),
                                       ),
                                       SizedBox(height: spaceSM),
@@ -3062,6 +3093,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontSize: textMD * 2,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
+                          shadows: _bgTextShadow,
                         ),
                       ),
                       SizedBox(height: spaceXS),
@@ -3072,6 +3104,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           fontSize: textSM,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
+                          shadows: _bgTextShadow,
                         ),
                       ),
                       SizedBox(height: MediaQuery.of(context).viewInsets.bottom != 0 ? spaceLG : spaceLG * 3.5),
@@ -3225,6 +3258,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
               ),
               child: Stack(
                 children: [
+                  child,
                   AnimatedPositioned(
                     duration: animSlow,
                     curve: Curves.easeInOut,
@@ -3237,11 +3271,16 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                         curve: Curves.easeInOut,
                         width: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
                         height: screenIndexValue == Screen.Welcome ? spaceXXL * 2.5 : spaceXXL,
-                        child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, color: colours.darkMode ? null : colours.primaryLight),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(blurRadius: 0.0, color: colours.primaryDark, spreadRadius: 0.0)],
+                          ),
+                          child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, color: colours.darkMode ? null : colours.primaryLight),
+                        ),
                       ),
                     ),
                   ),
-                  child,
                 ],
               ),
             ),
