@@ -24,6 +24,7 @@ import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/ui/component/auto_sync_settings.dart';
 import 'package:GitSync/ui/component/scheduled_sync_settings.dart';
 import 'package:GitSync/ui/component/quick_sync_settings.dart';
+import 'package:GitSync/ui/dialog/github_scoped_guide.dart' as github_scoped_guide;
 import 'package:GitSync/ui/dialog/prominent_disclosure.dart' as ProminentDisclosureDialog;
 import 'package:GitSync/ui/page/clone_repo_main.dart';
 import 'package:GitSync/ui/page/unlock_premium.dart';
@@ -2439,6 +2440,8 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
                                             final gitProviderManager = GithubAppManager();
 
+                                            if (!await github_scoped_guide.showLoginGuide(context)) return;
+
                                             final result = await gitProviderManager.launchOAuthFlow();
 
                                             if (result == null) return;
@@ -2447,6 +2450,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             if (token == null) return;
 
                                             final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+
+                                            if (!await github_scoped_guide.showRepoSelectionGuide(context)) return;
+
                                             if (githubAppInstallations.isEmpty) {
                                               await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                                             } else {

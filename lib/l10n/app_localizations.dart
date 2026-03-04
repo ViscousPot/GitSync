@@ -3111,6 +3111,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No remote configured'**
   String get noRemoteConfigured;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @githubScopedLoginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Sign In to GitHub'**
+  String get githubScopedLoginTitle;
+
+  /// No description provided for @githubScopedLoginMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be redirected to GitHub to sign in.\n\nLog in with the account that has access to your repositories, then authorize GitSync.'**
+  String get githubScopedLoginMsg;
+
+  /// No description provided for @githubScopedRepoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Select Repositories'**
+  String get githubScopedRepoTitle;
+
+  /// No description provided for @githubScopedRepoMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.'**
+  String get githubScopedRepoMsg;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

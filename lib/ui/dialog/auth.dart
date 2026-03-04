@@ -15,6 +15,7 @@ import '../../../type/git_provider.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import '../component/https_auth_form.dart';
 import '../component/ssh_auth_form.dart';
+import 'github_scoped_guide.dart' as github_scoped_guide;
 
 late final GlobalKey authDialogKey = GlobalKey();
 
@@ -75,6 +76,8 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
 
                 final gitProviderManager = GithubAppManager();
 
+                if (!await github_scoped_guide.showLoginGuide(context)) return;
+
                 final result = await gitProviderManager.launchOAuthFlow();
 
                 if (result == null) return;
@@ -83,6 +86,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 if (token == null) return;
 
                 final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+
+                if (!await github_scoped_guide.showRepoSelectionGuide(context)) return;
+
                 if (githubAppInstallations.isEmpty) {
                   await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                 } else {

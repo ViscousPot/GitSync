@@ -1531,4 +1531,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noRemoteConfigured => 'No remote configured';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get githubScopedLoginTitle => 'Step 1: Sign In to GitHub';
+
+  @override
+  String get githubScopedLoginMsg =>
+      'You\'ll be redirected to GitHub to sign in.\n\nLog in with the account that has access to your repositories, then authorize GitSync.';
+
+  @override
+  String get githubScopedRepoTitle => 'Step 2: Select Repositories';
+
+  @override
+  String get githubScopedRepoMsg => 'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.';
 }

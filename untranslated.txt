@@ -277,7 +277,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "es": [
@@ -558,7 +563,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "fr": [
@@ -771,7 +781,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "ja": [
@@ -899,7 +914,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "ru": [
@@ -1180,7 +1200,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "zh": [
@@ -1412,7 +1437,12 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ],
 
   "zh_Hant": [
@@ -1916,6 +1946,11 @@
     "noGitRepoFoundMsg",
     "remoteSetupLaterMsg",
     "localOnlyNoRemote",
-    "noRemoteConfigured"
+    "noRemoteConfigured",
+    "continueLabel",
+    "githubScopedLoginTitle",
+    "githubScopedLoginMsg",
+    "githubScopedRepoTitle",
+    "githubScopedRepoMsg"
   ]
 }
