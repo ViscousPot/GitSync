@@ -169,7 +169,6 @@
     "setUp": "Set Up",
     "welcomeSetupPrompt": "Would you like to go through a quick setup to get started?",
     "welcomePositive": "Let's go",
-    "welcomeNeutral": "Skip",
     "welcomeNegative": "I'm familiar",
     "notificationDialogTitle": "Enable Notifications",
     "allFilesAccessDialogTitle": "Enable \"All Files Access\"",

@@ -445,9 +445,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get welcomePositive => 'Поехали';
 
   @override
-  String get welcomeNeutral => 'Пропустить';
-
-  @override
   String get welcomeNegative => 'Я знаком';
 
   @override

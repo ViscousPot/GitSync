@@ -443,9 +443,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get welcomePositive => '開始する';
 
   @override
-  String get welcomeNeutral => 'スキップ';
-
-  @override
   String get welcomeNegative => '使い方は知っている';
 
   @override

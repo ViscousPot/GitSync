@@ -446,9 +446,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get welcomePositive => 'Los geht\'s';
 
   @override
-  String get welcomeNeutral => 'Überspringen';
-
-  @override
   String get welcomeNegative => 'Ich kenne mich aus';
 
   @override

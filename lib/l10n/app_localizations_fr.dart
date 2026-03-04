@@ -448,9 +448,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get welcomePositive => 'Allons-y';
 
   @override
-  String get welcomeNeutral => 'Passer';
-
-  @override
   String get welcomeNegative => 'Je connais déjà';
 
   @override

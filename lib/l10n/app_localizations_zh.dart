@@ -442,9 +442,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get welcomePositive => '开始引导';
 
   @override
-  String get welcomeNeutral => '跳过';
-
-  @override
   String get welcomeNegative => '我很熟练';
 
   @override

@@ -970,12 +970,6 @@ abstract class AppLocalizations {
   /// **'Let\'s go'**
   String get welcomePositive;
 
-  /// No description provided for @welcomeNeutral.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get welcomeNeutral;
-
   /// No description provided for @welcomeNegative.
   ///
   /// In en, this message translates to:
