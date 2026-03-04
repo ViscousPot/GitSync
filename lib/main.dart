@@ -3047,12 +3047,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 token,
                                                               );
                                                               if (githubAppInstallations.isEmpty) {
-                                                                await launchUrl(Uri.parse("https://github.com/apps/gitsync-viscouspotential"));
+                                                                await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                                                               } else {
                                                                 await launchUrl(
                                                                   Uri.parse(
                                                                     "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
                                                                   ),
+                                                                  mode: LaunchMode.inAppBrowserView,
                                                                 );
                                                               }
                                                             },

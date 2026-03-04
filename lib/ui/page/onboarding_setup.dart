@@ -2448,9 +2448,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
                                             final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
                                             if (githubAppInstallations.isEmpty) {
-                                              await launchUrl(Uri.parse(githubAppsLink));
+                                              await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                                             } else {
-                                              await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])));
+                                              await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])), mode: LaunchMode.inAppBrowserView);
                                             }
 
                                             await _completeOAuthAuth(result, GitProvider.GITHUB);

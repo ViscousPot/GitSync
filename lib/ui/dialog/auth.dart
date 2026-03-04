@@ -84,9 +84,9 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
 
                 final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
                 if (githubAppInstallations.isEmpty) {
-                  await launchUrl(Uri.parse(githubAppsLink));
+                  await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                 } else {
-                  await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])));
+                  await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])), mode: LaunchMode.inAppBrowserView);
                 }
 
                 await setHttpAuth(context, result, selectedGitProvider);
