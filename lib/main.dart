@@ -1057,7 +1057,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
     _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
     await repoManager.setOnboardingStep(-1);
-    await AccessibilityServiceHelper.deleteLegacySettings();
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
   }

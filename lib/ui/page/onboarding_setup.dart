@@ -528,12 +528,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                             ),
                           ),
                           onPressed: () async {
+                            await AccessibilityServiceHelper.deleteLegacySettings();
                             await _controller.reverse();
                             screenIndex.value = onboardingStepToScreen(await repoManager.getInt(StorageKey.repoman_onboardingStep));
-                            // Future.delayed(
-                            //   Duration(milliseconds: animationDuration.inMilliseconds),
-                            //   () async => ,
-                            // );
                           },
                         ),
                       ),
@@ -2456,7 +2453,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             if (githubAppInstallations.isEmpty) {
                                               await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                                             } else {
-                                              await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])), mode: LaunchMode.inAppBrowserView);
+                                              await launchUrl(
+                                                Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])),
+                                                mode: LaunchMode.inAppBrowserView,
+                                              );
                                             }
 
                                             await _completeOAuthAuth(result, GitProvider.GITHUB);
