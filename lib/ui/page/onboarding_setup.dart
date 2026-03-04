@@ -751,36 +751,6 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                               ),
                             ),
                             child: Text(
-                              t.welcomeNeutral.toUpperCase(),
-                              style: TextStyle(
-                                color: colours.tertiaryDark,
-                                fontWeight: FontWeight.bold,
-                                fontSize: textMD,
-                                fontFamily: "AtkinsonHyperlegible",
-                              ),
-                            ),
-                            onPressed: () async {
-                              hasSkipped = true;
-                              await _controller.reverse();
-                              screenIndex.value = Screen.ClientSyncMode;
-                            },
-                          ),
-                        ),
-                        SizedBox(width: spaceSM),
-                        SizedBox(
-                          child: TextButton(
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
-                                ),
-                              ),
-                            ),
-                            child: Text(
                               t.welcomeNegative.toUpperCase(),
                               style: TextStyle(
                                 color: colours.tertiaryDark,
@@ -797,7 +767,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                             },
                           ),
                         ),
-                        SizedBox(width: spaceSM),
+                        SizedBox(width: spaceMD + spaceSM),
                         Expanded(
                           child: TextButton(
                             style: ButtonStyle(
