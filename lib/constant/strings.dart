@@ -52,7 +52,8 @@ const String outOfMemory = "Application ran out of memory!";
 const String invalidRemote = "Invalid remote! Modify this in settings";
 const String largeFile = "Singular files larger than 50MB not supported!";
 const String directoryNotEmpty = "Folder not empty. Please choose another.";
-const String inaccessibleDirectoryMessage = "This folder is inaccessible. Try creating a new folder in the same location with a different name and selecting that instead.";
+const String inaccessibleDirectoryMessage =
+    "This folder is inaccessible. Try creating a new folder in the same location with a different name and selecting that instead.";
 const String autoRebaseFailedException =
     "Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.";
 const String nonExistingException = "Remote ref didn't exist.";
@@ -102,7 +103,7 @@ const String contributeLink = "https://github.com/sponsors/ViscousPot?sponsor=Vi
 const String githubIssueTemplate =
     "https://www.github.com/ViscousPot/GitSync/issues/new?template=BUG_REPORT.yaml&title=[Bug]:%20(%s)%%20Application%%20Error!&labels=%s,bug&logs=%s";
 const String release1708Link = "https://github.com/ViscousPot/GitSync/releases/tag/v1.708";
-const String githubAppsLink = "https://github.com/apps/git-sync-viscouspotential";
+const String githubAppsLink = "https://github.com/apps/gitsync-viscouspotential";
 const String playStoreLink = "https://play.google.com/store/apps/details?id=com.viscouspot.gitsync";
 const String githubInstallationsLink = "https://github.com/settings/installations/%s";
 
@@ -128,5 +129,9 @@ const gitSyncNotifyChannelName = "GitSync Merge Conflict";
 
 const gitSyncBugChannelId = "git_sync_bug_channel";
 const gitSyncBugChannelName = "GitSync Bug";
+
+const gitSyncSyncChannelId = "git_sync_sync_channel";
+const gitSyncSyncChannelName = "GitSync Sync Status";
+const int syncStatusNotificationId = 1733;
 
 const bullet = "•";

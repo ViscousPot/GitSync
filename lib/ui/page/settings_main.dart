@@ -20,9 +20,9 @@ import '../../../ui/component/item_setting.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
 
 class SettingsMain extends StatefulWidget {
-  const SettingsMain(this.recentCommits, {super.key, this.showcaseAuthorDetails = false});
+  const SettingsMain(this.recentCommitStrings, {super.key, this.showcaseAuthorDetails = false});
 
-  final List<GitManagerRs.Commit> recentCommits;
+  final List<String> recentCommitStrings;
   final bool showcaseAuthorDetails;
 
   @override
@@ -590,8 +590,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                       text: t.moreOptions,
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
-                        Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                        _restorableGlobalSettings.present({"recentCommits": widget.recentCommits, "onboarding": true});
+                        _restorableGlobalSettings.present({"recentCommits": widget.recentCommitStrings, "onboarding": false});
                       },
                     ),
                     SizedBox(height: spaceLG),
@@ -613,10 +612,8 @@ Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
-      builder: (context) => SettingsMain(
-        args["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
-        showcaseAuthorDetails: args["showcaseAuthorDetails"] == true,
-      ),
+      builder: (context) =>
+          SettingsMain(args["recentCommits"].map<String>((path) => "$path").toList(), showcaseAuthorDetails: args["showcaseAuthorDetails"] == true),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);

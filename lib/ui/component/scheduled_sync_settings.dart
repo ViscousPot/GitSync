@@ -26,6 +26,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
   String? _customFrequency;
   int? _customRate;
   bool _customError = false;
+  ValueNotifier<bool> updating = ValueNotifier(false);
 
   static const List<(String, String, int)> _presets = [
     ('interval30min', 'min', 30),
@@ -37,11 +38,13 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
   ];
 
   Future<void> setScheduledSync(String? frequency, int rate) async {
+    updating.value = true;
     // TODO: run these when repo/container is delete for cleanup
     await uiSettingsManager.setString(StorageKey.setman_schedule, "$frequency|$rate");
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
 
     if (frequency == "never") {
+      updating.value = false;
       setState(() {});
       await Workmanager().cancelAll();
       return;
@@ -58,6 +61,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
     }
 
     debounce(scheduledSyncSetDebounceReference, 1000, () async {
+      updating.value = false;
       setState(() {});
       await Workmanager().cancelByUniqueName("$scheduledSyncKey$repoIndex");
       await Workmanager().registerPeriodicTask(
@@ -191,6 +195,29 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
+          padding: widget.isOnboarding
+              ? EdgeInsets.only(bottom: spaceSM)
+              : EdgeInsets.only(left: spaceLG + spaceXS, right: spaceMD + spaceXS, bottom: spaceXS),
+          child: Row(
+            spacing: spaceSM,
+            children: [
+              Text(
+                "${t.every} $rate $frequency".toUpperCase(),
+                style: TextStyle(fontSize: textMD, color: colours.tertiaryLight, fontWeight: FontWeight.bold),
+              ),
+              ValueListenableBuilder(
+                valueListenable: updating,
+                builder: (context, updatingValue, child) => updatingValue
+                    ? SizedBox.square(
+                        dimension: textSM,
+                        child: CircularProgressIndicator(color: colours.tertiaryLight),
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+        Padding(
           padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
           child: Column(
             spacing: spaceXS,
@@ -231,10 +258,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AnimatedSize(
-                      duration: animFast,
-                      child: isCustomSelected ? _buildCustomInputs(frequency, rate) : SizedBox.shrink(),
-                    ),
+                    AnimatedSize(duration: animFast, child: isCustomSelected ? _buildCustomInputs(frequency, rate) : SizedBox.shrink()),
                     Expanded(
                       child: _buildChip(
                         isCustomSelected ? t.confirm : t.custom,
@@ -395,10 +419,10 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
                         ? Padding(
                             padding: widget.isOnboarding
                                 ? EdgeInsets.only(bottom: spaceSM)
-                                : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceMD + spaceXS, bottom: spaceSM),
+                                : EdgeInsets.only(left: spaceLG + spaceXS, right: spaceMD + spaceXS, bottom: spaceSM),
                             child: Text(
-                              t.iosDefaultSyncRate,
-                              style: TextStyle(fontSize: textMD, color: colours.tertiaryLight),
+                              t.iosDefaultSyncRate.toUpperCase(),
+                              style: TextStyle(fontSize: textMD, color: colours.tertiaryLight, fontWeight: FontWeight.bold),
                             ),
                           )
                         : Padding(

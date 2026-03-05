@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:GitSync/global.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:re_highlight/styles/base16/solarized-light.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/dimens.dart';
@@ -38,6 +38,20 @@ class _UnlockPremiumState extends State<UnlockPremium> {
   int currentPage = 0;
   bool _restoringPurchase = false;
   final price = "\$20.00";
+
+  @override
+  void initState() {
+    super.initState();
+    if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+      Navigator.pop(context, true);
+    }
+    initAsync(() async {
+      await premiumManager.updateGitHubSponsorPremium();
+      if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+        Navigator.pop(context, true);
+      }
+    });
+  }
 
   Widget _featureRow(IconData icon, String text) {
     return Padding(

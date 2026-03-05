@@ -238,6 +238,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get switchToSyncMode => 'Switch to Sync Mode…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => 'Client Mode';
 
   @override
@@ -363,6 +366,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get abortMerge => 'Merge abbrechen';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => 'Änderungen behalten';
 
   @override
@@ -378,7 +384,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get merge => 'Merge';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => 'Merge läuft…';
+
+  @override
+  String get resolving => 'Resolving…';
 
   @override
   String get clearSelection => 'Clear Selection';
@@ -432,9 +444,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get welcomePositive => 'Los geht\'s';
-
-  @override
-  String get welcomeNeutral => 'Überspringen';
 
   @override
   String get welcomeNegative => 'Ich kenne mich aus';
@@ -615,6 +624,147 @@ class AppLocalizationsDe extends AppLocalizations {
   String get showcaseRepoFeatureRemote => 'View or change the remote URL';
 
   @override
+  String get onboardingClientMode => 'Client Mode';
+
+  @override
+  String get onboardingClientModeDescription => 'Everything you would expect from a git client';
+
+  @override
+  String get onboardingClientFeatureBranch => 'Branch management';
+
+  @override
+  String get onboardingClientFeatureCommit => 'Manual commit & push';
+
+  @override
+  String get onboardingClientFeatureDiff => 'Diff viewer';
+
+  @override
+  String get onboardingSyncMode => 'Sync Mode';
+
+  @override
+  String get onboardingSyncModeDescription => 'Automated file syncing in the background';
+
+  @override
+  String get onboardingSyncFeatureAutoCommit => 'Auto commit & push';
+
+  @override
+  String get onboardingSyncFeatureBackground => 'Background operation';
+
+  @override
+  String get onboardingSyncFeatureConflict => 'Easy conflict resolution';
+
+  @override
+  String get onboardingFileExplorer => 'File Explorer';
+
+  @override
+  String get onboardingBrowseFeatureHidden => 'View hidden files';
+
+  @override
+  String get onboardingBrowseFeatureLog => 'View git log';
+
+  @override
+  String get onboardingBrowseFeatureIgnore => 'Untrack and ignore files';
+
+  @override
+  String get onboardingCodeEditor => 'Code Editor';
+
+  @override
+  String get onboardingEditFeatureSyntax => 'Syntax highlighting';
+
+  @override
+  String get onboardingEditFeatureAutosave => 'Auto-saving';
+
+  @override
+  String get onboardingEditFeatureExperimental => 'Experimental feature';
+
+  @override
+  String get onboardingNotificationDescription => 'Notifications keep you informed about:';
+
+  @override
+  String get onboardingNotificationFeatureSync => 'Sync status updates';
+
+  @override
+  String get onboardingNotificationFeatureConflict => 'Merge conflict alerts';
+
+  @override
+  String get onboardingNotificationFeatureBug => 'Bug report notifications';
+
+  @override
+  String get onboardingNotificationDefault => 'All notifications are off by default.';
+
+  @override
+  String get onboardingFileAccessDescription => 'File access is required for:';
+
+  @override
+  String get onboardingFileAccessFeatureSync => 'Syncing your repository';
+
+  @override
+  String get onboardingFileAccessFeatureReadWrite => 'Reading and writing files';
+
+  @override
+  String get onboardingFileAccessFeatureDirectory => 'Accessing your selected directory';
+
+  @override
+  String get onboardingPremiumFeatures => 'Premium Features';
+
+  @override
+  String get onboardingWelcomeTitle => 'Effortless File Syncing';
+
+  @override
+  String get onboardingWelcomeDescWorks => 'Works\n';
+
+  @override
+  String get onboardingWelcomeDescBackground => 'in the background,\n';
+
+  @override
+  String get onboardingWelcomeDescYourWork => 'your work\n';
+
+  @override
+  String get onboardingWelcomeDescFocus => 'always in focus';
+
+  @override
+  String get onboardingChooseYourFocus => 'Choose your focus';
+
+  @override
+  String get onboardingChangeLaterInSettings => 'You can change this later in settings';
+
+  @override
+  String get onboardingBrowseEditTitle => 'Browse & Edit';
+
+  @override
+  String get onboardingBrowseEditSubtitle => 'Built-in tools for your files';
+
+  @override
+  String get onboardingAlmostThereTitle => 'Almost there!';
+
+  @override
+  String get onboardingAlmostThereSubtitle => 'Here\'s what\'s next:';
+
+  @override
+  String get onboardingStepAuthenticate => 'Authenticate with your Git provider';
+
+  @override
+  String get onboardingStepClone => 'Clone a repository to your device';
+
+  @override
+  String get onboardingStepSyncSettings => 'Configure your sync settings';
+
+  @override
+  String get onboardingStepWiki => 'Check the wiki if you need help';
+
+  @override
+  String get onboardingStepAllSet => 'Then you\'ll be all set!';
+
+  @override
+  String get onboardingAuthTitle => 'Authenticate';
+
+  @override
+  String get onboardingAuthSubtitle => 'Authenticate with your preferred git provider';
+
+  @override
+  String get onboardingLaunchWiki => 'Launch the wiki';
+
+  @override
   String get currentBranch => 'Current Branch';
 
   @override
@@ -707,6 +857,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get iosDefaultSyncRate => 'wenn iOS es erlaubt';
+
+  @override
+  String get every => 'every';
 
   @override
   String get scheduledSync => 'Scheduled Sync';
@@ -970,10 +1123,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get syncMessageLabel => 'Sync-Nachricht';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => 'Verwenden Sie %s für Datum und Uhrzeit';
 
   @override
   String get syncMessageTimeFormatLabel => 'Zeitformat für Sync-Nachricht';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => 'Verwendet Standard-Datetime-Formatierungssyntax';
@@ -988,6 +1147,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authorNameLabel => 'Autorenname';
 
   @override
+  String get defaultAuthorNameLabel => 'default author name';
+
+  @override
   String get authorNameDescription => 'used to identify you in commit history';
 
   @override
@@ -995,6 +1157,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authorEmailLabel => 'Autoren-E-Mail';
+
+  @override
+  String get defaultAuthorEmailLabel => 'default author email';
 
   @override
   String get authorEmailDescription => 'attached to your commits for attribution';
@@ -1504,4 +1669,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noRemoteConfigured => 'No remote configured';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get githubScopedLoginTitle => 'Step 1: Sign In to GitHub';
+
+  @override
+  String get githubScopedLoginMsg =>
+      'You\'ll be redirected to GitHub to sign in.\n\nLog in with the account that has access to your repositories, then authorize GitSync.';
+
+  @override
+  String get githubScopedRepoTitle => 'Step 2: Select Repositories';
+
+  @override
+  String get githubScopedRepoMsg => 'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.';
 }

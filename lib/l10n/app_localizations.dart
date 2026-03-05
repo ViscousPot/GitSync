@@ -562,6 +562,12 @@ abstract class AppLocalizations {
   /// **'Switch to Sync Mode…'**
   String get switchToSyncMode;
 
+  /// No description provided for @defaultTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Default to'**
+  String get defaultTo;
+
   /// No description provided for @clientMode.
   ///
   /// In en, this message translates to:
@@ -808,6 +814,12 @@ abstract class AppLocalizations {
   /// **'Abort Merge'**
   String get abortMerge;
 
+  /// No description provided for @resolveLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve Later'**
+  String get resolveLater;
+
   /// No description provided for @keepChanges.
   ///
   /// In en, this message translates to:
@@ -838,11 +850,23 @@ abstract class AppLocalizations {
   /// **'Merge'**
   String get merge;
 
+  /// No description provided for @resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get resolve;
+
   /// No description provided for @merging.
   ///
   /// In en, this message translates to:
   /// **'Merging…'**
   String get merging;
+
+  /// No description provided for @resolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolving…'**
+  String get resolving;
 
   /// No description provided for @clearSelection.
   ///
@@ -945,12 +969,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Let\'s go'**
   String get welcomePositive;
-
-  /// No description provided for @welcomeNeutral.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get welcomeNeutral;
 
   /// No description provided for @welcomeNegative.
   ///
@@ -1306,6 +1324,288 @@ abstract class AppLocalizations {
   /// **'View or change the remote URL'**
   String get showcaseRepoFeatureRemote;
 
+  /// No description provided for @onboardingClientMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Mode'**
+  String get onboardingClientMode;
+
+  /// No description provided for @onboardingClientModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you would expect from a git client'**
+  String get onboardingClientModeDescription;
+
+  /// No description provided for @onboardingClientFeatureBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch management'**
+  String get onboardingClientFeatureBranch;
+
+  /// No description provided for @onboardingClientFeatureCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual commit & push'**
+  String get onboardingClientFeatureCommit;
+
+  /// No description provided for @onboardingClientFeatureDiff.
+  ///
+  /// In en, this message translates to:
+  /// **'Diff viewer'**
+  String get onboardingClientFeatureDiff;
+
+  /// No description provided for @onboardingSyncMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Mode'**
+  String get onboardingSyncMode;
+
+  /// No description provided for @onboardingSyncModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated file syncing in the background'**
+  String get onboardingSyncModeDescription;
+
+  /// No description provided for @onboardingSyncFeatureAutoCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto commit & push'**
+  String get onboardingSyncFeatureAutoCommit;
+
+  /// No description provided for @onboardingSyncFeatureBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background operation'**
+  String get onboardingSyncFeatureBackground;
+
+  /// No description provided for @onboardingSyncFeatureConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy conflict resolution'**
+  String get onboardingSyncFeatureConflict;
+
+  /// No description provided for @onboardingFileExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'File Explorer'**
+  String get onboardingFileExplorer;
+
+  /// No description provided for @onboardingBrowseFeatureHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'View hidden files'**
+  String get onboardingBrowseFeatureHidden;
+
+  /// No description provided for @onboardingBrowseFeatureLog.
+  ///
+  /// In en, this message translates to:
+  /// **'View git log'**
+  String get onboardingBrowseFeatureLog;
+
+  /// No description provided for @onboardingBrowseFeatureIgnore.
+  ///
+  /// In en, this message translates to:
+  /// **'Untrack and ignore files'**
+  String get onboardingBrowseFeatureIgnore;
+
+  /// No description provided for @onboardingCodeEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Code Editor'**
+  String get onboardingCodeEditor;
+
+  /// No description provided for @onboardingEditFeatureSyntax.
+  ///
+  /// In en, this message translates to:
+  /// **'Syntax highlighting'**
+  String get onboardingEditFeatureSyntax;
+
+  /// No description provided for @onboardingEditFeatureAutosave.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-saving'**
+  String get onboardingEditFeatureAutosave;
+
+  /// No description provided for @onboardingEditFeatureExperimental.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental feature'**
+  String get onboardingEditFeatureExperimental;
+
+  /// No description provided for @onboardingNotificationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications keep you informed about:'**
+  String get onboardingNotificationDescription;
+
+  /// No description provided for @onboardingNotificationFeatureSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync status updates'**
+  String get onboardingNotificationFeatureSync;
+
+  /// No description provided for @onboardingNotificationFeatureConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge conflict alerts'**
+  String get onboardingNotificationFeatureConflict;
+
+  /// No description provided for @onboardingNotificationFeatureBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug report notifications'**
+  String get onboardingNotificationFeatureBug;
+
+  /// No description provided for @onboardingNotificationDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'All notifications are off by default.'**
+  String get onboardingNotificationDefault;
+
+  /// No description provided for @onboardingFileAccessDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'File access is required for:'**
+  String get onboardingFileAccessDescription;
+
+  /// No description provided for @onboardingFileAccessFeatureSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing your repository'**
+  String get onboardingFileAccessFeatureSync;
+
+  /// No description provided for @onboardingFileAccessFeatureReadWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading and writing files'**
+  String get onboardingFileAccessFeatureReadWrite;
+
+  /// No description provided for @onboardingFileAccessFeatureDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessing your selected directory'**
+  String get onboardingFileAccessFeatureDirectory;
+
+  /// No description provided for @onboardingPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Features'**
+  String get onboardingPremiumFeatures;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Effortless File Syncing'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeDescWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'Works\n'**
+  String get onboardingWelcomeDescWorks;
+
+  /// No description provided for @onboardingWelcomeDescBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'in the background,\n'**
+  String get onboardingWelcomeDescBackground;
+
+  /// No description provided for @onboardingWelcomeDescYourWork.
+  ///
+  /// In en, this message translates to:
+  /// **'your work\n'**
+  String get onboardingWelcomeDescYourWork;
+
+  /// No description provided for @onboardingWelcomeDescFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'always in focus'**
+  String get onboardingWelcomeDescFocus;
+
+  /// No description provided for @onboardingChooseYourFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your focus'**
+  String get onboardingChooseYourFocus;
+
+  /// No description provided for @onboardingChangeLaterInSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this later in settings'**
+  String get onboardingChangeLaterInSettings;
+
+  /// No description provided for @onboardingBrowseEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse & Edit'**
+  String get onboardingBrowseEditTitle;
+
+  /// No description provided for @onboardingBrowseEditSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in tools for your files'**
+  String get onboardingBrowseEditSubtitle;
+
+  /// No description provided for @onboardingAlmostThereTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there!'**
+  String get onboardingAlmostThereTitle;
+
+  /// No description provided for @onboardingAlmostThereSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what\'s next:'**
+  String get onboardingAlmostThereSubtitle;
+
+  /// No description provided for @onboardingStepAuthenticate.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate with your Git provider'**
+  String get onboardingStepAuthenticate;
+
+  /// No description provided for @onboardingStepClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Clone a repository to your device'**
+  String get onboardingStepClone;
+
+  /// No description provided for @onboardingStepSyncSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure your sync settings'**
+  String get onboardingStepSyncSettings;
+
+  /// No description provided for @onboardingStepWiki.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the wiki if you need help'**
+  String get onboardingStepWiki;
+
+  /// No description provided for @onboardingStepAllSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Then you\'ll be all set!'**
+  String get onboardingStepAllSet;
+
+  /// No description provided for @onboardingAuthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate'**
+  String get onboardingAuthTitle;
+
+  /// No description provided for @onboardingAuthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate with your preferred git provider'**
+  String get onboardingAuthSubtitle;
+
+  /// No description provided for @onboardingLaunchWiki.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch the wiki'**
+  String get onboardingLaunchWiki;
+
   /// No description provided for @currentBranch.
   ///
   /// In en, this message translates to:
@@ -1491,6 +1791,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'when iOS allows'**
   String get iosDefaultSyncRate;
+
+  /// No description provided for @every.
+  ///
+  /// In en, this message translates to:
+  /// **'every'**
+  String get every;
 
   /// No description provided for @scheduledSync.
   ///
@@ -2008,6 +2314,12 @@ abstract class AppLocalizations {
   /// **'Sync Message'**
   String get syncMessageLabel;
 
+  /// No description provided for @defaultSyncMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Sync Message'**
+  String get defaultSyncMessageLabel;
+
   /// No description provided for @syncMessageDescription.
   ///
   /// In en, this message translates to:
@@ -2019,6 +2331,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync Message Time Format'**
   String get syncMessageTimeFormatLabel;
+
+  /// No description provided for @defaultSyncMessageTimeFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Sync Message Time Format'**
+  String get defaultSyncMessageTimeFormatLabel;
 
   /// No description provided for @syncMessageTimeFormatDescription.
   ///
@@ -2044,6 +2362,12 @@ abstract class AppLocalizations {
   /// **'author name'**
   String get authorNameLabel;
 
+  /// No description provided for @defaultAuthorNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'default author name'**
+  String get defaultAuthorNameLabel;
+
   /// No description provided for @authorNameDescription.
   ///
   /// In en, this message translates to:
@@ -2061,6 +2385,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'author email'**
   String get authorEmailLabel;
+
+  /// No description provided for @defaultAuthorEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'default author email'**
+  String get defaultAuthorEmailLabel;
 
   /// No description provided for @authorEmailDescription.
   ///
@@ -3057,6 +3387,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No remote configured'**
   String get noRemoteConfigured;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @githubScopedLoginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Sign In to GitHub'**
+  String get githubScopedLoginTitle;
+
+  /// No description provided for @githubScopedLoginMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be redirected to GitHub to sign in.\n\nLog in with the account that has access to your repositories, then authorize GitSync.'**
+  String get githubScopedLoginMsg;
+
+  /// No description provided for @githubScopedRepoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Select Repositories'**
+  String get githubScopedRepoTitle;
+
+  /// No description provided for @githubScopedRepoMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.'**
+  String get githubScopedRepoMsg;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

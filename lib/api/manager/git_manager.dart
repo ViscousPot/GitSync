@@ -668,9 +668,7 @@ class GitManager {
       }
     });
 
-    if (result != null) {
-      await uiSettingsManager.setStringNullable(StorageKey.setman_branchName, result);
-    }
+    await uiSettingsManager.setStringNullable(StorageKey.setman_branchName, result);
     return result;
   }
 
@@ -1140,6 +1138,32 @@ class GitManager {
         Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: errorContent);
       }
       return null;
+    });
+  }
+
+  static Future<bool?> backgroundStageAndCommit(
+    int repomanRepoindex,
+    SettingsManager settingsManager, [
+    List<String>? filePaths,
+    String? syncMessage,
+  ]) async {
+    return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.Commit, (dirPath) async {
+      try {
+        await GitManagerRs.stageFilePaths(pathString: dirPath, paths: filePaths ?? ["."], log: _logWrapper);
+        await GitManagerRs.commitChanges(
+          pathString: dirPath,
+          author: await _author(settingsManager),
+          commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
+          syncMessage: sprintf(syncMessage ?? await settingsManager.getSyncMessage(), [
+            (DateFormat(await settingsManager.getSyncMessageTimeFormat())).format(DateTime.now()),
+          ]),
+          log: _logWrapper,
+        );
+        return true;
+      } on AnyhowException catch (e, stackTrace) {
+        Logger.logError(LogType.Commit, e.message, stackTrace);
+        return null;
+      }
     });
   }
 }

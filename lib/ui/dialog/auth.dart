@@ -15,6 +15,7 @@ import '../../../type/git_provider.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import '../component/https_auth_form.dart';
 import '../component/ssh_auth_form.dart';
+import 'github_scoped_guide.dart' as github_scoped_guide;
 
 late final GlobalKey authDialogKey = GlobalKey();
 
@@ -24,7 +25,6 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   GitProvider selectedGitProvider = await uiSettingsManager.getGitProvider();
 
   Future<void> finish(BuildContext context, GitProvider selectedGitProvider) async {
-    await repoManager.setOnboardingStep(3);
     await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, selectedGitProvider.name);
     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
     callback();
@@ -76,6 +76,8 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
 
                 final gitProviderManager = GithubAppManager();
 
+                if (!await github_scoped_guide.showLoginGuide(context)) return;
+
                 final result = await gitProviderManager.launchOAuthFlow();
 
                 if (result == null) return;
@@ -84,10 +86,13 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 if (token == null) return;
 
                 final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+
+                if (!await github_scoped_guide.showRepoSelectionGuide(context)) return;
+
                 if (githubAppInstallations.isEmpty) {
-                  await launchUrl(Uri.parse(githubAppsLink));
+                  await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                 } else {
-                  await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])));
+                  await launchUrl(Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])), mode: LaunchMode.inAppBrowserView);
                 }
 
                 await setHttpAuth(context, result, selectedGitProvider);

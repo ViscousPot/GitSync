@@ -841,7 +841,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultSyncMessage, value),
                       getFn: () => repoManager.getString(StorageKey.repoman_defaultSyncMessage),
-                      title: t.syncMessageLabel,
+                      title: t.defaultSyncMessageLabel,
                       description: t.syncMessageDescription,
                       hint: defaultSyncMessage,
                       maxLines: null,
@@ -851,7 +851,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultSyncMessageTimeFormat, value),
                       getFn: () => repoManager.getString(StorageKey.repoman_defaultSyncMessageTimeFormat),
-                      title: t.syncMessageTimeFormatLabel,
+                      title: t.defaultSyncMessageTimeFormatLabel,
                       description: t.syncMessageTimeFormatDescription,
                       hint: defaultSyncMessageTimeFormat,
                     ),
@@ -859,7 +859,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorName, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorName),
-                      title: t.authorNameLabel,
+                      title: t.defaultAuthorNameLabel,
                       description: t.authorNameDescription,
                       hint: t.authorName,
                     ),
@@ -867,7 +867,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorEmail, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorEmail),
-                      title: t.authorEmailLabel,
+                      title: t.defaultAuthorEmailLabel,
                       description: t.authorEmailDescription,
                       hint: t.authorEmail,
                     ),

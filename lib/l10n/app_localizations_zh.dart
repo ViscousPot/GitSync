@@ -237,6 +237,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get switchToSyncMode => '切换到同步模式…';
 
   @override
+  String get defaultTo => 'Default to';
+
+  @override
   String get clientMode => '客户端模式';
 
   @override
@@ -360,6 +363,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get abortMerge => '中止合并';
 
   @override
+  String get resolveLater => 'Resolve Later';
+
+  @override
   String get keepChanges => '保留更改';
 
   @override
@@ -375,10 +381,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get merge => '合并';
 
   @override
+  String get resolve => 'Resolve';
+
+  @override
   String get merging => '合并中…';
 
   @override
   String get iosClearDataTitle => '这是全新安装吗？';
+  
+  @override
+  String get resolving => 'Resolving…';
+
+  @override
+  String get clearSelection => 'Clear Selection';
 
   @override
   String get iosClearDataMsg => '我们检测到这可能是重新安装，但也可能是误报。在 iOS 上，删除并重新安装应用时，您的钥匙串数据不会被清除，因此某些数据可能仍然安全存储。\n\n如果这不是全新安装，或者您不想重置，可以安全地跳过此步骤。';
@@ -412,9 +427,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get welcomePositive => '开始吧';
-
-  @override
-  String get welcomeNeutral => '跳过';
 
   @override
   String get welcomeNegative => '我很熟悉';
@@ -688,6 +700,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosDefaultSyncRate => '当 iOS 允许时';
 
   @override
+  String get every => 'every';
+
+  @override
   String get scheduledSync => '计划同步';
 
   @override
@@ -947,10 +962,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncMessageLabel => '同步消息';
 
   @override
+  String get defaultSyncMessageLabel => 'Default Sync Message';
+
+  @override
   String get syncMessageDescription => '使用 %s 表示日期和时间';
 
   @override
   String get syncMessageTimeFormatLabel => '同步消息时间格式';
+
+  @override
+  String get defaultSyncMessageTimeFormatLabel => 'Default Sync Message Time Format';
 
   @override
   String get syncMessageTimeFormatDescription => '使用标准日期时间格式语法';

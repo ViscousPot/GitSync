@@ -24,13 +24,13 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
             "hasLegacySettings" -> {
                 val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
                 val prefsFiles = prefsDir.listFiles()
-                result.success(prefsFiles.filter { it.isFile && it.name == "git_sync_repos.xml" }.size == 1)
+                result.success(prefsFiles != null && prefsFiles.any { it.isFile && it.name == "git_sync_settings__main.xml" })
             }
 
             "deleteLegacySettings" -> {
                 try {
                     val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
-                    val legacySettingsFile = File(prefsDir, "git_sync_repos.xml")
+                    val legacySettingsFile = File(prefsDir, "git_sync_settings__main.xml")
 
                     if (legacySettingsFile.exists()) {
                         val deleted = legacySettingsFile.delete()

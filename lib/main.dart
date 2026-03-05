@@ -99,7 +99,7 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       DartPluginRegistrant.ensureInitialized();
 
-      await RustLib.init();
+      if (!RustLib.instance.initialized) await RustLib.init();
       await GitManager.clearLocks();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
@@ -147,7 +147,7 @@ Future<void> backgroundCallback(Uri? data) async {
 void callbackDispatcher() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
-  await RustLib.init();
+  if (!RustLib.instance.initialized) await RustLib.init();
 
   Workmanager().executeTask((task, inputData) async {
     try {
@@ -174,7 +174,7 @@ void callbackDispatcher() async {
 @pragma('vm:entry-point')
 void onServiceStart(ServiceInstance service) async {
   serviceInstance = service;
-  await RustLib.init();
+  if (!RustLib.instance.initialized) await RustLib.init();
 
   service.on(LogType.Clone.name).listen((event) async {
     if (event == null) return;
@@ -738,14 +738,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await colours.reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
-    final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
-      LogType.ConflictingFiles,
-      (event) => conflicting.value = (event?["result"] as List)
-          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
-          .toList(),
-    );
-    if (token != _reloadToken) return;
-    conflicting.value = newConflicting;
     final newBranchName = await runGitOperation<String?>(LogType.BranchName, (event) => event?["result"]);
     if (token != _reloadToken) return;
     branchName.value = newBranchName;
@@ -767,6 +759,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     final newHasGitFilters = await runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
     if (token != _reloadToken) return;
     hasGitFilters.value = newHasGitFilters;
+    final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
+      LogType.ConflictingFiles,
+      (event) => conflicting.value = (event?["result"] as List)
+          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
+          .toList(),
+    );
+    if (token != _reloadToken) return;
+    conflicting.value = newConflicting;
     await updateRecommendedAction();
     if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
@@ -1057,7 +1057,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
     _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
     await repoManager.setOnboardingStep(-1);
-    await AccessibilityServiceHelper.deleteLegacySettings();
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
   }
@@ -1326,13 +1325,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             });
           },
         ),
-      clientModeEnabled ? t.switchToSyncMode : t.switchToClientMode: (
-        FontAwesomeIcons.rightLeft,
-        () async {
-          await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, !clientModeEnabled);
-          await reloadAll();
-        },
-      ),
     });
 
     Future.delayed(Duration.zero, () async {
@@ -1400,27 +1392,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               context,
             ).push(createSettingsMainRoute(context, {"recentCommits": getStringRecentCommits(), "showcaseAuthorDetails": true}));
             await reloadAll();
-            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-              await showCloneRepoPage();
-            } else {
-              _restorableOnboardingSetup.present({});
-            }
+            await showCloneRepoPage();
           },
           () async {
-            if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-              await showCloneRepoPage();
-            } else {
-              _restorableOnboardingSetup.present({});
-            }
+            await showCloneRepoPage();
           },
         );
         return;
       }
-      if (await repoManager.getInt(StorageKey.repoman_onboardingStep) == -1) {
-        await showCloneRepoPage();
-      } else {
-        _restorableOnboardingSetup.present({});
-      }
+      await showCloneRepoPage();
     });
   }
 
@@ -1935,6 +1915,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                               key: Key(reference),
                                                                                               conflictingValue,
                                                                                               () => reloadAll(),
+                                                                                              clientModeEnabledSnapshot.data ?? false,
                                                                                             ),
                                                                                           );
                                                                                         }
@@ -2423,95 +2404,91 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                               ],
                                                             ),
                                                           ),
-                                                          ...clientModeEnabledSnapshot.data != true
-                                                              ? [
-                                                                  SizedBox(width: spaceSM),
-                                                                  IconButton(
-                                                                    onPressed: () {
-                                                                      _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
-                                                                    },
-                                                                    style: ButtonStyle(
-                                                                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                      padding: WidgetStatePropertyAll(
-                                                                        EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                      ),
-                                                                      shape: WidgetStatePropertyAll(
-                                                                        RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                          side: BorderSide.none,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    icon: FaIcon(
-                                                                      FontAwesomeIcons.gear,
-                                                                      color: colours.primaryLight,
-                                                                      size: textLG,
-                                                                      semanticLabel: t.repositorySettingsLabel,
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(width: spaceSM),
-                                                                  FutureBuilder(
-                                                                    future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                                                    builder: (context, snapshot) => IconButton(
-                                                                      onPressed: () async {
-                                                                        if (!(snapshot.data ?? false)) {
-                                                                          if (!(await Permission.notification.request().isGranted)) return;
-                                                                        }
+                                                          SizedBox(width: spaceSM),
+                                                          IconButton(
+                                                            onPressed: () {
+                                                              _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
+                                                            },
+                                                            style: ButtonStyle(
+                                                              backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                              padding: WidgetStatePropertyAll(
+                                                                EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                              ),
+                                                              shape: WidgetStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                  side: BorderSide.none,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            icon: FaIcon(
+                                                              FontAwesomeIcons.gear,
+                                                              color: colours.primaryLight,
+                                                              size: textLG,
+                                                              semanticLabel: t.repositorySettingsLabel,
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: spaceSM),
+                                                          FutureBuilder(
+                                                            future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
+                                                            builder: (context, snapshot) => IconButton(
+                                                              onPressed: () async {
+                                                                if (!(snapshot.data ?? false)) {
+                                                                  if (!(await Permission.notification.request().isGranted)) return;
+                                                                }
 
-                                                                        uiSettingsManager.setBool(
-                                                                          StorageKey.setman_syncMessageEnabled,
-                                                                          !(snapshot.data ?? false),
-                                                                        );
-                                                                        await reloadAll();
-                                                                      },
-                                                                      style: ButtonStyle(
-                                                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                        padding: WidgetStatePropertyAll(
-                                                                          EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                        ),
-                                                                        shape: WidgetStatePropertyAll(
-                                                                          RoundedRectangleBorder(
-                                                                            borderRadius: orientation == Orientation.portrait
-                                                                                ? BorderRadius.only(
-                                                                                    topLeft: cornerRadiusSM,
-                                                                                    topRight: cornerRadiusSM,
-                                                                                    bottomLeft: cornerRadiusSM,
-                                                                                    bottomRight: cornerRadiusMD,
-                                                                                  )
-                                                                                : BorderRadius.only(
-                                                                                    topLeft: cornerRadiusSM,
-                                                                                    topRight: cornerRadiusMD,
-                                                                                    bottomLeft: cornerRadiusSM,
-                                                                                    bottomRight: cornerRadiusSM,
-                                                                                  ),
-                                                                            side: BorderSide.none,
+                                                                uiSettingsManager.setBool(
+                                                                  StorageKey.setman_syncMessageEnabled,
+                                                                  !(snapshot.data ?? false),
+                                                                );
+                                                                await reloadAll();
+                                                              },
+                                                              style: ButtonStyle(
+                                                                backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                padding: WidgetStatePropertyAll(
+                                                                  EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                ),
+                                                                shape: WidgetStatePropertyAll(
+                                                                  RoundedRectangleBorder(
+                                                                    borderRadius: orientation == Orientation.portrait
+                                                                        ? BorderRadius.only(
+                                                                            topLeft: cornerRadiusSM,
+                                                                            topRight: cornerRadiusSM,
+                                                                            bottomLeft: cornerRadiusSM,
+                                                                            bottomRight: cornerRadiusMD,
+                                                                          )
+                                                                        : BorderRadius.only(
+                                                                            topLeft: cornerRadiusSM,
+                                                                            topRight: cornerRadiusMD,
+                                                                            bottomLeft: cornerRadiusSM,
+                                                                            bottomRight: cornerRadiusSM,
                                                                           ),
-                                                                        ),
-                                                                      ),
-                                                                      icon: Stack(
-                                                                        alignment: Alignment.center,
-                                                                        children: [
-                                                                          FaIcon(
-                                                                            FontAwesomeIcons.solidBellSlash,
-                                                                            color: Colors.transparent,
-                                                                            size: textLG - 2,
-                                                                          ),
-                                                                          FaIcon(
-                                                                            demo || snapshot.data == true
-                                                                                ? FontAwesomeIcons.solidBell
-                                                                                : FontAwesomeIcons.solidBellSlash,
-                                                                            color: demo || snapshot.data == true
-                                                                                ? colours.primaryPositive
-                                                                                : colours.primaryLight,
-                                                                            size: textLG - 2,
-                                                                            semanticLabel: t.syncMessagesLabel,
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
+                                                                    side: BorderSide.none,
                                                                   ),
-                                                                ]
-                                                              : [],
+                                                                ),
+                                                              ),
+                                                              icon: Stack(
+                                                                alignment: Alignment.center,
+                                                                children: [
+                                                                  FaIcon(
+                                                                    FontAwesomeIcons.solidBellSlash,
+                                                                    color: Colors.transparent,
+                                                                    size: textLG - 2,
+                                                                  ),
+                                                                  FaIcon(
+                                                                    demo || snapshot.data == true
+                                                                        ? FontAwesomeIcons.solidBell
+                                                                        : FontAwesomeIcons.solidBellSlash,
+                                                                    color: demo || snapshot.data == true
+                                                                        ? colours.primaryPositive
+                                                                        : colours.primaryLight,
+                                                                    size: textLG - 2,
+                                                                    semanticLabel: t.syncMessagesLabel,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
@@ -3069,12 +3046,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 token,
                                                               );
                                                               if (githubAppInstallations.isEmpty) {
-                                                                await launchUrl(Uri.parse("https://github.com/apps/gitsync-viscouspotential"));
+                                                                await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
                                                               } else {
                                                                 await launchUrl(
                                                                   Uri.parse(
                                                                     "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
                                                                   ),
+                                                                  mode: LaunchMode.inAppBrowserView,
                                                                 );
                                                               }
                                                             },
@@ -3211,7 +3189,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
                                                 if (!mounted) return;
                                                 await setGitDirPathGetSubmodules(context, selectedDirectory);
-                                                await repoManager.setOnboardingStep(4);
                                                 await reloadAll();
                                               },
                                               style: ButtonStyle(
@@ -3287,110 +3264,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                 ),
 
                                 SizedBox(height: spaceLG),
-                                ...clientModeEnabledSnapshot.data == true
-                                    ? [
-                                        IntrinsicHeight(
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                            children: [
-                                              Expanded(
-                                                child: TextButton.icon(
-                                                  onPressed: () async {
-                                                    _restorableSettingsMain.present({"recentCommits": getStringRecentCommits()});
-                                                  },
-                                                  iconAlignment: IconAlignment.end,
-                                                  style: ButtonStyle(
-                                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
-                                                    shape: WidgetStatePropertyAll(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.only(
-                                                          topLeft: cornerRadiusMD,
-                                                          topRight: cornerRadiusSM,
-                                                          bottomLeft: cornerRadiusMD,
-                                                          bottomRight: cornerRadiusSM,
-                                                        ),
-                                                        side: BorderSide.none,
-                                                      ),
-                                                    ),
-                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                  ),
-                                                  icon: IconButton(
-                                                    padding: EdgeInsets.zero,
-                                                    style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                                    constraints: BoxConstraints(),
-                                                    onPressed: () async {
-                                                      launchUrl(Uri.parse(repositorySettingsDocsLink));
-                                                    },
-                                                    icon: FaIcon(FontAwesomeIcons.circleQuestion, color: colours.primaryLight, size: textLG),
-                                                  ),
-                                                  label: Row(
-                                                    children: [
-                                                      FaIcon(FontAwesomeIcons.gear, color: colours.primaryLight, size: textLG),
-                                                      SizedBox(width: spaceSM),
-                                                      Expanded(
-                                                        child: Text(
-                                                          t.repositorySettings,
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow.ellipsis,
-                                                          style: TextStyle(
-                                                            fontFeatures: [FontFeature.enable('smcp')],
-                                                            color: colours.primaryLight,
-                                                            fontSize: textLG,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: spaceSM),
-                                              FutureBuilder(
-                                                future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                                builder: (context, snapshot) => IconButton(
-                                                  onPressed: () async {
-                                                    if (!(snapshot.data ?? false)) {
-                                                      if (!(await Permission.notification.request().isGranted)) return;
-                                                    }
-
-                                                    uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, !(snapshot.data ?? false));
-                                                    await reloadAll();
-                                                  },
-                                                  style: ButtonStyle(
-                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                    shape: WidgetStatePropertyAll(
-                                                      RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.only(
-                                                          topLeft: cornerRadiusSM,
-                                                          topRight: cornerRadiusMD,
-                                                          bottomLeft: cornerRadiusSM,
-                                                          bottomRight: cornerRadiusMD,
-                                                        ),
-                                                        side: BorderSide.none,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  icon: Stack(
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      FaIcon(FontAwesomeIcons.solidBellSlash, color: Colors.transparent, size: textLG - 2),
-                                                      FaIcon(
-                                                        demo || snapshot.data == true ? FontAwesomeIcons.solidBell : FontAwesomeIcons.solidBellSlash,
-                                                        color: demo || snapshot.data == true ? colours.primaryPositive : colours.primaryLight,
-                                                        size: textLG - 2,
-                                                        semanticLabel: t.syncMessagesLabel,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: spaceMD),
-                                      ]
-                                    : [],
                                 ...clientModeEnabledSnapshot.data == true
                                     ? [
                                         TextButton.icon(

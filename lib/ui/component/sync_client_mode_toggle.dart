@@ -64,6 +64,33 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      ...widget.global
+                          ? [
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 1, horizontal: spaceXXS),
+                                  decoration: BoxDecoration(
+                                    color: clientModeEnabledSnapshot.data != true ? colours.tertiaryDark : colours.tertiaryInfo,
+                                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  ),
+                                  child: AnimatedDefaultTextStyle(
+                                    child: Text(
+                                      t.defaultTo.toUpperCase(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: textSM, fontWeight: FontWeight.w800),
+                                    ),
+                                    style: TextStyle(
+                                      color: clientModeEnabledSnapshot.data != true ? colours.primaryLight : colours.primaryDark,
+                                      fontSize: textMD,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    duration: animFast,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: spaceXS),
+                            ]
+                          : [],
                       AnimatedDefaultTextStyle(
                         child: Text(
                           t.syncMode,
@@ -141,6 +168,33 @@ class _SyncClientModeToggleState extends State<SyncClientModeToggle> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      ...widget.global
+                          ? [
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 1, horizontal: spaceXXS),
+                                  decoration: BoxDecoration(
+                                    color: clientModeEnabledSnapshot.data != true ? colours.tertiaryInfo : colours.tertiaryDark,
+                                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  ),
+                                  child: AnimatedDefaultTextStyle(
+                                    child: Text(
+                                      t.defaultTo.toUpperCase(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: textSM, fontWeight: FontWeight.w800),
+                                    ),
+                                    style: TextStyle(
+                                      color: clientModeEnabledSnapshot.data != true ? colours.primaryDark : colours.primaryLight,
+                                      fontSize: textMD,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    duration: animFast,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: spaceXS),
+                            ]
+                          : [],
                       AnimatedDefaultTextStyle(
                         child: Text(
                           t.clientMode,
