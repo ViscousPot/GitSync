@@ -8,7 +8,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/l10n/app_localizations.dart';
 
 Future<void> showDialog(BuildContext context, Future<void> Function(String locale) callback) {
-  final localesOrder = ["en", "zh", "zh_Hant", "es", "ru", "fr", "de"];
+  final localesOrder = ["en", "zh", "zh_Hant", "es", "ru", "fr", "de", "ja"];
   final localesMap = {
     for (var locale in [
       ...localesOrder,
