@@ -812,6 +812,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appSyncDescription => '選択したアプリが開かれた、または閉じられた時に自動同期します';
 
   @override
+  String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'ユーザー補助サービスの開示';
 
   @override

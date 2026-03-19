@@ -1708,6 +1708,12 @@ abstract class AppLocalizations {
   /// **'Automatically syncs when your selected app is opened or closed'**
   String get appSyncDescription;
 
+  /// No description provided for @appSyncIosDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically syncs when GitSync is opened or closed'**
+  String get appSyncIosDescription;
+
   /// No description provided for @accessibilityServiceDisclosureTitle.
   ///
   /// In en, this message translates to:

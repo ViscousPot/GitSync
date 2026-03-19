@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
+import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/group_sync_settings.dart';
@@ -1368,6 +1369,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (Platform.isIOS) {
+      if (state == AppLifecycleState.resumed) {
+        await _triggerLifecycleSync(true);
+      } else if (state == AppLifecycleState.paused) {
+        await _triggerLifecycleSync(false);
+      }
+    }
+
     if (state == AppLifecycleState.resumed) {
       await GitManager.clearLocks();
       await reloadAll();
@@ -1375,6 +1384,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       autoRefreshTimer?.cancel();
     }
+  }
+
+  Future<void> _triggerLifecycleSync(bool isOpening) async {
+    try {
+      final repoNamesLength = (await repoManager.getStringList(StorageKey.repoman_repoNames)).length;
+
+      for (var index = 0; index < repoNamesLength; index++) {
+        final settingsManager = await SettingsManager().reinit(repoIndex: index);
+
+        final syncSetting = isOpening
+            ? await settingsManager.getBool(StorageKey.setman_syncOnAppOpened)
+            : await settingsManager.getBool(StorageKey.setman_syncOnAppClosed);
+
+        if (!syncSetting) continue;
+
+        gitSyncService.debouncedSync(index);
+      }
+    } catch (e) {}
   }
 
   Future<void> showAuthDialog([Function(BaseAlertDialog dialog, {bool cancelable})? showDialog]) async {

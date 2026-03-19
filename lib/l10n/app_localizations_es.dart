@@ -816,6 +816,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appSyncDescription => 'Automatically syncs when your selected app is opened or closed';
 
   @override
+  String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'Divulgación del Servicio de Accesibilidad';
 
   @override
