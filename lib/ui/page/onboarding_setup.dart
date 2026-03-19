@@ -952,7 +952,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -983,10 +983,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                 left: spaceSM + spaceXS,
                                                 right: spaceSM + spaceXS,
                                                 top: spaceXS + spaceXXXS,
-                                                bottom: spaceSM + spaceXXXS,
+                                                bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
@@ -1005,7 +1005,13 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                               children: [
                                                 _modeFeatureItem(FontAwesomeIcons.codeBranch, t.onboardingClientFeatureBranch, isClientMode),
                                                 _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, t.onboardingClientFeatureCommit, isClientMode),
-                                                _modeFeatureItem(FontAwesomeIcons.codePullRequest, t.onboardingClientFeatureDiff, isClientMode, false, true),
+                                                _modeFeatureItem(
+                                                  FontAwesomeIcons.codePullRequest,
+                                                  t.onboardingClientFeatureDiff,
+                                                  isClientMode,
+                                                  false,
+                                                  true,
+                                                ),
                                               ],
                                             ),
                                           ],
@@ -1040,7 +1046,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -1071,10 +1077,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                                 left: spaceSM + spaceXS,
                                                 right: spaceSM + spaceXS,
                                                 top: spaceXS + spaceXXXS,
-                                                bottom: spaceSM + spaceXXXS,
+                                                bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : Colors.transparent,
+                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
                                                 borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
@@ -1091,7 +1097,12 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                _modeFeatureItem(FontAwesomeIcons.clockRotateLeft, t.onboardingSyncFeatureAutoCommit, !isClientMode, true),
+                                                _modeFeatureItem(
+                                                  FontAwesomeIcons.clockRotateLeft,
+                                                  t.onboardingSyncFeatureAutoCommit,
+                                                  !isClientMode,
+                                                  true,
+                                                ),
                                                 _modeFeatureItem(FontAwesomeIcons.gear, t.onboardingSyncFeatureBackground, !isClientMode, true),
                                                 _modeFeatureItem(
                                                   FontAwesomeIcons.triangleExclamation,
@@ -1527,7 +1538,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
       duration: animFast,
       padding: EdgeInsets.symmetric(horizontal: spaceSM + spaceXS, vertical: spaceXS + spaceXXXS),
       decoration: BoxDecoration(
-        color: isSelected ? colours.tertiaryDark : Colors.transparent,
+        color: isSelected ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
         borderRadius: BorderRadius.only(
           topLeft: !right ? cornerRadiusSM : Radius.zero,
           bottomLeft: right && last || !right ? cornerRadiusSM : Radius.zero,
