@@ -170,5 +170,20 @@
 	<string>GitSync requires access to selected directories, which may include photos, to sync their contents using Git. No media is accessed without your explicit selection.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>gitsync</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.viscouspot.gitsync</string>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>shortcuts</string>
+	</array>
 </dict>
 </plist>

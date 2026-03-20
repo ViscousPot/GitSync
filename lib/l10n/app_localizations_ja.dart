@@ -812,6 +812,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appSyncDescription => '選択したアプリが開かれた、または閉じられた時に自動同期します';
 
   @override
+  String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
+
+  @override
+  String get iosAppSyncDocsLinkText => '他のアプリの開閉時に同期する';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'ユーザー補助サービスの開示';
 
   @override
@@ -841,6 +847,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get syncOnAppOpened => 'アプリが開かれた時に同期';
+
+  @override
+  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+
+  @override
+  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
 
   @override
   String get scheduledSyncSettings => 'スケジュール同期設定';

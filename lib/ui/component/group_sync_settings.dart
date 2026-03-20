@@ -17,7 +17,8 @@ class GroupSyncSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ...Platform.isIOS ? [] : [AutoSyncSettings(), SizedBox(height: spaceMD)],
+        AutoSyncSettings(),
+        SizedBox(height: spaceMD),
         ScheduledSyncSettings(),
         SizedBox(height: spaceMD),
         QuickSyncSettings(),

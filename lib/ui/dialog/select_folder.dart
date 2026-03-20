@@ -84,7 +84,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         width: double.infinity,
                         child: AnimatedDefaultTextStyle(
                           child: Text(
-                            t.directClone,
+                            t.directClone.split(" ").join("\n"),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
@@ -142,7 +142,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         width: double.infinity,
                         child: AnimatedDefaultTextStyle(
                           child: Text(
-                            t.nestedClone,
+                            t.nestedClone.split(" ").join("\n"),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),

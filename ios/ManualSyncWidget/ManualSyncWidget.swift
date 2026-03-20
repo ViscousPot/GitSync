@@ -24,21 +24,27 @@ struct ManualSyncWidgetEntry: TimelineEntry {
 
 struct ManualSyncWidgetEntryView: View {
     var entry: ManualSyncWidgetProvider.Entry
-    
+    let data = UserDefaults.init(suiteName:"group.ForceSyncWidget")
+
     @Environment(\.widgetFamily) var family
-    
+
     var body: some View {
-        GeometryReader { geometry in 
+        GeometryReader { geometry in
+            let repoIndex = data?.integer(forKey: "flutter.repoman_widgetManualSyncIndex") ?? -1
+            let urlString = repoIndex >= 0
+                ? "manualsyncwidget://click?homeWidget&index=\(repoIndex)"
+                : "manualsyncwidget://click?homeWidget"
+
             Button(
                 action: { }
             ) {
                 HStack(spacing: 16) {
                     Image("manual_sync_small")
-                        .resizable()  
-                        .scaledToFit() 
+                        .resizable()
+                        .scaledToFit()
                         .foregroundColor(.white)
                         .frame(maxWidth: 48, maxHeight: 48)
-                    
+
                     if geometry.size.width >= 140 {
                         Text("MANUAL SYNC")
                             .foregroundColor(.white)
@@ -46,8 +52,8 @@ struct ManualSyncWidgetEntryView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }    
-            .widgetURL(URL(string: "manualsyncwidget://click?homeWidget"))
+            }
+            .widgetURL(URL(string: urlString))
             .buttonStyle(PlainButtonStyle())
             .widgetBackground(Color(red: 20/255, green: 20/255, blue: 20/255))
         }

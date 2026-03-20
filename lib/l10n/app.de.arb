@@ -165,6 +165,8 @@
     "saveApplication": "Speichern",
     "syncOnAppClosed": "Sync beim Schließen der App(s)",
     "syncOnAppOpened": "Sync beim Öffnen der App(s)",
+    "iosSyncOnAppClosed": "Sync beim Schließen von GitSync",
+    "iosSyncOnAppOpened": "Sync beim Öffnen von GitSync",
     "scheduledSyncSettings": "Geplante Sync-Einstellungen",
     "sync": "Sync",
     "dontSync": "Nicht synchronisieren",

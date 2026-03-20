@@ -813,6 +813,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSyncDescription => 'Automatically syncs when your selected app is opened or closed';
 
   @override
+  String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
+
+  @override
+  String get iosAppSyncDocsLinkText => 'Sync when other apps are opened/closed';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'Accessibility Service Disclosure';
 
   @override
@@ -842,6 +848,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncOnAppOpened => 'Sync on app(s) opened';
+
+  @override
+  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+
+  @override
+  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
 
   @override
   String get scheduledSyncSettings => 'Scheduled Sync Settings';

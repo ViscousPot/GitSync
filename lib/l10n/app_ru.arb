@@ -49,6 +49,10 @@
     "authDropdownLabel": "меню авторизации",
 
 
+    "@@x-HOME_PAGE": "",
+    "iosAppSyncDocsLinkText": "Синхронизировать при открытии/закрытии других приложений",
+
+
     "@@x-PAID_FEATURES": "",
     "premiumDialogTitle": "Разблокировать Премиум",
     "restorePurchase": "Восстановить покупку",
@@ -150,6 +154,8 @@
     "saveApplication": "Сохранить",
     "syncOnAppClosed": "Синхронизация при закрытии приложения(й)",
     "syncOnAppOpened": "Синхронизация при открытии приложения(й)",
+    "iosSyncOnAppClosed": "Синхронизация при закрытии GitSync",
+    "iosSyncOnAppOpened": "Синхронизация при открытии GitSync",
     "scheduledSyncSettings": "Настройки запланированной синхронизации",
     "sync": "Синхронизация",
     "iosDefaultSyncRate": "когда iOS позволяет",

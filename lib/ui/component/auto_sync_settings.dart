@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ class AutoSyncSettings extends StatefulWidget {
 
 class _AutoSyncSettingsState extends State<AutoSyncSettings> {
   Future<bool> getExpanded() async {
-    return await AccessibilityServiceHelper.isAccessibilityServiceEnabled() &&
+    return (Platform.isIOS || (Platform.isAndroid && await AccessibilityServiceHelper.isAccessibilityServiceEnabled())) &&
         await uiSettingsManager.getBool(StorageKey.setman_applicationObserverExpanded);
   }
 
@@ -33,7 +35,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
         Padding(
           padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
           child: TextButton.icon(
-            onPressed: (applicationPackagesSnapshot.data ?? {}).isEmpty
+            onPressed: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty)
                 ? null
                 : () async {
                     uiSettingsManager.setBool(
@@ -47,9 +49,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: WidgetStatePropertyAll(EdgeInsets.only(left: spaceMD, top: spaceXS, bottom: spaceXS, right: spaceXS)),
 
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-              ),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
             ),
             icon: FutureBuilder(
@@ -60,14 +60,14 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                 child: FittedBox(
                   fit: BoxFit.fill,
                   child: Switch(
-                    value: (applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false,
+                    value: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? false : snapshot.data ?? false,
                     onChanged: (value) {
                       uiSettingsManager.setBool(StorageKey.setman_syncOnAppOpened, value);
                       setState(() {});
                     },
                     padding: EdgeInsets.zero,
                     thumbColor: WidgetStatePropertyAll(
-                      ((applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false)
+                      ((Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? false : snapshot.data ?? false)
                           ? colours.primaryPositive
                           : colours.tertiaryDark,
                     ),
@@ -80,9 +80,9 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               ),
             ),
             label: Text(
-              t.syncOnAppOpened,
+              Platform.isIOS ? t.iosSyncOnAppOpened : t.syncOnAppOpened,
               style: TextStyle(
-                color: (applicationPackagesSnapshot.data ?? {}).isEmpty ? colours.tertiaryLight : colours.primaryLight,
+                color: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? colours.tertiaryLight : colours.primaryLight,
                 fontSize: textMD,
               ),
             ),
@@ -92,21 +92,21 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
         Padding(
           padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
           child: TextButton.icon(
-            onPressed: () async {
-              uiSettingsManager.setBool(
-                StorageKey.setman_syncOnAppClosed,
-                !(await uiSettingsManager.getBool(StorageKey.setman_syncOnAppClosed)),
-              );
-              setState(() {});
-            },
+            onPressed: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty)
+                ? null
+                : () async {
+                    uiSettingsManager.setBool(
+                      StorageKey.setman_syncOnAppClosed,
+                      !(await uiSettingsManager.getBool(StorageKey.setman_syncOnAppClosed)),
+                    );
+                    setState(() {});
+                  },
             iconAlignment: IconAlignment.end,
             style: ButtonStyle(
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: WidgetStatePropertyAll(EdgeInsets.only(left: spaceMD, top: spaceXS, bottom: spaceXS, right: spaceXS)),
 
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-              ),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
               backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
             ),
             icon: FutureBuilder(
@@ -117,14 +117,14 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                 child: FittedBox(
                   fit: BoxFit.fill,
                   child: Switch(
-                    value: (applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false,
+                    value: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? false : snapshot.data ?? false,
                     onChanged: (value) {
                       uiSettingsManager.setBool(StorageKey.setman_syncOnAppClosed, value);
                       setState(() {});
                     },
                     padding: EdgeInsets.zero,
                     thumbColor: WidgetStatePropertyAll(
-                      ((applicationPackagesSnapshot.data ?? {}).isEmpty ? false : snapshot.data ?? false)
+                      ((Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? false : snapshot.data ?? false)
                           ? colours.primaryPositive
                           : colours.tertiaryDark,
                     ),
@@ -136,90 +136,112 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               ),
             ),
             label: Text(
-              t.syncOnAppClosed,
+              Platform.isIOS ? t.iosSyncOnAppClosed : t.syncOnAppClosed,
               style: TextStyle(
-                color: (applicationPackagesSnapshot.data ?? {}).isEmpty ? colours.tertiaryLight : colours.primaryLight,
+                color: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty) ? colours.tertiaryLight : colours.primaryLight,
                 fontSize: textMD,
               ),
             ),
           ),
         ),
-        SizedBox(height: spaceMD),
-        Padding(
-          padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton.icon(
-                onPressed: () async {
-                  await SelectApplicationDialog.showDialog(context, applicationPackagesSnapshot.data);
-                  setState(() {});
-                },
-                iconAlignment: IconAlignment.start,
-                style: ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                  ),
-                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                ),
-                icon: (applicationPackagesSnapshot.data ?? {}).isEmpty
-                    ? FaIcon(FontAwesomeIcons.circlePlus, color: colours.primaryLight, size: textXL)
-                    : ((applicationPackagesSnapshot.data ?? {}).length == 1
-                          ? FutureBuilder(
-                              future: AccessibilityServiceHelper.getApplicationIcon(applicationPackagesSnapshot.data!.first),
-                              builder: (context, iconSnapshot) => iconSnapshot.data == null
-                                  ? SizedBox.shrink()
-                                  : Image.memory(height: textXL, width: textXL, iconSnapshot.data!),
-                            )
-                          : null),
-                label: FutureBuilder(
-                  future: (applicationPackagesSnapshot.data ?? {}).length == 1
-                      ? AccessibilityServiceHelper.getApplicationLabel(applicationPackagesSnapshot.data!.first)
-                      : Future.value(null),
-                  builder: (context, labelSnapshot) => Text(
-                    ((applicationPackagesSnapshot.data ?? {}).isEmpty
-                            ? t.applicationNotSet
-                            : ((applicationPackagesSnapshot.data ?? {}).length == 1
-                                  ? (labelSnapshot.data ?? "")
-                                  : sprintf(t.multipleApplicationSelected, [(applicationPackagesSnapshot.data ?? {}).length])))
-                        .toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textMD),
-                  ),
+        if (Platform.isIOS) SizedBox(height: spaceSM),
+        if (Platform.isIOS)
+          Padding(
+            padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
+            child: TextButton.icon(
+              onPressed: () async {
+                await launchUrl(Uri.parse(iosAppSyncDocsLink));
+              },
+              iconAlignment: IconAlignment.start,
+              style: ButtonStyle(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS)),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+              ),
+              icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.tertiaryInfo, size: textSM),
+              label: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  t.iosAppSyncDocsLinkText,
+                  style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.normal),
                 ),
               ),
-              (applicationPackagesSnapshot.data ?? {}).length <= 1
-                  ? SizedBox.shrink()
-                  : Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(left: spaceMD),
-                        height: textXL + textMD,
-                        child: AnimatedListView(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          items: (applicationPackagesSnapshot.data ?? {}).toList(),
-                          isSameItem: (a, b) => a == b,
-                          itemBuilder: (context, index) {
-                            final packageName = (applicationPackagesSnapshot.data ?? {}).toList()[index];
+            ),
+          ),
+        if (Platform.isAndroid) SizedBox(height: spaceMD),
+        if (Platform.isAndroid)
+          Padding(
+            padding: widget.isOnboarding ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: spaceMD + spaceXS),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: () async {
+                    await SelectApplicationDialog.showDialog(context, applicationPackagesSnapshot.data);
+                    setState(() {});
+                  },
+                  iconAlignment: IconAlignment.start,
+                  style: ButtonStyle(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
+                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                  ),
+                  icon: (applicationPackagesSnapshot.data ?? {}).isEmpty
+                      ? FaIcon(FontAwesomeIcons.circlePlus, color: colours.primaryLight, size: textXL)
+                      : ((applicationPackagesSnapshot.data ?? {}).length == 1
+                            ? FutureBuilder(
+                                future: AccessibilityServiceHelper.getApplicationIcon(applicationPackagesSnapshot.data!.first),
+                                builder: (context, iconSnapshot) =>
+                                    iconSnapshot.data == null ? SizedBox.shrink() : Image.memory(height: textXL, width: textXL, iconSnapshot.data!),
+                              )
+                            : null),
+                  label: FutureBuilder(
+                    future: (applicationPackagesSnapshot.data ?? {}).length == 1
+                        ? AccessibilityServiceHelper.getApplicationLabel(applicationPackagesSnapshot.data!.first)
+                        : Future.value(null),
+                    builder: (context, labelSnapshot) => Text(
+                      ((applicationPackagesSnapshot.data ?? {}).isEmpty
+                              ? t.applicationNotSet
+                              : ((applicationPackagesSnapshot.data ?? {}).length == 1
+                                    ? (labelSnapshot.data ?? "")
+                                    : sprintf(t.multipleApplicationSelected, [(applicationPackagesSnapshot.data ?? {}).length])))
+                          .toUpperCase(),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+                    ),
+                  ),
+                ),
+                (applicationPackagesSnapshot.data ?? {}).length <= 1
+                    ? SizedBox.shrink()
+                    : Expanded(
+                        child: Container(
+                          padding: EdgeInsets.only(left: spaceMD),
+                          height: textXL + textMD,
+                          child: AnimatedListView(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            items: (applicationPackagesSnapshot.data ?? {}).toList(),
+                            isSameItem: (a, b) => a == b,
+                            itemBuilder: (context, index) {
+                              final packageName = (applicationPackagesSnapshot.data ?? {}).toList()[index];
 
-                            return Padding(
-                              key: Key(packageName),
-                              padding: EdgeInsets.only(right: spaceMD),
-                              child: FutureBuilder(
-                                future: AccessibilityServiceHelper.getApplicationIcon(packageName),
-                                builder: (context, iconSnapshot) => iconSnapshot.data == null
-                                    ? SizedBox.shrink()
-                                    : Image.memory(height: textXL + textMD, width: textXL + textMD, iconSnapshot.data!),
-                              ),
-                            );
-                          },
+                              return Padding(
+                                key: Key(packageName),
+                                padding: EdgeInsets.only(right: spaceMD),
+                                child: FutureBuilder(
+                                  future: AccessibilityServiceHelper.getApplicationIcon(packageName),
+                                  builder: (context, iconSnapshot) => iconSnapshot.data == null
+                                      ? SizedBox.shrink()
+                                      : Image.memory(height: textXL + textMD, width: textXL + textMD, iconSnapshot.data!),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-            ],
+              ],
+            ),
           ),
-        ),
         SizedBox(height: spaceMD),
       ],
     );
@@ -249,6 +271,13 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                   TextButton.icon(
                     onPressed: () async {
                       final enabled = (expandedSnapshot.data ?? false);
+
+                      if (Platform.isIOS) {
+                        uiSettingsManager.setBool(StorageKey.setman_applicationObserverExpanded, !enabled);
+                        setState(() {});
+                        return;
+                      }
+
                       if (!enabled && !(accessibilityServiceEnabledSnapshot.data ?? false)) {
                         await ProminentDisclosureDialog.showDialog(context, () async {
                           await AccessibilityServiceHelper.openAccessibilitySettings();
@@ -299,7 +328,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                                 if (expandedSnapshot.data == true) ...[
                                   SizedBox(height: spaceXXXXS),
                                   Text(
-                                    t.appSyncDescription,
+                                    Platform.isIOS ? t.appSyncIosDescription : t.appSyncDescription,
                                     style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
                                   ),
                                 ],

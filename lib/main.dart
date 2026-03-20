@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
+import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/group_sync_settings.dart';
@@ -118,6 +119,17 @@ Future<void> main() async {
   );
 }
 
+Future<int> _resolveRepoIndex(Uri? uri, StorageKey<int> fallbackKey) async {
+  if (uri == null) return await repoManager.getInt(fallbackKey);
+
+  final indexParam = uri.queryParameters['index'];
+  if (indexParam != null) {
+    return int.tryParse(indexParam) ?? await repoManager.getInt(fallbackKey);
+  }
+
+  return await repoManager.getInt(fallbackKey);
+}
+
 @pragma("vm:entry-point")
 Future<void> backgroundCallback(Uri? data) async {
   HomeWidget.setAppGroupId('group.ForceSyncWidget');
@@ -125,18 +137,36 @@ Future<void> backgroundCallback(Uri? data) async {
 
   try {
     print(data.toString());
-    switch (data.toString()) {
-      case "forcesyncwidget://click?homeWidget":
-        {
-          final widgetSyncIndex = await repoManager.getInt(StorageKey.repoman_widgetSyncIndex);
 
-          if (Platform.isIOS) {
-            await gitSyncService.debouncedSync(widgetSyncIndex, true, true);
-          } else {
-            FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$widgetSyncIndex"});
-          }
-          break;
-        }
+    final scheme = data?.scheme ?? '';
+    final hasHomeWidget = data?.queryParameters.containsKey('homeWidget') ?? false;
+
+    if (scheme == 'forcesyncwidget' && hasHomeWidget) {
+      final repoIndex = await _resolveRepoIndex(data, StorageKey.repoman_widgetSyncIndex);
+
+      if (Platform.isIOS) {
+        await gitSyncService.debouncedSync(repoIndex, true, true);
+      } else {
+        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
+      }
+      return;
+    }
+
+    if (scheme == 'manualsyncwidget' && hasHomeWidget) {
+      final repoIndex = await _resolveRepoIndex(data, StorageKey.repoman_widgetManualSyncIndex);
+      await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
+      return;
+    }
+
+    if (scheme == 'gitsync' && data?.host == 'sync-now') {
+      final shortcutSyncIndex = await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex);
+
+      if (Platform.isIOS) {
+        await gitSyncService.debouncedSync(shortcutSyncIndex, true, true);
+      } else {
+        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$shortcutSyncIndex"});
+      }
+      return;
     }
   } catch (e) {
     print('Error in widget callback: $e');
@@ -902,16 +932,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     initAsync(() async {
-      String uri = (await HomeWidget.initiallyLaunchedFromHomeWidget()).toString();
+      Uri? uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
       print("////init $uri");
-      if (uri == "manualsyncwidget://click?homeWidget") {
-        await launchWidgetManualSync();
+      if (uri?.scheme == 'manualsyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
+        final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetManualSyncIndex);
+        await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
+        await uiSettingsManager.reinit();
+        await reloadAll();
+        await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
       }
     });
 
     HomeWidget.widgetClicked.listen((uri) async {
-      if (uri.toString() == "manualsyncwidget://click?homeWidget") {
-        await launchWidgetManualSync();
+      if (uri?.scheme == 'manualsyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
+        final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetManualSyncIndex);
+        await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
+        await uiSettingsManager.reinit();
+        await reloadAll();
+        await ManualSyncDialog.showDialog(context, hasRemotes: remotes.value.isNotEmpty);
       }
     });
 
@@ -1368,6 +1406,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (Platform.isIOS) {
+      if (state == AppLifecycleState.resumed) {
+        await _triggerLifecycleSync(true);
+      } else if (state == AppLifecycleState.paused) {
+        await _triggerLifecycleSync(false);
+      }
+    }
+
     if (state == AppLifecycleState.resumed) {
       await GitManager.clearLocks();
       await reloadAll();
@@ -1375,6 +1421,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       autoRefreshTimer?.cancel();
     }
+  }
+
+  Future<void> _triggerLifecycleSync(bool isOpening) async {
+    try {
+      final repoNamesLength = (await repoManager.getStringList(StorageKey.repoman_repoNames)).length;
+
+      for (var index = 0; index < repoNamesLength; index++) {
+        final settingsManager = await SettingsManager().reinit(repoIndex: index);
+
+        final syncSetting = isOpening
+            ? await settingsManager.getBool(StorageKey.setman_syncOnAppOpened)
+            : await settingsManager.getBool(StorageKey.setman_syncOnAppClosed);
+
+        if (!syncSetting) continue;
+
+        gitSyncService.debouncedSync(index);
+      }
+    } catch (e) {}
   }
 
   Future<void> showAuthDialog([Function(BaseAlertDialog dialog, {bool cancelable})? showDialog]) async {

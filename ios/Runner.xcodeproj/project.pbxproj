@@ -17,6 +17,8 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		9AB26EBB5676FA9656957CC0 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8A8F0460DED8A13BE05A578 /* Pods_RunnerTests.framework */; };
+		9F87A17B2F6DCDE600D672AC /* SyncNowIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F87A17A2F6DCDE500D672AC /* SyncNowIntent.swift */; };
+		9F87A17C2F6DCDE600D672AC /* SyncNowIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F87A17A2F6DCDE500D672AC /* SyncNowIntent.swift */; };
 		9FC739502E974BBB005719DC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FC7394F2E974BBB005719DC /* WidgetKit.framework */; };
 		9FC739522E974BBB005719DC /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FC739512E974BBB005719DC /* SwiftUI.framework */; };
 		9FC7395D2E974BBE005719DC /* ForceSyncWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9FC7394E2E974BBA005719DC /* ForceSyncWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -103,6 +105,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F325F7B2DE6889D00A3F60A /* RunnerDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerDebug.entitlements; sourceTree = "<group>"; };
+		9F87A17A2F6DCDE500D672AC /* SyncNowIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncNowIntent.swift; path = Runner/SyncNowIntent.swift; sourceTree = "<group>"; };
 		9FC7394E2E974BBA005719DC /* ForceSyncWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ForceSyncWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FC7394F2E974BBB005719DC /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		9FC739512E974BBB005719DC /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -249,6 +252,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				9F87A17A2F6DCDE500D672AC /* SyncNowIntent.swift */,
 				9FC73A282E975B67005719DC /* ForceSyncWidgetExtension.entitlements */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -612,6 +616,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9FC739862E974EC6005719DC /* BackgroundIntent.swift in Sources */,
+				9F87A17B2F6DCDE600D672AC /* SyncNowIntent.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);
@@ -621,6 +626,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F87A17C2F6DCDE600D672AC /* SyncNowIntent.swift in Sources */,
 				9FC739BF2E9753A2005719DC /* BackgroundIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

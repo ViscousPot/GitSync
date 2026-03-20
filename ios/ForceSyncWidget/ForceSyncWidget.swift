@@ -24,25 +24,31 @@ struct ForceSyncWidgetEntry: TimelineEntry {
 
 struct ForceSyncWidgetEntryView: View {
     var entry: ForceSyncWidgetProvider.Entry
-    
+    let data = UserDefaults.init(suiteName:"group.ForceSyncWidget")
+
     @Environment(\.widgetFamily) var family
-    
+
     var body: some View {
-        GeometryReader { geometry in 
+        GeometryReader { geometry in
+            let repoIndex = data?.integer(forKey: "flutter.repoman_widgetSyncIndex") ?? -1
+            let urlString = repoIndex >= 0
+                ? "forcesyncwidget://click?homeWidget&index=\(repoIndex)"
+                : "forcesyncwidget://click?homeWidget"
+
             if #available(iOSApplicationExtension 17, *) {
               Button(
                 intent: BackgroundIntent(
-                  url: URL(string: "forcesyncwidget://click?homeWidget"), 
+                  url: URL(string: urlString),
                   appGroup: "group.ForceSyncWidget"
                 )
               ) {
                   HStack(spacing: 16) {
                       Image("sync_now_small")
-                          .resizable()  
-                          .scaledToFit() 
+                          .resizable()
+                          .scaledToFit()
                           .foregroundColor(.white)
                           .frame(maxWidth: 48, maxHeight: 48)
-                      
+
                       if geometry.size.width >= 140 {
                           Text("SYNC CHANGES")
                               .foregroundColor(.white)
@@ -59,11 +65,11 @@ struct ForceSyncWidgetEntryView: View {
               ) {
                   HStack(spacing: 16) {
                       Image("sync_now_small")
-                          .resizable()  
-                          .scaledToFit() 
+                          .resizable()
+                          .scaledToFit()
                           .foregroundColor(.white)
                           .frame(maxWidth: 48, maxHeight: 48)
-                      
+
                       if geometry.size.width >= 140 {
                           Text("SYNC CHANGES")
                               .foregroundColor(.white)
@@ -72,7 +78,7 @@ struct ForceSyncWidgetEntryView: View {
                   }
                   .frame(maxWidth: .infinity, maxHeight: .infinity)
               }
-              .widgetURL(URL(string: "manualsyncwidget://click?homeWidget"))
+              .widgetURL(URL(string: urlString))
               .buttonStyle(PlainButtonStyle())
               .widgetBackground(Color(red: 20/255, green: 20/255, blue: 20/255))
             }
