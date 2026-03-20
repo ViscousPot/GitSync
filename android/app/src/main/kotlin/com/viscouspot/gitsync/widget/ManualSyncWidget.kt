@@ -52,8 +52,16 @@ class ManualSyncAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        val backgroundIntent =
-            HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("manualsyncwidget://click?homeWidget"))
+        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val repoIndex = prefs.getInt("flutter.repoman_widgetManualSyncIndex", -1)
+
+        val uri = if (repoIndex >= 0) {
+            "manualsyncwidget://click?homeWidget&index=$repoIndex"
+        } else {
+            "manualsyncwidget://click?homeWidget"
+        }
+
+        val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse(uri))
         backgroundIntent.send()
     }
 }

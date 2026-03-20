@@ -51,8 +51,16 @@ class SyncAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        val backgroundIntent =
-            HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse("forcesyncwidget://click?homeWidget"))
+        val prefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val repoIndex = prefs.getInt("flutter.repoman_widgetSyncIndex", -1)
+
+        val uri = if (repoIndex >= 0) {
+            "forcesyncwidget://click?homeWidget&index=$repoIndex"
+        } else {
+            "forcesyncwidget://click?homeWidget"
+        }
+
+        val backgroundIntent = HomeWidgetBackgroundIntent.getBroadcast(context, Uri.parse(uri))
         backgroundIntent.send()
     }
 }

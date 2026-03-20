@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:GitSync/gitsync_service.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import '../ui/dialog/manual_sync.dart' as ManualSyncDialog;
 
 class AccessibilityServiceHelper {
@@ -13,15 +15,32 @@ class AccessibilityServiceHelper {
   static init(BuildContext context, void Function(void Function() fn) setState) {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'onIntentAction') {
-        String action = call.arguments;
+        final Map<dynamic, dynamic> args = call.arguments;
+        final String action = args['action'];
+        final int intentIndex = args['index'] ?? -1;
+
         switch (action) {
           case GitsyncService.MANUAL_SYNC:
             {
-              await repoManager.setInt(StorageKey.repoman_repoIndex, await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex));
+              final int repoIndex = intentIndex >= 0
+                  ? intentIndex
+                  : await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex);
+
+              await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
               await uiSettingsManager.reinit();
               setState(() {});
               await ManualSyncDialog.showDialog(context);
             }
+            break;
+          case GitsyncService.FORCE_SYNC:
+            {
+              final int repoIndex = intentIndex >= 0
+                  ? intentIndex
+                  : await repoManager.getInt(StorageKey.repoman_tileSyncIndex);
+
+              FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: repoIndex.toString()});
+            }
+            break;
         }
       }
     });

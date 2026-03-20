@@ -38,7 +38,11 @@ class MainActivity: FlutterActivity() {
 
     private fun handleIntent(intent: Intent?) {
         intent?.action?.let { action ->
-            channel?.invokeMethod("onIntentAction", action)
+            val index = intent.getIntExtra("index", -1)
+            channel?.invokeMethod("onIntentAction", mapOf(
+                "action" to action,
+                "index" to index
+            ))
         }
     }
 }
