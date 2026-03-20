@@ -11,15 +11,15 @@ class GitSyncService : Service() {
             return START_STICKY
         }
 
-        val repoman_repoIndex = intent.getIntExtra("repoman_repoIndex", 0)
-
         when (intent.action) {
             "INTENT_SYNC" -> {
                 Log.d("ToServiceCommand", "Intent Sync")
 
                 val intentSyncIntent = Intent(this, id.flutter.flutter_background_service.BackgroundService::class.java)
                 intentSyncIntent.action = "INTENT_SYNC"
-                intentSyncIntent.putExtra("repoman_repoIndex", repoman_repoIndex.toString())
+                if (intent.hasExtra("index")) {
+                    intentSyncIntent.putExtra("repoman_repoIndex", intent.getIntExtra("index", 0).toString())
+                }
                 startService(intentSyncIntent)
             }
         }
