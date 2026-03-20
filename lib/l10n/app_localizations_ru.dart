@@ -817,6 +817,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
 
   @override
+  String get iosAppSyncDocsLinkText => 'Синхронизировать при открытии/закрытии других приложений';
+
+  @override
   String get accessibilityServiceDisclosureTitle => 'Раскрытие информации о службе специальных возможностей';
 
   @override
@@ -846,6 +849,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get syncOnAppOpened => 'Синхронизация при открытии приложения(й)';
+
+  @override
+  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+
+  @override
+  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
 
   @override
   String get scheduledSyncSettings => 'Настройки запланированной синхронизации';

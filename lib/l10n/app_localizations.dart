@@ -1714,6 +1714,12 @@ abstract class AppLocalizations {
   /// **'Automatically syncs when GitSync is opened or closed'**
   String get appSyncIosDescription;
 
+  /// No description provided for @iosAppSyncDocsLinkText.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync when other apps are opened/closed'**
+  String get iosAppSyncDocsLinkText;
+
   /// No description provided for @accessibilityServiceDisclosureTitle.
   ///
   /// In en, this message translates to:
@@ -1773,6 +1779,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync on app(s) opened'**
   String get syncOnAppOpened;
+
+  /// No description provided for @iosSyncOnAppClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync on GitSync closed'**
+  String get iosSyncOnAppClosed;
+
+  /// No description provided for @iosSyncOnAppOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync on GitSync opened'**
+  String get iosSyncOnAppOpened;
 
   /// No description provided for @scheduledSyncSettings.
   ///

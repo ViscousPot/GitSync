@@ -49,6 +49,10 @@
     "authDropdownLabel": "menú desplegable de autenticación",
 
 
+    "@@x-HOME_PAGE": "",
+    "iosAppSyncDocsLinkText": "Sincronizar cuando se abren/cierran otras aplicaciones",
+
+
     "@@x-PAID_FEATURES": "",
     "premiumDialogTitle": "Desbloquear Premium",
     "restorePurchase": "Restaurar Compra",
@@ -150,6 +154,8 @@
     "saveApplication": "Guardar",
     "syncOnAppClosed": "Sync al cerrar app(s)",
     "syncOnAppOpened": "Sync al abrir app(s)",
+    "iosSyncOnAppClosed": "Sync al cerrar GitSync",
+    "iosSyncOnAppOpened": "Sync al abrir GitSync",
     "scheduledSyncSettings": "Configuración de Sync Programada",
     "sync": "Sync",
     "iosDefaultSyncRate": "cuando iOS lo permita",

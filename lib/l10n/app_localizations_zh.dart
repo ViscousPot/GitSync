@@ -813,6 +813,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSyncIosDescription => 'Automatically syncs when GitSync is opened or closed';
 
   @override
+  String get iosAppSyncDocsLinkText => '其他应用打开/关闭时同步';
+
+  @override
   String get accessibilityServiceDisclosureTitle => '无障碍服务声明';
 
   @override
@@ -841,6 +844,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncOnAppOpened => '应用打开时同步';
+
+  @override
+  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+
+  @override
+  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
 
   @override
   String get scheduledSyncSettings => '计划同步设置';
@@ -1673,4 +1682,7 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, using the Han script (`zh_Hant`).
 class AppLocalizationsZhHant extends AppLocalizationsZh {
   AppLocalizationsZhHant() : super('zh_Hant');
+
+  @override
+  String get iosAppSyncDocsLinkText => '其他應用程式開啟/關閉時同步';
 }

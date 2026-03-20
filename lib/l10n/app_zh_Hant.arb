@@ -1,4 +1,6 @@
 {
     "@@locale": "zh_Hant",
-    "@@last_modified": "2025-08-03T00:00:00Z"
+    "@@last_modified": "2025-08-03T00:00:00Z",
+
+    "iosAppSyncDocsLinkText": "其他應用程式開啟/關閉時同步"
 }
