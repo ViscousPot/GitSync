@@ -853,10 +853,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get syncOnAppOpened => 'Sync beim Öffnen der App(s)';
 
   @override
-  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+  String get iosSyncOnAppClosed => 'Sync beim Schließen von GitSync';
 
   @override
-  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
+  String get iosSyncOnAppOpened => 'Sync beim Öffnen von GitSync';
 
   @override
   String get scheduledSyncSettings => 'Geplante Sync-Einstellungen';

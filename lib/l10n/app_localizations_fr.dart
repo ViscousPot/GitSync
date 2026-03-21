@@ -855,10 +855,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get syncOnAppOpened => 'Synchroniser à l\'ouverture des applications';
 
   @override
-  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+  String get iosSyncOnAppClosed => 'Synchroniser à la fermeture de GitSync';
 
   @override
-  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
+  String get iosSyncOnAppOpened => 'Synchroniser à l\'ouverture de GitSync';
 
   @override
   String get scheduledSyncSettings => 'Paramètres de sync planifiée';

@@ -846,10 +846,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncOnAppOpened => '应用打开时同步';
 
   @override
-  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+  String get iosSyncOnAppClosed => 'GitSync关闭时同步';
 
   @override
-  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
+  String get iosSyncOnAppOpened => 'GitSync打开时同步';
 
   @override
   String get scheduledSyncSettings => '计划同步设置';

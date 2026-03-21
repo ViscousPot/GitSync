@@ -851,10 +851,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get syncOnAppOpened => 'Синхронизация при открытии приложения(й)';
 
   @override
-  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+  String get iosSyncOnAppClosed => 'Синхронизация при закрытии GitSync';
 
   @override
-  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
+  String get iosSyncOnAppOpened => 'Синхронизация при открытии GitSync';
 
   @override
   String get scheduledSyncSettings => 'Настройки запланированной синхронизации';

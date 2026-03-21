@@ -849,10 +849,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get syncOnAppOpened => 'アプリが開かれた時に同期';
 
   @override
-  String get iosSyncOnAppClosed => 'Sync on GitSync closed';
+  String get iosSyncOnAppClosed => 'GitSyncが閉じられた時に同期';
 
   @override
-  String get iosSyncOnAppOpened => 'Sync on GitSync opened';
+  String get iosSyncOnAppOpened => 'GitSyncが開かれた時に同期';
 
   @override
   String get scheduledSyncSettings => 'スケジュール同期設定';
