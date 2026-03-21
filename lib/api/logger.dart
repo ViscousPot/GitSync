@@ -88,6 +88,7 @@ enum LogType {
   InitRepo,
   CreateBranchFromCommit,
   CheckoutCommit,
+  CreateTag,
   GetIssues,
   GetPullRequests,
   GetTags,

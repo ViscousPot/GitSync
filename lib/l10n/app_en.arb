@@ -599,6 +599,10 @@
     "checkoutCommitMsg": "This will put you in a detached HEAD state at commit",
     "checkoutCommitDetachedWarning": "You will not be on any branch. Create a new branch to keep your changes.",
 
+    "createTagOnCommit": "Create Tag",
+    "createTagOnCommitMsg": "Create a tag on commit %s.",
+    "tagName": "Tag Name",
+
 
     "@@x-ISSUES": "",
     "issues": "Issues",

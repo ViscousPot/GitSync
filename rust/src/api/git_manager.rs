@@ -106,6 +106,7 @@ pub enum LogType {
     InitRepo,
     CreateBranchFromCommit,
     CheckoutCommit,
+    CreateTag,
 }
 
 trait WithLine {
@@ -4326,6 +4327,40 @@ pub async fn checkout_commit(
             "HEAD is now at {}",
             &commit_sha[..7.min(commit_sha.len())]
         ),
+    );
+
+    Ok(())
+}
+
+pub async fn create_tag(
+    path_string: &String,
+    tag_name: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateTag,
+        format!(
+            "Creating tag '{}' on commit '{}'",
+            tag_name,
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.tag_lightweight(tag_name, commit.as_object(), false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateTag,
+        format!("Tag '{}' created", tag_name),
     );
 
     Ok(())

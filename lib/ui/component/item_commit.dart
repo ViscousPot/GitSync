@@ -16,6 +16,7 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import '../dialog/diff_view.dart' as DiffViewDialog;
 import '../dialog/create_branch_from_commit.dart' as CreateBranchFromCommitDialog;
 import '../dialog/confirm_checkout_commit.dart' as ConfirmCheckoutCommitDialog;
+import '../dialog/create_tag_on_commit.dart' as CreateTagOnCommitDialog;
 
 class ChevronPainter extends CustomPainter {
   final Color color;
@@ -137,6 +138,7 @@ class _ItemCommit extends State<ItemCommit> {
           item('view', 'VIEW ON ${widget.gitProvider!.name.toUpperCase()}', 'Open this commit in your browser'),
         item('create-branch', 'CREATE BRANCH FROM COMMIT', 'Create a new branch from this commit'),
         item('checkout', 'CHECKOUT COMMIT', 'Check out this commit (detached HEAD)'),
+        item('create-tag', 'CREATE TAG', 'Create a tag on this commit'),
       ],
     );
     if (mounted) setState(() => _menuOpen = false);
@@ -167,6 +169,17 @@ class _ItemCommit extends State<ItemCommit> {
             widget.commit.commitMessage,
             () async {
               await GitManager.checkoutCommit(widget.commit.reference);
+              await widget.onRefresh?.call();
+            },
+          );
+        }
+      case 'create-tag':
+        if (mounted) {
+          await CreateTagOnCommitDialog.showDialog(
+            context,
+            widget.commit.reference,
+            (tagName) async {
+              await GitManager.createTag(tagName, widget.commit.reference);
               await widget.onRefresh?.call();
             },
           );

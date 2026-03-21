@@ -791,6 +791,12 @@ class GitManager {
     });
   }
 
+  static Future<void> createTag(String tagName, String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CreateTag, (dirPath) async {
+      await GitManagerRs.createTag(pathString: dirPath, tagName: tagName, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';

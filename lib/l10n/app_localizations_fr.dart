@@ -1569,6 +1569,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get checkoutCommitDetachedWarning => 'You will not be on any branch. Create a new branch to keep your changes.';
 
   @override
+  String get createTagOnCommit => 'Create Tag';
+
+  @override
+  String get createTagOnCommitMsg => 'Create a tag on commit %s.';
+
+  @override
+  String get tagName => 'Tag Name';
+
+  @override
   String get issues => 'Issues';
 
   @override

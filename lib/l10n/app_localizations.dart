@@ -3196,6 +3196,24 @@ abstract class AppLocalizations {
   /// **'You will not be on any branch. Create a new branch to keep your changes.'**
   String get checkoutCommitDetachedWarning;
 
+  /// No description provided for @createTagOnCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tag'**
+  String get createTagOnCommit;
+
+  /// No description provided for @createTagOnCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a tag on commit %s.'**
+  String get createTagOnCommitMsg;
+
+  /// No description provided for @tagName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag Name'**
+  String get tagName;
+
   /// No description provided for @issues.
   ///
   /// In en, this message translates to:
