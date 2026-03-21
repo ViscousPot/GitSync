@@ -595,6 +595,10 @@
     "createBranchFromCommit": "Create Branch from Commit",
     "createBranchFromCommitMsg": "Create a new branch starting at commit %s.",
 
+    "checkoutCommit": "Checkout Commit",
+    "checkoutCommitMsg": "This will put you in a detached HEAD state at commit",
+    "checkoutCommitDetachedWarning": "You will not be on any branch. Create a new branch to keep your changes.",
+
 
     "@@x-ISSUES": "",
     "issues": "Issues",

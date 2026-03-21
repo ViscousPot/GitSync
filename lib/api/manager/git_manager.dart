@@ -785,6 +785,12 @@ class GitManager {
     });
   }
 
+  static Future<void> checkoutCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CheckoutCommit, (dirPath) async {
+      await GitManagerRs.checkoutCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';

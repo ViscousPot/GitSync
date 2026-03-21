@@ -1557,6 +1557,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createBranchFromCommitMsg => 'Create a new branch starting at commit %s.';
 
   @override
+  String get checkoutCommit => 'Checkout Commit';
+
+  @override
+  String get checkoutCommitMsg => 'This will put you in a detached HEAD state at commit';
+
+  @override
+  String get checkoutCommitDetachedWarning => 'You will not be on any branch. Create a new branch to keep your changes.';
+
+  @override
   String get issues => 'Issues';
 
   @override

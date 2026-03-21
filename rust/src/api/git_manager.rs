@@ -105,6 +105,7 @@ pub enum LogType {
     RenameRemote,
     InitRepo,
     CreateBranchFromCommit,
+    CheckoutCommit,
 }
 
 trait WithLine {
@@ -4284,6 +4285,47 @@ pub async fn create_branch_from_commit(
         Arc::clone(&log_callback),
         LogType::CreateBranchFromCommit,
         format!("Switched to new branch '{}'", new_branch_name),
+    );
+
+    Ok(())
+}
+
+pub async fn checkout_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CheckoutCommit,
+        format!(
+            "Checking out commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+    let object = commit.as_object();
+
+    let mut checkout_builder = git2::build::CheckoutBuilder::new();
+    checkout_builder.force();
+
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(object, Some(&mut checkout_builder))))?;
+
+    swl!(repo.set_head_detached(oid))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CheckoutCommit,
+        format!(
+            "HEAD is now at {}",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
     );
 
     Ok(())

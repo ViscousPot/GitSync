@@ -3178,6 +3178,24 @@ abstract class AppLocalizations {
   /// **'Create a new branch starting at commit %s.'**
   String get createBranchFromCommitMsg;
 
+  /// No description provided for @checkoutCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Commit'**
+  String get checkoutCommit;
+
+  /// No description provided for @checkoutCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will put you in a detached HEAD state at commit'**
+  String get checkoutCommitMsg;
+
+  /// No description provided for @checkoutCommitDetachedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You will not be on any branch. Create a new branch to keep your changes.'**
+  String get checkoutCommitDetachedWarning;
+
   /// No description provided for @issues.
   ///
   /// In en, this message translates to:
