@@ -26,6 +26,7 @@ class ExpandedCommits extends StatefulWidget {
     required this.onRenameBranch,
     required this.onDeleteBranch,
     required this.onReloadAll,
+    required this.isClientMode,
     this.initialScrollOffset = 0,
     this.pendingFeature,
     this.isAuthenticated = false,
@@ -37,6 +38,7 @@ class ExpandedCommits extends StatefulWidget {
   final ValueNotifier<Map<String, String>> branchNames;
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
+  final bool isClientMode;
   final Future<void> Function(String) onBranchChanged;
   final VoidCallback? onCreateBranch;
   final Future<void> Function(String oldName, String newName) onRenameBranch;
@@ -194,6 +196,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                     key: Key(reference),
                                                     conflictingValue,
                                                     () async => await widget.onReloadAll(),
+                                                    widget.isClientMode,
                                                   );
                                                 }
 
@@ -486,6 +489,7 @@ Route createExpandedCommitsRoute({
   required Future<void> Function(String oldName, String newName) onRenameBranch,
   required Future<void> Function(String branchName) onDeleteBranch,
   required Future<void> Function() onReloadAll,
+  required bool isClientMode,
   double initialScrollOffset = 0,
   ShowcaseFeature? pendingFeature,
   bool isAuthenticated = false,
@@ -501,6 +505,7 @@ Route createExpandedCommitsRoute({
       remoteWebUrl: remoteWebUrl,
       onBranchChanged: onBranchChanged,
       onCreateBranch: onCreateBranch,
+      isClientMode: isClientMode,
       onRenameBranch: onRenameBranch,
       onDeleteBranch: onDeleteBranch,
       onReloadAll: onReloadAll,

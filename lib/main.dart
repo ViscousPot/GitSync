@@ -813,6 +813,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               await runGitOperation(LogType.DeleteBranch, (event) => event, {"branchName": branchName});
               await reloadAll();
             },
+            isClientMode: await uiSettingsManager.getClientModeEnabled(),
             onReloadAll: () async => await reloadAll(),
             initialScrollOffset: initialScrollOffset,
             pendingFeature: pendingFeature,
@@ -2232,7 +2233,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     shape: WidgetStatePropertyAll(
                                                                       RoundedRectangleBorder(
                                                                         borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
-                                                                          topRight: orientation == Orientation.portrait ? cornerRadiusMD : cornerRadiusSM,
+                                                                          topRight: orientation == Orientation.portrait
+                                                                              ? cornerRadiusMD
+                                                                              : cornerRadiusSM,
                                                                           bottomRight: orientation == Orientation.portrait
                                                                               ? cornerRadiusSM
                                                                               : cornerRadiusMD,
