@@ -638,6 +638,50 @@ Future<void> pruneCorruptedLooseObjects({required String pathString}) => RustLib
     .api
     .crateApiGitManagerPruneCorruptedLooseObjects(pathString: pathString);
 
+Future<void> createBranchFromCommit({
+  required String pathString,
+  required String newBranchName,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCreateBranchFromCommit(
+  pathString: pathString,
+  newBranchName: newBranchName,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> checkoutCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCheckoutCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> createTag({
+  required String pathString,
+  required String tagName,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCreateTag(
+  pathString: pathString,
+  tagName: tagName,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> revertCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRevertCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
 abstract class WithLine {
   Future<WithLine> safeWline({required int line});
 }
@@ -785,4 +829,8 @@ enum LogType {
   deleteRemote,
   renameRemote,
   initRepo,
+  createBranchFromCommit,
+  checkoutCommit,
+  createTag,
+  revertCommit,
 }

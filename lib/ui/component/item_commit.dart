@@ -12,7 +12,9 @@ import '../../../src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:GitSync/type/git_provider.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import '../dialog/diff_view.dart' as DiffViewDialog;
+import '../dialog/create_branch_from_commit.dart' as CreateBranchFromCommitDialog;
 
 class ChevronPainter extends CustomPainter {
   final Color color;
@@ -64,6 +66,7 @@ class ItemCommit extends StatefulWidget {
     this.recentCommits, {
     this.gitProvider,
     this.remoteWebUrl,
+    this.onRefresh,
     super.key,
   });
 
@@ -72,6 +75,7 @@ class ItemCommit extends StatefulWidget {
   final List<GitManagerRs.Commit> recentCommits;
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
+  final Future<void> Function()? onRefresh;
 
   @override
   State<ItemCommit> createState() => _ItemCommit();
@@ -130,6 +134,7 @@ class _ItemCommit extends State<ItemCommit> {
         if (widget.commit.tags.isNotEmpty) item('copy-tag', 'COPY TAG', 'Copy the tag name to clipboard'),
         if (widget.gitProvider?.isOAuthProvider == true && widget.remoteWebUrl != null)
           item('view', 'VIEW ON ${widget.gitProvider!.name.toUpperCase()}', 'Open this commit in your browser'),
+        item('create-branch', 'CREATE BRANCH FROM COMMIT', 'Create a new branch from this commit'),
       ],
     );
     if (mounted) setState(() => _menuOpen = false);
@@ -141,6 +146,17 @@ class _ItemCommit extends State<ItemCommit> {
       case 'view':
         final url = widget.gitProvider!.commitUrl(widget.remoteWebUrl!, widget.commit.reference);
         if (url != null) await launchUrl(Uri.parse(url));
+      case 'create-branch':
+        if (mounted) {
+          await CreateBranchFromCommitDialog.showDialog(
+            context,
+            widget.commit.reference,
+            (branchName) async {
+              await GitManager.createBranchFromCommit(branchName, widget.commit.reference);
+              await widget.onRefresh?.call();
+            },
+          );
+        }
     }
   }
 

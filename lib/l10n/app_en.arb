@@ -592,6 +592,9 @@
     "deleteBranch": "Delete Branch?",
     "confirmDeleteBranchMsg": "Are you sure you want to delete the branch \"%s\"?",
 
+    "createBranchFromCommit": "Create Branch from Commit",
+    "createBranchFromCommitMsg": "Create a new branch starting at commit %s.",
+
 
     "@@x-ISSUES": "",
     "issues": "Issues",

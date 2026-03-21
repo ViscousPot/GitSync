@@ -207,6 +207,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                   commitsValue,
                                                   gitProvider: widget.gitProvider,
                                                   remoteWebUrl: widget.remoteWebUrl,
+                                                  onRefresh: () => widget.onReloadAll(),
                                                 );
                                               },
                                             ),

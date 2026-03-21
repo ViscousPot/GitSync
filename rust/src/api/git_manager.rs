@@ -104,6 +104,7 @@ pub enum LogType {
     DeleteRemote,
     RenameRemote,
     InitRepo,
+    CreateBranchFromCommit,
 }
 
 trait WithLine {
@@ -4234,6 +4235,56 @@ pub async fn prune_corrupted_loose_objects(path_string: String) -> Result<(), gi
     if pruned > 0 {
         let _ = odb.refresh();
     }
+
+    Ok(())
+}
+
+pub async fn create_branch_from_commit(
+    path_string: &String,
+    new_branch_name: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!(
+            "Creating new branch '{}' from commit '{}'",
+            new_branch_name,
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    let new_branch = swl!(repo.branch(new_branch_name, &commit, false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!("New branch '{}' created", new_branch_name),
+    );
+
+    let object = swl!(new_branch.get().peel(git2::ObjectType::Commit))?;
+
+    let mut checkout_builder = git2::build::CheckoutBuilder::new();
+    checkout_builder.force();
+
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
+
+    let refname = format!("refs/heads/{}", new_branch_name);
+    swl!(repo.set_head(&refname))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!("Switched to new branch '{}'", new_branch_name),
+    );
 
     Ok(())
 }

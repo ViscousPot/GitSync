@@ -3166,6 +3166,18 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete the branch \"%s\"?'**
   String get confirmDeleteBranchMsg;
 
+  /// No description provided for @createBranchFromCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Branch from Commit'**
+  String get createBranchFromCommit;
+
+  /// No description provided for @createBranchFromCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new branch starting at commit %s.'**
+  String get createBranchFromCommitMsg;
+
   /// No description provided for @issues.
   ///
   /// In en, this message translates to:

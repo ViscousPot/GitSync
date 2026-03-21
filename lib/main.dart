@@ -2078,6 +2078,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                               recentCommits,
                                                                                               gitProvider: currentGitProvider.value,
                                                                                               remoteWebUrl: remoteUrlLink.value?.$2,
+                                                                                              onRefresh: () => reloadAll(),
                                                                                             ),
                                                                                           );
                                                                                         },

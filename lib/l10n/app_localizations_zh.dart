@@ -1539,6 +1539,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get confirmDeleteBranchMsg => 'Are you sure you want to delete the branch \"%s\"?';
 
   @override
+  String get createBranchFromCommit => 'Create Branch from Commit';
+
+  @override
+  String get createBranchFromCommitMsg => 'Create a new branch starting at commit %s.';
+
+  @override
   String get issues => 'Issues';
 
   @override

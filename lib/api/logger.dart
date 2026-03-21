@@ -86,6 +86,7 @@ enum LogType {
   DeleteRemote,
   RenameRemote,
   InitRepo,
+  CreateBranchFromCommit,
   GetIssues,
   GetPullRequests,
   GetTags,

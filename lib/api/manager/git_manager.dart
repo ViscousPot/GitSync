@@ -779,6 +779,12 @@ class GitManager {
     });
   }
 
+  static Future<void> createBranchFromCommit(String branchName, String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CreateBranchFromCommit, (dirPath) async {
+      await GitManagerRs.createBranchFromCommit(pathString: dirPath, newBranchName: branchName, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';
