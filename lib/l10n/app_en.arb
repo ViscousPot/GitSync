@@ -603,6 +603,11 @@
     "createTagOnCommitMsg": "Create a tag on commit %s.",
     "tagName": "Tag Name",
 
+    "revertCommit": "Revert Commit",
+    "revertCommitMsg": "Revert the changes introduced by commit",
+    "revertCommitWarning": "This will create a new commit that undoes the changes.",
+    "revert": "Revert",
+
 
     "@@x-ISSUES": "",
     "issues": "Issues",

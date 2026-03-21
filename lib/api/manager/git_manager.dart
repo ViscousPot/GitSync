@@ -797,6 +797,12 @@ class GitManager {
     });
   }
 
+  static Future<void> revertCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RevertCommit, (dirPath) async {
+      await GitManagerRs.revertCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';

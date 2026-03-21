@@ -1573,6 +1573,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tagName => 'Tag Name';
 
   @override
+  String get revertCommit => 'Revert Commit';
+
+  @override
+  String get revertCommitMsg => 'Revert the changes introduced by commit';
+
+  @override
+  String get revertCommitWarning => 'This will create a new commit that undoes the changes.';
+
+  @override
+  String get revert => 'Revert';
+
+  @override
   String get issues => 'Issues';
 
   @override

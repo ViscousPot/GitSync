@@ -107,6 +107,7 @@ pub enum LogType {
     CreateBranchFromCommit,
     CheckoutCommit,
     CreateTag,
+    RevertCommit,
 }
 
 trait WithLine {
@@ -4361,6 +4362,62 @@ pub async fn create_tag(
         Arc::clone(&log_callback),
         LogType::CreateTag,
         format!("Tag '{}' created", tag_name),
+    );
+
+    Ok(())
+}
+
+pub async fn revert_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RevertCommit,
+        format!(
+            "Reverting commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.revert(&commit, None))?;
+
+    let mut index = swl!(repo.index())?;
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    let message = format!(
+        "Revert \"{}\"",
+        commit.message().unwrap_or("").trim()
+    );
+
+    swl!(repo.commit(
+        Some("HEAD"),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &[&head_commit],
+    ))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RevertCommit,
+        format!(
+            "Reverted commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
     );
 
     Ok(())

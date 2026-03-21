@@ -17,6 +17,7 @@ import '../dialog/diff_view.dart' as DiffViewDialog;
 import '../dialog/create_branch_from_commit.dart' as CreateBranchFromCommitDialog;
 import '../dialog/confirm_checkout_commit.dart' as ConfirmCheckoutCommitDialog;
 import '../dialog/create_tag_on_commit.dart' as CreateTagOnCommitDialog;
+import '../dialog/confirm_revert_commit.dart' as ConfirmRevertCommitDialog;
 
 class ChevronPainter extends CustomPainter {
   final Color color;
@@ -139,6 +140,7 @@ class _ItemCommit extends State<ItemCommit> {
         item('create-branch', 'CREATE BRANCH FROM COMMIT', 'Create a new branch from this commit'),
         item('checkout', 'CHECKOUT COMMIT', 'Check out this commit (detached HEAD)'),
         item('create-tag', 'CREATE TAG', 'Create a tag on this commit'),
+        item('revert', 'REVERT COMMIT', 'Create a new commit that undoes these changes'),
       ],
     );
     if (mounted) setState(() => _menuOpen = false);
@@ -180,6 +182,18 @@ class _ItemCommit extends State<ItemCommit> {
             widget.commit.reference,
             (tagName) async {
               await GitManager.createTag(tagName, widget.commit.reference);
+              await widget.onRefresh?.call();
+            },
+          );
+        }
+      case 'revert':
+        if (mounted) {
+          await ConfirmRevertCommitDialog.showDialog(
+            context,
+            widget.commit.reference,
+            widget.commit.commitMessage,
+            () async {
+              await GitManager.revertCommit(widget.commit.reference);
               await widget.onRefresh?.call();
             },
           );

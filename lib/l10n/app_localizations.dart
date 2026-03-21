@@ -3214,6 +3214,30 @@ abstract class AppLocalizations {
   /// **'Tag Name'**
   String get tagName;
 
+  /// No description provided for @revertCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert Commit'**
+  String get revertCommit;
+
+  /// No description provided for @revertCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert the changes introduced by commit'**
+  String get revertCommitMsg;
+
+  /// No description provided for @revertCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will create a new commit that undoes the changes.'**
+  String get revertCommitWarning;
+
+  /// No description provided for @revert.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get revert;
+
   /// No description provided for @issues.
   ///
   /// In en, this message translates to:
