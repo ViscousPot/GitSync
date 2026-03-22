@@ -10,6 +10,7 @@ import 'package:GitSync/ui/page/pull_requests_page.dart';
 import 'package:GitSync/ui/page/releases_page.dart';
 import 'package:GitSync/ui/page/actions_page.dart';
 import 'package:GitSync/ui/page/tags_page.dart';
+import 'package:GitSync/ui/page/create_issue_page.dart';
 
 class ShowcaseFeatureButton extends StatelessWidget {
   const ShowcaseFeatureButton({
@@ -75,24 +76,24 @@ class ShowcaseFeatureButton extends StatelessWidget {
               ),
             ),
           ),
-        // if (onAdd != null)
-        //   Positioned(
-        //     right: 0,
-        //     top: spaceXXS,
-        //     bottom: spaceXXS,
-        //     child: AspectRatio(
-        //       aspectRatio: 1,
-        //       child: TextButton(
-        //         onPressed: onAdd,
-        //         style: TextButton.styleFrom(
-        //           backgroundColor: colours.showcaseBorder,
-        //           padding: EdgeInsets.zero,
-        //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-        //         ),
-        //         child: FaIcon(FontAwesomeIcons.plus, color: colours.showcaseFeatureIcon, size: textSM),
-        //       ),
-        //     ),
-        //   ),
+        if (onAdd != null)
+          Positioned(
+            right: 0,
+            top: spaceXXS,
+            bottom: spaceXXS,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: TextButton(
+                onPressed: onAdd,
+                style: TextButton.styleFrom(
+                  backgroundColor: colours.showcaseBorder,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                ),
+                child: FaIcon(FontAwesomeIcons.plus, color: colours.showcaseFeatureIcon, size: textSM),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -115,6 +116,28 @@ List<ShowcaseFeature>? togglePin(List<ShowcaseFeature> current, ShowcaseFeature 
   }
 
   return pinned;
+}
+
+/// Returns a callback for the add button on a [ShowcaseFeature], or null if not supported.
+VoidCallback? resolveFeatureOnAdd({
+  required BuildContext context,
+  required ShowcaseFeature feature,
+  required GitProvider? gitProvider,
+  required String? remoteWebUrl,
+}) {
+  if (feature != ShowcaseFeature.issues) return null;
+  return () async {
+    if (remoteWebUrl == null || gitProvider == null) return;
+    final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+    final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
+    if (!context.mounted) return;
+    Navigator.of(context).push(createCreateIssuePageRoute(
+      gitProvider: gitProvider,
+      remoteWebUrl: remoteWebUrl,
+      accessToken: accessToken,
+      githubAppOauth: githubAppOauth,
+    ));
+  };
 }
 
 /// Maps a [ShowcaseFeature] to its navigation callback.

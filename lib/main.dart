@@ -2347,7 +2347,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             child: ShowcaseFeatureButton(
                                                               feature: pinned[0],
                                                               gitProvider: provider,
-                                                              onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
+                                                              onAdd: resolveFeatureOnAdd(context: context, feature: pinned[0], gitProvider: provider, remoteWebUrl: webUrl),
                                                               onPressed: () => _navigateToExpandedCommits(
                                                                 initialScrollOffset: recentCommitsController.offset,
                                                                 pendingFeature: pinned[0],
@@ -2363,7 +2363,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 child: ShowcaseFeatureButton(
                                                                   feature: pinned[0],
                                                                   gitProvider: provider,
-                                                                  onAdd: pinned[0] == ShowcaseFeature.actions ? null : () {},
+                                                                  onAdd: resolveFeatureOnAdd(context: context, feature: pinned[0], gitProvider: provider, remoteWebUrl: webUrl),
                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                     pendingFeature: pinned[0],
@@ -2378,7 +2378,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 child: ShowcaseFeatureButton(
                                                                   feature: pinned[1],
                                                                   gitProvider: provider,
-                                                                  onAdd: pinned[1] == ShowcaseFeature.actions ? null : () {},
+                                                                  onAdd: resolveFeatureOnAdd(context: context, feature: pinned[1], gitProvider: provider, remoteWebUrl: webUrl),
                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                     pendingFeature: pinned[1],

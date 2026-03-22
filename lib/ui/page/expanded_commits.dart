@@ -411,7 +411,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                     gitProvider: widget.gitProvider,
                                                     isPinned: pinned.contains(first),
                                                     onPinToggle: () => _handlePinToggle(first),
-                                                    onAdd: first == ShowcaseFeature.actions ? null : () {},
+                                                    onAdd: resolveFeatureOnAdd(context: context, feature: first, gitProvider: widget.gitProvider, remoteWebUrl: widget.remoteWebUrl),
                                                     onPressed: resolveFeatureOnPressed(
                                                       context: context,
                                                       feature: first,
@@ -431,7 +431,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                       gitProvider: widget.gitProvider,
                                                       isPinned: pinned.contains(second),
                                                       onPinToggle: () => _handlePinToggle(second),
-                                                      onAdd: second == ShowcaseFeature.actions ? null : () {},
+                                                      onAdd: resolveFeatureOnAdd(context: context, feature: second, gitProvider: widget.gitProvider, remoteWebUrl: widget.remoteWebUrl),
                                                       onPressed: resolveFeatureOnPressed(
                                                         context: context,
                                                         feature: second,
