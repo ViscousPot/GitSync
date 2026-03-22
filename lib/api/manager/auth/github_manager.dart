@@ -1302,4 +1302,27 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
       return [];
     }
   }
+
+  @override
+  Future<bool> updateIssue(String accessToken, String owner, String repo, int issueNumber, {String? title, String? body}) async {
+    try {
+      final payload = <String, dynamic>{};
+      if (title != null) payload["title"] = title;
+      if (body != null) payload["body"] = body;
+
+      final response = await httpPatch(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/issues/$issueNumber"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/vnd.github+json"},
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode != 200) {
+        Logger.logError(LogType.UpdateIssue, "HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes)}", StackTrace.current);
+      }
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.UpdateIssue, e, st);
+      return false;
+    }
+  }
 }

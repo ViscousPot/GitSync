@@ -1007,4 +1007,24 @@ class GiteaManager extends GitProviderManager {
       return null;
     }
   }
+
+  @override
+  Future<bool> updateIssue(String accessToken, String owner, String repo, int issueNumber, {String? title, String? body}) async {
+    try {
+      final payload = <String, dynamic>{};
+      if (title != null) payload["title"] = title;
+      if (body != null) payload["body"] = body;
+
+      final response = await httpPatch(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$issueNumber"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/json"},
+        body: json.encode(payload),
+      );
+
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.UpdateIssue, e, st);
+      return false;
+    }
+  }
 }

@@ -708,6 +708,8 @@
     "issueReactionFailed": "Failed to update reaction",
     "issuePreview": "Preview",
     "issueWrite": "Write",
+    "issueEditSuccess": "Issue updated",
+    "issueEditFailed": "Failed to update issue",
 
     "@@x-CREATE_ISSUE": "",
     "createIssue": "Create Issue",

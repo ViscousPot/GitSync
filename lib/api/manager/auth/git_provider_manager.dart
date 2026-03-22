@@ -185,4 +185,8 @@ class GitProviderManager {
   Future<List<IssueTemplate>> getIssueTemplates(String accessToken, String owner, String repo) async {
     return [];
   }
+
+  Future<bool> updateIssue(String accessToken, String owner, String repo, int issueNumber, {String? title, String? body}) async {
+    return false;
+  }
 }

@@ -1864,6 +1864,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get issueWrite => 'Write';
 
   @override
+  String get issueEditSuccess => 'Issue updated';
+
+  @override
+  String get issueEditFailed => 'Failed to update issue';
+
+  @override
   String get createIssue => 'Create Issue';
 
   @override

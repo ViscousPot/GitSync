@@ -3772,6 +3772,18 @@ abstract class AppLocalizations {
   /// **'Write'**
   String get issueWrite;
 
+  /// No description provided for @issueEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue updated'**
+  String get issueEditSuccess;
+
+  /// No description provided for @issueEditFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update issue'**
+  String get issueEditFailed;
+
   /// No description provided for @createIssue.
   ///
   /// In en, this message translates to:

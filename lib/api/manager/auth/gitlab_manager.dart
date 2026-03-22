@@ -928,4 +928,25 @@ class GitlabManager extends GitProviderManager {
       return null;
     }
   }
+
+  @override
+  Future<bool> updateIssue(String accessToken, String owner, String repo, int issueNumber, {String? title, String? body}) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final payload = <String, dynamic>{};
+      if (title != null) payload["title"] = title;
+      if (body != null) payload["description"] = body;
+
+      final response = await httpPut(
+        Uri.parse("https://$_domain/api/v4/projects/$projectId/issues/$issueNumber"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      return response.statusCode == 200;
+    } catch (e, st) {
+      Logger.logError(LogType.UpdateIssue, e, st);
+      return false;
+    }
+  }
 }

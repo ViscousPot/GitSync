@@ -40,7 +40,13 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
   bool _togglingState = false;
   bool _submittingComment = false;
   bool _writeMode = true;
+  bool _editingTitle = false;
+  bool _editingBody = false;
+  bool _bodyWriteMode = true;
+  bool _submittingEdit = false;
   final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _titleEditController = TextEditingController();
+  final TextEditingController _bodyEditController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -52,6 +58,8 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
   @override
   void dispose() {
     _commentController.dispose();
+    _titleEditController.dispose();
+    _bodyEditController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -129,6 +137,29 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
     } else {
       setState(() => _togglingState = false);
       Fluttertoast.showToast(msg: t.issueStateUpdateFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
+    }
+  }
+
+  Future<void> _updateIssue({String? title, String? body}) async {
+    setState(() => _submittingEdit = true);
+    final (owner, repo) = _parseOwnerRepo();
+    final manager = _manager;
+    if (manager == null) return;
+
+    final success = await manager.updateIssue(widget.accessToken, owner, repo, widget.issueNumber, title: title, body: body);
+    if (!mounted) return;
+
+    if (success) {
+      setState(() {
+        _detail = _detail?.copyWith(title: title, body: body);
+        _editingTitle = false;
+        _editingBody = false;
+        _submittingEdit = false;
+      });
+      Fluttertoast.showToast(msg: t.issueEditSuccess, toastLength: Toast.LENGTH_SHORT, gravity: null);
+    } else {
+      setState(() => _submittingEdit = false);
+      Fluttertoast.showToast(msg: t.issueEditFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
     }
   }
 
@@ -240,13 +271,87 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _detail?.title ?? widget.issueTitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                        ),
-                        if (_detail != null) ...[
+                        if (_editingTitle)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  contextMenuBuilder: globalContextMenuBuilder,
+                                  controller: _titleEditController,
+                                  autofocus: true,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: colours.primaryLight,
+                                    fontSize: textMD,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.none,
+                                    decorationThickness: 0,
+                                  ),
+                                  decoration: InputDecoration(
+                                    fillColor: colours.secondaryDark,
+                                    filled: true,
+                                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                                    isCollapsed: true,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: spaceXXXS),
+                              GestureDetector(
+                                onTap: _submittingEdit
+                                    ? null
+                                    : () {
+                                        final newTitle = _titleEditController.text.trim();
+                                        if (newTitle.isNotEmpty && newTitle != _detail?.title) {
+                                          _updateIssue(title: newTitle);
+                                        } else {
+                                          setState(() => _editingTitle = false);
+                                        }
+                                      },
+                                child: _submittingEdit
+                                    ? SizedBox(
+                                        height: textMD,
+                                        width: textMD,
+                                        child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                      )
+                                    : FaIcon(FontAwesomeIcons.check, size: textMD, color: colours.tertiaryPositive),
+                              ),
+                              SizedBox(width: spaceXXS),
+                              GestureDetector(
+                                onTap: () => setState(() => _editingTitle = false),
+                                child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.tertiaryLight),
+                              ),
+                            ],
+                          )
+                        else
+                          GestureDetector(
+                            onTap: _detail?.canWrite == true
+                                ? () {
+                                    _titleEditController.text = _detail?.title ?? '';
+                                    setState(() => _editingTitle = true);
+                                  }
+                                : null,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _detail?.title ?? widget.issueTitle,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                ),
+                                if (_detail?.canWrite == true) ...[
+                                  SizedBox(width: spaceXXS),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: spaceXXXXS),
+                                    child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXS, color: colours.tertiaryLight),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        if (_detail != null && !_editingTitle) ...[
                           SizedBox(height: spaceXXXXS),
                           Row(
                             children: [
@@ -334,12 +439,31 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
         ],
 
         // Description section
-        Text(
-          t.issueDescription.toUpperCase(),
-          style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Text(
+              t.issueDescription.toUpperCase(),
+              style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+            ),
+            if (detail.canWrite && !_editingBody) ...[
+              SizedBox(width: spaceXXS),
+              GestureDetector(
+                onTap: () {
+                  _bodyEditController.text = detail.body;
+                  setState(() {
+                    _editingBody = true;
+                    _bodyWriteMode = true;
+                  });
+                },
+                child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXXS, color: colours.tertiaryLight),
+              ),
+            ],
+          ],
         ),
         SizedBox(height: spaceXXS),
-        if (detail.body.isEmpty)
+        if (_editingBody)
+          _buildBodyEditor()
+        else if (detail.body.isEmpty)
           Text(
             t.issueNoDescription,
             style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
@@ -675,6 +799,132 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                         ),
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBodyEditor() {
+    return Container(
+      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(spaceSM, spaceSM, spaceSM, 0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _bodyWriteMode = true),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
+                    decoration: BoxDecoration(
+                      color: _bodyWriteMode ? colours.tertiaryDark : Colors.transparent,
+                      borderRadius: BorderRadius.all(cornerRadiusXS),
+                    ),
+                    child: Text(
+                      t.issueWrite.toUpperCase(),
+                      style: TextStyle(
+                        color: _bodyWriteMode ? colours.primaryLight : colours.tertiaryLight,
+                        fontSize: textXS,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: spaceXXS),
+                GestureDetector(
+                  onTap: () => setState(() => _bodyWriteMode = false),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
+                    decoration: BoxDecoration(
+                      color: !_bodyWriteMode ? colours.tertiaryDark : Colors.transparent,
+                      borderRadius: BorderRadius.all(cornerRadiusXS),
+                    ),
+                    child: Text(
+                      t.issuePreview.toUpperCase(),
+                      style: TextStyle(
+                        color: !_bodyWriteMode ? colours.primaryLight : colours.tertiaryLight,
+                        fontSize: textXS,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: spaceXXS),
+          if (_bodyWriteMode)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spaceSM),
+              child: TextField(
+                contextMenuBuilder: globalContextMenuBuilder,
+                controller: _bodyEditController,
+                maxLines: 10,
+                minLines: 5,
+                style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                decoration: InputDecoration(
+                  fillColor: colours.tertiaryDark,
+                  filled: true,
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.all(spaceSM),
+                ),
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              constraints: BoxConstraints(minHeight: spaceLG * 2),
+              padding: EdgeInsets.all(spaceSM),
+              margin: EdgeInsets.symmetric(horizontal: spaceSM),
+              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              child: _bodyEditController.text.isEmpty
+                  ? Text(
+                      t.issueNoDescription,
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+                    )
+                  : MarkdownBody(data: _bodyEditController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+            ),
+          Padding(
+            padding: EdgeInsets.all(spaceSM),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _editingBody = false),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                    child: Text(
+                      t.cancel.toUpperCase(),
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(width: spaceXXS),
+                GestureDetector(
+                  onTap: _submittingEdit ? null : () => _updateIssue(body: _bodyEditController.text),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                    decoration: BoxDecoration(
+                      color: _submittingEdit ? colours.tertiaryDark : colours.tertiaryInfo.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                    ),
+                    child: _submittingEdit
+                        ? SizedBox(
+                            height: textMD,
+                            width: textMD,
+                            child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                          )
+                        : Text(
+                            t.done.toUpperCase(),
+                            style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
