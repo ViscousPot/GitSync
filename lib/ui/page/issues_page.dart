@@ -10,6 +10,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/ui/page/issue_detail_page.dart';
+import 'package:GitSync/ui/page/create_issue_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class IssuesPage extends StatefulWidget {
@@ -150,11 +151,24 @@ class _IssuesPageState extends State<IssuesPage> {
                     t.issues.toUpperCase(),
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
-                  // const Spacer(),
-                  // IconButton(
-                  //   onPressed: () => setState(() => _showFilters = !_showFilters),
-                  //   icon: FaIcon(FontAwesomeIcons.filter, size: textMD, color: _showFilters ? colours.showcaseFeatureIcon : colours.secondaryLight),
-                  // ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.of(context).push(
+                        createCreateIssuePageRoute(
+                          gitProvider: widget.gitProvider,
+                          remoteWebUrl: widget.remoteWebUrl,
+                          accessToken: widget.accessToken,
+                          githubAppOauth: widget.githubAppOauth,
+                        ),
+                      );
+                      if (result == true && mounted) _fetchIssues();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(spaceXS),
+                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: colours.primaryLight),
+                    ),
+                  ),
                 ],
               ),
             ),
