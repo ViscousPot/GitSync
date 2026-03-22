@@ -4,6 +4,7 @@ import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
@@ -984,6 +985,26 @@ class GiteaManager extends GitProviderManager {
     } catch (e, st) {
       Logger.logError(LogType.RemoveReaction, e, st);
       return false;
+    }
+  }
+
+  @override
+  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/json"},
+        body: json.encode({"title": title, "body": body}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreateIssue, e, st);
+      return null;
     }
   }
 }

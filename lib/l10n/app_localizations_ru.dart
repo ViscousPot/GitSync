@@ -1860,6 +1860,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get issueWrite => 'Write';
 
   @override
+  String get createIssue => 'Create Issue';
+
+  @override
+  String get createIssueTitle => 'Title';
+
+  @override
+  String get createIssueTitleHint => 'Issue title';
+
+  @override
+  String get createIssueBody => 'Description';
+
+  @override
+  String get createIssueBodyHint => 'Describe the issue…';
+
+  @override
+  String get createIssueSubmit => 'Submit Issue';
+
+  @override
+  String get createIssueSuccess => 'Issue created successfully';
+
+  @override
+  String get createIssueFailed => 'Failed to create issue';
+
+  @override
+  String get createIssueBlankIssue => 'Blank Issue';
+
+  @override
+  String get createIssueSelectTemplate => 'Choose a template';
+
+  @override
+  String get createIssueRequired => 'Required';
+
+  @override
   String get prDescription => 'Description';
 
   @override

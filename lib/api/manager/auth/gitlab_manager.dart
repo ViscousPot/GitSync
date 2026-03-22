@@ -5,6 +5,7 @@ import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
@@ -901,6 +902,30 @@ class GitlabManager extends GitProviderManager {
     } catch (e, st) {
       Logger.logError(LogType.RemoveReaction, e, st);
       return false;
+    }
+  }
+
+  @override
+  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final payload = <String, dynamic>{"title": title, "description": body};
+      if (labels != null && labels.isNotEmpty) payload["labels"] = labels.join(",");
+
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v4/projects/$projectId/issues"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["iid"] as int, htmlUrl: data["web_url"]?.toString());
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreateIssue, e, st);
+      return null;
     }
   }
 }

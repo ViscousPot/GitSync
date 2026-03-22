@@ -6,6 +6,8 @@ import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/issue_template.dart';
+import 'package:GitSync/api/issue_template_parser.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
@@ -1224,6 +1226,80 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
     } catch (e, st) {
       Logger.logError(LogType.RemoveReaction, e, st);
       return false;
+    }
+  }
+
+  @override
+  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+    try {
+      final payload = <String, dynamic>{"title": title, "body": body};
+      if (labels != null && labels.isNotEmpty) payload["labels"] = labels;
+      if (assignees != null && assignees.isNotEmpty) payload["assignees"] = assignees;
+
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/issues"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/vnd.github+json"},
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
+      }
+      Logger.logError(LogType.CreateIssue, "HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes)}", StackTrace.current);
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreateIssue, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<List<IssueTemplate>> getIssueTemplates(String accessToken, String owner, String repo) async {
+    try {
+      final dirResponse = await httpGet(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/contents/.github/ISSUE_TEMPLATE"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+
+      if (dirResponse.statusCode != 200) {
+        print("getIssueTemplates: directory listing returned ${dirResponse.statusCode}: ${utf8.decode(dirResponse.bodyBytes)}");
+        return [];
+      }
+
+      final listing = json.decode(utf8.decode(dirResponse.bodyBytes));
+      if (listing is! List) return [];
+
+      final templates = <IssueTemplate>[];
+      final files = listing.take(10).toList();
+
+      for (final file in files) {
+        if (file is! Map) continue;
+        final name = file["name"]?.toString() ?? '';
+        final downloadUrl = file["download_url"]?.toString();
+        if (downloadUrl == null) continue;
+
+        final isYaml = name.endsWith('.yml') || name.endsWith('.yaml');
+        final isMd = name.endsWith('.md') || name.endsWith('.markdown');
+        if (!isYaml && !isMd) continue;
+
+        try {
+          final contentResponse = await httpGet(
+            Uri.parse(downloadUrl),
+            headers: {"Authorization": "token $accessToken"},
+          );
+          if (contentResponse.statusCode != 200) continue;
+
+          final content = utf8.decode(contentResponse.bodyBytes);
+          final template = isYaml ? parseYamlTemplate(content, name) : parseMarkdownTemplate(content, name);
+          templates.add(template);
+        } catch (_) {}
+      }
+
+      return templates;
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssueTemplates, e, st);
+      return [];
     }
   }
 }

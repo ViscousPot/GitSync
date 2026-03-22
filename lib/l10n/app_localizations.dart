@@ -3772,6 +3772,72 @@ abstract class AppLocalizations {
   /// **'Write'**
   String get issueWrite;
 
+  /// No description provided for @createIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Issue'**
+  String get createIssue;
+
+  /// No description provided for @createIssueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get createIssueTitle;
+
+  /// No description provided for @createIssueTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue title'**
+  String get createIssueTitleHint;
+
+  /// No description provided for @createIssueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createIssueBody;
+
+  /// No description provided for @createIssueBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the issue…'**
+  String get createIssueBodyHint;
+
+  /// No description provided for @createIssueSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Issue'**
+  String get createIssueSubmit;
+
+  /// No description provided for @createIssueSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue created successfully'**
+  String get createIssueSuccess;
+
+  /// No description provided for @createIssueFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create issue'**
+  String get createIssueFailed;
+
+  /// No description provided for @createIssueBlankIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank Issue'**
+  String get createIssueBlankIssue;
+
+  /// No description provided for @createIssueSelectTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a template'**
+  String get createIssueSelectTemplate;
+
+  /// No description provided for @createIssueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get createIssueRequired;
+
   /// No description provided for @prDescription.
   ///
   /// In en, this message translates to:

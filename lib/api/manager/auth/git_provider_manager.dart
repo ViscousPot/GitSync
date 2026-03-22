@@ -6,6 +6,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/action_run.dart';
@@ -175,5 +176,13 @@ class GitProviderManager {
 
   Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
     return false;
+  }
+
+  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+    return null;
+  }
+
+  Future<List<IssueTemplate>> getIssueTemplates(String accessToken, String owner, String repo) async {
+    return [];
   }
 }
