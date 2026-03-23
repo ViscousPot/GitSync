@@ -3166,6 +3166,138 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete the branch \"%s\"?'**
   String get confirmDeleteBranchMsg;
 
+  /// No description provided for @menuAmendCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend Commit'**
+  String get menuAmendCommit;
+
+  /// No description provided for @menuAmendCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify the most recent commit message or contents'**
+  String get menuAmendCommitDesc;
+
+  /// No description provided for @menuUndoCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Commit'**
+  String get menuUndoCommit;
+
+  /// No description provided for @menuUndoCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo this commit but keep the changes staged'**
+  String get menuUndoCommitDesc;
+
+  /// No description provided for @menuResetToCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Commit'**
+  String get menuResetToCommit;
+
+  /// No description provided for @menuResetToCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard all commits after this one'**
+  String get menuResetToCommitDesc;
+
+  /// No description provided for @menuCheckoutCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Commit'**
+  String get menuCheckoutCommit;
+
+  /// No description provided for @menuCheckoutCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out this commit (detached HEAD)'**
+  String get menuCheckoutCommitDesc;
+
+  /// No description provided for @menuRevertCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert Commit Changes'**
+  String get menuRevertCommit;
+
+  /// No description provided for @menuRevertCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new commit that undoes these changes'**
+  String get menuRevertCommitDesc;
+
+  /// No description provided for @menuCreateBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Branch from Commit'**
+  String get menuCreateBranch;
+
+  /// No description provided for @menuCreateBranchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new branch from this commit'**
+  String get menuCreateBranchDesc;
+
+  /// No description provided for @menuCreateTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tag'**
+  String get menuCreateTag;
+
+  /// No description provided for @menuCreateTagDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a tag on this commit'**
+  String get menuCreateTagDesc;
+
+  /// No description provided for @menuCherryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commit'**
+  String get menuCherryPick;
+
+  /// No description provided for @menuCherryPickDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply this commit onto the current branch'**
+  String get menuCherryPickDesc;
+
+  /// No description provided for @menuCopySha.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy SHA'**
+  String get menuCopySha;
+
+  /// No description provided for @menuCopyShaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the full commit hash to clipboard'**
+  String get menuCopyShaDesc;
+
+  /// No description provided for @menuCopyTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Tag'**
+  String get menuCopyTag;
+
+  /// No description provided for @menuCopyTagDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the tag name to clipboard'**
+  String get menuCopyTagDesc;
+
+  /// No description provided for @menuViewOnProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'View on %s'**
+  String get menuViewOnProvider;
+
+  /// No description provided for @menuViewOnProviderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this commit in your browser'**
+  String get menuViewOnProviderDesc;
+
   /// No description provided for @createBranchFromCommit.
   ///
   /// In en, this message translates to:

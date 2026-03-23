@@ -1551,6 +1551,72 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirmDeleteBranchMsg => 'Are you sure you want to delete the branch \"%s\"?';
 
   @override
+  String get menuAmendCommit => 'Amend Commit';
+
+  @override
+  String get menuAmendCommitDesc => 'Modify the most recent commit message or contents';
+
+  @override
+  String get menuUndoCommit => 'Undo Commit';
+
+  @override
+  String get menuUndoCommitDesc => 'Undo this commit but keep the changes staged';
+
+  @override
+  String get menuResetToCommit => 'Reset to Commit';
+
+  @override
+  String get menuResetToCommitDesc => 'Discard all commits after this one';
+
+  @override
+  String get menuCheckoutCommit => 'Checkout Commit';
+
+  @override
+  String get menuCheckoutCommitDesc => 'Check out this commit (detached HEAD)';
+
+  @override
+  String get menuRevertCommit => 'Revert Commit Changes';
+
+  @override
+  String get menuRevertCommitDesc => 'Create a new commit that undoes these changes';
+
+  @override
+  String get menuCreateBranch => 'Create Branch from Commit';
+
+  @override
+  String get menuCreateBranchDesc => 'Create a new branch from this commit';
+
+  @override
+  String get menuCreateTag => 'Create Tag';
+
+  @override
+  String get menuCreateTagDesc => 'Create a tag on this commit';
+
+  @override
+  String get menuCherryPick => 'Cherry Pick Commit';
+
+  @override
+  String get menuCherryPickDesc => 'Apply this commit onto the current branch';
+
+  @override
+  String get menuCopySha => 'Copy SHA';
+
+  @override
+  String get menuCopyShaDesc => 'Copy the full commit hash to clipboard';
+
+  @override
+  String get menuCopyTag => 'Copy Tag';
+
+  @override
+  String get menuCopyTagDesc => 'Copy the tag name to clipboard';
+
+  @override
+  String get menuViewOnProvider => 'View on %s';
+
+  @override
+  String get menuViewOnProviderDesc => 'Open this commit in your browser';
+
+  @override
   String get createBranchFromCommit => 'Create Branch from Commit';
 
   @override
