@@ -18,6 +18,10 @@ import '../dialog/create_branch_from_commit.dart' as CreateBranchFromCommitDialo
 import '../dialog/confirm_checkout_commit.dart' as ConfirmCheckoutCommitDialog;
 import '../dialog/create_tag_on_commit.dart' as CreateTagOnCommitDialog;
 import '../dialog/confirm_revert_commit.dart' as ConfirmRevertCommitDialog;
+import '../dialog/amend_commit.dart' as AmendCommitDialog;
+import '../dialog/confirm_undo_commit.dart' as ConfirmUndoCommitDialog;
+import '../dialog/confirm_reset_to_commit.dart' as ConfirmResetToCommitDialog;
+import '../dialog/confirm_cherry_pick.dart' as ConfirmCherryPickDialog;
 
 class ChevronPainter extends CustomPainter {
   final Color color;
@@ -63,15 +67,7 @@ class ChevronPainter extends CustomPainter {
 }
 
 class ItemCommit extends StatefulWidget {
-  const ItemCommit(
-    this.commit,
-    this.prevCommit,
-    this.recentCommits, {
-    this.gitProvider,
-    this.remoteWebUrl,
-    this.onRefresh,
-    super.key,
-  });
+  const ItemCommit(this.commit, this.prevCommit, this.recentCommits, {this.gitProvider, this.remoteWebUrl, this.onRefresh, super.key});
 
   final GitManagerRs.Commit commit;
   final GitManagerRs.Commit? prevCommit;
@@ -114,18 +110,21 @@ class _ItemCommit extends State<ItemCommit> {
     setState(() => _menuOpen = true);
     final titleStyle = TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold);
     final descStyle = TextStyle(color: colours.tertiaryLight, fontSize: textXS);
-    PopupMenuItem<String> item(String value, String title, String desc) {
+    PopupMenuItem<String> item(String value, String title, String desc, {bool enabled = true}) {
       return PopupMenuItem(
         value: value,
+        enabled: enabled,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: titleStyle),
-            Text(desc, style: descStyle),
+            Text(title, style: titleStyle.copyWith(color: !enabled ? colours.tertiaryDark : null)),
+            Text(desc, style: descStyle.copyWith(color: !enabled ? colours.tertiaryDark : null)),
           ],
         ),
       );
     }
+
+    PopupMenuDivider separator() => PopupMenuDivider(height: spaceSM, color: colours.tertiaryDark);
 
     final result = await showMenu<String>(
       context: context,
@@ -133,18 +132,93 @@ class _ItemCommit extends State<ItemCommit> {
       color: colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
       items: [
-        item('copy-sha', 'COPY SHA', 'Copy the full commit hash to clipboard'),
-        if (widget.commit.tags.isNotEmpty) item('copy-tag', 'COPY TAG', 'Copy the tag name to clipboard'),
-        if (widget.gitProvider?.isOAuthProvider == true && widget.remoteWebUrl != null)
-          item('view', 'VIEW ON ${widget.gitProvider!.name.toUpperCase()}', 'Open this commit in your browser'),
-        item('create-branch', 'CREATE BRANCH FROM COMMIT', 'Create a new branch from this commit'),
+        if (widget.recentCommits.isNotEmpty && widget.commit.reference == widget.recentCommits.first.reference && widget.commit.unpushed) ...[
+          item('amend-commit', 'AMEND COMMIT', 'Modify the most recent commit message or contents'),
+          item('undo-commit', 'UNDO COMMIT', 'Undo this commit but keep the changes staged'),
+          separator(),
+        ],
+        item('reset-commit', 'RESET TO COMMIT', 'Discard all commits after this one'),
         item('checkout', 'CHECKOUT COMMIT', 'Check out this commit (detached HEAD)'),
+        // item('reorder-commit', 'REORDER COMMIT', 'Move this commit to a different position in history'),
+        item('revert', 'REVERT COMMIT CHANGES', 'Create a new commit that undoes these changes'),
+        separator(),
+        item('create-branch', 'CREATE BRANCH FROM COMMIT', 'Create a new branch from this commit'),
         item('create-tag', 'CREATE TAG', 'Create a tag on this commit'),
-        item('revert', 'REVERT COMMIT', 'Create a new commit that undoes these changes'),
+        item('cherry-pick', 'CHERRY PICK COMMIT', 'Apply this commit onto the current branch'),
+        separator(),
+        item('copy-sha', 'COPY SHA', 'Copy the full commit hash to clipboard'),
+        item('copy-tag', 'COPY TAG', 'Copy the tag name to clipboard', enabled: widget.commit.tags.isNotEmpty),
+        item(
+          'view',
+          'VIEW ON ${widget.gitProvider!.name.toUpperCase()}',
+          'Open this commit in your browser',
+          enabled: widget.gitProvider?.isOAuthProvider == true && widget.remoteWebUrl != null,
+        ),
       ],
     );
     if (mounted) setState(() => _menuOpen = false);
     switch (result) {
+      case 'amend-commit':
+        if (mounted) {
+          await AmendCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, (newMessage) async {
+            await GitManager.amendCommit(newMessage);
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'undo-commit':
+        if (mounted) {
+          await ConfirmUndoCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, () async {
+            await GitManager.undoCommit();
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'reset-commit':
+        if (mounted) {
+          await ConfirmResetToCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, () async {
+            await GitManager.resetToCommit(widget.commit.reference);
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'cherry-pick':
+        if (mounted) {
+          final currentBranch = await GitManager.getBranchName();
+          final branches = await GitManager.getBranchNames();
+          final localBranchNames = branches.map((e) => e.$1).toList();
+          if (mounted) {
+            await ConfirmCherryPickDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, currentBranch, localBranchNames, (targetBranch) async {
+              await GitManager.cherryPickCommit(widget.commit.reference, targetBranch);
+              await widget.onRefresh?.call();
+            });
+          }
+        }
+      case 'checkout':
+        if (mounted) {
+          await ConfirmCheckoutCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, () async {
+            await GitManager.checkoutCommit(widget.commit.reference);
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'revert':
+        if (mounted) {
+          await ConfirmRevertCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, () async {
+            await GitManager.revertCommit(widget.commit.reference);
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'create-tag':
+        if (mounted) {
+          await CreateTagOnCommitDialog.showDialog(context, widget.commit.reference, (tagName) async {
+            await GitManager.createTag(tagName, widget.commit.reference);
+            await widget.onRefresh?.call();
+          });
+        }
+      case 'create-branch':
+        if (mounted) {
+          await CreateBranchFromCommitDialog.showDialog(context, widget.commit.reference, (branchName) async {
+            await GitManager.createBranchFromCommit(branchName, widget.commit.reference);
+            await widget.onRefresh?.call();
+          });
+        }
       case 'copy-sha':
         await Clipboard.setData(ClipboardData(text: widget.commit.reference));
       case 'copy-tag':
@@ -152,52 +226,6 @@ class _ItemCommit extends State<ItemCommit> {
       case 'view':
         final url = widget.gitProvider!.commitUrl(widget.remoteWebUrl!, widget.commit.reference);
         if (url != null) await launchUrl(Uri.parse(url));
-      case 'create-branch':
-        if (mounted) {
-          await CreateBranchFromCommitDialog.showDialog(
-            context,
-            widget.commit.reference,
-            (branchName) async {
-              await GitManager.createBranchFromCommit(branchName, widget.commit.reference);
-              await widget.onRefresh?.call();
-            },
-          );
-        }
-      case 'checkout':
-        if (mounted) {
-          await ConfirmCheckoutCommitDialog.showDialog(
-            context,
-            widget.commit.reference,
-            widget.commit.commitMessage,
-            () async {
-              await GitManager.checkoutCommit(widget.commit.reference);
-              await widget.onRefresh?.call();
-            },
-          );
-        }
-      case 'create-tag':
-        if (mounted) {
-          await CreateTagOnCommitDialog.showDialog(
-            context,
-            widget.commit.reference,
-            (tagName) async {
-              await GitManager.createTag(tagName, widget.commit.reference);
-              await widget.onRefresh?.call();
-            },
-          );
-        }
-      case 'revert':
-        if (mounted) {
-          await ConfirmRevertCommitDialog.showDialog(
-            context,
-            widget.commit.reference,
-            widget.commit.commitMessage,
-            () async {
-              await GitManager.revertCommit(widget.commit.reference);
-              await widget.onRefresh?.call();
-            },
-          );
-        }
     }
   }
 

@@ -608,6 +608,27 @@
     "revertCommitWarning": "This will create a new commit that undoes the changes.",
     "revert": "Revert",
 
+    "amendCommit": "Amend Commit",
+    "amendCommitMsg": "Edit the message for commit",
+    "amendCommitWarning": "This will rewrite the commit. Only amend unpushed commits.",
+    "amend": "Amend",
+
+    "undoCommit": "Undo Commit",
+    "undoCommitMsg": "Undo commit",
+    "undoCommitWarning": "The commit will be removed but your changes will remain staged.",
+    "undo": "Undo",
+
+    "resetToCommit": "Reset to Commit",
+    "resetToCommitMsg": "Reset to commit",
+    "resetToCommitWarning": "All commits after this one will be permanently lost and working directory changes will be discarded. This cannot be undone.",
+    "reset": "Reset",
+
+    "cherryPickCommit": "Cherry Pick Commit",
+    "cherryPickCommitMsg": "Apply the changes from commit",
+    "cherryPickCommitWarning": "This may produce merge conflicts if the changes overlap with the target branch.",
+    "cherryPickTargetBranch": "Target Branch",
+    "cherryPick": "Cherry Pick",
+
 
     "@@x-ISSUES": "",
     "issues": "Issues",

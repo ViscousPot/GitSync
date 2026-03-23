@@ -3238,6 +3238,108 @@ abstract class AppLocalizations {
   /// **'Revert'**
   String get revert;
 
+  /// No description provided for @amendCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend Commit'**
+  String get amendCommit;
+
+  /// No description provided for @amendCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the message for commit'**
+  String get amendCommitMsg;
+
+  /// No description provided for @amendCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will rewrite the commit. Only amend unpushed commits.'**
+  String get amendCommitWarning;
+
+  /// No description provided for @amend.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend'**
+  String get amend;
+
+  /// No description provided for @undoCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Commit'**
+  String get undoCommit;
+
+  /// No description provided for @undoCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo commit'**
+  String get undoCommitMsg;
+
+  /// No description provided for @undoCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The commit will be removed but your changes will remain staged.'**
+  String get undoCommitWarning;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @resetToCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Commit'**
+  String get resetToCommit;
+
+  /// No description provided for @resetToCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to commit'**
+  String get resetToCommitMsg;
+
+  /// No description provided for @resetToCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All commits after this one will be permanently lost and working directory changes will be discarded. This cannot be undone.'**
+  String get resetToCommitWarning;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @cherryPickCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commit'**
+  String get cherryPickCommit;
+
+  /// No description provided for @cherryPickCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the changes from commit'**
+  String get cherryPickCommitMsg;
+
+  /// No description provided for @cherryPickCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This may produce merge conflicts if the changes overlap with the target branch.'**
+  String get cherryPickCommitWarning;
+
+  /// No description provided for @cherryPickTargetBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Branch'**
+  String get cherryPickTargetBranch;
+
+  /// No description provided for @cherryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick'**
+  String get cherryPick;
+
   /// No description provided for @issues.
   ///
   /// In en, this message translates to:

@@ -682,6 +682,48 @@ Future<void> revertCommit({
   log: log,
 );
 
+Future<void> amendCommit({
+  required String pathString,
+  required String newMessage,
+  (String, String)? commitSigningCredentials,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerAmendCommit(
+  pathString: pathString,
+  newMessage: newMessage,
+  commitSigningCredentials: commitSigningCredentials,
+  log: log,
+);
+
+Future<void> undoCommit({
+  required String pathString,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerUndoCommit(
+  pathString: pathString,
+  log: log,
+);
+
+Future<void> resetToCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerResetToCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> cherryPickCommit({
+  required String pathString,
+  required String commitSha,
+  required String targetBranch,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCherryPickCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  targetBranch: targetBranch,
+  log: log,
+);
+
 abstract class WithLine {
   Future<WithLine> safeWline({required int line});
 }
@@ -833,4 +875,8 @@ enum LogType {
   checkoutCommit,
   createTag,
   revertCommit,
+  amendCommit,
+  undoCommit,
+  resetToCommit,
+  cherryPickCommit,
 }

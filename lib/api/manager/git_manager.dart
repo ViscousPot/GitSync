@@ -803,6 +803,35 @@ class GitManager {
     });
   }
 
+  static Future<void> amendCommit(String newMessage) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AmendCommit, (dirPath) async {
+      await GitManagerRs.amendCommit(
+        pathString: dirPath,
+        newMessage: newMessage,
+        commitSigningCredentials: await uiSettingsManager.getGitCommitSigningCredentials(),
+        log: _logWrapper,
+      );
+    });
+  }
+
+  static Future<void> undoCommit() async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.UndoCommit, (dirPath) async {
+      await GitManagerRs.undoCommit(pathString: dirPath, log: _logWrapper);
+    });
+  }
+
+  static Future<void> resetToCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.ResetToCommit, (dirPath) async {
+      await GitManagerRs.resetToCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> cherryPickCommit(String commitSha, String targetBranch) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CherryPickCommit, (dirPath) async {
+      await GitManagerRs.cherryPickCommit(pathString: dirPath, commitSha: commitSha, targetBranch: targetBranch, log: _logWrapper);
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';

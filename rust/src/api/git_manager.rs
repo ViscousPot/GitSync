@@ -108,6 +108,10 @@ pub enum LogType {
     CheckoutCommit,
     CreateTag,
     RevertCommit,
+    AmendCommit,
+    UndoCommit,
+    ResetToCommit,
+    CherryPickCommit,
 }
 
 trait WithLine {
@@ -4417,6 +4421,199 @@ pub async fn revert_commit(
         format!(
             "Reverted commit '{}'",
             &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn amend_commit(
+    path_string: &String,
+    new_message: &String,
+    commit_signing_credentials: Option<(String, String)>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::AmendCommit,
+        "Amending commit message".to_string(),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+    let tree = swl!(head_commit.tree())?;
+    let parents: Vec<git2::Commit> = head_commit
+        .parents()
+        .collect();
+    let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
+
+    let signature = swl!(repo.signature())?;
+
+    commit(
+        &repo,
+        Some("HEAD"),
+        &signature,
+        new_message,
+        &tree,
+        &parent_refs,
+        commit_signing_credentials,
+        &log_callback,
+    )?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::AmendCommit,
+        "Commit message amended".to_string(),
+    );
+
+    Ok(())
+}
+
+pub async fn undo_commit(
+    path_string: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::UndoCommit,
+        "Undoing last commit (soft reset)".to_string(),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    if head_commit.parent_count() == 0 {
+        return Err(git2::Error::from_str("Cannot undo the initial commit"));
+    }
+
+    let parent = swl!(head_commit.parent(0))?;
+    swl!(repo.reset(parent.as_object(), ResetType::Soft, None))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::UndoCommit,
+        "Commit undone — changes remain staged".to_string(),
+    );
+
+    Ok(())
+}
+
+pub async fn reset_to_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::ResetToCommit,
+        format!(
+            "Resetting to commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.reset(commit.as_object(), ResetType::Hard, None))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::ResetToCommit,
+        format!(
+            "Reset to commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn cherry_pick_commit(
+    path_string: &String,
+    commit_sha: &String,
+    target_branch: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CherryPickCommit,
+        format!(
+            "Cherry-picking commit '{}' onto '{}'",
+            &commit_sha[..7.min(commit_sha.len())],
+            target_branch
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    // Switch to target branch if it differs from current
+    let current_branch = get_branch_name_priv(&repo);
+    if current_branch.as_deref() != Some(target_branch.as_str()) {
+        let branch = swl!(repo.find_branch(target_branch, git2::BranchType::Local))?;
+        let object = swl!(branch.get().peel(git2::ObjectType::Commit))?;
+
+        let mut checkout_builder = git2::build::CheckoutBuilder::new();
+        checkout_builder.force();
+
+        tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
+        swl!(repo.set_head(&format!("refs/heads/{}", target_branch)))?;
+    }
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.cherrypick(&commit, None))?;
+
+    let mut index = swl!(repo.index())?;
+
+    if index.has_conflicts() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::CherryPickCommit,
+            "Cherry-pick produced conflicts — resolve them before committing".to_string(),
+        );
+        return Ok(());
+    }
+
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    let message = commit.message().unwrap_or("").trim().to_string();
+
+    swl!(repo.commit(
+        Some("HEAD"),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &[&head_commit],
+    ))?;
+
+    swl!(repo.cleanup_state())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CherryPickCommit,
+        format!(
+            "Cherry-picked commit '{}' onto '{}'",
+            &commit_sha[..7.min(commit_sha.len())],
+            target_branch
         ),
     );
 

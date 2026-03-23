@@ -1590,6 +1590,58 @@ class AppLocalizationsFr extends AppLocalizations {
   String get revert => 'Revert';
 
   @override
+  String get amendCommit => 'Amend Commit';
+
+  @override
+  String get amendCommitMsg => 'Edit the message for commit';
+
+  @override
+  String get amendCommitWarning => 'This will rewrite the commit. Only amend unpushed commits.';
+
+  @override
+  String get amend => 'Amend';
+
+  @override
+  String get undoCommit => 'Undo Commit';
+
+  @override
+  String get undoCommitMsg => 'Undo commit';
+
+  @override
+  String get undoCommitWarning => 'The commit will be removed but your changes will remain staged.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get resetToCommit => 'Reset to Commit';
+
+  @override
+  String get resetToCommitMsg => 'Reset to commit';
+
+  @override
+  String get resetToCommitWarning =>
+      'All commits after this one will be permanently lost and working directory changes will be discarded. This cannot be undone.';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get cherryPickCommit => 'Cherry Pick Commit';
+
+  @override
+  String get cherryPickCommitMsg => 'Apply the changes from commit';
+
+  @override
+  String get cherryPickCommitWarning => 'This may produce merge conflicts if the changes overlap with the target branch.';
+
+  @override
+  String get cherryPickTargetBranch => 'Target Branch';
+
+  @override
+  String get cherryPick => 'Cherry Pick';
+
+  @override
   String get issues => 'Issues';
 
   @override
