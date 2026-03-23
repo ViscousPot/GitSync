@@ -1007,10 +1007,17 @@ class GitlabManager extends GitProviderManager {
         final data = json.decode(utf8.decode(response.bodyBytes));
         return CreateIssueResult(number: data["iid"] as int, htmlUrl: data["web_url"]?.toString());
       }
-      return null;
+      final responseBody = utf8.decode(response.bodyBytes);
+      Logger.logError(LogType.CreateIssue, "HTTP ${response.statusCode}: $responseBody", StackTrace.current);
+      try {
+        final data = json.decode(responseBody);
+        final message = data["message"]?.toString();
+        if (message != null && message.isNotEmpty) return CreateIssueResult.failure(message);
+      } catch (_) {}
+      return CreateIssueResult.failure(responseBody);
     } catch (e, st) {
       Logger.logError(LogType.CreateIssue, e, st);
-      return null;
+      return CreateIssueResult.failure(e.toString());
     }
   }
 
@@ -1049,10 +1056,17 @@ class GitlabManager extends GitProviderManager {
         final data = json.decode(utf8.decode(response.bodyBytes));
         return CreateIssueResult(number: data["iid"] as int, htmlUrl: data["web_url"]?.toString());
       }
-      return null;
+      final responseBody = utf8.decode(response.bodyBytes);
+      Logger.logError(LogType.CreatePullRequest, "HTTP ${response.statusCode}: $responseBody", StackTrace.current);
+      try {
+        final data = json.decode(responseBody);
+        final message = data["message"]?.toString();
+        if (message != null && message.isNotEmpty) return CreateIssueResult.failure(message);
+      } catch (_) {}
+      return CreateIssueResult.failure(responseBody);
     } catch (e, st) {
       Logger.logError(LogType.CreatePullRequest, e, st);
-      return null;
+      return CreateIssueResult.failure(e.toString());
     }
   }
 

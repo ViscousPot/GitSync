@@ -166,12 +166,17 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
     final result = await manager.createIssue(widget.accessToken, owner, repo, title, body, labels: labels, assignees: assignees);
     if (!mounted) return;
 
-    if (result != null) {
+    if (result != null && result.isSuccess) {
       Fluttertoast.showToast(msg: t.createIssueSuccess, toastLength: Toast.LENGTH_SHORT, gravity: null);
       Navigator.of(context).pop(true);
     } else {
       setState(() => _submitting = false);
-      Fluttertoast.showToast(msg: t.createIssueFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
+      final errorMsg = result?.error;
+      Fluttertoast.showToast(
+        msg: errorMsg != null ? "${t.createIssueFailed}: $errorMsg" : t.createIssueFailed,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: null,
+      );
     }
   }
 

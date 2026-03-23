@@ -136,12 +136,17 @@ class _CreatePrPageState extends State<CreatePrPage> {
     );
     if (!mounted) return;
 
-    if (result != null) {
+    if (result != null && result.isSuccess) {
       Fluttertoast.showToast(msg: t.createPrSuccess, toastLength: Toast.LENGTH_SHORT, gravity: null);
       Navigator.of(context).pop(true);
     } else {
       setState(() => _submitting = false);
-      Fluttertoast.showToast(msg: t.createPrFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
+      final errorMsg = result?.error;
+      Fluttertoast.showToast(
+        msg: errorMsg != null ? "${t.createPrFailed}: $errorMsg" : t.createPrFailed,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: null,
+      );
     }
   }
 

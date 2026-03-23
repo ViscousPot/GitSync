@@ -56,6 +56,10 @@ class IssueTemplate {
 class CreateIssueResult {
   final int number;
   final String? htmlUrl;
+  final String? error;
 
-  const CreateIssueResult({required this.number, this.htmlUrl});
+  const CreateIssueResult({required this.number, this.htmlUrl}) : error = null;
+  const CreateIssueResult.failure(this.error) : number = -1, htmlUrl = null;
+
+  bool get isSuccess => error == null;
 }

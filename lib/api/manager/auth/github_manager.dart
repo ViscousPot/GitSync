@@ -450,6 +450,20 @@ query(\$owner: String!, \$repo: String!) {
     };
   }
 
+  static String _parseErrorMessage(String responseBody) {
+    try {
+      final data = json.decode(responseBody);
+      final errors = data["errors"] as List<dynamic>?;
+      if (errors != null && errors.isNotEmpty) {
+        final messages = errors.map((e) => e["message"]?.toString()).where((m) => m != null && m.isNotEmpty);
+        if (messages.isNotEmpty) return messages.join("; ");
+      }
+      final message = data["message"]?.toString();
+      if (message != null && message.isNotEmpty) return message;
+    } catch (_) {}
+    return responseBody;
+  }
+
   static const String _pullRequestsQuery = """
 query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after: String, \$labels: [String!], \$orderBy: IssueOrder!) {
   repository(owner: \$owner, name: \$repo) {
@@ -1540,11 +1554,12 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
       }
-      Logger.logError(LogType.CreateIssue, "HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes)}", StackTrace.current);
-      return null;
+      final responseBody = utf8.decode(response.bodyBytes);
+      Logger.logError(LogType.CreateIssue, "HTTP ${response.statusCode}: $responseBody", StackTrace.current);
+      return CreateIssueResult.failure(_parseErrorMessage(responseBody));
     } catch (e, st) {
       Logger.logError(LogType.CreateIssue, e, st);
-      return null;
+      return CreateIssueResult.failure(e.toString());
     }
   }
 
@@ -1633,11 +1648,12 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
       }
-      Logger.logError(LogType.CreatePullRequest, "HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes)}", StackTrace.current);
-      return null;
+      final responseBody = utf8.decode(response.bodyBytes);
+      Logger.logError(LogType.CreatePullRequest, "HTTP ${response.statusCode}: $responseBody", StackTrace.current);
+      return CreateIssueResult.failure(_parseErrorMessage(responseBody));
     } catch (e, st) {
       Logger.logError(LogType.CreatePullRequest, e, st);
-      return null;
+      return CreateIssueResult.failure(e.toString());
     }
   }
 
