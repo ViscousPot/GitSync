@@ -3850,6 +3850,72 @@ abstract class AppLocalizations {
   /// **'Required'**
   String get createIssueRequired;
 
+  /// No description provided for @createPr.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Pull Request'**
+  String get createPr;
+
+  /// No description provided for @createPrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get createPrTitle;
+
+  /// No description provided for @createPrTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request title'**
+  String get createPrTitleHint;
+
+  /// No description provided for @createPrBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createPrBody;
+
+  /// No description provided for @createPrBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your changes…'**
+  String get createPrBodyHint;
+
+  /// No description provided for @createPrSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Pull Request'**
+  String get createPrSubmit;
+
+  /// No description provided for @createPrSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request created'**
+  String get createPrSuccess;
+
+  /// No description provided for @createPrFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create pull request'**
+  String get createPrFailed;
+
+  /// No description provided for @createPrBaseBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get createPrBaseBranch;
+
+  /// No description provided for @createPrHeadBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get createPrHeadBranch;
+
+  /// No description provided for @createPrSelectBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Select branch'**
+  String get createPrSelectBranch;
+
   /// No description provided for @prDescription.
   ///
   /// In en, this message translates to:

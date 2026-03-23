@@ -1325,4 +1325,119 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
       return false;
     }
   }
+
+  @override
+  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/pulls"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/vnd.github+json"},
+        body: json.encode({"title": title, "body": body, "head": head, "base": base}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
+      }
+      Logger.logError(LogType.CreatePullRequest, "HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes)}", StackTrace.current);
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreatePullRequest, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<(List<String>, String?)> getRepoBranches(String accessToken, String owner, String repo) async {
+    try {
+      final results = await Future.wait([
+        httpGet(
+          Uri.parse("https://api.$_domain/repos/$owner/$repo/branches?per_page=100"),
+          headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+        ),
+        httpGet(
+          Uri.parse("https://api.$_domain/repos/$owner/$repo"),
+          headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+        ),
+      ]);
+
+      final branchesResp = results[0];
+      final repoResp = results[1];
+
+      final branches = <String>[];
+      if (branchesResp.statusCode == 200) {
+        final list = json.decode(utf8.decode(branchesResp.bodyBytes)) as List;
+        for (final b in list) {
+          branches.add(b["name"]?.toString() ?? '');
+        }
+      }
+
+      String? defaultBranch;
+      if (repoResp.statusCode == 200) {
+        final data = json.decode(utf8.decode(repoResp.bodyBytes));
+        defaultBranch = data["default_branch"]?.toString();
+      }
+
+      return (branches, defaultBranch);
+    } catch (e, st) {
+      Logger.logError(LogType.GetRepoBranches, e, st);
+      return (<String>[], null);
+    }
+  }
+
+  @override
+  Future<List<IssueTemplate>> getPrTemplates(String accessToken, String owner, String repo) async {
+    try {
+      final templates = <IssueTemplate>[];
+
+      // Check for single default template
+      final singleResp = await httpGet(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/contents/.github/pull_request_template.md"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+
+      if (singleResp.statusCode == 200) {
+        final data = json.decode(utf8.decode(singleResp.bodyBytes));
+        final downloadUrl = data["download_url"]?.toString();
+        if (downloadUrl != null) {
+          final contentResp = await httpGet(Uri.parse(downloadUrl), headers: {"Authorization": "token $accessToken"});
+          if (contentResp.statusCode == 200) {
+            templates.add(IssueTemplate(name: "Default", description: "", body: utf8.decode(contentResp.bodyBytes)));
+          }
+        }
+      }
+
+      // Check for multiple templates directory
+      final dirResp = await httpGet(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/contents/.github/PULL_REQUEST_TEMPLATE"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+
+      if (dirResp.statusCode == 200) {
+        final listing = json.decode(utf8.decode(dirResp.bodyBytes));
+        if (listing is List) {
+          for (final file in listing.take(10)) {
+            if (file is! Map) continue;
+            final name = file["name"]?.toString() ?? '';
+            final downloadUrl = file["download_url"]?.toString();
+            if (downloadUrl == null) continue;
+            if (!name.endsWith('.md') && !name.endsWith('.markdown')) continue;
+
+            try {
+              final contentResp = await httpGet(Uri.parse(downloadUrl), headers: {"Authorization": "token $accessToken"});
+              if (contentResp.statusCode != 200) continue;
+              final content = utf8.decode(contentResp.bodyBytes);
+              final displayName = name.replaceAll(RegExp(r'\.(md|markdown)$', caseSensitive: false), '').replaceAll(RegExp(r'[_-]'), ' ');
+              templates.add(IssueTemplate(name: displayName, description: "", body: content));
+            } catch (_) {}
+          }
+        }
+      }
+
+      return templates;
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssueTemplates, e, st);
+      return [];
+    }
+  }
 }

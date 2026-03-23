@@ -104,6 +104,8 @@ enum LogType {
   CreateIssue,
   GetIssueTemplates,
   UpdateIssue,
+  CreatePullRequest,
+  GetRepoBranches,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }

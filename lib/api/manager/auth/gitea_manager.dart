@@ -1027,4 +1027,59 @@ class GiteaManager extends GitProviderManager {
       return false;
     }
   }
+
+  @override
+  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/pulls"),
+        headers: {"Authorization": "token $accessToken", "Content-Type": "application/json", "Accept": "application/json"},
+        body: json.encode({"title": title, "body": body, "head": head, "base": base}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["number"] as int, htmlUrl: data["html_url"]?.toString());
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreatePullRequest, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<(List<String>, String?)> getRepoBranches(String accessToken, String owner, String repo) async {
+    try {
+      final results = await Future.wait([
+        httpGet(
+          Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/branches?limit=100"),
+          headers: {"Authorization": "token $accessToken", "Accept": "application/json"},
+        ),
+        httpGet(
+          Uri.parse("https://$_domain/api/v1/repos/$owner/$repo"),
+          headers: {"Authorization": "token $accessToken", "Accept": "application/json"},
+        ),
+      ]);
+
+      final branches = <String>[];
+      if (results[0].statusCode == 200) {
+        final list = json.decode(utf8.decode(results[0].bodyBytes)) as List;
+        for (final b in list) {
+          branches.add(b["name"]?.toString() ?? '');
+        }
+      }
+
+      String? defaultBranch;
+      if (results[1].statusCode == 200) {
+        final data = json.decode(utf8.decode(results[1].bodyBytes));
+        defaultBranch = data["default_branch"]?.toString();
+      }
+
+      return (branches, defaultBranch);
+    } catch (e, st) {
+      Logger.logError(LogType.GetRepoBranches, e, st);
+      return (<String>[], null);
+    }
+  }
 }

@@ -949,4 +949,61 @@ class GitlabManager extends GitProviderManager {
       return false;
     }
   }
+
+  @override
+  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v4/projects/$projectId/merge_requests"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"title": title, "description": body, "source_branch": head, "target_branch": base}),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return CreateIssueResult(number: data["iid"] as int, htmlUrl: data["web_url"]?.toString());
+      }
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.CreatePullRequest, e, st);
+      return null;
+    }
+  }
+
+  @override
+  Future<(List<String>, String?)> getRepoBranches(String accessToken, String owner, String repo) async {
+    try {
+      final projectId = "$owner%2F$repo";
+      final results = await Future.wait([
+        httpGet(
+          Uri.parse("https://$_domain/api/v4/projects/$projectId/repository/branches?per_page=100"),
+          headers: {"Authorization": "Bearer $accessToken"},
+        ),
+        httpGet(
+          Uri.parse("https://$_domain/api/v4/projects/$projectId"),
+          headers: {"Authorization": "Bearer $accessToken"},
+        ),
+      ]);
+
+      final branches = <String>[];
+      if (results[0].statusCode == 200) {
+        final list = json.decode(utf8.decode(results[0].bodyBytes)) as List;
+        for (final b in list) {
+          branches.add(b["name"]?.toString() ?? '');
+        }
+      }
+
+      String? defaultBranch;
+      if (results[1].statusCode == 200) {
+        final data = json.decode(utf8.decode(results[1].bodyBytes));
+        defaultBranch = data["default_branch"]?.toString();
+      }
+
+      return (branches, defaultBranch);
+    } catch (e, st) {
+      Logger.logError(LogType.GetRepoBranches, e, st);
+      return (<String>[], null);
+    }
+  }
 }

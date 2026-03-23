@@ -1891,6 +1891,39 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createIssueRequired => 'Required';
 
   @override
+  String get createPr => 'Create Pull Request';
+
+  @override
+  String get createPrTitle => 'Title';
+
+  @override
+  String get createPrTitleHint => 'Pull request title';
+
+  @override
+  String get createPrBody => 'Description';
+
+  @override
+  String get createPrBodyHint => 'Describe your changes…';
+
+  @override
+  String get createPrSubmit => 'Create Pull Request';
+
+  @override
+  String get createPrSuccess => 'Pull request created';
+
+  @override
+  String get createPrFailed => 'Failed to create pull request';
+
+  @override
+  String get createPrBaseBranch => 'Base';
+
+  @override
+  String get createPrHeadBranch => 'Compare';
+
+  @override
+  String get createPrSelectBranch => 'Select branch';
+
+  @override
   String get prDescription => 'Description';
 
   @override

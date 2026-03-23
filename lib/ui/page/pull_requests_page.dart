@@ -9,6 +9,7 @@ import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/ui/page/pr_detail_page.dart';
+import 'package:GitSync/ui/page/create_pr_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PullRequestsPage extends StatefulWidget {
@@ -132,11 +133,24 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     t.pullRequests.toUpperCase(),
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
-                  // const Spacer(),
-                  // IconButton(
-                  //   onPressed: () => setState(() => _showFilters = !_showFilters),
-                  //   icon: FaIcon(FontAwesomeIcons.filter, size: textMD, color: _showFilters ? colours.showcaseFeatureIcon : colours.secondaryLight),
-                  // ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await Navigator.of(context).push(
+                        createCreatePrPageRoute(
+                          gitProvider: widget.gitProvider,
+                          remoteWebUrl: widget.remoteWebUrl,
+                          accessToken: widget.accessToken,
+                          githubAppOauth: widget.githubAppOauth,
+                        ),
+                      );
+                      if (result == true && mounted) _fetchPullRequests();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(spaceXS),
+                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: colours.primaryLight),
+                    ),
+                  ),
                 ],
               ),
             ),

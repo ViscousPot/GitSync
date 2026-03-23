@@ -189,4 +189,16 @@ class GitProviderManager {
   Future<bool> updateIssue(String accessToken, String owner, String repo, int issueNumber, {String? title, String? body}) async {
     return false;
   }
+
+  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+    return null;
+  }
+
+  Future<(List<String>, String?)> getRepoBranches(String accessToken, String owner, String repo) async {
+    return (<String>[], null);
+  }
+
+  Future<List<IssueTemplate>> getPrTemplates(String accessToken, String owner, String repo) async {
+    return [];
+  }
 }

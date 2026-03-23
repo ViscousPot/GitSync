@@ -20,6 +20,7 @@ const String actions_page = "/actions_page";
 const String issue_detail_page = "/issue_detail_page";
 const String pr_detail_page = "/pr_detail_page";
 const String create_issue_page = "/create_issue_page";
+const String create_pr_page = "/create_pr_page";
 
 const String hero_commits_list = "hero_commits_list";
 const String hero_branch_row = "hero_branch_row";
