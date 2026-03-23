@@ -11,6 +11,7 @@ import 'package:GitSync/ui/page/releases_page.dart';
 import 'package:GitSync/ui/page/actions_page.dart';
 import 'package:GitSync/ui/page/tags_page.dart';
 import 'package:GitSync/ui/page/create_issue_page.dart';
+import 'package:GitSync/ui/page/create_pr_page.dart';
 
 class ShowcaseFeatureButton extends StatelessWidget {
   const ShowcaseFeatureButton({
@@ -125,18 +126,27 @@ VoidCallback? resolveFeatureOnAdd({
   required GitProvider? gitProvider,
   required String? remoteWebUrl,
 }) {
-  if (feature != ShowcaseFeature.issues) return null;
+  if (feature != ShowcaseFeature.issues && feature != ShowcaseFeature.pullRequests) return null;
   return () async {
     if (remoteWebUrl == null || gitProvider == null) return;
     final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
     if (!context.mounted) return;
-    Navigator.of(context).push(createCreateIssuePageRoute(
-      gitProvider: gitProvider,
-      remoteWebUrl: remoteWebUrl,
-      accessToken: accessToken,
-      githubAppOauth: githubAppOauth,
-    ));
+    if (feature == ShowcaseFeature.issues) {
+      Navigator.of(context).push(createCreateIssuePageRoute(
+        gitProvider: gitProvider,
+        remoteWebUrl: remoteWebUrl,
+        accessToken: accessToken,
+        githubAppOauth: githubAppOauth,
+      ));
+    } else {
+      Navigator.of(context).push(createCreatePrPageRoute(
+        gitProvider: gitProvider,
+        remoteWebUrl: remoteWebUrl,
+        accessToken: accessToken,
+        githubAppOauth: githubAppOauth,
+      ));
+    }
   };
 }
 
