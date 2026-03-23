@@ -2192,7 +2192,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             return Positioned(
                                                               top: orientation == Orientation.portrait ? -spaceXS : null,
                                                               bottom: orientation == Orientation.portrait ? null : -spaceXS,
-                                                              right: -spaceSM,
+                                                              left: -spaceSM,
                                                               child: Hero(
                                                                 tag: hero_expand_contract,
                                                                 flightShuttleBuilder:
@@ -2215,10 +2215,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                 RoundedRectangleBorder(
                                                                                   borderRadius: BorderRadius.all(
                                                                                     cornerRadiusSM,
-                                                                                  ).copyWith(topRight: cornerRadiusMD),
+                                                                                  ).copyWith(topLeft: cornerRadiusMD),
                                                                                 ),
                                                                               ),
-                                                                              backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                              backgroundColor: WidgetStatePropertyAll(
+                                                                                colours.secondaryDark.withOpacity(0.5),
+                                                                              ),
                                                                             ),
                                                                             constraints: BoxConstraints(),
                                                                             onPressed: null,
@@ -2234,16 +2236,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     shape: WidgetStatePropertyAll(
                                                                       RoundedRectangleBorder(
                                                                         borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
-                                                                          topRight: orientation == Orientation.portrait
+                                                                          topLeft: orientation == Orientation.portrait
                                                                               ? cornerRadiusMD
                                                                               : cornerRadiusSM,
-                                                                          bottomRight: orientation == Orientation.portrait
+                                                                          bottomLeft: orientation == Orientation.portrait
                                                                               ? cornerRadiusSM
                                                                               : cornerRadiusMD,
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                                                   ),
                                                                   constraints: BoxConstraints(),
                                                                   onPressed: () =>
@@ -2347,7 +2349,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                             child: ShowcaseFeatureButton(
                                                               feature: pinned[0],
                                                               gitProvider: provider,
-                                                              onAdd: resolveFeatureOnAdd(context: context, feature: pinned[0], gitProvider: provider, remoteWebUrl: webUrl),
+                                                              onAdd: resolveFeatureOnAdd(
+                                                                context: context,
+                                                                feature: pinned[0],
+                                                                gitProvider: provider,
+                                                                remoteWebUrl: webUrl,
+                                                              ),
                                                               onPressed: () => _navigateToExpandedCommits(
                                                                 initialScrollOffset: recentCommitsController.offset,
                                                                 pendingFeature: pinned[0],
@@ -2363,7 +2370,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 child: ShowcaseFeatureButton(
                                                                   feature: pinned[0],
                                                                   gitProvider: provider,
-                                                                  onAdd: resolveFeatureOnAdd(context: context, feature: pinned[0], gitProvider: provider, remoteWebUrl: webUrl),
+                                                                  onAdd: resolveFeatureOnAdd(
+                                                                    context: context,
+                                                                    feature: pinned[0],
+                                                                    gitProvider: provider,
+                                                                    remoteWebUrl: webUrl,
+                                                                  ),
                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                     pendingFeature: pinned[0],
@@ -2378,7 +2390,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 child: ShowcaseFeatureButton(
                                                                   feature: pinned[1],
                                                                   gitProvider: provider,
-                                                                  onAdd: resolveFeatureOnAdd(context: context, feature: pinned[1], gitProvider: provider, remoteWebUrl: webUrl),
+                                                                  onAdd: resolveFeatureOnAdd(
+                                                                    context: context,
+                                                                    feature: pinned[1],
+                                                                    gitProvider: provider,
+                                                                    remoteWebUrl: webUrl,
+                                                                  ),
                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                     pendingFeature: pinned[1],

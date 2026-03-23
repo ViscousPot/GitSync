@@ -165,7 +165,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                 Hero(
                                   tag: hero_commits_list,
                                   child: SizedBox(
-                                    height: screenHeight * 0.3,
+                                    height: screenHeight * 0.35,
                                     width: double.infinity,
                                     child: ShaderMask(
                                       shaderCallback: (Rect rect) {
@@ -216,7 +216,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                 ),
                                 Positioned(
                                   top: -(spaceXS),
-                                  right: -(spaceSM - spaceXXXXS),
+                                  left: -(spaceSM - spaceXXXXS),
                                   child: Hero(
                                     tag: hero_expand_contract,
                                     child: IconButton(
@@ -224,9 +224,9 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                       style: ButtonStyle(
                                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                         shape: WidgetStatePropertyAll(
-                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topRight: cornerRadiusMD)),
+                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
                                         ),
-                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                       ),
                                       constraints: BoxConstraints(),
                                       onPressed: () => Navigator.of(context).pop(_scrollController.offset),
@@ -268,106 +268,106 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                       onDeleteBranch: (item) async => await widget.onDeleteBranch(item),
                                       onCreateBranch: hasBranch ? () => widget.onCreateBranch?.call() : null,
                                     ),
-                                    SizedBox(height: spaceXS),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextButton.icon(
-                                            onPressed: () {},
-                                            icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: colours.primaryLight, size: textMD),
-                                            label: Text(
-                                              'UPDATE FROM MAIN',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: colours.tertiaryDark,
-                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: spaceXS),
-                                        Expanded(
-                                          child: TextButton.icon(
-                                            onPressed: () {},
-                                            icon: FaIcon(FontAwesomeIcons.codeCompare, color: colours.primaryLight, size: textMD),
-                                            label: Text(
-                                              'COMPARE TO BRANCH',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: colours.tertiaryDark,
-                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextButton.icon(
-                                            onPressed: () {},
-                                            icon: FaIcon(FontAwesomeIcons.codeMerge, color: colours.primaryLight, size: textMD),
-                                            label: Text(
-                                              'MERGE INTO BRANCH',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: colours.tertiaryDark,
-                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: spaceXS),
-                                        Expanded(
-                                          child: TextButton.icon(
-                                            onPressed: () {},
-                                            icon: FaIcon(FontAwesomeIcons.layerGroup, color: colours.primaryLight, size: textMD),
-                                            label: Text(
-                                              'SQUASH & MERGE',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: colours.tertiaryDark,
-                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextButton.icon(
-                                            onPressed: () {},
-                                            icon: FaIcon(FontAwesomeIcons.diagramNext, color: colours.primaryLight, size: textMD),
-                                            label: Text(
-                                              'REBASE',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            ),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor: colours.tertiaryDark,
-                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    // SizedBox(height: spaceXS),
+                                    // Row(
+                                    //   children: [
+                                    //     Expanded(
+                                    //       child: TextButton.icon(
+                                    //         onPressed: () {},
+                                    //         icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: colours.primaryLight, size: textMD),
+                                    //         label: Text(
+                                    //           'UPDATE FROM MAIN',
+                                    //           maxLines: 1,
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    //         ),
+                                    //         style: TextButton.styleFrom(
+                                    //           backgroundColor: colours.tertiaryDark,
+                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //     SizedBox(width: spaceXS),
+                                    //     Expanded(
+                                    //       child: TextButton.icon(
+                                    //         onPressed: () {},
+                                    //         icon: FaIcon(FontAwesomeIcons.codeCompare, color: colours.primaryLight, size: textMD),
+                                    //         label: Text(
+                                    //           'COMPARE TO BRANCH',
+                                    //           maxLines: 1,
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    //         ),
+                                    //         style: TextButton.styleFrom(
+                                    //           backgroundColor: colours.tertiaryDark,
+                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                    // Row(
+                                    //   children: [
+                                    //     Expanded(
+                                    //       child: TextButton.icon(
+                                    //         onPressed: () {},
+                                    //         icon: FaIcon(FontAwesomeIcons.codeMerge, color: colours.primaryLight, size: textMD),
+                                    //         label: Text(
+                                    //           'MERGE INTO BRANCH',
+                                    //           maxLines: 1,
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    //         ),
+                                    //         style: TextButton.styleFrom(
+                                    //           backgroundColor: colours.tertiaryDark,
+                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //     SizedBox(width: spaceXS),
+                                    //     Expanded(
+                                    //       child: TextButton.icon(
+                                    //         onPressed: () {},
+                                    //         icon: FaIcon(FontAwesomeIcons.layerGroup, color: colours.primaryLight, size: textMD),
+                                    //         label: Text(
+                                    //           'SQUASH & MERGE',
+                                    //           maxLines: 1,
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    //         ),
+                                    //         style: TextButton.styleFrom(
+                                    //           backgroundColor: colours.tertiaryDark,
+                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                    // Row(
+                                    //   children: [
+                                    //     Expanded(
+                                    //       child: TextButton.icon(
+                                    //         onPressed: () {},
+                                    //         icon: FaIcon(FontAwesomeIcons.diagramNext, color: colours.primaryLight, size: textMD),
+                                    //         label: Text(
+                                    //           'REBASE',
+                                    //           maxLines: 1,
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    //         ),
+                                    //         style: TextButton.styleFrom(
+                                    //           backgroundColor: colours.tertiaryDark,
+                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -411,7 +411,12 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                     gitProvider: widget.gitProvider,
                                                     isPinned: pinned.contains(first),
                                                     onPinToggle: () => _handlePinToggle(first),
-                                                    onAdd: resolveFeatureOnAdd(context: context, feature: first, gitProvider: widget.gitProvider, remoteWebUrl: widget.remoteWebUrl),
+                                                    onAdd: resolveFeatureOnAdd(
+                                                      context: context,
+                                                      feature: first,
+                                                      gitProvider: widget.gitProvider,
+                                                      remoteWebUrl: widget.remoteWebUrl,
+                                                    ),
                                                     onPressed: resolveFeatureOnPressed(
                                                       context: context,
                                                       feature: first,
@@ -431,7 +436,12 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                       gitProvider: widget.gitProvider,
                                                       isPinned: pinned.contains(second),
                                                       onPinToggle: () => _handlePinToggle(second),
-                                                      onAdd: resolveFeatureOnAdd(context: context, feature: second, gitProvider: widget.gitProvider, remoteWebUrl: widget.remoteWebUrl),
+                                                      onAdd: resolveFeatureOnAdd(
+                                                        context: context,
+                                                        feature: second,
+                                                        gitProvider: widget.gitProvider,
+                                                        remoteWebUrl: widget.remoteWebUrl,
+                                                      ),
                                                       onPressed: resolveFeatureOnPressed(
                                                         context: context,
                                                         feature: second,
