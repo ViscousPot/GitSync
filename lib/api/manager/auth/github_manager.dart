@@ -125,9 +125,9 @@ class GithubManager extends GitProviderManager {
   }
 
   static const String _issuesQuery = """
-query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: String, \$labels: [String!], \$filterBy: IssueFilters) {
+query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: String, \$labels: [String!], \$filterBy: IssueFilters, \$orderBy: IssueOrder!) {
   repository(owner: \$owner, name: \$repo) {
-    issues(first: 30, states: \$states, after: \$after, labels: \$labels, filterBy: \$filterBy, orderBy: {field: CREATED_AT, direction: DESC}) {
+    issues(first: 30, states: \$states, after: \$after, labels: \$labels, filterBy: \$filterBy, orderBy: \$orderBy) {
       nodes {
         title
         number
@@ -154,6 +154,24 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
 }
 """;
 
+  static Map<String, String> _sortToGraphQL(String? sortOption) {
+    return switch (sortOption) {
+      "oldest" => {"field": "CREATED_AT", "direction": "ASC"},
+      "mostCommented" => {"field": "COMMENTS", "direction": "DESC"},
+      "recentlyUpdated" => {"field": "UPDATED_AT", "direction": "DESC"},
+      _ => {"field": "CREATED_AT", "direction": "DESC"},
+    };
+  }
+
+  static (String, String) _sortToRest(String? sortOption) {
+    return switch (sortOption) {
+      "oldest" => ("created", "asc"),
+      "mostCommented" => ("comments", "desc"),
+      "recentlyUpdated" => ("updated", "desc"),
+      _ => ("created", "desc"),
+    };
+  }
+
   @override
   Future<void> getIssues(
     String accessToken,
@@ -164,21 +182,27 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? milestoneFilter,
+    String? projectFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
-    if (searchFilter != null && searchFilter.isNotEmpty) {
-      await _searchIssues(accessToken, owner, repo, state, searchFilter, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback);
+    final useSearch = (searchFilter != null && searchFilter.isNotEmpty) || (projectFilter != null && projectFilter.isNotEmpty);
+    if (useSearch) {
+      await _searchIssues(accessToken, owner, repo, state, searchFilter ?? "", authorFilter, labelFilter, assigneeFilter, sortOption, milestoneFilter, projectFilter, updateCallback, nextPageCallback);
       return;
     }
 
     final Map<String, dynamic> filterBy = {};
     if (authorFilter != null && authorFilter.isNotEmpty) filterBy["createdBy"] = authorFilter;
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) filterBy["assignee"] = assigneeFilter;
+    if (milestoneFilter != null && milestoneFilter.isNotEmpty) filterBy["milestone"] = milestoneFilter;
 
     final Map<String, dynamic> variables = {
       "owner": owner,
       "repo": repo,
+      "orderBy": _sortToGraphQL(sortOption),
       if (state != "all") "states": [state == "open" ? "OPEN" : "CLOSED"],
       if (labelFilter != null && labelFilter.isNotEmpty) "labels": labelFilter.split(",").map((l) => l.trim()).toList(),
       if (filterBy.isNotEmpty) "filterBy": filterBy,
@@ -190,10 +214,11 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
   Future<void> _searchIssues(
     String accessToken, String owner, String repo, String state, String search,
     String? authorFilter, String? labelFilter, String? assigneeFilter,
+    String? sortOption, String? milestoneFilter, String? projectFilter,
     Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
   ) async {
     try {
-      var q = "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:issue";
+      var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:issue" : "repo:$owner/$repo+type:issue";
       if (state != "all") q += "+state:$state";
       if (authorFilter != null && authorFilter.isNotEmpty) q += "+author:$authorFilter";
       if (labelFilter != null && labelFilter.isNotEmpty) {
@@ -202,9 +227,12 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         }
       }
       if (assigneeFilter != null && assigneeFilter.isNotEmpty) q += "+assignee:$assigneeFilter";
+      if (milestoneFilter != null && milestoneFilter.isNotEmpty) q += '+milestone:"$milestoneFilter"';
+      if (projectFilter != null && projectFilter.isNotEmpty) q += "+project:$owner/$repo/$projectFilter";
 
+      final (sort, order) = _sortToRest(sortOption);
       final response = await httpGet(
-        Uri.parse("https://api.$_domain/search/issues?q=$q&per_page=30&page=$page"),
+        Uri.parse("https://api.$_domain/search/issues?q=$q&sort=$sort&order=$order&per_page=30&page=$page"),
         headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
       );
 
@@ -227,7 +255,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         updateCallback(issues);
 
         if (page * 30 < totalCount) {
-          nextPageCallback(() => _searchIssues(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback, page: page + 1));
+          nextPageCallback(() => _searchIssues(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, sortOption, milestoneFilter, projectFilter, updateCallback, nextPageCallback, page: page + 1));
         } else {
           nextPageCallback(null);
         }
@@ -257,6 +285,10 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
+        final errors = jsonData["errors"] as List<dynamic>?;
+        if (errors != null) {
+          Logger.logError(LogType.GetIssues, "GraphQL errors: $errors", StackTrace.current);
+        }
         final issuesData = jsonData["data"]?["repository"]?["issues"];
         if (issuesData == null) {
           updateCallback([]);
@@ -308,10 +340,120 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     }
   }
 
-  static const String _pullRequestsQuery = """
-query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after: String, \$labels: [String!]) {
+  static const String _milestonesQuery = """
+query(\$owner: String!, \$repo: String!) {
   repository(owner: \$owner, name: \$repo) {
-    pullRequests(first: 30, states: \$states, after: \$after, labels: \$labels, orderBy: {field: UPDATED_AT, direction: DESC}) {
+    milestones(first: 100, states: [OPEN], orderBy: {field: DUE_DATE, direction: ASC}) {
+      nodes { number title }
+    }
+  }
+}
+""";
+
+  static const String _projectsQuery = """
+query(\$owner: String!, \$repo: String!) {
+  repository(owner: \$owner, name: \$repo) {
+    projectsV2(first: 20, orderBy: {field: TITLE, direction: ASC}) {
+      nodes { number title }
+    }
+  }
+}
+""";
+
+  @override
+  Future<List<Milestone>> getMilestones(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/graphql"),
+        headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"query": _milestonesQuery, "variables": {"owner": owner, "repo": repo}}),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(utf8.decode(response.bodyBytes));
+        final nodes = jsonData["data"]?["repository"]?["milestones"]?["nodes"] as List<dynamic>? ?? [];
+        return nodes.map((m) => Milestone(id: m["number"].toString(), title: m["title"] ?? "")).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<GitProject>> getProjects(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/graphql"),
+        headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"query": _projectsQuery, "variables": {"owner": owner, "repo": repo}}),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(utf8.decode(response.bodyBytes));
+        final nodes = jsonData["data"]?["repository"]?["projectsV2"]?["nodes"] as List<dynamic>? ?? [];
+        return nodes.map((p) => GitProject(id: p["number"].toString(), title: p["title"] ?? "")).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getLabels(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/labels?per_page=100"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((l) => l["name"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getCollaborators(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://api.$_domain/repos/$owner/$repo/collaborators?per_page=100"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((c) => c["login"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  static Map<String, String> _prSortToGraphQL(String? sortOption) {
+    return switch (sortOption) {
+      "oldest" => {"field": "CREATED_AT", "direction": "ASC"},
+      "recentlyUpdated" => {"field": "UPDATED_AT", "direction": "DESC"},
+      _ => {"field": "CREATED_AT", "direction": "DESC"},
+    };
+  }
+
+  static (String, String) _prSortToRest(String? sortOption) {
+    return switch (sortOption) {
+      "oldest" => ("created", "asc"),
+      "recentlyUpdated" => ("updated", "desc"),
+      _ => ("created", "desc"),
+    };
+  }
+
+  static const String _pullRequestsQuery = """
+query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after: String, \$labels: [String!], \$orderBy: IssueOrder!) {
+  repository(owner: \$owner, name: \$repo) {
+    pullRequests(first: 30, states: \$states, after: \$after, labels: \$labels, orderBy: \$orderBy) {
       nodes {
         title
         number
@@ -347,17 +489,26 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? reviewerFilter,
+    String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
-    if (searchFilter != null && searchFilter.isNotEmpty) {
-      await _searchPullRequests(accessToken, owner, repo, state, searchFilter, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback);
+    final useSearch = (searchFilter != null && searchFilter.isNotEmpty) ||
+        (authorFilter != null && authorFilter.isNotEmpty) ||
+        (assigneeFilter != null && assigneeFilter.isNotEmpty) ||
+        (reviewerFilter != null && reviewerFilter.isNotEmpty) ||
+        (milestoneFilter != null && milestoneFilter.isNotEmpty);
+    if (useSearch) {
+      await _searchPullRequests(accessToken, owner, repo, state, searchFilter ?? "", authorFilter, labelFilter, assigneeFilter, sortOption, reviewerFilter, milestoneFilter, updateCallback, nextPageCallback);
       return;
     }
 
     final Map<String, dynamic> variables = {
       "owner": owner,
       "repo": repo,
+      "orderBy": _prSortToGraphQL(sortOption),
       if (state == "open") "states": ["OPEN"],
       if (state == "closed") "states": ["CLOSED", "MERGED"],
       if (labelFilter != null && labelFilter.isNotEmpty) "labels": labelFilter.split(",").map((l) => l.trim()).toList(),
@@ -369,10 +520,11 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
   Future<void> _searchPullRequests(
     String accessToken, String owner, String repo, String state, String search,
     String? authorFilter, String? labelFilter, String? assigneeFilter,
+    String? sortOption, String? reviewerFilter, String? milestoneFilter,
     Function(List<PullRequest>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
   ) async {
     try {
-      var q = "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:pr";
+      var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:pr" : "repo:$owner/$repo+type:pr";
       if (state != "all") {
         if (state == "closed") {
           q += "+state:closed";
@@ -386,9 +538,13 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
           q += '+label:"$l"';
         }
       }
+      if (assigneeFilter != null && assigneeFilter.isNotEmpty) q += "+assignee:$assigneeFilter";
+      if (reviewerFilter != null && reviewerFilter.isNotEmpty) q += "+review-requested:$reviewerFilter";
+      if (milestoneFilter != null && milestoneFilter.isNotEmpty) q += '+milestone:"$milestoneFilter"';
 
+      final (sort, order) = _prSortToRest(sortOption);
       final response = await httpGet(
-        Uri.parse("https://api.$_domain/search/issues?q=$q&per_page=30&page=$page"),
+        Uri.parse("https://api.$_domain/search/issues?q=$q&sort=$sort&order=$order&per_page=30&page=$page"),
         headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
       );
 
@@ -418,7 +574,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         updateCallback(prs);
 
         if (page * 30 < totalCount) {
-          nextPageCallback(() => _searchPullRequests(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback, page: page + 1));
+          nextPageCallback(() => _searchPullRequests(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, sortOption, reviewerFilter, milestoneFilter, updateCallback, nextPageCallback, page: page + 1));
         } else {
           nextPageCallback(null);
         }
@@ -448,6 +604,10 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
+        final errors = jsonData["errors"] as List<dynamic>?;
+        if (errors != null) {
+          Logger.logError(LogType.GetPullRequests, "GraphQL errors: $errors", StackTrace.current);
+        }
         final prsData = jsonData["data"]?["repository"]?["pullRequests"];
         if (prsData == null) {
           updateCallback([]);

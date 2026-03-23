@@ -114,9 +114,28 @@ class GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? milestoneFilter,
+    String? projectFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}
+
+  Future<List<Milestone>> getMilestones(String accessToken, String owner, String repo) async {
+    return [];
+  }
+
+  Future<List<GitProject>> getProjects(String accessToken, String owner, String repo) async {
+    return [];
+  }
+
+  Future<List<String>> getLabels(String accessToken, String owner, String repo) async {
+    return [];
+  }
+
+  Future<List<String>> getCollaborators(String accessToken, String owner, String repo) async {
+    return [];
+  }
 
   Future<void> getPullRequests(
     String accessToken,
@@ -127,6 +146,9 @@ class GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? reviewerFilter,
+    String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}

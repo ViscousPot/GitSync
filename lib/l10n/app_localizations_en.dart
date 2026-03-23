@@ -1608,6 +1608,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterAssignee => 'Assignee';
 
   @override
+  String get filterMilestone => 'Milestone';
+
+  @override
+  String get filterProject => 'Project';
+
+  @override
+  String get filterNone => 'None';
+
+  @override
+  String get filterMilestonesEmpty => 'No milestones found';
+
+  @override
+  String get filterProjectsEmpty => 'No projects found';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortOldest => 'Oldest';
+
+  @override
+  String get sortMostCommented => 'Most commented';
+
+  @override
+  String get sortRecentlyUpdated => 'Recently updated';
+
+  @override
+  String get filterSidebar => 'Filters';
+
+  @override
+  String get filterReviewer => 'Reviewer';
+
+  @override
   String get pullRequests => 'Pull Requests';
 
   @override

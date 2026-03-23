@@ -4,6 +4,8 @@ enum PrState { open, merged, closed }
 
 enum CheckStatus { success, failure, pending, none }
 
+enum PrSortOption { newest, oldest, recentlyUpdated }
+
 class PullRequest {
   final String title;
   final int number;

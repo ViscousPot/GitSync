@@ -27,14 +27,31 @@ class PullRequestsPage extends StatefulWidget {
 }
 
 class _PullRequestsPageState extends State<PullRequestsPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
   final List<PullRequest> _pullRequests = [];
   bool _loading = true;
   Function()? _loadNextPage;
   String _stateFilter = "open";
   int _fetchGeneration = 0;
+  PrSortOption _sortOption = PrSortOption.newest;
+
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _authorController = TextEditingController();
+  final TextEditingController _labelsController = TextEditingController();
+  final TextEditingController _assigneeController = TextEditingController();
+  final TextEditingController _reviewerController = TextEditingController();
+  final TextEditingController _milestoneController = TextEditingController();
+  final FocusNode _authorFocusNode = FocusNode();
+  final FocusNode _labelsFocusNode = FocusNode();
+  final FocusNode _assigneeFocusNode = FocusNode();
+  final FocusNode _reviewerFocusNode = FocusNode();
+  final FocusNode _milestoneFocusNode = FocusNode();
   Timer? _debounceTimer;
+
+  List<String>? _repoLabels;
+  List<String>? _repoCollaborators;
+  List<String>? _repoMilestones;
 
   @override
   void initState() {
@@ -47,6 +64,16 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
+    _authorController.dispose();
+    _labelsController.dispose();
+    _assigneeController.dispose();
+    _reviewerController.dispose();
+    _milestoneController.dispose();
+    _authorFocusNode.dispose();
+    _labelsFocusNode.dispose();
+    _assigneeFocusNode.dispose();
+    _reviewerFocusNode.dispose();
+    _milestoneFocusNode.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
@@ -55,6 +82,13 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     final segments = Uri.parse(widget.remoteWebUrl).pathSegments;
     return (segments[0], segments[1].replaceAll(".git", ""));
   }
+
+  bool get _hasActiveFilters =>
+      _authorController.text.isNotEmpty ||
+      _labelsController.text.isNotEmpty ||
+      _assigneeController.text.isNotEmpty ||
+      _reviewerController.text.isNotEmpty ||
+      _milestoneController.text.isNotEmpty;
 
   void _fetchPullRequests() {
     final generation = ++_fetchGeneration;
@@ -73,10 +107,13 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
       owner,
       repo,
       _stateFilter,
-      null,
-      null,
-      null,
+      _authorController.text.isEmpty ? null : _authorController.text,
+      _labelsController.text.isEmpty ? null : _labelsController.text,
+      _assigneeController.text.isEmpty ? null : _assigneeController.text,
       _searchController.text.isEmpty ? null : _searchController.text,
+      _sortOption.name,
+      _reviewerController.text.isEmpty ? null : _reviewerController.text,
+      _milestoneController.text.isEmpty ? null : _milestoneController.text,
       (prs) {
         if (!mounted || generation != _fetchGeneration) return;
         setState(() {
@@ -123,17 +160,178 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     _fetchPullRequests();
   }
 
-  void _onSearchChanged() {
+  void _onFilterChanged() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       _fetchPullRequests();
     });
   }
 
+  Future<void> _ensureLabels() async {
+    if (_repoLabels != null) return;
+    final (owner, repo) = _parseOwnerRepo();
+    final manager = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth);
+    if (manager == null) return;
+    final labels = await manager.getLabels(widget.accessToken, owner, repo);
+    if (mounted) setState(() => _repoLabels = labels);
+  }
+
+  Future<void> _ensureCollaborators() async {
+    if (_repoCollaborators != null) return;
+    final (owner, repo) = _parseOwnerRepo();
+    final manager = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth);
+    if (manager == null) return;
+    final collaborators = await manager.getCollaborators(widget.accessToken, owner, repo);
+    if (mounted) setState(() => _repoCollaborators = collaborators);
+  }
+
+  Future<void> _ensureMilestones() async {
+    if (_repoMilestones != null) return;
+    final (owner, repo) = _parseOwnerRepo();
+    final manager = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth);
+    if (manager == null) return;
+    final milestones = await manager.getMilestones(widget.accessToken, owner, repo);
+    if (mounted) setState(() => _repoMilestones = milestones.map((m) => m.title).toList());
+  }
+
+  void _showSortMenu() {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu<PrSortOption>(
+      context: context,
+      position: position,
+      color: colours.secondaryDark,
+      items: [
+        PopupMenuItem(value: PrSortOption.newest, child: Text(t.sortNewest, style: TextStyle(color: _sortOption == PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight))),
+        PopupMenuItem(value: PrSortOption.oldest, child: Text(t.sortOldest, style: TextStyle(color: _sortOption == PrSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight))),
+        PopupMenuItem(value: PrSortOption.recentlyUpdated, child: Text(t.sortRecentlyUpdated, style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight))),
+      ],
+    ).then((value) {
+      if (value != null && value != _sortOption) {
+        setState(() => _sortOption = value);
+        _fetchPullRequests();
+      }
+    });
+  }
+
+  Widget _buildAutocompleteField(TextEditingController controller, FocusNode focusNode, String label, Future<void> Function() ensureData, List<String>? options) {
+    return RawAutocomplete<String>(
+      textEditingController: controller,
+      focusNode: focusNode,
+      optionsBuilder: (textEditingValue) async {
+        await ensureData();
+        final text = textEditingValue.text.toLowerCase();
+        if (text.isEmpty || options == null) return options ?? [];
+        return options.where((o) => o.toLowerCase().contains(text)).toList();
+      },
+      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+        return TextField(
+          contextMenuBuilder: globalContextMenuBuilder,
+          controller: textEditingController,
+          focusNode: focusNode,
+          maxLines: 1,
+          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+          decoration: InputDecoration(
+            fillColor: colours.tertiaryDark,
+            filled: true,
+            border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+            isCollapsed: true,
+            label: Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+            isDense: true,
+          ),
+          onChanged: (_) => _onFilterChanged(),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            color: colours.tertiaryDark,
+            borderRadius: BorderRadius.all(cornerRadiusSM),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 200, maxWidth: 300),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final option = options.elementAt(index);
+                  return ListTile(
+                    dense: true,
+                    title: Text(option, style: TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                    onTap: () => onSelected(option),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterDrawer() {
+    return Drawer(
+      backgroundColor: colours.primaryDark,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(spaceMD),
+              child: Row(
+                children: [
+                  Text(t.filterSidebar.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.primaryLight),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                children: [
+                  _buildAutocompleteField(_authorController, _authorFocusNode, t.filterAuthor.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  SizedBox(height: spaceSM),
+                  _buildAutocompleteField(_labelsController, _labelsFocusNode, t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
+                  SizedBox(height: spaceSM),
+                  _buildAutocompleteField(_assigneeController, _assigneeFocusNode, t.filterAssignee.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  SizedBox(height: spaceSM),
+                  _buildAutocompleteField(_reviewerController, _reviewerFocusNode, t.filterReviewer.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  SizedBox(height: spaceSM),
+                  _buildAutocompleteField(_milestoneController, _milestoneFocusNode, t.filterMilestone.toUpperCase(), _ensureMilestones, _repoMilestones),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: colours.primaryDark,
+      endDrawer: _buildFilterDrawer(),
+      onEndDrawerChanged: (isOpened) {
+        if (!isOpened) _fetchPullRequests();
+      },
       body: SafeArea(
         child: Column(
           children: [
@@ -148,6 +346,28 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
+                  GestureDetector(
+                    onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+                    child: Container(
+                      padding: EdgeInsets.all(spaceXS),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          FaIcon(FontAwesomeIcons.filter, size: textMD, color: colours.primaryLight),
+                          if (_hasActiveFilters)
+                            Positioned(
+                              right: -spaceXXXS,
+                              top: -spaceXXXS,
+                              child: Container(
+                                width: spaceXS,
+                                height: spaceXS,
+                                decoration: BoxDecoration(color: colours.showcaseFeatureIcon, shape: BoxShape.circle),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () async {
                       final result = await Navigator.of(context).push(
@@ -171,40 +391,54 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
 
             Padding(
               padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: spaceXS),
-              child: TextField(
-                contextMenuBuilder: globalContextMenuBuilder,
-                controller: _searchController,
-                maxLines: 1,
-                style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
-                decoration: InputDecoration(
-                  fillColor: colours.secondaryDark,
-                  filled: true,
-                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                  isCollapsed: true,
-                  hintText: t.searchEllipsis,
-                  hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
-                  prefixIcon: Padding(
-                    padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
-                    child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      contextMenuBuilder: globalContextMenuBuilder,
+                      controller: _searchController,
+                      maxLines: 1,
+                      style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
+                      decoration: InputDecoration(
+                        fillColor: colours.secondaryDark,
+                        filled: true,
+                        border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                        isCollapsed: true,
+                        hintText: t.searchEllipsis,
+                        hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
+                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+                        ),
+                        prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? GestureDetector(
+                                onTap: () {
+                                  _searchController.clear();
+                                  _onFilterChanged();
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: spaceSM),
+                                  child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
+                                ),
+                              )
+                            : null,
+                        suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                        contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
+                        isDense: true,
+                      ),
+                      onChanged: (_) => _onFilterChanged(),
+                    ),
                   ),
-                  prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            _searchController.clear();
-                            _onSearchChanged();
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.only(right: spaceSM),
-                            child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
-                          ),
-                        )
-                      : null,
-                  suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                  contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-                  isDense: true,
-                ),
-                onChanged: (_) => _onSearchChanged(),
+                  SizedBox(width: spaceXS),
+                  GestureDetector(
+                    onTap: _showSortMenu,
+                    child: Container(
+                      padding: EdgeInsets.all(spaceXS),
+                      child: FaIcon(FontAwesomeIcons.arrowDownWideShort, size: textMD, color: _sortOption != PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight),
+                    ),
+                  ),
+                ],
               ),
             ),
 

@@ -100,16 +100,82 @@ class GitlabManager extends GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? milestoneFilter,
+    String? projectFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
     final gitlabState = state == "open" ? "opened" : state;
     var url = "https://$_domain/api/v4/projects/$owner%2F$repo/issues?state=$gitlabState&per_page=30";
+
+    switch (sortOption) {
+      case "oldest":
+        url += "&order_by=created_at&sort=asc";
+      case "recentlyUpdated":
+        url += "&order_by=updated_at&sort=desc";
+      default:
+        url += "&order_by=created_at&sort=desc";
+    }
+
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&author_username=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
+    if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestone=${Uri.encodeComponent(milestoneFilter)}";
     await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
+  }
+
+  @override
+  Future<List<Milestone>> getMilestones(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v4/projects/$owner%2F$repo/milestones?state=active&per_page=100"),
+        headers: {"Authorization": "Bearer $accessToken"},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((m) => Milestone(id: m["title"] ?? "", title: m["title"] ?? "")).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getLabels(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v4/projects/$owner%2F$repo/labels?per_page=100"),
+        headers: {"Authorization": "Bearer $accessToken"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((l) => l["name"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getCollaborators(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v4/projects/$owner%2F$repo/members?per_page=100"),
+        headers: {"Authorization": "Bearer $accessToken"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((m) => m["username"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
   }
 
   Future<void> _getIssuesRequest(
@@ -165,15 +231,30 @@ class GitlabManager extends GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? reviewerFilter,
+    String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
     final gitlabState = state == "open" ? "opened" : state;
-    var url = "https://$_domain/api/v4/projects/$owner%2F$repo/merge_requests?state=$gitlabState&per_page=30&order_by=updated_at&sort=desc";
+    var url = "https://$_domain/api/v4/projects/$owner%2F$repo/merge_requests?state=$gitlabState&per_page=30";
+
+    switch (sortOption) {
+      case "oldest":
+        url += "&order_by=created_at&sort=asc";
+      case "recentlyUpdated":
+        url += "&order_by=updated_at&sort=desc";
+      default:
+        url += "&order_by=created_at&sort=desc";
+    }
+
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&author_username=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
+    if (reviewerFilter != null && reviewerFilter.isNotEmpty) url += "&reviewer_username=$reviewerFilter";
+    if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestone=${Uri.encodeComponent(milestoneFilter)}";
     await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 

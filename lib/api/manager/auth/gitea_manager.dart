@@ -107,15 +107,80 @@ class GiteaManager extends GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? milestoneFilter,
+    String? projectFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
     var url = "https://$_domain/api/v1/repos/$owner/$repo/issues?state=$state&type=issues&limit=30";
+
+    final giteaSort = switch (sortOption) {
+      "oldest" => "oldest",
+      "mostCommented" => "mostcomment",
+      "recentlyUpdated" => "recentupdate",
+      _ => "newest",
+    };
+    url += "&sort=$giteaSort";
+
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&created_by=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
+    if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestones=${Uri.encodeComponent(milestoneFilter)}";
     await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
+  }
+
+  @override
+  Future<List<Milestone>> getMilestones(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/milestones?state=open&limit=100"),
+        headers: {"Accept": "application/json", "Authorization": "token $accessToken"},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((m) => Milestone(id: m["title"] ?? "", title: m["title"] ?? "")).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getLabels(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/labels?limit=100"),
+        headers: {"Accept": "application/json", "Authorization": "token $accessToken"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((l) => l["name"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
+  }
+
+  @override
+  Future<List<String>> getCollaborators(String accessToken, String owner, String repo) async {
+    try {
+      final response = await httpGet(
+        Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/collaborators?limit=100"),
+        headers: {"Accept": "application/json", "Authorization": "token $accessToken"},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
+        return jsonArray.map((c) => c["login"] as String? ?? "").where((n) => n.isNotEmpty).toList();
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+    }
+    return [];
   }
 
   Future<void> _getIssuesRequest(
@@ -179,14 +244,26 @@ class GiteaManager extends GitProviderManager {
     String? labelFilter,
     String? assigneeFilter,
     String? searchFilter,
+    String? sortOption,
+    String? reviewerFilter,
+    String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
-    var url = "https://$_domain/api/v1/repos/$owner/$repo/pulls?state=$state&limit=30&sort=newest";
+    var url = "https://$_domain/api/v1/repos/$owner/$repo/pulls?state=$state&limit=30";
+
+    final giteaSort = switch (sortOption) {
+      "oldest" => "oldest",
+      "recentlyUpdated" => "recentupdate",
+      _ => "newest",
+    };
+    url += "&sort=$giteaSort";
+
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&created_by=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
+    if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestones=${Uri.encodeComponent(milestoneFilter)}";
     await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 

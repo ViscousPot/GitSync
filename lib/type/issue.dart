@@ -1,3 +1,17 @@
+enum IssueSortOption { newest, oldest, mostCommented, recentlyUpdated }
+
+class Milestone {
+  final String id;
+  final String title;
+  const Milestone({required this.id, required this.title});
+}
+
+class GitProject {
+  final String id;
+  final String title;
+  const GitProject({required this.id, required this.title});
+}
+
 class IssueLabel {
   final String name;
   final String? color; // hex without '#', null for GitLab

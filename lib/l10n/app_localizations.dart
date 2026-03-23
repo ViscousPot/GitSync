@@ -3286,6 +3286,72 @@ abstract class AppLocalizations {
   /// **'Assignee'**
   String get filterAssignee;
 
+  /// No description provided for @filterMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestone'**
+  String get filterMilestone;
+
+  /// No description provided for @filterProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get filterProject;
+
+  /// No description provided for @filterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get filterNone;
+
+  /// No description provided for @filterMilestonesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No milestones found'**
+  String get filterMilestonesEmpty;
+
+  /// No description provided for @filterProjectsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects found'**
+  String get filterProjectsEmpty;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get sortOldest;
+
+  /// No description provided for @sortMostCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'Most commented'**
+  String get sortMostCommented;
+
+  /// No description provided for @sortRecentlyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently updated'**
+  String get sortRecentlyUpdated;
+
+  /// No description provided for @filterSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filterSidebar;
+
+  /// No description provided for @filterReviewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer'**
+  String get filterReviewer;
+
   /// No description provided for @pullRequests.
   ///
   /// In en, this message translates to:
