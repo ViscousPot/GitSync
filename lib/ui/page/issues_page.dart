@@ -34,6 +34,7 @@ class _IssuesPageState extends State<IssuesPage> {
   bool _showFilters = false;
   int _fetchGeneration = 0;
 
+  final TextEditingController _searchController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
   final TextEditingController _labelsController = TextEditingController();
   final TextEditingController _assigneeController = TextEditingController();
@@ -49,6 +50,7 @@ class _IssuesPageState extends State<IssuesPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     _authorController.dispose();
     _labelsController.dispose();
     _assigneeController.dispose();
@@ -81,6 +83,7 @@ class _IssuesPageState extends State<IssuesPage> {
       _authorController.text.isEmpty ? null : _authorController.text,
       _labelsController.text.isEmpty ? null : _labelsController.text,
       _assigneeController.text.isEmpty ? null : _assigneeController.text,
+      _searchController.text.isEmpty ? null : _searchController.text,
       (issues) {
         if (!mounted || generation != _fetchGeneration) return;
         setState(() {
@@ -142,7 +145,7 @@ class _IssuesPageState extends State<IssuesPage> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS),
+              padding: EdgeInsets.only(left: spaceXS, right: spaceXS, top: spaceXS),
               child: Row(
                 children: [
                   getBackButton(context, () => Navigator.of(context).pop()),
@@ -173,6 +176,46 @@ class _IssuesPageState extends State<IssuesPage> {
               ),
             ),
 
+            Padding(
+              padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: spaceXS),
+              child: TextField(
+                contextMenuBuilder: globalContextMenuBuilder,
+                controller: _searchController,
+                maxLines: 1,
+                style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
+                decoration: InputDecoration(
+                  fillColor: colours.secondaryDark,
+                  filled: true,
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                  isCollapsed: true,
+                  hintText: t.searchEllipsis,
+                  hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
+                    child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+                  ),
+                  prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            _onFilterChanged();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(right: spaceSM),
+                            child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
+                          ),
+                        )
+                      : null,
+                  suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
+                  isDense: true,
+                ),
+                onChanged: (_) => _onFilterChanged(),
+              ),
+            ),
+
+            SizedBox(height: spaceXS),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceMD),
@@ -191,7 +234,6 @@ class _IssuesPageState extends State<IssuesPage> {
               ),
             ),
 
-
             if (_showFilters)
               Padding(
                 padding: EdgeInsets.fromLTRB(spaceMD, spaceSM, spaceMD, 0),
@@ -207,7 +249,6 @@ class _IssuesPageState extends State<IssuesPage> {
               ),
 
             SizedBox(height: spaceSM),
-
 
             Expanded(
               child: _issues.isEmpty && !_loading
@@ -353,7 +394,6 @@ class _ItemIssue extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

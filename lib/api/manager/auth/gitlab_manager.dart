@@ -99,6 +99,7 @@ class GitlabManager extends GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
@@ -107,6 +108,7 @@ class GitlabManager extends GitProviderManager {
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&author_username=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
+    if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
     await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 
@@ -162,6 +164,7 @@ class GitlabManager extends GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
@@ -170,6 +173,7 @@ class GitlabManager extends GitProviderManager {
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&author_username=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
+    if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
     await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 

@@ -163,9 +163,15 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
+    if (searchFilter != null && searchFilter.isNotEmpty) {
+      await _searchIssues(accessToken, owner, repo, state, searchFilter, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback);
+      return;
+    }
+
     final Map<String, dynamic> filterBy = {};
     if (authorFilter != null && authorFilter.isNotEmpty) filterBy["createdBy"] = authorFilter;
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) filterBy["assignee"] = assigneeFilter;
@@ -179,6 +185,61 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     };
 
     await _getIssuesGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+  }
+
+  Future<void> _searchIssues(
+    String accessToken, String owner, String repo, String state, String search,
+    String? authorFilter, String? labelFilter, String? assigneeFilter,
+    Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
+  ) async {
+    try {
+      var q = "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:issue";
+      if (state != "all") q += "+state:$state";
+      if (authorFilter != null && authorFilter.isNotEmpty) q += "+author:$authorFilter";
+      if (labelFilter != null && labelFilter.isNotEmpty) {
+        for (final l in labelFilter.split(",").map((l) => l.trim()).where((l) => l.isNotEmpty)) {
+          q += '+label:"$l"';
+        }
+      }
+      if (assigneeFilter != null && assigneeFilter.isNotEmpty) q += "+assignee:$assigneeFilter";
+
+      final response = await httpGet(
+        Uri.parse("https://api.$_domain/search/issues?q=$q&per_page=30&page=$page"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        final items = data["items"] as List<dynamic>? ?? [];
+        final totalCount = data["total_count"] as int? ?? 0;
+
+        final issues = items.map((item) => Issue(
+          title: item["title"] ?? "",
+          number: item["number"] ?? 0,
+          isOpen: item["state"] == "open",
+          authorUsername: item["user"]?["login"] ?? "",
+          createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+          commentCount: item["comments"] ?? 0,
+          linkedPrCount: 0,
+          labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', ''))).toList() ?? [],
+        )).toList();
+
+        updateCallback(issues);
+
+        if (page * 30 < totalCount) {
+          nextPageCallback(() => _searchIssues(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback, page: page + 1));
+        } else {
+          nextPageCallback(null);
+        }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
+    }
   }
 
   Future<void> _getIssuesGraphQL(
@@ -285,9 +346,15 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
+    if (searchFilter != null && searchFilter.isNotEmpty) {
+      await _searchPullRequests(accessToken, owner, repo, state, searchFilter, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback);
+      return;
+    }
+
     final Map<String, dynamic> variables = {
       "owner": owner,
       "repo": repo,
@@ -297,6 +364,73 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     };
 
     await _getPullRequestsGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+  }
+
+  Future<void> _searchPullRequests(
+    String accessToken, String owner, String repo, String state, String search,
+    String? authorFilter, String? labelFilter, String? assigneeFilter,
+    Function(List<PullRequest>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
+  ) async {
+    try {
+      var q = "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:pr";
+      if (state != "all") {
+        if (state == "closed") {
+          q += "+state:closed";
+        } else {
+          q += "+state:$state";
+        }
+      }
+      if (authorFilter != null && authorFilter.isNotEmpty) q += "+author:$authorFilter";
+      if (labelFilter != null && labelFilter.isNotEmpty) {
+        for (final l in labelFilter.split(",").map((l) => l.trim()).where((l) => l.isNotEmpty)) {
+          q += '+label:"$l"';
+        }
+      }
+
+      final response = await httpGet(
+        Uri.parse("https://api.$_domain/search/issues?q=$q&per_page=30&page=$page"),
+        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        final items = data["items"] as List<dynamic>? ?? [];
+        final totalCount = data["total_count"] as int? ?? 0;
+
+        final prs = items.map((item) {
+          final stateStr = item["state"] ?? "";
+          final merged = item["pull_request"]?["merged_at"] != null;
+          final PrState prState = merged ? PrState.merged : (stateStr == "open" ? PrState.open : PrState.closed);
+
+          return PullRequest(
+            title: item["title"] ?? "",
+            number: item["number"] ?? 0,
+            state: prState,
+            authorUsername: item["user"]?["login"] ?? "",
+            createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+            commentCount: item["comments"] ?? 0,
+            linkedIssueCount: 0,
+            checkStatus: CheckStatus.none,
+            labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', ''))).toList() ?? [],
+          );
+        }).toList();
+
+        updateCallback(prs);
+
+        if (page * 30 < totalCount) {
+          nextPageCallback(() => _searchPullRequests(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, updateCallback, nextPageCallback, page: page + 1));
+        } else {
+          nextPageCallback(null);
+        }
+      } else {
+        updateCallback([]);
+        nextPageCallback(null);
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetPullRequests, e, st);
+      updateCallback([]);
+      nextPageCallback(null);
+    }
   }
 
   Future<void> _getPullRequestsGraphQL(

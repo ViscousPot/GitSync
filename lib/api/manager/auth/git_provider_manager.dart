@@ -113,6 +113,7 @@ class GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}
@@ -125,6 +126,7 @@ class GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {}

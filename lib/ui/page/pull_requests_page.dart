@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -31,6 +33,8 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   Function()? _loadNextPage;
   String _stateFilter = "open";
   int _fetchGeneration = 0;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -42,6 +46,8 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -70,6 +76,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
       null,
       null,
       null,
+      _searchController.text.isEmpty ? null : _searchController.text,
       (prs) {
         if (!mounted || generation != _fetchGeneration) return;
         setState(() {
@@ -116,6 +123,13 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     _fetchPullRequests();
   }
 
+  void _onSearchChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _fetchPullRequests();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +138,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS),
+              padding: EdgeInsets.only(left: spaceXS, right: spaceXS, top: spaceXS),
               child: Row(
                 children: [
                   getBackButton(context, () => Navigator.of(context).pop()),
@@ -154,6 +168,47 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                 ],
               ),
             ),
+
+            Padding(
+              padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: spaceXS),
+              child: TextField(
+                contextMenuBuilder: globalContextMenuBuilder,
+                controller: _searchController,
+                maxLines: 1,
+                style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
+                decoration: InputDecoration(
+                  fillColor: colours.secondaryDark,
+                  filled: true,
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                  isCollapsed: true,
+                  hintText: t.searchEllipsis,
+                  hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
+                    child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+                  ),
+                  prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            _onSearchChanged();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(right: spaceSM),
+                            child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
+                          ),
+                        )
+                      : null,
+                  suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
+                  isDense: true,
+                ),
+                onChanged: (_) => _onSearchChanged(),
+              ),
+            ),
+
+            SizedBox(height: spaceXS),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceMD),

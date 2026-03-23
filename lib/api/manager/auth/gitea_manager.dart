@@ -106,6 +106,7 @@ class GiteaManager extends GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
@@ -113,6 +114,7 @@ class GiteaManager extends GitProviderManager {
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&created_by=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
+    if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
     await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 
@@ -176,6 +178,7 @@ class GiteaManager extends GitProviderManager {
     String? authorFilter,
     String? labelFilter,
     String? assigneeFilter,
+    String? searchFilter,
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
@@ -183,6 +186,7 @@ class GiteaManager extends GitProviderManager {
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&created_by=$authorFilter";
     if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
+    if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
     await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 
