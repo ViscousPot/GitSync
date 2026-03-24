@@ -745,6 +745,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   late final _configKey = GlobalKey();
   late final _autoSyncOptionsKey = GlobalKey();
 
+  late final AnimationController _pulseController = AnimationController(vsync: this, duration: Duration(milliseconds: 2000))..repeat(reverse: true);
+  late final Animation<double> _pulseAnimation = Tween<double>(
+    begin: 30.0,
+    end: 120.0,
+  ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+
   RestorableBool loadingRecentCommits = RestorableBool(false);
   bool _hasMoreCommits = true;
   ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
@@ -1470,6 +1476,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     mergeConflictVisible.dispose();
 
     premiumManager.dispose();
+    _pulseController.dispose();
 
     autoRefreshTimer?.cancel();
     networkSubscription?.cancel();
@@ -2993,6 +3000,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                             top: 1,
                                                                             bottom: 1,
                                                                           ),
+
                                                                           onTap: () {
                                                                             if (demo) {
                                                                               ManualSyncDialog.showDialog(
@@ -3010,7 +3018,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                   : FontAwesomeIcons.solidCircleXmark,
                                                                               color: remoteUrlLinkValue != null
                                                                                   ? colours.secondaryLight
-                                                                                  : colours.primaryNegative,
+                                                                                  : colours.tertiaryLight,
                                                                               size: textLG,
                                                                             ),
                                                                           ),
@@ -3030,29 +3038,31 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                               fontWeight: FontWeight.w400,
                                                                             ),
                                                                           ),
-                                                                          onChanged: (value) async {
-                                                                            if (value == "__add_remote__") {
-                                                                              await AddRemoteDialog.showDialog(context, (name, url) async {
-                                                                                await runGitOperation(LogType.AddRemote, (event) => event, {
-                                                                                  "name": name,
-                                                                                  "url": url,
-                                                                                });
-                                                                                await uiSettingsManager.setStringNullable(
-                                                                                  StorageKey.setman_remote,
-                                                                                  name,
-                                                                                );
-                                                                                await reloadAll();
-                                                                              });
-                                                                              return;
-                                                                            }
-                                                                            if (value != null) {
-                                                                              await uiSettingsManager.setStringNullable(
-                                                                                StorageKey.setman_remote,
-                                                                                value,
-                                                                              );
-                                                                              await reloadAll();
-                                                                            }
-                                                                          },
+                                                                          onChanged: (uiSettingsManager.gitDirPath?.$2 == null)
+                                                                              ? null
+                                                                              : (value) async {
+                                                                                  if (value == "__add_remote__") {
+                                                                                    await AddRemoteDialog.showDialog(context, (name, url) async {
+                                                                                      await runGitOperation(LogType.AddRemote, (event) => event, {
+                                                                                        "name": name,
+                                                                                        "url": url,
+                                                                                      });
+                                                                                      await uiSettingsManager.setStringNullable(
+                                                                                        StorageKey.setman_remote,
+                                                                                        name,
+                                                                                      );
+                                                                                      await reloadAll();
+                                                                                    });
+                                                                                    return;
+                                                                                  }
+                                                                                  if (value != null) {
+                                                                                    await uiSettingsManager.setStringNullable(
+                                                                                      StorageKey.setman_remote,
+                                                                                      value,
+                                                                                    );
+                                                                                    await reloadAll();
+                                                                                  }
+                                                                                },
                                                                           selectedItemBuilder: (context) => List.generate(
                                                                             dropdownItems.length,
                                                                             (index) => Row(
@@ -3172,24 +3182,38 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                             SizedBox(width: uiSettingsManager.gitDirPath?.$2 == null ? spaceSM : 0),
                                             Visibility(
                                               visible: uiSettingsManager.gitDirPath?.$2 == null,
-                                              child: TextButton.icon(
-                                                onPressed: () async {
-                                                  await showCloneRepoPage();
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                              child: AnimatedBuilder(
+                                                animation: _pulseAnimation,
+                                                builder: (context, child) => TextButton.icon(
+                                                  onPressed: () async {
+                                                    await showCloneRepoPage();
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                    shape: WidgetStatePropertyAll(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                        side: uiSettingsManager.gitDirPath?.$2 == null
+                                                            ? BorderSide(
+                                                                color: colours.tertiaryInfo.withAlpha(
+                                                                  isAuthenticatedSnapshot.data != true ? _pulseAnimation.value.toInt() : 120,
+                                                                ),
+                                                                width: 2,
+                                                                strokeAlign: BorderSide.strokeAlignInside,
+                                                              )
+                                                            : BorderSide.none,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                                icon: FaIcon(FontAwesomeIcons.cloudArrowDown, color: colours.primaryLight, size: textLG - 2),
-                                                iconAlignment: IconAlignment.start,
-                                                label: Padding(
-                                                  padding: EdgeInsets.only(left: spaceXS),
-                                                  child: Text(
-                                                    t.clone.toUpperCase(),
-                                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                  icon: FaIcon(FontAwesomeIcons.cloudArrowDown, color: colours.primaryLight, size: textLG - 2),
+                                                  iconAlignment: IconAlignment.start,
+                                                  label: Padding(
+                                                    padding: EdgeInsets.only(left: spaceXS),
+                                                    child: Text(
+                                                      t.clone.toUpperCase(),
+                                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -3200,30 +3224,50 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               child: Row(
                                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                                 children: [
-                                                  TextButton.icon(
-                                                    onPressed: () async {
-                                                      await showAuthDialog();
-                                                    },
-                                                    style: ButtonStyle(
-                                                      alignment: Alignment.centerLeft,
-                                                      backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                      shape: WidgetStatePropertyAll(
-                                                        RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                                  AnimatedBuilder(
+                                                    animation: _pulseAnimation,
+                                                    builder: (context, child) => TextButton.icon(
+                                                      onPressed: () async {
+                                                        await showAuthDialog();
+                                                      },
+                                                      style: ButtonStyle(
+                                                        alignment: Alignment.centerLeft,
+                                                        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                        shape: WidgetStatePropertyAll(
+                                                          RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                            side: isAuthenticatedSnapshot.data != true
+                                                                ? BorderSide(
+                                                                    color: colours.tertiaryNegative.withAlpha(
+                                                                      uiSettingsManager.gitDirPath?.$2 == null ? _pulseAnimation.value.toInt() : 120,
+                                                                    ),
+                                                                    width: 2,
+                                                                    strokeAlign: BorderSide.strokeAlignInside,
+                                                                  )
+                                                                : BorderSide.none,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    icon: FaIcon(
-                                                      isAuthenticatedSnapshot.data == true
-                                                          ? FontAwesomeIcons.solidCircleCheck
-                                                          : FontAwesomeIcons.solidCircleXmark,
-                                                      color: isAuthenticatedSnapshot.data == true ? colours.primaryPositive : colours.primaryNegative,
-                                                      size: textLG,
-                                                    ),
-                                                    label: Padding(
-                                                      padding: EdgeInsets.only(left: spaceXS),
-                                                      child: Text(
-                                                        t.auth.toUpperCase(),
-                                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                      icon: FaIcon(
+                                                        isAuthenticatedSnapshot.data == true
+                                                            ? FontAwesomeIcons.solidCircleCheck
+                                                            : FontAwesomeIcons.solidCircleXmark,
+                                                        color: isAuthenticatedSnapshot.data == true
+                                                            ? colours.primaryPositive
+                                                            : colours.primaryNegative,
+                                                        size: textLG,
+                                                      ),
+                                                      label: Padding(
+                                                        padding: EdgeInsets.only(left: spaceXS),
+                                                        child: Text(
+                                                          t.auth.toUpperCase(),
+                                                          style: TextStyle(
+                                                            color: colours.primaryLight,
+                                                            fontSize: textMD,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -3394,42 +3438,53 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                               ),
                                             ),
                                             SizedBox(width: spaceSM),
-                                            IconButton(
-                                              onPressed: () async {
-                                                String? selectedDirectory;
-                                                if (await requestStoragePerm()) {
-                                                  selectedDirectory = await pickDirectory();
-                                                }
-                                                if (selectedDirectory == null) return;
+                                            AnimatedBuilder(
+                                              animation: _pulseAnimation,
+                                              builder: (context, child) => IconButton(
+                                                onPressed: () async {
+                                                  String? selectedDirectory;
+                                                  if (await requestStoragePerm()) {
+                                                    selectedDirectory = await pickDirectory();
+                                                  }
+                                                  if (selectedDirectory == null) return;
 
-                                                if (!mounted) return;
-                                                final isRepo = await validateOrInitGitDir(context, selectedDirectory);
-                                                if (!isRepo) return;
+                                                  if (!mounted) return;
+                                                  final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                                                  if (!isRepo) return;
 
-                                                if (!mounted) return;
-                                                await setGitDirPathGetSubmodules(context, selectedDirectory);
-                                                await reloadAll();
-                                              },
-                                              style: ButtonStyle(
-                                                backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                                                shape: WidgetStatePropertyAll(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.only(
-                                                      bottomLeft: cornerRadiusSM,
-                                                      bottomRight: cornerRadiusMD,
-                                                      topLeft: cornerRadiusSM,
-                                                      topRight: cornerRadiusMD,
+                                                  if (!mounted) return;
+                                                  await setGitDirPathGetSubmodules(context, selectedDirectory);
+                                                  await reloadAll();
+                                                },
+                                                style: ButtonStyle(
+                                                  backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                                                  shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.only(
+                                                        bottomLeft: cornerRadiusSM,
+                                                        bottomRight: cornerRadiusMD,
+                                                        topLeft: cornerRadiusSM,
+                                                        topRight: cornerRadiusMD,
+                                                      ),
+                                                      side: uiSettingsManager.gitDirPath?.$2 == null
+                                                          ? BorderSide(
+                                                              color: colours.tertiaryInfo.withAlpha(
+                                                                isAuthenticatedSnapshot.data != true ? _pulseAnimation.value.toInt() : 120,
+                                                              ),
+                                                              width: 2,
+                                                              strokeAlign: BorderSide.strokeAlignInside,
+                                                            )
+                                                          : BorderSide.none,
                                                     ),
-                                                    side: BorderSide.none,
                                                   ),
                                                 ),
-                                              ),
-                                              icon: FaIcon(
-                                                FontAwesomeIcons.solidFolderOpen,
-                                                color: colours.primaryLight,
-                                                size: textLG - 2,
-                                                semanticLabel: t.selectDirLabel,
+                                                icon: FaIcon(
+                                                  FontAwesomeIcons.solidFolderOpen,
+                                                  color: colours.primaryLight,
+                                                  size: textLG - 2,
+                                                  semanticLabel: t.selectDirLabel,
+                                                ),
                                               ),
                                             ),
                                           ],
