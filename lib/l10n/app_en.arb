@@ -633,7 +633,7 @@
 
     "amendCommit": "Amend Commit",
     "amendCommitMsg": "Edit the message for commit",
-    "amendCommitWarning": "This will rewrite the commit. Only amend unpushed commits.",
+    "amendCommitWarning": "This will rewrite the commit. A force push may be required if this commit has already been pushed.",
     "amend": "Amend",
 
     "undoCommit": "Undo Commit",

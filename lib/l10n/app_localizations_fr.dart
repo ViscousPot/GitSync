@@ -1662,7 +1662,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get amendCommitMsg => 'Edit the message for commit';
 
   @override
-  String get amendCommitWarning => 'This will rewrite the commit. Only amend unpushed commits.';
+  String get amendCommitWarning => 'This will rewrite the commit. A force push may be required if this commit has already been pushed.';
 
   @override
   String get amend => 'Amend';

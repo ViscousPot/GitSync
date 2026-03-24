@@ -4452,9 +4452,9 @@ pub async fn amend_commit(
 
     let signature = swl!(repo.signature())?;
 
-    commit(
+    let new_oid = commit(
         &repo,
-        Some("HEAD"),
+        None,
         &signature,
         new_message,
         &tree,
@@ -4462,6 +4462,10 @@ pub async fn amend_commit(
         commit_signing_credentials,
         &log_callback,
     )?;
+
+    if let Ok(mut head) = repo.head() {
+        swl!(head.set_target(new_oid, new_message))?;
+    }
 
     _log(
         Arc::clone(&log_callback),

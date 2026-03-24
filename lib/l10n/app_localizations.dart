@@ -3385,7 +3385,7 @@ abstract class AppLocalizations {
   /// No description provided for @amendCommitWarning.
   ///
   /// In en, this message translates to:
-  /// **'This will rewrite the commit. Only amend unpushed commits.'**
+  /// **'This will rewrite the commit. A force push may be required if this commit has already been pushed.'**
   String get amendCommitWarning;
 
   /// No description provided for @amend.

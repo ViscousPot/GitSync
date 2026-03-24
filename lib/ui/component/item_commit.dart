@@ -132,9 +132,9 @@ class _ItemCommit extends State<ItemCommit> {
       color: colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
       items: [
-        if (widget.recentCommits.isNotEmpty && widget.commit.reference == widget.recentCommits.first.reference && widget.commit.unpushed) ...[
+        if (widget.recentCommits.isNotEmpty && widget.commit.reference == widget.recentCommits.first.reference) ...[
           item('amend-commit', t.menuAmendCommit.toUpperCase(), t.menuAmendCommitDesc),
-          item('undo-commit', t.menuUndoCommit.toUpperCase(), t.menuUndoCommitDesc),
+          if (widget.commit.unpushed) item('undo-commit', t.menuUndoCommit.toUpperCase(), t.menuUndoCommitDesc),
           separator(),
         ],
         item('reset-commit', t.menuResetToCommit.toUpperCase(), t.menuResetToCommitDesc),
