@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/icons.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
@@ -234,6 +235,14 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   Future<void> _completeOAuthAuth((String, String, String) credentials, GitProvider provider) async {
     await uiSettingsManager.setGitHttpAuthCredentials(credentials.$1, credentials.$2, credentials.$3);
     await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, provider.name);
+    // If a repo dir is already set and has no remotes, offer remote creation
+    final dirPath = uiSettingsManager.gitDirPath?.$1;
+    if (dirPath != null) {
+      final remotes = await GitManager.listRemotes();
+      if (remotes.isEmpty && mounted) {
+        await offerCreateRemoteForExistingRepo(context, dirPath);
+      }
+    }
     await repoManager.setOnboardingStep(3);
     _showCloneRepoPage();
   }

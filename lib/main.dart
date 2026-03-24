@@ -1532,6 +1532,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
     return AuthDialog.showDialog(context, () async {
       await reloadAll();
+      // After auth, offer remote creation if current repo has no remotes
+      if (uiSettingsManager.gitDirPath?.$1 != null && remotes.value.isEmpty) {
+        final provider = await uiSettingsManager.getGitProvider();
+        if (provider.isOAuthProvider) {
+          await offerCreateRemoteForExistingRepo(context, uiSettingsManager.gitDirPath!.$1!);
+          await reloadAll();
+        }
+      }
       if ((await uiSettingsManager.getAuthorEmail()).isEmpty || (await uiSettingsManager.getAuthorName()).isEmpty) {
         await AuthorDetailsPromptDialog.showDialog(
           context,

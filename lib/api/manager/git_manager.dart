@@ -719,10 +719,29 @@ class GitManager {
         <String>[];
   }
 
-  static Future<void> addRemote(String name, String url) async {
+  static Future<void> addRemote(String name, String url, [String? dirPathOverride]) async {
+    if (dirPathOverride != null) {
+      await GitManagerRs.addRemote(pathString: dirPathOverride, remoteName: name, remoteUrl: url, log: _logWrapper);
+      return;
+    }
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AddRemote, (dirPath) async {
       await GitManagerRs.addRemote(pathString: dirPath, remoteName: name, remoteUrl: url, log: _logWrapper);
     });
+  }
+
+  static Future<void> initialCommit(String dirPath, (String, String) author, String message) async {
+    await GitManagerRs.commitChanges(pathString: dirPath, author: author, syncMessage: message, log: _logWrapper);
+  }
+
+  static Future<void> initialPush(String dirPath, String remoteName, String provider, (String, String) credentials) async {
+    await GitManagerRs.pushChanges(
+      pathString: dirPath,
+      remoteName: remoteName,
+      provider: provider,
+      credentials: credentials,
+      mergeConflictCallback: () async {},
+      log: _logWrapper,
+    );
   }
 
   static Future<void> deleteRemote(String name) async {
