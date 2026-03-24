@@ -46,6 +46,31 @@ class GitlabManager extends GitProviderManager {
   }
 
   @override
+  Future<(String, String?)?> createRepo(String accessToken, String username, String repoName, bool isPrivate) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v4/projects"),
+        headers: {"Authorization": "Bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"name": repoName, "visibility": isPrivate ? "private" : "public"}),
+      );
+
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
+        return (jsonData["http_url_to_repo"] as String, null);
+      }
+
+      if (response.statusCode == 400 && username.isNotEmpty) {
+        return ("https://$_domain/$username/$repoName.git", null);
+      }
+
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.GetRepos, e, st);
+      return null;
+    }
+  }
+
+  @override
   Future<void> getRepos(
     String accessToken,
     String searchString,

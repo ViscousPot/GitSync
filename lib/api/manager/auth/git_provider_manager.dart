@@ -98,6 +98,10 @@ class GitProviderManager {
     return null;
   }
 
+  Future<(String, String?)?> createRepo(String accessToken, String username, String repoName, bool isPrivate) async {
+    return null;
+  }
+
   Future<void> getRepos(
     String accessToken,
     String searchString,

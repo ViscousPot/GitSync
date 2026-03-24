@@ -48,6 +48,31 @@ class GiteaManager extends GitProviderManager {
   }
 
   @override
+  Future<(String, String?)?> createRepo(String accessToken, String username, String repoName, bool isPrivate) async {
+    try {
+      final response = await httpPost(
+        Uri.parse("https://$_domain/api/v1/user/repos"),
+        headers: {"Accept": "application/json", "Authorization": "token $accessToken", "Content-Type": "application/json"},
+        body: json.encode({"name": repoName, "private": isPrivate, "auto_init": false}),
+      );
+
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
+        return (jsonData["clone_url"] as String, null);
+      }
+
+      if (response.statusCode == 409 && username.isNotEmpty) {
+        return ("https://$_domain/$username/$repoName.git", null);
+      }
+
+      return null;
+    } catch (e, st) {
+      Logger.logError(LogType.GetRepos, e, st);
+      return null;
+    }
+  }
+
+  @override
   Future<void> getRepos(
     String accessToken,
     String searchString,
