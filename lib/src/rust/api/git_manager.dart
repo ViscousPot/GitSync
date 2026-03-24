@@ -542,6 +542,16 @@ Future<void> initRepository({
   log: log,
 );
 
+Future<void> setHeadToBranch({
+  required String pathString,
+  required String branchName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerSetHeadToBranch(
+  pathString: pathString,
+  branchName: branchName,
+  log: log,
+);
+
 Future<void> addRemote({
   required String pathString,
   required String remoteName,

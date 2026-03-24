@@ -1709,7 +1709,14 @@ fn commit(
             swl!(head.set_target(commit_id, message))?;
         } else {
             let current_branch =
-                get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
+                get_branch_name_priv(&repo).unwrap_or_else(|| {
+                    // On unborn branch, read HEAD's symbolic target to get the intended branch name
+                    repo.find_reference("HEAD")
+                        .ok()
+                        .and_then(|r| r.symbolic_target().map(|s| s.to_string()))
+                        .and_then(|s| s.strip_prefix("refs/heads/").map(|s| s.to_string()))
+                        .unwrap_or_else(|| "main".to_string())
+                });
 
             swl!(repo.reference(
                 &format!("refs/heads/{}", current_branch),
@@ -2535,6 +2542,16 @@ pub async fn get_recommended_action(
 ) -> Result<Option<i32>, git2::Error> {
     let log_callback = Arc::new(log);
     let repo = swl!(git2::Repository::open(path_string))?;
+
+    if repo.head().is_err() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::RecommendedAction,
+            "Unborn branch — no commits, no sync action applicable".to_string(),
+        );
+        return Ok(Some(-1));
+    }
+
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
     let branch_name = get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
 
@@ -3932,6 +3949,24 @@ pub async fn init_repository(
         "Initialising repository".to_string(),
     );
     Repository::init(Path::new(path_string))?;
+    Ok(())
+}
+
+pub async fn set_head_to_branch(
+    path_string: &String,
+    branch_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+    let repo = swl!(Repository::open(path_string))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranch,
+        format!("Setting HEAD to refs/heads/{}", branch_name),
+    );
+
+    repo.set_head(&format!("refs/heads/{}", branch_name))?;
     Ok(())
 }
 
