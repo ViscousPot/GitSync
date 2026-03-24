@@ -768,6 +768,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detachedHead => 'Detached Head';
 
   @override
+  String get unbornBranch => 'Unborn Branch';
+
+  @override
   String get commitsNotFound => 'No commits found…';
 
   @override
@@ -1941,6 +1944,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRemoteConfigured => 'No remote configured';
+
+  @override
+  String get createRemoteRepo => 'Create Remote Repository';
+
+  @override
+  String get repoName => 'Repository Name';
+
+  @override
+  String get repoPublic => 'Public';
+
+  @override
+  String get repoPrivate => 'Private';
+
+  @override
+  String get creatingRemoteRepo => 'Creating remote repository...';
+
+  @override
+  String get remoteRepoCreated => 'Remote repository created and linked as origin';
+
+  @override
+  String get remoteRepoCreateFailed => 'Failed to create remote repository';
+
+  @override
+  String get noRemoteDetectedMsg => 'This repository has no remote configured. Would you like to create one?';
+
+  @override
+  String get createAndLinkRemote => 'Create & Link Remote';
+
+  @override
+  String get createLocalOnly => 'Local Only';
+
+  @override
+  String get initMainBranch => 'Initialize main branch';
 
   @override
   String get continueLabel => 'Continue';

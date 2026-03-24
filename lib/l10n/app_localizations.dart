@@ -1618,6 +1618,12 @@ abstract class AppLocalizations {
   /// **'Detached Head'**
   String get detachedHead;
 
+  /// No description provided for @unbornBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unborn Branch'**
+  String get unbornBranch;
+
   /// No description provided for @commitsNotFound.
   ///
   /// In en, this message translates to:
@@ -3939,6 +3945,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No remote configured'**
   String get noRemoteConfigured;
+
+  /// No description provided for @createRemoteRepo.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Remote Repository'**
+  String get createRemoteRepo;
+
+  /// No description provided for @repoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository Name'**
+  String get repoName;
+
+  /// No description provided for @repoPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get repoPublic;
+
+  /// No description provided for @repoPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get repoPrivate;
+
+  /// No description provided for @creatingRemoteRepo.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating remote repository...'**
+  String get creatingRemoteRepo;
+
+  /// No description provided for @remoteRepoCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote repository created and linked as origin'**
+  String get remoteRepoCreated;
+
+  /// No description provided for @remoteRepoCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create remote repository'**
+  String get remoteRepoCreateFailed;
+
+  /// No description provided for @noRemoteDetectedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This repository has no remote configured. Would you like to create one?'**
+  String get noRemoteDetectedMsg;
+
+  /// No description provided for @createAndLinkRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Create & Link Remote'**
+  String get createAndLinkRemote;
+
+  /// No description provided for @createLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Only'**
+  String get createLocalOnly;
+
+  /// No description provided for @initMainBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialize main branch'**
+  String get initMainBranch;
 
   /// No description provided for @continueLabel.
   ///
