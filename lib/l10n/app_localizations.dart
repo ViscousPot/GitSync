@@ -3925,7 +3925,7 @@ abstract class AppLocalizations {
   /// No description provided for @remoteSetupLaterMsg.
   ///
   /// In en, this message translates to:
-  /// **'You can set up a remote later to sync with a server.'**
+  /// **'This creates a local repository.\nAuthenticate and add a remote to enable sync.'**
   String get remoteSetupLaterMsg;
 
   /// No description provided for @localOnlyNoRemote.

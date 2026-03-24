@@ -4,10 +4,7 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-Future<void> showDialog(
-  BuildContext context,
-  VoidCallback onConfirm,
-) async {
+Future<void> showDialog(BuildContext context, VoidCallback onConfirm) async {
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
@@ -28,8 +25,8 @@ Future<void> showDialog(
             ),
             SizedBox(height: spaceMD),
             Text(
-              t.remoteSetupLaterMsg,
-              style: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+              t.remoteSetupLaterMsg.toUpperCase(),
+              style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
           ],
         ),

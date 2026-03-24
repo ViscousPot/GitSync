@@ -1939,7 +1939,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noGitRepoFoundMsg => 'No git repository was found in the selected folder. Would you like to create a new one here?';
 
   @override
-  String get remoteSetupLaterMsg => 'You can set up a remote later to sync with a server.';
+  String get remoteSetupLaterMsg => 'This creates a local repository.\nAuthenticate and add a remote to enable sync.';
 
   @override
   String get localOnlyNoRemote => 'Local only — add a remote to sync';
