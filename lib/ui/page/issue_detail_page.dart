@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -337,11 +338,14 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  _detail?.title ?? widget.issueTitle,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                Flexible(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Text(
+                                      _detail?.title ?? widget.issueTitle,
+                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
                                 ),
                                 if (_detail?.canWrite == true) ...[
                                   SizedBox(width: spaceXXS),
@@ -471,7 +475,7 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
             style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
-          MarkdownBody(data: detail.body, styleSheet: _markdownStyle, shrinkWrap: true),
+          MarkdownBody(data: detail.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
 
         // Issue reactions
         if (detail.reactions.isNotEmpty) ...[SizedBox(height: spaceSM), _buildReactions(detail.reactions, detail.id, false)],
@@ -657,7 +661,7 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
               ],
             ),
             SizedBox(height: spaceXXS),
-            MarkdownBody(data: comment.body, styleSheet: _markdownStyle, shrinkWrap: true),
+            MarkdownBody(data: comment.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             if (comment.reactions.isNotEmpty) ...[SizedBox(height: spaceXS), _buildReactions(comment.reactions, comment.id, true)],
             if (_detail?.canComment == true) ...[
               SizedBox(height: spaceXXS),
@@ -773,7 +777,7 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                       t.issueAddComment,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
-                  : MarkdownBody(data: _commentController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+                  : MarkdownBody(data: _commentController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
 
           PostFooterIndicator(),
@@ -890,7 +894,7 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                       t.issueNoDescription,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
-                  : MarkdownBody(data: _bodyEditController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+                  : MarkdownBody(data: _bodyEditController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
           Padding(
             padding: EdgeInsets.all(spaceSM),

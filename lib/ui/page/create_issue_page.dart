@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -393,7 +394,7 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
                       t.createIssueBodyHint,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
-                  : MarkdownBody(data: _bodyController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+                  : MarkdownBody(data: _bodyController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
 
           PostFooterIndicator(),
@@ -411,7 +412,7 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
           widgets.add(
             Padding(
               padding: EdgeInsets.only(bottom: spaceMD),
-              child: MarkdownBody(data: field.value ?? '', styleSheet: _markdownStyle, shrinkWrap: true),
+              child: MarkdownBody(data: field.value ?? '', extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
           );
         case IssueTemplateFieldType.input:

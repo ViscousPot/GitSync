@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -340,6 +341,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                     padding: EdgeInsets.only(left: textMD + spaceXS),
                     child: MarkdownBody(
                       data: release.description,
+                      extensionSet: md.ExtensionSet.gitHubFlavored,
                       styleSheet: MarkdownStyleSheet(
                         p: TextStyle(color: colours.primaryLight, fontSize: textSM),
                         h1: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),

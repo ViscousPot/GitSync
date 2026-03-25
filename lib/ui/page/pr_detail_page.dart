@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -262,11 +263,12 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _detail?.title ?? widget.prTitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        _detail?.title ?? widget.prTitle,
+                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     if (_detail != null) ...[
                       SizedBox(height: spaceXXXXS),
@@ -451,7 +453,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
             style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
-          MarkdownBody(data: detail.body, styleSheet: _markdownStyle, shrinkWrap: true),
+          MarkdownBody(data: detail.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
 
         // PR body reactions
         if (detail.reactions.isNotEmpty) ...[SizedBox(height: spaceSM), _buildReactions(detail.reactions, detail.id, false)],
@@ -776,7 +778,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
               ],
             ),
             SizedBox(height: spaceXXS),
-            MarkdownBody(data: comment.body, styleSheet: _markdownStyle, shrinkWrap: true),
+            MarkdownBody(data: comment.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             if (comment.reactions.isNotEmpty) ...[SizedBox(height: spaceXS), _buildReactions(comment.reactions, comment.id, true)],
             if (_detail?.canComment == true) ...[SizedBox(height: spaceXXS), _buildAddReactionButton(comment.id, true)],
           ],
@@ -923,7 +925,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
                       t.issueAddComment,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
-                  : MarkdownBody(data: _commentController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+                  : MarkdownBody(data: _commentController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
           PostFooterIndicator(),
           Padding(

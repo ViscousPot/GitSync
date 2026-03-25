@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -318,7 +319,7 @@ class _CreatePrPageState extends State<CreatePrPage> {
                   decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                   child: _bodyController.text.isEmpty
                       ? Text(t.createPrBodyHint, style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic))
-                      : MarkdownBody(data: _bodyController.text, styleSheet: _markdownStyle, shrinkWrap: true),
+                      : MarkdownBody(data: _bodyController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
                 ),
               PostFooterIndicator(),
               SizedBox(height: spaceSM),
