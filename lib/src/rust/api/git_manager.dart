@@ -738,6 +738,20 @@ Future<void> cherryPickCommit({
   log: log,
 );
 
+Future<void> squashCommits({
+  required String pathString,
+  required String oldestCommitSha,
+  required String squashMessage,
+  (String, String)? commitSigningCredentials,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerSquashCommits(
+  pathString: pathString,
+  oldestCommitSha: oldestCommitSha,
+  squashMessage: squashMessage,
+  commitSigningCredentials: commitSigningCredentials,
+  log: log,
+);
+
 abstract class WithLine {
   Future<WithLine> safeWline({required int line});
 }
@@ -893,4 +907,5 @@ enum LogType {
   undoCommit,
   resetToCommit,
   cherryPickCommit,
+  squashCommits,
 }

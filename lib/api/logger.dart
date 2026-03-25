@@ -94,6 +94,7 @@ enum LogType {
   UndoCommit,
   ResetToCommit,
   CherryPickCommit,
+  SquashCommits,
   GetIssues,
   GetPullRequests,
   GetTags,

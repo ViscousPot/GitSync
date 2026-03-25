@@ -853,6 +853,18 @@ class GitManager {
     });
   }
 
+  static Future<void> squashCommits(String oldestCommitSha, String squashMessage) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.SquashCommits, (dirPath) async {
+      await GitManagerRs.squashCommits(
+        pathString: dirPath,
+        oldestCommitSha: oldestCommitSha,
+        squashMessage: squashMessage,
+        commitSigningCredentials: await uiSettingsManager.getGitCommitSigningCredentials(),
+        log: _logWrapper,
+      );
+    });
+  }
+
   static Future<String> readGitignore() async {
     return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _repoIndex, LogType.ReadGitIgnore, (dirPath) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';

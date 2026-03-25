@@ -112,6 +112,7 @@ pub enum LogType {
     UndoCommit,
     ResetToCommit,
     CherryPickCommit,
+    SquashCommits,
 }
 
 trait WithLine {
@@ -4670,6 +4671,67 @@ pub async fn cherry_pick_commit(
             "Cherry-picked commit '{}' onto '{}'",
             &commit_sha[..7.min(commit_sha.len())],
             target_branch
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn squash_commits(
+    path_string: &String,
+    oldest_commit_sha: &String,
+    squash_message: &String,
+    commit_signing_credentials: Option<(String, String)>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::SquashCommits,
+        format!(
+            "Squashing commits from '{}' to HEAD",
+            &oldest_commit_sha[..7.min(oldest_commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oldest_oid = swl!(git2::Oid::from_str(oldest_commit_sha))?;
+    let oldest_commit = swl!(repo.find_commit(oldest_oid))?;
+
+    if oldest_commit.parent_count() == 0 {
+        return Err(git2::Error::from_str("Cannot squash: oldest selected commit has no parent"));
+    }
+
+    let parent_commit = swl!(oldest_commit.parent(0))?;
+
+    // Soft reset to parent — keeps all changes staged
+    swl!(repo.reset(parent_commit.as_object(), ResetType::Soft, None))?;
+
+    let mut index = swl!(repo.index())?;
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+
+    commit(
+        &repo,
+        Some("HEAD"),
+        &signature,
+        squash_message,
+        &tree,
+        &[&parent_commit],
+        commit_signing_credentials,
+        &log_callback,
+    )?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::SquashCommits,
+        format!(
+            "Squashed commits from '{}' to HEAD into one commit",
+            &oldest_commit_sha[..7.min(oldest_commit_sha.len())]
         ),
     );
 
