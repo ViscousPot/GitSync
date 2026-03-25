@@ -3100,6 +3100,18 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete the remote \"%s\"?'**
   String get confirmDeleteRemote;
 
+  /// No description provided for @orEnterManually.
+  ///
+  /// In en, this message translates to:
+  /// **'or enter manually'**
+  String get orEnterManually;
+
+  /// No description provided for @createOnProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Create on %s'**
+  String get createOnProvider;
+
   /// No description provided for @confirmBranchCheckoutTitle.
   ///
   /// In en, this message translates to:

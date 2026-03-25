@@ -1506,6 +1506,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get confirmDeleteRemote => '确定要删除远程 \"%s\" 吗？';
 
   @override
+  String get orEnterManually => 'or enter manually';
+
+  @override
+  String get createOnProvider => 'Create on %s';
+
+  @override
   String get confirmBranchCheckoutTitle => '检出分支？';
 
   @override

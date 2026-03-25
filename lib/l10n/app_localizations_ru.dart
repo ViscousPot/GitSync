@@ -1516,6 +1516,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirmDeleteRemote => 'Are you sure you want to delete the remote \"%s\"?';
 
   @override
+  String get orEnterManually => 'or enter manually';
+
+  @override
+  String get createOnProvider => 'Create on %s';
+
+  @override
   String get confirmBranchCheckoutTitle => 'Переключиться на ветку?';
 
   @override

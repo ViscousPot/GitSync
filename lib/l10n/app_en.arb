@@ -577,6 +577,8 @@
     "renameRemote": "Rename Remote",
     "remoteName": "Remote Name",
     "confirmDeleteRemote": "Are you sure you want to delete the remote \"%s\"?",
+    "orEnterManually": "or enter manually",
+    "createOnProvider": "Create on %s",
 
 
     "@@x-BRANCH_MANAGEMENT": "",

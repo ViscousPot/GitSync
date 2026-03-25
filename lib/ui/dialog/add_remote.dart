@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
+import 'package:sprintf/sprintf.dart';
 
 Future<void> showDialog(
   BuildContext context,
-  Future<void> Function(String name, String url) callback,
-) async {
+  Future<void> Function(String name, String url) callback, {
+  String? oauthProviderName,
+  Future<void> Function()? onCreateRemote,
+}) async {
   final nameController = TextEditingController();
   final urlController = TextEditingController();
 
@@ -26,6 +29,40 @@ Future<void> showDialog(
         content: SingleChildScrollView(
           child: ListBody(
             children: [
+              if (oauthProviderName != null && onCreateRemote != null) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                      await onCreateRemote();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
+                    ),
+                    child: Text(
+                      sprintf(t.createOnProvider, [oauthProviderName.toUpperCase()]).toUpperCase(),
+                      style: TextStyle(color: colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(height: spaceMD),
+                Row(
+                  children: [
+                    Expanded(child: Container(height: 1, color: colours.tertiaryDark)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spaceSM),
+                      child: Text(
+                        t.orEnterManually.toUpperCase(),
+                        style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(child: Container(height: 1, color: colours.tertiaryDark)),
+                  ],
+                ),
+              ],
               SizedBox(height: spaceMD),
               TextField(
                 contextMenuBuilder: globalContextMenuBuilder,

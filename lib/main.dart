@@ -2942,14 +2942,29 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                     if (noRemoteWithDir)
                                                                       GestureDetector(
                                                                         onTap: () async {
-                                                                          await AddRemoteDialog.showDialog(context, (name, url) async {
-                                                                            await runGitOperation(LogType.AddRemote, (event) => event, {
-                                                                              "name": name,
-                                                                              "url": url,
-                                                                            });
-                                                                            await uiSettingsManager.setStringNullable(StorageKey.setman_remote, name);
-                                                                            await reloadAll();
-                                                                          });
+                                                                          final provider = currentGitProvider.value;
+                                                                          final hasOAuth = provider?.isOAuthProvider == true;
+                                                                          await AddRemoteDialog.showDialog(
+                                                                            context,
+                                                                            (name, url) async {
+                                                                              await runGitOperation(LogType.AddRemote, (event) => event, {
+                                                                                "name": name,
+                                                                                "url": url,
+                                                                              });
+                                                                              await uiSettingsManager.setStringNullable(StorageKey.setman_remote, name);
+                                                                              await reloadAll();
+                                                                            },
+                                                                            oauthProviderName: hasOAuth ? provider!.name : null,
+                                                                            onCreateRemote: hasOAuth
+                                                                                ? () async {
+                                                                                    final dirPath = uiSettingsManager.gitDirPath?.$1;
+                                                                                    if (dirPath != null) {
+                                                                                      await offerCreateRemoteForExistingRepo(context, dirPath);
+                                                                                      await reloadAll();
+                                                                                    }
+                                                                                  }
+                                                                                : null,
+                                                                          );
                                                                         },
                                                                         child: Container(
                                                                           padding: EdgeInsets.only(left: spaceMD, right: 0, top: 1, bottom: 1),
