@@ -262,8 +262,8 @@ Future<bool> validateOrInitGitDir(BuildContext context, String dir) async {
   final resolvedPath = await useDirectory<String>(dir, (_) async => null, (path) async => path);
 
   if (isGit == true) {
-    if (oAuthInfo != null) {
-      final remotes = await GitManager.listRemotes();
+    if (oAuthInfo != null && resolvedPath != null) {
+      final remotes = await GitManagerRs.listRemotes(pathString: resolvedPath, log: (_, __) {});
       if (remotes.isEmpty) {
         await _offerCreateRemoteForDir(context, dirName, oAuthInfo, resolvedPath);
       }
