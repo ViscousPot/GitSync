@@ -745,6 +745,9 @@ fn _log(
 
 pub async fn get_submodule_paths(path_string: String) -> Result<Vec<String>, git2::Error> {
     let repo = swl!(Repository::open(path_string))?;
+    if repo.is_bare() {
+        return Ok(Vec::new());
+    }
     let mut paths = Vec::new();
 
     for mut submodule in swl!(repo.submodules())? {
@@ -763,6 +766,8 @@ pub async fn clone_repository(
     provider: String,
     credentials: (String, String),
     author: (String, String),
+    depth: Option<i32>,
+    bare: bool,
     clone_task_callback: impl Fn(String) -> DartFnFuture<()> + Send + Sync + 'static,
     clone_progress_callback: impl Fn(i32) -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
@@ -814,14 +819,25 @@ pub async fn clone_repository(
     fo.update_fetchhead(true);
     fo.remote_callbacks(callbacks);
     fo.prune(git2::FetchPrune::On);
+    if let Some(d) = depth {
+        fo.depth(d);
+    }
 
     builder.fetch_options(fo);
     let path = Path::new(path_string.as_str());
-    let repo = swl!(builder.clone(url.as_str(), path))?;
+    let repo = if bare {
+        builder.bare(true);
+        let git_dir = path.join(".git");
+        let bare_repo = swl!(builder.clone(url.as_str(), &git_dir))?;
+        bare_repo
+    } else {
+        swl!(builder.clone(url.as_str(), path))?
+    };
 
     set_author(&repo, &author);
     repo.cleanup_state().unwrap();
 
+    if !bare {
     let mut remote = repo.find_remote("origin")?;
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
     let mut fo2 = FetchOptions::new();
@@ -1013,6 +1029,7 @@ pub async fn clone_repository(
         LogType::Clone,
         "Submodules updated successfully".to_string(),
     );
+    } // !bare
 
     Ok(())
 }

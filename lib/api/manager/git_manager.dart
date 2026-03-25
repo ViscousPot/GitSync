@@ -217,7 +217,7 @@ class GitManager {
       (await (setman ?? uiSettingsManager).getAuthorName(), await (setman ?? uiSettingsManager).getAuthorEmail());
 
   // UI Accessible Only
-  static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback) async {
+  static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback, {int? depth, bool bare = false}) async {
     if (await isLocked() != null) return operationInProgressError;
 
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
@@ -232,6 +232,8 @@ class GitManager {
           provider: await _gitProvider(),
           credentials: await _getCredentials(),
           author: await _author(),
+          depth: depth,
+          bare: bare,
           cloneTaskCallback: cloneTaskCallback,
           cloneProgressCallback: cloneProgressCallback,
           log: _logWrapper,

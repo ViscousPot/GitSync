@@ -1108,6 +1108,18 @@ class AppLocalizationsJa extends AppLocalizations {
       'リポジトリ検索はAPIから返される最初の100件のリポジトリのみを調査するため、目的のリポジトリが表示されない場合があります。\n\n目的のリポジトリが検索結果に表示されない場合は、HTTPSまたはSSHのURLを使用して直接クローンしてください。';
 
   @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get shallowClone => 'Shallow Clone (Depth)';
+
+  @override
+  String get bareClone => 'Bare Clone';
+
+  @override
+  String get cloneDepthPlaceholder => 'full';
+
+  @override
   String get repositorySettings => 'リポジトリ設定';
 
   @override

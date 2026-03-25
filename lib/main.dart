@@ -218,6 +218,8 @@ void onServiceStart(ServiceInstance service) async {
       event["repoPath"],
       (task) => service.invoke("cloneTaskCallback", {"task": task}),
       (progress) => service.invoke("cloneProgressCallback", {"progress": progress}),
+      depth: event["depth"] as int?,
+      bare: event["bare"] as bool? ?? false,
     );
 
     service.invoke(LogType.Clone.name, {"result": result});

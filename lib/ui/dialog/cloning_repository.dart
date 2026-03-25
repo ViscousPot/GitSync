@@ -8,7 +8,7 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 
-Future<void> showDialog(BuildContext context, String repoUrl, String dir, Function(String?) callback) async {
+Future<void> showDialog(BuildContext context, String repoUrl, String dir, Function(String?) callback, {int? depth, bool bare = false}) async {
   String task = "";
   double progress = 0.0;
   StateSetter? setState;
@@ -24,7 +24,7 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
     if (context.mounted) setState?.call(() {});
   });
 
-  runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir}).then((result) {
+  runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir, "depth": depth, "bare": bare}).then((result) {
     taskSub.cancel();
     progressSub.cancel();
     Navigator.of(context).canPop() ? Navigator.pop(context) : null;

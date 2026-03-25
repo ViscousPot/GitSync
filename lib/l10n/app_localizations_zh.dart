@@ -1104,6 +1104,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get repoSearchLimitsDescription => '仓库搜索仅检查 API 返回的前 100 个仓库，因此有时可能会遗漏你期望的仓库。\n\n如果想要的仓库没有出现在搜索结果中，请直接使用其 HTTPS 或 SSH URL 克隆。';
 
   @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get shallowClone => 'Shallow Clone (Depth)';
+
+  @override
+  String get bareClone => 'Bare Clone';
+
+  @override
+  String get cloneDepthPlaceholder => 'full';
+
+  @override
   String get repositorySettings => '仓库设置';
 
   @override

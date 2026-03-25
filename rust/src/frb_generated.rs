@@ -432,6 +432,8 @@ fn wire__crate__api__git_manager__clone_repository_impl(
             let api_provider = <String>::sse_decode(&mut deserializer);
             let api_credentials = <(String, String)>::sse_decode(&mut deserializer);
             let api_author = <(String, String)>::sse_decode(&mut deserializer);
+            let api_depth = <Option<i32>>::sse_decode(&mut deserializer);
+            let api_bare = <bool>::sse_decode(&mut deserializer);
             let api_clone_task_callback = decode_DartFn_Inputs_String_Output_unit_AnyhowException(
                 <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
             );
@@ -451,6 +453,8 @@ fn wire__crate__api__git_manager__clone_repository_impl(
                             api_provider,
                             api_credentials,
                             api_author,
+                            api_depth,
+                            api_bare,
                             api_clone_task_callback,
                             api_clone_progress_callback,
                             api_log,

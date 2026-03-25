@@ -1111,6 +1111,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.';
 
   @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get shallowClone => 'Shallow Clone (Depth)';
+
+  @override
+  String get bareClone => 'Bare Clone';
+
+  @override
+  String get cloneDepthPlaceholder => 'full';
+
+  @override
   String get repositorySettings => 'Repository Settings';
 
   @override

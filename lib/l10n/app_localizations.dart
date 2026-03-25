@@ -2296,6 +2296,30 @@ abstract class AppLocalizations {
   /// **'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.'**
   String get repoSearchLimitsDescription;
 
+  /// No description provided for @advancedOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Options'**
+  String get advancedOptions;
+
+  /// No description provided for @shallowClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow Clone (Depth)'**
+  String get shallowClone;
+
+  /// No description provided for @bareClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Bare Clone'**
+  String get bareClone;
+
+  /// No description provided for @cloneDepthPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'full'**
+  String get cloneDepthPlaceholder;
+
   /// No description provided for @repositorySettings.
   ///
   /// In en, this message translates to:
