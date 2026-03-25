@@ -94,7 +94,7 @@ const String mergeConflictNotificationBody = "There is an irreconcilable differe
 // Settings Page
 const String defaultSyncMessage = "Last Sync: %s (Mobile)";
 const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
-const String defaultPostFooter = '\n<sub>CREATED IN <a href="https://github.com/ViscousPot/GitSync">GITSYNC</a></sub>';
+const String defaultPostFooter = '\n<sub>CREATED WITH <a href="https://github.com/ViscousPot/GitSync">GITSYNC</a></sub>';
 
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
 const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";
