@@ -473,8 +473,11 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
   void _mapFile() {
     writeMmap?.close();
+    writeMmap = null;
     if (widget.path == null) return;
-    writeMmap = Mmap.fromFile(widget.path!, mode: AccessMode.write);
+    try {
+      writeMmap = Mmap.fromFile(widget.path!, mode: AccessMode.write);
+    } catch (_) {}
   }
 
   void _onTextChanged() async {
@@ -485,9 +488,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
       final newBytes = Uint8List.fromList(controller.text.codeUnits);
 
-      if (writeMmap == null || !writeMmap!.isOpen) return;
-
-      if (newBytes.length != writeMmap!.writableData.length) {
+      if (writeMmap == null || !writeMmap!.isOpen) {
+        File(widget.path!).writeAsStringSync(controller.text);
+        _mapFile();
+      } else if (newBytes.length != writeMmap!.writableData.length) {
         File(widget.path!).writeAsStringSync(controller.text);
         _mapFile();
       } else {
