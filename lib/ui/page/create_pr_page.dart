@@ -10,6 +10,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
+import 'package:GitSync/ui/component/post_footer_indicator.dart';
 
 class CreatePrPage extends StatefulWidget {
   final GitProvider gitProvider;
@@ -125,12 +126,13 @@ class _CreatePrPageState extends State<CreatePrPage> {
       return;
     }
 
+    final bodyWithFooter = await uiSettingsManager.applyPostFooter(_bodyController.text);
     final result = await manager.createPullRequest(
       widget.accessToken,
       owner,
       repo,
       _titleController.text.trim(),
-      _bodyController.text,
+      bodyWithFooter,
       _headBranch!,
       _baseBranch!,
     );
@@ -318,6 +320,7 @@ class _CreatePrPageState extends State<CreatePrPage> {
                       ? Text(t.createPrBodyHint, style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic))
                       : MarkdownBody(data: _bodyController.text, styleSheet: _markdownStyle, shrinkWrap: true),
                 ),
+              PostFooterIndicator(),
               SizedBox(height: spaceSM),
             ],
           ),

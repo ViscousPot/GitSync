@@ -12,6 +12,7 @@ import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
+import 'package:GitSync/ui/component/post_footer_indicator.dart';
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -91,7 +92,8 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
     final manager = _manager;
     if (manager == null) return;
 
-    final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.prNumber, body);
+    final bodyWithFooter = await uiSettingsManager.applyPostFooter(body);
+    final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.prNumber, bodyWithFooter);
     if (!mounted) return;
 
     if (comment != null) {
@@ -923,6 +925,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
                     )
                   : MarkdownBody(data: _commentController.text, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
+          PostFooterIndicator(),
           Padding(
             padding: EdgeInsets.all(spaceSM),
             child: Align(

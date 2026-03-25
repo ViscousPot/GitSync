@@ -24,12 +24,14 @@ enum StorageKey<T> {
   repoman_defaultSyncMessageTimeFormat<String>(name: "defaultSyncMessageTimeFormat", defaultValue: defaultSyncMessageTimeFormat),
   repoman_defaultAuthorName<String>(name: "defaultAuthorName", defaultValue: ""),
   repoman_defaultAuthorEmail<String>(name: "defaultAuthorEmail", defaultValue: ""),
+  repoman_defaultPostFooter<String>(name: "defaultPostFooter", defaultValue: defaultPostFooter),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
   repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: false),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),
   setman_authorEmail<String?>(name: "authorEmail", defaultValue: "", hasDefault: true),
+  setman_postFooter<String?>(name: "postFooter", defaultValue: defaultPostFooter, hasDefault: true),
   setman_syncMessage<String?>(name: "syncMessage", defaultValue: defaultSyncMessage, hasDefault: true),
   setman_syncMessageTimeFormat<String?>(name: "syncMessageTimeFormat", defaultValue: defaultSyncMessageTimeFormat, hasDefault: true),
   setman_remote<String?>(name: "remote", defaultValue: "origin", hasDefault: true),

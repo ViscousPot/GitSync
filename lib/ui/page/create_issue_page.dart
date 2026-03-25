@@ -10,6 +10,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
+import 'package:GitSync/ui/component/post_footer_indicator.dart';
 
 class CreateIssuePage extends StatefulWidget {
   final GitProvider gitProvider;
@@ -163,6 +164,7 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
       assignees = template?.assignees.isNotEmpty == true ? template!.assignees : null;
     }
 
+    body = await uiSettingsManager.applyPostFooter(body);
     final result = await manager.createIssue(widget.accessToken, owner, repo, title, body, labels: labels, assignees: assignees);
     if (!mounted) return;
 
@@ -394,6 +396,7 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
                   : MarkdownBody(data: _bodyController.text, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
 
+          PostFooterIndicator(),
           SizedBox(height: spaceSM),
         ],
       ),

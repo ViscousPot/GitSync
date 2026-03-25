@@ -52,6 +52,15 @@ class SettingsManager extends Storage {
   Future<String> getAuthorEmail() async =>
       await _getOrDefault(StorageKey.setman_authorEmail, getStringNullable, () => repoManager.getString(StorageKey.repoman_defaultAuthorEmail));
 
+  Future<String> getPostFooter() async =>
+      await _getOrDefault(StorageKey.setman_postFooter, getStringNullable, () => repoManager.getString(StorageKey.repoman_defaultPostFooter));
+
+  Future<String> applyPostFooter(String body) async {
+    final footer = await getPostFooter();
+    if (footer.trim().isEmpty) return body;
+    return '$body\n$footer';
+  }
+
   Future<String> getRemote() async =>
       await _getOrDefault(StorageKey.setman_remote, getStringNullable, () => repoManager.getString(StorageKey.repoman_defaultRemote));
 

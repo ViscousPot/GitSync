@@ -1195,6 +1195,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authorEmail => 'john12@smith.com';
 
   @override
+  String get postFooterLabel => 'post footer';
+
+  @override
+  String get postFooterDescription => 'appended to issues, comments, and pull requests you create';
+
+  @override
+  String get postFooterDialogInfo =>
+      'This text is automatically appended to the end of issues, comments, and pull requests you create. You can change or remove it in your repository settings.\n\nThe default for new repositories can be set in Global Settings under Repository Defaults.';
+
+  @override
   String get gitIgnore => '.gitignore';
 
   @override

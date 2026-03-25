@@ -2458,6 +2458,24 @@ abstract class AppLocalizations {
   /// **'john12@smith.com'**
   String get authorEmail;
 
+  /// No description provided for @postFooterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'post footer'**
+  String get postFooterLabel;
+
+  /// No description provided for @postFooterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'appended to issues, comments, and pull requests you create'**
+  String get postFooterDescription;
+
+  /// No description provided for @postFooterDialogInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This text is automatically appended to the end of issues, comments, and pull requests you create. You can change or remove it in your repository settings.\n\nThe default for new repositories can be set in Global Settings under Repository Defaults.'**
+  String get postFooterDialogInfo;
+
   /// No description provided for @gitIgnore.
   ///
   /// In en, this message translates to:

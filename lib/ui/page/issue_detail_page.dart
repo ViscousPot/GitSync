@@ -10,6 +10,7 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_detail.dart';
+import 'package:GitSync/ui/component/post_footer_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class IssueDetailPage extends StatefulWidget {
@@ -93,7 +94,8 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
     final manager = _manager;
     if (manager == null) return;
 
-    final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.issueNumber, body);
+    final bodyWithFooter = await uiSettingsManager.applyPostFooter(body);
+    final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.issueNumber, bodyWithFooter);
     if (!mounted) return;
 
     if (comment != null) {
@@ -773,6 +775,8 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                     )
                   : MarkdownBody(data: _commentController.text, styleSheet: _markdownStyle, shrinkWrap: true),
             ),
+
+          PostFooterIndicator(),
 
           // Submit button
           Padding(
