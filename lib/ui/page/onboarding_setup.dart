@@ -2804,7 +2804,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                               ),
                             ),
                             child: Text(
-                              t.skip.toUpperCase(),
+                              "Use Offline".toUpperCase(),
                               style: TextStyle(
                                 color: colours.primaryDark,
                                 fontWeight: FontWeight.bold,
