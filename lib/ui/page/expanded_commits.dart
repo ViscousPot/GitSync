@@ -8,6 +8,7 @@ import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/showcase_feature.dart';
 import 'package:GitSync/ui/component/branch_selector.dart';
+import 'package:GitSync/ui/component/commit_select_action_bar.dart';
 import 'package:GitSync/ui/component/item_commit.dart';
 import 'package:GitSync/ui/component/item_merge_conflict.dart';
 import 'package:GitSync/ui/component/showcase_feature_button.dart';
@@ -55,6 +56,8 @@ class ExpandedCommits extends StatefulWidget {
 class _ExpandedCommitsState extends State<ExpandedCommits> {
   late final ScrollController _scrollController = ScrollController(initialScrollOffset: widget.initialScrollOffset);
   final ValueNotifier<List<ShowcaseFeature>> _pinnedFeatures = ValueNotifier(ShowcaseFeature.defaultPinned);
+  final ValueNotifier<bool> _selectMode = ValueNotifier(false);
+  final ValueNotifier<Set<String>> _selectedShas = ValueNotifier({});
 
   @override
   void initState() {
@@ -119,10 +122,17 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
     ];
   }
 
+  void _exitSelectMode() {
+    _selectMode.value = false;
+    _selectedShas.value = {};
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
     _pinnedFeatures.dispose();
+    _selectMode.dispose();
+    _selectedShas.dispose();
     super.dispose();
   }
 
@@ -134,7 +144,13 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) Navigator.of(context).pop(_scrollController.offset);
+        if (!didPop) {
+          if (_selectMode.value) {
+            _exitSelectMode();
+          } else {
+            Navigator.of(context).pop(_scrollController.offset);
+          }
+        }
       },
       child: Scaffold(
         backgroundColor: colours.primaryDark,
@@ -208,6 +224,12 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                                   gitProvider: widget.gitProvider,
                                                   remoteWebUrl: widget.remoteWebUrl,
                                                   onRefresh: () => widget.onReloadAll(),
+                                                  selectMode: _selectMode,
+                                                  selectedShas: _selectedShas,
+                                                  onSelectModeRequested: () {
+                                                    _selectMode.value = true;
+                                                    _selectedShas.value = {items[index].reference};
+                                                  },
                                                 );
                                               },
                                             ),
@@ -217,21 +239,33 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                 Positioned(
                                   top: -(spaceXS),
                                   left: -(spaceSM - spaceXXXXS),
-                                  child: Hero(
-                                    tag: hero_expand_contract,
-                                    child: IconButton(
-                                      padding: EdgeInsets.all(spaceSM),
-                                      style: ButtonStyle(
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        shape: WidgetStatePropertyAll(
-                                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
+                                  child: Stack(
+                                    children: [
+                                      Hero(
+                                        tag: hero_expand_contract,
+                                        child: IconButton(
+                                          padding: EdgeInsets.all(spaceSM),
+                                          style: ButtonStyle(
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            shape: WidgetStatePropertyAll(
+                                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
+                                            ),
+                                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
+                                          ),
+                                          constraints: BoxConstraints(),
+                                          onPressed: () => Navigator.of(context).pop(_scrollController.offset),
+                                          icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
                                         ),
-                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                       ),
-                                      constraints: BoxConstraints(),
-                                      onPressed: () => Navigator.of(context).pop(_scrollController.offset),
-                                      icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
-                                    ),
+                                      CommitSelectActionBar(
+                                        selectMode: _selectMode,
+                                        selectedShas: _selectedShas,
+                                        commits: commitsValue,
+                                        onReloadAll: widget.onReloadAll,
+                                        onExitSelectMode: _exitSelectMode,
+                                        borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Positioned(

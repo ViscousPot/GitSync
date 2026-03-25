@@ -618,6 +618,8 @@
     "menuCreateTagDesc": "Create a tag on this commit",
     "menuCherryPick": "Cherry Pick Commit",
     "menuCherryPickDesc": "Apply this commit onto the current branch",
+    "menuSelectCommits": "Select Commits",
+    "menuSelectCommitsDesc": "Select multiple commits for batch operations",
     "menuCopySha": "Copy SHA",
     "menuCopyShaDesc": "Copy the full commit hash to clipboard",
     "menuCopyTag": "Copy Tag",
@@ -661,6 +663,20 @@
     "cherryPickCommitWarning": "This may produce merge conflicts if the changes overlap with the target branch.",
     "cherryPickTargetBranch": "Target Branch",
     "cherryPick": "Cherry Pick",
+
+    "cherryPickCommits": "Cherry Pick Commits",
+    "cherryPickCommitsMsg": "Apply changes from %s commits onto",
+    "cherryPickCommitsWarning": "Commits will be applied in chronological order. Conflicts may occur at each step.",
+
+    "squashCommits": "Squash Commits",
+    "squashCommitsMsg": "Combine %s commits into a single commit",
+    "squashCommitsWarning": "This rewrites commit history. If these commits have been pushed, a force push will be required.",
+    "squash": "Squash",
+    "squashCommitMessage": "Squash Message",
+
+    "selectCommits": "Select Commits",
+    "selectedCount": "%s selected",
+    "squashRequiresConsecutive": "Squash requires consecutive commits from the latest commit",
 
 
     "@@x-ISSUES": "",

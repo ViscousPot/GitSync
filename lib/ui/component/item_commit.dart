@@ -67,7 +67,7 @@ class ChevronPainter extends CustomPainter {
 }
 
 class ItemCommit extends StatefulWidget {
-  const ItemCommit(this.commit, this.prevCommit, this.recentCommits, {this.gitProvider, this.remoteWebUrl, this.onRefresh, super.key});
+  const ItemCommit(this.commit, this.prevCommit, this.recentCommits, {this.gitProvider, this.remoteWebUrl, this.onRefresh, this.selectMode, this.selectedShas, this.onSelectModeRequested, super.key});
 
   final GitManagerRs.Commit commit;
   final GitManagerRs.Commit? prevCommit;
@@ -75,6 +75,9 @@ class ItemCommit extends StatefulWidget {
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
   final Future<void> Function()? onRefresh;
+  final ValueNotifier<bool>? selectMode;
+  final ValueNotifier<Set<String>>? selectedShas;
+  final VoidCallback? onSelectModeRequested;
 
   @override
   State<ItemCommit> createState() => _ItemCommit();
@@ -132,11 +135,12 @@ class _ItemCommit extends State<ItemCommit> {
       color: colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
       items: [
+        item('select', t.menuSelectCommits.toUpperCase(), t.menuSelectCommitsDesc),
         if (widget.recentCommits.isNotEmpty && widget.commit.reference == widget.recentCommits.first.reference) ...[
           item('amend-commit', t.menuAmendCommit.toUpperCase(), t.menuAmendCommitDesc),
           if (widget.commit.unpushed) item('undo-commit', t.menuUndoCommit.toUpperCase(), t.menuUndoCommitDesc),
-          separator(),
         ],
+        separator(),
         item('reset-commit', t.menuResetToCommit.toUpperCase(), t.menuResetToCommitDesc),
         item('checkout', t.menuCheckoutCommit.toUpperCase(), t.menuCheckoutCommitDesc),
         // item('reorder-commit', 'REORDER COMMIT', 'Move this commit to a different position in history'),
@@ -226,52 +230,75 @@ class _ItemCommit extends State<ItemCommit> {
       case 'view':
         final url = widget.gitProvider!.commitUrl(widget.remoteWebUrl!, widget.commit.reference);
         if (url != null) await launchUrl(Uri.parse(url));
+      case 'select':
+        widget.onSelectModeRequested?.call();
+    }
+  }
+
+  void _toggleSelection() {
+    final shas = widget.selectedShas!;
+    final sha = widget.commit.reference;
+    if (shas.value.contains(sha)) {
+      shas.value = {...shas.value}..remove(sha);
+    } else {
+      shas.value = {...shas.value, sha};
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BetterOrientationBuilder(
-      builder: (context, orientation) => Container(
-        margin: orientation == Orientation.portrait ? EdgeInsets.only(top: spaceSM) : EdgeInsets.only(bottom: spaceSM),
-        child: GestureDetector(
-          onLongPressStart: (details) {
-            _showCommitContextMenu(context, details.globalPosition);
-          },
-          child: TextButton(
-            onPressed: () async {
-              print(widget.commit.reference);
-              print(widget.prevCommit?.reference);
+    final selectMode = widget.selectMode;
+    final selectedShas = widget.selectedShas;
 
-              DiffViewDialog.showDialog(
-                context,
-                widget.recentCommits,
-                (widget.commit.reference, widget.prevCommit?.reference),
-                widget.commit.reference.substring(0, 7),
-                (widget.commit, widget.prevCommit),
-                null,
-                widget.commit.tags,
-              );
-            },
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(
-                widget.commit.unpushed
-                    ? colours.tertiaryInfo
-                    : widget.commit.unpulled
-                    ? colours.tertiaryWarning
-                    : colours.tertiaryDark,
-              ),
-              padding: WidgetStatePropertyAll(EdgeInsets.zero),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(cornerRadiusSM),
-                  side: _menuOpen ? BorderSide(color: colours.primaryLight, width: spaceXXXXS) : BorderSide.none,
+    Widget buildCommit({required bool inSelectMode, required bool isSelected}) {
+      return BetterOrientationBuilder(
+        builder: (context, orientation) => Container(
+          margin: orientation == Orientation.portrait ? EdgeInsets.only(top: spaceSM) : EdgeInsets.only(bottom: spaceSM),
+          child: GestureDetector(
+            onLongPressStart: inSelectMode
+                ? (_) => _toggleSelection()
+                : (details) => _showCommitContextMenu(context, details.globalPosition),
+            child: TextButton(
+              onPressed: () async {
+                if (inSelectMode) {
+                  _toggleSelection();
+                  return;
+                }
+                DiffViewDialog.showDialog(
+                  context,
+                  widget.recentCommits,
+                  (widget.commit.reference, widget.prevCommit?.reference),
+                  widget.commit.reference.substring(0, 7),
+                  (widget.commit, widget.prevCommit),
+                  null,
+                  widget.commit.tags,
+                );
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                  widget.commit.unpushed
+                      ? colours.tertiaryInfo
+                      : widget.commit.unpulled
+                      ? colours.tertiaryWarning
+                      : colours.tertiaryDark,
                 ),
+                padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    side: isSelected
+                        ? BorderSide(color: colours.primaryInfo, width: spaceXXXXS * 2)
+                        : _menuOpen
+                        ? BorderSide(color: colours.primaryLight, width: spaceXXXXS)
+                        : inSelectMode
+                        ? BorderSide(color: colours.tertiaryLight.withAlpha(50), width: spaceXXXXS)
+                        : BorderSide.none,
+                  ),
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
               ),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            clipBehavior: Clip.antiAlias,
+              clipBehavior: Clip.antiAlias,
             child: CustomPaint(
               painter: ChevronPainter(
                 color: widget.commit.unpushed
@@ -415,5 +442,20 @@ class _ItemCommit extends State<ItemCommit> {
         ),
       ),
     );
+    }
+
+    if (selectMode != null && selectedShas != null) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: selectMode,
+        builder: (context, inSelectMode, _) {
+          if (!inSelectMode) return buildCommit(inSelectMode: false, isSelected: false);
+          return ValueListenableBuilder<Set<String>>(
+            valueListenable: selectedShas,
+            builder: (context, shas, _) => buildCommit(inSelectMode: true, isSelected: shas.contains(widget.commit.reference)),
+          );
+        },
+      );
+    }
+    return buildCommit(inSelectMode: false, isSelected: false);
   }
 }

@@ -1633,6 +1633,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuCherryPickDesc => 'Apply this commit onto the current branch';
 
   @override
+  String get menuSelectCommits => 'Select Commits';
+
+  @override
+  String get menuSelectCommitsDesc => 'Select multiple commits for batch operations';
+
+  @override
   String get menuCopySha => 'Copy SHA';
 
   @override
@@ -1737,6 +1743,39 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cherryPick => 'Cherry Pick';
+
+  @override
+  String get cherryPickCommits => 'Cherry Pick Commits';
+
+  @override
+  String get cherryPickCommitsMsg => 'Apply changes from %s commits onto';
+
+  @override
+  String get cherryPickCommitsWarning => 'Commits will be applied in chronological order. Conflicts may occur at each step.';
+
+  @override
+  String get squashCommits => 'Squash Commits';
+
+  @override
+  String get squashCommitsMsg => 'Combine %s commits into a single commit';
+
+  @override
+  String get squashCommitsWarning => 'This rewrites commit history. If these commits have been pushed, a force push will be required.';
+
+  @override
+  String get squash => 'Squash';
+
+  @override
+  String get squashCommitMessage => 'Squash Message';
+
+  @override
+  String get selectCommits => 'Select Commits';
+
+  @override
+  String get selectedCount => '%s selected';
+
+  @override
+  String get squashRequiresConsecutive => 'Squash requires consecutive commits from the latest commit';
 
   @override
   String get issues => 'Issues';

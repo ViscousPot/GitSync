@@ -3322,6 +3322,18 @@ abstract class AppLocalizations {
   /// **'Apply this commit onto the current branch'**
   String get menuCherryPickDesc;
 
+  /// No description provided for @menuSelectCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Commits'**
+  String get menuSelectCommits;
+
+  /// No description provided for @menuSelectCommitsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select multiple commits for batch operations'**
+  String get menuSelectCommitsDesc;
+
   /// No description provided for @menuCopySha.
   ///
   /// In en, this message translates to:
@@ -3531,6 +3543,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cherry Pick'**
   String get cherryPick;
+
+  /// No description provided for @cherryPickCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commits'**
+  String get cherryPickCommits;
+
+  /// No description provided for @cherryPickCommitsMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply changes from %s commits onto'**
+  String get cherryPickCommitsMsg;
+
+  /// No description provided for @cherryPickCommitsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Commits will be applied in chronological order. Conflicts may occur at each step.'**
+  String get cherryPickCommitsWarning;
+
+  /// No description provided for @squashCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash Commits'**
+  String get squashCommits;
+
+  /// No description provided for @squashCommitsMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Combine %s commits into a single commit'**
+  String get squashCommitsMsg;
+
+  /// No description provided for @squashCommitsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This rewrites commit history. If these commits have been pushed, a force push will be required.'**
+  String get squashCommitsWarning;
+
+  /// No description provided for @squash.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash'**
+  String get squash;
+
+  /// No description provided for @squashCommitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash Message'**
+  String get squashCommitMessage;
+
+  /// No description provided for @selectCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Commits'**
+  String get selectCommits;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'%s selected'**
+  String get selectedCount;
+
+  /// No description provided for @squashRequiresConsecutive.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash requires consecutive commits from the latest commit'**
+  String get squashRequiresConsecutive;
 
   /// No description provided for @issues.
   ///

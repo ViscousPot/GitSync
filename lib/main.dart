@@ -64,6 +64,7 @@ import '../ui/dialog/force_push_pull.dart' as ForcePushPullDialog;
 import '../ui/dialog/manual_sync.dart' as ManualSyncDialog;
 import '../constant/dimens.dart';
 import '../global.dart';
+import '../ui/component/commit_select_action_bar.dart';
 import '../ui/component/item_commit.dart';
 import '../ui/page/clone_repo_main.dart';
 import 'package:GitSync/ui/page/expanded_commits.dart';
@@ -756,6 +757,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   RestorableBool loadingRecentCommits = RestorableBool(false);
   bool _hasMoreCommits = true;
   ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
+  final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
+  final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
   ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting = ValueNotifier([]);
   RestorableStringN branchName = RestorableStringN(null);
   ValueNotifier<Map<String, String>> branchNames = ValueNotifier({});
@@ -767,6 +770,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   RestorableBool mergeConflictVisible = RestorableBool(true);
 
   int _reloadToken = 0;
+
+  void _exitCommitSelectMode() {
+    _commitSelectMode.value = false;
+    _commitSelectedShas.value = {};
+  }
 
   void _onCommitsScroll() {
     if (!_hasMoreCommits) return;
@@ -1479,6 +1487,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
 
     premiumManager.dispose();
     _pulseController.dispose();
+    _commitSelectMode.dispose();
+    _commitSelectedShas.dispose();
 
     autoRefreshTimer?.cancel();
     networkSubscription?.cancel();
@@ -2096,6 +2106,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                               gitProvider: currentGitProvider.value,
                                                                                               remoteWebUrl: remoteUrlLink.value?.$2,
                                                                                               onRefresh: () => reloadAll(),
+                                                                                              selectMode: _commitSelectMode,
+                                                                                              selectedShas: _commitSelectedShas,
+                                                                                              onSelectModeRequested: () {
+                                                                                                _commitSelectMode.value = true;
+                                                                                                _commitSelectedShas.value = {items[index].reference};
+                                                                                              },
                                                                                             ),
                                                                                           );
                                                                                         },
@@ -2210,69 +2226,91 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                               top: orientation == Orientation.portrait ? -spaceXS : null,
                                                               bottom: orientation == Orientation.portrait ? null : -spaceXS,
                                                               left: -spaceSM,
-                                                              child: Hero(
-                                                                tag: hero_expand_contract,
-                                                                flightShuttleBuilder:
-                                                                    (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
-                                                                      return AnimatedBuilder(
-                                                                        animation: animation,
-                                                                        builder: (context, _) {
-                                                                          final icon = flightDirection == HeroFlightDirection.push
-                                                                              ? (animation.value < 0.5
-                                                                                    ? FontAwesomeIcons.upRightAndDownLeftFromCenter
-                                                                                    : FontAwesomeIcons.downLeftAndUpRightToCenter)
-                                                                              : (animation.value < 0.5
-                                                                                    ? FontAwesomeIcons.downLeftAndUpRightToCenter
-                                                                                    : FontAwesomeIcons.upRightAndDownLeftFromCenter);
-                                                                          return IconButton(
-                                                                            padding: EdgeInsets.all(spaceSM),
-                                                                            style: ButtonStyle(
-                                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                              shape: WidgetStatePropertyAll(
-                                                                                RoundedRectangleBorder(
-                                                                                  borderRadius: BorderRadius.all(
-                                                                                    cornerRadiusSM,
-                                                                                  ).copyWith(topLeft: cornerRadiusMD),
+                                                              child: Stack(
+                                                                children: [
+                                                                  Hero(
+                                                                    tag: hero_expand_contract,
+                                                                    flightShuttleBuilder:
+                                                                        (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
+                                                                          return AnimatedBuilder(
+                                                                            animation: animation,
+                                                                            builder: (context, _) {
+                                                                              final icon = flightDirection == HeroFlightDirection.push
+                                                                                  ? (animation.value < 0.5
+                                                                                        ? FontAwesomeIcons.upRightAndDownLeftFromCenter
+                                                                                        : FontAwesomeIcons.downLeftAndUpRightToCenter)
+                                                                                  : (animation.value < 0.5
+                                                                                        ? FontAwesomeIcons.downLeftAndUpRightToCenter
+                                                                                        : FontAwesomeIcons.upRightAndDownLeftFromCenter);
+                                                                              return IconButton(
+                                                                                padding: EdgeInsets.all(spaceSM),
+                                                                                style: ButtonStyle(
+                                                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                                  shape: WidgetStatePropertyAll(
+                                                                                    RoundedRectangleBorder(
+                                                                                      borderRadius: BorderRadius.all(
+                                                                                        cornerRadiusSM,
+                                                                                      ).copyWith(topLeft: cornerRadiusMD),
+                                                                                    ),
+                                                                                  ),
+                                                                                  backgroundColor: WidgetStatePropertyAll(
+                                                                                    colours.secondaryDark.withOpacity(0.5),
+                                                                                  ),
                                                                                 ),
-                                                                              ),
-                                                                              backgroundColor: WidgetStatePropertyAll(
-                                                                                colours.secondaryDark.withOpacity(0.5),
-                                                                              ),
-                                                                            ),
-                                                                            constraints: BoxConstraints(),
-                                                                            onPressed: null,
-                                                                            icon: FaIcon(icon, size: textMD, color: colours.primaryLight),
+                                                                                constraints: BoxConstraints(),
+                                                                                onPressed: null,
+                                                                                icon: FaIcon(icon, size: textMD, color: colours.primaryLight),
+                                                                              );
+                                                                            },
                                                                           );
                                                                         },
-                                                                      );
-                                                                    },
-                                                                child: IconButton(
-                                                                  padding: EdgeInsets.all(spaceSM),
-                                                                  style: ButtonStyle(
-                                                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                    shape: WidgetStatePropertyAll(
-                                                                      RoundedRectangleBorder(
-                                                                        borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
-                                                                          topLeft: orientation == Orientation.portrait
-                                                                              ? cornerRadiusMD
-                                                                              : cornerRadiusSM,
-                                                                          bottomLeft: orientation == Orientation.portrait
-                                                                              ? cornerRadiusSM
-                                                                              : cornerRadiusMD,
+                                                                    child: IconButton(
+                                                                      padding: EdgeInsets.all(spaceSM),
+                                                                      style: ButtonStyle(
+                                                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                        shape: WidgetStatePropertyAll(
+                                                                          RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
+                                                                              topLeft: orientation == Orientation.portrait
+                                                                                  ? cornerRadiusMD
+                                                                                  : cornerRadiusSM,
+                                                                              bottomLeft: orientation == Orientation.portrait
+                                                                                  ? cornerRadiusSM
+                                                                                  : cornerRadiusMD,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        backgroundColor: WidgetStatePropertyAll(
+                                                                          colours.secondaryDark.withOpacity(0.5),
                                                                         ),
                                                                       ),
+                                                                      constraints: BoxConstraints(),
+                                                                      onPressed: () => _navigateToExpandedCommits(
+                                                                        initialScrollOffset: recentCommitsController.offset,
+                                                                      ),
+                                                                      icon: FaIcon(
+                                                                        FontAwesomeIcons.upRightAndDownLeftFromCenter,
+                                                                        size: textMD,
+                                                                        color: colours.primaryLight,
+                                                                      ),
                                                                     ),
-                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                                                   ),
-                                                                  constraints: BoxConstraints(),
-                                                                  onPressed: () =>
-                                                                      _navigateToExpandedCommits(initialScrollOffset: recentCommitsController.offset),
-                                                                  icon: FaIcon(
-                                                                    FontAwesomeIcons.upRightAndDownLeftFromCenter,
-                                                                    size: textMD,
-                                                                    color: colours.primaryLight,
+                                                                  CommitSelectActionBar(
+                                                                    selectMode: _commitSelectMode,
+                                                                    selectedShas: _commitSelectedShas,
+                                                                    commits: recentCommits,
+                                                                    onReloadAll: () => reloadAll(),
+                                                                    onExitSelectMode: _exitCommitSelectMode,
+                                                                    borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
+                                                                      topLeft: orientation == Orientation.portrait
+                                                                          ? cornerRadiusMD
+                                                                          : cornerRadiusSM,
+                                                                      bottomLeft: orientation == Orientation.portrait
+                                                                          ? cornerRadiusSM
+                                                                          : cornerRadiusMD,
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                ],
                                                               ),
                                                             );
                                                           },
@@ -2953,7 +2991,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                 "name": name,
                                                                                 "url": url,
                                                                               });
-                                                                              await uiSettingsManager.setStringNullable(StorageKey.setman_remote, name);
+                                                                              await uiSettingsManager.setStringNullable(
+                                                                                StorageKey.setman_remote,
+                                                                                name,
+                                                                              );
                                                                               await reloadAll();
                                                                             },
                                                                             oauthProviderName: hasOAuth ? provider!.name : null,
