@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
+import 'package:markdown_widget/markdown_widget.dart';
+import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/helper.dart';
@@ -177,23 +177,8 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
     );
   }
 
-  MarkdownStyleSheet get _markdownStyle => MarkdownStyleSheet(
-    p: TextStyle(color: colours.primaryLight, fontSize: textSM),
-    h1: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
-    h2: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
-    h3: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-    code: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono', backgroundColor: colours.tertiaryDark),
-    codeblockDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-    codeblockPadding: EdgeInsets.all(spaceXS),
-    listBullet: TextStyle(color: colours.primaryLight, fontSize: textSM),
-    a: TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline),
-    blockquoteDecoration: BoxDecoration(
-      color: colours.tertiaryDark,
-      border: Border(
-        left: BorderSide(color: colours.tertiaryInfo, width: spaceXXXXS),
-      ),
-    ),
-  );
+  MarkdownConfig get _markdownConfig => buildMarkdownConfig();
+  MarkdownGenerator get _markdownGenerator => buildMarkdownGenerator();
 
   @override
   Widget build(BuildContext context) {
@@ -453,7 +438,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
             style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
-          MarkdownBody(data: detail.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
+          MarkdownBlock(data: detail.body, config: _markdownConfig, generator: _markdownGenerator),
 
         // PR body reactions
         if (detail.reactions.isNotEmpty) ...[SizedBox(height: spaceSM), _buildReactions(detail.reactions, detail.id, false)],
@@ -778,7 +763,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
               ],
             ),
             SizedBox(height: spaceXXS),
-            MarkdownBody(data: comment.body, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
+            MarkdownBlock(data: comment.body, config: _markdownConfig, generator: _markdownGenerator),
             if (comment.reactions.isNotEmpty) ...[SizedBox(height: spaceXS), _buildReactions(comment.reactions, comment.id, true)],
             if (_detail?.canComment == true) ...[SizedBox(height: spaceXXS), _buildAddReactionButton(comment.id, true)],
           ],
@@ -925,11 +910,11 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
                       t.issueAddComment,
                       style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
-                  : MarkdownBody(data: _commentController.text, extensionSet: md.ExtensionSet.gitHubFlavored, styleSheet: _markdownStyle, shrinkWrap: true),
+                  : MarkdownBlock(data: _commentController.text, config: _markdownConfig, generator: _markdownGenerator),
             ),
           PostFooterIndicator(),
           Padding(
-            padding: EdgeInsets.all(spaceSM),
+            padding: EdgeInsets.all(spaceSM).copyWith(top: 0),
             child: Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(

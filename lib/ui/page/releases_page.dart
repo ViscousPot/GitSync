@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
+import 'package:markdown_widget/markdown_widget.dart';
+import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -339,26 +339,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                 if (release.description.isNotEmpty)
                   Padding(
                     padding: EdgeInsets.only(left: textMD + spaceXS),
-                    child: MarkdownBody(
-                      data: release.description,
-                      extensionSet: md.ExtensionSet.gitHubFlavored,
-                      styleSheet: MarkdownStyleSheet(
-                        p: TextStyle(color: colours.primaryLight, fontSize: textSM),
-                        h1: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
-                        h2: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
-                        h3: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                        code: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono', backgroundColor: colours.tertiaryDark),
-                        codeblockDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-                        codeblockPadding: EdgeInsets.all(spaceXS),
-                        listBullet: TextStyle(color: colours.primaryLight, fontSize: textSM),
-                        a: TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline),
-                        blockquoteDecoration: BoxDecoration(
-                          color: colours.tertiaryDark,
-                          border: Border(left: BorderSide(color: colours.tertiaryInfo, width: spaceXXXXS)),
-                        ),
-                      ),
-                      shrinkWrap: true,
-                    ),
+                    child: MarkdownBlock(data: release.description, config: buildMarkdownConfig(), generator: buildMarkdownGenerator()),
                   ),
 
                 // Commit SHA
