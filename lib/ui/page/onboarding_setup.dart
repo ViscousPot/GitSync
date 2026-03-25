@@ -201,6 +201,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   bool hasSkipped = false;
 
   final expandedProtocol = ValueNotifier<GitProvider?>(null);
+  final _oauthLoading = ValueNotifier<bool>(false);
   final _syncSettingsPage = ValueNotifier<int>(0);
   final _syncPageController = PageController();
   final _expandedSyncCard = ValueNotifier<int>(-1); // -1 = none expanded
@@ -291,6 +292,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     _syncSettingsPage.dispose();
     _syncPageController.dispose();
     _expandedSyncCard.dispose();
+    _oauthLoading.dispose();
     super.dispose();
   }
 
@@ -2416,15 +2418,20 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, false);
+                                            _oauthLoading.value = true;
+                                            try {
+                                              uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, false);
 
-                                            final gitProviderManager = GithubManager();
+                                              final gitProviderManager = GithubManager();
 
-                                            final result = await gitProviderManager.launchOAuthFlow();
+                                              final result = await gitProviderManager.launchOAuthFlow();
 
-                                            if (result == null) return;
+                                              if (result == null) return;
 
-                                            await _completeOAuthAuth(result, GitProvider.GITHUB);
+                                              await _completeOAuthAuth(result, GitProvider.GITHUB);
+                                            } finally {
+                                              _oauthLoading.value = false;
+                                            }
                                           },
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -2456,33 +2463,38 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, true);
+                                            _oauthLoading.value = true;
+                                            try {
+                                              uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, true);
 
-                                            final gitProviderManager = GithubAppManager();
+                                              final gitProviderManager = GithubAppManager();
 
-                                            if (!await github_scoped_guide.showLoginGuide(context)) return;
+                                              if (!await github_scoped_guide.showLoginGuide(context)) return;
 
-                                            final result = await gitProviderManager.launchOAuthFlow();
+                                              final result = await gitProviderManager.launchOAuthFlow();
 
-                                            if (result == null) return;
+                                              if (result == null) return;
 
-                                            final token = await gitProviderManager.getToken(result.$3, (_, _, _) async {});
-                                            if (token == null) return;
+                                              final token = await gitProviderManager.getToken(result.$3, (_, _, _) async {});
+                                              if (token == null) return;
 
-                                            final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
+                                              final githubAppInstallations = await gitProviderManager.getGitHubAppInstallations(token);
 
-                                            if (!await github_scoped_guide.showRepoSelectionGuide(context)) return;
+                                              if (!await github_scoped_guide.showRepoSelectionGuide(context)) return;
 
-                                            if (githubAppInstallations.isEmpty) {
-                                              await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
-                                            } else {
-                                              await launchUrl(
-                                                Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])),
-                                                mode: LaunchMode.inAppBrowserView,
-                                              );
+                                              if (githubAppInstallations.isEmpty) {
+                                                await launchUrl(Uri.parse(githubAppsLink), mode: LaunchMode.inAppBrowserView);
+                                              } else {
+                                                await launchUrl(
+                                                  Uri.parse(sprintf(githubInstallationsLink, [githubAppInstallations[0]["id"]])),
+                                                  mode: LaunchMode.inAppBrowserView,
+                                                );
+                                              }
+
+                                              await _completeOAuthAuth(result, GitProvider.GITHUB);
+                                            } finally {
+                                              _oauthLoading.value = false;
                                             }
-
-                                            await _completeOAuthAuth(result, GitProvider.GITHUB);
                                           },
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -2514,11 +2526,16 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITLAB, false);
-                                            if (gitProviderManager == null) return;
-                                            final result = await gitProviderManager.launchOAuthFlow();
-                                            if (result == null) return;
-                                            await _completeOAuthAuth(result, GitProvider.GITLAB);
+                                            _oauthLoading.value = true;
+                                            try {
+                                              final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITLAB, false);
+                                              if (gitProviderManager == null) return;
+                                              final result = await gitProviderManager.launchOAuthFlow();
+                                              if (result == null) return;
+                                              await _completeOAuthAuth(result, GitProvider.GITLAB);
+                                            } finally {
+                                              _oauthLoading.value = false;
+                                            }
                                           },
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -2550,11 +2567,16 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITEA, false);
-                                            if (gitProviderManager == null) return;
-                                            final result = await gitProviderManager.launchOAuthFlow();
-                                            if (result == null) return;
-                                            await _completeOAuthAuth(result, GitProvider.GITEA);
+                                            _oauthLoading.value = true;
+                                            try {
+                                              final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITEA, false);
+                                              if (gitProviderManager == null) return;
+                                              final result = await gitProviderManager.launchOAuthFlow();
+                                              if (result == null) return;
+                                              await _completeOAuthAuth(result, GitProvider.GITEA);
+                                            } finally {
+                                              _oauthLoading.value = false;
+                                            }
                                           },
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -2823,6 +2845,18 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
             },
           ),
         ),
+      ),
+      ValueListenableBuilder<bool>(
+        valueListenable: _oauthLoading,
+        builder: (context, loading, _) {
+          if (!loading) return SizedBox.shrink();
+          return Container(
+            color: colours.secondaryDark.withValues(alpha: 0.7),
+            child: Center(
+              child: CircularProgressIndicator(color: colours.primaryLight),
+            ),
+          );
+        },
       ),
     ],
   );
