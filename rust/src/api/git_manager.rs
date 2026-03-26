@@ -2553,6 +2553,11 @@ fn push_changes_priv(
         content.trim().to_string()
     } else {
         let head = swl!(repo.head())?;
+        if !head.is_branch() {
+            return Err(git2::Error::from_str(
+                "Cannot push: HEAD is detached. Please check out a branch first.",
+            ));
+        }
         let resolved_head = swl!(head.resolve())?;
         let branch_name = swl!(resolved_head
             .shorthand()
@@ -2591,6 +2596,11 @@ fn push_changes_priv(
             );
 
             let head = swl!(repo.head())?;
+            if !head.is_branch() {
+                return Err(git2::Error::from_str(
+                    "Cannot push: HEAD is detached. Please check out a branch first.",
+                ));
+            }
             let branch_name = swl!(head
                 .shorthand()
                 .ok_or_else(|| git2::Error::from_str("Invalid branch")))?;
