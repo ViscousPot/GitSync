@@ -133,16 +133,16 @@ Future<void> showDialog(
             },
           ),
           TextButton(
-            onPressed: (textController.text.isNotEmpty && basedOnBranchName != null)
+            onPressed: (textController.text.trim().isNotEmpty && basedOnBranchName != null)
                 ? () async {
                     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                    await callback(textController.text, basedOnBranchName!);
+                    await callback(textController.text.trim(), basedOnBranchName!);
                   }
                 : null,
             child: Text(
               t.add.toUpperCase(),
               style: TextStyle(
-                color: (textController.text.isNotEmpty && basedOnBranchName != null) ? colours.primaryPositive : colours.secondaryPositive,
+                color: (textController.text.trim().isNotEmpty && basedOnBranchName != null) ? colours.primaryPositive : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

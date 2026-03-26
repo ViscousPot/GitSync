@@ -65,16 +65,16 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
             },
           ),
           TextButton(
-            onPressed: (nameController.text.isNotEmpty && nameController.text != currentName)
+            onPressed: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName)
                 ? () async {
                     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                    await callback(nameController.text);
+                    await callback(nameController.text.trim());
                   }
                 : null,
             child: Text(
               t.rename.toUpperCase(),
               style: TextStyle(
-                color: (nameController.text.isNotEmpty && nameController.text != currentName) ? colours.primaryPositive : colours.secondaryPositive,
+                color: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName) ? colours.primaryPositive : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

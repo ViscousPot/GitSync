@@ -131,16 +131,16 @@ Future<void> showDialog(
             },
           ),
           TextButton(
-            onPressed: (nameController.text.isNotEmpty && urlController.text.isNotEmpty)
+            onPressed: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty)
                 ? () async {
                     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                    await callback(nameController.text, urlController.text);
+                    await callback(nameController.text.trim(), urlController.text.trim());
                   }
                 : null,
             child: Text(
               t.add.toUpperCase(),
               style: TextStyle(
-                color: (nameController.text.isNotEmpty && urlController.text.isNotEmpty) ? colours.primaryPositive : colours.secondaryPositive,
+                color: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty) ? colours.primaryPositive : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),
