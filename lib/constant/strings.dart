@@ -90,6 +90,8 @@ const String uncommittedChangeOverwrittenByMerge = "uncommitted change would be 
 const String uncommittedChangesOverwrittenByMerge = "uncommitted changes would be overwritten by merge";
 const String uncommittedChangeOverwrittenError =
     "Local uncommitted changes conflict with incoming changes. Commit or discard your local changes and sync again, or use Download & Overwrite / Upload & Overwrite to resolve.";
+const String failedToReadIndex = "failed to read index";
+const String failedToReadIndexError = "The repository index is corrupted or missing. Use Auto-Fix to rebuild it.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";

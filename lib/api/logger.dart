@@ -75,6 +75,7 @@ enum LogType {
   GetRemoteUrlLink,
   DiscardDir,
   DiscardGitIndex,
+  RecreateGitIndex,
   DiscardFetchHead,
   PruneCorruptedObjects,
   GetSubmodules,

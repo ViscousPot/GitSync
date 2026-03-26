@@ -510,6 +510,11 @@ void onServiceStart(ServiceInstance service) async {
     service.invoke(LogType.DiscardGitIndex.name);
   });
 
+  service.on(LogType.RecreateGitIndex.name).listen((event) async {
+    await GitManager.recreateGitIndex();
+    service.invoke(LogType.RecreateGitIndex.name);
+  });
+
   service.on(LogType.DiscardFetchHead.name).listen((event) async {
     await GitManager.deleteFetchHead();
     service.invoke(LogType.DiscardFetchHead.name);

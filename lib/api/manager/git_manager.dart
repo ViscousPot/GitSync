@@ -216,6 +216,7 @@ class GitManager {
     if (error.contains(uncommittedChangeOverwrittenByMerge) || error.contains(uncommittedChangesOverwrittenByMerge)) {
       return uncommittedChangeOverwrittenError;
     }
+    if (error.contains(failedToReadIndex)) return failedToReadIndexError;
     return message;
   }
 
@@ -1125,6 +1126,14 @@ class GitManager {
       if (await file.exists()) {
         await file.delete();
       }
+    });
+  }
+
+  static Future<void> recreateGitIndex() async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RecreateGitIndex, (dirPath) async {
+      final file = File("$dirPath/$gitIndexPath");
+      if (await file.exists()) await file.delete();
+      await GitManagerRs.recreateDeletedIndex(pathString: dirPath);
     });
   }
 
