@@ -44,6 +44,11 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
   Function()? loadNextRepos;
   final Map<String, String> repoMap = {};
 
+  bool _advancedExpanded = false;
+  bool _bareClone = false;
+  int? _cloneDepth;
+  final _depthController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +67,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
     super.dispose();
     _controller.removeListener(scrollListener);
     _urlFocusNode.dispose();
+    _depthController.dispose();
   }
 
   void scrollListener() {
@@ -177,7 +183,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
           } else {
             await ErrorOccurredDialog.showDialog(context, result, null);
           }
-        });
+        }, depth: _cloneDepth, bare: _bareClone);
       }
 
       if (isEmpty == true) {
@@ -257,7 +263,141 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                   ),
                 ],
               ),
-            SizedBox(height: spaceLG),
+            SizedBox(height: spaceSM),
+            // Advanced Options
+            Container(
+              decoration: BoxDecoration(
+                color: colours.secondaryDark,
+                borderRadius: BorderRadius.all(cornerRadiusMD),
+              ),
+              child: Column(
+                children: [
+                  TextButton.icon(
+                    onPressed: () => setState(() => _advancedExpanded = !_advancedExpanded),
+                    iconAlignment: IconAlignment.end,
+                    style: ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS)),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                        side: BorderSide.none,
+                      )),
+                    ),
+                    icon: FaIcon(
+                      _advancedExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
+                      color: colours.tertiaryLight,
+                      size: textSM,
+                    ),
+                    label: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        t.advancedOptions.toUpperCase(),
+                        style: TextStyle(
+                          fontFeatures: [FontFeature.enable('smcp')],
+                          color: colours.tertiaryLight,
+                          fontSize: textSM,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  AnimatedSize(
+                    duration: animFast,
+                    child: _advancedExpanded
+                        ? Padding(
+                            padding: EdgeInsets.only(left: spaceXS, right: spaceXS, bottom: spaceXS),
+                            child: Column(
+                              children: [
+                                // Clone depth row
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                  decoration: BoxDecoration(
+                                    color: colours.tertiaryDark,
+                                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          t.shallowClone,
+                                          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 72,
+                                        child: TextField(
+                                          controller: _depthController,
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 1,
+                                          style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          decoration: InputDecoration(
+                                            hintText: t.cloneDepthPlaceholder,
+                                            hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                                            filled: true,
+                                            fillColor: colours.secondaryDark,
+                                            contentPadding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(cornerRadiusSM),
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            isDense: true,
+                                          ),
+                                          onChanged: (v) {
+                                            final parsed = int.tryParse(v);
+                                            setState(() => _cloneDepth = (parsed != null && parsed > 0) ? parsed : null);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: spaceXS),
+                                // Bare clone row
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                  decoration: BoxDecoration(
+                                    color: colours.tertiaryDark,
+                                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          t.bareClone,
+                                          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: spaceLG,
+                                        child: FittedBox(
+                                          fit: BoxFit.fill,
+                                          child: Switch(
+                                            value: _bareClone,
+                                            onChanged: (value) => setState(() => _bareClone = value),
+                                            padding: EdgeInsets.zero,
+                                            thumbColor: WidgetStatePropertyAll(
+                                              _bareClone ? colours.primaryPositive : colours.tertiaryDark,
+                                            ),
+                                            trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
+                                            activeThumbColor: colours.primaryPositive,
+                                            inactiveTrackColor: colours.tertiaryLight,
+                                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: spaceSM),
             Expanded(
               child: Builder(
                 builder: (context) {

@@ -871,6 +871,16 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       description: t.authorEmailDescription,
                       hint: t.authorEmail,
                     ),
+                    SizedBox(height: spaceMD),
+                    ItemSetting(
+                      setFn: (value) => repoManager.setString(StorageKey.repoman_defaultPostFooter, value),
+                      getFn: () => repoManager.getString(StorageKey.repoman_defaultPostFooter),
+                      title: t.postFooterLabel,
+                      description: t.postFooterDescription,
+                      hint: defaultPostFooter,
+                      maxLines: null,
+                      minLines: null,
+                    ),
 
                     SizedBox(height: spaceLG + spaceMD),
 

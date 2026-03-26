@@ -1618,6 +1618,12 @@ abstract class AppLocalizations {
   /// **'Detached Head'**
   String get detachedHead;
 
+  /// No description provided for @unbornBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unborn Branch'**
+  String get unbornBranch;
+
   /// No description provided for @commitsNotFound.
   ///
   /// In en, this message translates to:
@@ -2290,6 +2296,30 @@ abstract class AppLocalizations {
   /// **'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.'**
   String get repoSearchLimitsDescription;
 
+  /// No description provided for @advancedOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Options'**
+  String get advancedOptions;
+
+  /// No description provided for @shallowClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow Clone (Depth)'**
+  String get shallowClone;
+
+  /// No description provided for @bareClone.
+  ///
+  /// In en, this message translates to:
+  /// **'Bare Clone'**
+  String get bareClone;
+
+  /// No description provided for @cloneDepthPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'full'**
+  String get cloneDepthPlaceholder;
+
   /// No description provided for @repositorySettings.
   ///
   /// In en, this message translates to:
@@ -2427,6 +2457,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'john12@smith.com'**
   String get authorEmail;
+
+  /// No description provided for @postFooterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'post footer'**
+  String get postFooterLabel;
+
+  /// No description provided for @postFooterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'appended to issues, comments, and pull requests you create'**
+  String get postFooterDescription;
+
+  /// No description provided for @postFooterDialogInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This text is automatically appended to the end of issues, comments, and pull requests you create. You can change or remove it in your repository settings.\n\nThe default for new repositories can be set in Global Settings under Repository Defaults.'**
+  String get postFooterDialogInfo;
 
   /// No description provided for @gitIgnore.
   ///
@@ -3094,6 +3142,18 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete the remote \"%s\"?'**
   String get confirmDeleteRemote;
 
+  /// No description provided for @orEnterManually.
+  ///
+  /// In en, this message translates to:
+  /// **'or enter manually'**
+  String get orEnterManually;
+
+  /// No description provided for @createOnProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Create on %s'**
+  String get createOnProvider;
+
   /// No description provided for @confirmBranchCheckoutTitle.
   ///
   /// In en, this message translates to:
@@ -3147,6 +3207,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on'**
   String get createBranchBasedOn;
+
+  /// No description provided for @renameBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Branch'**
+  String get renameBranch;
+
+  /// No description provided for @deleteBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Branch?'**
+  String get deleteBranch;
+
+  /// No description provided for @confirmDeleteBranchMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the branch \"%s\"?'**
+  String get confirmDeleteBranchMsg;
+
+  /// No description provided for @menuAmendCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend Commit'**
+  String get menuAmendCommit;
+
+  /// No description provided for @menuAmendCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify the most recent commit message or contents'**
+  String get menuAmendCommitDesc;
+
+  /// No description provided for @menuUndoCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Commit'**
+  String get menuUndoCommit;
+
+  /// No description provided for @menuUndoCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo this commit but keep the changes staged'**
+  String get menuUndoCommitDesc;
+
+  /// No description provided for @menuResetToCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Commit'**
+  String get menuResetToCommit;
+
+  /// No description provided for @menuResetToCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard all commits after this one'**
+  String get menuResetToCommitDesc;
+
+  /// No description provided for @menuCheckoutCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Commit'**
+  String get menuCheckoutCommit;
+
+  /// No description provided for @menuCheckoutCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out this commit (detached HEAD)'**
+  String get menuCheckoutCommitDesc;
+
+  /// No description provided for @menuRevertCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert Commit Changes'**
+  String get menuRevertCommit;
+
+  /// No description provided for @menuRevertCommitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new commit that undoes these changes'**
+  String get menuRevertCommitDesc;
+
+  /// No description provided for @menuCreateBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Branch from Commit'**
+  String get menuCreateBranch;
+
+  /// No description provided for @menuCreateBranchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new branch from this commit'**
+  String get menuCreateBranchDesc;
+
+  /// No description provided for @menuCreateTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tag'**
+  String get menuCreateTag;
+
+  /// No description provided for @menuCreateTagDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a tag on this commit'**
+  String get menuCreateTagDesc;
+
+  /// No description provided for @menuCherryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commit'**
+  String get menuCherryPick;
+
+  /// No description provided for @menuCherryPickDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply this commit onto the current branch'**
+  String get menuCherryPickDesc;
+
+  /// No description provided for @menuSelectCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Commits'**
+  String get menuSelectCommits;
+
+  /// No description provided for @menuSelectCommitsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select multiple commits for batch operations'**
+  String get menuSelectCommitsDesc;
+
+  /// No description provided for @menuCopySha.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy SHA'**
+  String get menuCopySha;
+
+  /// No description provided for @menuCopyShaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the full commit hash to clipboard'**
+  String get menuCopyShaDesc;
+
+  /// No description provided for @menuCopyTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Tag'**
+  String get menuCopyTag;
+
+  /// No description provided for @menuCopyTagDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the tag name to clipboard'**
+  String get menuCopyTagDesc;
+
+  /// No description provided for @menuViewOnProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'View on %s'**
+  String get menuViewOnProvider;
+
+  /// No description provided for @menuViewOnProviderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this commit in your browser'**
+  String get menuViewOnProviderDesc;
+
+  /// No description provided for @createBranchFromCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Branch from Commit'**
+  String get createBranchFromCommit;
+
+  /// No description provided for @createBranchFromCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new branch starting at commit %s.'**
+  String get createBranchFromCommitMsg;
+
+  /// No description provided for @checkoutCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Commit'**
+  String get checkoutCommit;
+
+  /// No description provided for @checkoutCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will put you in a detached HEAD state at commit'**
+  String get checkoutCommitMsg;
+
+  /// No description provided for @checkoutCommitDetachedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You will not be on any branch. Create a new branch to keep your changes.'**
+  String get checkoutCommitDetachedWarning;
+
+  /// No description provided for @createTagOnCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tag'**
+  String get createTagOnCommit;
+
+  /// No description provided for @createTagOnCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a tag on commit %s.'**
+  String get createTagOnCommitMsg;
+
+  /// No description provided for @tagName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag Name'**
+  String get tagName;
+
+  /// No description provided for @revertCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert Commit'**
+  String get revertCommit;
+
+  /// No description provided for @revertCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert the changes introduced by commit'**
+  String get revertCommitMsg;
+
+  /// No description provided for @revertCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will create a new commit that undoes the changes.'**
+  String get revertCommitWarning;
+
+  /// No description provided for @revert.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get revert;
+
+  /// No description provided for @amendCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend Commit'**
+  String get amendCommit;
+
+  /// No description provided for @amendCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the message for commit'**
+  String get amendCommitMsg;
+
+  /// No description provided for @amendCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will rewrite the commit. A force push may be required if this commit has already been pushed.'**
+  String get amendCommitWarning;
+
+  /// No description provided for @amend.
+  ///
+  /// In en, this message translates to:
+  /// **'Amend'**
+  String get amend;
+
+  /// No description provided for @undoCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Commit'**
+  String get undoCommit;
+
+  /// No description provided for @undoCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo commit'**
+  String get undoCommitMsg;
+
+  /// No description provided for @undoCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The commit will be removed but your changes will remain staged.'**
+  String get undoCommitWarning;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @resetToCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Commit'**
+  String get resetToCommit;
+
+  /// No description provided for @resetToCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to commit'**
+  String get resetToCommitMsg;
+
+  /// No description provided for @resetToCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All commits after this one will be permanently lost and working directory changes will be discarded. This cannot be undone.'**
+  String get resetToCommitWarning;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @cherryPickCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commit'**
+  String get cherryPickCommit;
+
+  /// No description provided for @cherryPickCommitMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the changes from commit'**
+  String get cherryPickCommitMsg;
+
+  /// No description provided for @cherryPickCommitWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This may produce merge conflicts if the changes overlap with the target branch.'**
+  String get cherryPickCommitWarning;
+
+  /// No description provided for @cherryPickTargetBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Branch'**
+  String get cherryPickTargetBranch;
+
+  /// No description provided for @cherryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick'**
+  String get cherryPick;
+
+  /// No description provided for @cherryPickCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry Pick Commits'**
+  String get cherryPickCommits;
+
+  /// No description provided for @cherryPickCommitsMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply changes from %s commits onto'**
+  String get cherryPickCommitsMsg;
+
+  /// No description provided for @cherryPickCommitsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Commits will be applied in chronological order. Conflicts may occur at each step.'**
+  String get cherryPickCommitsWarning;
+
+  /// No description provided for @squashCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash Commits'**
+  String get squashCommits;
+
+  /// No description provided for @squashCommitsMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Combine %s commits into a single commit'**
+  String get squashCommitsMsg;
+
+  /// No description provided for @squashCommitsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This rewrites commit history. If these commits have been pushed, a force push will be required.'**
+  String get squashCommitsWarning;
+
+  /// No description provided for @squash.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash'**
+  String get squash;
+
+  /// No description provided for @squashCommitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash Message'**
+  String get squashCommitMessage;
+
+  /// No description provided for @selectCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Commits'**
+  String get selectCommits;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'%s selected'**
+  String get selectedCount;
+
+  /// No description provided for @squashRequiresConsecutive.
+  ///
+  /// In en, this message translates to:
+  /// **'Squash requires consecutive commits from the latest commit'**
+  String get squashRequiresConsecutive;
+
+  /// No description provided for @issues.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get issues;
+
+  /// No description provided for @issueFilterOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get issueFilterOpen;
+
+  /// No description provided for @issueFilterClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get issueFilterClosed;
+
+  /// No description provided for @issueFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get issueFilterAll;
+
+  /// No description provided for @issuesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No issues found…'**
+  String get issuesNotFound;
+
+  /// No description provided for @filterAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get filterAuthor;
+
+  /// No description provided for @filterLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get filterLabels;
+
+  /// No description provided for @filterAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignee'**
+  String get filterAssignee;
+
+  /// No description provided for @filterMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestone'**
+  String get filterMilestone;
+
+  /// No description provided for @filterProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get filterProject;
+
+  /// No description provided for @filterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get filterNone;
+
+  /// No description provided for @filterMilestonesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No milestones found'**
+  String get filterMilestonesEmpty;
+
+  /// No description provided for @filterProjectsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects found'**
+  String get filterProjectsEmpty;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get sortOldest;
+
+  /// No description provided for @sortMostCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'Most commented'**
+  String get sortMostCommented;
+
+  /// No description provided for @sortRecentlyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently updated'**
+  String get sortRecentlyUpdated;
+
+  /// No description provided for @filterSidebar.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filterSidebar;
+
+  /// No description provided for @filterReviewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer'**
+  String get filterReviewer;
+
+  /// No description provided for @pullRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull Requests'**
+  String get pullRequests;
+
+  /// No description provided for @pullRequestsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No pull requests found…'**
+  String get pullRequestsNotFound;
+
+  /// No description provided for @tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tags;
+
+  /// No description provided for @tagsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags found…'**
+  String get tagsNotFound;
+
+  /// No description provided for @releases.
+  ///
+  /// In en, this message translates to:
+  /// **'Releases'**
+  String get releases;
+
+  /// No description provided for @releasesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No releases found…'**
+  String get releasesNotFound;
+
+  /// No description provided for @preRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'PRE-RELEASE'**
+  String get preRelease;
+
+  /// No description provided for @draft.
+  ///
+  /// In en, this message translates to:
+  /// **'DRAFT'**
+  String get draft;
+
+  /// No description provided for @releaseAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get releaseAssets;
+
+  /// No description provided for @noAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'No assets'**
+  String get noAssets;
+
+  /// No description provided for @actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get actions;
+
+  /// No description provided for @actionsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions found…'**
+  String get actionsNotFound;
+
+  /// No description provided for @actionFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get actionFilterAll;
+
+  /// No description provided for @actionFilterSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get actionFilterSuccess;
+
+  /// No description provided for @actionFilterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get actionFilterFailed;
 
   /// No description provided for @attemptAutoFix.
   ///
@@ -3397,7 +4063,7 @@ abstract class AppLocalizations {
   /// No description provided for @remoteSetupLaterMsg.
   ///
   /// In en, this message translates to:
-  /// **'You can set up a remote later to sync with a server.'**
+  /// **'This creates a local repository.\nAuthenticate and add a remote to enable sync.'**
   String get remoteSetupLaterMsg;
 
   /// No description provided for @localOnlyNoRemote.
@@ -3411,6 +4077,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No remote configured'**
   String get noRemoteConfigured;
+
+  /// No description provided for @createRemoteRepo.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Remote Repository'**
+  String get createRemoteRepo;
+
+  /// No description provided for @repoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository Name'**
+  String get repoName;
+
+  /// No description provided for @repoPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get repoPublic;
+
+  /// No description provided for @repoPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get repoPrivate;
+
+  /// No description provided for @creatingRemoteRepo.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating remote repository...'**
+  String get creatingRemoteRepo;
+
+  /// No description provided for @remoteRepoCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote repository created and linked as origin'**
+  String get remoteRepoCreated;
+
+  /// No description provided for @remoteRepoCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create remote repository'**
+  String get remoteRepoCreateFailed;
+
+  /// No description provided for @noRemoteDetectedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This repository has no remote configured. Would you like to create one?'**
+  String get noRemoteDetectedMsg;
+
+  /// No description provided for @createAndLinkRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Create & Link Remote'**
+  String get createAndLinkRemote;
+
+  /// No description provided for @createLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Only'**
+  String get createLocalOnly;
+
+  /// No description provided for @initMainBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialize main branch'**
+  String get initMainBranch;
 
   /// No description provided for @continueLabel.
   ///
@@ -3441,6 +4173,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.'**
   String get githubScopedRepoMsg;
+
+  /// No description provided for @issueDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get issueDescription;
+
+  /// No description provided for @issueNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description provided'**
+  String get issueNoDescription;
+
+  /// No description provided for @issueComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get issueComments;
+
+  /// No description provided for @issueNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get issueNoComments;
+
+  /// No description provided for @issueAddComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment…'**
+  String get issueAddComment;
+
+  /// No description provided for @issueSubmitComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get issueSubmitComment;
+
+  /// No description provided for @issueCloseIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Issue'**
+  String get issueCloseIssue;
+
+  /// No description provided for @issueReopenIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen Issue'**
+  String get issueReopenIssue;
+
+  /// No description provided for @issueAddReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Reaction'**
+  String get issueAddReaction;
+
+  /// No description provided for @issueWriteDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have write access'**
+  String get issueWriteDisabled;
+
+  /// No description provided for @issueStateUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue state updated'**
+  String get issueStateUpdated;
+
+  /// No description provided for @issueCommentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment added'**
+  String get issueCommentAdded;
+
+  /// No description provided for @issueCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add comment'**
+  String get issueCommentFailed;
+
+  /// No description provided for @issueStateUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update issue state'**
+  String get issueStateUpdateFailed;
+
+  /// No description provided for @issueReactionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update reaction'**
+  String get issueReactionFailed;
+
+  /// No description provided for @issuePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get issuePreview;
+
+  /// No description provided for @issueWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write'**
+  String get issueWrite;
+
+  /// No description provided for @issueEditSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue updated'**
+  String get issueEditSuccess;
+
+  /// No description provided for @issueEditFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update issue'**
+  String get issueEditFailed;
+
+  /// No description provided for @createIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Issue'**
+  String get createIssue;
+
+  /// No description provided for @createIssueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get createIssueTitle;
+
+  /// No description provided for @createIssueTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue title'**
+  String get createIssueTitleHint;
+
+  /// No description provided for @createIssueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createIssueBody;
+
+  /// No description provided for @createIssueBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the issue…'**
+  String get createIssueBodyHint;
+
+  /// No description provided for @createIssueSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Issue'**
+  String get createIssueSubmit;
+
+  /// No description provided for @createIssueSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue created successfully'**
+  String get createIssueSuccess;
+
+  /// No description provided for @createIssueFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create issue'**
+  String get createIssueFailed;
+
+  /// No description provided for @createIssueBlankIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank Issue'**
+  String get createIssueBlankIssue;
+
+  /// No description provided for @createIssueSelectTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a template'**
+  String get createIssueSelectTemplate;
+
+  /// No description provided for @createIssueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get createIssueRequired;
+
+  /// No description provided for @createPr.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Pull Request'**
+  String get createPr;
+
+  /// No description provided for @createPrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get createPrTitle;
+
+  /// No description provided for @createPrTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request title'**
+  String get createPrTitleHint;
+
+  /// No description provided for @createPrBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createPrBody;
+
+  /// No description provided for @createPrBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your changes…'**
+  String get createPrBodyHint;
+
+  /// No description provided for @createPrSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Pull Request'**
+  String get createPrSubmit;
+
+  /// No description provided for @createPrSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request created'**
+  String get createPrSuccess;
+
+  /// No description provided for @createPrFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create pull request'**
+  String get createPrFailed;
+
+  /// No description provided for @createPrBaseBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get createPrBaseBranch;
+
+  /// No description provided for @createPrHeadBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get createPrHeadBranch;
+
+  /// No description provided for @createPrSelectBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Select branch'**
+  String get createPrSelectBranch;
+
+  /// No description provided for @prDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get prDescription;
+
+  /// No description provided for @prNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description provided'**
+  String get prNoDescription;
+
+  /// No description provided for @prActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get prActivity;
+
+  /// No description provided for @prNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet'**
+  String get prNoActivity;
+
+  /// No description provided for @prCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Commits'**
+  String get prCommits;
+
+  /// No description provided for @prCommitsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No commits found'**
+  String get prCommitsNotFound;
+
+  /// No description provided for @prChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks'**
+  String get prChecks;
+
+  /// No description provided for @prChecksNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No checks found'**
+  String get prChecksNotFound;
+
+  /// No description provided for @prAllChecksPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'All checks passed'**
+  String get prAllChecksPassed;
+
+  /// No description provided for @prChecksFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} check(s) failed'**
+  String prChecksFailed(Object count);
+
+  /// No description provided for @prChecksPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks pending'**
+  String get prChecksPending;
+
+  /// No description provided for @prFilesChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Files Changed'**
+  String get prFilesChanged;
+
+  /// No description provided for @prFilesChangedNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No changed files found'**
+  String get prFilesChangedNotFound;
+
+  /// No description provided for @prConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get prConversation;
+
+  /// No description provided for @prApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get prApproved;
+
+  /// No description provided for @prChangesRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes Requested'**
+  String get prChangesRequested;
+
+  /// No description provided for @prCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'Commented'**
+  String get prCommented;
+
+  /// No description provided for @prNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull request not found'**
+  String get prNotFound;
+
+  /// No description provided for @prCommentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment added'**
+  String get prCommentAdded;
+
+  /// No description provided for @prCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add comment'**
+  String get prCommentFailed;
+
+  /// No description provided for @prReactionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update reaction'**
+  String get prReactionFailed;
+
+  /// No description provided for @prMentionedInPr.
+  ///
+  /// In en, this message translates to:
+  /// **'mentioned this in pull request'**
+  String get prMentionedInPr;
+
+  /// No description provided for @prMentionedInIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'mentioned this in issue'**
+  String get prMentionedInIssue;
+
+  /// No description provided for @prForcePushed.
+  ///
+  /// In en, this message translates to:
+  /// **'force-pushed from {before} to {after}'**
+  String prForcePushed(Object after, Object before);
+
+  /// No description provided for @recentCommits.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Commits'**
+  String get recentCommits;
+
+  /// No description provided for @branchManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Management'**
+  String get branchManagement;
+
+  /// No description provided for @providerTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Tools'**
+  String get providerTools;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

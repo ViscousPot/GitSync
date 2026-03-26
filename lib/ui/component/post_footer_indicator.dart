@@ -1,0 +1,31 @@
+import 'package:GitSync/global.dart';
+import 'package:flutter/material.dart';
+import 'package:markdown_widget/markdown_widget.dart';
+import '../../../constant/dimens.dart';
+import '../../../ui/dialog/info_dialog.dart' as InfoDialog;
+import 'markdown_config.dart';
+
+class PostFooterIndicator extends StatelessWidget {
+  const PostFooterIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: uiSettingsManager.getPostFooter(),
+      builder: (context, snapshot) {
+        final footer = snapshot.data?.trim() ?? '';
+        if (footer.isEmpty) return SizedBox.shrink();
+        return GestureDetector(
+          onTap: () => InfoDialog.showDialog(context, t.postFooterLabel, t.postFooterDialogInfo),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: MarkdownBlock(data: footer, config: buildFooterMarkdownConfig(), generator: buildMarkdownGenerator(), selectable: false),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

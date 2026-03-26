@@ -771,6 +771,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get detachedHead => 'Detached Head';
 
   @override
+  String get unbornBranch => 'Unborn Branch';
+
+  @override
   String get commitsNotFound => 'Keine Commits gefunden…';
 
   @override
@@ -1111,6 +1114,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Repository search only examines the first 100 repositories returned by the API, so it may sometimes omit the repository you expect. \n\nIf the repository you want does not appear in search results, please clone it directly using its HTTPS or SSH URL.';
 
   @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get shallowClone => 'Shallow Clone (Depth)';
+
+  @override
+  String get bareClone => 'Bare Clone';
+
+  @override
+  String get cloneDepthPlaceholder => 'full';
+
+  @override
   String get repositorySettings => 'Repository Settings';
 
   @override
@@ -1178,6 +1193,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authorEmail => 'john12@smith.com';
+
+  @override
+  String get postFooterLabel => 'post footer';
+
+  @override
+  String get postFooterDescription => 'appended to issues, comments, and pull requests you create';
+
+  @override
+  String get postFooterDialogInfo =>
+      'This text is automatically appended to the end of issues, comments, and pull requests you create. You can change or remove it in your repository settings.\n\nThe default for new repositories can be set in Global Settings under Repository Defaults.';
 
   @override
   String get gitIgnore => '.gitignore';
@@ -1516,6 +1541,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get confirmDeleteRemote => 'Are you sure you want to delete the remote \"%s\"?';
 
   @override
+  String get orEnterManually => 'or enter manually';
+
+  @override
+  String get createOnProvider => 'Create on %s';
+
+  @override
   String get confirmBranchCheckoutTitle => 'Branch auschecken?';
 
   @override
@@ -1541,6 +1572,310 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get createBranchBasedOn => 'Basierend auf';
+
+  @override
+  String get renameBranch => 'Rename Branch';
+
+  @override
+  String get deleteBranch => 'Delete Branch?';
+
+  @override
+  String get confirmDeleteBranchMsg => 'Are you sure you want to delete the branch \"%s\"?';
+
+  @override
+  String get menuAmendCommit => 'Amend Commit';
+
+  @override
+  String get menuAmendCommitDesc => 'Modify the most recent commit message or contents';
+
+  @override
+  String get menuUndoCommit => 'Undo Commit';
+
+  @override
+  String get menuUndoCommitDesc => 'Undo this commit but keep the changes staged';
+
+  @override
+  String get menuResetToCommit => 'Reset to Commit';
+
+  @override
+  String get menuResetToCommitDesc => 'Discard all commits after this one';
+
+  @override
+  String get menuCheckoutCommit => 'Checkout Commit';
+
+  @override
+  String get menuCheckoutCommitDesc => 'Check out this commit (detached HEAD)';
+
+  @override
+  String get menuRevertCommit => 'Revert Commit Changes';
+
+  @override
+  String get menuRevertCommitDesc => 'Create a new commit that undoes these changes';
+
+  @override
+  String get menuCreateBranch => 'Create Branch from Commit';
+
+  @override
+  String get menuCreateBranchDesc => 'Create a new branch from this commit';
+
+  @override
+  String get menuCreateTag => 'Create Tag';
+
+  @override
+  String get menuCreateTagDesc => 'Create a tag on this commit';
+
+  @override
+  String get menuCherryPick => 'Cherry Pick Commit';
+
+  @override
+  String get menuCherryPickDesc => 'Apply this commit onto the current branch';
+
+  @override
+  String get menuSelectCommits => 'Select Commits';
+
+  @override
+  String get menuSelectCommitsDesc => 'Select multiple commits for batch operations';
+
+  @override
+  String get menuCopySha => 'Copy SHA';
+
+  @override
+  String get menuCopyShaDesc => 'Copy the full commit hash to clipboard';
+
+  @override
+  String get menuCopyTag => 'Copy Tag';
+
+  @override
+  String get menuCopyTagDesc => 'Copy the tag name to clipboard';
+
+  @override
+  String get menuViewOnProvider => 'View on %s';
+
+  @override
+  String get menuViewOnProviderDesc => 'Open this commit in your browser';
+
+  @override
+  String get createBranchFromCommit => 'Create Branch from Commit';
+
+  @override
+  String get createBranchFromCommitMsg => 'Create a new branch starting at commit %s.';
+
+  @override
+  String get checkoutCommit => 'Checkout Commit';
+
+  @override
+  String get checkoutCommitMsg => 'This will put you in a detached HEAD state at commit';
+
+  @override
+  String get checkoutCommitDetachedWarning => 'You will not be on any branch. Create a new branch to keep your changes.';
+
+  @override
+  String get createTagOnCommit => 'Create Tag';
+
+  @override
+  String get createTagOnCommitMsg => 'Create a tag on commit %s.';
+
+  @override
+  String get tagName => 'Tag Name';
+
+  @override
+  String get revertCommit => 'Revert Commit';
+
+  @override
+  String get revertCommitMsg => 'Revert the changes introduced by commit';
+
+  @override
+  String get revertCommitWarning => 'This will create a new commit that undoes the changes.';
+
+  @override
+  String get revert => 'Revert';
+
+  @override
+  String get amendCommit => 'Amend Commit';
+
+  @override
+  String get amendCommitMsg => 'Edit the message for commit';
+
+  @override
+  String get amendCommitWarning => 'This will rewrite the commit. A force push may be required if this commit has already been pushed.';
+
+  @override
+  String get amend => 'Amend';
+
+  @override
+  String get undoCommit => 'Undo Commit';
+
+  @override
+  String get undoCommitMsg => 'Undo commit';
+
+  @override
+  String get undoCommitWarning => 'The commit will be removed but your changes will remain staged.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get resetToCommit => 'Reset to Commit';
+
+  @override
+  String get resetToCommitMsg => 'Reset to commit';
+
+  @override
+  String get resetToCommitWarning =>
+      'All commits after this one will be permanently lost and working directory changes will be discarded. This cannot be undone.';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get cherryPickCommit => 'Cherry Pick Commit';
+
+  @override
+  String get cherryPickCommitMsg => 'Apply the changes from commit';
+
+  @override
+  String get cherryPickCommitWarning => 'This may produce merge conflicts if the changes overlap with the target branch.';
+
+  @override
+  String get cherryPickTargetBranch => 'Target Branch';
+
+  @override
+  String get cherryPick => 'Cherry Pick';
+
+  @override
+  String get cherryPickCommits => 'Cherry Pick Commits';
+
+  @override
+  String get cherryPickCommitsMsg => 'Apply changes from %s commits onto';
+
+  @override
+  String get cherryPickCommitsWarning => 'Commits will be applied in chronological order. Conflicts may occur at each step.';
+
+  @override
+  String get squashCommits => 'Squash Commits';
+
+  @override
+  String get squashCommitsMsg => 'Combine %s commits into a single commit';
+
+  @override
+  String get squashCommitsWarning => 'This rewrites commit history. If these commits have been pushed, a force push will be required.';
+
+  @override
+  String get squash => 'Squash';
+
+  @override
+  String get squashCommitMessage => 'Squash Message';
+
+  @override
+  String get selectCommits => 'Select Commits';
+
+  @override
+  String get selectedCount => '%s selected';
+
+  @override
+  String get squashRequiresConsecutive => 'Squash requires consecutive commits from the latest commit';
+
+  @override
+  String get issues => 'Issues';
+
+  @override
+  String get issueFilterOpen => 'Open';
+
+  @override
+  String get issueFilterClosed => 'Closed';
+
+  @override
+  String get issueFilterAll => 'All';
+
+  @override
+  String get issuesNotFound => 'No issues found…';
+
+  @override
+  String get filterAuthor => 'Author';
+
+  @override
+  String get filterLabels => 'Labels';
+
+  @override
+  String get filterAssignee => 'Assignee';
+
+  @override
+  String get filterMilestone => 'Milestone';
+
+  @override
+  String get filterProject => 'Project';
+
+  @override
+  String get filterNone => 'None';
+
+  @override
+  String get filterMilestonesEmpty => 'No milestones found';
+
+  @override
+  String get filterProjectsEmpty => 'No projects found';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortOldest => 'Oldest';
+
+  @override
+  String get sortMostCommented => 'Most commented';
+
+  @override
+  String get sortRecentlyUpdated => 'Recently updated';
+
+  @override
+  String get filterSidebar => 'Filters';
+
+  @override
+  String get filterReviewer => 'Reviewer';
+
+  @override
+  String get pullRequests => 'Pull Requests';
+
+  @override
+  String get pullRequestsNotFound => 'No pull requests found…';
+
+  @override
+  String get tags => 'Tags';
+
+  @override
+  String get tagsNotFound => 'No tags found…';
+
+  @override
+  String get releases => 'Releases';
+
+  @override
+  String get releasesNotFound => 'No releases found…';
+
+  @override
+  String get preRelease => 'PRE-RELEASE';
+
+  @override
+  String get draft => 'DRAFT';
+
+  @override
+  String get releaseAssets => 'Assets';
+
+  @override
+  String get noAssets => 'No assets';
+
+  @override
+  String get actions => 'Actions';
+
+  @override
+  String get actionsNotFound => 'No actions found…';
+
+  @override
+  String get actionFilterAll => 'All';
+
+  @override
+  String get actionFilterSuccess => 'Success';
+
+  @override
+  String get actionFilterFailed => 'Failed';
 
   @override
   String get attemptAutoFix => 'Auto-Korrektur versuchen?';
@@ -1674,13 +2009,46 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noGitRepoFoundMsg => 'No git repository was found in the selected folder. Would you like to create a new one here?';
 
   @override
-  String get remoteSetupLaterMsg => 'You can set up a remote later to sync with a server.';
+  String get remoteSetupLaterMsg => 'This creates a local repository.\nAuthenticate and add a remote to enable sync.';
 
   @override
   String get localOnlyNoRemote => 'Local only — add a remote to sync';
 
   @override
   String get noRemoteConfigured => 'No remote configured';
+
+  @override
+  String get createRemoteRepo => 'Create Remote Repository';
+
+  @override
+  String get repoName => 'Repository Name';
+
+  @override
+  String get repoPublic => 'Public';
+
+  @override
+  String get repoPrivate => 'Private';
+
+  @override
+  String get creatingRemoteRepo => 'Creating remote repository...';
+
+  @override
+  String get remoteRepoCreated => 'Remote repository created and linked as origin';
+
+  @override
+  String get remoteRepoCreateFailed => 'Failed to create remote repository';
+
+  @override
+  String get noRemoteDetectedMsg => 'This repository has no remote configured. Would you like to create one?';
+
+  @override
+  String get createAndLinkRemote => 'Create & Link Remote';
+
+  @override
+  String get createLocalOnly => 'Local Only';
+
+  @override
+  String get initMainBranch => 'Initialize main branch';
 
   @override
   String get continueLabel => 'Continue';
@@ -1697,4 +2065,212 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get githubScopedRepoMsg => 'Choose which repositories GitSync can access.\n\nWhen finished, close the browser to return to the app.';
+
+  @override
+  String get issueDescription => 'Description';
+
+  @override
+  String get issueNoDescription => 'No description provided';
+
+  @override
+  String get issueComments => 'Comments';
+
+  @override
+  String get issueNoComments => 'No comments yet';
+
+  @override
+  String get issueAddComment => 'Add a comment…';
+
+  @override
+  String get issueSubmitComment => 'Submit';
+
+  @override
+  String get issueCloseIssue => 'Close Issue';
+
+  @override
+  String get issueReopenIssue => 'Reopen Issue';
+
+  @override
+  String get issueAddReaction => 'Add Reaction';
+
+  @override
+  String get issueWriteDisabled => 'You do not have write access';
+
+  @override
+  String get issueStateUpdated => 'Issue state updated';
+
+  @override
+  String get issueCommentAdded => 'Comment added';
+
+  @override
+  String get issueCommentFailed => 'Failed to add comment';
+
+  @override
+  String get issueStateUpdateFailed => 'Failed to update issue state';
+
+  @override
+  String get issueReactionFailed => 'Failed to update reaction';
+
+  @override
+  String get issuePreview => 'Preview';
+
+  @override
+  String get issueWrite => 'Write';
+
+  @override
+  String get issueEditSuccess => 'Issue updated';
+
+  @override
+  String get issueEditFailed => 'Failed to update issue';
+
+  @override
+  String get createIssue => 'Create Issue';
+
+  @override
+  String get createIssueTitle => 'Title';
+
+  @override
+  String get createIssueTitleHint => 'Issue title';
+
+  @override
+  String get createIssueBody => 'Description';
+
+  @override
+  String get createIssueBodyHint => 'Describe the issue…';
+
+  @override
+  String get createIssueSubmit => 'Submit Issue';
+
+  @override
+  String get createIssueSuccess => 'Issue created successfully';
+
+  @override
+  String get createIssueFailed => 'Failed to create issue';
+
+  @override
+  String get createIssueBlankIssue => 'Blank Issue';
+
+  @override
+  String get createIssueSelectTemplate => 'Choose a template';
+
+  @override
+  String get createIssueRequired => 'Required';
+
+  @override
+  String get createPr => 'Create Pull Request';
+
+  @override
+  String get createPrTitle => 'Title';
+
+  @override
+  String get createPrTitleHint => 'Pull request title';
+
+  @override
+  String get createPrBody => 'Description';
+
+  @override
+  String get createPrBodyHint => 'Describe your changes…';
+
+  @override
+  String get createPrSubmit => 'Create Pull Request';
+
+  @override
+  String get createPrSuccess => 'Pull request created';
+
+  @override
+  String get createPrFailed => 'Failed to create pull request';
+
+  @override
+  String get createPrBaseBranch => 'Base';
+
+  @override
+  String get createPrHeadBranch => 'Compare';
+
+  @override
+  String get createPrSelectBranch => 'Select branch';
+
+  @override
+  String get prDescription => 'Description';
+
+  @override
+  String get prNoDescription => 'No description provided';
+
+  @override
+  String get prActivity => 'Activity';
+
+  @override
+  String get prNoActivity => 'No activity yet';
+
+  @override
+  String get prCommits => 'Commits';
+
+  @override
+  String get prCommitsNotFound => 'No commits found';
+
+  @override
+  String get prChecks => 'Checks';
+
+  @override
+  String get prChecksNotFound => 'No checks found';
+
+  @override
+  String get prAllChecksPassed => 'All checks passed';
+
+  @override
+  String prChecksFailed(Object count) {
+    return '$count check(s) failed';
+  }
+
+  @override
+  String get prChecksPending => 'Checks pending';
+
+  @override
+  String get prFilesChanged => 'Files Changed';
+
+  @override
+  String get prFilesChangedNotFound => 'No changed files found';
+
+  @override
+  String get prConversation => 'Conversation';
+
+  @override
+  String get prApproved => 'Approved';
+
+  @override
+  String get prChangesRequested => 'Changes Requested';
+
+  @override
+  String get prCommented => 'Commented';
+
+  @override
+  String get prNotFound => 'Pull request not found';
+
+  @override
+  String get prCommentAdded => 'Comment added';
+
+  @override
+  String get prCommentFailed => 'Failed to add comment';
+
+  @override
+  String get prReactionFailed => 'Failed to update reaction';
+
+  @override
+  String get prMentionedInPr => 'mentioned this in pull request';
+
+  @override
+  String get prMentionedInIssue => 'mentioned this in issue';
+
+  @override
+  String prForcePushed(Object after, Object before) {
+    return 'force-pushed from $before to $after';
+  }
+
+  @override
+  String get recentCommits => 'Recent Commits';
+
+  @override
+  String get branchManagement => 'Branch Management';
+
+  @override
+  String get providerTools => 'Provider Tools';
 }

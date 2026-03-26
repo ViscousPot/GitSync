@@ -38,6 +38,23 @@ pub struct Diff {
     pub diff_parts: HashMap<String, HashMap<String, String>>,
 }
 
+pub struct WorkdirDiffLine {
+    pub line_index: i32,
+    pub origin: String,
+    pub content: String,
+    pub old_lineno: i32,
+    pub new_lineno: i32,
+    pub is_staged: bool,
+}
+
+pub struct WorkdirFileDiff {
+    pub file_path: String,
+    pub insertions: i32,
+    pub deletions: i32,
+    pub is_binary: bool,
+    pub lines: Vec<WorkdirDiffLine>,
+}
+
 pub enum ConflictType {
     Text,
 }
@@ -81,6 +98,8 @@ pub enum LogType {
     SetRemoteUrl,
     CheckoutBranch,
     CreateBranch,
+    RenameBranch,
+    DeleteBranch,
     ReadGitIgnore,
     WriteGitIgnore,
     ReadGitInfoExclude,
@@ -102,6 +121,17 @@ pub enum LogType {
     DeleteRemote,
     RenameRemote,
     InitRepo,
+    CreateBranchFromCommit,
+    CheckoutCommit,
+    CreateTag,
+    RevertCommit,
+    AmendCommit,
+    UndoCommit,
+    ResetToCommit,
+    CherryPickCommit,
+    SquashCommits,
+    WorkdirFileDiff,
+    StageFileLines,
 }
 
 trait WithLine {
@@ -735,6 +765,9 @@ fn _log(
 
 pub async fn get_submodule_paths(path_string: String) -> Result<Vec<String>, git2::Error> {
     let repo = swl!(Repository::open(path_string))?;
+    if repo.is_bare() {
+        return Ok(Vec::new());
+    }
     let mut paths = Vec::new();
 
     for mut submodule in swl!(repo.submodules())? {
@@ -753,6 +786,8 @@ pub async fn clone_repository(
     provider: String,
     credentials: (String, String),
     author: (String, String),
+    depth: Option<i32>,
+    bare: bool,
     clone_task_callback: impl Fn(String) -> DartFnFuture<()> + Send + Sync + 'static,
     clone_progress_callback: impl Fn(i32) -> DartFnFuture<()> + Send + Sync + 'static,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
@@ -804,14 +839,25 @@ pub async fn clone_repository(
     fo.update_fetchhead(true);
     fo.remote_callbacks(callbacks);
     fo.prune(git2::FetchPrune::On);
+    if let Some(d) = depth {
+        fo.depth(d);
+    }
 
     builder.fetch_options(fo);
     let path = Path::new(path_string.as_str());
-    let repo = swl!(builder.clone(url.as_str(), path))?;
+    let repo = if bare {
+        builder.bare(true);
+        let git_dir = path.join(".git");
+        let bare_repo = swl!(builder.clone(url.as_str(), &git_dir))?;
+        bare_repo
+    } else {
+        swl!(builder.clone(url.as_str(), path))?
+    };
 
     set_author(&repo, &author);
     repo.cleanup_state().unwrap();
 
+    if !bare {
     let mut remote = repo.find_remote("origin")?;
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
     let mut fo2 = FetchOptions::new();
@@ -1003,6 +1049,7 @@ pub async fn clone_repository(
         LogType::Clone,
         "Submodules updated successfully".to_string(),
     );
+    } // !bare
 
     Ok(())
 }
@@ -1444,6 +1491,271 @@ pub async fn get_commit_diff(
     })
 }
 
+pub async fn get_workdir_file_diff(
+    path_string: &String,
+    file_path: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<WorkdirFileDiff, git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::WorkdirFileDiff,
+        format!("Getting workdir diff for {}", file_path),
+    );
+
+    let repo = swl!(Repository::open(path_string))?;
+
+    let head_tree = match repo.head() {
+        Ok(head) => Some(swl!(head.peel_to_tree())?),
+        Err(_) => None,
+    };
+
+    let mut diff_opts = DiffOptions::new();
+    diff_opts.pathspec(file_path);
+
+    let staged_lines: Arc<Mutex<Vec<(char, String)>>> = Arc::new(Mutex::new(Vec::new()));
+    if let Ok(staged_diff) = repo.diff_tree_to_index(head_tree.as_ref(), Some(&repo.index()?), Some(&mut diff_opts)) {
+        let staged_lines_ref = Arc::clone(&staged_lines);
+        let _ = staged_diff.foreach(
+            &mut |_: git2::DiffDelta, _: f32| -> bool { true },
+            None,
+            Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
+            Some(&mut |_: git2::DiffDelta, _: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+                let origin = line.origin();
+                if origin == '+' || origin == '-' {
+                    let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
+                    staged_lines_ref.lock().unwrap().push((origin, content));
+                }
+                true
+            }),
+        );
+    }
+    let staged_entries = staged_lines.lock().unwrap().clone();
+
+    let mut diff_opts2 = DiffOptions::new();
+    diff_opts2.pathspec(file_path);
+
+    let diff = swl!(repo.diff_tree_to_workdir_with_index(
+        head_tree.as_ref(),
+        Some(&mut diff_opts2),
+    ))?;
+
+    let diff_stats = swl!(diff.stats())?;
+    let mut staged_bag: HashMap<(char, String), i32> = HashMap::new();
+    for (origin, content) in &staged_entries {
+        *staged_bag.entry((*origin, content.clone())).or_insert(0) += 1;
+    }
+    let staged_bag = Arc::new(Mutex::new(staged_bag));
+
+    let is_binary = Arc::new(AtomicBool::new(false));
+    let lines: Arc<Mutex<Vec<WorkdirDiffLine>>> = Arc::new(Mutex::new(Vec::new()));
+    let line_index = Arc::new(AtomicI32::new(0));
+
+    swl!(diff.foreach(
+        &mut |delta: git2::DiffDelta, _: f32| -> bool {
+            if delta.flags().is_binary() {
+                is_binary.store(true, Ordering::SeqCst);
+            }
+            true
+        },
+        None,
+        Some(&mut |_: git2::DiffDelta, hunk: git2::DiffHunk| -> bool {
+            let header = String::from_utf8_lossy(hunk.header()).trim_end().to_string();
+            let idx = line_index.fetch_add(1, Ordering::SeqCst);
+            lines.lock().unwrap().push(WorkdirDiffLine {
+                line_index: idx,
+                origin: "H".to_string(),
+                content: header,
+                old_lineno: -1,
+                new_lineno: -1,
+                is_staged: false,
+            });
+            true
+        }),
+        Some(&mut |_: git2::DiffDelta,
+                   _: Option<git2::DiffHunk>,
+                   line: git2::DiffLine|
+         -> bool {
+            let origin = match line.origin() {
+                '+' => "+".to_string(),
+                '-' => "-".to_string(),
+                ' ' => " ".to_string(),
+                _ => return true,
+            };
+
+            let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
+            let idx = line_index.fetch_add(1, Ordering::SeqCst);
+
+            let is_staged = if origin != " " {
+                let origin_char = origin.chars().next().unwrap_or(' ');
+                let key = (origin_char, content.clone());
+                let mut bag = staged_bag.lock().unwrap();
+                if let Some(count) = bag.get_mut(&key) {
+                    if *count > 0 {
+                        *count -= 1;
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+
+            let mut lines_vec = lines.lock().unwrap();
+            lines_vec.push(WorkdirDiffLine {
+                line_index: idx,
+                origin,
+                content,
+                old_lineno: line.old_lineno().map(|n| n as i32).unwrap_or(-1),
+                new_lineno: line.new_lineno().map(|n| n as i32).unwrap_or(-1),
+                is_staged,
+            });
+
+            true
+        })
+    ))?;
+
+    let lines = lines.lock().unwrap().drain(..).collect();
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::WorkdirFileDiff,
+        format!("Workdir diff complete - {} insertions, {} deletions", diff_stats.insertions(), diff_stats.deletions()),
+    );
+
+    Ok(WorkdirFileDiff {
+        file_path: file_path.clone(),
+        insertions: diff_stats.insertions() as i32,
+        deletions: diff_stats.deletions() as i32,
+        is_binary: is_binary.load(Ordering::SeqCst),
+        lines,
+    })
+}
+
+pub async fn stage_file_lines(
+    path_string: &String,
+    file_path: &String,
+    selected_line_indices: Vec<i32>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::StageFileLines,
+        format!("Staging {} selected lines for {}", selected_line_indices.len(), file_path),
+    );
+
+    let repo = swl!(Repository::open(path_string))?;
+
+    let head_tree = match repo.head() {
+        Ok(head) => Some(swl!(head.peel_to_tree())?),
+        Err(_) => None,
+    };
+
+    let mut diff_opts = DiffOptions::new();
+    diff_opts.pathspec(file_path);
+    let diff = swl!(repo.diff_tree_to_workdir_with_index(
+        head_tree.as_ref(),
+        Some(&mut diff_opts),
+    ))?;
+
+    let selected_set: std::collections::HashSet<i32> = selected_line_indices.into_iter().collect();
+    let diff_lines: Arc<Mutex<Vec<(i32, char, String)>>> = Arc::new(Mutex::new(Vec::new()));
+    let idx_counter = Arc::new(AtomicI32::new(0));
+
+    swl!(diff.foreach(
+        &mut |_: git2::DiffDelta, _: f32| -> bool { true },
+        None,
+        Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
+        Some(&mut |_: git2::DiffDelta,
+                   _: Option<git2::DiffHunk>,
+                   line: git2::DiffLine|
+         -> bool {
+            let origin = line.origin();
+            if origin == '+' || origin == '-' || origin == ' ' {
+                let idx = idx_counter.fetch_add(1, Ordering::SeqCst);
+                let content = String::from_utf8_lossy(line.content()).to_string();
+                diff_lines.lock().unwrap().push((idx, origin, content));
+            }
+            true
+        })
+    ))?;
+
+    let diff_lines = diff_lines.lock().unwrap().clone();
+
+    let mut staged_content = String::new();
+    for (idx, origin, content) in &diff_lines {
+        match origin {
+            ' ' => staged_content.push_str(content),
+            '-' => {
+                if !selected_set.contains(idx) {
+                    staged_content.push_str(content);
+                }
+            }
+            '+' => {
+                if selected_set.contains(idx) {
+                    staged_content.push_str(content);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if diff_lines.is_empty() {
+        return Ok(());
+    }
+
+    let mut index = swl!(repo.index())?;
+
+    let file_path_bytes = file_path.as_bytes();
+    let entry = match index.get_path(Path::new(file_path), 0) {
+        Some(existing) => git2::IndexEntry {
+            ctime: existing.ctime,
+            mtime: existing.mtime,
+            dev: existing.dev,
+            ino: existing.ino,
+            mode: existing.mode,
+            uid: existing.uid,
+            gid: existing.gid,
+            file_size: staged_content.len() as u32,
+            id: existing.id,
+            flags: existing.flags,
+            flags_extended: existing.flags_extended,
+            path: file_path_bytes.to_vec(),
+        },
+        None => git2::IndexEntry {
+            ctime: git2::IndexTime::new(0, 0),
+            mtime: git2::IndexTime::new(0, 0),
+            dev: 0,
+            ino: 0,
+            mode: 0o100644,
+            uid: 0,
+            gid: 0,
+            file_size: staged_content.len() as u32,
+            id: git2::Oid::zero(),
+            flags: 0,
+            flags_extended: 0,
+            path: file_path_bytes.to_vec(),
+        },
+    };
+
+    swl!(index.add_frombuffer(&entry, staged_content.as_bytes()))?;
+    swl!(index.write())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::StageFileLines,
+        format!("Partial staging complete for {}", file_path),
+    );
+
+    Ok(())
+}
+
 pub async fn get_recent_commits(
     path_string: &String,
     remote_name: &str,
@@ -1699,7 +2011,14 @@ fn commit(
             swl!(head.set_target(commit_id, message))?;
         } else {
             let current_branch =
-                get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
+                get_branch_name_priv(&repo).unwrap_or_else(|| {
+                    // On unborn branch, read HEAD's symbolic target to get the intended branch name
+                    repo.find_reference("HEAD")
+                        .ok()
+                        .and_then(|r| r.symbolic_target().map(|s| s.to_string()))
+                        .and_then(|s| s.strip_prefix("refs/heads/").map(|s| s.to_string()))
+                        .unwrap_or_else(|| "main".to_string())
+                });
 
             swl!(repo.reference(
                 &format!("refs/heads/{}", current_branch),
@@ -2525,6 +2844,16 @@ pub async fn get_recommended_action(
 ) -> Result<Option<i32>, git2::Error> {
     let log_callback = Arc::new(log);
     let repo = swl!(git2::Repository::open(path_string))?;
+
+    if repo.head().is_err() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::RecommendedAction,
+            "Unborn branch — no commits, no sync action applicable".to_string(),
+        );
+        return Ok(Some(-1));
+    }
+
     let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
     let branch_name = get_branch_name_priv(&repo).unwrap_or_else(|| "master".to_string());
 
@@ -3817,13 +4146,14 @@ pub async fn get_branch_names(
     );
     let repo = Repository::open(Path::new(path_string)).unwrap();
 
-    let mut branch_set = std::collections::HashSet::new();
+    let mut local_set = std::collections::HashSet::new();
+    let mut remote_set = std::collections::HashSet::new();
 
     let local_branches = repo.branches(Some(BranchType::Local)).unwrap();
     for branch_result in local_branches {
         if let Ok((branch, _)) = branch_result {
             if let Some(name) = branch.name().ok().flatten() {
-                branch_set.insert(name.to_string());
+                local_set.insert(name.to_string());
             }
         }
     }
@@ -3838,17 +4168,37 @@ pub async fn get_branch_names(
 
                 if let Some(stripped_name) = name.strip_prefix(&format!("{}/", remote.to_string()))
                 {
-                    if !branch_set.contains(stripped_name) {
-                        branch_set.insert(stripped_name.to_string());
-                    }
+                    remote_set.insert(stripped_name.to_string());
                 } else {
-                    branch_set.insert(name.to_string());
+                    remote_set.insert(name.to_string());
                 }
             }
         }
     }
 
-    branch_set.into_iter().collect()
+    let mut all_names: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for name in &local_set {
+        all_names.insert(name.clone());
+    }
+    for name in &remote_set {
+        all_names.insert(name.clone());
+    }
+
+    all_names
+        .into_iter()
+        .map(|name| {
+            let is_local = local_set.contains(&name);
+            let is_remote = remote_set.contains(&name);
+            let location = if is_local && is_remote {
+                "both"
+            } else if is_local {
+                "local"
+            } else {
+                "remote"
+            };
+            format!("{}======={}", name, location)
+        })
+        .collect()
 }
 
 pub async fn set_remote_url(
@@ -3901,6 +4251,24 @@ pub async fn init_repository(
         "Initialising repository".to_string(),
     );
     Repository::init(Path::new(path_string))?;
+    Ok(())
+}
+
+pub async fn set_head_to_branch(
+    path_string: &String,
+    branch_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+    let repo = swl!(Repository::open(path_string))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranch,
+        format!("Setting HEAD to refs/heads/{}", branch_name),
+    );
+
+    repo.set_head(&format!("refs/heads/{}", branch_name))?;
     Ok(())
 }
 
@@ -4031,8 +4399,6 @@ pub async fn create_branch(
     path_string: &String,
     new_branch_name: &String,
     remote_name: &String,
-    provider: &String,
-    credentials: &(String, String),
     source_branch_name: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
@@ -4048,7 +4414,6 @@ pub async fn create_branch(
     );
 
     let repo = swl!(Repository::open(Path::new(path_string)))?;
-    configure_network_timeouts(&repo);
 
     let current_branch = get_branch_name_priv(&repo);
 
@@ -4095,76 +4460,57 @@ pub async fn create_branch(
         format!("Switched to new branch '{}'", new_branch_name),
     );
 
-    _log(
-        Arc::clone(&log_callback),
-        LogType::PushToRepo,
-        format!("Pushing new branch '{}' to remote", new_branch_name),
-    );
+    Ok(())
+}
 
-    let mut remote = swl!(repo.find_remote(remote_name))?;
-    let push_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
-
-    let mut callbacks = get_default_callbacks(Some(provider), Some(credentials));
-    let push_error_clone = Arc::clone(&push_error);
-    callbacks.push_update_reference(move |refname, status| {
-        if let Some(msg) = status {
-            *push_error_clone.lock().unwrap() =
-                Some(format!("Remote rejected {}: {}", refname, msg));
-        }
-        Ok(())
-    });
-
-    let mut push_options = PushOptions::new();
-    push_options.remote_callbacks(callbacks);
-
-    let refspec = format!(
-        "refs/heads/{}:refs/heads/{}",
-        new_branch_name, new_branch_name
-    );
-
-    match remote.push(&[&refspec], Some(&mut push_options)) {
-        Ok(_) => {
-            if let Some(err) = push_error.lock().unwrap().take() {
-                _log(
-                    Arc::clone(&log_callback),
-                    LogType::PushToRepo,
-                    format!("Push rejected by server: {}", err),
-                );
-                return Err(git2::Error::from_str(&err));
-            }
-            _log(
-                Arc::clone(&log_callback),
-                LogType::PushToRepo,
-                format!("Successfully pushed branch '{}' to remote", new_branch_name),
-            );
-        }
-        Err(e) => {
-            _log(
-                Arc::clone(&log_callback),
-                LogType::PushToRepo,
-                format!(
-                    "Failed to push branch '{}' to remote: {}",
-                    new_branch_name, e
-                ),
-            );
-            return Err(e).map_err(|e| {
-                git2::Error::from_str(&format!("{} (at line {})", e.message(), line!()))
-            });
-        }
-    }
-
-    // Set the upstream branch for the new branch
-    let mut branch = swl!(repo.find_branch(new_branch_name, BranchType::Local))?;
-    let upstream_name = format!("{}/{}", remote_name, new_branch_name);
-    swl!(branch.set_upstream(Some(&upstream_name)))?;
+pub async fn rename_branch(
+    path_string: &String,
+    old_name: &String,
+    new_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
 
     _log(
         Arc::clone(&log_callback),
-        LogType::Global,
-        format!(
-            "Set upstream for '{}' to '{}'",
-            new_branch_name, upstream_name
-        ),
+        LogType::RenameBranch,
+        format!("Renaming branch '{}' to '{}'", old_name, new_name),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+    let mut branch = swl!(repo.find_branch(old_name, BranchType::Local))?;
+    swl!(branch.rename(new_name, false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RenameBranch,
+        format!("Branch renamed from '{}' to '{}'", old_name, new_name),
+    );
+
+    Ok(())
+}
+
+pub async fn delete_branch(
+    path_string: &String,
+    branch_name: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DeleteBranch,
+        format!("Deleting branch '{}'", branch_name),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+    let mut branch = swl!(repo.find_branch(branch_name, BranchType::Local))?;
+    swl!(branch.delete())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::DeleteBranch,
+        format!("Branch '{}' deleted", branch_name),
     );
 
     Ok(())
@@ -4233,6 +4579,445 @@ pub async fn prune_corrupted_loose_objects(path_string: String) -> Result<(), gi
     if pruned > 0 {
         let _ = odb.refresh();
     }
+
+    Ok(())
+}
+
+pub async fn create_branch_from_commit(
+    path_string: &String,
+    new_branch_name: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!(
+            "Creating new branch '{}' from commit '{}'",
+            new_branch_name,
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    let new_branch = swl!(repo.branch(new_branch_name, &commit, false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!("New branch '{}' created", new_branch_name),
+    );
+
+    let object = swl!(new_branch.get().peel(git2::ObjectType::Commit))?;
+
+    let mut checkout_builder = git2::build::CheckoutBuilder::new();
+    checkout_builder.force();
+
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
+
+    let refname = format!("refs/heads/{}", new_branch_name);
+    swl!(repo.set_head(&refname))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateBranchFromCommit,
+        format!("Switched to new branch '{}'", new_branch_name),
+    );
+
+    Ok(())
+}
+
+pub async fn checkout_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CheckoutCommit,
+        format!(
+            "Checking out commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+    let object = commit.as_object();
+
+    let mut checkout_builder = git2::build::CheckoutBuilder::new();
+    checkout_builder.force();
+
+    tokio::task::block_in_place(|| swl!(repo.checkout_tree(object, Some(&mut checkout_builder))))?;
+
+    swl!(repo.set_head_detached(oid))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CheckoutCommit,
+        format!(
+            "HEAD is now at {}",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn create_tag(
+    path_string: &String,
+    tag_name: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateTag,
+        format!(
+            "Creating tag '{}' on commit '{}'",
+            tag_name,
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.tag_lightweight(tag_name, commit.as_object(), false))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CreateTag,
+        format!("Tag '{}' created", tag_name),
+    );
+
+    Ok(())
+}
+
+pub async fn revert_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RevertCommit,
+        format!(
+            "Reverting commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.revert(&commit, None))?;
+
+    let mut index = swl!(repo.index())?;
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    let message = format!(
+        "Revert \"{}\"",
+        commit.message().unwrap_or("").trim()
+    );
+
+    swl!(repo.commit(
+        Some("HEAD"),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &[&head_commit],
+    ))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RevertCommit,
+        format!(
+            "Reverted commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn amend_commit(
+    path_string: &String,
+    new_message: &String,
+    commit_signing_credentials: Option<(String, String)>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::AmendCommit,
+        "Amending commit message".to_string(),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+    let tree = swl!(head_commit.tree())?;
+    let parents: Vec<git2::Commit> = head_commit
+        .parents()
+        .collect();
+    let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
+
+    let signature = swl!(repo.signature())?;
+
+    let new_oid = commit(
+        &repo,
+        None,
+        &signature,
+        new_message,
+        &tree,
+        &parent_refs,
+        commit_signing_credentials,
+        &log_callback,
+    )?;
+
+    if let Ok(mut head) = repo.head() {
+        swl!(head.set_target(new_oid, new_message))?;
+    }
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::AmendCommit,
+        "Commit message amended".to_string(),
+    );
+
+    Ok(())
+}
+
+pub async fn undo_commit(
+    path_string: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::UndoCommit,
+        "Undoing last commit (soft reset)".to_string(),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    if head_commit.parent_count() == 0 {
+        return Err(git2::Error::from_str("Cannot undo the initial commit"));
+    }
+
+    let parent = swl!(head_commit.parent(0))?;
+    swl!(repo.reset(parent.as_object(), ResetType::Soft, None))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::UndoCommit,
+        "Commit undone — changes remain staged".to_string(),
+    );
+
+    Ok(())
+}
+
+pub async fn reset_to_commit(
+    path_string: &String,
+    commit_sha: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::ResetToCommit,
+        format!(
+            "Resetting to commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.reset(commit.as_object(), ResetType::Hard, None))?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::ResetToCommit,
+        format!(
+            "Reset to commit '{}'",
+            &commit_sha[..7.min(commit_sha.len())]
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn cherry_pick_commit(
+    path_string: &String,
+    commit_sha: &String,
+    target_branch: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CherryPickCommit,
+        format!(
+            "Cherry-picking commit '{}' onto '{}'",
+            &commit_sha[..7.min(commit_sha.len())],
+            target_branch
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    // Switch to target branch if it differs from current
+    let current_branch = get_branch_name_priv(&repo);
+    if current_branch.as_deref() != Some(target_branch.as_str()) {
+        let branch = swl!(repo.find_branch(target_branch, git2::BranchType::Local))?;
+        let object = swl!(branch.get().peel(git2::ObjectType::Commit))?;
+
+        let mut checkout_builder = git2::build::CheckoutBuilder::new();
+        checkout_builder.force();
+
+        tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
+        swl!(repo.set_head(&format!("refs/heads/{}", target_branch)))?;
+    }
+
+    let oid = swl!(git2::Oid::from_str(commit_sha))?;
+    let commit = swl!(repo.find_commit(oid))?;
+
+    swl!(repo.cherrypick(&commit, None))?;
+
+    let mut index = swl!(repo.index())?;
+
+    if index.has_conflicts() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::CherryPickCommit,
+            "Cherry-pick produced conflicts — resolve them before committing".to_string(),
+        );
+        return Ok(());
+    }
+
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+    let head_commit = swl!(repo.head()?.peel_to_commit())?;
+
+    let message = commit.message().unwrap_or("").trim().to_string();
+
+    swl!(repo.commit(
+        Some("HEAD"),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &[&head_commit],
+    ))?;
+
+    swl!(repo.cleanup_state())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::CherryPickCommit,
+        format!(
+            "Cherry-picked commit '{}' onto '{}'",
+            &commit_sha[..7.min(commit_sha.len())],
+            target_branch
+        ),
+    );
+
+    Ok(())
+}
+
+pub async fn squash_commits(
+    path_string: &String,
+    oldest_commit_sha: &String,
+    squash_message: &String,
+    commit_signing_credentials: Option<(String, String)>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::SquashCommits,
+        format!(
+            "Squashing commits from '{}' to HEAD",
+            &oldest_commit_sha[..7.min(oldest_commit_sha.len())]
+        ),
+    );
+
+    let repo = swl!(Repository::open(Path::new(path_string)))?;
+
+    let oldest_oid = swl!(git2::Oid::from_str(oldest_commit_sha))?;
+    let oldest_commit = swl!(repo.find_commit(oldest_oid))?;
+
+    if oldest_commit.parent_count() == 0 {
+        return Err(git2::Error::from_str("Cannot squash: oldest selected commit has no parent"));
+    }
+
+    let parent_commit = swl!(oldest_commit.parent(0))?;
+
+    // Soft reset to parent — keeps all changes staged
+    swl!(repo.reset(parent_commit.as_object(), ResetType::Soft, None))?;
+
+    let mut index = swl!(repo.index())?;
+    let tree_oid = swl!(index.write_tree())?;
+    let tree = swl!(repo.find_tree(tree_oid))?;
+
+    let signature = swl!(repo.signature())?;
+
+    commit(
+        &repo,
+        Some("HEAD"),
+        &signature,
+        squash_message,
+        &tree,
+        &[&parent_commit],
+        commit_signing_credentials,
+        &log_callback,
+    )?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::SquashCommits,
+        format!(
+            "Squashed commits from '{}' to HEAD into one commit",
+            &oldest_commit_sha[..7.min(oldest_commit_sha.len())]
+        ),
+    );
 
     Ok(())
 }

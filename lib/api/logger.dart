@@ -63,6 +63,8 @@ enum LogType {
   SetRemoteUrl,
   CheckoutBranch,
   CreateBranch,
+  RenameBranch,
+  DeleteBranch,
   ReadGitIgnore,
   WriteGitIgnore,
   ReadGitInfoExclude,
@@ -84,6 +86,33 @@ enum LogType {
   DeleteRemote,
   RenameRemote,
   InitRepo,
+  CreateBranchFromCommit,
+  CheckoutCommit,
+  CreateTag,
+  RevertCommit,
+  AmendCommit,
+  UndoCommit,
+  ResetToCommit,
+  CherryPickCommit,
+  SquashCommits,
+  GetIssues,
+  GetPullRequests,
+  GetTags,
+  GetReleases,
+  GetActionRuns,
+  GetIssueDetail,
+  AddIssueComment,
+  UpdateIssueState,
+  AddReaction,
+  RemoveReaction,
+  GetPrDetail,
+  CreateIssue,
+  GetIssueTemplates,
+  UpdateIssue,
+  CreatePullRequest,
+  GetRepoBranches,
+  WorkdirFileDiff,
+  StageFileLines,
 }
 
 enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEAD }
@@ -241,7 +270,7 @@ $logs
         print('Failed to create issue: ${response.statusCode} ${response.body}');
       }
 
-      IssueReportedSuccessfullyDialog.showDialog(context, jsonDecode(response.body)["html_url"]);
+      IssueReportedSuccessfullyDialog.showDialog(context, jsonDecode(utf8.decode(response.bodyBytes))["html_url"]);
     });
   }
 

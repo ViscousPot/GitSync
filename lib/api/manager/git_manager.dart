@@ -217,7 +217,7 @@ class GitManager {
       (await (setman ?? uiSettingsManager).getAuthorName(), await (setman ?? uiSettingsManager).getAuthorEmail());
 
   // UI Accessible Only
-  static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback) async {
+  static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback, {int? depth, bool bare = false}) async {
     if (await isLocked() != null) return operationInProgressError;
 
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
@@ -232,6 +232,8 @@ class GitManager {
           provider: await _gitProvider(),
           credentials: await _getCredentials(),
           author: await _author(),
+          depth: depth,
+          bare: bare,
           cloneTaskCallback: cloneTaskCallback,
           cloneProgressCallback: cloneProgressCallback,
           log: _logWrapper,
@@ -473,6 +475,31 @@ class GitManager {
     });
   }
 
+  static Future<GitManagerRs.WorkdirFileDiff?> getWorkdirFileDiff(String filePath) async {
+    return await _runWithLock(null, await _repoIndex, LogType.WorkdirFileDiff, (dirPath) async {
+      try {
+        return (await GitManagerRs.getWorkdirFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper));
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.WorkdirFileDiff, e, stackTrace);
+        return null;
+      }
+    });
+  }
+
+  static Future<void> stageFileLines(String filePath, List<int> selectedLineIndices) async {
+    return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
+      await _repoIndex,
+      LogType.StageFileLines,
+      (dirPath) async => await GitManagerRs.stageFileLines(
+        pathString: dirPath,
+        filePath: filePath,
+        selectedLineIndices: selectedLineIndices,
+        log: _logWrapper,
+      ),
+    );
+  }
+
   static Future<int?> getInitialRecommendedAction() async {
     return await uiSettingsManager.getIntNullable(StorageKey.setman_recommendedAction);
   }
@@ -672,7 +699,7 @@ class GitManager {
     return result;
   }
 
-  static Future<List<String>> getBranchNames() async {
+  static Future<List<(String, String)>> getBranchNames() async {
     final result =
         await _runWithLock(priority: 1, GitManagerRs.stringListRunWithLock, await _repoIndex, LogType.BranchNames, (dirPath) async {
           try {
@@ -684,8 +711,13 @@ class GitManager {
         }) ??
         <String>[];
 
-    await uiSettingsManager.setStringList(StorageKey.setman_branchNames, result);
-    return result;
+    final parsed = result.map((entry) {
+      final parts = entry.split(conflictSeparator);
+      return (parts[0], parts.length > 1 ? parts[1] : 'both');
+    }).toList();
+
+    await uiSettingsManager.setStringList(StorageKey.setman_branchNames, parsed.map((e) => e.$1).toList());
+    return parsed;
   }
 
   static Future<void> setRemoteUrl(String newRemoteUrl) async {
@@ -714,10 +746,29 @@ class GitManager {
         <String>[];
   }
 
-  static Future<void> addRemote(String name, String url) async {
+  static Future<void> addRemote(String name, String url, [String? dirPathOverride]) async {
+    if (dirPathOverride != null) {
+      await GitManagerRs.addRemote(pathString: dirPathOverride, remoteName: name, remoteUrl: url, log: _logWrapper);
+      return;
+    }
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AddRemote, (dirPath) async {
       await GitManagerRs.addRemote(pathString: dirPath, remoteName: name, remoteUrl: url, log: _logWrapper);
     });
+  }
+
+  static Future<void> initialCommit(String dirPath, (String, String) author, String message) async {
+    await GitManagerRs.commitChanges(pathString: dirPath, author: author, syncMessage: message, log: _logWrapper);
+  }
+
+  static Future<void> initialPush(String dirPath, String remoteName, String provider, (String, String) credentials) async {
+    await GitManagerRs.pushChanges(
+      pathString: dirPath,
+      remoteName: remoteName,
+      provider: provider,
+      credentials: credentials,
+      mergeConflictCallback: () async {},
+      log: _logWrapper,
+    );
   }
 
   static Future<void> deleteRemote(String name) async {
@@ -757,8 +808,83 @@ class GitManager {
         remoteName: await settingsManager.getRemote(),
         newBranchName: branchName,
         sourceBranchName: basedOn,
-        provider: (await settingsManager.getGitProvider()).name,
-        credentials: await _getCredentials(settingsManager),
+        log: _logWrapper,
+      );
+    });
+  }
+
+  static Future<void> renameBranch(String oldName, String newName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RenameBranch, (dirPath) async {
+      await GitManagerRs.renameBranch(pathString: dirPath, oldName: oldName, newName: newName, log: _logWrapper);
+    });
+  }
+
+  static Future<void> deleteBranch(String branchName) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.DeleteBranch, (dirPath) async {
+      await GitManagerRs.deleteBranch(pathString: dirPath, branchName: branchName, log: _logWrapper);
+    });
+  }
+
+  static Future<void> createBranchFromCommit(String branchName, String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CreateBranchFromCommit, (dirPath) async {
+      await GitManagerRs.createBranchFromCommit(pathString: dirPath, newBranchName: branchName, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> checkoutCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CheckoutCommit, (dirPath) async {
+      await GitManagerRs.checkoutCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> createTag(String tagName, String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CreateTag, (dirPath) async {
+      await GitManagerRs.createTag(pathString: dirPath, tagName: tagName, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> revertCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.RevertCommit, (dirPath) async {
+      await GitManagerRs.revertCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> amendCommit(String newMessage) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.AmendCommit, (dirPath) async {
+      await GitManagerRs.amendCommit(
+        pathString: dirPath,
+        newMessage: newMessage,
+        commitSigningCredentials: await uiSettingsManager.getGitCommitSigningCredentials(),
+        log: _logWrapper,
+      );
+    });
+  }
+
+  static Future<void> undoCommit() async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.UndoCommit, (dirPath) async {
+      await GitManagerRs.undoCommit(pathString: dirPath, log: _logWrapper);
+    });
+  }
+
+  static Future<void> resetToCommit(String commitSha) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.ResetToCommit, (dirPath) async {
+      await GitManagerRs.resetToCommit(pathString: dirPath, commitSha: commitSha, log: _logWrapper);
+    });
+  }
+
+  static Future<void> cherryPickCommit(String commitSha, String targetBranch) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.CherryPickCommit, (dirPath) async {
+      await GitManagerRs.cherryPickCommit(pathString: dirPath, commitSha: commitSha, targetBranch: targetBranch, log: _logWrapper);
+    });
+  }
+
+  static Future<void> squashCommits(String oldestCommitSha, String squashMessage) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _repoIndex, LogType.SquashCommits, (dirPath) async {
+      await GitManagerRs.squashCommits(
+        pathString: dirPath,
+        oldestCommitSha: oldestCommitSha,
+        squashMessage: squashMessage,
+        commitSigningCredentials: await uiSettingsManager.getGitCommitSigningCredentials(),
         log: _logWrapper,
       );
     });

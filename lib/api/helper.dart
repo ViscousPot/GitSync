@@ -34,6 +34,8 @@ import '../constant/dimens.dart';
 import '../ui/dialog/create_repository.dart' as CreateRepositoryDialog;
 import '../ui/dialog/obisidian_git_found.dart' as ObsidianGitFoundDialog;
 import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;
+import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
+import 'package:GitSync/type/git_provider.dart';
 import 'package:http/http.dart' as http;
 
 const int mergeConflictNotificationId = 1758;
@@ -252,18 +254,127 @@ Future<bool> validateOrInitGitDir(BuildContext context, String dir) async {
   final isGit = await useDirectory(dir, (_) async {}, (path) async {
     return GitManager.isGitDir(path);
   });
-  if (isGit == true) return true;
 
-  bool confirmed = false;
-  await CreateRepositoryDialog.showDialog(context, () {
-    confirmed = true;
-  });
-  if (!confirmed) return false;
+  final oAuthInfo = await _getOAuthInfo();
+  final dirName = dir.split('/').last.split('\\').last;
+
+  // Resolve the actual git dir path for direct addRemote calls
+  final resolvedPath = await useDirectory<String>(dir, (_) async => null, (path) async => path);
+
+  if (isGit == true) {
+    if (oAuthInfo != null && resolvedPath != null) {
+      final remotes = await GitManagerRs.listRemotes(pathString: resolvedPath, log: (_, __) {});
+      if (remotes.isEmpty) {
+        await _offerCreateRemoteForDir(context, dirName, oAuthInfo, resolvedPath);
+      }
+    }
+    return true;
+  }
+
+  final result = await CreateRepositoryDialog.showDialog(
+    context,
+    hasOAuth: oAuthInfo != null,
+    providerName: oAuthInfo?.$1.name,
+    repoAlreadyExists: false,
+    defaultRepoName: dirName,
+  );
+  if (result == null) return false;
 
   final success = await useDirectory(dir, (_) async {}, (path) async {
     return await GitManager.initRepository(path);
   });
-  return success == true;
+  if (success != true) return false;
+
+  if (result.createRemote && result.repoName != null) {
+    await _performRemoteRepoCreation(context, result.repoName!, result.isPrivate, result.initMainBranch, oAuthInfo!, resolvedPath);
+  }
+
+  return true;
+}
+
+Future<(GitProvider, String, String, bool)?> _getOAuthInfo() async {
+  final provider = await uiSettingsManager.getGitProvider();
+  if (!provider.isOAuthProvider) return null;
+  final credentials = await uiSettingsManager.getGitHttpAuthCredentials();
+  if (credentials.$2.isEmpty) return null;
+  final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+  return (provider, credentials.$1, credentials.$2, githubAppOauth);
+}
+
+Future<void> _offerCreateRemoteForDir(
+  BuildContext context,
+  String dirName,
+  (GitProvider, String, String, bool) oAuthInfo,
+  String? dirPath,
+) async {
+  final result = await CreateRepositoryDialog.showDialog(
+    context,
+    hasOAuth: true,
+    providerName: oAuthInfo.$1.name,
+    repoAlreadyExists: true,
+    defaultRepoName: dirName,
+  );
+
+  if (result == null || !result.createRemote || result.repoName == null) return;
+
+  await _performRemoteRepoCreation(context, result.repoName!, result.isPrivate, result.initMainBranch, oAuthInfo, dirPath);
+}
+
+Future<void> _performRemoteRepoCreation(
+  BuildContext context,
+  String repoName,
+  bool isPrivate,
+  bool initMainBranch,
+  (GitProvider, String, String, bool) oAuthInfo,
+  String? dirPath,
+) async {
+  Fluttertoast.showToast(msg: t.creatingRemoteRepo);
+
+  final manager = GitProviderManager.getGitProviderManager(oAuthInfo.$1, oAuthInfo.$4);
+  if (manager == null) return;
+
+  final createResult = await manager.createRepo(oAuthInfo.$3, oAuthInfo.$2, repoName, isPrivate);
+  if (createResult == null) {
+    Fluttertoast.showToast(msg: t.remoteRepoCreateFailed);
+    return;
+  }
+
+  await GitManager.addRemote("origin", createResult.$1, dirPath);
+
+  if (initMainBranch && dirPath != null) {
+    try {
+      final authorName = await uiSettingsManager.getAuthorName();
+      final authorEmail = await uiSettingsManager.getAuthorEmail();
+      final author = (authorName.isNotEmpty ? authorName : oAuthInfo.$2, authorEmail.isNotEmpty ? authorEmail : oAuthInfo.$2);
+      await GitManager.initialCommit(dirPath, author, "Initial commit");
+      await GitManager.initialPush(dirPath, "origin", oAuthInfo.$1.name, (oAuthInfo.$2, oAuthInfo.$3));
+    } catch (_) {
+      // Non-fatal — repo is still usable, just without the initial branch setup
+    }
+  }
+
+  Fluttertoast.showToast(msg: t.remoteRepoCreated);
+}
+
+Future<void> offerCreateRemoteForExistingRepo(BuildContext context, String dir) async {
+  final oAuthInfo = await _getOAuthInfo();
+  if (oAuthInfo == null) return;
+
+  final remotes = await GitManager.listRemotes();
+  if (remotes.isNotEmpty) return;
+
+  final dirName = dir.split('/').last.split('\\').last;
+  final resolvedPath = await useDirectory<String>(dir, (_) async => null, (path) async => path);
+  final result = await CreateRepositoryDialog.showDialog(
+    context,
+    hasOAuth: true,
+    providerName: oAuthInfo.$1.name,
+    repoAlreadyExists: true,
+    defaultRepoName: dirName,
+  );
+  if (result != null && result.createRemote && result.repoName != null) {
+    await _performRemoteRepoCreation(context, result.repoName!, result.isPrivate, result.initMainBranch, oAuthInfo, resolvedPath);
+  }
 }
 
 Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
@@ -454,6 +565,42 @@ List<int> _randomBytes(int length) {
 
 Future<http.Response> httpGet(Uri url, {Map<String, String>? headers}) => http
     .get(url, headers: headers)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpPost(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .post(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpPatch(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .patch(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpPut(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .put(url, headers: headers, body: body)
+    .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+
+Future<http.Response> httpDelete(Uri url, {Map<String, String>? headers, Object? body}) => http
+    .delete(url, headers: headers, body: body)
     .timeout(
       const Duration(seconds: 10),
       onTimeout: () {

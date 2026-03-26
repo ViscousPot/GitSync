@@ -11,6 +11,21 @@ const String sync_settings_main = "/sync_settings_main";
 const String image_viewer = "/image_viewer";
 const String global_settings_main = "/global_settings_main";
 const String unlock_premium = "/unlock_premium";
+const String expanded_commits = "/expanded_commits";
+const String issues_page = "/issues_page";
+const String pull_requests_page = "/pull_requests_page";
+const String tags_page = "/tags_page";
+const String releases_page = "/releases_page";
+const String actions_page = "/actions_page";
+const String issue_detail_page = "/issue_detail_page";
+const String pr_detail_page = "/pr_detail_page";
+const String create_issue_page = "/create_issue_page";
+const String create_pr_page = "/create_pr_page";
+
+const String hero_commits_list = "hero_commits_list";
+const String hero_branch_row = "hero_branch_row";
+const String hero_expand_contract = "hero_expand_contract";
+String heroShowcaseFeature(String key) => 'hero_showcase_$key';
 
 // Paths
 const String gitIgnorePath = ".gitignore";
@@ -79,6 +94,7 @@ const String mergeConflictNotificationBody = "There is an irreconcilable differe
 // Settings Page
 const String defaultSyncMessage = "Last Sync: %s (Mobile)";
 const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
+const String defaultPostFooter = '\n<sub>CREATED WITH <a href="https://github.com/ViscousPot/GitSync">GITSYNC</a></sub>';
 
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
 const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";

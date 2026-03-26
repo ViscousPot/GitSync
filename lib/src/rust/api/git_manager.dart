@@ -174,6 +174,8 @@ Future<void> cloneRepository({
   required String provider,
   required (String, String) credentials,
   required (String, String) author,
+  int? depth,
+  required bool bare,
   required FutureOr<void> Function(String) cloneTaskCallback,
   required FutureOr<void> Function(int) cloneProgressCallback,
   required FutureOr<void> Function(LogType, String) log,
@@ -183,6 +185,8 @@ Future<void> cloneRepository({
   provider: provider,
   credentials: credentials,
   author: author,
+  depth: depth,
+  bare: bare,
   cloneTaskCallback: cloneTaskCallback,
   cloneProgressCallback: cloneProgressCallback,
   log: log,
@@ -217,6 +221,28 @@ Future<Diff> getCommitDiff({
   pathString: pathString,
   startRef: startRef,
   endRef: endRef,
+  log: log,
+);
+
+Future<WorkdirFileDiff> getWorkdirFileDiff({
+  required String pathString,
+  required String filePath,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerGetWorkdirFileDiff(
+  pathString: pathString,
+  filePath: filePath,
+  log: log,
+);
+
+Future<void> stageFileLines({
+  required String pathString,
+  required String filePath,
+  required List<int> selectedLineIndices,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerStageFileLines(
+  pathString: pathString,
+  filePath: filePath,
+  selectedLineIndices: selectedLineIndices,
   log: log,
 );
 
@@ -542,6 +568,16 @@ Future<void> initRepository({
   log: log,
 );
 
+Future<void> setHeadToBranch({
+  required String pathString,
+  required String branchName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerSetHeadToBranch(
+  pathString: pathString,
+  branchName: branchName,
+  log: log,
+);
+
 Future<void> addRemote({
   required String pathString,
   required String remoteName,
@@ -601,17 +637,35 @@ Future<void> createBranch({
   required String pathString,
   required String newBranchName,
   required String remoteName,
-  required String provider,
-  required (String, String) credentials,
   required String sourceBranchName,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerCreateBranch(
   pathString: pathString,
   newBranchName: newBranchName,
   remoteName: remoteName,
-  provider: provider,
-  credentials: credentials,
   sourceBranchName: sourceBranchName,
+  log: log,
+);
+
+Future<void> renameBranch({
+  required String pathString,
+  required String oldName,
+  required String newName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRenameBranch(
+  pathString: pathString,
+  oldName: oldName,
+  newName: newName,
+  log: log,
+);
+
+Future<void> deleteBranch({
+  required String pathString,
+  required String branchName,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerDeleteBranch(
+  pathString: pathString,
+  branchName: branchName,
   log: log,
 );
 
@@ -619,6 +673,106 @@ Future<void> pruneCorruptedLooseObjects({required String pathString}) => RustLib
     .instance
     .api
     .crateApiGitManagerPruneCorruptedLooseObjects(pathString: pathString);
+
+Future<void> createBranchFromCommit({
+  required String pathString,
+  required String newBranchName,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCreateBranchFromCommit(
+  pathString: pathString,
+  newBranchName: newBranchName,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> checkoutCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCheckoutCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> createTag({
+  required String pathString,
+  required String tagName,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCreateTag(
+  pathString: pathString,
+  tagName: tagName,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> revertCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerRevertCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> amendCommit({
+  required String pathString,
+  required String newMessage,
+  (String, String)? commitSigningCredentials,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerAmendCommit(
+  pathString: pathString,
+  newMessage: newMessage,
+  commitSigningCredentials: commitSigningCredentials,
+  log: log,
+);
+
+Future<void> undoCommit({
+  required String pathString,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerUndoCommit(
+  pathString: pathString,
+  log: log,
+);
+
+Future<void> resetToCommit({
+  required String pathString,
+  required String commitSha,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerResetToCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  log: log,
+);
+
+Future<void> cherryPickCommit({
+  required String pathString,
+  required String commitSha,
+  required String targetBranch,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerCherryPickCommit(
+  pathString: pathString,
+  commitSha: commitSha,
+  targetBranch: targetBranch,
+  log: log,
+);
+
+Future<void> squashCommits({
+  required String pathString,
+  required String oldestCommitSha,
+  required String squashMessage,
+  (String, String)? commitSigningCredentials,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerSquashCommits(
+  pathString: pathString,
+  oldestCommitSha: oldestCommitSha,
+  squashMessage: squashMessage,
+  commitSigningCredentials: commitSigningCredentials,
+  log: log,
+);
 
 abstract class WithLine {
   Future<WithLine> safeWline({required int line});
@@ -744,6 +898,8 @@ enum LogType {
   setRemoteUrl,
   checkoutBranch,
   createBranch,
+  renameBranch,
+  deleteBranch,
   readGitIgnore,
   writeGitIgnore,
   readGitInfoExclude,
@@ -765,4 +921,89 @@ enum LogType {
   deleteRemote,
   renameRemote,
   initRepo,
+  createBranchFromCommit,
+  checkoutCommit,
+  createTag,
+  revertCommit,
+  amendCommit,
+  undoCommit,
+  resetToCommit,
+  cherryPickCommit,
+  squashCommits,
+  workdirFileDiff,
+  stageFileLines,
+}
+
+class WorkdirDiffLine {
+  final int lineIndex;
+  final String origin;
+  final String content;
+  final int oldLineno;
+  final int newLineno;
+  final bool isStaged;
+
+  const WorkdirDiffLine({
+    required this.lineIndex,
+    required this.origin,
+    required this.content,
+    required this.oldLineno,
+    required this.newLineno,
+    required this.isStaged,
+  });
+
+  @override
+  int get hashCode =>
+      lineIndex.hashCode ^
+      origin.hashCode ^
+      content.hashCode ^
+      oldLineno.hashCode ^
+      newLineno.hashCode ^
+      isStaged.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkdirDiffLine &&
+          runtimeType == other.runtimeType &&
+          lineIndex == other.lineIndex &&
+          origin == other.origin &&
+          content == other.content &&
+          oldLineno == other.oldLineno &&
+          newLineno == other.newLineno &&
+          isStaged == other.isStaged;
+}
+
+class WorkdirFileDiff {
+  final String filePath;
+  final int insertions;
+  final int deletions;
+  final bool isBinary;
+  final List<WorkdirDiffLine> lines;
+
+  const WorkdirFileDiff({
+    required this.filePath,
+    required this.insertions,
+    required this.deletions,
+    required this.isBinary,
+    required this.lines,
+  });
+
+  @override
+  int get hashCode =>
+      filePath.hashCode ^
+      insertions.hashCode ^
+      deletions.hashCode ^
+      isBinary.hashCode ^
+      lines.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkdirFileDiff &&
+          runtimeType == other.runtimeType &&
+          filePath == other.filePath &&
+          insertions == other.insertions &&
+          deletions == other.deletions &&
+          isBinary == other.isBinary &&
+          lines == other.lines;
 }
