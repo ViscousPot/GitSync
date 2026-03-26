@@ -855,7 +855,7 @@ pub async fn clone_repository(
     };
 
     set_author(&repo, &author);
-    repo.cleanup_state().unwrap();
+    let _ = repo.cleanup_state();
 
     if !bare {
     let mut remote = repo.find_remote("origin")?;
@@ -1042,7 +1042,7 @@ pub async fn clone_repository(
     }))?;
 
     set_author(&repo, &author);
-    repo.cleanup_state().unwrap();
+    let _ = repo.cleanup_state();
 
     _log(
         Arc::clone(&log_callback),
@@ -3223,7 +3223,7 @@ pub async fn force_pull(
         "Getting local directory".to_string(),
     );
     let repo = swl!(Repository::open(&path_string))?;
-    repo.cleanup_state().unwrap();
+    swl!(repo.cleanup_state())?;
 
     let fetch_commit = match repo.find_reference("FETCH_HEAD") {
         Ok(r) => swl!(repo.reference_to_annotated_commit(&r))?,
@@ -3634,7 +3634,7 @@ pub async fn download_and_overwrite(
     );
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
-    repo.cleanup_state().unwrap();
+    swl!(repo.cleanup_state())?;
 
     let mut remote = swl!(repo.find_remote(&remote_name))?;
     configure_network_timeouts(&repo);
