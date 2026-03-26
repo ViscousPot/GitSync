@@ -4452,7 +4452,7 @@ pub async fn create_branch(
     let object = swl!(new_branch.get().peel(git2::ObjectType::Commit))?;
 
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
-    checkout_builder.force();
+    checkout_builder.safe();
 
     tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
 
