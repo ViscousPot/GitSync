@@ -3225,9 +3225,14 @@ pub async fn force_pull(
     let repo = swl!(Repository::open(&path_string))?;
     repo.cleanup_state().unwrap();
 
-    let fetch_commit = swl!(repo
-        .find_reference("FETCH_HEAD")
-        .and_then(|r| repo.reference_to_annotated_commit(&r)))?;
+    let fetch_commit = match repo.find_reference("FETCH_HEAD") {
+        Ok(r) => swl!(repo.reference_to_annotated_commit(&r))?,
+        Err(_) => {
+            return Err(git2::Error::from_str(
+                "No fetch data found. Please fetch or sync before force pulling.",
+            ));
+        }
+    };
 
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
