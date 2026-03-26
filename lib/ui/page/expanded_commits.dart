@@ -148,7 +148,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
           if (_selectMode.value) {
             _exitSelectMode();
           } else {
-            Navigator.of(context).pop(_scrollController.offset);
+            Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null);
           }
         }
       },
@@ -248,12 +248,14 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             shape: WidgetStatePropertyAll(
-                                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
+                                              RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD),
+                                              ),
                                             ),
                                             backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                           ),
                                           constraints: BoxConstraints(),
-                                          onPressed: () => Navigator.of(context).pop(_scrollController.offset),
+                                          onPressed: () => Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null),
                                           icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
                                         ),
                                       ),
