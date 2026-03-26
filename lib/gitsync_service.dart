@@ -248,6 +248,11 @@ class GitsyncService {
           }
         }
 
+        if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
+          _displaySyncMessage(null, s.ongoingMergeConflict);
+          return;
+        }
+
         recommendedAction = await GitManager.getRecommendedAction(3);
         if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) return;
 
