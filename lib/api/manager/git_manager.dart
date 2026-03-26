@@ -116,7 +116,20 @@ class GitManager {
           final result = await fn(dirPath);
           return result;
         } catch (e, stackTrace) {
-          Logger.logError(type, e, stackTrace);
+          final errorMsg = e is AnyhowException ? e.message : e.toString();
+          if (await _tryAutoFixCorruption(dirPath, errorMsg)) {
+            Logger.gmLog(type: type, "Corruption detected and auto-fixed, retrying");
+            try {
+              return await fn(dirPath);
+            } catch (retryError, retryStackTrace) {
+              final retryMsg = retryError is AnyhowException ? retryError.message : retryError.toString();
+              final errorContent = await _getErrorContent(retryMsg);
+              Logger.logError(type, retryError, retryStackTrace, errorContent: errorContent);
+            }
+          } else {
+            final errorContent = await _getErrorContent(errorMsg);
+            Logger.logError(type, e, stackTrace, errorContent: errorContent);
+          }
         }
         return null;
       }
@@ -517,6 +530,11 @@ class GitManager {
     if (_indexCorruptionPatterns.any((p) => errorStr.contains(p))) {
       final indexFile = File('$dirPath/$gitIndexPath');
       if (await indexFile.exists()) await indexFile.delete();
+      try {
+        await GitManagerRs.recreateDeletedIndex(pathString: dirPath);
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.DiscardGitIndex, e, stackTrace);
+      }
       return true;
     }
 
@@ -605,14 +623,7 @@ class GitManager {
           repomanRepoindex ?? await _repoIndex,
           LogType.ConflictingFiles,
           (dirPath) async {
-            try {
-              return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
-            } catch (e, stackTrace) {
-              if (!await _tryAutoFixCorruption(dirPath, e)) {
-                Logger.logError(LogType.ConflictingFiles, e, stackTrace);
-              }
-              return <(String, GitManagerRs.ConflictType)>[];
-            }
+            return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
           },
         ) ??
         <(String, GitManagerRs.ConflictType)>[];
@@ -635,14 +646,7 @@ class GitManager {
         await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, repomanRepoindex ?? await _repoIndex, LogType.UncommittedFiles, (
           dirPath,
         ) async {
-          try {
-            return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
-          } catch (e, stackTrace) {
-            if (!await _tryAutoFixCorruption(dirPath, e)) {
-              Logger.logError(LogType.UncommittedFiles, e, stackTrace);
-            }
-            return <(String, int)>[];
-          }
+          return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
         }) ??
         <(String, int)>[];
 
@@ -661,14 +665,7 @@ class GitManager {
 
     final result =
         await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _repoIndex, LogType.StagedFiles, (dirPath) async {
-          try {
-            return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
-          } catch (e, stackTrace) {
-            if (!await _tryAutoFixCorruption(dirPath, e)) {
-              Logger.logError(LogType.StagedFiles, e, stackTrace);
-            }
-            return <(String, int)>[];
-          }
+          return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
         }) ??
         <(String, int)>[];
 
@@ -1193,21 +1190,15 @@ class GitManager {
           syncCallback: syncCallback,
           log: _logWrapper,
         );
-      } on AnyhowException catch (e, stackTrace) {
+      } on AnyhowException catch (e) {
         if (_isNetworkStallError(e.message)) {
           Logger.gmLog(type: LogType.DownloadChanges, "Network stall - will retry");
           lastOperationWasNetworkStall = true;
           return null;
         }
         lastOperationWasNetworkStall = false;
-        if (await _tryAutoFixCorruption(dirPath, e.message)) {
-          Logger.gmLog(type: LogType.DownloadChanges, "Corruption detected and auto-fixed");
-          return null;
-        }
-        final errorContent = await _getErrorContent(e.message);
-        Logger.logError(LogType.DownloadChanges, e.message, stackTrace, errorContent: errorContent);
+        rethrow;
       }
-      return null;
     });
   }
 
@@ -1248,10 +1239,6 @@ class GitManager {
           return null;
         }
         lastOperationWasNetworkStall = false;
-        if (await _tryAutoFixCorruption(dirPath, e.message)) {
-          Logger.gmLog(type: LogType.UploadChanges, "Corruption detected and auto-fixed");
-          return null;
-        }
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
           if (resyncCallback != null) {
             resyncCallback();
@@ -1260,10 +1247,8 @@ class GitManager {
           }
           return false;
         }
-        final errorContent = await _getErrorContent(e.message);
-        Logger.logError(LogType.UploadChanges, e.message, stackTrace, errorContent: errorContent);
+        rethrow;
       }
-      return null;
     });
   }
 

@@ -2319,8 +2319,8 @@ fn pull_changes_priv(
                     LogType::PullFromRepo,
                     "OK fast forward".to_string(),
                 );
-                if get_staged_file_paths_priv(&repo, &log_callback).is_empty()
-                    && get_uncommitted_file_paths_priv(&repo, false, &log_callback).is_empty()
+                if get_staged_file_paths_priv(&repo, &log_callback)?.is_empty()
+                    && get_uncommitted_file_paths_priv(&repo, false, &log_callback)?.is_empty()
                 {
                     swl!(fast_forward(&repo, &mut r, &fetch_commit, &log_callback))?;
                     swl!(update_submodules_priv(
@@ -3101,9 +3101,9 @@ pub async fn upload_changes(
     );
 
     let uncommitted_file_paths: Vec<(String, i32)> =
-        get_staged_file_paths_priv(&repo, &log_callback)
+        get_staged_file_paths_priv(&repo, &log_callback)?
             .into_iter()
-            .chain(get_uncommitted_file_paths_priv(&repo, true, &log_callback))
+            .chain(get_uncommitted_file_paths_priv(&repo, true, &log_callback)?)
             .collect();
 
     let mut index = swl!(repo.index())?;
@@ -3490,8 +3490,8 @@ pub async fn upload_and_overwrite(
         swl!(rebase.abort())?;
     }
 
-    if !get_staged_file_paths_priv(&repo, &log_callback).is_empty()
-        || !get_uncommitted_file_paths_priv(&repo, true, &log_callback).is_empty()
+    if !get_staged_file_paths_priv(&repo, &log_callback)?.is_empty()
+        || !get_uncommitted_file_paths_priv(&repo, true, &log_callback)?.is_empty()
     {
         let mut index = swl!(repo.index())?;
 
@@ -3800,7 +3800,7 @@ pub async fn discard_changes(
 pub async fn get_conflicting(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<(String, ConflictType)> {
+) -> Result<Vec<(String, ConflictType)>, git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -3808,15 +3808,12 @@ pub async fn get_conflicting(
         LogType::ConflictingFiles,
         "Getting local directory".to_string(),
     );
-    let repo = match Repository::open(path_string) {
-        Ok(repo) => repo,
-        Err(_) => return Vec::new(),
-    };
+    let repo = swl!(Repository::open(path_string))?;
 
-    let index = repo.index().unwrap();
+    let index = swl!(repo.index())?;
     let mut conflicts = Vec::new();
 
-    index.conflicts().unwrap().for_each(|conflict| {
+    swl!(index.conflicts())?.for_each(|conflict| {
         if let Ok(conflict) = conflict {
             if let Some(ours) = conflict.our {
                 conflicts.push((
@@ -3833,13 +3830,13 @@ pub async fn get_conflicting(
         }
     });
 
-    conflicts
+    Ok(conflicts)
 }
 
 pub async fn get_staged_file_paths(
     path_string: &str,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<(String, i32)> {
+) -> Result<Vec<(String, i32)>, git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -3847,10 +3844,7 @@ pub async fn get_staged_file_paths(
         LogType::StagedFiles,
         "Getting local directory".to_string(),
     );
-    let repo = match Repository::open(path_string) {
-        Ok(repo) => repo,
-        Err(_) => return Vec::new(),
-    };
+    let repo = swl!(Repository::open(path_string))?;
 
     get_staged_file_paths_priv(&repo, &log_callback)
 }
@@ -3858,7 +3852,7 @@ pub async fn get_staged_file_paths(
 fn get_staged_file_paths_priv(
     repo: &Repository,
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
-) -> Vec<(String, i32)> {
+) -> Result<Vec<(String, i32)>, git2::Error> {
     _log(
         Arc::clone(&log_callback),
         LogType::StagedFiles,
@@ -3870,7 +3864,7 @@ fn get_staged_file_paths_priv(
     opts.include_ignored(false);
     opts.update_index(true);
     opts.show(git2::StatusShow::Index);
-    let statuses = repo.statuses(Some(&mut opts)).unwrap();
+    let statuses = swl!(repo.statuses(Some(&mut opts)))?;
 
     let mut file_paths = Vec::new();
 
@@ -3907,13 +3901,13 @@ fn get_staged_file_paths_priv(
         }
     }
 
-    file_paths
+    Ok(file_paths)
 }
 
 pub async fn get_uncommitted_file_paths(
     path_string: &str,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<(String, i32)> {
+) -> Result<Vec<(String, i32)>, git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -3921,10 +3915,7 @@ pub async fn get_uncommitted_file_paths(
         LogType::UncommittedFiles,
         "Getting local directory".to_string(),
     );
-    let repo = match Repository::open(path_string) {
-        Ok(repo) => repo,
-        Err(_) => return Vec::new(),
-    };
+    let repo = swl!(Repository::open(path_string))?;
 
     _log(
         Arc::clone(&log_callback),
@@ -3939,13 +3930,13 @@ fn get_uncommitted_file_paths_priv(
     repo: &Repository,
     include_untracked: bool,
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
-) -> Vec<(String, i32)> {
+) -> Result<Vec<(String, i32)>, git2::Error> {
     let mut opts = StatusOptions::new();
     opts.include_untracked(include_untracked);
     opts.include_ignored(false);
     opts.update_index(true);
     opts.show(git2::StatusShow::Workdir);
-    let statuses = repo.statuses(Some(&mut opts)).unwrap();
+    let statuses = swl!(repo.statuses(Some(&mut opts)))?;
 
     let mut file_paths = Vec::new();
 
@@ -3989,7 +3980,7 @@ fn get_uncommitted_file_paths_priv(
         }
     }
 
-    file_paths
+    Ok(file_paths)
 }
 
 fn has_local_changes_priv(
@@ -4124,10 +4115,10 @@ pub async fn generate_ssh_key(
 pub async fn get_branch_name(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Option<String> {
+) -> Result<Option<String>, git2::Error> {
     let log_callback = Arc::new(log);
 
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     let branch_name = get_branch_name_priv(&repo);
 
     if branch_name == None {
@@ -4138,7 +4129,7 @@ pub async fn get_branch_name(
         );
     }
 
-    return branch_name;
+    Ok(branch_name)
 }
 
 fn get_branch_name_priv(repo: &Repository) -> Option<String> {
@@ -4164,19 +4155,19 @@ pub async fn get_branch_names(
     path_string: &String,
     remote: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<String> {
+) -> Result<Vec<String>, git2::Error> {
     let log_callback = Arc::new(log);
     _log(
         Arc::clone(&log_callback),
         LogType::BranchNames,
         "Getting local directory".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
 
     let mut local_set = std::collections::HashSet::new();
     let mut remote_set = std::collections::HashSet::new();
 
-    let local_branches = repo.branches(Some(BranchType::Local)).unwrap();
+    let local_branches = swl!(repo.branches(Some(BranchType::Local)))?;
     for branch_result in local_branches {
         if let Ok((branch, _)) = branch_result {
             if let Some(name) = branch.name().ok().flatten() {
@@ -4185,7 +4176,7 @@ pub async fn get_branch_names(
         }
     }
 
-    let remote_branches = repo.branches(Some(BranchType::Remote)).unwrap();
+    let remote_branches = swl!(repo.branches(Some(BranchType::Remote)))?;
     for branch_result in remote_branches {
         if let Ok((branch, _)) = branch_result {
             if let Some(name) = branch.name().ok().flatten() {
@@ -4211,7 +4202,7 @@ pub async fn get_branch_names(
         all_names.insert(name.clone());
     }
 
-    all_names
+    Ok(all_names
         .into_iter()
         .map(|name| {
             let is_local = local_set.contains(&name);
@@ -4225,7 +4216,7 @@ pub async fn get_branch_names(
             };
             format!("{}======={}", name, location)
         })
-        .collect()
+        .collect())
 }
 
 pub async fn set_remote_url(
@@ -4241,7 +4232,7 @@ pub async fn set_remote_url(
         LogType::SetRemoteUrl,
         "Getting local directory".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     repo.remote_set_url(&remote_name, &new_remote_url)?;
 
     Ok(())
@@ -4250,7 +4241,7 @@ pub async fn set_remote_url(
 pub async fn list_remotes(
     path_string: &String,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
-) -> Vec<String> {
+) -> Result<Vec<String>, git2::Error> {
     let log_callback = Arc::new(log);
 
     _log(
@@ -4258,12 +4249,12 @@ pub async fn list_remotes(
         LogType::ListRemotes,
         "Listing remotes".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
-    let remotes = repo.remotes().unwrap();
-    remotes
+    let repo = swl!(Repository::open(path_string))?;
+    let remotes = swl!(repo.remotes())?;
+    Ok(remotes
         .iter()
         .filter_map(|r| r.map(|s| s.to_string()))
-        .collect()
+        .collect())
 }
 
 pub async fn init_repository(
@@ -4312,7 +4303,7 @@ pub async fn add_remote(
         LogType::AddRemote,
         "Adding remote".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     repo.remote(&remote_name, &remote_url)?;
 
     Ok(())
@@ -4330,7 +4321,7 @@ pub async fn delete_remote(
         LogType::DeleteRemote,
         "Deleting remote".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     repo.remote_delete(&remote_name)?;
 
     Ok(())
@@ -4349,7 +4340,7 @@ pub async fn rename_remote(
         LogType::RenameRemote,
         "Renaming remote".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     let _problematic_refspecs = repo.remote_rename(&old_name, &new_name)?;
 
     Ok(())
@@ -4368,7 +4359,7 @@ pub async fn checkout_branch(
         LogType::CheckoutBranch,
         "Getting local directory".to_string(),
     );
-    let repo = Repository::open(Path::new(path_string)).unwrap();
+    let repo = swl!(Repository::open(path_string))?;
     let branch = match repo.find_branch(&branch_name, git2::BranchType::Local) {
         Ok(branch) => branch,
         Err(e) => {
@@ -4540,6 +4531,17 @@ pub async fn delete_branch(
         format!("Branch '{}' deleted", branch_name),
     );
 
+    Ok(())
+}
+
+pub async fn recreate_deleted_index(path_string: String) -> Result<(), git2::Error> {
+    let repo = swl!(Repository::open(&path_string))?;
+    let head = match repo.head() {
+        Ok(h) => h,
+        Err(_) => return Ok(()), // Empty repo, no HEAD to reset to
+    };
+    let commit = swl!(head.peel_to_commit())?;
+    swl!(repo.reset(commit.as_object(), ResetType::Mixed, None))?;
     Ok(())
 }
 

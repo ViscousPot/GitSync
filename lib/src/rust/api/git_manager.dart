@@ -669,6 +669,11 @@ Future<void> deleteBranch({
   log: log,
 );
 
+Future<void> recreateDeletedIndex({required String pathString}) => RustLib
+    .instance
+    .api
+    .crateApiGitManagerRecreateDeletedIndex(pathString: pathString);
+
 Future<void> pruneCorruptedLooseObjects({required String pathString}) => RustLib
     .instance
     .api
