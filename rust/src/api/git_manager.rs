@@ -38,6 +38,23 @@ pub struct Diff {
     pub diff_parts: HashMap<String, HashMap<String, String>>,
 }
 
+pub struct WorkdirDiffLine {
+    pub line_index: i32,
+    pub origin: String,
+    pub content: String,
+    pub old_lineno: i32,
+    pub new_lineno: i32,
+    pub is_staged: bool,
+}
+
+pub struct WorkdirFileDiff {
+    pub file_path: String,
+    pub insertions: i32,
+    pub deletions: i32,
+    pub is_binary: bool,
+    pub lines: Vec<WorkdirDiffLine>,
+}
+
 pub enum ConflictType {
     Text,
 }
@@ -113,6 +130,8 @@ pub enum LogType {
     ResetToCommit,
     CherryPickCommit,
     SquashCommits,
+    WorkdirFileDiff,
+    StageFileLines,
 }
 
 trait WithLine {
@@ -1470,6 +1489,271 @@ pub async fn get_commit_diff(
         deletions: diff_stats.deletions() as i32,
         diff_parts: diff_parts,
     })
+}
+
+pub async fn get_workdir_file_diff(
+    path_string: &String,
+    file_path: &String,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<WorkdirFileDiff, git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::WorkdirFileDiff,
+        format!("Getting workdir diff for {}", file_path),
+    );
+
+    let repo = swl!(Repository::open(path_string))?;
+
+    let head_tree = match repo.head() {
+        Ok(head) => Some(swl!(head.peel_to_tree())?),
+        Err(_) => None,
+    };
+
+    let mut diff_opts = DiffOptions::new();
+    diff_opts.pathspec(file_path);
+
+    let staged_lines: Arc<Mutex<Vec<(char, String)>>> = Arc::new(Mutex::new(Vec::new()));
+    if let Ok(staged_diff) = repo.diff_tree_to_index(head_tree.as_ref(), Some(&repo.index()?), Some(&mut diff_opts)) {
+        let staged_lines_ref = Arc::clone(&staged_lines);
+        let _ = staged_diff.foreach(
+            &mut |_: git2::DiffDelta, _: f32| -> bool { true },
+            None,
+            Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
+            Some(&mut |_: git2::DiffDelta, _: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+                let origin = line.origin();
+                if origin == '+' || origin == '-' {
+                    let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
+                    staged_lines_ref.lock().unwrap().push((origin, content));
+                }
+                true
+            }),
+        );
+    }
+    let staged_entries = staged_lines.lock().unwrap().clone();
+
+    let mut diff_opts2 = DiffOptions::new();
+    diff_opts2.pathspec(file_path);
+
+    let diff = swl!(repo.diff_tree_to_workdir_with_index(
+        head_tree.as_ref(),
+        Some(&mut diff_opts2),
+    ))?;
+
+    let diff_stats = swl!(diff.stats())?;
+    let mut staged_bag: HashMap<(char, String), i32> = HashMap::new();
+    for (origin, content) in &staged_entries {
+        *staged_bag.entry((*origin, content.clone())).or_insert(0) += 1;
+    }
+    let staged_bag = Arc::new(Mutex::new(staged_bag));
+
+    let is_binary = Arc::new(AtomicBool::new(false));
+    let lines: Arc<Mutex<Vec<WorkdirDiffLine>>> = Arc::new(Mutex::new(Vec::new()));
+    let line_index = Arc::new(AtomicI32::new(0));
+
+    swl!(diff.foreach(
+        &mut |delta: git2::DiffDelta, _: f32| -> bool {
+            if delta.flags().is_binary() {
+                is_binary.store(true, Ordering::SeqCst);
+            }
+            true
+        },
+        None,
+        Some(&mut |_: git2::DiffDelta, hunk: git2::DiffHunk| -> bool {
+            let header = String::from_utf8_lossy(hunk.header()).trim_end().to_string();
+            let idx = line_index.fetch_add(1, Ordering::SeqCst);
+            lines.lock().unwrap().push(WorkdirDiffLine {
+                line_index: idx,
+                origin: "H".to_string(),
+                content: header,
+                old_lineno: -1,
+                new_lineno: -1,
+                is_staged: false,
+            });
+            true
+        }),
+        Some(&mut |_: git2::DiffDelta,
+                   _: Option<git2::DiffHunk>,
+                   line: git2::DiffLine|
+         -> bool {
+            let origin = match line.origin() {
+                '+' => "+".to_string(),
+                '-' => "-".to_string(),
+                ' ' => " ".to_string(),
+                _ => return true,
+            };
+
+            let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
+            let idx = line_index.fetch_add(1, Ordering::SeqCst);
+
+            let is_staged = if origin != " " {
+                let origin_char = origin.chars().next().unwrap_or(' ');
+                let key = (origin_char, content.clone());
+                let mut bag = staged_bag.lock().unwrap();
+                if let Some(count) = bag.get_mut(&key) {
+                    if *count > 0 {
+                        *count -= 1;
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+
+            let mut lines_vec = lines.lock().unwrap();
+            lines_vec.push(WorkdirDiffLine {
+                line_index: idx,
+                origin,
+                content,
+                old_lineno: line.old_lineno().map(|n| n as i32).unwrap_or(-1),
+                new_lineno: line.new_lineno().map(|n| n as i32).unwrap_or(-1),
+                is_staged,
+            });
+
+            true
+        })
+    ))?;
+
+    let lines = lines.lock().unwrap().drain(..).collect();
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::WorkdirFileDiff,
+        format!("Workdir diff complete - {} insertions, {} deletions", diff_stats.insertions(), diff_stats.deletions()),
+    );
+
+    Ok(WorkdirFileDiff {
+        file_path: file_path.clone(),
+        insertions: diff_stats.insertions() as i32,
+        deletions: diff_stats.deletions() as i32,
+        is_binary: is_binary.load(Ordering::SeqCst),
+        lines,
+    })
+}
+
+pub async fn stage_file_lines(
+    path_string: &String,
+    file_path: &String,
+    selected_line_indices: Vec<i32>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<(), git2::Error> {
+    let log_callback = Arc::new(log);
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::StageFileLines,
+        format!("Staging {} selected lines for {}", selected_line_indices.len(), file_path),
+    );
+
+    let repo = swl!(Repository::open(path_string))?;
+
+    let head_tree = match repo.head() {
+        Ok(head) => Some(swl!(head.peel_to_tree())?),
+        Err(_) => None,
+    };
+
+    let mut diff_opts = DiffOptions::new();
+    diff_opts.pathspec(file_path);
+    let diff = swl!(repo.diff_tree_to_workdir_with_index(
+        head_tree.as_ref(),
+        Some(&mut diff_opts),
+    ))?;
+
+    let selected_set: std::collections::HashSet<i32> = selected_line_indices.into_iter().collect();
+    let diff_lines: Arc<Mutex<Vec<(i32, char, String)>>> = Arc::new(Mutex::new(Vec::new()));
+    let idx_counter = Arc::new(AtomicI32::new(0));
+
+    swl!(diff.foreach(
+        &mut |_: git2::DiffDelta, _: f32| -> bool { true },
+        None,
+        Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
+        Some(&mut |_: git2::DiffDelta,
+                   _: Option<git2::DiffHunk>,
+                   line: git2::DiffLine|
+         -> bool {
+            let origin = line.origin();
+            if origin == '+' || origin == '-' || origin == ' ' {
+                let idx = idx_counter.fetch_add(1, Ordering::SeqCst);
+                let content = String::from_utf8_lossy(line.content()).to_string();
+                diff_lines.lock().unwrap().push((idx, origin, content));
+            }
+            true
+        })
+    ))?;
+
+    let diff_lines = diff_lines.lock().unwrap().clone();
+
+    let mut staged_content = String::new();
+    for (idx, origin, content) in &diff_lines {
+        match origin {
+            ' ' => staged_content.push_str(content),
+            '-' => {
+                if !selected_set.contains(idx) {
+                    staged_content.push_str(content);
+                }
+            }
+            '+' => {
+                if selected_set.contains(idx) {
+                    staged_content.push_str(content);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if diff_lines.is_empty() {
+        return Ok(());
+    }
+
+    let mut index = swl!(repo.index())?;
+
+    let file_path_bytes = file_path.as_bytes();
+    let entry = match index.get_path(Path::new(file_path), 0) {
+        Some(existing) => git2::IndexEntry {
+            ctime: existing.ctime,
+            mtime: existing.mtime,
+            dev: existing.dev,
+            ino: existing.ino,
+            mode: existing.mode,
+            uid: existing.uid,
+            gid: existing.gid,
+            file_size: staged_content.len() as u32,
+            id: existing.id,
+            flags: existing.flags,
+            flags_extended: existing.flags_extended,
+            path: file_path_bytes.to_vec(),
+        },
+        None => git2::IndexEntry {
+            ctime: git2::IndexTime::new(0, 0),
+            mtime: git2::IndexTime::new(0, 0),
+            dev: 0,
+            ino: 0,
+            mode: 0o100644,
+            uid: 0,
+            gid: 0,
+            file_size: staged_content.len() as u32,
+            id: git2::Oid::zero(),
+            flags: 0,
+            flags_extended: 0,
+            path: file_path_bytes.to_vec(),
+        },
+    };
+
+    swl!(index.add_frombuffer(&entry, staged_content.as_bytes()))?;
+    swl!(index.write())?;
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::StageFileLines,
+        format!("Partial staging complete for {}", file_path),
+    );
+
+    Ok(())
 }
 
 pub async fn get_recent_commits(

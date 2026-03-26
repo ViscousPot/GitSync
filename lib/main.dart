@@ -320,6 +320,41 @@ void onServiceStart(ServiceInstance service) async {
     );
   });
 
+  service.on(LogType.WorkdirFileDiff.name).listen((event) async {
+    if (event == null) return;
+    final result = await GitManager.getWorkdirFileDiff(event["filePath"]);
+    service.invoke(
+      LogType.WorkdirFileDiff.name,
+      result == null
+          ? null
+          : {
+              "filePath": result.filePath,
+              "insertions": result.insertions,
+              "deletions": result.deletions,
+              "isBinary": result.isBinary,
+              "lines": result.lines
+                  .map((l) => {
+                        "lineIndex": l.lineIndex,
+                        "origin": l.origin,
+                        "content": l.content,
+                        "oldLineno": l.oldLineno,
+                        "newLineno": l.newLineno,
+                        "isStaged": l.isStaged,
+                      })
+                  .toList(),
+            },
+    );
+  });
+
+  service.on(LogType.StageFileLines.name).listen((event) async {
+    if (event == null) return;
+    await GitManager.stageFileLines(
+      event["filePath"],
+      event["selectedLineIndices"].map<int>((i) => i as int).toList(),
+    );
+    service.invoke(LogType.StageFileLines.name);
+  });
+
   service.on(LogType.RecentCommits.name).listen((event) async {
     final result = await GitManager.getRecentCommits();
     print(result);

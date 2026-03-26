@@ -224,6 +224,28 @@ Future<Diff> getCommitDiff({
   log: log,
 );
 
+Future<WorkdirFileDiff> getWorkdirFileDiff({
+  required String pathString,
+  required String filePath,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerGetWorkdirFileDiff(
+  pathString: pathString,
+  filePath: filePath,
+  log: log,
+);
+
+Future<void> stageFileLines({
+  required String pathString,
+  required String filePath,
+  required List<int> selectedLineIndices,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerStageFileLines(
+  pathString: pathString,
+  filePath: filePath,
+  selectedLineIndices: selectedLineIndices,
+  log: log,
+);
+
 Future<List<Commit>> getRecentCommits({
   required String pathString,
   required String remoteName,
@@ -908,4 +930,80 @@ enum LogType {
   resetToCommit,
   cherryPickCommit,
   squashCommits,
+  workdirFileDiff,
+  stageFileLines,
+}
+
+class WorkdirDiffLine {
+  final int lineIndex;
+  final String origin;
+  final String content;
+  final int oldLineno;
+  final int newLineno;
+  final bool isStaged;
+
+  const WorkdirDiffLine({
+    required this.lineIndex,
+    required this.origin,
+    required this.content,
+    required this.oldLineno,
+    required this.newLineno,
+    required this.isStaged,
+  });
+
+  @override
+  int get hashCode =>
+      lineIndex.hashCode ^
+      origin.hashCode ^
+      content.hashCode ^
+      oldLineno.hashCode ^
+      newLineno.hashCode ^
+      isStaged.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkdirDiffLine &&
+          runtimeType == other.runtimeType &&
+          lineIndex == other.lineIndex &&
+          origin == other.origin &&
+          content == other.content &&
+          oldLineno == other.oldLineno &&
+          newLineno == other.newLineno &&
+          isStaged == other.isStaged;
+}
+
+class WorkdirFileDiff {
+  final String filePath;
+  final int insertions;
+  final int deletions;
+  final bool isBinary;
+  final List<WorkdirDiffLine> lines;
+
+  const WorkdirFileDiff({
+    required this.filePath,
+    required this.insertions,
+    required this.deletions,
+    required this.isBinary,
+    required this.lines,
+  });
+
+  @override
+  int get hashCode =>
+      filePath.hashCode ^
+      insertions.hashCode ^
+      deletions.hashCode ^
+      isBinary.hashCode ^
+      lines.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WorkdirFileDiff &&
+          runtimeType == other.runtimeType &&
+          filePath == other.filePath &&
+          insertions == other.insertions &&
+          deletions == other.deletions &&
+          isBinary == other.isBinary &&
+          lines == other.lines;
 }

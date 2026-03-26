@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 961427676;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1873877541;
 
 // Section: executor
 
@@ -1658,6 +1658,51 @@ fn wire__crate__api__git_manager__get_uncommitted_file_paths_impl(
         },
     )
 }
+fn wire__crate__api__git_manager__get_workdir_file_diff_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_workdir_file_diff",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_path_string = <String>::sse_decode(&mut deserializer);
+            let api_file_path = <String>::sse_decode(&mut deserializer);
+            let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
+                <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
+            );
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::git_manager::get_workdir_file_diff(
+                            &api_path_string,
+                            &api_file_path,
+                            api_log,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__git_manager__init_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2362,6 +2407,53 @@ fn wire__crate__api__git_manager__squash_commits_impl(
                             &api_oldest_commit_sha,
                             &api_squash_message,
                             api_commit_signing_credentials,
+                            api_log,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__git_manager__stage_file_lines_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "stage_file_lines",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_path_string = <String>::sse_decode(&mut deserializer);
+            let api_file_path = <String>::sse_decode(&mut deserializer);
+            let api_selected_line_indices = <Vec<i32>>::sse_decode(&mut deserializer);
+            let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
+                <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
+            );
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::git_manager::stage_file_lines(
+                            &api_path_string,
+                            &api_file_path,
+                            api_selected_line_indices,
                             api_log,
                         )
                         .await?;
@@ -3555,6 +3647,18 @@ impl SseDecode for Vec<crate::api::git_manager::Commit> {
     }
 }
 
+impl SseDecode for Vec<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<i32>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3624,6 +3728,20 @@ impl SseDecode for Vec<(String, String)> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<(String, String)>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::git_manager::WorkdirDiffLine> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::git_manager::WorkdirDiffLine>::sse_decode(
+                deserializer,
+            ));
         }
         return ans_;
     }
@@ -3700,6 +3818,8 @@ impl SseDecode for crate::api::git_manager::LogType {
             63 => crate::api::git_manager::LogType::ResetToCommit,
             64 => crate::api::git_manager::LogType::CherryPickCommit,
             65 => crate::api::git_manager::LogType::SquashCommits,
+            66 => crate::api::git_manager::LogType::WorkdirFileDiff,
+            67 => crate::api::git_manager::LogType::StageFileLines,
             _ => unreachable!("Invalid variant for LogType: {}", inner),
         };
     }
@@ -3877,6 +3997,45 @@ impl SseDecode for usize {
     }
 }
 
+impl SseDecode for crate::api::git_manager::WorkdirDiffLine {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_lineIndex = <i32>::sse_decode(deserializer);
+        let mut var_origin = <String>::sse_decode(deserializer);
+        let mut var_content = <String>::sse_decode(deserializer);
+        let mut var_oldLineno = <i32>::sse_decode(deserializer);
+        let mut var_newLineno = <i32>::sse_decode(deserializer);
+        let mut var_isStaged = <bool>::sse_decode(deserializer);
+        return crate::api::git_manager::WorkdirDiffLine {
+            line_index: var_lineIndex,
+            origin: var_origin,
+            content: var_content,
+            old_lineno: var_oldLineno,
+            new_lineno: var_newLineno,
+            is_staged: var_isStaged,
+        };
+    }
+}
+
+impl SseDecode for crate::api::git_manager::WorkdirFileDiff {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_filePath = <String>::sse_decode(deserializer);
+        let mut var_insertions = <i32>::sse_decode(deserializer);
+        let mut var_deletions = <i32>::sse_decode(deserializer);
+        let mut var_isBinary = <bool>::sse_decode(deserializer);
+        let mut var_lines =
+            <Vec<crate::api::git_manager::WorkdirDiffLine>>::sse_decode(deserializer);
+        return crate::api::git_manager::WorkdirFileDiff {
+            file_path: var_filePath,
+            insertions: var_insertions,
+            deletions: var_deletions,
+            is_binary: var_isBinary,
+            lines: var_lines,
+        };
+    }
+}
+
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -3991,92 +4150,101 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__api__git_manager__init_impl(port, ptr, rust_vec_len, data_len),
-        38 => {
+        37 => wire__crate__api__git_manager__get_workdir_file_diff_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        38 => wire__crate__api__git_manager__init_impl(port, ptr, rust_vec_len, data_len),
+        39 => {
             wire__crate__api__git_manager__init_repository_impl(port, ptr, rust_vec_len, data_len)
         }
-        39 => {
+        40 => {
             wire__crate__api__git_manager__int_run_with_lock_impl(port, ptr, rust_vec_len, data_len)
         }
-        40 => wire__crate__api__git_manager__is_locked_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api__git_manager__list_remotes_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__api__git_manager__prune_corrupted_loose_objects_impl(
+        41 => wire__crate__api__git_manager__is_locked_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__api__git_manager__list_remotes_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api__git_manager__prune_corrupted_loose_objects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => wire__crate__api__git_manager__pull_changes_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api__git_manager__push_changes_impl(port, ptr, rust_vec_len, data_len),
-        45 => wire__crate__api__git_manager__rename_branch_impl(port, ptr, rust_vec_len, data_len),
-        46 => wire__crate__api__git_manager__rename_remote_impl(port, ptr, rust_vec_len, data_len),
-        47 => {
+        44 => wire__crate__api__git_manager__pull_changes_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__git_manager__push_changes_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__api__git_manager__rename_branch_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__api__git_manager__rename_remote_impl(port, ptr, rust_vec_len, data_len),
+        48 => {
             wire__crate__api__git_manager__reset_to_commit_impl(port, ptr, rust_vec_len, data_len)
         }
-        48 => wire__crate__api__git_manager__revert_commit_impl(port, ptr, rust_vec_len, data_len),
-        49 => {
+        49 => wire__crate__api__git_manager__revert_commit_impl(port, ptr, rust_vec_len, data_len),
+        50 => {
             wire__crate__api__git_manager__set_disable_ssl_impl(port, ptr, rust_vec_len, data_len)
         }
-        50 => wire__crate__api__git_manager__set_head_to_branch_impl(
+        51 => wire__crate__api__git_manager__set_head_to_branch_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => wire__crate__api__git_manager__set_remote_url_impl(port, ptr, rust_vec_len, data_len),
-        52 => wire__crate__api__git_manager__squash_commits_impl(port, ptr, rust_vec_len, data_len),
-        53 => {
+        52 => wire__crate__api__git_manager__set_remote_url_impl(port, ptr, rust_vec_len, data_len),
+        53 => wire__crate__api__git_manager__squash_commits_impl(port, ptr, rust_vec_len, data_len),
+        54 => {
+            wire__crate__api__git_manager__stage_file_lines_impl(port, ptr, rust_vec_len, data_len)
+        }
+        55 => {
             wire__crate__api__git_manager__stage_file_paths_impl(port, ptr, rust_vec_len, data_len)
         }
-        54 => wire__crate__api__git_manager__string_conflicttype_list_run_with_lock_impl(
+        56 => wire__crate__api__git_manager__string_conflicttype_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        55 => wire__crate__api__git_manager__string_int_list_run_with_lock_impl(
+        57 => wire__crate__api__git_manager__string_int_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        56 => wire__crate__api__git_manager__string_list_run_with_lock_impl(
+        58 => wire__crate__api__git_manager__string_list_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        57 => wire__crate__api__git_manager__string_pair_run_with_lock_impl(
+        59 => wire__crate__api__git_manager__string_pair_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        58 => wire__crate__api__git_manager__string_run_with_lock_impl(
+        60 => wire__crate__api__git_manager__string_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__api__git_manager__undo_commit_impl(port, ptr, rust_vec_len, data_len),
-        60 => wire__crate__api__git_manager__unstage_file_paths_impl(
+        61 => wire__crate__api__git_manager__undo_commit_impl(port, ptr, rust_vec_len, data_len),
+        62 => wire__crate__api__git_manager__unstage_file_paths_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        61 => wire__crate__api__git_manager__untrack_all_impl(port, ptr, rust_vec_len, data_len),
-        62 => {
+        63 => wire__crate__api__git_manager__untrack_all_impl(port, ptr, rust_vec_len, data_len),
+        64 => {
             wire__crate__api__git_manager__update_submodules_impl(port, ptr, rust_vec_len, data_len)
         }
-        63 => wire__crate__api__git_manager__upload_and_overwrite_impl(
+        65 => wire__crate__api__git_manager__upload_and_overwrite_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        64 => wire__crate__api__git_manager__upload_changes_impl(port, ptr, rust_vec_len, data_len),
-        65 => wire__crate__api__git_manager__void_run_with_lock_impl(
+        66 => wire__crate__api__git_manager__upload_changes_impl(port, ptr, rust_vec_len, data_len),
+        67 => wire__crate__api__git_manager__void_run_with_lock_impl(
             port,
             ptr,
             rust_vec_len,
@@ -4238,6 +4406,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::git_manager::LogType {
             Self::ResetToCommit => 63.into_dart(),
             Self::CherryPickCommit => 64.into_dart(),
             Self::SquashCommits => 65.into_dart(),
+            Self::WorkdirFileDiff => 66.into_dart(),
+            Self::StageFileLines => 67.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -4250,6 +4420,55 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::git_manager::LogType>
     for crate::api::git_manager::LogType
 {
     fn into_into_dart(self) -> crate::api::git_manager::LogType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::git_manager::WorkdirDiffLine {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.line_index.into_into_dart().into_dart(),
+            self.origin.into_into_dart().into_dart(),
+            self.content.into_into_dart().into_dart(),
+            self.old_lineno.into_into_dart().into_dart(),
+            self.new_lineno.into_into_dart().into_dart(),
+            self.is_staged.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::git_manager::WorkdirDiffLine
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::git_manager::WorkdirDiffLine>
+    for crate::api::git_manager::WorkdirDiffLine
+{
+    fn into_into_dart(self) -> crate::api::git_manager::WorkdirDiffLine {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::git_manager::WorkdirFileDiff {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.file_path.into_into_dart().into_dart(),
+            self.insertions.into_into_dart().into_dart(),
+            self.deletions.into_into_dart().into_dart(),
+            self.is_binary.into_into_dart().into_dart(),
+            self.lines.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::git_manager::WorkdirFileDiff
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::git_manager::WorkdirFileDiff>
+    for crate::api::git_manager::WorkdirFileDiff
+{
+    fn into_into_dart(self) -> crate::api::git_manager::WorkdirFileDiff {
         self
     }
 }
@@ -4393,6 +4612,16 @@ impl SseEncode for Vec<crate::api::git_manager::Commit> {
     }
 }
 
+impl SseEncode for Vec<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <i32>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4449,6 +4678,16 @@ impl SseEncode for Vec<(String, String)> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <(String, String)>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::git_manager::WorkdirDiffLine> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::git_manager::WorkdirDiffLine>::sse_encode(item, serializer);
         }
     }
 }
@@ -4524,6 +4763,8 @@ impl SseEncode for crate::api::git_manager::LogType {
                 crate::api::git_manager::LogType::ResetToCommit => 63,
                 crate::api::git_manager::LogType::CherryPickCommit => 64,
                 crate::api::git_manager::LogType::SquashCommits => 65,
+                crate::api::git_manager::LogType::WorkdirFileDiff => 66,
+                crate::api::git_manager::LogType::StageFileLines => 67,
                 _ => {
                     unimplemented!("");
                 }
@@ -4687,6 +4928,29 @@ impl SseEncode for usize {
             .cursor
             .write_u64::<NativeEndian>(self as _)
             .unwrap();
+    }
+}
+
+impl SseEncode for crate::api::git_manager::WorkdirDiffLine {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.line_index, serializer);
+        <String>::sse_encode(self.origin, serializer);
+        <String>::sse_encode(self.content, serializer);
+        <i32>::sse_encode(self.old_lineno, serializer);
+        <i32>::sse_encode(self.new_lineno, serializer);
+        <bool>::sse_encode(self.is_staged, serializer);
+    }
+}
+
+impl SseEncode for crate::api::git_manager::WorkdirFileDiff {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.file_path, serializer);
+        <i32>::sse_encode(self.insertions, serializer);
+        <i32>::sse_encode(self.deletions, serializer);
+        <bool>::sse_encode(self.is_binary, serializer);
+        <Vec<crate::api::git_manager::WorkdirDiffLine>>::sse_encode(self.lines, serializer);
     }
 }
 

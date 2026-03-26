@@ -475,6 +475,31 @@ class GitManager {
     });
   }
 
+  static Future<GitManagerRs.WorkdirFileDiff?> getWorkdirFileDiff(String filePath) async {
+    return await _runWithLock(null, await _repoIndex, LogType.WorkdirFileDiff, (dirPath) async {
+      try {
+        return (await GitManagerRs.getWorkdirFileDiff(pathString: dirPath, filePath: filePath, log: _logWrapper));
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.WorkdirFileDiff, e, stackTrace);
+        return null;
+      }
+    });
+  }
+
+  static Future<void> stageFileLines(String filePath, List<int> selectedLineIndices) async {
+    return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
+      await _repoIndex,
+      LogType.StageFileLines,
+      (dirPath) async => await GitManagerRs.stageFileLines(
+        pathString: dirPath,
+        filePath: filePath,
+        selectedLineIndices: selectedLineIndices,
+        log: _logWrapper,
+      ),
+    );
+  }
+
   static Future<int?> getInitialRecommendedAction() async {
     return await uiSettingsManager.getIntNullable(StorageKey.setman_recommendedAction);
   }
