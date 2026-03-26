@@ -3021,11 +3021,17 @@ pub async fn commit_changes(
     );
 
     let mut index = swl!(repo.index())?;
-    let updated_tree_oid = if !index.has_conflicts() {
-        Some(swl!(index.write_tree())?)
-    } else {
-        None
-    };
+    if index.has_conflicts() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::PushToRepo,
+            "Index has unresolved conflicts, cannot commit".to_string(),
+        );
+        return Err(git2::Error::from_str(
+            "Cannot commit: unresolved merge conflicts exist. Please resolve conflicts first.",
+        ));
+    }
+    let updated_tree_oid = swl!(index.write_tree())?;
 
     _log(
         Arc::clone(&log_callback),
@@ -3047,8 +3053,7 @@ pub async fn commit_changes(
         None => vec![],
     };
 
-    let tree_oid = updated_tree_oid.unwrap_or_else(|| index.write_tree_to(&repo).unwrap());
-    let tree = swl!(repo.find_tree(tree_oid))?;
+    let tree = swl!(repo.find_tree(updated_tree_oid))?;
 
     swl!(commit(
         &repo,
@@ -3150,16 +3155,22 @@ pub async fn upload_changes(
 
     swl!(index.write())?;
 
-    let updated_tree_oid = if !index.has_conflicts() {
-        Some(swl!(index.write_tree())?)
-    } else {
-        None
-    };
+    if index.has_conflicts() {
+        _log(
+            Arc::clone(&log_callback),
+            LogType::PushToRepo,
+            "Index has unresolved conflicts, skipping commit".to_string(),
+        );
+        flutter_rust_bridge::spawn(async move {
+            merge_conflict_callback().await;
+        });
+        return Ok(Some(false));
+    }
+    let updated_tree_oid = swl!(index.write_tree())?;
 
-    let should_commit = match (initial_tree_oid, updated_tree_oid) {
-        (Some(old), Some(new)) => old != new,
-        (None, None) => true,
-        _ => true,
+    let should_commit = match initial_tree_oid {
+        Some(old) => old != updated_tree_oid,
+        None => true,
     };
 
     // Only commit if the index has actually changed
@@ -3184,8 +3195,7 @@ pub async fn upload_changes(
             None => vec![],
         };
 
-        let tree_oid = updated_tree_oid.unwrap_or_else(|| index.write_tree_to(&repo).unwrap());
-        let tree = swl!(repo.find_tree(tree_oid))?;
+        let tree = swl!(repo.find_tree(updated_tree_oid))?;
 
         swl!(commit(
             &repo,
