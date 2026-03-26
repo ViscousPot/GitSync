@@ -83,6 +83,7 @@ class GitManager {
     "error reading file for hashing:": () async => null,
     "failed to parse loose object: invalid header": () async => corruptedLooseObjectError,
     "PEM preamble contains invalid data": () async => pemPreambleError,
+    "cannot push non-fastforwardable reference": () async => cannotPushNonFastforwardableError,
   };
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];

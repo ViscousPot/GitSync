@@ -83,6 +83,9 @@ const String sslErrorPrefix = "SSL error";
 const String sslErrorMessage = "A network/SSL error occurred. Check your internet connection and try again.";
 const String pemPreambleInvalidData = "PEM preamble contains invalid data";
 const String pemPreambleError = "Your SSH key file appears corrupted. Please re-enter or regenerate your SSH key in the repository settings.";
+const String cannotPushNonFastforwardable = "cannot push non-fastforwardable reference";
+const String cannotPushNonFastforwardableError =
+    "The remote has changes not present locally. Use Download & Overwrite or Upload & Overwrite to resolve.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";
