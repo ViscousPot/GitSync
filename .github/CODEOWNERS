@@ -19,3 +19,6 @@ rust/Cargo.lock @ViscousPot
 
 # Android (gradle)
 android/ @ViscousPot
+
+# iOS
+ios/ @ViscousPot
