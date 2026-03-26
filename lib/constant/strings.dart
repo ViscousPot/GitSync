@@ -79,6 +79,8 @@ const String remoteChangedException =
     "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.";
 const String mergingExceptionMessage = "MERGING";
 const String repositoryNotFound = "Repository not found!";
+const String sslErrorPrefix = "SSL error";
+const String sslErrorMessage = "A network/SSL error occurred. Check your internet connection and try again.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";

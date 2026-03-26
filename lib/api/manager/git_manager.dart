@@ -209,7 +209,9 @@ class GitManager {
     String error = message.split(";").first;
     if (error.contains(" (")) error = message.split(" (").first;
 
-    return _errorContentMap.containsKey(error) ? await _errorContentMap[error]!() : message;
+    if (_errorContentMap.containsKey(error)) return await _errorContentMap[error]!();
+    if (error.contains(sslErrorPrefix)) return sslErrorMessage;
+    return message;
   }
 
   static Future<(String, String)> _getCredentials([SettingsManager? setman]) async {
