@@ -86,6 +86,10 @@ const String pemPreambleError = "Your SSH key file appears corrupted. Please re-
 const String cannotPushNonFastforwardable = "cannot push non-fastforwardable reference";
 const String cannotPushNonFastforwardableError =
     "The remote has changes not present locally. Use Download & Overwrite or Upload & Overwrite to resolve.";
+const String uncommittedChangeOverwrittenByMerge = "uncommitted change would be overwritten by merge";
+const String uncommittedChangesOverwrittenByMerge = "uncommitted changes would be overwritten by merge";
+const String uncommittedChangeOverwrittenError =
+    "Local uncommitted changes conflict with incoming changes. Commit or discard your local changes and sync again, or use Download & Overwrite / Upload & Overwrite to resolve.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";

@@ -213,6 +213,9 @@ class GitManager {
 
     if (_errorContentMap.containsKey(error)) return await _errorContentMap[error]!();
     if (error.contains(sslErrorPrefix)) return sslErrorMessage;
+    if (error.contains(uncommittedChangeOverwrittenByMerge) || error.contains(uncommittedChangesOverwrittenByMerge)) {
+      return uncommittedChangeOverwrittenError;
+    }
     return message;
   }
 
