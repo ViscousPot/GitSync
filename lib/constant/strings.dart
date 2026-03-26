@@ -81,6 +81,8 @@ const String mergingExceptionMessage = "MERGING";
 const String repositoryNotFound = "Repository not found!";
 const String sslErrorPrefix = "SSL error";
 const String sslErrorMessage = "A network/SSL error occurred. Check your internet connection and try again.";
+const String pemPreambleInvalidData = "PEM preamble contains invalid data";
+const String pemPreambleError = "Your SSH key file appears corrupted. Please re-enter or regenerate your SSH key in the repository settings.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";

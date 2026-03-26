@@ -82,6 +82,7 @@ class GitManager {
     "cannot push because a reference that you are trying to update on the remote contains commits that are not present locally.": () async => null,
     "error reading file for hashing:": () async => null,
     "failed to parse loose object: invalid header": () async => corruptedLooseObjectError,
+    "PEM preamble contains invalid data": () async => pemPreambleError,
   };
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
