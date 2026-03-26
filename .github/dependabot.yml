@@ -37,7 +37,6 @@ updates:
     directories:
       - "/rust"
       - "/.maestro"
-      - "/rust/.cargo"
     schedule:
       interval: "weekly"
     labels:
