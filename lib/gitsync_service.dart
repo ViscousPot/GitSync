@@ -117,7 +117,7 @@ class GitsyncService {
     s = ServiceStrings.fromMap(stringMap);
   }
 
-  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false]) async {
+  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false, String? syncMessage]) async {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
@@ -132,10 +132,10 @@ class GitsyncService {
         return;
       } else {
         if (immediate) {
-          await _sync(repomanRepoindex, forced);
+          await _sync(repomanRepoindex, forced, syncMessage);
           return;
         }
-        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced));
+        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced, syncMessage));
       }
     }
   }
@@ -166,7 +166,7 @@ class GitsyncService {
     });
   }
 
-  Future<void> _sync(int repomanRepoindex, [bool forced = false]) async {
+  Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage]) async {
     try {
       isSyncing = true;
 
@@ -267,7 +267,7 @@ class GitsyncService {
               }
             },
             null,
-            null,
+            syncMessage,
             () => debouncedSync(repomanRepoindex),
           );
 

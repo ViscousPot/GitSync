@@ -20,6 +20,9 @@ class GitSyncService : Service() {
                 if (intent.hasExtra("index")) {
                     intentSyncIntent.putExtra("repoman_repoIndex", intent.getIntExtra("index", 0).toString())
                 }
+                if (intent.hasExtra("message")) {
+                    intentSyncIntent.putExtra("commitMessage", intent.getStringExtra("message"))
+                }
                 startService(intentSyncIntent)
             }
         }

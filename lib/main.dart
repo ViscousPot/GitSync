@@ -569,7 +569,12 @@ void onServiceStart(ServiceInstance service) async {
 
   service.on(GitsyncService.INTENT_SYNC).listen((event) async {
     print(GitsyncService.INTENT_SYNC);
-    gitSyncService.debouncedSync(int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex));
+    gitSyncService.debouncedSync(
+      int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex),
+      false,
+      false,
+      event?[COMMIT_MESSAGE],
+    );
   });
 
   service.on(GitsyncService.TILE_SYNC).listen((event) async {
