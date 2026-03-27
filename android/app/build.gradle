@@ -51,6 +51,9 @@ android {
     }
     
     buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+        }
         release {
             shrinkResources true
             minifyEnabled true

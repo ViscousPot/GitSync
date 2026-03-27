@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">GitSync</string>
     <string name="accessibility_service_description">To enhance your experience, GitSync uses Android’s Accessibility Service to detect when apps are opened or closed. This helps us provide tailored features without storing or sharing any data. \\n\\n Key Points: \\n Purpose: We use this service solely to improve your app experience. \\n Privacy: No data is stored or sent elsewhere. \\n Control: You can disable these permissions at any time in your device settings.</string>
 </resources>
