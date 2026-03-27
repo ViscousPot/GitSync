@@ -92,6 +92,9 @@ const String uncommittedChangeOverwrittenError =
     "Local uncommitted changes conflict with incoming changes. Commit or discard your local changes and sync again, or use Download & Overwrite / Upload & Overwrite to resolve.";
 const String failedToReadIndex = "failed to read index";
 const String failedToReadIndexError = "The repository index is corrupted or missing. Use Auto-Fix to rebuild it.";
+const String errorLoadingKnownHosts = "error loading known_hosts";
+const String errorLoadingKnownHostsError =
+    "Could not load SSH known hosts file. Try toggling \"Disable SSL Verification\" in repository settings, or re-enter your SSH credentials.";
 
 // Sync Dialogs
 const String resolvingMerge = "Resolving merge…";
