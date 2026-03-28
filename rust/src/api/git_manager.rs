@@ -728,10 +728,17 @@ fn get_default_callbacks<'cb>(
     if let (Some(provider), Some(credentials)) = (provider, credentials) {
         callbacks.credentials(move |_url, username_from_url, _allowed_types| {
             if provider == "SSH" {
+                let username = username_from_url.unwrap_or("git");
+                let key = credentials.1.as_str();
+                if !key.contains("-----BEGIN") {
+                    return Err(git2::Error::from_str(
+                        "SSH key is not in PEM format (missing '-----BEGIN' header)",
+                    ));
+                }
                 Cred::ssh_key_from_memory(
-                    username_from_url.unwrap(),
+                    username,
                     None,
-                    credentials.1.as_str(),
+                    key,
                     if credentials.0.is_empty() {
                         None
                     } else {
