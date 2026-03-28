@@ -2099,7 +2099,14 @@ fn update_submodules_priv(
         let mut submodule_opts = git2::SubmoduleUpdateOptions::new();
         submodule_opts.fetch(fetch_options);
 
-        swl!(submodule.update(true, Some(&mut submodule_opts)))?;
+        if let Err(e) = submodule.update(true, Some(&mut submodule_opts)) {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::PullFromRepo,
+                format!("Skipping submodule '{}': {}", name, e.message()),
+            );
+            continue;
+        }
 
         if let Ok(sub_repo) = submodule.open() {
             swl!(sub_repo.checkout_head(Some(
