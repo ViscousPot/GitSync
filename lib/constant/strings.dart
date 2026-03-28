@@ -69,6 +69,8 @@ const String largeFile = "Singular files larger than 50MB not supported!";
 const String directoryNotEmpty = "Folder not empty. Please choose another.";
 const String inaccessibleDirectoryMessage =
     "This folder is inaccessible. Try creating a new folder in the same location with a different name and selecting that instead.";
+const String noFolderAccessError =
+    "No folder access! On iOS, try re-selecting the directory in settings. If the issue persists, remove and re-add the repository.";
 const String autoRebaseFailedException =
     "Remote is further ahead than local and we could not automatically rebase for you, as it would cause non fast-forward update.";
 const String nonExistingException = "Remote ref didn't exist.";

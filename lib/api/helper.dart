@@ -503,11 +503,14 @@ Future<T?> useDirectory<T>(
 
   try {
     final bookmarkAndPath = await iosDocumentPickerPlugin.resolveBookmark(bookmark, isDirectory: true);
-    if (bookmarkAndPath == null) return null;
+    if (bookmarkAndPath == null) {
+      Logger.logError(LogType.SelectDirectory, noFolderAccessError, StackTrace.fromString(""));
+      return null;
+    }
     await setBookmarkPath(bookmarkAndPath.$1);
     path = pathSuffix.isEmpty ? bookmarkAndPath.$2 : "${bookmarkAndPath.$2}/$pathSuffix";
   } catch (e) {
-    print(e);
+    Logger.logError(LogType.SelectDirectory, noFolderAccessError, StackTrace.fromString("$e"));
     return null;
   }
 
@@ -517,7 +520,7 @@ Future<T?> useDirectory<T>(
 
   final hasAccess = await iosDocumentPickerPlugin.startAccessing(path);
   if (!hasAccess) {
-    Logger.logError(LogType.SelectDirectory, "No folder access", StackTrace.fromString(""));
+    Logger.logError(LogType.SelectDirectory, noFolderAccessError, StackTrace.fromString(""));
     return null;
   }
 
