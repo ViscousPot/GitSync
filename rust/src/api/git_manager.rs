@@ -2787,9 +2787,10 @@ pub async fn stage_file_paths(
 
     for path in &paths {
         if let Ok(mut sm) = repo.find_submodule(path) {
-            let sm_repo = swl!(sm.open())?;
-            swl!(sm_repo.index()?.write())?;
-            swl!(sm.add_to_index(false))?;
+            if let Ok(sm_repo) = sm.open() {
+                swl!(sm_repo.index()?.write())?;
+                swl!(sm.add_to_index(false))?;
+            }
         }
     }
 
@@ -3149,9 +3150,10 @@ pub async fn upload_changes(
 
     for path in &paths {
         if let Ok(mut sm) = repo.find_submodule(path) {
-            let sm_repo = swl!(sm.open())?;
-            swl!(sm_repo.index()?.write())?;
-            swl!(sm.add_to_index(false))?;
+            if let Ok(sm_repo) = sm.open() {
+                swl!(sm_repo.index()?.write())?;
+                swl!(sm.add_to_index(false))?;
+            }
         }
     }
 
