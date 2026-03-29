@@ -11,6 +11,7 @@ import 'package:GitSync/api/issue_template_parser.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
+import 'package:GitSync/type/showcase_feature.dart';
 import 'package:GitSync/type/tag.dart';
 
 import '../../manager/auth/git_provider_manager.dart';
@@ -1048,6 +1049,53 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
       );
     }
     return counts.entries.map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2)).toList();
+  }
+
+  @override
+  Future<Map<ShowcaseFeature, int?>> getFeatureCounts(String accessToken, String owner, String repo, [List<ShowcaseFeature>? features]) async {
+    final counts = <ShowcaseFeature, int?>{};
+    final requested = features ?? ShowcaseFeature.values;
+    try {
+      // Build GraphQL query with only the requested fields
+      final fields = <String>[];
+      if (requested.contains(ShowcaseFeature.issues)) fields.add("issues(states: OPEN) { totalCount }");
+      if (requested.contains(ShowcaseFeature.pullRequests)) fields.add("pullRequests(states: OPEN) { totalCount }");
+      if (requested.contains(ShowcaseFeature.releases)) fields.add("releases { totalCount }");
+      if (requested.contains(ShowcaseFeature.tags)) fields.add('refs(refPrefix: "refs/tags/") { totalCount }');
+
+      if (fields.isNotEmpty) {
+        final query = 'query(\$owner: String!, \$repo: String!) { repository(owner: \$owner, name: \$repo) { ${fields.join(" ")} } }';
+        final response = await httpPost(
+          Uri.parse("https://api.$_domain/graphql"),
+          headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+          body: json.encode({"query": query, "variables": {"owner": owner, "repo": repo}}),
+        );
+        if (response.statusCode == 200) {
+          final data = json.decode(utf8.decode(response.bodyBytes));
+          final repoData = data["data"]?["repository"];
+          if (repoData != null) {
+            if (requested.contains(ShowcaseFeature.issues)) counts[ShowcaseFeature.issues] = repoData["issues"]?["totalCount"];
+            if (requested.contains(ShowcaseFeature.pullRequests)) counts[ShowcaseFeature.pullRequests] = repoData["pullRequests"]?["totalCount"];
+            if (requested.contains(ShowcaseFeature.releases)) counts[ShowcaseFeature.releases] = repoData["releases"]?["totalCount"];
+            if (requested.contains(ShowcaseFeature.tags)) counts[ShowcaseFeature.tags] = repoData["refs"]?["totalCount"];
+          }
+        }
+      }
+
+      // Actions needs a separate REST call
+      if (requested.contains(ShowcaseFeature.actions)) {
+        final actionsResp = await httpGet(
+          Uri.parse("https://api.$_domain/repos/$owner/$repo/actions/runs?per_page=1"),
+          headers: {"Accept": "application/json", "Authorization": "token $accessToken"},
+        );
+        if (actionsResp.statusCode == 200) {
+          counts[ShowcaseFeature.actions] = json.decode(utf8.decode(actionsResp.bodyBytes))["total_count"] as int?;
+        }
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetFeatureCounts, e, st);
+    }
+    return counts;
   }
 
   @override

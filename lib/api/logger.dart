@@ -101,6 +101,7 @@ enum LogType {
   GetTags,
   GetReleases,
   GetActionRuns,
+  GetFeatureCounts,
   GetIssueDetail,
   AddIssueComment,
   UpdateIssueState,

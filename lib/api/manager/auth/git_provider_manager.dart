@@ -11,6 +11,7 @@ import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/release.dart';
+import 'package:GitSync/type/showcase_feature.dart';
 import 'package:GitSync/type/tag.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/auth/gitlab_manager.dart';
@@ -220,6 +221,10 @@ class GitProviderManager {
 
   Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
     return null;
+  }
+
+  Future<Map<ShowcaseFeature, int?>> getFeatureCounts(String accessToken, String owner, String repo, [List<ShowcaseFeature>? features]) async {
+    return {};
   }
 
   Future<(List<String>, String?)> getRepoBranches(String accessToken, String owner, String repo) async {
