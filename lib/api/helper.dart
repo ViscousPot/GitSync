@@ -339,7 +339,7 @@ Future<void> _performRemoteRepoCreation(
     return;
   }
 
-  await GitManager.addRemote("origin", createResult.$1, dirPath);
+  await GitManager.addRemote("origin", createResult.$1, dirPathOverride: dirPath);
 
   if (initMainBranch && dirPath != null) {
     try {
