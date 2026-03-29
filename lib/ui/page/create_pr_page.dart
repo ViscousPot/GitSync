@@ -9,6 +9,8 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/ai_wand_field.dart';
+import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
@@ -238,24 +240,53 @@ class _CreatePrPageState extends State<CreatePrPage> {
         SizedBox(height: spaceMD),
 
         // Title field
-        TextField(
-          contextMenuBuilder: globalContextMenuBuilder,
-          controller: _titleController,
-          maxLines: 1,
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
-          decoration: InputDecoration(
-            fillColor: colours.secondaryDark,
-            filled: true,
-            border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-            isCollapsed: true,
-            label: Text(t.createPrTitle.toUpperCase(), style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: t.createPrTitleHint,
-            hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textMD, fontWeight: FontWeight.normal),
-            contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-            isDense: true,
+        AiWandField(
+          onPressed: () async {
+            final diff = (_baseBranch != null && _headBranch != null)
+                ? await GitManager.getCommitDiff(_baseBranch!, _headBranch!)
+                : null;
+            final buffer = StringBuffer('Branch: $_headBranch → $_baseBranch\n');
+            if (diff != null) {
+              buffer.writeln('+${diff.insertions}/-${diff.deletions}');
+              buffer.writeln('\nChanged files:');
+              buffer.write(formatDiffParts(diff.diffParts));
+            }
+            if (_selectedTemplate?.body?.isNotEmpty == true) {
+              buffer.writeln('\nTemplate:\n${_selectedTemplate!.body}');
+            }
+            final result = await aiComplete(
+              systemPrompt: "Generate a pull request title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Include a summary section and what changed.",
+              userPrompt: buffer.toString(),
+            );
+            if (result != null) {
+              final lines = result.trim().split('\n');
+              _titleController.text = lines.first.trim();
+              final bodyStart = lines.indexWhere((l) => l.trim().isNotEmpty, 1);
+              if (bodyStart != -1) {
+                _bodyController.text = lines.sublist(bodyStart).join('\n').trim();
+              }
+              setState(() {});
+            }
+          },
+          child: TextField(
+            contextMenuBuilder: globalContextMenuBuilder,
+            controller: _titleController,
+            maxLines: 1,
+            style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+            decoration: InputDecoration(
+              fillColor: colours.secondaryDark,
+              filled: true,
+              border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+              isCollapsed: true,
+              label: Text(t.createPrTitle.toUpperCase(), style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              hintText: t.createPrTitleHint,
+              hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textMD, fontWeight: FontWeight.normal),
+              contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+              isDense: true,
+            ),
+            onChanged: (_) => setState(() {}),
           ),
-          onChanged: (_) => setState(() {}),
         ),
 
         SizedBox(height: spaceMD),
