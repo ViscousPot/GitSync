@@ -15,23 +15,24 @@ import 'package:GitSync/ui/dialog/confirm_delete_file_folder.dart' as ConfirmDel
 import 'package:extended_text/extended_text.dart';
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../constant/strings.dart';
 import 'package:path/path.dart' as p;
 
 class FileExplorer extends StatefulWidget {
-  const FileExplorer(this.recentCommits, {super.key, required this.path});
+  const FileExplorer(this.recentCommits, {super.key, required this.path, this.embedded = false, this.onBackAtRoot});
 
   final String path;
   final List<GitManagerRs.Commit> recentCommits;
+  final bool embedded;
+  final VoidCallback? onBackAtRoot;
 
   @override
-  State<FileExplorer> createState() => _FileExplorer();
+  State<FileExplorer> createState() => FileExplorerState();
 }
 
-class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
+class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver {
   final FileManagerController controller = FileManagerController();
   final ValueNotifier<List<String>> selectedPathsNotifier = ValueNotifier([]);
   final ValueNotifier<List<String>> heldPathsNotifier = ValueNotifier([]);
@@ -346,88 +347,106 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
 
   String getPathLeadingText() => widget.path.replaceFirst(RegExp(r'/[^/]+$'), '/');
 
+  bool _isAtRoot() => controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '');
+
+  /// Returns true if back was handled internally (went up a directory or cleared selection).
+  bool handleBack() {
+    if (selectedPathsNotifier.value.isNotEmpty) {
+      selectedPathsNotifier.value = [];
+      return true;
+    }
+    if (!_isAtRoot()) {
+      controller.goToParentDirectory();
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (selectedPathsNotifier.value.isNotEmpty) {
-          selectedPathsNotifier.value = [];
-          return false;
-        }
-        if (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')) {
-          return true;
-        } else {
-          controller.goToParentDirectory();
-          return false;
-        }
-      },
-      child: Scaffold(
-        backgroundColor: colours.secondaryDark,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: colours.secondaryDark,
-            systemNavigationBarColor: colours.secondaryDark,
-            statusBarIconBrightness: Brightness.light,
-            systemNavigationBarIconBrightness: Brightness.light,
-          ),
-          leading: ValueListenableBuilder(
-            valueListenable: controller.getPathNotifier,
-            builder: (context, currentPath, child) => getBackButton(context, () {
-              if (selectedPathsNotifier.value.isNotEmpty) {
-                selectedPathsNotifier.value = [];
-              } else {
-                if (controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '') == widget.path.replaceFirst(RegExp(r'/$'), '')) {
-                  if (heldPathsNotifier.value.isNotEmpty) {
-                    heldPathsNotifier.value = [];
-                  } else {
-                    (Navigator.of(context).canPop() ? Navigator.pop(context) : null);
-                  }
-                } else {
-                  controller.goToParentDirectory();
-                }
-              }
-            }),
-          ),
-          title: ValueListenableBuilder(
-            valueListenable: controller.getPathNotifier,
-            builder: (context, currentPath, child) => ValueListenableBuilder(
-              valueListenable: heldPathsNotifier,
-              builder: (context, heldPaths, child) => heldPaths.isNotEmpty
-                  ? Text(
-                      "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} ${t.selected}",
-                      style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
-                    )
-                  : ExtendedText(
-                      currentPath.replaceFirst(getPathLeadingText(), ""),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      softWrap: false,
-                      overflowWidget: TextOverflowWidget(
-                        position: TextOverflowPosition.start,
-                        child: Text(
-                          "…",
-                          style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
-                    ),
+    final scaffold = Scaffold(
+      backgroundColor: colours.primaryDark,
+      body: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: spaceSM),
+            padding: EdgeInsets.symmetric(horizontal: spaceXS),
+            decoration: BoxDecoration(
+              color: colours.secondaryDark,
+              borderRadius: BorderRadius.all(cornerRadiusMD),
             ),
-          ),
-          actions: [
-            ValueListenableBuilder(
-              valueListenable: heldPathsNotifier,
-              builder: (context, heldPaths, child) => ValueListenableBuilder(
-                valueListenable: selectedPathsNotifier,
-                builder: (context, selectedPaths, child) => ValueListenableBuilder(
-                  valueListenable: copyingMovingNotifier,
-                  builder: (context, copyingMoving, child) => ValueListenableBuilder(
-                    valueListenable: loadingMoreNotifier,
-                    builder: (context, loadingMore, child) => Row(
-                      children: selectedPaths.isNotEmpty
-                          ? [
+            child: Row(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: controller.getPathNotifier,
+                  builder: (context, currentPath, child) {
+                    final atRoot = _isAtRoot();
+                    if (widget.embedded && atRoot && heldPathsNotifier.value.isEmpty && selectedPathsNotifier.value.isEmpty) {
+                      return IconButton(
+                        onPressed: widget.onBackAtRoot,
+                        icon: FaIcon(FontAwesomeIcons.arrowUp, color: widget.onBackAtRoot != null ? colours.primaryLight : colours.secondaryLight, size: textLG, semanticLabel: t.backLabel),
+                      );
+                    }
+                    return IconButton(
+                      onPressed: () {
+                        if (selectedPathsNotifier.value.isNotEmpty) {
+                          selectedPathsNotifier.value = [];
+                        } else {
+                          if (atRoot) {
+                            if (heldPathsNotifier.value.isNotEmpty) {
+                              heldPathsNotifier.value = [];
+                            } else if (!widget.embedded) {
+                              (Navigator.of(context).canPop() ? Navigator.pop(context) : null);
+                            }
+                          } else {
+                            controller.goToParentDirectory();
+                          }
+                        }
+                      },
+                      icon: FaIcon(FontAwesomeIcons.arrowUp, color: colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
+                    );
+                  },
+                ),
+                SizedBox(width: spaceXS),
+                Expanded(
+                  child: ValueListenableBuilder(
+                    valueListenable: controller.getPathNotifier,
+                    builder: (context, currentPath, child) => ValueListenableBuilder(
+                      valueListenable: heldPathsNotifier,
+                      builder: (context, heldPaths, child) => heldPaths.isNotEmpty
+                          ? Text(
+                              "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} ${t.selected}",
+                              style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            )
+                          : ExtendedText(
+                              currentPath.replaceFirst(getPathLeadingText(), ""),
+                              maxLines: 1,
+                              textAlign: TextAlign.left,
+                              softWrap: false,
+                              overflowWidget: TextOverflowWidget(
+                                position: TextOverflowPosition.start,
+                                child: Text(
+                                  "…",
+                                  style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: heldPathsNotifier,
+                  builder: (context, heldPaths, child) => ValueListenableBuilder(
+                    valueListenable: selectedPathsNotifier,
+                    builder: (context, selectedPaths, child) => ValueListenableBuilder(
+                      valueListenable: copyingMovingNotifier,
+                      builder: (context, copyingMoving, child) => ValueListenableBuilder(
+                        valueListenable: loadingMoreNotifier,
+                        builder: (context, loadingMore, child) => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: selectedPaths.isNotEmpty
+                              ? [
                               Stack(
                                 children: [
                                   IconButton(
@@ -627,116 +646,128 @@ class _FileExplorer extends State<FileExplorer> with WidgetsBindingObserver {
                                 ),
                                 icon: FaIcon(FontAwesomeIcons.scissors, color: colours.tertiaryInfo, size: textLG),
                               ),
-                              SizedBox(width: spaceMD),
-                            ]
-                          : heldPaths.isNotEmpty
-                          ? [
-                              ValueListenableBuilder(
-                                valueListenable: pastingNotifier,
-                                builder: (context, pasting, child) => IconButton(
-                                  onPressed: pasting
-                                      ? null
-                                      : () async {
-                                          final destinationPath = controller.getCurrentPath;
-                                          for (String filePath in heldPathsNotifier.value) {
-                                            File sourceFile = File(filePath);
-                                            String fileName = sourceFile.uri.pathSegments.last;
-                                            File destinationFile = File('$destinationPath/$fileName');
+                                ]
+                              : heldPaths.isNotEmpty
+                              ? [
+                                  ValueListenableBuilder(
+                                    valueListenable: pastingNotifier,
+                                    builder: (context, pasting, child) => IconButton(
+                                      onPressed: pasting
+                                          ? null
+                                          : () async {
+                                              final destinationPath = controller.getCurrentPath;
+                                              for (String filePath in heldPathsNotifier.value) {
+                                                File sourceFile = File(filePath);
+                                                String fileName = sourceFile.uri.pathSegments.last;
+                                                File destinationFile = File('$destinationPath/$fileName');
 
-                                            pastingNotifier.value = true;
-                                            try {
-                                              if (copyingMoving == false) {
-                                                // Move the file
-                                                await sourceFile.rename(destinationFile.path);
-                                                print('Moved: ${sourceFile.path} to ${destinationFile.path}');
-                                              } else {
-                                                // Copy the file
-                                                await sourceFile.copy(destinationFile.path);
-                                                print('Copied: ${sourceFile.path} to ${destinationFile.path}');
+                                                pastingNotifier.value = true;
+                                                try {
+                                                  if (copyingMoving == false) {
+                                                    // Move the file
+                                                    await sourceFile.rename(destinationFile.path);
+                                                    print('Moved: ${sourceFile.path} to ${destinationFile.path}');
+                                                  } else {
+                                                    // Copy the file
+                                                    await sourceFile.copy(destinationFile.path);
+                                                    print('Copied: ${sourceFile.path} to ${destinationFile.path}');
+                                                  }
+                                                } catch (e) {
+                                                  print('Error: $e');
+                                                }
+                                                pastingNotifier.value = false;
                                               }
-                                            } catch (e) {
-                                              print('Error: $e');
-                                            }
-                                            pastingNotifier.value = false;
-                                          }
 
-                                          heldPathsNotifier.value = [];
-                                          reload();
-                                        },
-                                  style: ButtonStyle(
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                                              heldPathsNotifier.value = [];
+                                              reload();
+                                            },
+                                      style: ButtonStyle(
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                                      ),
+                                      icon: pasting
+                                          ? SizedBox.square(
+                                              dimension: textLG,
+                                              child: CircularProgressIndicator(color: colours.tertiaryInfo),
+                                            )
+                                          : FaIcon(FontAwesomeIcons.solidPaste, color: colours.tertiaryInfo, size: textLG),
+                                    ),
                                   ),
-                                  icon: pasting
-                                      ? SizedBox.square(
-                                          dimension: textLG,
-                                          child: CircularProgressIndicator(color: colours.tertiaryInfo),
-                                        )
-                                      : FaIcon(FontAwesomeIcons.solidPaste, color: colours.tertiaryInfo, size: textLG),
-                                ),
-                              ),
-                              SizedBox(width: spaceXXS),
-                              IconButton(
-                                onPressed: () {
-                                  heldPathsNotifier.value = [];
-                                },
-                                icon: FaIcon(FontAwesomeIcons.solidCircleXmark, color: colours.primaryLight, size: textLG),
-                              ),
-                              SizedBox(width: spaceMD),
-                            ]
-                          : [
-                              IconButton(
-                                onPressed: () async {
-                                  CreateFolderDialog.showDialog(context, (folderName) async {
-                                    try {
-                                      await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
-                                    } catch (e) {
-                                      Fluttertoast.showToast(msg: "Failed to create directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
-                                    }
-                                    await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
-                                    controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
-                                  });
-                                },
-                                style: ButtonStyle(
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                                ),
-                                icon: FaIcon(FontAwesomeIcons.folderPlus, color: colours.primaryLight, size: textLG, semanticLabel: "create folder"),
-                              ),
-                              SizedBox(width: spaceXXS),
-                              IconButton(
-                                onPressed: () async {
-                                  CreateFileDialog.showDialog(context, (fileName) async {
-                                    try {
-                                      await File("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$fileName").create();
-                                    } catch (e) {
-                                      Fluttertoast.showToast(msg: "Failed to create file: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
-                                    }
-                                    reload();
-                                  });
-                                },
-                                style: ButtonStyle(
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
-                                ),
-                                icon: FaIcon(
-                                  FontAwesomeIcons.fileCirclePlus,
-                                  color: colours.primaryLight,
-                                  size: textLG,
-                                  semanticLabel: "create file",
-                                ),
-                              ),
-                              SizedBox(width: spaceMD),
-                            ],
+                                  SizedBox(width: spaceXXS),
+                                  IconButton(
+                                    onPressed: () {
+                                      heldPathsNotifier.value = [];
+                                    },
+                                    icon: FaIcon(FontAwesomeIcons.solidCircleXmark, color: colours.primaryLight, size: textLG),
+                                  ),
+                                ]
+                              : [
+                                  IconButton(
+                                    onPressed: () async {
+                                      CreateFolderDialog.showDialog(context, (folderName) async {
+                                        try {
+                                          await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
+                                        } catch (e) {
+                                          Fluttertoast.showToast(msg: "Failed to create directory: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                        }
+                                        await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
+                                        controller.setCurrentPath = "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
+                                      });
+                                    },
+                                    style: ButtonStyle(
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                                    ),
+                                    icon: FaIcon(FontAwesomeIcons.folderPlus, color: colours.primaryLight, size: textLG, semanticLabel: "create folder"),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  IconButton(
+                                    onPressed: () async {
+                                      CreateFileDialog.showDialog(context, (fileName) async {
+                                        try {
+                                          await File("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$fileName").create();
+                                        } catch (e) {
+                                          Fluttertoast.showToast(msg: "Failed to create file: $e", toastLength: Toast.LENGTH_LONG, gravity: null);
+                                        }
+                                        reload();
+                                      });
+                                    },
+                                    style: ButtonStyle(
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      padding: WidgetStatePropertyAll(EdgeInsets.all(spaceXXS)),
+                                    ),
+                                    icon: FaIcon(FontAwesomeIcons.fileCirclePlus, color: colours.primaryLight, size: textLG, semanticLabel: "create file"),
+                                  ),
+                                ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-        body: _fileManagerWidget,
+          ),
+          Expanded(child: _fileManagerWidget),
+        ],
       ),
+    );
+
+    if (widget.embedded) return scaffold;
+
+    return WillPopScope(
+      onWillPop: () async {
+        if (selectedPathsNotifier.value.isNotEmpty) {
+          selectedPathsNotifier.value = [];
+          return false;
+        }
+        if (_isAtRoot()) {
+          return true;
+        } else {
+          controller.goToParentDirectory();
+          return false;
+        }
+      },
+      child: scaffold,
     );
   }
 }

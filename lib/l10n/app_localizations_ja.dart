@@ -864,7 +864,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scheduledSyncDescription => 'バックグラウンドで定期的に自動同期します';
 
   @override
-  String get sync => '同期';
+  String get tabHome => 'Home';
 
   @override
   String get iosDefaultSyncRate => 'iOSが許可した時';
@@ -2261,4 +2261,25 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get providerTools => 'Provider Tools';
+
+  @override
+  String get tabChat => 'Chat';
+
+  @override
+  String get tabFiles => 'Files';
+
+  @override
+  String get chatComingSoon => 'Chat features coming soon';
+
+  @override
+  String get chatComingSoonSubtitle => 'Interact with your files using Claude Code';
+
+  @override
+  String get noRepoSetup => 'Set up a repository first';
+
+  @override
+  String get aiSetupTitle => 'Set Up AI';
+
+  @override
+  String get aiSetupMsg => 'Configure an AI provider to use this feature. Go to AI settings?';
 }

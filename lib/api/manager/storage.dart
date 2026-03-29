@@ -27,6 +27,10 @@ enum StorageKey<T> {
   repoman_defaultPostFooter<String>(name: "defaultPostFooter", defaultValue: defaultPostFooter),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
   repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: false),
+  repoman_aiProvider<String?>(name: "aiProvider", defaultValue: null),
+  repoman_aiApiKey<String?>(name: "aiApiKey", defaultValue: null),
+  repoman_aiEndpoint<String?>(name: "aiEndpoint", defaultValue: null),
+  repoman_aiModel<String?>(name: "aiModel", defaultValue: null),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),

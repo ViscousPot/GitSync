@@ -133,7 +133,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,

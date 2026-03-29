@@ -185,6 +185,7 @@
     "iosAppSyncDocsLinkText",
     "searchEllipsis",
     "scheduledSyncDescription",
+    "tabHome",
     "every",
     "scheduledSync",
     "custom",
@@ -521,7 +522,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "es": [
@@ -709,6 +717,7 @@
     "appSyncIosDescription",
     "searchEllipsis",
     "scheduledSyncDescription",
+    "tabHome",
     "every",
     "scheduledSync",
     "custom",
@@ -1045,7 +1054,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "fr": [
@@ -1204,6 +1220,7 @@
     "appSyncIosDescription",
     "searchEllipsis",
     "scheduledSyncDescription",
+    "tabHome",
     "every",
     "scheduledSync",
     "custom",
@@ -1501,7 +1518,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "ja": [
@@ -1647,6 +1671,7 @@
     "onboardingLaunchWiki",
     "unbornBranch",
     "appSyncIosDescription",
+    "tabHome",
     "every",
     "scheduledSync",
     "custom",
@@ -1872,7 +1897,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "ru": [
@@ -2060,6 +2092,7 @@
     "appSyncIosDescription",
     "searchEllipsis",
     "scheduledSyncDescription",
+    "tabHome",
     "every",
     "scheduledSync",
     "custom",
@@ -2396,7 +2429,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "zh": [
@@ -2458,6 +2498,7 @@
     "onboardingLaunchWiki",
     "unbornBranch",
     "appSyncIosDescription",
+    "tabHome",
     "every",
     "advancedOptions",
     "shallowClone",
@@ -2656,7 +2697,14 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ],
 
   "zh_Hant": [
@@ -2943,7 +2991,7 @@
     "iosSyncOnAppOpened",
     "scheduledSyncSettings",
     "scheduledSyncDescription",
-    "sync",
+    "tabHome",
     "iosDefaultSyncRate",
     "every",
     "scheduledSync",
@@ -3404,6 +3452,13 @@
     "prForcePushed",
     "recentCommits",
     "branchManagement",
-    "providerTools"
+    "providerTools",
+    "tabChat",
+    "tabFiles",
+    "chatComingSoon",
+    "chatComingSoonSubtitle",
+    "noRepoSetup",
+    "aiSetupTitle",
+    "aiSetupMsg"
   ]
 }
