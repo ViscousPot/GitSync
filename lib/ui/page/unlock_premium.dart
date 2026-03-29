@@ -53,7 +53,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
     });
   }
 
-  Widget _featureRow(IconData icon, String text) {
+  Widget _featureRow(FaIconData icon, String text) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: spaceXXXS),
       child: Row(

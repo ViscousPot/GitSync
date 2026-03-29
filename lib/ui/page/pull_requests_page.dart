@@ -553,7 +553,7 @@ class _ItemPullRequest extends StatelessWidget {
   Widget build(BuildContext context) {
     final relativeTime = timeago.format(pr.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
 
-    final (IconData icon, Color color) = switch (pr.state) {
+    final (FaIconData icon, Color color) = switch (pr.state) {
       PrState.open => (FontAwesomeIcons.codePullRequest, colours.tertiaryPositive),
       PrState.merged => (FontAwesomeIcons.codeMerge, colours.secondaryInfo),
       PrState.closed => (FontAwesomeIcons.codePullRequest, colours.tertiaryNegative),

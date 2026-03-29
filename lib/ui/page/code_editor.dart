@@ -113,7 +113,7 @@ class PopupMenuItemData {
 
   final String label;
   final VoidCallback? onPressed;
-  final IconData? icon;
+  final FaIconData? icon;
   final bool danger;
 }
 

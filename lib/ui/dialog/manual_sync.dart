@@ -349,7 +349,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                   final bool hasLineSelections =
                                                       !isWholeFileSelected && (lineSelections.containsKey(fileName) || isPartiallyStagedFile);
 
-                                                  (IconData, (Color, Color)) infoIcon = (
+                                                  (FaIconData, (Color, Color)) infoIcon = (
                                                     FontAwesomeIcons.solidSquarePlus,
                                                     (colours.tertiaryPositive, colours.primaryPositive),
                                                   );

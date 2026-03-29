@@ -1544,7 +1544,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     ],
   );
 
-  Widget _modeFeatureItem(IconData icon, String text, bool isSelected, [bool right = false, bool last = false]) {
+  Widget _modeFeatureItem(FaIconData icon, String text, bool isSelected, [bool right = false, bool last = false]) {
     return AnimatedContainer(
       duration: animFast,
       padding: EdgeInsets.symmetric(horizontal: spaceSM + spaceXS, vertical: spaceXS + spaceXXXS),
@@ -1576,7 +1576,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     );
   }
 
-  Widget _browseFeatureItem(IconData icon, String text) {
+  Widget _browseFeatureItem(FaIconData icon, String text) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: spaceXXXS),
       child: Row(
@@ -1625,7 +1625,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     );
   }
 
-  // Widget _almostThereCard(IconData icon, String text) {
+  // Widget _almostThereCard(FaIconData icon, String text) {
   //   return Container(
   //     width: double.infinity,
   //     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
@@ -2863,10 +2863,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
   Widget _onboardingSyncCard({
     required int index,
-    required IconData icon,
+    required FaIconData icon,
     required String title,
     required String subtitle,
-    required List<(IconData, String)> features,
+    required List<(FaIconData, String)> features,
     required Widget? settingsBody,
     VoidCallback? onTap,
     Future<bool> Function(BuildContext)? onBeforeExpand,

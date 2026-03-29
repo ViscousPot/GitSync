@@ -219,7 +219,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
   }
 
   Widget _buildHeader() {
-    final (IconData icon, Color color) = _detail != null
+    final (FaIconData icon, Color color) = _detail != null
         ? switch (_detail!.state) {
             PrState.open => (FontAwesomeIcons.codePullRequest, colours.tertiaryPositive),
             PrState.merged => (FontAwesomeIcons.codeMerge, colours.secondaryInfo),
@@ -650,7 +650,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
 
   Widget _buildChecksSummaryStamp() {
     final detail = _detail!;
-    final (IconData icon, Color color, String text) = switch (detail.overallCheckStatus) {
+    final (FaIconData icon, Color color, String text) = switch (detail.overallCheckStatus) {
       CheckStatus.success => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive, t.prAllChecksPassed),
       CheckStatus.failure => (
         FontAwesomeIcons.solidCircleXmark,
@@ -1038,7 +1038,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
 
         // Individual check runs
         ...detail.checkRuns.map((check) {
-          final (IconData icon, Color color) = switch (check.conclusion) {
+          final (FaIconData icon, Color color) = switch (check.conclusion) {
             "success" => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive),
             "failure" => (FontAwesomeIcons.solidCircleXmark, colours.tertiaryNegative),
             "cancelled" || "skipped" => (FontAwesomeIcons.circleMinus, colours.tertiaryLight),
@@ -1164,7 +1164,7 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
           final expanded = _expandedFiles.contains(index);
           final hasPatch = file.patch != null && file.patch!.isNotEmpty;
 
-          final (IconData icon, Color color) = switch (file.status) {
+          final (FaIconData icon, Color color) = switch (file.status) {
             "added" => (FontAwesomeIcons.plus, colours.tertiaryPositive),
             "removed" => (FontAwesomeIcons.minus, colours.tertiaryNegative),
             "renamed" => (FontAwesomeIcons.arrowRight, colours.tertiaryWarning),

@@ -22,7 +22,7 @@ class ButtonSetting extends StatefulWidget {
   final bool loads;
   final bool initiallyExpanded;
   final String text;
-  final IconData icon;
+  final FaIconData icon;
   final Color? textColor;
   final Color? iconColor;
   final Color? buttonColor;

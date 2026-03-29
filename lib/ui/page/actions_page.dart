@@ -229,7 +229,7 @@ String _formatDuration(Duration d) {
   return '${seconds}s';
 }
 
-(IconData, Color) _statusIconAndColor(ActionRunStatus status) {
+(FaIconData, Color) _statusIconAndColor(ActionRunStatus status) {
   return switch (status) {
     ActionRunStatus.success => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive),
     ActionRunStatus.failure => (FontAwesomeIcons.solidCircleXmark, colours.primaryNegative),

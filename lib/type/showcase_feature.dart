@@ -12,7 +12,7 @@ enum ShowcaseFeature {
 
   const ShowcaseFeature({required this.icon, required this.label, required this.storageKey});
 
-  final IconData icon;
+  final FaIconData icon;
   final String label;
   final String storageKey;
 
