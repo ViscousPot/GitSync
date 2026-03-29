@@ -9,6 +9,8 @@ import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/ai_wand_field.dart';
+import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
@@ -733,20 +735,37 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
           if (_writeMode)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceSM),
-              child: TextField(
-                contextMenuBuilder: globalContextMenuBuilder,
-                controller: _commentController,
-                maxLines: 5,
-                minLines: 3,
-                style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
-                decoration: InputDecoration(
-                  fillColor: colours.tertiaryDark,
-                  filled: true,
-                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                  isCollapsed: true,
-                  hintText: t.issueAddComment,
-                  hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
-                  contentPadding: EdgeInsets.all(spaceSM),
+              child: AiWandField(
+                multiline: true,
+                onPressed: () async {
+                  final detail = _detail;
+                  if (detail == null) return;
+                  final labels = detail.labels.map((l) => l.name).join(', ');
+                  final state = detail.isOpen ? 'open' : 'closed';
+                  final recentComments = detail.comments.length > 5 ? detail.comments.sublist(detail.comments.length - 5) : detail.comments;
+                  final commentText = recentComments.map((c) => '@${c.authorUsername}: ${c.body}').join('\n');
+                  final prompt = 'Issue: ${detail.title} [$state]\nLabels: $labels\n\nBody:\n${detail.body}\n\nRecent comments:\n$commentText';
+                  final result = await aiComplete(
+                    systemPrompt: "Draft a helpful comment for this GitHub issue. Be concise and relevant to the discussion.",
+                    userPrompt: prompt,
+                  );
+                  if (result != null) _commentController.text = result.trim();
+                },
+                child: TextField(
+                  contextMenuBuilder: globalContextMenuBuilder,
+                  controller: _commentController,
+                  maxLines: 5,
+                  minLines: 3,
+                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                  decoration: InputDecoration(
+                    fillColor: colours.tertiaryDark,
+                    filled: true,
+                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                    isCollapsed: true,
+                    hintText: t.issueAddComment,
+                    hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                    contentPadding: EdgeInsets.all(spaceSM),
+                  ),
                 ),
               ),
             )
@@ -852,18 +871,36 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
           if (_bodyWriteMode)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceSM),
-              child: TextField(
-                contextMenuBuilder: globalContextMenuBuilder,
-                controller: _bodyEditController,
-                maxLines: 10,
-                minLines: 5,
-                style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
-                decoration: InputDecoration(
-                  fillColor: colours.tertiaryDark,
-                  filled: true,
-                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                  isCollapsed: true,
-                  contentPadding: EdgeInsets.all(spaceSM),
+              child: AiWandField(
+                multiline: true,
+                enabled: _bodyEditController.text.trim() != (_detail?.body ?? '').trim(),
+                onPressed: () async {
+                  final detail = _detail;
+                  if (detail == null) return;
+                  final labels = detail.labels.map((l) => l.name).join(', ');
+                  final prompt = 'Title: ${detail.title}\nLabels: $labels\n\nCurrent body:\n${_bodyEditController.text}';
+                  final result = await aiComplete(
+                    systemPrompt: "Improve this issue description. Maintain the original intent, enhance clarity. Use markdown. Output only the improved body.",
+                    userPrompt: prompt,
+                  );
+                  if (result != null) {
+                    _bodyEditController.text = result.trim();
+                    setState(() {});
+                  }
+                },
+                child: TextField(
+                  contextMenuBuilder: globalContextMenuBuilder,
+                  controller: _bodyEditController,
+                  maxLines: 10,
+                  minLines: 5,
+                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                  decoration: InputDecoration(
+                    fillColor: colours.tertiaryDark,
+                    filled: true,
+                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.all(spaceSM),
+                  ),
                 ),
               ),
             )

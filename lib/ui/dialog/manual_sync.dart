@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GitSync/ui/component/ai_wand_field.dart';
+import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/strings.dart';
@@ -167,34 +169,69 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                             // crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Expanded(
-                                child: TextField(
-                                  contextMenuBuilder: globalContextMenuBuilder,
-                                  controller: syncMessageController,
-                                  maxLines: null,
-                                  style: TextStyle(
-                                    color: colours.primaryLight,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.none,
-                                    decorationThickness: 0,
-                                    fontSize: textMD,
-                                  ),
-                                  decoration: InputDecoration(
-                                    fillColor: colours.secondaryDark,
-                                    filled: true,
-                                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                                    hintText: defaultSyncMessage,
-                                    isCollapsed: true,
-                                    label: Text(
-                                      t.commitMessage.toUpperCase(),
-                                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    ),
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                                    isDense: true,
-                                  ),
-                                  onChanged: (_) {
-                                    if (context.mounted) setState(() {});
+                                child: AiWandField(
+                                  multiline: true,
+                                  enabled: (stagedFilePathsSnapshot.data ?? []).isNotEmpty || (uncommittedFilePathsSnapshot.data ?? []).isNotEmpty,
+                                  onPressed: () async {
+                                    final staged = await stagedFilePaths;
+                                    final files = staged.isNotEmpty
+                                        ? staged
+                                        : (await uncommitedFilePaths);
+                                    const statusLabels = {0: 'added', 1: 'modified', 2: 'deleted', 3: 'added'};
+                                    final buffer = StringBuffer();
+                                    for (final (filePath, fileType) in files) {
+                                      final status = statusLabels[fileType] ?? 'changed';
+                                      buffer.writeln('File ($status): $filePath');
+                                      final diff = await GitManager.getWorkdirFileDiff(filePath);
+                                      if (diff != null) {
+                                        buffer.writeln('+${diff.insertions}/-${diff.deletions}');
+                                        for (final line in diff.lines) {
+                                          if (buffer.length > 4000) break;
+                                          if (line.origin == 'H') {
+                                            buffer.writeln(line.content);
+                                          } else {
+                                            buffer.writeln('${line.origin}${line.content}');
+                                          }
+                                        }
+                                      }
+                                      buffer.writeln();
+                                      if (buffer.length > 4000) break;
+                                    }
+                                    final result = await aiComplete(
+                                      systemPrompt: "Generate a concise git commit message for these changes. Use conventional commit format (type: description). Output only the commit message, nothing else.",
+                                      userPrompt: buffer.toString(),
+                                    );
+                                    if (result != null) syncMessageController.text = result.trim();
                                   },
+                                  child: TextField(
+                                    contextMenuBuilder: globalContextMenuBuilder,
+                                    controller: syncMessageController,
+                                    maxLines: null,
+                                    style: TextStyle(
+                                      color: colours.primaryLight,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.none,
+                                      decorationThickness: 0,
+                                      fontSize: textMD,
+                                    ),
+                                    decoration: InputDecoration(
+                                      fillColor: colours.secondaryDark,
+                                      filled: true,
+                                      border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
+                                      hintText: defaultSyncMessage,
+                                      isCollapsed: true,
+                                      label: Text(
+                                        t.commitMessage.toUpperCase(),
+                                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      ),
+                                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                      isDense: true,
+                                    ),
+                                    onChanged: (_) {
+                                      if (context.mounted) setState(() {});
+                                    },
+                                  ),
                                 ),
                               ),
                               if (clientModeEnabled) SizedBox(width: spaceSM),
@@ -349,7 +386,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                   final bool hasLineSelections =
                                                       !isWholeFileSelected && (lineSelections.containsKey(fileName) || isPartiallyStagedFile);
 
-                                                  (IconData, (Color, Color)) infoIcon = (
+                                                  (FaIconData, (Color, Color)) infoIcon = (
                                                     FontAwesomeIcons.solidSquarePlus,
                                                     (colours.tertiaryPositive, colours.primaryPositive),
                                                   );

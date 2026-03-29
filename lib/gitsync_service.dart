@@ -216,7 +216,7 @@ class GitsyncService {
         bool synced = false;
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
-        int? recommendedAction = await GitManager.getRecommendedAction(3);
+        int? recommendedAction = await GitManager.getRecommendedAction(priority: 3);
 
         if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) return;
 
@@ -253,7 +253,7 @@ class GitsyncService {
           return;
         }
 
-        recommendedAction = await GitManager.getRecommendedAction(3);
+        recommendedAction = await GitManager.getRecommendedAction(priority: 3);
         if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) return;
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
@@ -307,7 +307,7 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "Sync Complete!");
       }
 
-      await GitManager.getRecentCommits(3);
+      await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
       Logger.logError(LogType.SyncException, e, st);
     } finally {

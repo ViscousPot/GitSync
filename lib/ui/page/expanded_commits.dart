@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
@@ -56,6 +57,8 @@ class ExpandedCommits extends StatefulWidget {
 class _ExpandedCommitsState extends State<ExpandedCommits> {
   late final ScrollController _scrollController = ScrollController(initialScrollOffset: widget.initialScrollOffset);
   final ValueNotifier<List<ShowcaseFeature>> _pinnedFeatures = ValueNotifier(ShowcaseFeature.defaultPinned);
+  final ValueNotifier<Map<ShowcaseFeature, int?>> _featureCounts = ValueNotifier({});
+  bool _featureCountsLoading = false;
   final ValueNotifier<bool> _selectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _selectedShas = ValueNotifier({});
 
@@ -63,6 +66,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
   void initState() {
     super.initState();
     _loadPinnedFeatures();
+    _fetchFeatureCounts();
 
     if (widget.pendingFeature != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,6 +95,25 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
   Future<void> _loadPinnedFeatures() async {
     final keys = await uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures);
     _pinnedFeatures.value = ShowcaseFeature.fromStorageKeys(keys);
+  }
+
+  Future<void> _fetchFeatureCounts() async {
+    if (widget.remoteWebUrl == null || widget.gitProvider == null) return;
+    if (!widget.gitProvider!.isOAuthProvider || !widget.isAuthenticated) return;
+    setState(() => _featureCountsLoading = true);
+    final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+    final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
+    if (accessToken.isEmpty) { if (mounted) setState(() => _featureCountsLoading = false); return; }
+    final manager = GitProviderManager.getGitProviderManager(widget.gitProvider!, githubAppOauth);
+    if (manager == null) { if (mounted) setState(() => _featureCountsLoading = false); return; }
+    final segments = Uri.parse(widget.remoteWebUrl!).pathSegments;
+    final owner = segments[0];
+    final repo = segments[1].replaceAll(".git", "");
+    final counts = await manager.getFeatureCounts(accessToken, owner, repo);
+    if (mounted) {
+      _featureCounts.value = counts;
+      setState(() => _featureCountsLoading = false);
+    }
   }
 
   void _handlePinToggle(ShowcaseFeature feature) {
@@ -131,6 +154,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
   void dispose() {
     _scrollController.dispose();
     _pinnedFeatures.dispose();
+    _featureCounts.dispose();
     _selectMode.dispose();
     _selectedShas.dispose();
     super.dispose();
@@ -428,72 +452,79 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                 Container(
                                   decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                   padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                  child: ValueListenableBuilder<List<ShowcaseFeature>>(
-                                    valueListenable: _pinnedFeatures,
-                                    builder: (context, pinned, _) {
-                                      final features = ShowcaseFeature.availableFor(widget.gitProvider);
-                                      final rows = <Widget>[];
-                                      for (var i = 0; i < features.length; i += 2) {
-                                        final first = features[i];
-                                        final second = i + 1 < features.length ? features[i + 1] : null;
-                                        rows.add(
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Hero(
-                                                  tag: heroShowcaseFeature(first.storageKey),
-                                                  child: ShowcaseFeatureButton(
-                                                    feature: first,
-                                                    gitProvider: widget.gitProvider,
-                                                    isPinned: pinned.contains(first),
-                                                    onPinToggle: () => _handlePinToggle(first),
-                                                    onAdd: resolveFeatureOnAdd(
-                                                      context: context,
-                                                      feature: first,
-                                                      gitProvider: widget.gitProvider,
-                                                      remoteWebUrl: widget.remoteWebUrl,
-                                                    ),
-                                                    onPressed: resolveFeatureOnPressed(
-                                                      context: context,
-                                                      feature: first,
-                                                      gitProvider: widget.gitProvider,
-                                                      remoteWebUrl: widget.remoteWebUrl,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              if (second != null) ...[
-                                                SizedBox(width: spaceXS),
+                                  child: ValueListenableBuilder<Map<ShowcaseFeature, int?>>(
+                                    valueListenable: _featureCounts,
+                                    builder: (context, featureCounts, _) => ValueListenableBuilder<List<ShowcaseFeature>>(
+                                      valueListenable: _pinnedFeatures,
+                                      builder: (context, pinned, _) {
+                                        final features = ShowcaseFeature.availableFor(widget.gitProvider);
+                                        final rows = <Widget>[];
+                                        for (var i = 0; i < features.length; i += 2) {
+                                          final first = features[i];
+                                          final second = i + 1 < features.length ? features[i + 1] : null;
+                                          rows.add(
+                                            Row(
+                                              children: [
                                                 Expanded(
                                                   child: Hero(
-                                                    tag: heroShowcaseFeature(second.storageKey),
+                                                    tag: heroShowcaseFeature(first.storageKey),
                                                     child: ShowcaseFeatureButton(
-                                                      feature: second,
+                                                      feature: first,
                                                       gitProvider: widget.gitProvider,
-                                                      isPinned: pinned.contains(second),
-                                                      onPinToggle: () => _handlePinToggle(second),
+                                                      isPinned: pinned.contains(first),
+                                                      count: featureCounts[first],
+                                                      countLoading: _featureCountsLoading,
+                                                      onPinToggle: () => _handlePinToggle(first),
                                                       onAdd: resolveFeatureOnAdd(
                                                         context: context,
-                                                        feature: second,
+                                                        feature: first,
                                                         gitProvider: widget.gitProvider,
                                                         remoteWebUrl: widget.remoteWebUrl,
                                                       ),
                                                       onPressed: resolveFeatureOnPressed(
                                                         context: context,
-                                                        feature: second,
+                                                        feature: first,
                                                         gitProvider: widget.gitProvider,
                                                         remoteWebUrl: widget.remoteWebUrl,
                                                       ),
                                                     ),
                                                   ),
                                                 ),
+                                                if (second != null) ...[
+                                                  SizedBox(width: spaceXS),
+                                                  Expanded(
+                                                    child: Hero(
+                                                      tag: heroShowcaseFeature(second.storageKey),
+                                                      child: ShowcaseFeatureButton(
+                                                        feature: second,
+                                                        gitProvider: widget.gitProvider,
+                                                        isPinned: pinned.contains(second),
+                                                        count: featureCounts[second],
+                                                        countLoading: _featureCountsLoading,
+                                                        onPinToggle: () => _handlePinToggle(second),
+                                                        onAdd: resolveFeatureOnAdd(
+                                                          context: context,
+                                                          feature: second,
+                                                          gitProvider: widget.gitProvider,
+                                                          remoteWebUrl: widget.remoteWebUrl,
+                                                        ),
+                                                        onPressed: resolveFeatureOnPressed(
+                                                          context: context,
+                                                          feature: second,
+                                                          gitProvider: widget.gitProvider,
+                                                          remoteWebUrl: widget.remoteWebUrl,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ],
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                      return Column(children: rows);
-                                    },
+                                            ),
+                                          );
+                                        }
+                                        return Column(spacing: spaceXS, children: rows);
+                                      },
+                                    ),
                                   ),
                                 ),
                                 Positioned(

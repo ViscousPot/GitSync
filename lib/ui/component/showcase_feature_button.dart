@@ -22,6 +22,8 @@ class ShowcaseFeatureButton extends StatelessWidget {
     this.isPinned = false,
     this.onAdd,
     this.gitProvider,
+    this.count,
+    this.countLoading = false,
   });
 
   final ShowcaseFeature feature;
@@ -30,30 +32,88 @@ class ShowcaseFeatureButton extends StatelessWidget {
   final bool isPinned;
   final VoidCallback? onAdd;
   final GitProvider? gitProvider;
+  final int? count;
+  final bool countLoading;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: TextButton.icon(
-            onPressed: onPressed,
-            icon: FaIcon(feature.icon, color: colours.showcaseFeatureIcon, size: textMD),
-            label: SizedBox(
-              width: double.infinity,
-              child: Text(
-                feature.labelForProvider(gitProvider),
-                style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textSM, fontWeight: FontWeight.bold),
-              ),
+        GestureDetector(
+          onTap: onPressed,
+          child: Container(
+            decoration: BoxDecoration(
+              color: colours.showcaseBg,
+              borderRadius: BorderRadius.all(cornerRadiusSM),
+              border: Border.all(color: colours.showcaseBorder, width: spaceXXXXS),
             ),
-            style: TextButton.styleFrom(
-              backgroundColor: colours.showcaseBg,
-              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(cornerRadiusSM),
-                side: BorderSide(color: colours.showcaseBorder, width: spaceXXXXS),
+            clipBehavior: Clip.antiAlias,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(width: spaceSM),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: spaceSM),
+                    child: FaIcon(feature.icon, color: colours.showcaseFeatureIcon, size: textMD),
+                  ),
+                  SizedBox(width: spaceXXS),
+                  Expanded(
+                    child: Center(
+                      widthFactor: 1,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          feature.labelForProvider(gitProvider),
+                          style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textSM, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (countLoading && count == null) ...[
+                    SizedBox(width: spaceXXXS),
+                    Center(
+                      child: SizedBox(
+                        width: textXXS,
+                        height: textXXS,
+                        child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.showcaseFeatureIcon),
+                      ),
+                    ),
+                  ] else if (count != null && count! > 0) ...[
+                    SizedBox(width: spaceXXXS),
+                    Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: spaceXXXS + 1, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: colours.showcaseBorder,
+                          borderRadius: BorderRadius.all(cornerRadiusMax),
+                        ),
+                        child: Text(
+                          count! > 99 ? '99+' : '$count',
+                          style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textXXS, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                  SizedBox(width: spaceXXS),
+                  if (onAdd != null)
+                    AspectRatio(
+                      aspectRatio: 2.25 / 3,
+                      child: TextButton(
+                        onPressed: onAdd,
+                        style: TextButton.styleFrom(
+                          backgroundColor: colours.showcaseBorder,
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: const RoundedRectangleBorder(),
+                        ),
+                        child: FaIcon(FontAwesomeIcons.plus, color: colours.showcaseFeatureIcon, size: textSM),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -74,24 +134,6 @@ class ShowcaseFeatureButton extends StatelessWidget {
                     child: FaIcon(FontAwesomeIcons.thumbtack, color: isPinned ? colours.primaryDark : colours.tertiaryLight, size: textXXS),
                   ),
                 ),
-              ),
-            ),
-          ),
-        if (onAdd != null)
-          Positioned(
-            right: 0,
-            top: spaceXXS,
-            bottom: spaceXXS,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: TextButton(
-                onPressed: onAdd,
-                style: TextButton.styleFrom(
-                  backgroundColor: colours.showcaseBorder,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                ),
-                child: FaIcon(FontAwesomeIcons.plus, color: colours.showcaseFeatureIcon, size: textSM),
               ),
             ),
           ),

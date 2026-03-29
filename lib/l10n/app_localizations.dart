@@ -1810,11 +1810,11 @@ abstract class AppLocalizations {
   /// **'Automatically syncs periodically in the background'**
   String get scheduledSyncDescription;
 
-  /// No description provided for @sync.
+  /// No description provided for @tabHome.
   ///
   /// In en, this message translates to:
-  /// **'Sync'**
-  String get sync;
+  /// **'Home'**
+  String get tabHome;
 
   /// No description provided for @iosDefaultSyncRate.
   ///
@@ -4581,6 +4581,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Provider Tools'**
   String get providerTools;
+
+  /// No description provided for @tabChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get tabChat;
+
+  /// No description provided for @tabFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get tabFiles;
+
+  /// No description provided for @chatComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat features coming soon'**
+  String get chatComingSoon;
+
+  /// No description provided for @chatComingSoonSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interact with your files using Claude Code'**
+  String get chatComingSoonSubtitle;
+
+  /// No description provided for @noRepoSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a repository first'**
+  String get noRepoSetup;
+
+  /// No description provided for @aiSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Up AI'**
+  String get aiSetupTitle;
+
+  /// No description provided for @aiSetupMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure an AI provider to use this feature. Go to AI settings?'**
+  String get aiSetupMsg;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

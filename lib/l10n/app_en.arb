@@ -336,7 +336,7 @@
     "iosSyncOnAppOpened": "Sync on GitSync opened",
     "scheduledSyncSettings": "Scheduled Sync Settings",
     "scheduledSyncDescription": "Automatically syncs periodically in the background",
-    "sync": "Sync",
+    "tabHome": "Home",
     "iosDefaultSyncRate": "when iOS allows",
     "every": "every",
     "scheduledSync": "Scheduled Sync",
@@ -859,5 +859,16 @@
     "@@x-EXPANDED_COMMITS": "",
     "recentCommits": "Recent Commits",
     "branchManagement": "Branch Management",
-    "providerTools": "Provider Tools"
+    "providerTools": "Provider Tools",
+
+    "@@x-BOTTOM_NAV": "",
+    "tabChat": "Chat",
+    "tabFiles": "Files",
+    "chatComingSoon": "Chat features coming soon",
+    "chatComingSoonSubtitle": "Interact with your files using Claude Code",
+    "noRepoSetup": "Set up a repository first",
+
+    "@@x-AI": "",
+    "aiSetupTitle": "Set Up AI",
+    "aiSetupMsg": "Configure an AI provider to use this feature. Go to AI settings?"
 }

@@ -9,6 +9,7 @@ import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/type/pr_detail.dart';
 import 'package:GitSync/type/pull_request.dart';
 import 'package:GitSync/type/release.dart';
+import 'package:GitSync/type/showcase_feature.dart';
 import 'package:GitSync/type/tag.dart';
 
 import '../../manager/auth/git_provider_manager.dart';
@@ -522,6 +523,34 @@ class GitlabManager extends GitProviderManager {
       updateCallback([]);
       nextPageCallback(null);
     }
+  }
+
+  @override
+  Future<Map<ShowcaseFeature, int?>> getFeatureCounts(String accessToken, String owner, String repo, [List<ShowcaseFeature>? features]) async {
+    final counts = <ShowcaseFeature, int?>{};
+    final requested = features ?? ShowcaseFeature.values;
+    final headers = {"Authorization": "Bearer $accessToken"};
+    final base = "https://$_domain/api/v4/projects/$owner%2F$repo";
+
+    int? parseTotal(dynamic response) => response.statusCode == 200 ? int.tryParse(response.headers["x-total"] ?? "") : null;
+
+    try {
+      final futures = <ShowcaseFeature, Future>{};
+      if (requested.contains(ShowcaseFeature.issues)) futures[ShowcaseFeature.issues] = httpGet(Uri.parse("$base/issues?state=opened&per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.pullRequests)) futures[ShowcaseFeature.pullRequests] = httpGet(Uri.parse("$base/merge_requests?state=opened&per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.tags)) futures[ShowcaseFeature.tags] = httpGet(Uri.parse("$base/repository/tags?per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.releases)) futures[ShowcaseFeature.releases] = httpGet(Uri.parse("$base/releases?per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.actions)) futures[ShowcaseFeature.actions] = httpGet(Uri.parse("$base/pipelines?per_page=1"), headers: headers);
+
+      final results = await Future.wait(futures.values);
+      final keys = futures.keys.toList();
+      for (var i = 0; i < keys.length; i++) {
+        counts[keys[i]] = parseTotal(results[i]);
+      }
+    } catch (e, st) {
+      Logger.logError(LogType.GetFeatureCounts, e, st);
+    }
+    return counts;
   }
 
   @override

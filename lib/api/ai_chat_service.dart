@@ -1,0 +1,509 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:GitSync/api/ai_provider_validator.dart';
+import 'package:GitSync/api/ai_stream_client.dart';
+import 'package:GitSync/api/ai_system_prompt.dart';
+import 'package:GitSync/api/ai_tool_executor.dart';
+import 'package:GitSync/api/ai_tools.dart';
+import 'package:GitSync/api/ai_tools_file.dart';
+import 'package:GitSync/api/ai_tools_git.dart';
+import 'package:GitSync/api/ai_tools_provider.dart';
+import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
+import 'package:GitSync/api/manager/storage.dart';
+import 'package:GitSync/global.dart';
+import 'package:GitSync/type/ai_chat.dart';
+
+const _maxToolRounds = 25;
+
+class _RepoConversation {
+  List<ChatMessage> messages = [];
+  TokenUsage sessionUsage = const TokenUsage(0, 0);
+  TokenUsage lastTurnUsage = const TokenUsage(0, 0);
+  int messageCounter = 0;
+  Set<String> activatedTools = {};
+
+  bool isStreaming = false;
+  String streamingText = '';
+  String? error;
+  bool cancelled = false;
+
+  String nextId() => 'msg_${messageCounter++}_${DateTime.now().millisecondsSinceEpoch}';
+
+  Map<String, dynamic> toJson() => {
+    'messages': messages.map((m) => m.toJson()).toList(),
+    'sessionUsage': {'input': sessionUsage.inputTokens, 'output': sessionUsage.outputTokens},
+    'lastTurnUsage': {'input': lastTurnUsage.inputTokens, 'output': lastTurnUsage.outputTokens},
+    'messageCounter': messageCounter,
+    'activatedTools': activatedTools.toList(),
+  };
+
+  static _RepoConversation fromJson(Map<String, dynamic> json) {
+    final conv = _RepoConversation();
+    conv.messages = (json['messages'] as List?)?.map((m) => ChatMessage.fromJson(m)).toList() ?? [];
+    final su = json['sessionUsage'] as Map<String, dynamic>?;
+    if (su != null) conv.sessionUsage = TokenUsage(su['input'] ?? 0, su['output'] ?? 0);
+    final ltu = json['lastTurnUsage'] as Map<String, dynamic>?;
+    if (ltu != null) conv.lastTurnUsage = TokenUsage(ltu['input'] ?? 0, ltu['output'] ?? 0);
+    conv.messageCounter = json['messageCounter'] ?? conv.messages.length;
+    conv.activatedTools = (json['activatedTools'] as List?)?.cast<String>().toSet() ?? {};
+    return conv;
+  }
+}
+
+class AiChatService {
+  final ValueNotifier<List<ChatMessage>> messages = ValueNotifier([]);
+  final ValueNotifier<bool> isStreaming = ValueNotifier(false);
+  final ValueNotifier<String> streamingText = ValueNotifier('');
+  final ValueNotifier<TokenUsage> sessionUsage = ValueNotifier(const TokenUsage(0, 0));
+  final ValueNotifier<TokenUsage> lastTurnUsage = ValueNotifier(const TokenUsage(0, 0));
+  final ValueNotifier<String?> error = ValueNotifier(null);
+
+
+  final ToolRegistry _toolRegistry = ToolRegistry();
+  late final ToolExecutor _toolExecutor;
+
+  Future<bool> Function(AiTool tool, Map<String, dynamic> input)? onConfirmationRequired;
+
+  final Map<int, _RepoConversation> _conversations = {};
+  int _activeRepoIndex = -1;
+
+  AiChatService() {
+    _toolRegistry.registerAll(allGitTools());
+    _toolRegistry.registerAll(allFileTools());
+    _toolRegistry.registerAll(allProviderTools());
+    _toolRegistry.register(ListAvailableToolsTool(_toolRegistry));
+    _toolExecutor = ToolExecutor(
+      registry: _toolRegistry,
+      onConfirmationRequired: (tool, input) async {
+        if (onConfirmationRequired != null) return onConfirmationRequired!(tool, input);
+        return false;
+      },
+    );
+  }
+
+  _RepoConversation _convFor(int index) {
+    return _conversations.putIfAbsent(index, () => _RepoConversation());
+  }
+
+  _RepoConversation _conv() => _convFor(_activeRepoIndex);
+
+  Future<void> switchToRepo() async {
+    final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
+    if (index == _activeRepoIndex) return;
+    _activeRepoIndex = index;
+    if (!_conversations.containsKey(index)) {
+      await _loadFromDisk(index);
+    }
+    _syncNotifiers();
+  }
+
+  void _syncNotifiers() {
+    final conv = _conv();
+    messages.value = conv.messages;
+    sessionUsage.value = conv.sessionUsage;
+    lastTurnUsage.value = conv.lastTurnUsage;
+    isStreaming.value = conv.isStreaming;
+    streamingText.value = conv.streamingText;
+    error.value = conv.error;
+  }
+
+  void _syncIfActive(int repoIndex) {
+    if (repoIndex == _activeRepoIndex) _syncNotifiers();
+  }
+
+
+  Future<void> clearConversation() async {
+    final conv = _conv();
+    conv.cancelled = true;
+    _conversations.remove(_activeRepoIndex);
+    await _deleteDiskFile(_activeRepoIndex);
+    _syncNotifiers();
+  }
+
+  void stop() {
+    _conv().cancelled = true;
+  }
+
+  Future<void> sendMessage(String text) async {
+    if (text.trim().isEmpty) return;
+
+    await switchToRepo();
+    final repoIndex = _activeRepoIndex;
+    final conv = _convFor(repoIndex);
+
+    conv.cancelled = false;
+    conv.error = null;
+
+    final userMsg = ChatMessage(
+      id: conv.nextId(),
+      role: ChatRole.user,
+      content: [TextBlock(text)],
+    );
+    conv.messages = [...conv.messages, userMsg];
+    _syncIfActive(repoIndex);
+    _saveToDisk(repoIndex);
+
+    final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
+    final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
+    final endpoint = await repoManager.getStringNullable(StorageKey.repoman_aiEndpoint);
+    final storedModel = await repoManager.getStringNullable(StorageKey.repoman_aiModel);
+
+    if (providerName == null || apiKey == null || apiKey.isEmpty) {
+      conv.error = 'AI not configured. Set up your API key first.';
+      _syncIfActive(repoIndex);
+      return;
+    }
+
+    final provider = aiProviderFromString(providerName);
+    if (provider == null) {
+      conv.error = 'Unknown provider: $providerName';
+      _syncIfActive(repoIndex);
+      return;
+    }
+
+    if (storedModel == null || storedModel.isEmpty) {
+      conv.error = 'No model selected. Please configure a model in AI Settings.';
+      _syncIfActive(repoIndex);
+      return;
+    }
+    final model = storedModel;
+
+    final gitProvider = await uiSettingsManager.getGitProvider();
+    final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+    final credentials = await uiSettingsManager.getGitHttpAuthCredentials();
+    final remote = await GitManager.getRemoteUrlLink(repoIndex: repoIndex);
+    final segments = remote != null ? Uri.parse(remote.$1).pathSegments : <String>[];
+    final toolContext = ToolContext(
+      repoIndex: repoIndex,
+      repoPath: uiSettingsManager.gitDirPath?.$1 ?? '',
+      gitProvider: gitProvider,
+      githubAppOauth: githubAppOauth,
+      accessToken: credentials.$2,
+      username: credentials.$1,
+      owner: segments.length >= 2 ? segments[segments.length - 2] : '',
+      repo: segments.length >= 2 ? segments[segments.length - 1].replaceAll('.git', '') : '',
+      providerManager: gitProvider.isOAuthProvider ? GitProviderManager.getGitProviderManager(gitProvider, githubAppOauth) : null,
+      authorName: await uiSettingsManager.getAuthorName(),
+      authorEmail: await uiSettingsManager.getAuthorEmail(),
+    );
+
+    final systemPrompt = await buildSystemPrompt(repoIndex: repoIndex);
+
+    await _runAgenticLoop(repoIndex, toolContext, provider, apiKey, model, endpoint, systemPrompt);
+  }
+
+  Future<void> _runAgenticLoop(
+    int repoIndex,
+    ToolContext toolContext,
+    AiProvider provider,
+    String apiKey,
+    String model,
+    String? endpoint,
+    String systemPrompt,
+  ) async {
+    final conv = _convFor(repoIndex);
+    conv.isStreaming = true;
+    _syncIfActive(repoIndex);
+
+    final hasOAuth = toolContext.providerManager != null && toolContext.accessToken.isNotEmpty;
+
+    try {
+      for (var round = 0; round < _maxToolRounds; round++) {
+        if (conv.cancelled) break;
+
+        final apiMessages = _buildApiMessages(provider, conv.messages);
+        final filteredTools = _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: conv.activatedTools);
+        conv.streamingText = '';
+        _syncIfActive(repoIndex);
+
+        final contentBlocks = <ContentBlock>[];
+        var currentTextBlock = TextBlock('');
+        contentBlocks.add(currentTextBlock);
+
+        final toolCallBuilders = <String, _ToolCallBuilder>{};
+        var turnInputTokens = 0;
+        var turnOutputTokens = 0;
+
+        await for (final event in streamCompletion(
+          provider: provider,
+          systemPrompt: systemPrompt,
+          messages: apiMessages,
+          tools: filteredTools,
+          apiKey: apiKey,
+          model: model,
+          endpoint: endpoint,
+          isCancelled: () => conv.cancelled,
+        )) {
+          if (conv.cancelled) break;
+
+          switch (event) {
+            case TextDelta(:final text):
+              currentTextBlock.text += text;
+              conv.streamingText = currentTextBlock.text;
+              _syncIfActive(repoIndex);
+
+            case ToolCallStart(:final id, :final name):
+              toolCallBuilders[id] = _ToolCallBuilder(id: id, name: name);
+              if (currentTextBlock.text.isNotEmpty) {
+                currentTextBlock = TextBlock('');
+                contentBlocks.add(currentTextBlock);
+              }
+
+            case ToolCallInputDelta(:final id, :final jsonFragment):
+              toolCallBuilders[id]?.argsBuffer.write(jsonFragment);
+
+            case ToolCallEnd(:final id):
+              final builder = toolCallBuilders[id];
+              if (builder != null && builder.name.isNotEmpty) {
+                Map<String, dynamic> args = {};
+                try {
+                  args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
+                } catch (_) {}
+                contentBlocks.add(ToolUseBlock(
+                  toolCallId: builder.id,
+                  toolName: builder.name,
+                  input: args,
+                ));
+                currentTextBlock = TextBlock('');
+                contentBlocks.add(currentTextBlock);
+              }
+
+            case UsageUpdate(:final usage):
+              turnInputTokens += usage.inputTokens;
+              turnOutputTokens += usage.outputTokens;
+
+            case StreamComplete _:
+              break;
+
+            case StreamError(:final message):
+              conv.error = message;
+              _syncIfActive(repoIndex);
+          }
+        }
+
+        contentBlocks.removeWhere((b) => b is TextBlock && b.text.isEmpty);
+        if (contentBlocks.isEmpty) contentBlocks.add(TextBlock(''));
+
+        for (final entry in toolCallBuilders.entries) {
+          final builder = entry.value;
+          if (builder.name.isNotEmpty && !contentBlocks.any((b) => b is ToolUseBlock && b.toolCallId == builder.id)) {
+            Map<String, dynamic> args = {};
+            try {
+              args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
+            } catch (_) {}
+            contentBlocks.add(ToolUseBlock(
+              toolCallId: builder.id,
+              toolName: builder.name,
+              input: args,
+            ));
+          }
+        }
+
+        final turnUsage = TokenUsage(turnInputTokens, turnOutputTokens);
+        conv.lastTurnUsage = turnUsage;
+        conv.sessionUsage = conv.sessionUsage + turnUsage;
+    
+        final assistantMsg = ChatMessage(
+          id: conv.nextId(),
+          role: ChatRole.assistant,
+          content: contentBlocks,
+          usage: turnUsage,
+        );
+        conv.messages = [...conv.messages, assistantMsg];
+        conv.streamingText = '';
+        _syncIfActive(repoIndex);
+        _saveToDisk(repoIndex);
+
+        final toolCalls = assistantMsg.toolCalls;
+        if (toolCalls.isEmpty || conv.cancelled) break;
+
+        for (final toolCall in toolCalls) {
+          if (conv.cancelled) break;
+
+          final tool = _toolRegistry.get(toolCall.toolName);
+          if (tool != null && tool.tier == ToolTier.advanced) {
+            conv.activatedTools.add(toolCall.toolName);
+          }
+
+          final result = await _toolExecutor.execute(toolCall, toolContext);
+
+          final toolResultMsg = ChatMessage(
+            id: conv.nextId(),
+            role: ChatRole.tool,
+            content: [TextBlock(result)],
+          );
+          conv.messages = [...conv.messages, toolResultMsg];
+          _syncIfActive(repoIndex);
+          _saveToDisk(repoIndex);
+        }
+
+        if (toolCalls.every((tc) => tc.status == ToolCallStatus.rejected)) break;
+      }
+    } catch (e) {
+      conv.error = e.toString();
+      _syncIfActive(repoIndex);
+    } finally {
+      conv.isStreaming = false;
+      conv.streamingText = '';
+      _syncIfActive(repoIndex);
+      _saveToDisk(repoIndex);
+    }
+  }
+
+  Future<String> _chatDir() async {
+    final dir = await getApplicationSupportDirectory();
+    return '${dir.path}/ai_chats';
+  }
+
+  Future<void> _saveToDisk(int repoIndex) async {
+    try {
+      final dir = await _chatDir();
+      await Directory(dir).create(recursive: true);
+      final file = File('$dir/$repoIndex.json');
+      final conv = _convFor(repoIndex);
+      await file.writeAsString(jsonEncode(conv.toJson()));
+    } catch (e) {
+      print('[AI Chat] Failed to save: $e');
+    }
+  }
+
+  Future<void> _loadFromDisk(int repoIndex) async {
+    try {
+      final dir = await _chatDir();
+      final file = File('$dir/$repoIndex.json');
+      if (!await file.exists()) return;
+      final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      _conversations[repoIndex] = _RepoConversation.fromJson(json);
+    } catch (e) {
+      print('[AI Chat] Failed to load: $e');
+    }
+  }
+
+  Future<void> _deleteDiskFile(int repoIndex) async {
+    try {
+      final dir = await _chatDir();
+      final file = File('$dir/$repoIndex.json');
+      if (await file.exists()) await file.delete();
+    } catch (e) {
+      print('[AI Chat] Failed to delete disk file: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> _buildApiMessages(AiProvider provider, List<ChatMessage> msgs) {
+    final apiMessages = <Map<String, dynamic>>[];
+
+    for (final msg in msgs) {
+      switch (msg.role) {
+        case ChatRole.user:
+          apiMessages.add({'role': 'user', 'content': msg.textContent});
+
+        case ChatRole.assistant:
+          if (provider == AiProvider.anthropic) {
+            apiMessages.add(_anthropicAssistantMessage(msg));
+          } else if (provider == AiProvider.google) {
+            apiMessages.add(_googleAssistantMessage(msg));
+          } else {
+            apiMessages.add(_openaiAssistantMessage(msg));
+          }
+
+        case ChatRole.tool:
+          final toolCall = _findToolCallForResult(msg, msgs);
+          if (provider == AiProvider.anthropic) {
+            apiMessages.add({
+              'role': 'user',
+              'content': [{'type': 'tool_result', 'tool_use_id': toolCall?.toolCallId ?? '', 'content': msg.textContent}],
+            });
+          } else if (provider == AiProvider.google) {
+            apiMessages.add({
+              'role': 'function',
+              'parts': [{'functionResponse': {'name': toolCall?.toolName ?? '', 'response': {'result': msg.textContent}}}],
+            });
+          } else {
+            apiMessages.add({
+              'role': 'tool',
+              'tool_call_id': toolCall?.toolCallId ?? '',
+              'content': msg.textContent,
+            });
+          }
+      }
+    }
+    return apiMessages;
+  }
+
+  Map<String, dynamic> _anthropicAssistantMessage(ChatMessage msg) {
+    final content = <Map<String, dynamic>>[];
+    for (final block in msg.content) {
+      if (block is TextBlock && block.text.isNotEmpty) {
+        content.add({'type': 'text', 'text': block.text});
+      } else if (block is ToolUseBlock) {
+        content.add({'type': 'tool_use', 'id': block.toolCallId, 'name': block.toolName, 'input': block.input});
+      }
+    }
+    if (content.isEmpty) content.add({'type': 'text', 'text': ''});
+    return {'role': 'assistant', 'content': content};
+  }
+
+  Map<String, dynamic> _openaiAssistantMessage(ChatMessage msg) {
+    final toolCalls = msg.toolCalls;
+    final text = msg.textContent;
+    final result = <String, dynamic>{'role': 'assistant'};
+    if (text.isNotEmpty) result['content'] = text;
+    if (toolCalls.isNotEmpty) {
+      result['tool_calls'] = toolCalls.map((tc) => {
+        'id': tc.toolCallId,
+        'type': 'function',
+        'function': {'name': tc.toolName, 'arguments': jsonEncode(tc.input)},
+      }).toList();
+    }
+    if (text.isEmpty && toolCalls.isEmpty) result['content'] = '';
+    return result;
+  }
+
+  Map<String, dynamic> _googleAssistantMessage(ChatMessage msg) {
+    final parts = <Map<String, dynamic>>[];
+    for (final block in msg.content) {
+      if (block is TextBlock && block.text.isNotEmpty) {
+        parts.add({'text': block.text});
+      } else if (block is ToolUseBlock) {
+        parts.add({'functionCall': {'name': block.toolName, 'args': block.input}});
+      }
+    }
+    if (parts.isEmpty) parts.add({'text': ''});
+    return {'role': 'model', 'parts': parts};
+  }
+
+  ToolUseBlock? _findToolCallForResult(ChatMessage toolResultMsg, List<ChatMessage> msgs) {
+    final idx = msgs.indexOf(toolResultMsg);
+    if (idx < 0) return null;
+
+    var toolResultCount = 0;
+    for (var i = idx - 1; i >= 0; i--) {
+      final m = msgs[i];
+      if (m.role == ChatRole.tool) {
+        toolResultCount++;
+      } else if (m.role == ChatRole.assistant) {
+        final calls = m.toolCalls;
+        if (toolResultCount < calls.length) {
+          return calls[toolResultCount];
+        }
+        return calls.isNotEmpty ? calls.last : null;
+      } else {
+        break;
+      }
+    }
+    return null;
+  }
+
+}
+
+class _ToolCallBuilder {
+  final String id;
+  final String name;
+  final StringBuffer argsBuffer = StringBuffer();
+  _ToolCallBuilder({required this.id, required this.name});
+}

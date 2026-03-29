@@ -2,7 +2,10 @@ import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
 import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
+import 'package:GitSync/api/ai_completion_service.dart';
+import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/ai_wand_field.dart';
 
 Future<void> showDialog(BuildContext context, String commitSha, String commitMessage, Future<void> Function(String newMessage) callback) {
   bool loading = false;
@@ -36,19 +39,34 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                 ),
               ),
               SizedBox(height: spaceSM),
-              TextField(
-                controller: controller,
-                maxLines: 3,
-                style: TextStyle(color: colours.primaryLight, fontSize: textSM),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                    borderSide: BorderSide(color: colours.tertiaryDark),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                    borderSide: BorderSide(color: colours.tertiaryInfo),
+              AiWandField(
+                multiline: true,
+                onPressed: () async {
+                  final diff = await GitManager.getCommitDiff(commitSha, '$commitSha^');
+                  final diffText = diff != null ? formatDiffParts(diff.diffParts) : '';
+                  final prompt = "Commit ${commitSha.substring(0, 7)}:\n"
+                      "Current message: ${controller.text}\n\n"
+                      "Changes (+${diff?.insertions ?? 0}/-${diff?.deletions ?? 0}):\n$diffText";
+                  final result = await aiComplete(
+                    systemPrompt: "Improve this git commit message based on the actual changes. Use conventional commit format. Output only the improved message, nothing else.",
+                    userPrompt: prompt,
+                  );
+                  if (result != null) controller.text = result.trim();
+                },
+                child: TextField(
+                  controller: controller,
+                  maxLines: 3,
+                  style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      borderSide: BorderSide(color: colours.tertiaryDark),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      borderSide: BorderSide(color: colours.tertiaryInfo),
+                    ),
                   ),
                 ),
               ),

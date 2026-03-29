@@ -159,7 +159,7 @@ class ShowcaseTooltipContent extends StatelessWidget {
 class ShowcaseFeatureRow extends StatelessWidget {
   const ShowcaseFeatureRow({super.key, required this.icon, required this.text});
 
-  final IconData icon;
+  final FaIconData icon;
   final String text;
 
   @override
