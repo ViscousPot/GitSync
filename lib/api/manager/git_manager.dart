@@ -66,10 +66,13 @@ extension CommitJson on GitManagerRs.Commit {
   }
 }
 
+class OperationNotExecuted implements Exception {}
+
 Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? event) transformer, [Map<String, dynamic>? arg]) async {
   if (!await FlutterBackgroundService().isRunning()) await FlutterBackgroundService().startService();
+  final future = FlutterBackgroundService().on(type.name).first;
   FlutterBackgroundService().invoke(type.name, arg);
-  final event = await FlutterBackgroundService().on(type.name).first;
+  final event = await future;
   return transformer(event);
 }
 
@@ -112,8 +115,10 @@ class GitManager {
     String? dirPath = null,
   }) async {
     final fnName = type.name;
+    var actionCalled = false;
 
     Future<T?> action() async {
+      actionCalled = true;
       Future<T?> internalFn(dirPath) async {
         try {
           final result = await fn(dirPath);
@@ -170,14 +175,17 @@ class GitManager {
     }
 
     try {
-      return await typedRunWithLock!(
+      final result = await typedRunWithLock!(
         queueDir: (await getApplicationSupportDirectory()).path,
         index: index,
         priority: priority,
         fnName: fnName,
         function: action,
       );
+      if (!actionCalled) throw OperationNotExecuted();
+      return result;
     } catch (e, stackTrace) {
+      if (e is OperationNotExecuted) rethrow;
       Logger.logError(type, e, stackTrace);
     }
     return null;
