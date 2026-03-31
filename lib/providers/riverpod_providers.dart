@@ -38,6 +38,21 @@ class BranchNameNotifier extends CachedGitNotifier<String?> {
   Future<String?> fetchLive() => runGitOperation<String?>(LogType.BranchName, (event) => event?["result"]);
 }
 
-final branchNameProvider = AsyncNotifierProvider<BranchNameNotifier, String?>(
-  BranchNameNotifier.new,
-);
+final branchNameProvider = AsyncNotifierProvider<BranchNameNotifier, String?>(BranchNameNotifier.new);
+
+class RemoteUrlLinkNotifier extends CachedGitNotifier<(String, String)?> {
+  @override
+  Future<(String, String)?> readCache() async {
+    final cached = await uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink);
+    if (cached.isEmpty) return null;
+    return (cached.first, cached.last);
+  }
+
+  @override
+  Future<(String, String)?> fetchLive() => runGitOperation<(String, String)?>(
+    LogType.GetRemoteUrlLink,
+    (event) => event == null || event["result"] == null ? null : (event["result"][0] as String, event["result"][1] as String),
+  );
+}
+
+final remoteUrlLinkProvider = AsyncNotifierProvider<RemoteUrlLinkNotifier, (String, String)?>(RemoteUrlLinkNotifier.new);
