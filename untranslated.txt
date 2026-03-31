@@ -1,4 +1,8 @@
 {
+  "ar": [
+    "globalSettings"
+  ],
+
   "de": [
     "previous",
     "next",
