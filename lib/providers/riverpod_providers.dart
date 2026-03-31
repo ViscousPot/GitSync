@@ -241,3 +241,27 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
 
 final recentCommitsProvider =
     AsyncNotifierProvider<RecentCommitsNotifier, List<GitManagerRs.Commit>>(RecentCommitsNotifier.new);
+
+class RecommendedActionNotifier extends CachedGitNotifier<int?> {
+  @override
+  Future<int?> readCache() => uiSettingsManager.getIntNullable(StorageKey.setman_recommendedAction);
+
+  @override
+  Future<int?> fetchLive() => runGitOperation<int?>(LogType.RecommendedAction, (event) => event?["result"]);
+
+  @override
+  Future<void> writeCache(int? value) => uiSettingsManager.setIntNullable(StorageKey.setman_recommendedAction, value);
+
+  Future<int?> refresh() async {
+    try {
+      final live = await fetchLive();
+      state = AsyncData(live);
+      await writeCache(live);
+      return live;
+    } catch (_) {
+      return state.valueOrNull;
+    }
+  }
+}
+
+final recommendedActionProvider = AsyncNotifierProvider<RecommendedActionNotifier, int?>(RecommendedActionNotifier.new);

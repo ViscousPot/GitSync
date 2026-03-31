@@ -900,10 +900,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(hasGitFiltersProvider);
     ref.invalidate(conflictingFilesProvider);
     ref.invalidate(recentCommitsProvider);
+    ref.invalidate(recommendedActionProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
-    await updateRecommendedAction();
+    await updateSyncOptions();
     if (mounted) setState(() {});
   }
 
@@ -1012,13 +1013,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             queueValue.value = [];
           }
         });
-      }
-    });
-
-    initAsync(() async {
-      final cachedAction = await GitManager.getInitialRecommendedAction();
-      if (cachedAction != null && recommendedAction.value == null) {
-        recommendedAction.value = cachedAction;
       }
     });
 
@@ -1141,7 +1135,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     await ManualSyncDialog.showDialog(context, hasRemotes: (ref.read(listRemotesProvider).valueOrNull ?? []).isNotEmpty);
   }
 
-  Future<void> updateRecommendedAction({int? override, bool useOverride = false}) async {
+  Future<void> updateRecommendedAction({int? override}) async {
     if (!await uiSettingsManager.getClientModeEnabled()) {
       await updateSyncOptions();
       return;
@@ -1149,17 +1143,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     autoRefreshTimer?.cancel();
     final startTime = DateTime.now();
     updatingRecommendedAction.value = true;
-    if (useOverride) {
-      recommendedAction.value = override;
-      updatingRecommendedAction.value = false;
-      await updateSyncOptions();
-      _scheduleNextRecommendedAction(startTime);
-      return;
+    if (override != null) {
+      ref.read(recommendedActionProvider.notifier).set(override);
+    } else {
+      await ref.read(recommendedActionProvider.notifier).refresh();
     }
-
-    recommendedAction.value = await runGitOperation<int?>(LogType.RecommendedAction, (event) {
-      return event?["result"];
-    });
     updatingRecommendedAction.value = false;
     await updateSyncOptions();
     _scheduleNextRecommendedAction(startTime);
@@ -1277,17 +1265,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     }
   }
 
-  ValueNotifier<int?> recommendedAction = ValueNotifier(null);
   ValueNotifier<bool> updatingRecommendedAction = ValueNotifier(false);
-  Future<String> getLastSyncOption() async {
+  Future<String> getLastSyncOption(int? recommendedActionValue) async {
     if (await uiSettingsManager.getClientModeEnabled() == true) {
-      if (recommendedAction.value != null && recommendedAction.value! >= 0) {
+      if (recommendedActionValue != null && recommendedActionValue >= 0) {
         return [
           sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]),
           t.pullChanges,
           t.stageAndCommit,
           t.pushChanges,
-        ][recommendedAction.value!];
+        ][recommendedActionValue];
       }
     }
     return await uiSettingsManager.getString(StorageKey.setman_lastSyncMethod);
@@ -1361,8 +1348,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           FontAwesomeIcons.caretDown,
           () async {
             await runGitOperation(LogType.FetchRemote, (event) => event);
-            if (recommendedAction.value == 0) {
-              await updateRecommendedAction(override: 1, useOverride: true);
+            if (ref.read(recommendedActionProvider).valueOrNull == 0) {
+              await updateRecommendedAction(override: 1);
             }
             await syncOptionCompletionCallback();
           },
@@ -1400,8 +1387,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           FontAwesomeIcons.angleDown,
           () async {
             await runGitOperation(LogType.PullFromRepo, (event) => event);
-            if (recommendedAction.value == 1) {
-              await updateRecommendedAction(override: -1, useOverride: true);
+            if (ref.read(recommendedActionProvider).valueOrNull == 1) {
+              await updateRecommendedAction(override: -1);
             }
             await syncOptionCompletionCallback();
           },
@@ -1411,8 +1398,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           FontAwesomeIcons.barsStaggered,
           () async {
             final committed = await ManualSyncDialog.showDialog(context, hasRemotes: (ref.read(listRemotesProvider).valueOrNull ?? []).isNotEmpty);
-            if (committed && recommendedAction.value == 2) {
-              await updateRecommendedAction(override: 3, useOverride: true);
+            if (committed && ref.read(recommendedActionProvider).valueOrNull == 2) {
+              await updateRecommendedAction(override: 3);
             }
             await syncOptionCompletionCallback();
           },
@@ -1445,8 +1432,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           FontAwesomeIcons.angleUp,
           () async {
             await runGitOperation(LogType.PushToRepo, (event) => event);
-            if (recommendedAction.value == 3) {
-              await updateRecommendedAction(override: -1, useOverride: true);
+            if (ref.read(recommendedActionProvider).valueOrNull == 3) {
+              await updateRecommendedAction(override: -1);
             }
             await syncOptionCompletionCallback();
           },
@@ -2657,10 +2644,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                       SizedBox(height: spaceSM),
                                                       ValueListenableBuilder(
                                                         valueListenable: syncOptions,
-                                                        builder: (context, syncOptionsSnapshot, child) => ValueListenableBuilder(
-                                                          valueListenable: recommendedAction,
-                                                          builder: (context, recommendedActionValue, _) => FutureBuilder(
-                                                            future: getLastSyncOption(),
+                                                        builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
+                                                          provider: recommendedActionProvider,
+                                                          builder: (context, recommendedActionValue) => FutureBuilder(
+                                                            future: getLastSyncOption(recommendedActionValue),
                                                             builder: (context, lastSyncMethodSnapshot) => Column(
                                                               children: [
                                                                 IntrinsicHeight(
@@ -3704,7 +3691,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ref.read(remoteUrlLinkProvider.notifier).set(null);
                                                                               ref.read(listRemotesProvider.notifier).set([]);
                                                                               currentGitProvider.value = null;
-                                                                              recommendedAction.value = null;
+                                                                              ref.read(recommendedActionProvider.notifier).set(null);
                                                                               ref.read(branchNamesProvider.notifier).set({});
                                                                               ref.read(hasGitFiltersProvider.notifier).set(false);
                                                                               ref.read(recentCommitsProvider.notifier).set([]);
