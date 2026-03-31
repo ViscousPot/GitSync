@@ -7,6 +7,7 @@ import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
+import 'package:GitSync/type/git_provider.dart';
 
 abstract class SettingNotifier<T> extends AsyncNotifier<T> {
   Future<T> read();
@@ -298,3 +299,93 @@ class LastSyncMethodNotifier extends SettingNotifier<String> {
 }
 
 final lastSyncMethodProvider = AsyncNotifierProvider<LastSyncMethodNotifier, String>(LastSyncMethodNotifier.new);
+
+class ClientModeEnabledNotifier extends SettingNotifier<bool> {
+  @override
+  Future<bool> read() => uiSettingsManager.getClientModeEnabled();
+
+  @override
+  Future<void> write(bool value) => uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, value);
+}
+
+final clientModeEnabledProvider = AsyncNotifierProvider<ClientModeEnabledNotifier, bool>(ClientModeEnabledNotifier.new);
+
+class GitProviderNotifier extends SettingNotifier<GitProvider> {
+  @override
+  Future<GitProvider> read() => uiSettingsManager.getGitProvider();
+
+  @override
+  Future<void> write(GitProvider value) => uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, value.name);
+}
+
+final gitProviderProvider = AsyncNotifierProvider<GitProviderNotifier, GitProvider>(GitProviderNotifier.new);
+
+class PostFooterNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getPostFooter();
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setStringNullable(StorageKey.setman_postFooter, value);
+
+  void clear() {
+    uiSettingsManager.setStringNullable(StorageKey.setman_postFooter, null);
+    ref.invalidateSelf();
+  }
+}
+
+final postFooterProvider = AsyncNotifierProvider<PostFooterNotifier, String>(PostFooterNotifier.new);
+
+class AuthorNameNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getAuthorName();
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorName, value);
+
+  void clear() {
+    uiSettingsManager.setStringNullable(StorageKey.setman_authorName, null);
+    ref.invalidateSelf();
+  }
+}
+
+final authorNameProvider = AsyncNotifierProvider<AuthorNameNotifier, String>(AuthorNameNotifier.new);
+
+class AuthorEmailNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getAuthorEmail();
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorEmail, value);
+
+  void clear() {
+    uiSettingsManager.setStringNullable(StorageKey.setman_authorEmail, null);
+    ref.invalidateSelf();
+  }
+}
+
+final authorEmailProvider = AsyncNotifierProvider<AuthorEmailNotifier, String>(AuthorEmailNotifier.new);
+
+class SyncMessageNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getSyncMessage();
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setStringNullable(StorageKey.setman_syncMessage, value);
+
+  void clear() {
+    uiSettingsManager.setStringNullable(StorageKey.setman_syncMessage, null);
+    ref.invalidateSelf();
+  }
+}
+
+final syncMessageProvider = AsyncNotifierProvider<SyncMessageNotifier, String>(SyncMessageNotifier.new);
+
+class GithubScopedOauthNotifier extends SettingNotifier<bool> {
+  @override
+  Future<bool> read() => uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+
+  @override
+  Future<void> write(bool value) => uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, value);
+}
+
+final githubScopedOauthProvider = AsyncNotifierProvider<GithubScopedOauthNotifier, bool>(GithubScopedOauthNotifier.new);
