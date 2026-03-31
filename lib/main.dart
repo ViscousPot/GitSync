@@ -399,8 +399,10 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.BranchNames.name).listen((event) async {
-    final result = await GitManager.getBranchNames();
-    service.invoke(LogType.BranchNames.name, {"result": result.map<String>((branch) => "${branch.$1}$conflictSeparator${branch.$2}").toList()});
+    try {
+      final result = await GitManager.getBranchNames();
+      service.invoke(LogType.BranchNames.name, {"result": result.map<String>((branch) => "${branch.$1}$conflictSeparator${branch.$2}").toList()});
+    } on OperationNotExecuted {}
   });
 
   service.on(LogType.SetRemoteUrl.name).listen((event) async {
@@ -819,7 +821,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
   ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting = ValueNotifier([]);
-  ValueNotifier<Map<String, String>> branchNames = ValueNotifier({});
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<GitProvider?> currentGitProvider = ValueNotifier(null);
   ValueNotifier<bool> hasGitFilters = ValueNotifier(false);
@@ -864,7 +865,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           createExpandedCommitsRoute(
             recentCommits: this.recentCommits,
             conflicting: this.conflicting,
-            branchNames: this.branchNames,
             gitProvider: provider,
             remoteWebUrl: ref.read(remoteUrlLinkProvider).valueOrNull?.$2,
             isAuthenticated: authenticated,
@@ -873,7 +873,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               await reloadAll();
             },
             onCreateBranch: () {
-              CreateBranchDialog.showDialog(context, ref.read(branchNameProvider).valueOrNull, branchNames.value.keys.toList(), (
+              CreateBranchDialog.showDialog(context, ref.read(branchNameProvider).valueOrNull, (ref.read(branchNamesProvider).valueOrNull ?? {}).keys.toList(), (
                 branchNameValue,
                 basedOn,
               ) async {
@@ -918,20 +918,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(branchNameProvider);
     ref.invalidate(remoteUrlLinkProvider);
     ref.invalidate(listRemotesProvider);
+    ref.invalidate(branchNamesProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
-    final newBranchNamesRaw = await runGitOperation<List<String>>(
-      LogType.BranchNames,
-      (event) => event?["result"].map<String>((path) => "$path").toList(),
-    );
-    if (token != _reloadToken) return;
-    final parsed = <String, String>{};
-    for (final raw in newBranchNamesRaw) {
-      final parts = raw.split(conflictSeparator);
-      parsed[parts[0]] = parts.length > 1 ? parts[1] : 'both';
-    }
-    branchNames.value = parsed;
     final newHasGitFilters = await runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
     if (token != _reloadToken) return;
     hasGitFilters.value = newHasGitFilters;
@@ -1579,7 +1569,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     recentCommitsController.removeListener(_onCommitsScroll);
 
     loadingRecentCommits.dispose();
-    branchNames.dispose();
     featureCounts.dispose();
     mergeConflictVisible.dispose();
 
@@ -2574,62 +2563,53 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
                                                               ProviderBuilder<String?>(
                                                                 provider: branchNameProvider,
-                                                                builder: (context, branchNameValue) => ListenableBuilder(
-                                                                  listenable: branchNames,
-                                                                  builder: (context, child) => FutureBuilder(
-                                                                    future: uiSettingsManager.getStringList(StorageKey.setman_branchNames),
-                                                                    builder: (context, fastBranchNamesSnapshot) {
-                                                                      final branchNamesMap = branchNames.value.isNotEmpty
-                                                                          ? branchNames.value
-                                                                          : fastBranchNamesSnapshot.data != null &&
-                                                                                fastBranchNamesSnapshot.data!.isNotEmpty
-                                                                          ? {for (final n in fastBranchNamesSnapshot.data!) n: 'both'}
-                                                                          : <String, String>{};
+                                                                builder: (context, branchNameValue) => ProviderBuilder<Map<String, String>>(
+                                                                  provider: branchNamesProvider,
+                                                                  builder: (context, branchNamesValue) {
+                                                                    final branchNamesMap = branchNamesValue ?? {};
+                                                                    final hasBranch = branchNamesMap.containsKey(branchNameValue);
 
-                                                                      final hasBranch = branchNamesMap.containsKey(branchNameValue);
-
-                                                                      return BranchSelector(
-                                                                        branchName: branchNameValue,
-                                                                        branchNames: branchNamesMap,
-                                                                        hasConflicts: conflictingValue.isNotEmpty,
-                                                                        onCheckoutBranch: (item) async {
-                                                                          await runGitOperation(LogType.CheckoutBranch, (event) => event, {
-                                                                            "branchName": item,
-                                                                          });
-                                                                          await reloadAll();
-                                                                        },
-                                                                        onRenameBranch: (item, newName) async {
-                                                                          await runGitOperation(LogType.RenameBranch, (event) => event, {
-                                                                            "oldName": item,
-                                                                            "newName": newName,
-                                                                          });
-                                                                          await reloadAll();
-                                                                        },
-                                                                        onDeleteBranch: (item) async {
-                                                                          await runGitOperation(LogType.DeleteBranch, (event) => event, {
-                                                                            "branchName": item,
-                                                                          });
-                                                                          await reloadAll();
-                                                                        },
-                                                                        onCreateBranch: hasBranch
-                                                                            ? () {
-                                                                                CreateBranchDialog.showDialog(
-                                                                                  context,
-                                                                                  branchNameValue,
-                                                                                  branchNamesMap.keys.toList(),
-                                                                                  (branchNameValue, basedOn) async {
-                                                                                    await runGitOperation(LogType.CreateBranch, (event) => event, {
-                                                                                      "branchName": branchNameValue,
-                                                                                      "basedOn": basedOn,
-                                                                                    });
-                                                                                    await syncOptionCompletionCallback();
-                                                                                  },
-                                                                                );
-                                                                              }
-                                                                            : null,
-                                                                      );
-                                                                    },
-                                                                  ),
+                                                                    return BranchSelector(
+                                                                      branchName: branchNameValue,
+                                                                      branchNames: branchNamesMap,
+                                                                      hasConflicts: conflictingValue.isNotEmpty,
+                                                                      onCheckoutBranch: (item) async {
+                                                                        await runGitOperation(LogType.CheckoutBranch, (event) => event, {
+                                                                          "branchName": item,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onRenameBranch: (item, newName) async {
+                                                                        await runGitOperation(LogType.RenameBranch, (event) => event, {
+                                                                          "oldName": item,
+                                                                          "newName": newName,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onDeleteBranch: (item) async {
+                                                                        await runGitOperation(LogType.DeleteBranch, (event) => event, {
+                                                                          "branchName": item,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onCreateBranch: hasBranch
+                                                                          ? () {
+                                                                              CreateBranchDialog.showDialog(
+                                                                                context,
+                                                                                branchNameValue,
+                                                                                branchNamesMap.keys.toList(),
+                                                                                (branchNameValue, basedOn) async {
+                                                                                  await runGitOperation(LogType.CreateBranch, (event) => event, {
+                                                                                    "branchName": branchNameValue,
+                                                                                    "basedOn": basedOn,
+                                                                                  });
+                                                                                  await syncOptionCompletionCallback();
+                                                                                },
+                                                                              );
+                                                                            }
+                                                                          : null,
+                                                                    );
+                                                                  },
                                                                 ),
                                                               ),
 
@@ -3783,7 +3763,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ref.read(listRemotesProvider.notifier).set([]);
                                                                               currentGitProvider.value = null;
                                                                               recommendedAction.value = null;
-                                                                              branchNames.value = {};
+                                                                              ref.read(branchNamesProvider.notifier).set({});
                                                                               recentCommits.value = [];
                                                                               conflicting.value = [];
                                                                               await updateSyncOptions();

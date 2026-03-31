@@ -21,7 +21,6 @@ class ExpandedCommits extends StatefulWidget {
     super.key,
     required this.recentCommits,
     required this.conflicting,
-    required this.branchNames,
     required this.gitProvider,
     this.remoteWebUrl,
     required this.onBranchChanged,
@@ -38,7 +37,6 @@ class ExpandedCommits extends StatefulWidget {
 
   final ValueNotifier<List<GitManagerRs.Commit>> recentCommits;
   final ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting;
-  final ValueNotifier<Map<String, String>> branchNames;
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
   final bool isClientMode;
@@ -207,9 +205,10 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
               valueListenable: widget.recentCommits,
               builder: (context, commitsValue, _) => ValueListenableBuilder(
                 valueListenable: widget.conflicting,
-                builder: (context, conflictingValue, _) => ValueListenableBuilder(
-                    valueListenable: widget.branchNames,
-                    builder: (context, branchNamesValue, _) {
+                builder: (context, conflictingValue, _) => ProviderBuilder<Map<String, String>>(
+                    provider: branchNamesProvider,
+                    builder: (context, branchNamesSnapshot) {
+                      final branchNamesValue = branchNamesSnapshot ?? {};
                       final items = _buildItems(commitsValue, conflictingValue);
 
                       return Column(
@@ -581,7 +580,6 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
 Route createExpandedCommitsRoute({
   required ValueNotifier<List<GitManagerRs.Commit>> recentCommits,
   required ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting,
-  required ValueNotifier<Map<String, String>> branchNames,
   required GitProvider? gitProvider,
   String? remoteWebUrl,
   required Future<void> Function(String) onBranchChanged,
@@ -600,7 +598,6 @@ Route createExpandedCommitsRoute({
     pageBuilder: (context, animation, secondaryAnimation) => ExpandedCommits(
       recentCommits: recentCommits,
       conflicting: conflicting,
-      branchNames: branchNames,
       gitProvider: gitProvider,
       remoteWebUrl: remoteWebUrl,
       onBranchChanged: onBranchChanged,

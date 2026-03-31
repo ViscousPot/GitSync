@@ -745,7 +745,6 @@ class GitManager {
       return (parts[0], parts.length > 1 ? parts[1] : 'both');
     }).toList();
 
-    await setman.setStringList(StorageKey.setman_branchNames, parsed.map((e) => e.$1).toList());
     return parsed;
   }
 

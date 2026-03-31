@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/api/logger.dart';
+import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 
 abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
@@ -84,3 +85,40 @@ class ListRemotesNotifier extends CachedGitNotifier<List<String>> {
 }
 
 final listRemotesProvider = AsyncNotifierProvider<ListRemotesNotifier, List<String>>(ListRemotesNotifier.new);
+
+class BranchNamesNotifier extends CachedGitNotifier<Map<String, String>> {
+  @override
+  Future<Map<String, String>> readCache() async {
+    final cached = await uiSettingsManager.getStringList(StorageKey.setman_branchNames);
+    if (cached.isEmpty) return {};
+    final map = <String, String>{};
+    for (final entry in cached) {
+      final parts = entry.split(conflictSeparator);
+      map[parts[0]] = parts.length > 1 ? parts[1] : 'both';
+    }
+    return map;
+  }
+
+  @override
+  Future<Map<String, String>> fetchLive() => runGitOperation<Map<String, String>>(
+    LogType.BranchNames,
+    (event) {
+      final raw = event?["result"]?.map<String>((path) => "$path").toList() ?? <String>[];
+      final map = <String, String>{};
+      for (final entry in raw) {
+        final parts = entry.split(conflictSeparator);
+        map[parts[0]] = parts.length > 1 ? parts[1] : 'both';
+      }
+      return map;
+    },
+  );
+
+  @override
+  Future<void> writeCache(Map<String, String> value) =>
+      uiSettingsManager.setStringList(
+        StorageKey.setman_branchNames,
+        value.entries.map((e) => "${e.key}$conflictSeparator${e.value}").toList(),
+      );
+}
+
+final branchNamesProvider = AsyncNotifierProvider<BranchNamesNotifier, Map<String, String>>(BranchNamesNotifier.new);
