@@ -68,11 +68,23 @@ extension CommitJson on GitManagerRs.Commit {
 
 class OperationNotExecuted implements Exception {}
 
+int _requestIdCounter = 0;
+
 Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? event) transformer, [Map<String, dynamic>? arg]) async {
   if (!await FlutterBackgroundService().isRunning()) await FlutterBackgroundService().startService();
-  final future = FlutterBackgroundService().on(type.name).first;
-  FlutterBackgroundService().invoke(type.name, arg);
+
+  final requestId = ++_requestIdCounter;
+  final invokeArgs = <String, dynamic>{if (arg != null) ...arg, '_rid': requestId};
+
+  final future = FlutterBackgroundService().on(type.name).firstWhere((event) {
+    final eventRid = event?['_rid'];
+    return eventRid == null || eventRid == requestId;
+  });
+
+  FlutterBackgroundService().invoke(type.name, invokeArgs);
+
   final event = await future;
+  if (event?['_skipped'] == true) throw OperationNotExecuted();
   return transformer(event);
 }
 
