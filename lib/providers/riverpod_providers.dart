@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 
 abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
   Future<T> readCache();
@@ -135,3 +138,31 @@ class HasGitFiltersNotifier extends CachedGitNotifier<bool> {
 }
 
 final hasGitFiltersProvider = AsyncNotifierProvider<HasGitFiltersNotifier, bool>(HasGitFiltersNotifier.new);
+
+class ConflictingFilesNotifier extends CachedGitNotifier<List<(String, GitManagerRs.ConflictType)>> {
+  @override
+  Future<List<(String, GitManagerRs.ConflictType)>> readCache() async {
+    final cached = await uiSettingsManager.getStringList(StorageKey.setman_conflicting);
+    return cached.map((item) {
+      final decoded = jsonDecode(item) as List;
+      return (decoded[0] as String, GitManagerRs.ConflictType.values.byName(decoded[1] as String));
+    }).toList();
+  }
+
+  @override
+  Future<List<(String, GitManagerRs.ConflictType)>> fetchLive() => runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
+        LogType.ConflictingFiles,
+        (event) => (event?["result"] as List)
+            .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
+            .toList(),
+      );
+
+  @override
+  Future<void> writeCache(List<(String, GitManagerRs.ConflictType)> value) => uiSettingsManager.setStringList(
+        StorageKey.setman_conflicting,
+        value.map((e) => jsonEncode([e.$1, e.$2.name])).toList(),
+      );
+}
+
+final conflictingFilesProvider =
+    AsyncNotifierProvider<ConflictingFilesNotifier, List<(String, GitManagerRs.ConflictType)>>(ConflictingFilesNotifier.new);

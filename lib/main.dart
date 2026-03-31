@@ -820,7 +820,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
-  ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting = ValueNotifier([]);
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<GitProvider?> currentGitProvider = ValueNotifier(null);
 
@@ -864,7 +863,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
         .push(
           createExpandedCommitsRoute(
             recentCommits: this.recentCommits,
-            conflicting: this.conflicting,
             gitProvider: provider,
             remoteWebUrl: ref.read(remoteUrlLinkProvider).valueOrNull?.$2,
             isAuthenticated: authenticated,
@@ -920,17 +918,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(listRemotesProvider);
     ref.invalidate(branchNamesProvider);
     ref.invalidate(hasGitFiltersProvider);
+    ref.invalidate(conflictingFilesProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
-    final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
-      LogType.ConflictingFiles,
-      (event) => conflicting.value = (event?["result"] as List)
-          .map<(String, GitManagerRs.ConflictType)>((item) => (item[0] as String, GitManagerRs.ConflictType.values.byName(item[1] as String)))
-          .toList(),
-    );
-    if (token != _reloadToken) return;
-    conflicting.value = newConflicting;
     await updateRecommendedAction();
     if (token != _reloadToken) return;
     loadingRecentCommits.value = true;
@@ -1031,7 +1022,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
     // FlutterBackgroundService()
     //     .on(LogType.ConflictingFiles.name)
-    //     .listen((event) => conflicting.value = event?["result"].map<String>((path) => "$path").toList());
+    //     .listen((event) => ref.read(conflictingFilesProvider.notifier).set(event?["result"].map<String>((path) => "$path").toList()));
 
     // TODO: put behind an on for all the sync option fns?
     //
@@ -1545,7 +1536,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     });
 
     Future.delayed(Duration.zero, () async {
-      if (conflicting.value.isNotEmpty) {
+      if ((ref.read(conflictingFilesProvider).valueOrNull ?? []).isNotEmpty) {
         syncOptions.value.remove(t.syncAllChanges);
         syncOptions.value.remove(t.syncNow);
         syncOptions.value.remove(t.manualSync);
@@ -2144,19 +2135,15 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                         valueListenable: recentCommits,
                                         builder: (context, recentCommitsSnapshot, child) => FutureBuilder(
                                           future: GitManager.getInitialRecentCommits(),
-                                          builder: (context, fastRecentCommitsSnapshot) => ValueListenableBuilder(
-                                            valueListenable: conflicting,
-                                            builder: (context, conflictingSnapshot, child) => FutureBuilder(
-                                              future: GitManager.getInitialConflicting(),
-                                              builder: (context, fastConflictingSnapshot) => ListenableBuilder(
+                                          builder: (context, fastRecentCommitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+                                            provider: conflictingFilesProvider,
+                                            builder: (context, conflictingSnapshot) => ListenableBuilder(
                                                 listenable: loadingRecentCommits,
                                                 builder: (context, child) {
                                                   final recentCommits = loadingRecentCommits.value || recentCommitsSnapshot.isEmpty
                                                       ? fastRecentCommitsSnapshot.data ?? recentCommitsSnapshot
                                                       : recentCommitsSnapshot;
-                                                  final conflictingValue = conflictingSnapshot.isEmpty
-                                                      ? fastConflictingSnapshot.data ?? conflictingSnapshot
-                                                      : conflictingSnapshot;
+                                                  final conflictingValue = conflictingSnapshot ?? [];
                                                   final items = [
                                                     ...((conflictingValue.isEmpty)
                                                         ? <GitManagerRs.Commit>[]
@@ -2563,14 +2550,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 provider: branchNameProvider,
                                                                 builder: (context, branchNameValue) => ProviderBuilder<Map<String, String>>(
                                                                   provider: branchNamesProvider,
-                                                                  builder: (context, branchNamesValue) {
-                                                                    final branchNamesMap = branchNamesValue ?? {};
-                                                                    final hasBranch = branchNamesMap.containsKey(branchNameValue);
+                                                                  builder: (context, branchNamesValue) => ProviderBuilder<bool>(
+                                                                    provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
+                                                                    builder: (context, hasConflictsValue) {
+                                                                      final branchNamesMap = branchNamesValue ?? {};
+                                                                      final hasBranch = branchNamesMap.containsKey(branchNameValue);
 
-                                                                    return BranchSelector(
-                                                                      branchName: branchNameValue,
-                                                                      branchNames: branchNamesMap,
-                                                                      hasConflicts: conflictingValue.isNotEmpty,
+                                                                      return BranchSelector(
+                                                                        branchName: branchNameValue,
+                                                                        branchNames: branchNamesMap,
+                                                                        hasConflicts: hasConflictsValue ?? false,
                                                                       onCheckoutBranch: (item) async {
                                                                         await runGitOperation(LogType.CheckoutBranch, (event) => event, {
                                                                           "branchName": item,
@@ -2606,8 +2595,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               );
                                                                             }
                                                                           : null,
-                                                                    );
-                                                                  },
+                                                                      );
+                                                                    },
+                                                                  ),
                                                                 ),
                                                               ),
 
@@ -3102,7 +3092,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                   );
                                                 },
                                               ),
-                                            ),
                                           ),
                                         ),
                                       ),
@@ -3764,7 +3753,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ref.read(branchNamesProvider.notifier).set({});
                                                                               ref.read(hasGitFiltersProvider.notifier).set(false);
                                                                               recentCommits.value = [];
-                                                                              conflicting.value = [];
+                                                                              ref.read(conflictingFilesProvider.notifier).set([]);
                                                                               await updateSyncOptions();
                                                                               if (mounted) setState(() {});
                                                                             },
