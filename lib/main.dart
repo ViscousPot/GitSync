@@ -901,6 +901,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(conflictingFilesProvider);
     ref.invalidate(recentCommitsProvider);
     ref.invalidate(recommendedActionProvider);
+    ref.invalidate(syncMessageEnabledProvider);
+    ref.invalidate(lastSyncMethodProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
@@ -1277,7 +1279,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
         ][recommendedActionValue];
       }
     }
-    return await uiSettingsManager.getString(StorageKey.setman_lastSyncMethod);
+    return ref.read(lastSyncMethodProvider).valueOrNull ?? "";
   }
 
   Future<void> updateSyncOptions() async {
@@ -1360,7 +1362,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           () async {
             final result = await runGitOperation(LogType.DownloadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
             FlutterBackgroundService().on("downloadChanges-syncCallback").first.then((_) async {
-              if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+              if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
                 Fluttertoast.showToast(msg: t.syncStartPull, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
             });
@@ -1376,7 +1378,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               return;
             }
 
-            if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+            if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
               Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
             }
             await syncOptionCompletionCallback();
@@ -1410,7 +1412,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           () async {
             final result = await runGitOperation(LogType.UploadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
             FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {
-              if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+              if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
                 Fluttertoast.showToast(msg: t.syncStartPush, toastLength: Toast.LENGTH_LONG, gravity: null);
               }
             });
@@ -1421,7 +1423,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               return;
             }
 
-            if (await uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled)) {
+            if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
               Fluttertoast.showToast(msg: t.syncComplete, toastLength: Toast.LENGTH_LONG, gravity: null);
             }
             await syncOptionCompletionCallback();
@@ -2885,19 +2887,15 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         ),
                                                                       ),
                                                                       SizedBox(width: spaceSM),
-                                                                      FutureBuilder(
-                                                                        future: uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled),
-                                                                        builder: (context, snapshot) => IconButton(
+                                                                      ProviderBuilder<bool>(
+                                                                        provider: syncMessageEnabledProvider,
+                                                                        builder: (context, syncMsgEnabled) => IconButton(
                                                                           onPressed: () async {
-                                                                            if (!(snapshot.data ?? false)) {
+                                                                            if (!(syncMsgEnabled ?? false)) {
                                                                               if (!(await Permission.notification.request().isGranted)) return;
                                                                             }
 
-                                                                            uiSettingsManager.setBool(
-                                                                              StorageKey.setman_syncMessageEnabled,
-                                                                              !(snapshot.data ?? false),
-                                                                            );
-                                                                            await reloadAll();
+                                                                            ref.read(syncMessageEnabledProvider.notifier).set(!(syncMsgEnabled ?? false));
                                                                           },
                                                                           style: ButtonStyle(
                                                                             backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
@@ -2932,10 +2930,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                 size: textLG - 2,
                                                                               ),
                                                                               FaIcon(
-                                                                                demo || snapshot.data == true
+                                                                                demo || syncMsgEnabled == true
                                                                                     ? FontAwesomeIcons.solidBell
                                                                                     : FontAwesomeIcons.solidBellSlash,
-                                                                                color: demo || snapshot.data == true
+                                                                                color: demo || syncMsgEnabled == true
                                                                                     ? colours.primaryPositive
                                                                                     : colours.primaryLight,
                                                                                 size: textLG - 2,
@@ -2981,10 +2979,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           (item) => DropdownMenuItem(
                                                                             onTap: () async {
                                                                               if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
-                                                                                await uiSettingsManager.setString(
-                                                                                  StorageKey.setman_lastSyncMethod,
-                                                                                  item.key,
-                                                                                );
+                                                                                ref.read(lastSyncMethodProvider.notifier).set(item.key);
                                                                               }
 
                                                                               await item.value.$2();

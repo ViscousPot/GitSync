@@ -8,6 +8,19 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 
+abstract class SettingNotifier<T> extends AsyncNotifier<T> {
+  Future<T> read();
+  Future<void> write(T value);
+
+  @override
+  Future<T> build() => read();
+
+  void set(T value) {
+    state = AsyncData(value);
+    write(value);
+  }
+}
+
 abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
   Future<T> readCache();
   Future<T> fetchLive();
@@ -265,3 +278,23 @@ class RecommendedActionNotifier extends CachedGitNotifier<int?> {
 }
 
 final recommendedActionProvider = AsyncNotifierProvider<RecommendedActionNotifier, int?>(RecommendedActionNotifier.new);
+
+class SyncMessageEnabledNotifier extends SettingNotifier<bool> {
+  @override
+  Future<bool> read() => uiSettingsManager.getBool(StorageKey.setman_syncMessageEnabled);
+
+  @override
+  Future<void> write(bool value) => uiSettingsManager.setBool(StorageKey.setman_syncMessageEnabled, value);
+}
+
+final syncMessageEnabledProvider = AsyncNotifierProvider<SyncMessageEnabledNotifier, bool>(SyncMessageEnabledNotifier.new);
+
+class LastSyncMethodNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getString(StorageKey.setman_lastSyncMethod);
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setString(StorageKey.setman_lastSyncMethod, value);
+}
+
+final lastSyncMethodProvider = AsyncNotifierProvider<LastSyncMethodNotifier, String>(LastSyncMethodNotifier.new);
