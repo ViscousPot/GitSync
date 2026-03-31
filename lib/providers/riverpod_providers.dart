@@ -122,3 +122,16 @@ class BranchNamesNotifier extends CachedGitNotifier<Map<String, String>> {
 }
 
 final branchNamesProvider = AsyncNotifierProvider<BranchNamesNotifier, Map<String, String>>(BranchNamesNotifier.new);
+
+class HasGitFiltersNotifier extends CachedGitNotifier<bool> {
+  @override
+  Future<bool> readCache() => uiSettingsManager.getBool(StorageKey.setman_hasGitFilters);
+
+  @override
+  Future<bool> fetchLive() => runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
+
+  @override
+  Future<void> writeCache(bool value) => uiSettingsManager.setBool(StorageKey.setman_hasGitFilters, value);
+}
+
+final hasGitFiltersProvider = AsyncNotifierProvider<HasGitFiltersNotifier, bool>(HasGitFiltersNotifier.new);

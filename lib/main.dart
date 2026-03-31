@@ -823,7 +823,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting = ValueNotifier([]);
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<GitProvider?> currentGitProvider = ValueNotifier(null);
-  ValueNotifier<bool> hasGitFilters = ValueNotifier(false);
+
   ValueNotifier<Map<ShowcaseFeature, int?>> featureCounts = ValueNotifier({});
   bool featureCountsLoading = false;
   RestorableBool mergeConflictVisible = RestorableBool(true);
@@ -919,12 +919,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(remoteUrlLinkProvider);
     ref.invalidate(listRemotesProvider);
     ref.invalidate(branchNamesProvider);
+    ref.invalidate(hasGitFiltersProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
-    final newHasGitFilters = await runGitOperation<bool>(LogType.HasGitFilters, (event) => event?["result"] ?? false);
-    if (token != _reloadToken) return;
-    hasGitFilters.value = newHasGitFilters;
     final newConflicting = await runGitOperation<List<(String, GitManagerRs.ConflictType)>>(
       LogType.ConflictingFiles,
       (event) => conflicting.value = (event?["result"] as List)
@@ -3764,6 +3762,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               currentGitProvider.value = null;
                                                                               recommendedAction.value = null;
                                                                               ref.read(branchNamesProvider.notifier).set({});
+                                                                              ref.read(hasGitFiltersProvider.notifier).set(false);
                                                                               recentCommits.value = [];
                                                                               conflicting.value = [];
                                                                               await updateSyncOptions();
@@ -4027,9 +4026,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   ),
                 ),
               ),
-              ValueListenableBuilder(
-                valueListenable: hasGitFilters,
-                builder: (context, hasFilters, child) => !hasFilters
+              ProviderBuilder<bool>(
+                provider: hasGitFiltersProvider,
+                builder: (context, hasFilters) => !(hasFilters ?? false)
                     ? SizedBox.shrink()
                     : GestureDetector(
                         onTap: () => launchUrl(Uri.parse(playStoreLink)),

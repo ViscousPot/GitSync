@@ -75,6 +75,7 @@ enum StorageKey<T> {
   setman_branchNames<List<String>>(name: "branchNames", defaultValue: []),
   setman_disableSsl<bool>(name: "disableSsl", defaultValue: false),
   setman_submodulePaths<List<String>>(name: "submodulePaths", defaultValue: []),
+  setman_hasGitFilters<bool>(name: "hasGitFilters", defaultValue: false),
   setman_pinnedShowcaseFeatures<List<String>>(name: "pinnedShowcaseFeatures", defaultValue: ["issues", "pull_requests"]);
 
   const StorageKey({required this.name, required this.defaultValue, this.hasDefault = false});
