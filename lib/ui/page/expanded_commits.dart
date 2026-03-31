@@ -12,6 +12,8 @@ import 'package:GitSync/ui/component/branch_selector.dart';
 import 'package:GitSync/ui/component/commit_select_action_bar.dart';
 import 'package:GitSync/ui/component/item_commit.dart';
 import 'package:GitSync/ui/component/item_merge_conflict.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
+import 'package:GitSync/ui/component/provider_builder.dart';
 import 'package:GitSync/ui/component/showcase_feature_button.dart';
 
 class ExpandedCommits extends StatefulWidget {
@@ -19,7 +21,6 @@ class ExpandedCommits extends StatefulWidget {
     super.key,
     required this.recentCommits,
     required this.conflicting,
-    required this.branchName,
     required this.branchNames,
     required this.gitProvider,
     this.remoteWebUrl,
@@ -37,7 +38,6 @@ class ExpandedCommits extends StatefulWidget {
 
   final ValueNotifier<List<GitManagerRs.Commit>> recentCommits;
   final ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting;
-  final RestorableStringN branchName;
   final ValueNotifier<Map<String, String>> branchNames;
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
@@ -207,14 +207,10 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
               valueListenable: widget.recentCommits,
               builder: (context, commitsValue, _) => ValueListenableBuilder(
                 valueListenable: widget.conflicting,
-                builder: (context, conflictingValue, _) => ListenableBuilder(
-                  listenable: widget.branchName,
-                  builder: (context, _) => ValueListenableBuilder(
+                builder: (context, conflictingValue, _) => ValueListenableBuilder(
                     valueListenable: widget.branchNames,
                     builder: (context, branchNamesValue, _) {
                       final items = _buildItems(commitsValue, conflictingValue);
-                      final branchNameValue = widget.branchName.value;
-                      final hasBranch = branchNamesValue.containsKey(branchNameValue);
 
                       return Column(
                         children: [
@@ -331,25 +327,29 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                             ),
                           ),
                           SizedBox(height: spaceMD),
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                child: Column(
-                                  children: [
-                                    BranchSelector(
-                                      branchName: branchNameValue,
-                                      branchNames: branchNamesValue,
-                                      hasConflicts: conflictingValue.isNotEmpty,
-                                      showLabel: false,
-                                      dropdownDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                      onCheckoutBranch: (item) async => await widget.onBranchChanged(item),
-                                      onRenameBranch: (oldName, newName) async => await widget.onRenameBranch(oldName, newName),
-                                      onDeleteBranch: (item) async => await widget.onDeleteBranch(item),
-                                      onCreateBranch: hasBranch ? () => widget.onCreateBranch?.call() : null,
-                                    ),
+                          ProviderBuilder<String?>(
+                            provider: branchNameProvider,
+                            builder: (context, branchNameValue) {
+                              final hasBranch = branchNamesValue.containsKey(branchNameValue);
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                    padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
+                                    child: Column(
+                                      children: [
+                                        BranchSelector(
+                                          branchName: branchNameValue,
+                                          branchNames: branchNamesValue,
+                                          hasConflicts: conflictingValue.isNotEmpty,
+                                          showLabel: false,
+                                          dropdownDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                          onCheckoutBranch: (item) async => await widget.onBranchChanged(item),
+                                          onRenameBranch: (oldName, newName) async => await widget.onRenameBranch(oldName, newName),
+                                          onDeleteBranch: (item) async => await widget.onDeleteBranch(item),
+                                          onCreateBranch: hasBranch ? () => widget.onCreateBranch?.call() : null,
+                                        ),
                                     // SizedBox(height: spaceXS),
                                     // Row(
                                     //   children: [
@@ -464,7 +464,9 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                   ),
                                 ),
                               ),
-                            ],
+                              ],
+                              );
+                            },
                           ),
                           SizedBox(height: spaceMD),
                           if (isOAuthProvider && widget.isAuthenticated && widget.remoteWebUrl != null) ...[
@@ -567,7 +569,6 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                       );
                     },
                   ),
-                ),
               ),
             ),
           ),
@@ -580,7 +581,6 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
 Route createExpandedCommitsRoute({
   required ValueNotifier<List<GitManagerRs.Commit>> recentCommits,
   required ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting,
-  required RestorableStringN branchName,
   required ValueNotifier<Map<String, String>> branchNames,
   required GitProvider? gitProvider,
   String? remoteWebUrl,
@@ -600,7 +600,6 @@ Route createExpandedCommitsRoute({
     pageBuilder: (context, animation, secondaryAnimation) => ExpandedCommits(
       recentCommits: recentCommits,
       conflicting: conflicting,
-      branchName: branchName,
       branchNames: branchNames,
       gitProvider: gitProvider,
       remoteWebUrl: remoteWebUrl,

@@ -21,6 +21,9 @@ import 'package:GitSync/ui/dialog/merge_conflict.dart' as MergeConflictDialog;
 import 'package:GitSync/ui/dialog/rename_remote.dart' as RenameRemoteDialog;
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:GitSync/ui/page/ai_features_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
+import 'package:GitSync/ui/component/provider_builder.dart';
 import 'package:GitSync/ui/page/global_settings_main.dart';
 import 'package:GitSync/ui/page/onboarding_setup.dart';
 import 'package:GitSync/ui/page/sync_settings_main.dart';
@@ -119,7 +122,7 @@ Future<void> main() async {
       await uiSettingsManager.reinit();
       // Loads premiumManager initial state
       initAsync(() async => await premiumManager.init());
-      runApp(const MyApp());
+      runApp(const ProviderScope(child: MyApp()));
     },
     (error, stackTrace) {
       e(LogType.Global.name, error, stackTrace);
@@ -715,17 +718,17 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key, required this.title, required this.reloadLocale});
 
   final String title;
   final VoidCallback reloadLocale;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, RestorationMixin, TickerProviderStateMixin {
+class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObserver, RestorationMixin, TickerProviderStateMixin {
   bool repoSettingsExpanded = false;
   bool demoConflicting = false;
 
@@ -807,7 +810,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     registerForRestoration(_restorableUnlockPremium, unlock_premium);
     registerForRestoration(loadingRecentCommits, 'loadingRecentCommits');
     registerForRestoration(mergeConflictVisible, 'mergeConflictVisible');
-    registerForRestoration(branchName, 'branchName');
   }
 
   late final syncMethodsDropdownKey = GlobalKey();
@@ -831,7 +833,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
   ValueNotifier<List<(String, GitManagerRs.ConflictType)>> conflicting = ValueNotifier([]);
-  RestorableStringN branchName = RestorableStringN(null);
   ValueNotifier<Map<String, String>> branchNames = ValueNotifier({});
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
   ValueNotifier<(String, String)?> remoteUrlLink = ValueNotifier(null);
@@ -879,7 +880,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           createExpandedCommitsRoute(
             recentCommits: this.recentCommits,
             conflicting: this.conflicting,
-            branchName: this.branchName,
             branchNames: this.branchNames,
             gitProvider: provider,
             remoteWebUrl: remoteUrlLink.value?.$2,
@@ -889,7 +889,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
               await reloadAll();
             },
             onCreateBranch: () {
-              CreateBranchDialog.showDialog(context, branchName.value, branchNames.value.keys.toList(), (branchNameValue, basedOn) async {
+              CreateBranchDialog.showDialog(context, ref.read(branchNameProvider).valueOrNull, branchNames.value.keys.toList(), (branchNameValue, basedOn) async {
                 await runGitOperation(LogType.CreateBranch, (event) => event, {"branchName": branchNameValue, "basedOn": basedOn});
                 await syncOptionCompletionCallback();
               });
@@ -929,9 +929,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     await colours.reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
-    final newBranchName = await runGitOperation<String?>(LogType.BranchName, (event) => event?["result"]);
-    if (token != _reloadToken) return;
-    branchName.value = newBranchName;
+    ref.invalidate(branchNameProvider);
     final newRemoteUrlLink = await runGitOperation<(String, String)?>(
       LogType.GetRemoteUrlLink,
       (event) => event == null || event["result"] == null ? null : (event["result"][0], event["result"][1]),
@@ -1418,7 +1416,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         clientModeEnabled ? t.syncAllChanges : t.syncNow: (
           FontAwesomeIcons.solidCircleDown,
           () async {
-            if (branchName.value == null || branchName.value!.isEmpty) {
+            final currentBranch = ref.read(branchNameProvider).valueOrNull;
+            if (currentBranch == null || currentBranch.isEmpty) {
               await InfoDialog.showDialog(
                 context,
                 "Sync Unavailable on DETACHED HEAD",
@@ -1629,7 +1628,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     recentCommitsController.removeListener(_onCommitsScroll);
 
     loadingRecentCommits.dispose();
-    branchName.dispose();
     branchNames.dispose();
     featureCounts.dispose();
     mergeConflictVisible.dispose();
@@ -2631,16 +2629,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                 ),
                                                                 SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
 
-                                                                ListenableBuilder(
-                                                                  listenable: branchName,
-                                                                  builder: (context, child) => FutureBuilder(
-                                                                    future: uiSettingsManager.getStringNullable(StorageKey.setman_branchName),
-                                                                    builder: (context, fastBranchNameSnapshot) => ListenableBuilder(
+                                                                ProviderBuilder<String?>(
+                                                                  provider: branchNameProvider,
+                                                                  builder: (context, branchNameValue) => ListenableBuilder(
                                                                       listenable: branchNames,
                                                                       builder: (context, child) => FutureBuilder(
                                                                         future: uiSettingsManager.getStringList(StorageKey.setman_branchNames),
                                                                         builder: (context, fastBranchNamesSnapshot) {
-                                                                          final branchNameValue = fastBranchNameSnapshot.data ?? branchName.value;
                                                                           final branchNamesMap = branchNames.value.isNotEmpty
                                                                               ? branchNames.value
                                                                               : fastBranchNamesSnapshot.data != null &&
@@ -2693,7 +2688,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           );
                                                                         },
                                                                       ),
-                                                                    ),
                                                                   ),
                                                                 ),
 
@@ -3960,7 +3954,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                           : IconButton(
                                                                               onPressed: () async {
                                                                                 await uiSettingsManager.setGitDirPath("");
-                                                                                branchName.value = null;
+                                                                                ref.read(branchNameProvider.notifier).set(null);
                                                                                 remoteUrlLink.value = null;
                                                                                 currentGitProvider.value = null;
                                                                                 recommendedAction.value = null;
