@@ -1982,7 +1982,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                             if (value == null) return;
                                             await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                             await uiSettingsManager.reinit();
-                                            ref.read(recentCommitsProvider.notifier).set([]);
                                             await reloadAll();
                                           },
                                           selectedItemBuilder: (context) => List.generate(
@@ -2375,7 +2374,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    ...(recentCommits.isNotEmpty == true && ref.read(recentCommitsProvider.notifier).isLoadingMore)
+                                                                    ...(recentCommits.isNotEmpty == true && ref.watch(isLoadingCommitsProvider))
                                                                         ? [
                                                                             Positioned(
                                                                               top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
@@ -3705,7 +3704,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ref.read(branchNameProvider.notifier).set(null);
                                                                               ref.read(remoteUrlLinkProvider.notifier).set(null);
                                                                               ref.read(listRemotesProvider.notifier).set([]);
-                                                                              ref.invalidate(gitProviderProvider);
+                                                                              ref.read(gitProviderProvider.notifier).set(GitProvider.GITHUB);
                                                                               ref.read(recommendedActionProvider.notifier).set(null);
                                                                               ref.read(branchNamesProvider.notifier).set({});
                                                                               ref.read(hasGitFiltersProvider.notifier).set(false);

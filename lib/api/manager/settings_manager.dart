@@ -25,6 +25,12 @@ class SettingsManager extends Storage {
 
   static String k(String key) => "$keyNamespace::$key";
 
+  static Future<SettingsManager> scoped(int repoIndex) async {
+    final repoName = await repoManager.getRepoName(repoIndex);
+    final namespace = "$keyPrefix---$repoName";
+    return SettingsManager(keyTransformer: (key) => "$namespace::$key");
+  }
+
   Future<T> _getOrDefault<T>(
     StorageKey<T?> key,
     Future<T?> Function(StorageKey<T?> key, [bool defaulting]) getFn,
@@ -101,6 +107,7 @@ class SettingsManager extends Storage {
       await setStringList(StorageKey.setman_recentCommits, []);
       await setStringList(StorageKey.setman_remoteUrlLink, []);
       await setStringList(StorageKey.setman_remotes, []);
+      await setBool(StorageKey.setman_hasGitFilters, false);
     }
   }
 
