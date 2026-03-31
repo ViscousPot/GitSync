@@ -766,7 +766,7 @@ class GitManager {
   }
 
   static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
-    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.ListRemotes, (
+    final result = await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.ListRemotes, (
           dirPath,
         ) async {
           try {
@@ -777,6 +777,10 @@ class GitManager {
           return null;
         }) ??
         <String>[];
+
+    final setman = await _resolveSettingsManager(repomanRepoindex);
+    await setman.setStringList(StorageKey.setman_remotes, result);
+    return result;
   }
 
   static Future<void> addRemote(String name, String url, {String? dirPathOverride, int? repoIndex}) async {

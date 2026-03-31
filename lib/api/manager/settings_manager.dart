@@ -100,6 +100,7 @@ class SettingsManager extends Storage {
       await setStringList(StorageKey.setman_branchNames, []);
       await setStringList(StorageKey.setman_recentCommits, []);
       await setStringList(StorageKey.setman_remoteUrlLink, []);
+      await setStringList(StorageKey.setman_remotes, []);
     }
   }
 

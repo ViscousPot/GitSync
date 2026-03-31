@@ -56,3 +56,16 @@ class RemoteUrlLinkNotifier extends CachedGitNotifier<(String, String)?> {
 }
 
 final remoteUrlLinkProvider = AsyncNotifierProvider<RemoteUrlLinkNotifier, (String, String)?>(RemoteUrlLinkNotifier.new);
+
+class ListRemotesNotifier extends CachedGitNotifier<List<String>> {
+  @override
+  Future<List<String>> readCache() => uiSettingsManager.getStringList(StorageKey.setman_remotes);
+
+  @override
+  Future<List<String>> fetchLive() => runGitOperation<List<String>>(
+    LogType.ListRemotes,
+    (event) => event?["result"].map<String>((r) => "$r").toList() ?? <String>[],
+  );
+}
+
+final listRemotesProvider = AsyncNotifierProvider<ListRemotesNotifier, List<String>>(ListRemotesNotifier.new);

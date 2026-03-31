@@ -70,6 +70,7 @@ enum StorageKey<T> {
   setman_uncommittedFilePaths<List<String>>(name: "uncommittedFilePaths", defaultValue: []),
   setman_stagedFilePaths<List<String>>(name: "stagedFilePaths", defaultValue: []),
   setman_remoteUrlLink<List<String>>(name: "remoteUrlLink", defaultValue: []),
+  setman_remotes<List<String>>(name: "remotes", defaultValue: []),
   setman_branchName<String?>(name: "branchName", defaultValue: null),
   setman_branchNames<List<String>>(name: "branchNames", defaultValue: []),
   setman_disableSsl<bool>(name: "disableSsl", defaultValue: false),
