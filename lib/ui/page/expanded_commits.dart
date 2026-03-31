@@ -200,14 +200,14 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
             padding: EdgeInsets.all(spaceMD),
             child: ProviderBuilder<List<GitManagerRs.Commit>>(
               provider: recentCommitsProvider,
-              builder: (context, commitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+              builder: (context, commitsAsync) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
                 provider: conflictingFilesProvider,
-                builder: (context, conflictingSnapshot) => ProviderBuilder<Map<String, String>>(
+                builder: (context, conflictingAsync) => ProviderBuilder<Map<String, String>>(
                     provider: branchNamesProvider,
-                    builder: (context, branchNamesSnapshot) {
-                      final branchNamesValue = branchNamesSnapshot ?? {};
-                      final conflictingValue = conflictingSnapshot ?? [];
-                      final commitsValue = commitsSnapshot ?? [];
+                    builder: (context, branchNamesAsync) {
+                      final branchNamesValue = branchNamesAsync.valueOrNull ?? {};
+                      final conflictingValue = conflictingAsync.valueOrNull ?? [];
+                      final commitsValue = commitsAsync.valueOrNull ?? [];
                       final items = _buildItems(commitsValue, conflictingValue);
 
                       return Column(
@@ -327,7 +327,8 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                           SizedBox(height: spaceMD),
                           ProviderBuilder<String?>(
                             provider: branchNameProvider,
-                            builder: (context, branchNameValue) {
+                            builder: (context, branchNameAsync) {
+                              final branchNameValue = branchNameAsync.valueOrNull;
                               final hasBranch = branchNamesValue.containsKey(branchNameValue);
                               return Stack(
                                 clipBehavior: Clip.none,
@@ -339,10 +340,10 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       children: [
                                         ProviderBuilder<bool>(
                                           provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
-                                          builder: (context, hasConflictsValue) => BranchSelector(
+                                          builder: (context, hasConflictsAsync) => BranchSelector(
                                             branchName: branchNameValue,
                                             branchNames: branchNamesValue,
-                                            hasConflicts: hasConflictsValue ?? false,
+                                            hasConflicts: hasConflictsAsync.valueOrNull ?? false,
                                             showLabel: false,
                                             dropdownDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                             onCheckoutBranch: (item) async => await widget.onBranchChanged(item),

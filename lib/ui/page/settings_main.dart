@@ -13,19 +13,21 @@ import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
 import '../../../ui/component/item_setting.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsMain extends StatefulWidget {
+class SettingsMain extends ConsumerStatefulWidget {
   const SettingsMain({super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
 
   final bool showcaseAuthorDetails;
   final VoidCallback? openGlobalSettings;
 
   @override
-  State<SettingsMain> createState() => _SettingsMain();
+  ConsumerState<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin, RestorationMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
@@ -347,8 +349,8 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                           ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
-                      setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_syncMessage, value),
-                      getFn: () => uiSettingsManager.getSyncMessage(),
+                      setFn: (value) => ref.read(syncMessageProvider.notifier).set(value),
+                      getFn: () async => ref.read(syncMessageProvider).valueOrNull ?? "",
                       title: t.syncMessageLabel,
                       description: t.syncMessageDescription,
                       hint: defaultSyncMessage,
@@ -375,24 +377,24 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                       child: Column(
                         children: [
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorName, value.trim()),
-                            getFn: demo ? () async => "" : () => uiSettingsManager.getAuthorName(),
+                            setFn: (value) => ref.read(authorNameProvider.notifier).set(value.trim()),
+                            getFn: demo ? () async => "" : () async => ref.read(authorNameProvider).valueOrNull ?? "",
                             title: t.authorNameLabel,
                             description: t.authorNameDescription,
                             hint: t.authorName,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorEmail, value.trim()),
-                            getFn: demo ? () async => "" : () => uiSettingsManager.getAuthorEmail(),
+                            setFn: (value) => ref.read(authorEmailProvider.notifier).set(value.trim()),
+                            getFn: demo ? () async => "" : () async => ref.read(authorEmailProvider).valueOrNull ?? "",
                             title: t.authorEmailLabel,
                             description: t.authorEmailDescription,
                             hint: t.authorEmail,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_postFooter, value),
-                            getFn: () => uiSettingsManager.getPostFooter(),
+                            setFn: (value) => ref.read(postFooterProvider.notifier).set(value),
+                            getFn: () async => ref.read(postFooterProvider).valueOrNull ?? "",
                             title: t.postFooterLabel,
                             description: t.postFooterDescription,
                             hint: defaultPostFooter,

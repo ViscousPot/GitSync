@@ -816,7 +816,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
-  ValueNotifier<GitProvider?> currentGitProvider = ValueNotifier(null);
+
 
   ValueNotifier<Map<ShowcaseFeature, int?>> featureCounts = ValueNotifier({});
   bool featureCountsLoading = false;
@@ -837,7 +837,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Future<void> _navigateToExpandedCommits({double initialScrollOffset = 0, ShowcaseFeature? pendingFeature}) async {
-    final provider = await uiSettingsManager.getGitProvider();
+    final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
     final authenticated = await isAuthenticated();
     if (!mounted) return;
     Navigator.of(context)
@@ -867,7 +867,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               await runGitOperation(LogType.DeleteBranch, (event) => event, {"branchName": branchName});
               await reloadAll();
             },
-            isClientMode: await uiSettingsManager.getClientModeEnabled(),
+            isClientMode: ref.read(clientModeEnabledProvider).valueOrNull ?? false,
             onReloadAll: () async => await reloadAll(),
             initialScrollOffset: initialScrollOffset,
             pendingFeature: pendingFeature,
@@ -903,8 +903,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(recommendedActionProvider);
     ref.invalidate(syncMessageEnabledProvider);
     ref.invalidate(lastSyncMethodProvider);
+    ref.invalidate(clientModeEnabledProvider);
+    ref.invalidate(gitProviderProvider);
+    ref.invalidate(postFooterProvider);
+    ref.invalidate(authorNameProvider);
+    ref.invalidate(authorEmailProvider);
+    ref.invalidate(syncMessageProvider);
+    ref.invalidate(githubScopedOauthProvider);
     _fetchFeatureCounts();
-    currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
     await updateSyncOptions();
     if (mounted) setState(() {});
@@ -1138,7 +1144,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Future<void> updateRecommendedAction({int? override}) async {
-    if (!await uiSettingsManager.getClientModeEnabled()) {
+    if (!(ref.read(clientModeEnabledProvider).valueOrNull ?? false)) {
       await updateSyncOptions();
       return;
     }
@@ -1189,13 +1195,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
     _restorableGlobalSettings.present({"onboarding": true});
     await repoManager.setOnboardingStep(-1);
-    await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
+    ref.read(clientModeEnabledProvider.notifier).set(initialClientModeEnabled);
     if (mounted) setState(() {});
   }
 
   Future<void> _triggerUiGuideShowcase() async {
-    final initialClientModeEnabled = await uiSettingsManager.getClientModeEnabled();
-    await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
+    final initialClientModeEnabled = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
+    ref.read(clientModeEnabledProvider.notifier).set(false);
     ShowCaseWidget.of(context).startShowCase([_configKey, _autoSyncOptionsKey, _controlKey, _globalSettingsKey, _syncProgressKey, _addMoreKey]);
     while (!ShowCaseWidget.of(context).isShowCaseCompleted) {
       await Future.delayed(Duration(milliseconds: 100));
@@ -1225,26 +1231,26 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Future<bool> isAuthenticated() async {
-    final provider = await uiSettingsManager.getGitProvider();
+    final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
     return provider == GitProvider.SSH
         ? (await uiSettingsManager.getGitSshAuthCredentials()).$2.isNotEmpty
         : (await uiSettingsManager.getGitHttpAuthCredentials()).$2.isNotEmpty;
   }
 
   Future<bool> isGithubOauth() async {
-    final provider = await uiSettingsManager.getGitProvider();
+    final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
     return provider == GitProvider.GITHUB;
   }
 
   Future<void> _fetchFeatureCounts() async {
-    final provider = await uiSettingsManager.getGitProvider();
+    final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
     if (!provider.isOAuthProvider) return;
     final authenticated = await isAuthenticated();
     if (!authenticated) return;
     final webUrl = ref.read(remoteUrlLinkProvider).valueOrNull?.$2;
     if (webUrl == null) return;
     setState(() => featureCountsLoading = true);
-    final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
+    final githubAppOauth = ref.read(githubScopedOauthProvider).valueOrNull ?? false;
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
     if (accessToken.isEmpty) {
       if (mounted) setState(() => featureCountsLoading = false);
@@ -1269,7 +1275,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
   ValueNotifier<bool> updatingRecommendedAction = ValueNotifier(false);
   Future<String> getLastSyncOption(int? recommendedActionValue) async {
-    if (await uiSettingsManager.getClientModeEnabled() == true) {
+    if (ref.read(clientModeEnabledProvider).valueOrNull ?? false) {
       if (recommendedActionValue != null && recommendedActionValue >= 0) {
         return [
           sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]),
@@ -1284,7 +1290,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
   Future<void> updateSyncOptions() async {
     final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
-    final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
+    final clientModeEnabled = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
     final dirPath = uiSettingsManager.gitDirPath?.$1;
     final noRemotes = (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty;
 
@@ -1580,13 +1586,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       await reloadAll();
       // After auth, offer remote creation if current repo has no remotes
       if (uiSettingsManager.gitDirPath?.$1 != null && (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty) {
-        final provider = await uiSettingsManager.getGitProvider();
+        final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
         if (provider.isOAuthProvider) {
           await offerCreateRemoteForExistingRepo(context, uiSettingsManager.gitDirPath!.$1!);
           await reloadAll();
         }
       }
-      if ((await uiSettingsManager.getAuthorEmail()).isEmpty || (await uiSettingsManager.getAuthorName()).isEmpty) {
+      if ((ref.read(authorEmailProvider).valueOrNull ?? "").isEmpty || (ref.read(authorNameProvider).valueOrNull ?? "").isEmpty) {
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
@@ -1688,7 +1694,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
         onGenerateRoute: (_) => MaterialPageRoute(
           builder: (context) => ProviderBuilder<List<GitManagerRs.Commit>>(
             provider: recentCommitsProvider,
-            builder: (context, commits) => FileExplorer(commits ?? [], key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
+            builder: (context, commits) => FileExplorer(commits.valueOrNull ?? [], key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
           ),
         ),
       ),
@@ -2051,9 +2057,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                       builder: (context) => BetterOrientationBuilder(
                         builder: (context, orientation) => SingleChildScrollView(
                           scrollDirection: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
-                          child: FutureBuilder(
-                            future: uiSettingsManager.getClientModeEnabled(),
-                            builder: (context, clientModeEnabledSnapshot) => Container(
+                          child: ProviderBuilder<bool>(
+                            provider: clientModeEnabledProvider,
+                            builder: (context, clientModeEnabledAsync) {
+                            final clientModeEnabledValue = clientModeEnabledAsync.valueOrNull;
+                            return Container(
                               width: orientation == Orientation.portrait
                                   ? null
                                   : MediaQuery.of(context).size.width -
@@ -2087,11 +2095,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                       ),
                                       child: ProviderBuilder<List<GitManagerRs.Commit>>(
                                         provider: recentCommitsProvider,
-                                        builder: (context, recentCommitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+                                        builder: (context, recentCommitsAsync) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
                                             provider: conflictingFilesProvider,
-                                            builder: (context, conflictingSnapshot) {
-                                                  final recentCommits = recentCommitsSnapshot ?? [];
-                                                  final conflictingValue = conflictingSnapshot ?? [];
+                                            builder: (context, conflictingAsync) {
+                                                  final recentCommits = recentCommitsAsync.valueOrNull ?? [];
+                                                  final conflictingValue = conflictingAsync.valueOrNull ?? [];
                                                   final items = [
                                                     ...((conflictingValue.isEmpty)
                                                         ? <GitManagerRs.Commit>[]
@@ -2202,7 +2210,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             blendMode: BlendMode.dstOut,
                                                                             child:
                                                                                 recentCommits.isEmpty &&
-                                                                                    ref.read(recentCommitsProvider).isLoading
+                                                                                    recentCommitsAsync.isLoading
                                                                                 ? Center(
                                                                                     child: CircularProgressIndicator(color: colours.tertiaryLight),
                                                                                   )
@@ -2240,7 +2248,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                             key: Key(reference),
                                                                                                             conflictingValue,
                                                                                                             () => reloadAll(),
-                                                                                                            clientModeEnabledSnapshot.data ?? false,
+                                                                                                            clientModeEnabledValue ?? false,
                                                                                                           ),
                                                                                                         );
                                                                                                       }
@@ -2248,27 +2256,29 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                       return AnchorItemWrapper(
                                                                                                         index: index,
                                                                                                         controller: recentCommitsController,
-                                                                                                        child: ItemCommit(
-                                                                                                          key: Key(reference),
-                                                                                                          items[index],
-                                                                                                          index < items.length - 1
-                                                                                                              ? items[index + 1]
-                                                                                                              : null,
-                                                                                                          recentCommits,
-                                                                                                          gitProvider: currentGitProvider.value,
-                                                                                                          remoteWebUrl: ref
-                                                                                                              .read(remoteUrlLinkProvider)
-                                                                                                              .valueOrNull
-                                                                                                              ?.$2,
-                                                                                                          onRefresh: () => reloadAll(),
-                                                                                                          selectMode: _commitSelectMode,
-                                                                                                          selectedShas: _commitSelectedShas,
-                                                                                                          onSelectModeRequested: () {
-                                                                                                            _commitSelectMode.value = true;
-                                                                                                            _commitSelectedShas.value = {
-                                                                                                              items[index].reference,
-                                                                                                            };
-                                                                                                          },
+                                                                                                        child: Consumer(
+                                                                                                          builder: (context, ref, _) => ItemCommit(
+                                                                                                            key: Key(reference),
+                                                                                                            items[index],
+                                                                                                            index < items.length - 1
+                                                                                                                ? items[index + 1]
+                                                                                                                : null,
+                                                                                                            recentCommits,
+                                                                                                            gitProvider: ref.watch(gitProviderProvider).valueOrNull,
+                                                                                                            remoteWebUrl: ref
+                                                                                                                .watch(remoteUrlLinkProvider)
+                                                                                                                .valueOrNull
+                                                                                                                ?.$2,
+                                                                                                            onRefresh: () => reloadAll(),
+                                                                                                            selectMode: _commitSelectMode,
+                                                                                                            selectedShas: _commitSelectedShas,
+                                                                                                            onSelectModeRequested: () {
+                                                                                                              _commitSelectMode.value = true;
+                                                                                                              _commitSelectedShas.value = {
+                                                                                                                items[index].reference,
+                                                                                                              };
+                                                                                                            },
+                                                                                                          ),
                                                                                                         ),
                                                                                                       );
                                                                                                     },
@@ -2494,18 +2504,19 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
                                                               ProviderBuilder<String?>(
                                                                 provider: branchNameProvider,
-                                                                builder: (context, branchNameValue) => ProviderBuilder<Map<String, String>>(
+                                                                builder: (context, branchNameAsync) => ProviderBuilder<Map<String, String>>(
                                                                   provider: branchNamesProvider,
-                                                                  builder: (context, branchNamesValue) => ProviderBuilder<bool>(
+                                                                  builder: (context, branchNamesAsync) => ProviderBuilder<bool>(
                                                                     provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
-                                                                    builder: (context, hasConflictsValue) {
-                                                                      final branchNamesMap = branchNamesValue ?? {};
+                                                                    builder: (context, hasConflictsAsync) {
+                                                                      final branchNameValue = branchNameAsync.valueOrNull;
+                                                                      final branchNamesMap = branchNamesAsync.valueOrNull ?? {};
                                                                       final hasBranch = branchNamesMap.containsKey(branchNameValue);
 
                                                                       return BranchSelector(
                                                                         branchName: branchNameValue,
                                                                         branchNames: branchNamesMap,
-                                                                        hasConflicts: hasConflictsValue ?? false,
+                                                                        hasConflicts: hasConflictsAsync.valueOrNull ?? false,
                                                                       onCheckoutBranch: (item) async {
                                                                         await runGitOperation(LogType.CheckoutBranch, (event) => event, {
                                                                           "branchName": item,
@@ -2551,57 +2562,35 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 duration: animFast,
                                                                 child: ValueListenableBuilder<Map<ShowcaseFeature, int?>>(
                                                                   valueListenable: featureCounts,
-                                                                  builder: (context, countsMap, _) => FutureBuilder(
-                                                                    future: Future.wait([
-                                                                      uiSettingsManager.getGitProvider(),
-                                                                      uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures),
-                                                                      isAuthenticated(),
-                                                                    ]),
-                                                                    builder: (context, snapshot) {
-                                                                      final data = snapshot.data;
-                                                                      if (data == null) return SizedBox(width: double.infinity, height: 0);
-                                                                      final provider = data[0] as GitProvider;
-                                                                      final authenticated = data[2] as bool;
-                                                                      if (!provider.isOAuthProvider || !authenticated) {
-                                                                        return SizedBox(width: double.infinity, height: 0);
-                                                                      }
-                                                                      final pinned = ShowcaseFeature.fromStorageKeys(data[1] as List<String>);
-                                                                      final webUrl = ref.read(remoteUrlLinkProvider).valueOrNull?.$2;
-                                                                      if (pinned.length == 1) {
-                                                                        return Hero(
-                                                                          tag: heroShowcaseFeature(pinned[0].storageKey),
-                                                                          child: ShowcaseFeatureButton(
-                                                                            feature: pinned[0],
-                                                                            gitProvider: provider,
-                                                                            count: countsMap[pinned[0]],
-                                                                            countLoading: featureCountsLoading,
-                                                                            onAdd: resolveFeatureOnAdd(
-                                                                              context: context,
-                                                                              feature: pinned[0],
-                                                                              gitProvider: provider,
-                                                                              remoteWebUrl: webUrl,
-                                                                            ),
-                                                                            onPressed: () => _navigateToExpandedCommits(
-                                                                              initialScrollOffset: recentCommitsController.offset,
-                                                                              pendingFeature: pinned[0],
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      }
-                                                                      return Row(
-                                                                        children: [
-                                                                          Expanded(
-                                                                            child: Hero(
+                                                                  builder: (context, countsMap, _) => Consumer(
+                                                                    builder: (context, ref, _) {
+                                                                      final gitProviderValue = ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
+                                                                      final webUrl = ref.watch(remoteUrlLinkProvider).valueOrNull?.$2;
+                                                                      return FutureBuilder(
+                                                                        future: Future.wait([
+                                                                          uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures),
+                                                                          isAuthenticated(),
+                                                                        ]),
+                                                                        builder: (context, snapshot) {
+                                                                          final data = snapshot.data;
+                                                                          if (data == null) return SizedBox(width: double.infinity, height: 0);
+                                                                          final authenticated = data[1] as bool;
+                                                                          if (!gitProviderValue.isOAuthProvider || !authenticated) {
+                                                                            return SizedBox(width: double.infinity, height: 0);
+                                                                          }
+                                                                          final pinned = ShowcaseFeature.fromStorageKeys(data[0] as List<String>);
+                                                                          if (pinned.length == 1) {
+                                                                            return Hero(
                                                                               tag: heroShowcaseFeature(pinned[0].storageKey),
                                                                               child: ShowcaseFeatureButton(
                                                                                 feature: pinned[0],
-                                                                                gitProvider: provider,
+                                                                                gitProvider: gitProviderValue,
                                                                                 count: countsMap[pinned[0]],
                                                                                 countLoading: featureCountsLoading,
                                                                                 onAdd: resolveFeatureOnAdd(
                                                                                   context: context,
                                                                                   feature: pinned[0],
-                                                                                  gitProvider: provider,
+                                                                                  gitProvider: gitProviderValue,
                                                                                   remoteWebUrl: webUrl,
                                                                                 ),
                                                                                 onPressed: () => _navigateToExpandedCommits(
@@ -2609,31 +2598,56 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   pendingFeature: pinned[0],
                                                                                 ),
                                                                               ),
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(width: spaceXS),
-                                                                          Expanded(
-                                                                            child: Hero(
-                                                                              tag: heroShowcaseFeature(pinned[1].storageKey),
-                                                                              child: ShowcaseFeatureButton(
-                                                                                feature: pinned[1],
-                                                                                gitProvider: provider,
-                                                                                count: countsMap[pinned[1]],
-                                                                                countLoading: featureCountsLoading,
-                                                                                onAdd: resolveFeatureOnAdd(
-                                                                                  context: context,
-                                                                                  feature: pinned[1],
-                                                                                  gitProvider: provider,
-                                                                                  remoteWebUrl: webUrl,
-                                                                                ),
-                                                                                onPressed: () => _navigateToExpandedCommits(
-                                                                                  initialScrollOffset: recentCommitsController.offset,
-                                                                                  pendingFeature: pinned[1],
+                                                                            );
+                                                                          }
+                                                                          return Row(
+                                                                            children: [
+                                                                              Expanded(
+                                                                                child: Hero(
+                                                                                  tag: heroShowcaseFeature(pinned[0].storageKey),
+                                                                                  child: ShowcaseFeatureButton(
+                                                                                    feature: pinned[0],
+                                                                                    gitProvider: gitProviderValue,
+                                                                                    count: countsMap[pinned[0]],
+                                                                                    countLoading: featureCountsLoading,
+                                                                                    onAdd: resolveFeatureOnAdd(
+                                                                                      context: context,
+                                                                                      feature: pinned[0],
+                                                                                      gitProvider: gitProviderValue,
+                                                                                      remoteWebUrl: webUrl,
+                                                                                    ),
+                                                                                    onPressed: () => _navigateToExpandedCommits(
+                                                                                      initialScrollOffset: recentCommitsController.offset,
+                                                                                      pendingFeature: pinned[0],
+                                                                                    ),
+                                                                                  ),
                                                                                 ),
                                                                               ),
-                                                                            ),
-                                                                          ),
-                                                                        ],
+                                                                              SizedBox(width: spaceXS),
+                                                                              Expanded(
+                                                                                child: Hero(
+                                                                                  tag: heroShowcaseFeature(pinned[1].storageKey),
+                                                                                  child: ShowcaseFeatureButton(
+                                                                                    feature: pinned[1],
+                                                                                    gitProvider: gitProviderValue,
+                                                                                    count: countsMap[pinned[1]],
+                                                                                    countLoading: featureCountsLoading,
+                                                                                    onAdd: resolveFeatureOnAdd(
+                                                                                      context: context,
+                                                                                      feature: pinned[1],
+                                                                                      gitProvider: gitProviderValue,
+                                                                                      remoteWebUrl: webUrl,
+                                                                                    ),
+                                                                                    onPressed: () => _navigateToExpandedCommits(
+                                                                                      initialScrollOffset: recentCommitsController.offset,
+                                                                                      pendingFeature: pinned[1],
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          );
+                                                                        },
                                                                       );
                                                                     },
                                                                   ),
@@ -2648,7 +2662,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                         valueListenable: syncOptions,
                                                         builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
                                                           provider: recommendedActionProvider,
-                                                          builder: (context, recommendedActionValue) => FutureBuilder(
+                                                          builder: (context, recommendedActionAsync) {
+                                                            final recommendedActionValue = recommendedActionAsync.valueOrNull;
+                                                            return FutureBuilder(
                                                             future: getLastSyncOption(recommendedActionValue),
                                                             builder: (context, lastSyncMethodSnapshot) => Column(
                                                               children: [
@@ -2690,7 +2706,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               topLeft: cornerRadiusSM,
                                                                                               topRight: cornerRadiusSM,
                                                                                               bottomLeft: cornerRadiusMD,
-                                                                                              bottomRight: clientModeEnabledSnapshot.data == true
+                                                                                              bottomRight: clientModeEnabledValue == true
                                                                                                   ? cornerRadiusMD
                                                                                                   : cornerRadiusSM,
                                                                                             )
@@ -2698,7 +2714,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               topLeft: cornerRadiusMD,
                                                                                               bottomRight: cornerRadiusSM,
                                                                                               bottomLeft: cornerRadiusSM,
-                                                                                              topRight: clientModeEnabledSnapshot.data == true
+                                                                                              topRight: clientModeEnabledValue == true
                                                                                                   ? cornerRadiusMD
                                                                                                   : cornerRadiusSM,
                                                                                             ),
@@ -2709,7 +2725,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                 icon: Stack(
                                                                                   clipBehavior: Clip.none,
                                                                                   children: [
-                                                                                    if (clientModeEnabledSnapshot.data == true)
+                                                                                    if (clientModeEnabledValue == true)
                                                                                       Positioned(
                                                                                         top: -spaceXXS,
                                                                                         bottom: -spaceXXS,
@@ -2748,7 +2764,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   padding: EdgeInsets.only(left: spaceXS),
                                                                                   child: Text(
                                                                                     (uiSettingsManager.gitDirPath?.$2 == null
-                                                                                            ? (clientModeEnabledSnapshot.data == true
+                                                                                            ? (clientModeEnabledValue == true
                                                                                                   ? t.syncAllChanges
                                                                                                   : t.syncNow)
                                                                                             : ((syncOptionsSnapshot.containsKey(
@@ -2758,7 +2774,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                       ? lastSyncMethodSnapshot.data
                                                                                                       : (syncOptionsSnapshot.keys.isNotEmpty
                                                                                                             ? syncOptionsSnapshot.keys.first
-                                                                                                            : (clientModeEnabledSnapshot.data == true
+                                                                                                            : (clientModeEnabledValue == true
                                                                                                                   ? t.syncAllChanges
                                                                                                                   : t.syncNow))) ??
                                                                                                   t.syncNow))
@@ -2766,7 +2782,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     style: TextStyle(
                                                                                       color: uiSettingsManager.gitDirPath?.$2 == null
                                                                                           ? colours.secondaryLight
-                                                                                          : (clientModeEnabledSnapshot.data == true &&
+                                                                                          : (clientModeEnabledValue == true &&
                                                                                                     recommendedActionValue != null &&
                                                                                                     recommendedActionValue >= 0
                                                                                                 ? colours.tertiaryInfo
@@ -2833,7 +2849,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               topLeft: cornerRadiusSM,
                                                                                               topRight: cornerRadiusSM,
                                                                                               bottomLeft: cornerRadiusMD,
-                                                                                              bottomRight: clientModeEnabledSnapshot.data == true
+                                                                                              bottomRight: clientModeEnabledValue == true
                                                                                                   ? cornerRadiusMD
                                                                                                   : cornerRadiusSM,
                                                                                             )
@@ -2841,7 +2857,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               topLeft: cornerRadiusMD,
                                                                                               bottomRight: cornerRadiusSM,
                                                                                               bottomLeft: cornerRadiusSM,
-                                                                                              topRight: clientModeEnabledSnapshot.data == true
+                                                                                              topRight: clientModeEnabledValue == true
                                                                                                   ? cornerRadiusMD
                                                                                                   : cornerRadiusSM,
                                                                                             ),
@@ -2889,7 +2905,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       SizedBox(width: spaceSM),
                                                                       ProviderBuilder<bool>(
                                                                         provider: syncMessageEnabledProvider,
-                                                                        builder: (context, syncMsgEnabled) => IconButton(
+                                                                        builder: (context, syncMsgEnabledAsync) {
+                                                                          final syncMsgEnabled = syncMsgEnabledAsync.valueOrNull;
+                                                                          return IconButton(
                                                                           onPressed: () async {
                                                                             if (!(syncMsgEnabled ?? false)) {
                                                                               if (!(await Permission.notification.request().isGranted)) return;
@@ -2941,7 +2959,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ),
                                                                             ],
                                                                           ),
-                                                                        ),
+                                                                        );
+                                                                        },
                                                                       ),
                                                                     ],
                                                                   ),
@@ -3024,7 +3043,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 ),
                                                               ],
                                                             ),
-                                                          ),
+                                                          );
+                                                          },
                                                         ),
                                                       ),
                                                     ],
@@ -3077,10 +3097,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                       children: [
                                                         ProviderBuilder<(String, String)?>(
                                                           provider: remoteUrlLinkProvider,
-                                                          builder: (context, remoteUrlLinkValue) => ProviderBuilder<List<String>>(
+                                                          builder: (context, remoteUrlLinkAsync) => ProviderBuilder<List<String>>(
                                                             provider: listRemotesProvider,
-                                                            builder: (context, remotesSnapshot) {
-                                                              final remotesList = remotesSnapshot ?? [];
+                                                            builder: (context, remotesAsync) {
+                                                              final remoteUrlLinkValue = remoteUrlLinkAsync.valueOrNull;
+                                                              final remotesList = remotesAsync.valueOrNull ?? [];
                                                               final actions = remoteEllipsisActions(remotesList.length);
                                                               return FutureBuilder<String>(
                                                                 future: uiSettingsManager.getRemote(),
@@ -3160,7 +3181,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               if (noRemoteWithDir)
                                                                                 GestureDetector(
                                                                                   onTap: () async {
-                                                                                    final provider = currentGitProvider.value;
+                                                                                    final provider = ref.read(gitProviderProvider).valueOrNull;
                                                                                     final hasOAuth = provider?.isOAuthProvider == true;
                                                                                     await AddRemoteDialog.showDialog(
                                                                                       context,
@@ -3552,63 +3573,62 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 ),
                                                               ),
 
-                                                              FutureBuilder(
-                                                                future: (() async =>
-                                                                    await uiSettingsManager.getGitProvider() == GitProvider.GITHUB &&
-                                                                    await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) == true)(),
-                                                                builder: (context, gitProviderSnapshot) => !(gitProviderSnapshot.data == true)
-                                                                    ? SizedBox.shrink()
-                                                                    : IconButton(
-                                                                        padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                        style: ButtonStyle(
-                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                                                                          shape: WidgetStatePropertyAll(
-                                                                            RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadiusGeometry.only(
-                                                                                topRight: cornerRadiusMD,
-                                                                                bottomRight: cornerRadiusMD,
-                                                                                bottomLeft: Radius.zero,
-                                                                                topLeft: Radius.zero,
+                                                              Consumer(
+                                                                builder: (context, ref, _) =>
+                                                                  !((ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB) == GitProvider.GITHUB &&
+                                                                          (ref.watch(githubScopedOauthProvider).valueOrNull ?? false))
+                                                                      ? SizedBox.shrink()
+                                                                      : IconButton(
+                                                                            padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                            style: ButtonStyle(
+                                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                                              shape: WidgetStatePropertyAll(
+                                                                                RoundedRectangleBorder(
+                                                                                  borderRadius: BorderRadiusGeometry.only(
+                                                                                    topRight: cornerRadiusMD,
+                                                                                    bottomRight: cornerRadiusMD,
+                                                                                    bottomLeft: Radius.zero,
+                                                                                    topLeft: Radius.zero,
+                                                                                  ),
+                                                                                ),
                                                                               ),
                                                                             ),
+                                                                            constraints: BoxConstraints(),
+                                                                            onPressed: () async {
+                                                                              final gitProviderManager = GithubAppManager();
+
+                                                                              final usernameToken = await uiSettingsManager.getGitHttpAuthCredentials();
+
+                                                                              final token = await gitProviderManager.getToken(
+                                                                                usernameToken.$2,
+                                                                                (_, _, _) async {},
+                                                                              );
+
+                                                                              if (token == null) return;
+
+                                                                              final githubAppInstallations = await gitProviderManager
+                                                                                  .getGitHubAppInstallations(token);
+                                                                              if (githubAppInstallations.isEmpty) {
+                                                                                await launchUrl(
+                                                                                  Uri.parse(githubAppsLink),
+                                                                                  mode: LaunchMode.inAppBrowserView,
+                                                                                );
+                                                                              } else {
+                                                                                await launchUrl(
+                                                                                  Uri.parse(
+                                                                                    "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
+                                                                                  ),
+                                                                                  mode: LaunchMode.inAppBrowserView,
+                                                                                );
+                                                                              }
+                                                                            },
+                                                                            icon: FaIcon(
+                                                                              FontAwesomeIcons.sliders,
+                                                                              size: textLG,
+                                                                              color: colours.secondaryLight,
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                        constraints: BoxConstraints(),
-                                                                        onPressed: () async {
-                                                                          final gitProviderManager = GithubAppManager();
-
-                                                                          final usernameToken = await uiSettingsManager.getGitHttpAuthCredentials();
-
-                                                                          final token = await gitProviderManager.getToken(
-                                                                            usernameToken.$2,
-                                                                            (_, _, _) async {},
-                                                                          );
-
-                                                                          if (token == null) return;
-
-                                                                          final githubAppInstallations = await gitProviderManager
-                                                                              .getGitHubAppInstallations(token);
-                                                                          if (githubAppInstallations.isEmpty) {
-                                                                            await launchUrl(
-                                                                              Uri.parse(githubAppsLink),
-                                                                              mode: LaunchMode.inAppBrowserView,
-                                                                            );
-                                                                          } else {
-                                                                            await launchUrl(
-                                                                              Uri.parse(
-                                                                                "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
-                                                                              ),
-                                                                              mode: LaunchMode.inAppBrowserView,
-                                                                            );
-                                                                          }
-                                                                        },
-                                                                        icon: FaIcon(
-                                                                          FontAwesomeIcons.sliders,
-                                                                          size: textLG,
-                                                                          color: colours.secondaryLight,
-                                                                        ),
-                                                                      ),
                                                               ),
                                                             ],
                                                           ),
@@ -3685,7 +3705,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ref.read(branchNameProvider.notifier).set(null);
                                                                               ref.read(remoteUrlLinkProvider.notifier).set(null);
                                                                               ref.read(listRemotesProvider.notifier).set([]);
-                                                                              currentGitProvider.value = null;
+                                                                              ref.invalidate(gitProviderProvider);
                                                                               ref.read(recommendedActionProvider.notifier).set(null);
                                                                               ref.read(branchNamesProvider.notifier).set({});
                                                                               ref.read(hasGitFiltersProvider.notifier).set(false);
@@ -3794,7 +3814,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                             ),
 
                                             SizedBox(height: spaceLG),
-                                            ...clientModeEnabledSnapshot.data == true
+                                            ...clientModeEnabledValue == true
                                                 ? [
                                                     TextButton.icon(
                                                       onPressed: () async {
@@ -3888,7 +3908,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                   ),
                                 ],
                               ),
-                            ),
+                            );
+                          },
                           ),
                         ),
                       ),
@@ -3954,7 +3975,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               ),
               ProviderBuilder<bool>(
                 provider: hasGitFiltersProvider,
-                builder: (context, hasFilters) => !(hasFilters ?? false)
+                builder: (context, hasFiltersAsync) => !(hasFiltersAsync.valueOrNull ?? false)
                     ? SizedBox.shrink()
                     : GestureDetector(
                         onTap: () => launchUrl(Uri.parse(playStoreLink)),
