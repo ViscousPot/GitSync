@@ -717,7 +717,7 @@ class GitManager {
   }
 
   static Future<String?> getBranchName({int? repoIndex}) async {
-    final result = await _runWithLock(priority: 1, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.BranchName, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.BranchName, (dirPath) async {
       try {
         return (await GitManagerRs.getBranchName(pathString: dirPath, log: _logWrapper));
       } catch (e, stackTrace) {
@@ -725,10 +725,6 @@ class GitManager {
         return repositoryNotFound;
       }
     });
-
-    final setman = await _resolveSettingsManager(repoIndex);
-    await setman.setStringNullable(StorageKey.setman_branchName, result);
-    return result;
   }
 
   static Future<List<(String, String)>> getBranchNames({int? repoIndex}) async {
@@ -766,7 +762,7 @@ class GitManager {
   }
 
   static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
-    final result = await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.ListRemotes, (
+    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.ListRemotes, (
           dirPath,
         ) async {
           try {
@@ -777,10 +773,6 @@ class GitManager {
           return null;
         }) ??
         <String>[];
-
-    final setman = await _resolveSettingsManager(repomanRepoindex);
-    await setman.setStringList(StorageKey.setman_remotes, result);
-    return result;
   }
 
   static Future<void> addRemote(String name, String url, {String? dirPathOverride, int? repoIndex}) async {
@@ -1008,7 +1000,7 @@ class GitManager {
 
   static Future<(String, String)?> getRemoteUrlLink({int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
-    final result = await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath) async {
       final remoteName = await setman.getRemote();
 
       try {
@@ -1054,12 +1046,6 @@ class GitManager {
         return null;
       }
     });
-
-    print("////?weee $result");
-
-    await setman.setStringList(StorageKey.setman_remoteUrlLink, result == null ? [] : [result.$1, result.$2]);
-
-    return result;
   }
 
   static String _convertToWebUrl(String remoteUrl) {
