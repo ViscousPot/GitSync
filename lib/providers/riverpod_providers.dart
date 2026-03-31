@@ -166,3 +166,78 @@ class ConflictingFilesNotifier extends CachedGitNotifier<List<(String, GitManage
 
 final conflictingFilesProvider =
     AsyncNotifierProvider<ConflictingFilesNotifier, List<(String, GitManagerRs.ConflictType)>>(ConflictingFilesNotifier.new);
+
+class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>> {
+  bool _hasMoreCommits = true;
+  bool _isLoadingMore = false;
+  bool get isLoadingMore => _isLoadingMore;
+
+  @override
+  Future<List<GitManagerRs.Commit>> readCache() async {
+    final cached = await uiSettingsManager.getStringList(StorageKey.setman_recentCommits);
+    return cached.map((item) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode(item)))).toList();
+  }
+
+  @override
+  Future<List<GitManagerRs.Commit>> fetchLive() => runGitOperation<List<GitManagerRs.Commit>>(
+        LogType.RecentCommits,
+        (event) =>
+            event?["result"]?.map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList() ??
+            <GitManagerRs.Commit>[],
+      );
+
+  @override
+  Future<void> writeCache(List<GitManagerRs.Commit> value) => uiSettingsManager.setStringList(
+        StorageKey.setman_recentCommits,
+        value.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList(),
+      );
+
+  @override
+  Future<List<GitManagerRs.Commit>> build() async {
+    _hasMoreCommits = true;
+    _isLoadingMore = false;
+
+    var cancelled = false;
+    ref.onDispose(() => cancelled = true);
+
+    final cached = await readCache();
+
+    if (cached.isEmpty) {
+      final live = await fetchLive();
+      await writeCache(live);
+      return live;
+    }
+
+    () async {
+      try {
+        final live = await fetchLive();
+        if (!cancelled) {
+          state = AsyncData(live);
+          await writeCache(live);
+        }
+      } catch (_) {}
+    }();
+
+    return cached;
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMoreCommits || _isLoadingMore) return;
+    final current = state.valueOrNull ?? [];
+    _isLoadingMore = true;
+    state = AsyncData(current);
+    final moreCommits = await GitManager.getMoreRecentCommits(current.length);
+    if (moreCommits.isEmpty) {
+      _hasMoreCommits = false;
+    } else {
+      final updated = [...current, ...moreCommits];
+      state = AsyncData(updated);
+      await writeCache(updated);
+    }
+    _isLoadingMore = false;
+    state = AsyncData(state.valueOrNull ?? current);
+  }
+}
+
+final recentCommitsProvider =
+    AsyncNotifierProvider<RecentCommitsNotifier, List<GitManagerRs.Commit>>(RecentCommitsNotifier.new);

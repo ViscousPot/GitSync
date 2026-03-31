@@ -612,11 +612,6 @@ class GitManager {
       }
     });
 
-    if (result != null)
-      await setman.setStringList(
-        StorageKey.setman_recentCommits,
-        result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
-      );
     return result ?? <GitManagerRs.Commit>[];
   }
 

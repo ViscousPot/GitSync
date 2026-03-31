@@ -17,10 +17,9 @@ import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/provider_builder.dart';
 import 'package:GitSync/ui/component/showcase_feature_button.dart';
 
-class ExpandedCommits extends StatefulWidget {
+class ExpandedCommits extends ConsumerStatefulWidget {
   const ExpandedCommits({
     super.key,
-    required this.recentCommits,
     required this.gitProvider,
     this.remoteWebUrl,
     required this.onBranchChanged,
@@ -35,7 +34,6 @@ class ExpandedCommits extends StatefulWidget {
     this.isAuthenticated = false,
   });
 
-  final ValueNotifier<List<GitManagerRs.Commit>> recentCommits;
   final GitProvider? gitProvider;
   final String? remoteWebUrl;
   final bool isClientMode;
@@ -50,10 +48,10 @@ class ExpandedCommits extends StatefulWidget {
   final bool isAuthenticated;
 
   @override
-  State<ExpandedCommits> createState() => _ExpandedCommitsState();
+  ConsumerState<ExpandedCommits> createState() => _ExpandedCommitsState();
 }
 
-class _ExpandedCommitsState extends State<ExpandedCommits> {
+class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
   late final ScrollController _scrollController = ScrollController(initialScrollOffset: widget.initialScrollOffset);
   final ValueNotifier<List<ShowcaseFeature>> _pinnedFeatures = ValueNotifier(ShowcaseFeature.defaultPinned);
   final ValueNotifier<Map<ShowcaseFeature, int?>> _featureCounts = ValueNotifier({});
@@ -200,15 +198,16 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(spaceMD),
-            child: ValueListenableBuilder(
-              valueListenable: widget.recentCommits,
-              builder: (context, commitsValue, _) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+            child: ProviderBuilder<List<GitManagerRs.Commit>>(
+              provider: recentCommitsProvider,
+              builder: (context, commitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
                 provider: conflictingFilesProvider,
                 builder: (context, conflictingSnapshot) => ProviderBuilder<Map<String, String>>(
                     provider: branchNamesProvider,
                     builder: (context, branchNamesSnapshot) {
                       final branchNamesValue = branchNamesSnapshot ?? {};
                       final conflictingValue = conflictingSnapshot ?? [];
+                      final commitsValue = commitsSnapshot ?? [];
                       final items = _buildItems(commitsValue, conflictingValue);
 
                       return Column(
@@ -581,7 +580,6 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
 }
 
 Route createExpandedCommitsRoute({
-  required ValueNotifier<List<GitManagerRs.Commit>> recentCommits,
   required GitProvider? gitProvider,
   String? remoteWebUrl,
   required Future<void> Function(String) onBranchChanged,
@@ -598,7 +596,6 @@ Route createExpandedCommitsRoute({
   return PageRouteBuilder(
     settings: const RouteSettings(name: expanded_commits),
     pageBuilder: (context, animation, secondaryAnimation) => ExpandedCommits(
-      recentCommits: recentCommits,
       gitProvider: gitProvider,
       remoteWebUrl: remoteWebUrl,
       onBranchChanged: onBranchChanged,

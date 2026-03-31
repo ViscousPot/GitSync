@@ -760,7 +760,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   Future<void> _openSettingsMain({bool showcaseAuthorDetails = false}) async {
     await _homeNavigatorKey.currentState?.push<String?>(
       createSettingsMainRoute(_homeNavigatorKey.currentContext!, {
-        "recentCommits": getStringRecentCommits(),
         "showcaseAuthorDetails": showcaseAuthorDetails,
       }),
     );
@@ -796,7 +795,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     registerForRestoration(_restorableGlobalSettings, global_settings_main);
     registerForRestoration(_restorableOnboardingSetup, onboarding_setup);
     registerForRestoration(_restorableUnlockPremium, unlock_premium);
-    registerForRestoration(loadingRecentCommits, 'loadingRecentCommits');
     registerForRestoration(mergeConflictVisible, 'mergeConflictVisible');
   }
 
@@ -815,9 +813,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     end: 120.0,
   ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
 
-  RestorableBool loadingRecentCommits = RestorableBool(false);
-  bool _hasMoreCommits = true;
-  ValueNotifier<List<GitManagerRs.Commit>> recentCommits = ValueNotifier([]);
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
   ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
@@ -835,24 +830,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   void _onCommitsScroll() {
-    if (!_hasMoreCommits) return;
-    if (loadingRecentCommits.value) return;
     final pos = recentCommitsController.position;
     if (pos.pixels >= pos.maxScrollExtent - 50) {
-      _loadMoreCommits();
+      ref.read(recentCommitsProvider.notifier).loadMore();
     }
-  }
-
-  Future<void> _loadMoreCommits() async {
-    loadingRecentCommits.value = true;
-    final currentCount = recentCommits.value.length;
-    final moreCommits = await GitManager.getMoreRecentCommits(currentCount);
-    if (moreCommits.isEmpty) {
-      _hasMoreCommits = false;
-    } else {
-      recentCommits.value = [...recentCommits.value, ...moreCommits];
-    }
-    loadingRecentCommits.value = false;
   }
 
   Future<void> _navigateToExpandedCommits({double initialScrollOffset = 0, ShowcaseFeature? pendingFeature}) async {
@@ -862,7 +843,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     Navigator.of(context)
         .push(
           createExpandedCommitsRoute(
-            recentCommits: this.recentCommits,
             gitProvider: provider,
             remoteWebUrl: ref.read(remoteUrlLinkProvider).valueOrNull?.$2,
             isAuthenticated: authenticated,
@@ -919,21 +899,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(branchNamesProvider);
     ref.invalidate(hasGitFiltersProvider);
     ref.invalidate(conflictingFilesProvider);
+    ref.invalidate(recentCommitsProvider);
     _fetchFeatureCounts();
     currentGitProvider.value = await uiSettingsManager.getGitProvider();
     if (token != _reloadToken) return;
     await updateRecommendedAction();
-    if (token != _reloadToken) return;
-    loadingRecentCommits.value = true;
-    _hasMoreCommits = true;
-    final newRecentCommits = await runGitOperation<List<GitManagerRs.Commit>>(
-      LogType.RecentCommits,
-      (event) => event?["result"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
-    );
-    if (mounted) setState(() {});
-    if (token != _reloadToken) return;
-    recentCommits.value = newRecentCommits;
-    loadingRecentCommits.value = false;
     if (mounted) setState(() {});
   }
 
@@ -1226,12 +1196,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     super.didChangeDependencies();
   }
 
-  List<String> getStringRecentCommits() {
-    return recentCommits.value.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList();
-  }
-
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
-    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits(), "onboarding": true});
+    _restorableGlobalSettings.present({"onboarding": true});
     await repoManager.setOnboardingStep(-1);
     await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, initialClientModeEnabled);
     if (mounted) setState(() {});
@@ -1557,7 +1523,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     WidgetsBinding.instance.removeObserver(this);
     recentCommitsController.removeListener(_onCommitsScroll);
 
-    loadingRecentCommits.dispose();
     featureCounts.dispose();
     mergeConflictVisible.dispose();
 
@@ -1732,9 +1697,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
         key: _filesNavigatorKey,
         observers: [_NestedNavigatorObserver(_filesCanPop)],
         onGenerateRoute: (_) => MaterialPageRoute(
-          builder: (context) => ValueListenableBuilder(
-            valueListenable: recentCommits,
-            builder: (context, commits, _) => FileExplorer(commits, key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
+          builder: (context) => ProviderBuilder<List<GitManagerRs.Commit>>(
+            provider: recentCommitsProvider,
+            builder: (context, commits) => FileExplorer(commits ?? [], key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
           ),
         ),
       ),
@@ -1814,7 +1779,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
                   onPressed: () async {
-                    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
+                    _restorableGlobalSettings.present({});
                     widget.reloadLocale();
                   },
                   icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
@@ -2022,7 +1987,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                             if (value == null) return;
                                             await repoManager.setInt(StorageKey.repoman_repoIndex, value);
                                             await uiSettingsManager.reinit();
-                                            recentCommits.value.clear();
+                                            ref.read(recentCommitsProvider.notifier).set([]);
                                             await reloadAll();
                                           },
                                           selectedItemBuilder: (context) => List.generate(
@@ -2131,18 +2096,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                           ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: t.showcaseControlFeatureMore),
                                         ],
                                       ),
-                                      child: ValueListenableBuilder(
-                                        valueListenable: recentCommits,
-                                        builder: (context, recentCommitsSnapshot, child) => FutureBuilder(
-                                          future: GitManager.getInitialRecentCommits(),
-                                          builder: (context, fastRecentCommitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+                                      child: ProviderBuilder<List<GitManagerRs.Commit>>(
+                                        provider: recentCommitsProvider,
+                                        builder: (context, recentCommitsSnapshot) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
                                             provider: conflictingFilesProvider,
-                                            builder: (context, conflictingSnapshot) => ListenableBuilder(
-                                                listenable: loadingRecentCommits,
-                                                builder: (context, child) {
-                                                  final recentCommits = loadingRecentCommits.value || recentCommitsSnapshot.isEmpty
-                                                      ? fastRecentCommitsSnapshot.data ?? recentCommitsSnapshot
-                                                      : recentCommitsSnapshot;
+                                            builder: (context, conflictingSnapshot) {
+                                                  final recentCommits = recentCommitsSnapshot ?? [];
                                                   final conflictingValue = conflictingSnapshot ?? [];
                                                   final items = [
                                                     ...((conflictingValue.isEmpty)
@@ -2254,9 +2213,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             blendMode: BlendMode.dstOut,
                                                                             child:
                                                                                 recentCommits.isEmpty &&
-                                                                                    (fastRecentCommitsSnapshot.connectionState ==
-                                                                                            ConnectionState.waiting ||
-                                                                                        loadingRecentCommits.value)
+                                                                                    ref.read(recentCommitsProvider).isLoading
                                                                                 ? Center(
                                                                                     child: CircularProgressIndicator(color: colours.tertiaryLight),
                                                                                   )
@@ -2419,7 +2376,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    ...(recentCommits.isNotEmpty == true && loadingRecentCommits.value)
+                                                                    ...(recentCommits.isNotEmpty == true && ref.read(recentCommitsProvider.notifier).isLoadingMore)
                                                                         ? [
                                                                             Positioned(
                                                                               top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
@@ -3091,9 +3048,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                     ],
                                                   );
                                                 },
-                                              ),
                                           ),
-                                        ),
                                       ),
                                     ),
                                   ),
@@ -3752,7 +3707,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               recommendedAction.value = null;
                                                                               ref.read(branchNamesProvider.notifier).set({});
                                                                               ref.read(hasGitFiltersProvider.notifier).set(false);
-                                                                              recentCommits.value = [];
+                                                                              ref.read(recentCommitsProvider.notifier).set([]);
                                                                               ref.read(conflictingFilesProvider.notifier).set([]);
                                                                               await updateSyncOptions();
                                                                               if (mounted) setState(() {});

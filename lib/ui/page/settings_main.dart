@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
@@ -19,9 +16,8 @@ import '../../../ui/component/item_setting.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
 
 class SettingsMain extends StatefulWidget {
-  const SettingsMain(this.recentCommitStrings, {super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
+  const SettingsMain({super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
 
-  final List<String> recentCommitStrings;
   final bool showcaseAuthorDetails;
   final VoidCallback? openGlobalSettings;
 
@@ -609,7 +605,6 @@ Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => SettingsMain(
-        argsMap["recentCommits"].map<String>((path) => "$path").toList(),
         showcaseAuthorDetails: argsMap["showcaseAuthorDetails"] == true,
         openGlobalSettings: argsMap["openGlobalSettings"] as VoidCallback?,
       ),

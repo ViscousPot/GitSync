@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
@@ -36,17 +37,16 @@ import '../dialog/change_language.dart' as ChangeLanguageDialog;
 import '../dialog/confirm_clear_data.dart' as ConfirmClearDataDialog;
 import '../dialog/enter_backup_restore_password.dart' as EnterBackupRestorePasswordDialog;
 
-class GlobalSettingsMain extends StatefulWidget {
-  const GlobalSettingsMain(this.recentCommits, {super.key, this.onboarding = false});
+class GlobalSettingsMain extends ConsumerStatefulWidget {
+  const GlobalSettingsMain({super.key, this.onboarding = false});
 
   final bool onboarding;
-  final List<GitManagerRs.Commit> recentCommits;
 
   @override
-  State<GlobalSettingsMain> createState() => _GlobalSettingsMain();
+  ConsumerState<GlobalSettingsMain> createState() => _GlobalSettingsMain();
 }
 
-class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   final _controller = ScrollController();
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
@@ -383,7 +383,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         if (selectedDirectory == null) return;
 
                         await useDirectory(selectedDirectory, (_) async {}, (path) async {
-                          await Navigator.of(context).push(createFileExplorerRoute(widget.recentCommits, path));
+                          await Navigator.of(context).push(createFileExplorerRoute(ref.read(recentCommitsProvider).valueOrNull ?? [], path));
                         });
                       },
                     ),
@@ -1047,7 +1047,6 @@ Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args)
     settings: const RouteSettings(name: global_settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => GlobalSettingsMain(
-        argsMap["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
         onboarding: argsMap["onboarding"] == true,
       ),
     ),
