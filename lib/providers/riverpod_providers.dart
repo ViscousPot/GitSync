@@ -47,6 +47,7 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
           state = AsyncData(live);
           await writeCache(manager, live);
         }
+      } on OperationNotExecuted {
       } catch (e, s) {
         if (!cancelled && await _isCurrentIndex(repoIndex)) {
           state = AsyncData(cached);
@@ -237,6 +238,7 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
           state = AsyncData(live);
           await writeCache(manager, live);
         }
+      } on OperationNotExecuted {
       } catch (e, s) {
         if (!cancelled && await _isCurrentIndex(repoIndex)) {
           state = AsyncData(cached);
