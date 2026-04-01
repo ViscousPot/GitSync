@@ -9,6 +9,8 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
+import 'package:GitSync/type/showcase_feature.dart';
+import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 
 abstract class SettingNotifier<T> extends AsyncNotifier<T> {
   Future<T> read();
@@ -411,3 +413,65 @@ class GithubScopedOauthNotifier extends SettingNotifier<bool> {
 }
 
 final githubScopedOauthProvider = AsyncNotifierProvider<GithubScopedOauthNotifier, bool>(GithubScopedOauthNotifier.new);
+
+class IsAuthenticatedNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() async {
+    final provider = await ref.watch(gitProviderProvider.future);
+    return provider == GitProvider.SSH
+        ? (await uiSettingsManager.getGitSshAuthCredentials()).$2.isNotEmpty
+        : (await uiSettingsManager.getGitHttpAuthCredentials()).$2.isNotEmpty;
+  }
+}
+
+final isAuthenticatedProvider = AsyncNotifierProvider<IsAuthenticatedNotifier, bool>(IsAuthenticatedNotifier.new);
+
+class RepoNamesNotifier extends AsyncNotifier<List<String>> {
+  @override
+  Future<List<String>> build() => repoManager.getStringList(StorageKey.repoman_repoNames);
+
+  void set(List<String> value) {
+    state = AsyncData(value);
+    repoManager.setStringList(StorageKey.repoman_repoNames, value);
+  }
+}
+
+final repoNamesProvider = AsyncNotifierProvider<RepoNamesNotifier, List<String>>(RepoNamesNotifier.new);
+
+class RepoIndexNotifier extends AsyncNotifier<int> {
+  @override
+  Future<int> build() => repoManager.getInt(StorageKey.repoman_repoIndex);
+
+  void set(int value) {
+    state = AsyncData(value);
+    repoManager.setInt(StorageKey.repoman_repoIndex, value);
+  }
+}
+
+final repoIndexProvider = AsyncNotifierProvider<RepoIndexNotifier, int>(RepoIndexNotifier.new);
+
+class FeatureCountsNotifier extends AsyncNotifier<Map<ShowcaseFeature, int?>> {
+  @override
+  Future<Map<ShowcaseFeature, int?>> build() async {
+    final provider = await ref.watch(gitProviderProvider.future);
+    if (!provider.isOAuthProvider) return {};
+    final authenticated = await ref.watch(isAuthenticatedProvider.future);
+    if (!authenticated) return {};
+    final remoteUrlLink = await ref.watch(remoteUrlLinkProvider.future);
+    final webUrl = remoteUrlLink?.$2;
+    if (webUrl == null) return {};
+    final githubAppOauth = await ref.watch(githubScopedOauthProvider.future);
+    final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
+    if (accessToken.isEmpty) return {};
+    final manager = GitProviderManager.getGitProviderManager(provider, githubAppOauth);
+    if (manager == null) return {};
+    final segments = Uri.parse(webUrl).pathSegments;
+    final owner = segments[0];
+    final repo = segments[1].replaceAll(".git", "");
+    final pinnedKeys = await uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures);
+    final pinned = ShowcaseFeature.fromStorageKeys(pinnedKeys);
+    return await manager.getFeatureCounts(accessToken, owner, repo, pinned);
+  }
+}
+
+final featureCountsProvider = AsyncNotifierProvider<FeatureCountsNotifier, Map<ShowcaseFeature, int?>>(FeatureCountsNotifier.new);
