@@ -482,6 +482,7 @@ class GitDirPathNotifier extends AsyncNotifier<(String, String)?> {
 
   void set((String, String)? value) {
     state = AsyncData(value);
+    uiSettingsManager.setGitDirPath(value?.$1 ?? "");
   }
 }
 

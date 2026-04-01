@@ -3732,7 +3732,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ? SizedBox.shrink()
                                                                               : IconButton(
                                                                                   onPressed: () async {
-                                                                                    await uiSettingsManager.setGitDirPath("");
                                                                                     ref.read(gitDirPathProvider.notifier).set(null);
                                                                                     ref.read(branchNameProvider.notifier).set(null);
                                                                                     ref.read(remoteUrlLinkProvider.notifier).set(null);
