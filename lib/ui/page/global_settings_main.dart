@@ -1041,13 +1041,13 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
 
 @pragma('vm:entry-point')
 Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args) {
-  final argsMap = (args as Map).cast<String, dynamic>();
+  final args_ = Map<String, dynamic>.from(args as Map);
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => GlobalSettingsMain(
-        onboarding: argsMap["onboarding"] == true,
+        onboarding: args_["onboarding"] == true,
       ),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
