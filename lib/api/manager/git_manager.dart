@@ -147,7 +147,10 @@ class GitManager {
       }
       if (dirPath!.isNotEmpty) {
         result = await useDirectory(dirPath!, (bookmarkPath) async => await setman.setGitDirPath(bookmarkPath, true), (dirPath) async {
-          if (expectGitDir && !isGitDir(dirPath)) return null;
+          if (expectGitDir && !isGitDir(dirPath)) {
+            Logger.gmLog(type: type, "Skipped: not a git directory");
+            return null;
+          }
           Logger.gmLog(type: type, ".git folder found");
           return await internalFn(dirPath);
         });
