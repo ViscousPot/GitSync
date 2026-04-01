@@ -1644,7 +1644,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                       final isRepo = await validateOrInitGitDir(context, selectedDirectory);
                       if (!isRepo) return;
                       if (!mounted) return;
-                      await setGitDirPathGetSubmodules(context, selectedDirectory);
+                      await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
                       await reloadAll();
                     },
                     style: ButtonStyle(
@@ -3799,7 +3799,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                     if (!isRepo) return;
 
                                                                     if (!mounted) return;
-                                                                    await setGitDirPathGetSubmodules(context, selectedDirectory);
+                                                                    await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
                                                                     await reloadAll();
                                                                   },
                                                                   style: ButtonStyle(

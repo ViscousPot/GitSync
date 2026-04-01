@@ -29,6 +29,8 @@ import 'package:ios_document_picker/ios_document_picker.dart';
 import 'package:ios_document_picker/types.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constant/dimens.dart';
 import '../ui/dialog/create_repository.dart' as CreateRepositoryDialog;
@@ -377,10 +379,11 @@ Future<void> offerCreateRemoteForExistingRepo(BuildContext context, String dir) 
   }
 }
 
-Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir) async {
+Future<void> setGitDirPathGetSubmodules(BuildContext context, String dir, WidgetRef ref) async {
   await uiSettingsManager.setGitDirPath(dir);
+  ref.invalidate(gitDirPathProvider);
 
-  final dirPath = uiSettingsManager.gitDirPath?.$1;
+  final dirPath = (await uiSettingsManager.getGitDirPath())?.$1;
   if (dirPath != null) {
     await useDirectory(dirPath, (bookmarkPath) async => await uiSettingsManager.setGitDirPath(bookmarkPath, true), (dirPath) async {
       if (await Directory('$dirPath/$obsidianPath').exists() && await Directory('$dirPath/$obsidianGitPath').exists()) {
