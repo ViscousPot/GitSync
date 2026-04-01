@@ -14,6 +14,7 @@ import '../../../constant/strings.dart';
 import '../../../global.dart';
 import '../../../ui/component/item_setting.dart';
 import 'package:GitSync/providers/riverpod_providers.dart';
+import 'package:GitSync/ui/component/provider_builder.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,7 +36,6 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
   bool atTop = true;
   bool unstaging = false;
   bool ignoreChanged = false;
-  String? gitDirPath;
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
 
@@ -80,11 +80,6 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
       });
     }
 
-    initAsync(() async {
-      gitDirPath = await uiSettingsManager.getStringNullable(StorageKey.setman_gitDirPath);
-      if (gitDirPath == "") gitDirPath = null;
-      if (mounted) setState(() {});
-    });
   }
 
   @override
@@ -188,7 +183,9 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                         ))([
                     SizedBox(height: spaceXXS),
                     SyncClientModeToggle(),
-                    gitDirPath == null
+                    ProviderBuilder<(String, String)?>(
+                      provider: gitDirPathProvider,
+                      builder: (context, gitDirPathAsync) => gitDirPathAsync.valueOrNull == null
                         ? SizedBox.shrink()
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,6 +344,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                               ),
                             ],
                           ),
+                    ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
                       setFn: (value) => ref.read(syncMessageProvider.notifier).set(value),
@@ -433,7 +431,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                             ),
                           ),
                         ))([
-                    ...gitDirPath == null
+                    ...ref.watch(gitDirPathProvider).valueOrNull == null
                         ? []
                         : [
                             TextButton(

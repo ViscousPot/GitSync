@@ -951,6 +951,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(repoNamesProvider);
     ref.invalidate(repoIndexProvider);
     ref.invalidate(featureCountsProvider);
+    ref.invalidate(gitDirPathProvider);
     if (token != _reloadToken) return;
     await updateSyncOptions();
     if (mounted) setState(() {});
@@ -1290,7 +1291,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   Future<void> updateSyncOptions() async {
     final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final clientModeEnabled = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
-    final dirPath = uiSettingsManager.gitDirPath?.$1;
+    final dirPath = ref.read(gitDirPathProvider).valueOrNull?.$1;
     final noRemotes = (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty;
 
     final submodulePaths = dirPath == null
@@ -1583,10 +1584,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     return AuthDialog.showDialog(context, () async {
       await reloadAll();
       // After auth, offer remote creation if current repo has no remotes
-      if (uiSettingsManager.gitDirPath?.$1 != null && (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty) {
+      final gitDirPath = ref.read(gitDirPathProvider).valueOrNull;
+      if (gitDirPath?.$1 != null && (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty) {
         final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
         if (provider.isOAuthProvider) {
-          await offerCreateRemoteForExistingRepo(context, uiSettingsManager.gitDirPath!.$1!);
+          await offerCreateRemoteForExistingRepo(context, gitDirPath!.$1);
           await reloadAll();
         }
       }
@@ -1613,57 +1615,60 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Widget _buildFilesTab() {
-    final path = uiSettingsManager.gitDirPath?.$2;
-    if (path == null) {
-      return Container(
-        color: colours.primaryDark,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: spaceXL),
-              SizedBox(height: spaceMD),
-              Text(
-                t.noRepoSetup,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textLG),
-              ),
-              SizedBox(height: spaceLG),
-              TextButton.icon(
-                onPressed: () async {
-                  String? selectedDirectory;
-                  if (await requestStoragePerm()) {
-                    selectedDirectory = await pickDirectory();
-                  }
-                  if (selectedDirectory == null) return;
-                  if (!mounted) return;
-                  final isRepo = await validateOrInitGitDir(context, selectedDirectory);
-                  if (!isRepo) return;
-                  if (!mounted) return;
-                  await setGitDirPathGetSubmodules(context, selectedDirectory);
-                  await reloadAll();
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(cornerRadiusMD),
-                      side: BorderSide(color: colours.tertiaryDark),
+    return ProviderBuilder<(String, String)?>(
+      provider: gitDirPathProvider,
+      builder: (context, gitDirPathAsync) {
+        final path = gitDirPathAsync.valueOrNull?.$2;
+        if (path == null) {
+          return Container(
+            color: colours.primaryDark,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: spaceXL),
+                  SizedBox(height: spaceMD),
+                  Text(
+                    t.noRepoSetup,
+                    style: TextStyle(color: colours.secondaryLight, fontSize: textLG),
+                  ),
+                  SizedBox(height: spaceLG),
+                  TextButton.icon(
+                    onPressed: () async {
+                      String? selectedDirectory;
+                      if (await requestStoragePerm()) {
+                        selectedDirectory = await pickDirectory();
+                      }
+                      if (selectedDirectory == null) return;
+                      if (!mounted) return;
+                      final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                      if (!isRepo) return;
+                      if (!mounted) return;
+                      await setGitDirPathGetSubmodules(context, selectedDirectory);
+                      await reloadAll();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(cornerRadiusMD),
+                          side: BorderSide(color: colours.tertiaryDark),
+                        ),
+                      ),
+                    ),
+                    icon: FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryInfo, size: textMD),
+                    label: Text(
+                      t.selectDirLabel.toUpperCase(),
+                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
-                ),
-                icon: FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryInfo, size: textMD),
-                label: Text(
-                  t.selectDirLabel.toUpperCase(),
-                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    }
-    void goToHomeTab() {
+            ),
+          );
+        }
+        void goToHomeTab() {
       _tabIndex.value = 1;
       _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
@@ -1697,6 +1702,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           ),
         ),
       ),
+    );
+      },
     );
   }
 
@@ -2562,6 +2569,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
                                                                   final webUrl = ref.watch(remoteUrlLinkProvider).valueOrNull?.$2;
                                                                   final authenticated = ref.watch(isAuthenticatedProvider).valueOrNull ?? false;
+                                                                  final gitDirPath = ref.watch(gitDirPathProvider).valueOrNull;
                                                                   return FutureBuilder<List<String>>(
                                                                     future: uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures),
                                                                     builder: (context, snapshot) {
@@ -2569,7 +2577,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       if (data == null) return SizedBox(width: double.infinity, height: 0);
                                                                       if (!gitProviderValue.isOAuthProvider ||
                                                                           !authenticated ||
-                                                                          uiSettingsManager.gitDirPath == null) {
+                                                                          gitDirPath == null) {
                                                                         return SizedBox(width: double.infinity, height: 0);
                                                                       }
                                                                       final pinned = ShowcaseFeature.fromStorageKeys(data);
@@ -2652,7 +2660,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                     ),
                                                   ),
                                                   SizedBox(height: spaceSM),
-                                                  ValueListenableBuilder(
+                                                  ProviderBuilder<(String, String)?>(
+                                                    provider: gitDirPathProvider,
+                                                    builder: (context, gitDirPathAsync) {
+                                                      final gitDirPath = gitDirPathAsync.valueOrNull;
+                                                      return ValueListenableBuilder(
                                                     valueListenable: syncOptions,
                                                     builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
                                                       provider: recommendedActionProvider,
@@ -2673,7 +2685,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           SizedBox.expand(
                                                                             child: TextButton.icon(
                                                                               key: syncMethodMainButtonKey,
-                                                                              onPressed: uiSettingsManager.gitDirPath?.$2 == null
+                                                                              onPressed: gitDirPath?.$2 == null
                                                                                   ? null
                                                                                   : () async {
                                                                                       if (lastSyncMethodSnapshot.data == null) return;
@@ -2737,14 +2749,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     width: textLG,
                                                                                     child: Center(
                                                                                       child: FaIcon(
-                                                                                        uiSettingsManager.gitDirPath?.$2 == null
+                                                                                        gitDirPath?.$2 == null
                                                                                             ? FontAwesomeIcons.solidCircleDown
                                                                                             : syncOptionsSnapshot[lastSyncMethodSnapshot.data]?.$1 ??
                                                                                                   (syncOptionsSnapshot.values.isNotEmpty
                                                                                                       ? syncOptionsSnapshot.values.first.$1
                                                                                                       : null) ??
                                                                                                   FontAwesomeIcons.solidCircleDown,
-                                                                                        color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                                        color: gitDirPath?.$2 == null
                                                                                             ? colours.secondaryLight
                                                                                             : colours.primaryLight,
                                                                                         size: textLG,
@@ -2756,7 +2768,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               label: Padding(
                                                                                 padding: EdgeInsets.only(left: spaceXS),
                                                                                 child: Text(
-                                                                                  (uiSettingsManager.gitDirPath?.$2 == null
+                                                                                  (gitDirPath?.$2 == null
                                                                                           ? (clientModeEnabledValue == true
                                                                                                 ? t.syncAllChanges
                                                                                                 : t.syncNow)
@@ -2773,7 +2785,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 t.syncNow))
                                                                                       .toUpperCase(),
                                                                                   style: TextStyle(
-                                                                                    color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                                    color: gitDirPath?.$2 == null
                                                                                         ? colours.secondaryLight
                                                                                         : (clientModeEnabledValue == true &&
                                                                                                   recommendedActionValue != null &&
@@ -2792,7 +2804,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             top: 0,
                                                                             bottom: 0,
                                                                             child: IconButton(
-                                                                              onPressed: uiSettingsManager.gitDirPath?.$2 == null
+                                                                              onPressed: gitDirPath?.$2 == null
                                                                                   ? null
                                                                                   : () async {
                                                                                       if (demo) {
@@ -2858,7 +2870,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ),
                                                                               icon: FaIcon(
                                                                                 FontAwesomeIcons.ellipsis,
-                                                                                color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                                color: gitDirPath?.$2 == null
                                                                                     ? colours.secondaryLight
                                                                                     : colours.primaryLight,
                                                                                 size: textLG,
@@ -3036,6 +3048,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                         );
                                                       },
                                                     ),
+                                                  );
+                                                    },
                                                   ),
                                                 ],
                                               );
@@ -3079,7 +3093,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                     ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: t.showcaseRepoFeatureRemote),
                                                   ],
                                                 ),
-                                                child: Column(
+                                                child: ProviderBuilder<(String, String)?>(
+                                                  provider: gitDirPathProvider,
+                                                  builder: (context, gitDirPathAsync) {
+                                                    final gitDirPath = gitDirPathAsync.valueOrNull;
+                                                    return Column(
                                                   children: [
                                                     IntrinsicHeight(
                                                       child: Row(
@@ -3093,11 +3111,15 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 final remoteUrlLinkValue = remoteUrlLinkAsync.valueOrNull;
                                                                 final remotesList = remotesAsync.valueOrNull ?? [];
                                                                 final actions = remoteEllipsisActions(remotesList.length);
-                                                                return FutureBuilder<String>(
+                                                                return ProviderBuilder<(String, String)?>(
+                                                                  provider: gitDirPathProvider,
+                                                                  builder: (context, gitDirPathAsync) {
+                                                                    final gitDirPath = gitDirPathAsync.valueOrNull;
+                                                                    return FutureBuilder<String>(
                                                                   future: uiSettingsManager.getRemote(),
                                                                   builder: (context, currentRemoteSnapshot) {
                                                                     final currentRemoteName = currentRemoteSnapshot.data;
-                                                                    final hasDir = uiSettingsManager.gitDirPath?.$1 != null;
+                                                                    final hasDir = gitDirPath?.$1 != null;
                                                                     final noRemoteWithDir = remotesList.isEmpty && hasDir;
                                                                     // Build dropdown items: "Add Remote" first, then each remote name
                                                                     final dropdownItems = <DropdownMenuItem<String>>[
@@ -3196,7 +3218,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                         oauthProviderName: hasOAuth ? provider!.name : null,
                                                                                         onCreateRemote: hasOAuth
                                                                                             ? () async {
-                                                                                                final dirPath = uiSettingsManager.gitDirPath?.$1;
+                                                                                                final dirPath = ref.read(gitDirPathProvider).valueOrNull?.$1;
                                                                                                 if (dirPath != null) {
                                                                                                   await offerCreateRemoteForExistingRepo(
                                                                                                     context,
@@ -3314,7 +3336,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           fontWeight: FontWeight.w400,
                                                                                         ),
                                                                                       ),
-                                                                                      onChanged: (uiSettingsManager.gitDirPath?.$2 == null)
+                                                                                      onChanged: (gitDirPath?.$2 == null)
                                                                                           ? null
                                                                                           : (value) async {
                                                                                               if (value == "__add_remote__") {
@@ -3457,12 +3479,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                     );
                                                                   },
                                                                 );
+                                                                  },
+                                                                );
                                                               },
                                                             ),
                                                           ),
-                                                          SizedBox(width: uiSettingsManager.gitDirPath?.$2 == null ? spaceSM : 0),
+                                                          SizedBox(width: gitDirPath?.$2 == null ? spaceSM : 0),
                                                           Visibility(
-                                                            visible: uiSettingsManager.gitDirPath?.$2 == null,
+                                                            visible: gitDirPath?.$2 == null,
                                                             child: AnimatedBuilder(
                                                               animation: _pulseAnimation,
                                                               builder: (context, child) => TextButton.icon(
@@ -3477,7 +3501,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                   shape: WidgetStatePropertyAll(
                                                                     RoundedRectangleBorder(
                                                                       borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                      side: uiSettingsManager.gitDirPath?.$2 == null
+                                                                      side: gitDirPath?.$2 == null
                                                                           ? BorderSide(
                                                                               color: colours.tertiaryInfo.withAlpha(
                                                                                 isAuthenticatedAsync.valueOrNull != true
@@ -3538,7 +3562,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           side: isAuthenticatedAsync.valueOrNull != true
                                                                               ? BorderSide(
                                                                                   color: colours.tertiaryNegative.withAlpha(
-                                                                                    uiSettingsManager.gitDirPath?.$2 == null
+                                                                                    gitDirPath?.$2 == null
                                                                                         ? _pulseAnimation.value.toInt()
                                                                                         : 120,
                                                                                   ),
@@ -3667,11 +3691,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                 ? (Platform.isIOS
                                                                                       ? "TestObsidianVault"
                                                                                       : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
-                                                                                : (uiSettingsManager.gitDirPath?.$2 == null
+                                                                                : (gitDirPath?.$2 == null
                                                                                       ? t.repoNotFound
                                                                                       : (Platform.isIOS
-                                                                                                ? uiSettingsManager.gitDirPath?.$2.split("/").last
-                                                                                                : uiSettingsManager.gitDirPath?.$2) ??
+                                                                                                ? gitDirPath?.$2.split("/").last
+                                                                                                : gitDirPath?.$2) ??
                                                                                             ""),
                                                                             maxLines: 1,
                                                                             textAlign: TextAlign.left,
@@ -3681,7 +3705,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               child: Text(
                                                                                 "…",
                                                                                 style: TextStyle(
-                                                                                  color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                                  color: gitDirPath?.$2 == null
                                                                                       ? colours.secondaryLight
                                                                                       : colours.primaryLight,
                                                                                   fontSize: textMD,
@@ -3689,7 +3713,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               ),
                                                                             ),
                                                                             style: TextStyle(
-                                                                              color: uiSettingsManager.gitDirPath?.$2 == null
+                                                                              color: gitDirPath?.$2 == null
                                                                                   ? colours.secondaryLight
                                                                                   : colours.primaryLight,
                                                                               fontSize: textMD,
@@ -3697,11 +3721,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                      uiSettingsManager.gitDirPath?.$2 == null
+                                                                      gitDirPath?.$2 == null
                                                                           ? SizedBox.shrink()
                                                                           : IconButton(
                                                                               onPressed: () async {
                                                                                 await uiSettingsManager.setGitDirPath("");
+                                                                                ref.read(gitDirPathProvider.notifier).set(null);
                                                                                 ref.read(branchNameProvider.notifier).set(null);
                                                                                 ref.read(remoteUrlLinkProvider.notifier).set(null);
                                                                                 ref.read(listRemotesProvider.notifier).set([]);
@@ -3784,7 +3809,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       topLeft: cornerRadiusSM,
                                                                       topRight: cornerRadiusMD,
                                                                     ),
-                                                                    side: uiSettingsManager.gitDirPath?.$2 == null
+                                                                    side: gitDirPath?.$2 == null
                                                                         ? BorderSide(
                                                                             color: colours.tertiaryInfo.withAlpha(
                                                                               isAuthenticatedAsync.valueOrNull != true
@@ -3810,6 +3835,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                       ),
                                                     ),
                                                   ],
+                                                );
+                                                  },
                                                 ),
                                               ),
 

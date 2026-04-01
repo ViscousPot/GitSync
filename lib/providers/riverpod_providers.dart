@@ -475,3 +475,14 @@ class FeatureCountsNotifier extends AsyncNotifier<Map<ShowcaseFeature, int?>> {
 }
 
 final featureCountsProvider = AsyncNotifierProvider<FeatureCountsNotifier, Map<ShowcaseFeature, int?>>(FeatureCountsNotifier.new);
+
+class GitDirPathNotifier extends AsyncNotifier<(String, String)?> {
+  @override
+  Future<(String, String)?> build() => uiSettingsManager.getGitDirPath();
+
+  void set((String, String)? value) {
+    state = AsyncData(value);
+  }
+}
+
+final gitDirPathProvider = AsyncNotifierProvider<GitDirPathNotifier, (String, String)?>(GitDirPathNotifier.new);
