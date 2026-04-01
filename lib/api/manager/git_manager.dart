@@ -1086,7 +1086,7 @@ class GitManager {
   }
 
   static Future<void> deleteDirContents({String? dirPath, int? repoIndex}) async {
-    return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), dirPath: dirPath, LogType.DiscardDir, (dirPath) async {
+    return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), dirPath: dirPath, expectGitDir: false, LogType.DiscardDir, (dirPath) async {
       final dir = Directory(dirPath);
       try {
         if (Platform.isIOS) {
@@ -1096,29 +1096,14 @@ class GitManager {
               final type = FileSystemEntity.typeSync(entity.path, followLinks: false);
               if (type == FileSystemEntityType.link) {
                 await entity.delete();
-                continue;
-              }
-
-              if (entity is File) {
-                await entity.delete();
-              } else if (entity is Directory) {
-                final childEntities = entity.listSync(recursive: false);
-                for (var child in childEntities) {
-                  try {
-                    final childType = FileSystemEntity.typeSync(child.path, followLinks: false);
-                    if (childType == FileSystemEntityType.link) {
-                      await child.delete();
-                    }
-                  } catch (e) {
-                    print('Error while deleting symlink inside subdir: $e');
-                  }
-                }
+              } else {
                 await entity.delete(recursive: true);
               }
             } catch (e) {
               print('Error while processing entity ${entity.path}: $e');
             }
           }
+          print('iOS directory cleanup complete for: ${dir.path}');
         } else {
           final entities = dir.listSync(recursive: false);
           for (var entity in entities) {
