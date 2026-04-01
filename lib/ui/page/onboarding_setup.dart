@@ -248,7 +248,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     await uiSettingsManager.setGitHttpAuthCredentials(credentials.$1, credentials.$2, credentials.$3);
     await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, provider.name);
     // If a repo dir is already set and has no remotes, offer remote creation
-    final dirPath = uiSettingsManager.gitDirPath?.$1;
+    final dirPath = (await uiSettingsManager.getGitDirPath())?.$1;
     if (dirPath != null) {
       final remotes = await GitManager.listRemotes();
       if (remotes.isEmpty && mounted) {

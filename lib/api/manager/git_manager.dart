@@ -159,7 +159,7 @@ class GitManager {
       T? result;
 
       if (dirPath == null) {
-        dirPath = setman.gitDirPath?.$1;
+        dirPath = (await setman.getGitDirPath())?.$1;
         if (dirPath == null) return null;
       }
       if (dirPath!.isNotEmpty) {

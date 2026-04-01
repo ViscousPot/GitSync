@@ -192,7 +192,7 @@ class AiChatService {
     final segments = remote != null ? Uri.parse(remote.$1).pathSegments : <String>[];
     final toolContext = ToolContext(
       repoIndex: repoIndex,
-      repoPath: uiSettingsManager.gitDirPath?.$1 ?? '',
+      repoPath: (await uiSettingsManager.getGitDirPath())?.$1 ?? '',
       gitProvider: gitProvider,
       githubAppOauth: githubAppOauth,
       accessToken: credentials.$2,

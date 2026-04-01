@@ -5,7 +5,7 @@ import 'package:GitSync/api/ai_tools.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/global.dart';
 
-String? _repoPath(ToolContext? context) => context?.repoPath ?? uiSettingsManager.gitDirPath?.$1;
+Future<String?> _repoPath(ToolContext? context) async => context?.repoPath ?? (await uiSettingsManager.getGitDirPath())?.$1;
 
 class GitStatusTool extends AiTool {
   @override String get name => 'git_status';
@@ -425,7 +425,7 @@ class GitIgnoreReadTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final root = _repoPath(context);
+    final root = await _repoPath(context);
     if (root == null) return err('No repository open');
     final file = File('$root/.gitignore');
     if (!await file.exists()) return ok('No .gitignore file found');
@@ -449,7 +449,7 @@ class GitIgnoreWriteTool extends AiTool {
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     final content = input['content'] as String;
-    final root = _repoPath(context);
+    final root = await _repoPath(context);
     if (root == null) return err('No repository open');
     await File('$root/.gitignore').writeAsString(content);
     return ok('Updated .gitignore');
@@ -1032,7 +1032,7 @@ class GitSubmodulePathsTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final root = _repoPath(context);
+    final root = await _repoPath(context);
     if (root == null) return err('No repository open');
     final paths = await GitManager.getSubmodulePaths(root, repoIndex: context?.repoIndex);
     return ok(paths);
