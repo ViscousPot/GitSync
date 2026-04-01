@@ -28,8 +28,7 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
   Future<T> fetchLive();
   Future<void> writeCache(SettingsManager manager, T value);
 
-  Future<bool> _isCurrentIndex(int buildIndex) async =>
-      await repoManager.getInt(StorageKey.repoman_repoIndex) == buildIndex;
+  Future<bool> _isCurrentIndex(int buildIndex) async => await repoManager.getInt(StorageKey.repoman_repoIndex) == buildIndex;
 
   @override
   Future<T> build() async {
@@ -52,7 +51,7 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
         if (!cancelled && await _isCurrentIndex(repoIndex)) {
           state = AsyncData(cached);
         }
-        rethrow;
+        Logger.logError(LogType.Global, e, s);
       }
     }();
 
@@ -242,7 +241,7 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
         if (!cancelled && await _isCurrentIndex(repoIndex)) {
           state = AsyncData(cached);
         }
-        rethrow;
+        Logger.logError(LogType.Global, e, s);
       } finally {
         if (!cancelled) ref.read(isLoadingCommitsProvider.notifier).state = false;
       }
