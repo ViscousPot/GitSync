@@ -93,6 +93,17 @@ class GitManager {
   static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
   static bool _isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
 
+  static final _networkUnavailablePatterns = [
+    "failed to resolve address",
+    "no address associated with hostname",
+    "name resolution failed",
+    "could not resolve host",
+    "network is unreachable",
+    "failed host lookup",
+  ];
+  static bool isNetworkUnavailableError(String message) =>
+      _networkUnavailablePatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
+
   static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
   static FutureOr<T?> _runWithLock<T>(

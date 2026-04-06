@@ -699,6 +699,7 @@ class _MyAppState extends State<MyApp> {
                 detectingChanges: t.detectingChanges,
                 ongoingMergeConflict: t.ongoingMergeConflict,
                 networkStallRetry: t.networkStallRetry,
+                networkUnavailableRetry: t.networkUnavailableRetry,
               ).toMap(),
             );
             return MyHomePage(

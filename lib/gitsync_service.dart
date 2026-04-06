@@ -28,6 +28,7 @@ class ServiceStrings {
   final String detectingChanges;
   final String ongoingMergeConflict;
   final String networkStallRetry;
+  final String networkUnavailableRetry;
 
   const ServiceStrings({
     required this.syncStartPull,
@@ -39,6 +40,7 @@ class ServiceStrings {
     required this.detectingChanges,
     required this.ongoingMergeConflict,
     required this.networkStallRetry,
+    required this.networkUnavailableRetry,
   });
 
   factory ServiceStrings.fromMap(Map<String, dynamic> map) {
@@ -52,6 +54,7 @@ class ServiceStrings {
       detectingChanges: map['detectingChanges'] ?? '',
       ongoingMergeConflict: map['ongoingMergeConflict'] ?? '',
       networkStallRetry: map['networkStallRetry'] ?? '',
+      networkUnavailableRetry: map['networkUnavailableRetry'] ?? '',
     );
   }
 
@@ -66,6 +69,7 @@ class ServiceStrings {
       'detectingChanges': detectingChanges,
       'ongoingMergeConflict': ongoingMergeConflict,
       'networkStallRetry': networkStallRetry,
+      'networkUnavailableRetry': networkUnavailableRetry,
     };
   }
 }
@@ -93,6 +97,7 @@ class GitsyncService {
     detectingChanges: "Detecting Changes…",
     ongoingMergeConflict: "Ongoing merge conflict",
     networkStallRetry: "Poor network — will retry shortly",
+    networkUnavailableRetry: "Network unavailable — will retry when reconnected",
   );
   bool isScheduled = false;
   bool isSyncing = false;
@@ -240,6 +245,11 @@ class GitsyncService {
         return;
       }
 
+      if (!await hasNetworkConnection()) {
+        Logger.gmLog(type: LogType.Sync, "No network connection, skipping sync");
+        return;
+      }
+
       if (provider == GitProvider.SSH
           ? (await settingsManager.getGitSshAuthCredentials()).$2.isEmpty
           : (await settingsManager.getGitHttpAuthCredentials()).$2.isEmpty) {
@@ -378,8 +388,13 @@ class GitsyncService {
 
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
-      Logger.logError(LogType.SyncException, e, st);
-      terminal = 'error';
+      if (GitManager.isNetworkUnavailableError(e.toString()) && !await hasNetworkConnection()) {
+        Logger.gmLog(type: LogType.Sync, "Sync failed due to network unavailability, will retry later");
+        await _displaySyncMessage(null, s.networkUnavailableRetry);
+      } else {
+        Logger.logError(LogType.SyncException, e, st);
+        terminal = 'error';
+      }
     } finally {
       isSyncing = false;
       if (myGen == _syncGeneration) {
