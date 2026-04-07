@@ -1133,7 +1133,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       aiKeyConfigured.value = provider != null && provider.isNotEmpty && apiKey != null && apiKey.isNotEmpty;
     });
 
+    aiFeaturesEnabled.addListener(_onAiFeaturesEnabledChanged);
+
+    initAsync(() async {
+      aiFeaturesEnabled.value = await repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled);
+    });
+
     switchToAiTab = () {
+      if (!aiFeaturesEnabled.value) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
       _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
       _tabIndex.value = 0;
@@ -1186,6 +1193,27 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
 
     super.initState();
+  }
+
+  void _onAiFeaturesEnabledChanged() {
+    final oldIndex = _tabIndex.value;
+    final int newIndex;
+    if (aiFeaturesEnabled.value) {
+      // 2 → 3 children. Old: 0=Home, 1=Files. New: 0=AI, 1=Home, 2=Files.
+      newIndex = oldIndex + 1;
+    } else {
+      // 3 → 2 children. Old: 0=AI, 1=Home, 2=Files. New: 0=Home, 1=Files.
+      newIndex = oldIndex == 0 ? 0 : oldIndex - 1;
+    }
+    if (newIndex != oldIndex) {
+      _tabIndex.value = newIndex;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_pageController.hasClients) return;
+      if ((_pageController.page ?? _pageController.initialPage.toDouble()).round() != newIndex) {
+        _pageController.jumpToPage(newIndex);
+      }
+    });
   }
 
   Future<void> launchWidgetManualSync() async {
@@ -1587,6 +1615,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     _commitSelectedShas.dispose();
 
     switchToAiTab = null;
+    aiFeaturesEnabled.removeListener(_onAiFeaturesEnabledChanged);
     autoRefreshTimer?.cancel();
     networkSubscription?.cancel();
     _tabIndex.dispose();
@@ -2084,11 +2113,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                 SizedBox(width: spaceMD),
               ],
             ),
-            body: PageView(
+            body: ValueListenableBuilder<bool>(
+              valueListenable: aiFeaturesEnabled,
+              builder: (context, aiEnabled, _) => PageView(
               controller: _pageController,
               onPageChanged: (page) => _tabIndex.value = page,
               children: [
-                _KeepAlivePage(
+                if (aiEnabled)
+                  _KeepAlivePage(
                   child: ValueListenableBuilder(
                     valueListenable: _tabIndex,
                     builder: (context, currentTab, child) => PopScope(
@@ -4031,10 +4063,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                 _KeepAlivePage(child: _buildFilesTab()),
               ],
             ),
+            ),
             bottomNavigationBar: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ValueListenableBuilder(
+                ValueListenableBuilder<bool>(
+                  valueListenable: aiFeaturesEnabled,
+                  builder: (context, aiEnabled, _) => ValueListenableBuilder(
                   valueListenable: _tabIndex,
                   builder: (context, currentTabIndex, _) => Theme(
                     data: Theme.of(context).copyWith(
@@ -4048,15 +4083,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                       ),
                     ),
                     child: NavigationBar(
-                      selectedIndex: currentTabIndex,
+                      selectedIndex: currentTabIndex.clamp(0, aiEnabled ? 2 : 1),
                     onDestinationSelected: (i) {
-                      if (i == 1 && _tabIndex.value == 1) {
-                        _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                      } else if (i == 2 && _tabIndex.value == 2) {
-                        _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                      if (aiEnabled) {
+                        if (i == 1 && _tabIndex.value == 1) {
+                          _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                        } else if (i == 2 && _tabIndex.value == 2) {
+                          _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                        } else {
+                          _tabIndex.value = i;
+                          _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        }
                       } else {
-                        _tabIndex.value = i;
-                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        if (i == 0 && _tabIndex.value == 0) {
+                          _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                        } else if (i == 1 && _tabIndex.value == 1) {
+                          _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                        } else {
+                          _tabIndex.value = i;
+                          _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        }
                       }
                     },
                     backgroundColor: colours.secondaryDark,
@@ -4065,7 +4111,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                     labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                     height: 64,
                     destinations: [
-                      NavigationDestination(
+                      if (aiEnabled)
+                        NavigationDestination(
                         icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
                         selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
                         label: t.tabChat,
@@ -4082,6 +4129,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                       ),
                       ],
                     ),
+                  ),
                   ),
                 ),
                 ValueListenableBuilder(

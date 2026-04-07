@@ -4614,6 +4614,30 @@ abstract class AppLocalizations {
   /// **'Set up a repository first'**
   String get noRepoSetup;
 
+  /// No description provided for @enableAiFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable AI Features'**
+  String get enableAiFeatures;
+
+  /// No description provided for @hideAiFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide AI Features'**
+  String get hideAiFeatures;
+
+  /// No description provided for @hideAiFeaturesConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide AI Features?'**
+  String get hideAiFeaturesConfirmTitle;
+
+  /// No description provided for @hideAiFeaturesConfirmMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove the AI tab and all AI buttons throughout the app. You can re-enable AI features anytime from Global Settings.'**
+  String get hideAiFeaturesConfirmMsg;
+
   /// No description provided for @aiSetupTitle.
   ///
   /// In en, this message translates to:

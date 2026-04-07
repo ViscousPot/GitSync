@@ -869,6 +869,10 @@
     "noRepoSetup": "Set up a repository first",
 
     "@@x-AI": "",
+    "enableAiFeatures": "Enable AI Features",
+    "hideAiFeatures": "Hide AI Features",
+    "hideAiFeaturesConfirmTitle": "Hide AI Features?",
+    "hideAiFeaturesConfirmMsg": "This will remove the AI tab and all AI buttons throughout the app. You can re-enable AI features anytime from Global Settings.",
     "aiSetupTitle": "Set Up AI",
     "aiSetupMsg": "Configure an AI provider to use this feature. Go to AI settings?"
 }

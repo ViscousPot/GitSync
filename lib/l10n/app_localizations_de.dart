@@ -2290,6 +2290,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noRepoSetup => 'Set up a repository first';
 
   @override
+  String get enableAiFeatures => 'Enable AI Features';
+
+  @override
+  String get hideAiFeatures => 'Hide AI Features';
+
+  @override
+  String get hideAiFeaturesConfirmTitle => 'Hide AI Features?';
+
+  @override
+  String get hideAiFeaturesConfirmMsg =>
+      'This will remove the AI tab and all AI buttons throughout the app. You can re-enable AI features anytime from Global Settings.';
+
+  @override
   String get aiSetupTitle => 'Set Up AI';
 
   @override
