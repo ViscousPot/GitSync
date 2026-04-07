@@ -146,7 +146,6 @@ List<ShowcaseFeature>? togglePin(List<ShowcaseFeature> current, ShowcaseFeature 
   final pinned = List<ShowcaseFeature>.of(current);
 
   if (pinned.contains(feature)) {
-    if (pinned.length <= 1) return null;
     pinned.remove(feature);
   } else {
     if (pinned.length >= 2) {

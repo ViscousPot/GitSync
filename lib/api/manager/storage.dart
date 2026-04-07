@@ -147,7 +147,7 @@ class Storage<T extends StorageKey> {
     }
 
     if (N == getType<List<String>?>() || N == getType<List<String>>()) {
-      final finalValue = (value == "null" || value == null || value.isEmpty == true ? null : value)?.split(",");
+      final List<String>? finalValue = (value == "null" || value == null) ? null : (value.isEmpty ? <String>[] : value.split(","));
 
       if (null is N) {
         return finalValue as N;

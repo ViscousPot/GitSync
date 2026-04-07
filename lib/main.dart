@@ -2704,6 +2704,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                         }
                                                                         final pinned = ShowcaseFeature.fromStorageKeys(data[1] as List<String>);
                                                                         final webUrl = remoteUrlLink.value?.$2;
+                                                                        if (pinned.isEmpty) {
+                                                                          return SizedBox(width: double.infinity, height: 0);
+                                                                        }
                                                                         if (pinned.length == 1) {
                                                                           return Hero(
                                                                             tag: heroShowcaseFeature(pinned[0].storageKey),
