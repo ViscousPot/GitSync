@@ -31,6 +31,7 @@ class ExpandedCommits extends StatefulWidget {
     required this.isClientMode,
     this.initialScrollOffset = 0,
     this.pendingFeature,
+    this.pendingFeatureIsAdd = false,
     this.isAuthenticated = false,
   });
 
@@ -48,6 +49,7 @@ class ExpandedCommits extends StatefulWidget {
   final Future<void> Function() onReloadAll;
   final double initialScrollOffset;
   final ShowcaseFeature? pendingFeature;
+  final bool pendingFeatureIsAdd;
   final bool isAuthenticated;
 
   @override
@@ -89,7 +91,21 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
 
   void _triggerPendingFeature() {
     if (!mounted) return;
-    resolveFeatureOnPressed(context: context, feature: widget.pendingFeature!, gitProvider: widget.gitProvider, remoteWebUrl: widget.remoteWebUrl)();
+    if (widget.pendingFeatureIsAdd) {
+      resolveFeatureOnAdd(
+        context: context,
+        feature: widget.pendingFeature!,
+        gitProvider: widget.gitProvider,
+        remoteWebUrl: widget.remoteWebUrl,
+      )?.call();
+    } else {
+      resolveFeatureOnPressed(
+        context: context,
+        feature: widget.pendingFeature!,
+        gitProvider: widget.gitProvider,
+        remoteWebUrl: widget.remoteWebUrl,
+      )();
+    }
   }
 
   Future<void> _loadPinnedFeatures() async {
@@ -576,6 +592,7 @@ Route createExpandedCommitsRoute({
   required bool isClientMode,
   double initialScrollOffset = 0,
   ShowcaseFeature? pendingFeature,
+  bool pendingFeatureIsAdd = false,
   bool isAuthenticated = false,
 }) {
   return PageRouteBuilder(
@@ -595,6 +612,7 @@ Route createExpandedCommitsRoute({
       onReloadAll: onReloadAll,
       initialScrollOffset: initialScrollOffset,
       pendingFeature: pendingFeature,
+      pendingFeatureIsAdd: pendingFeatureIsAdd,
       isAuthenticated: isAuthenticated,
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

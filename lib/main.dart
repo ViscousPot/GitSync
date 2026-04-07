@@ -856,7 +856,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     loadingRecentCommits.value = false;
   }
 
-  Future<void> _navigateToExpandedCommits({double initialScrollOffset = 0, ShowcaseFeature? pendingFeature}) async {
+  Future<void> _navigateToExpandedCommits({double initialScrollOffset = 0, ShowcaseFeature? pendingFeature, bool pendingFeatureIsAdd = false}) async {
     final provider = await uiSettingsManager.getGitProvider();
     final authenticated = await isAuthenticated();
     if (!mounted) return;
@@ -892,6 +892,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
             onReloadAll: () async => await reloadAll(),
             initialScrollOffset: initialScrollOffset,
             pendingFeature: pendingFeature,
+            pendingFeatureIsAdd: pendingFeatureIsAdd,
           ),
         )
         .then((popResult) {
@@ -2715,12 +2716,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                               gitProvider: provider,
                                                                               count: countsMap[pinned[0]],
                                                                               countLoading: featureCountsLoading,
-                                                                              onAdd: resolveFeatureOnAdd(
-                                                                                context: context,
-                                                                                feature: pinned[0],
-                                                                                gitProvider: provider,
-                                                                                remoteWebUrl: webUrl,
-                                                                              ),
+                                                                              onAdd:
+                                                                                  resolveFeatureOnAdd(
+                                                                                        context: context,
+                                                                                        feature: pinned[0],
+                                                                                        gitProvider: provider,
+                                                                                        remoteWebUrl: webUrl,
+                                                                                      ) ==
+                                                                                      null
+                                                                                  ? null
+                                                                                  : () => _navigateToExpandedCommits(
+                                                                                      initialScrollOffset: recentCommitsController.offset,
+                                                                                      pendingFeature: pinned[0],
+                                                                                      pendingFeatureIsAdd: true,
+                                                                                    ),
                                                                               onPressed: () => _navigateToExpandedCommits(
                                                                                 initialScrollOffset: recentCommitsController.offset,
                                                                                 pendingFeature: pinned[0],
@@ -2738,12 +2747,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                   gitProvider: provider,
                                                                                   count: countsMap[pinned[0]],
                                                                                   countLoading: featureCountsLoading,
-                                                                                  onAdd: resolveFeatureOnAdd(
-                                                                                    context: context,
-                                                                                    feature: pinned[0],
-                                                                                    gitProvider: provider,
-                                                                                    remoteWebUrl: webUrl,
-                                                                                  ),
+                                                                                  onAdd:
+                                                                                      resolveFeatureOnAdd(
+                                                                                            context: context,
+                                                                                            feature: pinned[0],
+                                                                                            gitProvider: provider,
+                                                                                            remoteWebUrl: webUrl,
+                                                                                          ) ==
+                                                                                          null
+                                                                                      ? null
+                                                                                      : () => _navigateToExpandedCommits(
+                                                                                          initialScrollOffset: recentCommitsController.offset,
+                                                                                          pendingFeature: pinned[0],
+                                                                                          pendingFeatureIsAdd: true,
+                                                                                        ),
                                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                                     pendingFeature: pinned[0],
@@ -2760,12 +2777,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                   gitProvider: provider,
                                                                                   count: countsMap[pinned[1]],
                                                                                   countLoading: featureCountsLoading,
-                                                                                  onAdd: resolveFeatureOnAdd(
-                                                                                    context: context,
-                                                                                    feature: pinned[1],
-                                                                                    gitProvider: provider,
-                                                                                    remoteWebUrl: webUrl,
-                                                                                  ),
+                                                                                  onAdd:
+                                                                                      resolveFeatureOnAdd(
+                                                                                            context: context,
+                                                                                            feature: pinned[1],
+                                                                                            gitProvider: provider,
+                                                                                            remoteWebUrl: webUrl,
+                                                                                          ) ==
+                                                                                          null
+                                                                                      ? null
+                                                                                      : () => _navigateToExpandedCommits(
+                                                                                          initialScrollOffset: recentCommitsController.offset,
+                                                                                          pendingFeature: pinned[1],
+                                                                                          pendingFeatureIsAdd: true,
+                                                                                        ),
                                                                                   onPressed: () => _navigateToExpandedCommits(
                                                                                     initialScrollOffset: recentCommitsController.offset,
                                                                                     pendingFeature: pinned[1],
