@@ -603,15 +603,15 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
 
 @pragma('vm:entry-point')
 Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
-  (args as Map<String, dynamic>);
+  final argsMap = (args as Map).cast<String, dynamic>();
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => SettingsMain(
-        args["recentCommits"].map<String>((path) => "$path").toList(),
-        showcaseAuthorDetails: args["showcaseAuthorDetails"] == true,
-        openGlobalSettings: args["openGlobalSettings"] as VoidCallback?,
+        argsMap["recentCommits"].map<String>((path) => "$path").toList(),
+        showcaseAuthorDetails: argsMap["showcaseAuthorDetails"] == true,
+        openGlobalSettings: argsMap["openGlobalSettings"] as VoidCallback?,
       ),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
