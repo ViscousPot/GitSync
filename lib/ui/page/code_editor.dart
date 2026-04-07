@@ -520,6 +520,40 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _showExperimentalInfoDialog() async {
+    await InfoDialog.showDialog(
+      context,
+      t.codeEditorLimits,
+      t.codeEditorLimitsDescription,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: spaceMD),
+          ButtonSetting(
+            text: t.requestAFeature,
+            icon: FontAwesomeIcons.solidHandPointUp,
+            onPressed: () async {
+              if (await canLaunchUrl(Uri.parse(githubFeatureTemplate))) {
+                await launchUrl(Uri.parse(githubFeatureTemplate));
+              }
+            },
+          ),
+          SizedBox(height: spaceSM),
+          ButtonSetting(
+            text: t.reportABug,
+            icon: FontAwesomeIcons.bug,
+            textColor: colours.primaryDark,
+            iconColor: colours.primaryDark,
+            buttonColor: colours.tertiaryNegative,
+            onPressed: () async {
+              await Logger.reportIssue(context, From.CODE_EDITOR);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -666,7 +700,10 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
         if (widget.type == EditorType.DEFAULT)
           Positioned(
             bottom: spaceXXL,
-            child: Container(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _showExperimentalInfoDialog,
+              child: Container(
               decoration: BoxDecoration(color: colours.primaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
               child: Column(
@@ -677,39 +714,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                       IconButton(
                         style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                         constraints: BoxConstraints(),
-                        onPressed: () async {
-                          await InfoDialog.showDialog(
-                            context,
-                            t.codeEditorLimits,
-                            t.codeEditorLimitsDescription,
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(height: spaceMD),
-                                ButtonSetting(
-                                  text: t.requestAFeature,
-                                  icon: FontAwesomeIcons.solidHandPointUp,
-                                  onPressed: () async {
-                                    if (await canLaunchUrl(Uri.parse(githubFeatureTemplate))) {
-                                      await launchUrl(Uri.parse(githubFeatureTemplate));
-                                    }
-                                  },
-                                ),
-                                SizedBox(height: spaceSM),
-                                ButtonSetting(
-                                  text: t.reportABug,
-                                  icon: FontAwesomeIcons.bug,
-                                  textColor: colours.primaryDark,
-                                  iconColor: colours.primaryDark,
-                                  buttonColor: colours.tertiaryNegative,
-                                  onPressed: () async {
-                                    await Logger.reportIssue(context, From.CODE_EDITOR);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onPressed: _showExperimentalInfoDialog,
                         visualDensity: VisualDensity.compact,
                         icon: FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
                       ),
@@ -727,6 +732,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         widget.type == EditorType.DEFAULT
