@@ -6,7 +6,6 @@ import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
-import 'package:GitSync/ui/page/global_settings_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,16 +19,17 @@ import '../../../ui/component/item_setting.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
 
 class SettingsMain extends StatefulWidget {
-  const SettingsMain(this.recentCommitStrings, {super.key, this.showcaseAuthorDetails = false});
+  const SettingsMain(this.recentCommitStrings, {super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
 
   final List<String> recentCommitStrings;
   final bool showcaseAuthorDetails;
+  final VoidCallback? openGlobalSettings;
 
   @override
   State<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin, RestorationMixin {
+class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
@@ -46,20 +46,6 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
   Future<bool> getDisableSsl = runGitOperation<bool>(LogType.GetDisableSsl, (event) => event?["result"] ?? false);
 
   static const duration = Duration(seconds: 1);
-
-  late final _restorableGlobalSettings = RestorableRouteFuture<String?>(
-    onPresent: (navigator, arguments) {
-      return navigator.restorablePush(createGlobalSettingsMainRoute, arguments: arguments);
-    },
-    onComplete: (result) {},
-  );
-
-  @override
-  String get restorationId => settings_main;
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_restorableGlobalSettings, global_settings_main);
-  }
 
   @override
   void initState() {
@@ -600,7 +586,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                       text: t.moreOptions,
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
-                        _restorableGlobalSettings.present({"recentCommits": widget.recentCommitStrings, "onboarding": false});
+                        widget.openGlobalSettings?.call();
                       },
                     ),
                     SizedBox(height: spaceLG),
@@ -622,8 +608,11 @@ Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
   return PageRouteBuilder(
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
-      builder: (context) =>
-          SettingsMain(args["recentCommits"].map<String>((path) => "$path").toList(), showcaseAuthorDetails: args["showcaseAuthorDetails"] == true),
+      builder: (context) => SettingsMain(
+        args["recentCommits"].map<String>((path) => "$path").toList(),
+        showcaseAuthorDetails: args["showcaseAuthorDetails"] == true,
+        openGlobalSettings: args["openGlobalSettings"] as VoidCallback?,
+      ),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);

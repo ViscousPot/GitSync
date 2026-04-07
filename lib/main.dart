@@ -753,6 +753,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       createSettingsMainRoute(_homeNavigatorKey.currentContext!, {
         "recentCommits": getStringRecentCommits(),
         "showcaseAuthorDetails": showcaseAuthorDetails,
+        "openGlobalSettings": () {
+          _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
+          widget.reloadLocale();
+        },
       }),
     );
     reloadAll();
