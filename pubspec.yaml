@@ -19,14 +19,14 @@ dependencies:
   yaml: ^3.1.0
 
   flutter_secure_storage: 10.0.0
-  oauth2_client: 4.2.3
+  oauth2_client: 4.2.4
 
   # flutter_secure_storage: ^9.2.4
   # oauth2_client: ^3.3.0
 
-  file_picker: ^10.3.2
-  extended_text: ^15.0.0
-  url_launcher: ^6.3.1
+  file_picker: ^10.3.10
+  extended_text: ^15.0.2
+  url_launcher: ^6.3.2
   rust_lib_GitSync:
     path: rust_builder
   flutter_rust_bridge: 2.11.1
@@ -47,7 +47,7 @@ dependencies:
   device_info_plus: ^11.3.3
   anchor_scroll_controller: ^0.4.4
   path: ^1.9.1
-  open_file: ^3.5.10
+  open_file: ^3.5.11
   flutter_localizations:
     sdk: flutter
   ios_document_picker:
@@ -65,10 +65,10 @@ dependencies:
   convert: ^3.1.1
   flutter_localized_locales: ^2.0.5
   flutter_email_sender: ^7.0.0
-  archive: ^4.0.7
+  archive: ^4.0.9
   showcaseview: ^4.0.1
   file_manager: ^1.0.2
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
   re_editor: ^0.7.0
   mmap2: ^0.1.0
   mmap2_flutter: ^0.2.1
