@@ -58,14 +58,25 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
           },
         ),
-        TextButton(
-          child: Text(
-            (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
-          ),
-          onPressed: () async {
-            callback(textController.text);
-            Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: textController,
+          builder: (context, value, _) {
+            final disabled = backupRestore && value.text.isEmpty;
+            return TextButton(
+              onPressed: disabled
+                  ? null
+                  : () async {
+                      callback(textController.text);
+                      Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                    },
+              child: Text(
+                (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
+                style: TextStyle(
+                  color: disabled ? colours.tertiaryLight : colours.primaryPositive,
+                  fontSize: textMD,
+                ),
+              ),
+            );
           },
         ),
       ],

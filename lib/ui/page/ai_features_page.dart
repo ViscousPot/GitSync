@@ -11,6 +11,7 @@ import 'package:GitSync/global.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/type/ai_chat.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
+import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 
 const _mono = TextStyle(fontFamily: "monospace", height: 1.6);
 
@@ -1172,12 +1173,70 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                   ),
                 ),
               ),
+              SizedBox(height: spaceSM),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => _showHideAiDialog(context),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                    shape: WidgetStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(cornerRadiusSM),
+                        side: BorderSide(color: colours.tertiaryDark),
+                      ),
+                    ),
+                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FaIcon(FontAwesomeIcons.eyeSlash, color: colours.secondaryLight, size: textMD),
+                      SizedBox(width: spaceXS),
+                      Text(
+                        t.hideAiFeatures,
+                        style: TextStyle(color: colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SizedBox(height: spaceLG),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _showHideAiDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => BaseAlertDialog(
+        title: Text(
+          t.hideAiFeaturesConfirmTitle,
+          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          t.hideAiFeaturesConfirmMsg,
+          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+        ),
+        actions: [
+          TextButton(
+            child: Text(t.cancel.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontSize: textMD)),
+            onPressed: () => Navigator.pop(dialogContext, false),
+          ),
+          TextButton(
+            child: Text(t.hideAiFeatures.toUpperCase(), style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD)),
+            onPressed: () => Navigator.pop(dialogContext, true),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, false);
+      aiFeaturesEnabled.value = false;
+    }
   }
 
   void _showByokDialog(BuildContext context) async {

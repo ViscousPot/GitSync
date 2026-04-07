@@ -129,9 +129,16 @@ class _ItemCommit extends State<ItemCommit> {
 
     PopupMenuDivider separator() => PopupMenuDivider(height: spaceSM, color: colours.tertiaryDark);
 
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final localPosition = overlay.globalToLocal(position);
+    final menuPosition = RelativeRect.fromRect(
+      localPosition & const Size(0, 0),
+      Offset.zero & overlay.size,
+    );
+
     final result = await showMenu<String>(
       context: context,
-      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
+      position: menuPosition,
       color: colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
       items: [

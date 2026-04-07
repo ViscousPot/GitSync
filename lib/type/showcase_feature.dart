@@ -31,7 +31,7 @@ enum ShowcaseFeature {
       final feature = fromStorageKey(key);
       if (feature != null) features.add(feature);
     }
-    return features.isEmpty ? List.of(defaultPinned) : features;
+    return features;
   }
 
   static List<String> toStorageKeys(List<ShowcaseFeature> features) {

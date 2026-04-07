@@ -25,7 +25,7 @@ class GitlabManager extends GitProviderManager {
 
   get clientId => gitlabClientId;
   get clientSecret => gitlabClientSecret;
-  get scopes => ["read_user", "api"];
+  get scopes => ["read_user", "api", "write_repository"];
 
   OAuth2Client get oauthClient => OAuth2Client(
     authorizeUrl: 'https://gitlab.com/oauth/authorize',
@@ -204,27 +204,24 @@ class GitlabManager extends GitProviderManager {
     return [];
   }
 
-  Future<void> _getIssuesRequest(
-    String accessToken,
-    String url,
-    Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+  Future<void> _getIssuesRequest(String accessToken, String url, Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
         final List<Issue> issues = jsonArray
-            .map((item) => Issue(
-                  title: item["title"] ?? "",
-                  number: item["iid"] ?? 0,
-                  isOpen: item["state"] == "opened",
-                  authorUsername: item["author"]?["username"] ?? "",
-                  createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
-                  commentCount: item["user_notes_count"] ?? 0,
-                  labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
-                ))
+            .map(
+              (item) => Issue(
+                title: item["title"] ?? "",
+                number: item["iid"] ?? 0,
+                isOpen: item["state"] == "opened",
+                authorUsername: item["author"]?["username"] ?? "",
+                createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+                commentCount: item["user_notes_count"] ?? 0,
+                labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
+              ),
+            )
             .toList();
 
         updateCallback(issues);
@@ -295,26 +292,24 @@ class GitlabManager extends GitProviderManager {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
-        final List<PullRequest> prs = jsonArray
-            .map((item) {
-              final stateStr = item["state"] ?? "";
-              final PrState prState = switch (stateStr) {
-                "opened" => PrState.open,
-                "merged" => PrState.merged,
-                _ => PrState.closed,
-              };
+        final List<PullRequest> prs = jsonArray.map((item) {
+          final stateStr = item["state"] ?? "";
+          final PrState prState = switch (stateStr) {
+            "opened" => PrState.open,
+            "merged" => PrState.merged,
+            _ => PrState.closed,
+          };
 
-              return PullRequest(
-                title: item["title"] ?? "",
-                number: item["iid"] ?? 0,
-                state: prState,
-                authorUsername: item["author"]?["username"] ?? "",
-                createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
-                commentCount: item["user_notes_count"] ?? 0,
-                labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
-              );
-            })
-            .toList();
+          return PullRequest(
+            title: item["title"] ?? "",
+            number: item["iid"] ?? 0,
+            state: prState,
+            authorUsername: item["author"]?["username"] ?? "",
+            createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+            commentCount: item["user_notes_count"] ?? 0,
+            labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l.toString())).toList() ?? [],
+          );
+        }).toList();
 
         updateCallback(prs);
 
@@ -348,24 +343,21 @@ class GitlabManager extends GitProviderManager {
     await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 
-  Future<void> _getTagsRequest(
-    String accessToken,
-    String url,
-    Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+  Future<void> _getTagsRequest(String accessToken, String url, Function(List<Tag>) updateCallback, Function(Function()?) nextPageCallback) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
         final List<Tag> tags = jsonArray
-            .map((item) => Tag(
-                  name: item["name"] ?? "",
-                  sha: item["target"] ?? "",
-                  createdAt: DateTime.tryParse(item["commit"]?["created_at"] ?? "") ?? DateTime.now(),
-                  message: (item["message"] as String?)?.isNotEmpty == true ? item["message"] as String : null,
-                ))
+            .map(
+              (item) => Tag(
+                name: item["name"] ?? "",
+                sha: item["target"] ?? "",
+                createdAt: DateTime.tryParse(item["commit"]?["created_at"] ?? "") ?? DateTime.now(),
+                message: (item["message"] as String?)?.isNotEmpty == true ? item["message"] as String : null,
+              ),
+            )
             .toList();
 
         updateCallback(tags);
@@ -536,11 +528,16 @@ class GitlabManager extends GitProviderManager {
 
     try {
       final futures = <ShowcaseFeature, Future>{};
-      if (requested.contains(ShowcaseFeature.issues)) futures[ShowcaseFeature.issues] = httpGet(Uri.parse("$base/issues?state=opened&per_page=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.pullRequests)) futures[ShowcaseFeature.pullRequests] = httpGet(Uri.parse("$base/merge_requests?state=opened&per_page=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.tags)) futures[ShowcaseFeature.tags] = httpGet(Uri.parse("$base/repository/tags?per_page=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.releases)) futures[ShowcaseFeature.releases] = httpGet(Uri.parse("$base/releases?per_page=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.actions)) futures[ShowcaseFeature.actions] = httpGet(Uri.parse("$base/pipelines?per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.issues))
+        futures[ShowcaseFeature.issues] = httpGet(Uri.parse("$base/issues?state=opened&per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.pullRequests))
+        futures[ShowcaseFeature.pullRequests] = httpGet(Uri.parse("$base/merge_requests?state=opened&per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.tags))
+        futures[ShowcaseFeature.tags] = httpGet(Uri.parse("$base/repository/tags?per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.releases))
+        futures[ShowcaseFeature.releases] = httpGet(Uri.parse("$base/releases?per_page=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.actions))
+        futures[ShowcaseFeature.actions] = httpGet(Uri.parse("$base/pipelines?per_page=1"), headers: headers);
 
       final results = await Future.wait(futures.values);
       final keys = futures.keys.toList();
@@ -588,11 +585,7 @@ class GitlabManager extends GitProviderManager {
           final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
           final awardId = emoji["id"] as int?;
           final existing = counts[name];
-          counts[name] = (
-            (existing?.$1 ?? 0) + 1,
-            (existing?.$2 ?? false) || isViewer,
-            isViewer ? awardId : existing?.$3,
-          );
+          counts[name] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer, isViewer ? awardId : existing?.$3);
         }
         for (final e in counts.entries) {
           reactions.add(IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3));
@@ -621,11 +614,7 @@ class GitlabManager extends GitProviderManager {
                 final isViewer = (emoji["user"]?["username"] as String? ?? "") == viewerUsername;
                 final awardId = emoji["id"] as int?;
                 final existing = noteCounts[name];
-                noteCounts[name] = (
-                  (existing?.$1 ?? 0) + 1,
-                  (existing?.$2 ?? false) || isViewer,
-                  isViewer ? awardId : existing?.$3,
-                );
+                noteCounts[name] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer, isViewer ? awardId : existing?.$3);
               }
               noteReactions = noteCounts.entries
                   .map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2, awardId: e.value.$3))
@@ -633,13 +622,15 @@ class GitlabManager extends GitProviderManager {
             }
           } catch (_) {}
 
-          comments.add(IssueComment(
-            id: "${note["id"]}",
-            authorUsername: note["author"]?["username"] ?? "",
-            body: note["body"] ?? "",
-            createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
-            reactions: noteReactions,
-          ));
+          comments.add(
+            IssueComment(
+              id: "${note["id"]}",
+              authorUsername: note["author"]?["username"] ?? "",
+              body: note["body"] ?? "",
+              createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
+              reactions: noteReactions,
+            ),
+          );
         }
       }
 
@@ -724,13 +715,15 @@ class GitlabManager extends GitProviderManager {
         final commitList = json.decode(utf8.decode(commitsResp.bodyBytes)) as List<dynamic>;
         for (final c in commitList) {
           final sha = c["id"] as String? ?? "";
-          commits.add(PrCommit(
-            sha: sha,
-            shortSha: c["short_id"] ?? sha.substring(0, sha.length.clamp(0, 7)),
-            message: c["message"] ?? "",
-            authorUsername: c["author_name"] ?? "",
-            createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
-          ));
+          commits.add(
+            PrCommit(
+              sha: sha,
+              shortSha: c["short_id"] ?? sha.substring(0, sha.length.clamp(0, 7)),
+              message: c["message"] ?? "",
+              authorUsername: c["author_name"] ?? "",
+              createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
+            ),
+          );
         }
       }
 
@@ -802,13 +795,15 @@ class GitlabManager extends GitProviderManager {
             }
           } catch (_) {}
 
-          commentList.add(IssueComment(
-            id: "${note["id"]}",
-            authorUsername: note["author"]?["username"] ?? "",
-            body: note["body"] ?? "",
-            createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
-            reactions: noteReactions,
-          ));
+          commentList.add(
+            IssueComment(
+              id: "${note["id"]}",
+              authorUsername: note["author"]?["username"] ?? "",
+              body: note["body"] ?? "",
+              createdAt: DateTime.tryParse(note["created_at"] ?? "") ?? DateTime.now(),
+              reactions: noteReactions,
+            ),
+          );
         }
       }
 
@@ -842,13 +837,15 @@ class GitlabManager extends GitProviderManager {
             "skipped" => "skipped",
             _ => null,
           };
-          checkRuns.add(PrCheckRun(
-            name: "Pipeline #${p["iid"] ?? p["id"] ?? 0}",
-            status: status,
-            conclusion: conclusion,
-            startedAt: DateTime.tryParse(p["created_at"] ?? ""),
-            completedAt: DateTime.tryParse(p["updated_at"] ?? ""),
-          ));
+          checkRuns.add(
+            PrCheckRun(
+              name: "Pipeline #${p["iid"] ?? p["id"] ?? 0}",
+              status: status,
+              conclusion: conclusion,
+              startedAt: DateTime.tryParse(p["created_at"] ?? ""),
+              completedAt: DateTime.tryParse(p["updated_at"] ?? ""),
+            ),
+          );
         }
         if (pipelines.isNotEmpty) {
           final latest = pipelines.first["status"] as String? ?? "";
@@ -875,10 +872,10 @@ class GitlabManager extends GitProviderManager {
           final status = deletedFile
               ? "removed"
               : newFile
-                  ? "added"
-                  : renamedFile
-                      ? "renamed"
-                      : "modified";
+              ? "added"
+              : renamedFile
+              ? "renamed"
+              : "modified";
 
           // GitLab doesn't give per-file +/- counts in the changes API, so count diff lines
           final diff = f["diff"] as String? ?? "";
@@ -890,13 +887,15 @@ class GitlabManager extends GitProviderManager {
           totalAdditions += adds;
           totalDeletions += dels;
 
-          changedFiles.add(PrChangedFile(
-            filename: f["new_path"] ?? f["old_path"] ?? "",
-            additions: adds,
-            deletions: dels,
-            status: status,
-            patch: diff.isNotEmpty ? diff : null,
-          ));
+          changedFiles.add(
+            PrChangedFile(
+              filename: f["new_path"] ?? f["old_path"] ?? "",
+              additions: adds,
+              deletions: dels,
+              status: status,
+              patch: diff.isNotEmpty ? diff : null,
+            ),
+          );
         }
       }
 
@@ -1002,7 +1001,15 @@ class GitlabManager extends GitProviderManager {
   }
 
   @override
-  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+  Future<bool> removeReaction(
+    String accessToken,
+    String owner,
+    String repo,
+    int issueNumber,
+    String targetId,
+    String reaction,
+    bool isComment,
+  ) async {
     try {
       final projectId = "$owner%2F$repo";
       final emojiName = gitlabReactionNames[reaction] ?? reaction;
@@ -1022,10 +1029,7 @@ class GitlabManager extends GitProviderManager {
       final viewerUsername = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["username"] as String? ?? "") : "";
 
       final emojis = json.decode(utf8.decode(listResp.bodyBytes)) as List<dynamic>;
-      final match = emojis.firstWhere(
-        (e) => e["name"] == emojiName && (e["user"]?["username"] ?? "") == viewerUsername,
-        orElse: () => null,
-      );
+      final match = emojis.firstWhere((e) => e["name"] == emojiName && (e["user"]?["username"] ?? "") == viewerUsername, orElse: () => null);
       if (match == null) return false;
 
       final awardId = match["id"];
@@ -1045,7 +1049,15 @@ class GitlabManager extends GitProviderManager {
   }
 
   @override
-  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+  Future<CreateIssueResult?> createIssue(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body, {
+    List<String>? labels,
+    List<String>? assignees,
+  }) async {
     try {
       final projectId = "$owner%2F$repo";
       final payload = <String, dynamic>{"title": title, "description": body};
@@ -1097,7 +1109,15 @@ class GitlabManager extends GitProviderManager {
   }
 
   @override
-  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+  Future<CreateIssueResult?> createPullRequest(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body,
+    String head,
+    String base,
+  ) async {
     try {
       final projectId = "$owner%2F$repo";
       final response = await httpPost(
@@ -1133,10 +1153,7 @@ class GitlabManager extends GitProviderManager {
           Uri.parse("https://$_domain/api/v4/projects/$projectId/repository/branches?per_page=100"),
           headers: {"Authorization": "Bearer $accessToken"},
         ),
-        httpGet(
-          Uri.parse("https://$_domain/api/v4/projects/$projectId"),
-          headers: {"Authorization": "Bearer $accessToken"},
-        ),
+        httpGet(Uri.parse("https://$_domain/api/v4/projects/$projectId"), headers: {"Authorization": "Bearer $accessToken"}),
       ]);
 
       final branches = <String>[];

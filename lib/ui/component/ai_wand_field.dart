@@ -22,14 +22,18 @@ class _AiWandFieldState extends State<AiWandField> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        widget.child,
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: widget.multiline ? null : 0,
-          child: IconButton(
+    return ValueListenableBuilder<bool>(
+      valueListenable: aiFeaturesEnabled,
+      builder: (context, enabled, _) {
+        if (!enabled) return widget.child;
+        return Stack(
+          children: [
+            widget.child,
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: widget.multiline ? null : 0,
+              child: IconButton(
             padding: widget.multiline ? EdgeInsets.all(spaceSM) : EdgeInsets.symmetric(horizontal: spaceSM),
             style: ButtonStyle(
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -89,9 +93,11 @@ class _AiWandFieldState extends State<AiWandField> {
                   size: textMD,
                   color: widget.enabled ? colours.tertiaryPositive : colours.tertiaryDark,
                 ),
-          ),
-        ),
-      ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

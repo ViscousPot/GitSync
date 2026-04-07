@@ -2267,6 +2267,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noRepoSetup => 'قم بإعداد مستودع أولاً';
 
   @override
+  String get enableAiFeatures => 'Enable AI Features';
+
+  @override
+  String get hideAiFeatures => 'Hide AI Features';
+
+  @override
+  String get hideAiFeaturesConfirmTitle => 'Hide AI Features?';
+
+  @override
+  String get hideAiFeaturesConfirmMsg =>
+      'This will remove the AI tab and all AI buttons throughout the app. You can re-enable AI features anytime from Global Settings.';
+
+  @override
   String get aiSetupTitle => 'إعداد الذكاء الاصطناعي';
 
   @override

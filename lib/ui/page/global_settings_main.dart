@@ -90,14 +90,14 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.secondaryDark,
-          systemNavigationBarColor: colours.secondaryDark,
+          statusBarColor: colours.primaryDark,
+          systemNavigationBarColor: colours.primaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
@@ -1006,14 +1006,14 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
 
 @pragma('vm:entry-point')
 Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args) {
-  (args as Map<String, dynamic>);
+  final argsMap = (args as Map).cast<String, dynamic>();
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => GlobalSettingsMain(
-        args["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
-        onboarding: args["onboarding"] == true,
+        argsMap["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
+        onboarding: argsMap["onboarding"] == true,
       ),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

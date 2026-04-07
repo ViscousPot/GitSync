@@ -1,6 +1,10 @@
 {
   "ar": [
-    "globalSettings"
+    "globalSettings",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg"
   ],
 
   "de": [
@@ -532,6 +536,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -1064,6 +1072,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -1528,6 +1540,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -1907,6 +1923,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -2439,6 +2459,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -2707,6 +2731,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ],
@@ -3462,6 +3490,10 @@
     "chatComingSoon",
     "chatComingSoonSubtitle",
     "noRepoSetup",
+    "enableAiFeatures",
+    "hideAiFeatures",
+    "hideAiFeaturesConfirmTitle",
+    "hideAiFeaturesConfirmMsg",
     "aiSetupTitle",
     "aiSetupMsg"
   ]

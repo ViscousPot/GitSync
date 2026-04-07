@@ -62,11 +62,18 @@ class _BranchSelectorState extends State<BranchSelector> {
                               final otherBranches = Map.of(widget.branchNames)..remove(widget.branchName);
                               if (otherBranches.isEmpty) return;
                               final renderBox = _branchSelectorKey.currentContext!.findRenderObject() as RenderBox;
-                              final offset = renderBox.localToGlobal(Offset.zero);
+                              final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
                               final size = renderBox.size;
+                              final position = RelativeRect.fromRect(
+                                Rect.fromPoints(
+                                  renderBox.localToGlobal(Offset(0, size.height), ancestor: overlay),
+                                  renderBox.localToGlobal(size.bottomRight(Offset.zero), ancestor: overlay),
+                                ),
+                                Offset.zero & overlay.size,
+                              );
                               showMenu<String>(
                                 context: context,
-                                position: RelativeRect.fromLTRB(offset.dx, offset.dy + size.height, offset.dx + size.width, 0),
+                                position: position,
                                 color: colours.secondaryDark,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
                                 constraints: BoxConstraints(maxHeight: 250, minWidth: size.width),
