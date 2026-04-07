@@ -31,7 +31,7 @@ enum StorageKey<T> {
   repoman_aiApiKey<String?>(name: "aiApiKey", defaultValue: null),
   repoman_aiEndpoint<String?>(name: "aiEndpoint", defaultValue: null),
   repoman_aiModel<String?>(name: "aiModel", defaultValue: null),
-  repoman_aiFeaturesEnabled<bool>(name: "aiFeaturesEnabled", defaultValue: true),
+  repoman_aiFeaturesEnabled<bool>(name: "aiFeaturesEnabled", defaultValue: false),
 
   // Settings Manager
   setman_authorName<String?>(name: "authorName", defaultValue: "", hasDefault: true),

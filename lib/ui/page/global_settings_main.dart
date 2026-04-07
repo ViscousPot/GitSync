@@ -420,41 +420,6 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         ),
                       ),
                     ),
-                    SizedBox(height: spaceMD),
-                    FutureBuilder(
-                      future: repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled),
-                      builder: (context, aiFeaturesEnabledSnapshot) => TextButton.icon(
-                        onPressed: () async {
-                          final next = !(aiFeaturesEnabledSnapshot.data ?? true);
-                          await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, next);
-                          aiFeaturesEnabled.value = next;
-                          if (mounted) setState(() {});
-                        },
-                        style: ButtonStyle(
-                          alignment: Alignment.centerLeft,
-                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                          ),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          minimumSize: WidgetStatePropertyAll(Size.zero),
-                        ),
-                        iconAlignment: IconAlignment.end,
-                        icon: FaIcon(
-                          (aiFeaturesEnabledSnapshot.data ?? true) ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                          color: colours.primaryPositive,
-                          size: textLG,
-                        ),
-                        label: SizedBox(
-                          width: double.infinity,
-                          child: Text(
-                            t.enableAiFeatures.toUpperCase(),
-                            style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ),
                     if (Platform.isAndroid) ...[
                       SizedBox(height: spaceMD),
                       FutureBuilder(
