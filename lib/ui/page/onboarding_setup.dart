@@ -243,6 +243,10 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
       if (remotes.isEmpty && mounted) {
         await offerCreateRemoteForExistingRepo(context, dirPath);
       }
+      await repoManager.setOnboardingStep(4);
+      if (!mounted) return;
+      screenIndex.value = Screen.SyncSettings;
+      return;
     }
     await repoManager.setOnboardingStep(3);
     _showCloneRepoPage();
@@ -276,7 +280,13 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
     if (!mounted) return;
     if (step == 3) {
-      _showCloneRepoPage();
+      if (uiSettingsManager.gitDirPath?.$1 != null) {
+        await repoManager.setOnboardingStep(4);
+        if (!mounted) return;
+        screenIndex.value = Screen.SyncSettings;
+      } else {
+        _showCloneRepoPage();
+      }
     } else if (step == 4) {
       screenIndex.value = Screen.SyncSettings;
     } else if (step > 0) {
