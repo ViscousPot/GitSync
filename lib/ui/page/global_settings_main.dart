@@ -90,14 +90,14 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.secondaryDark,
-          systemNavigationBarColor: colours.secondaryDark,
+          statusBarColor: colours.primaryDark,
+          systemNavigationBarColor: colours.primaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
