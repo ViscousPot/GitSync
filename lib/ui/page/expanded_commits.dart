@@ -103,9 +103,15 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
     setState(() => _featureCountsLoading = true);
     final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
-    if (accessToken.isEmpty) { if (mounted) setState(() => _featureCountsLoading = false); return; }
+    if (accessToken.isEmpty) {
+      if (mounted) setState(() => _featureCountsLoading = false);
+      return;
+    }
     final manager = GitProviderManager.getGitProviderManager(widget.gitProvider!, githubAppOauth);
-    if (manager == null) { if (mounted) setState(() => _featureCountsLoading = false); return; }
+    if (manager == null) {
+      if (mounted) setState(() => _featureCountsLoading = false);
+      return;
+    }
     final segments = Uri.parse(widget.remoteWebUrl!).pathSegments;
     final owner = segments[0];
     final repo = segments[1].replaceAll(".git", "");
@@ -268,7 +274,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                                       Hero(
                                         tag: hero_expand_contract,
                                         child: IconButton(
-                                          padding: EdgeInsets.all(spaceSM),
+                                          padding: EdgeInsets.all(spaceMD),
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             shape: WidgetStatePropertyAll(

@@ -1343,9 +1343,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     setState(() => featureCountsLoading = true);
     final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
-    if (accessToken.isEmpty) { if (mounted) setState(() => featureCountsLoading = false); return; }
+    if (accessToken.isEmpty) {
+      if (mounted) setState(() => featureCountsLoading = false);
+      return;
+    }
     final manager = GitProviderManager.getGitProviderManager(provider, githubAppOauth);
-    if (manager == null) { if (mounted) setState(() => featureCountsLoading = false); return; }
+    if (manager == null) {
+      if (mounted) setState(() => featureCountsLoading = false);
+      return;
+    }
     final segments = Uri.parse(webUrl).pathSegments;
     final owner = segments[0];
     final repo = segments[1].replaceAll(".git", "");
@@ -1755,8 +1761,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       );
     }
     void goToHomeTab() {
-      _tabIndex.value = 1;
-      _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      final homeIndex = aiFeaturesEnabled.value ? 1 : 0;
+      _tabIndex.value = homeIndex;
+      _pageController.animateToPage(homeIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
 
     return ValueListenableBuilder(
@@ -1764,7 +1771,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       builder: (context, currentTab, child) => ValueListenableBuilder(
         valueListenable: _filesCanPop,
         builder: (context, canPop, child) => PopScope(
-          canPop: currentTab != 2 && !canPop,
+          canPop: currentTab != (aiFeaturesEnabled.value ? 2 : 1) && !canPop,
           onPopInvokedWithResult: (didPop, _) {
             if (didPop) return;
             if (_filesNavigatorKey.currentState?.canPop() ?? false) {
@@ -1783,13 +1790,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         onGenerateRoute: (_) => MaterialPageRoute(
           builder: (context) => ValueListenableBuilder(
             valueListenable: recentCommits,
-            builder: (context, commits, _) => FileExplorer(
-              commits,
-              key: _fileExplorerKey,
-              path: path,
-              embedded: true,
-              onBackAtRoot: goToHomeTab,
-            ),
+            builder: (context, commits, _) => FileExplorer(commits, key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
           ),
         ),
       ),
@@ -1808,334 +1809,334 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     return Stack(
       children: [
         Scaffold(
-            backgroundColor: colours.primaryDark,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.transparent,
-              surfaceTintColor: Colors.transparent,
-              centerTitle: false,
-              actionsPadding: EdgeInsets.only(bottom: spaceXXS),
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: colours.primaryDark,
-                systemNavigationBarColor: colours.primaryDark,
-                statusBarIconBrightness: Brightness.light,
-                systemNavigationBarIconBrightness: Brightness.light,
-              ),
-              title: Padding(
-                padding: EdgeInsets.only(left: spaceMD, bottom: spaceXXS),
-                child: GestureDetector(
-                  onTap: kDebugMode
-                      ? () {
-                          devTools = !devTools;
-                          if (devTools) {
-                            queueTimer?.cancel();
-                            queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
-                              try {
-                                queueValue.value = await File(
-                                  '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
-                                ).readAsLines();
-                              } catch (e) {
-                                queueValue.value = [];
-                              }
-                            });
-                          } else {
-                            queueTimer?.cancel();
-                          }
-                          setState(() {});
+          backgroundColor: colours.primaryDark,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            centerTitle: false,
+            actionsPadding: EdgeInsets.only(bottom: spaceXXS),
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: colours.primaryDark,
+              systemNavigationBarColor: colours.primaryDark,
+              statusBarIconBrightness: Brightness.light,
+              systemNavigationBarIconBrightness: Brightness.light,
+            ),
+            title: Padding(
+              padding: EdgeInsets.only(left: spaceMD, bottom: spaceXXS),
+              child: GestureDetector(
+                onTap: kDebugMode
+                    ? () {
+                        devTools = !devTools;
+                        if (devTools) {
+                          queueTimer?.cancel();
+                          queueTimer = Timer.periodic(Duration(milliseconds: 500), (_) async {
+                            try {
+                              queueValue.value = await File(
+                                '${(await getApplicationSupportDirectory()).path}/queues/flock_queue_${await repoManager.getInt(StorageKey.repoman_repoIndex)}',
+                              ).readAsLines();
+                            } catch (e) {
+                              queueValue.value = [];
+                            }
+                          });
+                        } else {
+                          queueTimer?.cancel();
                         }
-                      : null,
-                  child: Text(
-                    widget.title,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
-                  ),
+                        setState(() {});
+                      }
+                    : null,
+                child: Text(
+                  widget.title,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
                 ),
               ),
-              actions: [
-                CustomShowcase(
-                  globalKey: _globalSettingsKey,
-                  cornerRadius: cornerRadiusMax,
-                  richContent: ShowcaseTooltipContent(
-                    title: t.showcaseGlobalSettingsTitle,
-                    subtitle: t.showcaseGlobalSettingsSubtitle,
-                    featureRows: [
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.sliders, text: t.showcaseGlobalSettingsFeatureTheme),
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFloppyDisk, text: t.showcaseGlobalSettingsFeatureBackup),
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseGlobalSettingsFeatureSetup),
-                    ],
-                  ),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    constraints: BoxConstraints(),
-                    onPressed: () async {
-                      _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
-                      widget.reloadLocale();
-                    },
-                    icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
-                  ),
-                ),
-                SizedBox(width: spaceSM),
-                SyncLoader(syncProgressKey: _syncProgressKey, reload: () => reloadAll()),
-                SizedBox(width: spaceSM),
-                CustomShowcase(
-                  globalKey: _addMoreKey,
-                  cornerRadius: cornerRadiusMax,
-                  richContent: ShowcaseTooltipContent(
-                    title: t.showcaseAddMoreTitle,
-                    subtitle: t.showcaseAddMoreSubtitle,
-                    featureRows: [
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFolderOpen, text: t.showcaseAddMoreFeatureSwitch),
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.squarePen, text: t.showcaseAddMoreFeatureManage),
-                      ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: t.showcaseAddMoreFeaturePremium),
-                    ],
-                  ),
-                  customTooltipActions: [
-                    TooltipActionButton(
-                      backgroundColor: colours.secondaryInfo,
-                      textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryLight),
-                      leadIcon: ActionButtonIcon(
-                        icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.primaryLight, size: textSM),
-                      ),
-                      name: t.learnMore.toUpperCase(),
-                      onTap: () => launchUrl(Uri.parse(premiumDocsLink)),
-                      type: null,
-                      borderRadius: BorderRadius.all(cornerRadiusMD),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                    ),
+            ),
+            actions: [
+              CustomShowcase(
+                globalKey: _globalSettingsKey,
+                cornerRadius: cornerRadiusMax,
+                richContent: ShowcaseTooltipContent(
+                  title: t.showcaseGlobalSettingsTitle,
+                  subtitle: t.showcaseGlobalSettingsSubtitle,
+                  featureRows: [
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.sliders, text: t.showcaseGlobalSettingsFeatureTheme),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFloppyDisk, text: t.showcaseGlobalSettingsFeatureBackup),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseGlobalSettingsFeatureSetup),
                   ],
-                  child: FutureBuilder(
-                    future: repoManager.getStringList(StorageKey.repoman_repoNames),
-                    builder: (context, repoNamesSnapshot) => Container(
-                      padding: EdgeInsets.zero,
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMax)),
-                      child: FutureBuilder(
-                        future: repoManager.getInt(StorageKey.repoman_repoIndex),
-                        builder: (context, repoIndexSnapshot) => repoNamesSnapshot.data == null
-                            ? SizedBox.shrink()
-                            : Row(
-                                children: [
-                                  SizedBox(width: spaceXXXS),
-                                  TextButton(
-                                    style: ButtonStyle(
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                      minimumSize: WidgetStatePropertyAll(Size.zero),
-                                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS)),
-                                    ),
-                                    onPressed: () async {
-                                      if (demo) {
-                                        final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
-                                        if (result == true) {
-                                          if (mounted) setState(() {});
-                                        }
-                                      }
-
-                                      if (premiumManager.hasPremiumNotifier.value != true) {
-                                        final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
-                                        if (result == true) {
-                                          if (mounted) setState(() {});
-                                          await addRepo();
-                                        }
-                                        if (mounted) setState(() {});
-                                        return;
-                                      }
-
-                                      if (repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded) {
-                                        addRepo();
-                                        return;
-                                      }
-
-                                      repoSettingsExpanded = !repoSettingsExpanded;
-                                      if (mounted) setState(() {});
-
-                                      if (repoSettingsExpanded) {
-                                        Future.delayed(
-                                          Duration(seconds: 5),
-                                          () => mounted
-                                              ? setState(() {
-                                                  repoSettingsExpanded = false;
-                                                })
-                                              : null,
-                                        );
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        ValueListenableBuilder(
-                                          valueListenable: premiumManager.hasPremiumNotifier,
-                                          builder: (context, hasPremium, child) => FaIcon(
-                                            hasPremium == true
-                                                ? (repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded
-                                                      ? FontAwesomeIcons.solidSquarePlus
-                                                      : FontAwesomeIcons.ellipsis)
-                                                : FontAwesomeIcons.solidGem,
-                                            color: repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded
-                                                ? colours.tertiaryPositive
-                                                : colours.secondaryLight,
-                                            size: textLG,
-                                          ),
-                                        ),
-                                        repoNamesSnapshot.data!.length != 1
-                                            ? SizedBox.shrink()
-                                            : Padding(
-                                                padding: EdgeInsets.only(left: spaceSM),
-                                                child: Text(
-                                                  t.addMore.toUpperCase(),
-                                                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.w900),
-                                                ),
-                                              ),
-                                      ],
-                                    ),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  constraints: BoxConstraints(),
+                  onPressed: () async {
+                    _restorableGlobalSettings.present({"recentCommits": getStringRecentCommits()});
+                    widget.reloadLocale();
+                  },
+                  icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
+                ),
+              ),
+              SizedBox(width: spaceSM),
+              SyncLoader(syncProgressKey: _syncProgressKey, reload: () => reloadAll()),
+              SizedBox(width: spaceSM),
+              CustomShowcase(
+                globalKey: _addMoreKey,
+                cornerRadius: cornerRadiusMax,
+                richContent: ShowcaseTooltipContent(
+                  title: t.showcaseAddMoreTitle,
+                  subtitle: t.showcaseAddMoreSubtitle,
+                  featureRows: [
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFolderOpen, text: t.showcaseAddMoreFeatureSwitch),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.squarePen, text: t.showcaseAddMoreFeatureManage),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: t.showcaseAddMoreFeaturePremium),
+                  ],
+                ),
+                customTooltipActions: [
+                  TooltipActionButton(
+                    backgroundColor: colours.secondaryInfo,
+                    textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryLight),
+                    leadIcon: ActionButtonIcon(
+                      icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.primaryLight, size: textSM),
+                    ),
+                    name: t.learnMore.toUpperCase(),
+                    onTap: () => launchUrl(Uri.parse(premiumDocsLink)),
+                    type: null,
+                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                    padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                  ),
+                ],
+                child: FutureBuilder(
+                  future: repoManager.getStringList(StorageKey.repoman_repoNames),
+                  builder: (context, repoNamesSnapshot) => Container(
+                    padding: EdgeInsets.zero,
+                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMax)),
+                    child: FutureBuilder(
+                      future: repoManager.getInt(StorageKey.repoman_repoIndex),
+                      builder: (context, repoIndexSnapshot) => repoNamesSnapshot.data == null
+                          ? SizedBox.shrink()
+                          : Row(
+                              children: [
+                                SizedBox(width: spaceXXXS),
+                                TextButton(
+                                  style: ButtonStyle(
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    minimumSize: WidgetStatePropertyAll(Size.zero),
+                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS)),
                                   ),
-                                  repoNamesSnapshot.data!.length > 1 && repoSettingsExpanded
-                                      ? Row(
-                                          children: [
-                                            IconButton(
-                                              style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                              constraints: BoxConstraints(),
-                                              onPressed: () async {
+                                  onPressed: () async {
+                                    if (demo) {
+                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      if (result == true) {
+                                        if (mounted) setState(() {});
+                                      }
+                                    }
+
+                                    if (premiumManager.hasPremiumNotifier.value != true) {
+                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      if (result == true) {
+                                        if (mounted) setState(() {});
+                                        await addRepo();
+                                      }
+                                      if (mounted) setState(() {});
+                                      return;
+                                    }
+
+                                    if (repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded) {
+                                      addRepo();
+                                      return;
+                                    }
+
+                                    repoSettingsExpanded = !repoSettingsExpanded;
+                                    if (mounted) setState(() {});
+
+                                    if (repoSettingsExpanded) {
+                                      Future.delayed(
+                                        Duration(seconds: 5),
+                                        () => mounted
+                                            ? setState(() {
                                                 repoSettingsExpanded = false;
-                                                setState(() {});
+                                              })
+                                            : null,
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    children: [
+                                      ValueListenableBuilder(
+                                        valueListenable: premiumManager.hasPremiumNotifier,
+                                        builder: (context, hasPremium, child) => FaIcon(
+                                          hasPremium == true
+                                              ? (repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded
+                                                    ? FontAwesomeIcons.solidSquarePlus
+                                                    : FontAwesomeIcons.ellipsis)
+                                              : FontAwesomeIcons.solidGem,
+                                          color: repoNamesSnapshot.data!.length == 1 || repoSettingsExpanded
+                                              ? colours.tertiaryPositive
+                                              : colours.secondaryLight,
+                                          size: textLG,
+                                        ),
+                                      ),
+                                      repoNamesSnapshot.data!.length != 1
+                                          ? SizedBox.shrink()
+                                          : Padding(
+                                              padding: EdgeInsets.only(left: spaceSM),
+                                              child: Text(
+                                                t.addMore.toUpperCase(),
+                                                style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.w900),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                repoNamesSnapshot.data!.length > 1 && repoSettingsExpanded
+                                    ? Row(
+                                        children: [
+                                          IconButton(
+                                            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                            constraints: BoxConstraints(),
+                                            onPressed: () async {
+                                              repoSettingsExpanded = false;
+                                              setState(() {});
 
-                                                RemoveContainerDialog.showDialog(context, (deleteContents) async {
-                                                  if (deleteContents) {
-                                                    await runGitOperation(LogType.DiscardDir, (event) => event, {"dirPath": null});
-                                                  }
+                                              RemoveContainerDialog.showDialog(context, (deleteContents) async {
+                                                if (deleteContents) {
+                                                  await runGitOperation(LogType.DiscardDir, (event) => event, {"dirPath": null});
+                                                }
 
-                                                  await uiSettingsManager.clearAll();
+                                                await uiSettingsManager.clearAll();
+
+                                                final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+                                                repomanReponames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
+
+                                                repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
+
+                                                if (await repoManager.getInt(StorageKey.repoman_repoIndex) >= repomanReponames.length) {
+                                                  await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.length - 1);
+                                                }
+
+                                                if (await repoManager.getInt(StorageKey.repoman_tileSyncIndex) >= repomanReponames.length) {
+                                                  await repoManager.setInt(StorageKey.repoman_tileSyncIndex, repomanReponames.length - 1);
+                                                }
+
+                                                if (await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) >= repomanReponames.length) {
+                                                  await repoManager.setInt(StorageKey.repoman_tileManualSyncIndex, repomanReponames.length - 1);
+                                                }
+
+                                                await uiSettingsManager.reinit();
+                                                await reloadAll();
+                                              });
+                                            },
+                                            icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: colours.tertiaryNegative, size: textLG),
+                                          ),
+                                          IconButton(
+                                            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                            constraints: BoxConstraints(),
+                                            onPressed: () async {
+                                              repoSettingsExpanded = false;
+                                              if (mounted) setState(() {});
+
+                                              if (repoNamesSnapshot.data == null || repoIndexSnapshot.data == null) return;
+
+                                              RenameContainerDialog.showDialog(
+                                                context,
+                                                repoNamesSnapshot.data![repoIndexSnapshot.data!].toLowerCase(),
+                                                (text) async {
+                                                  if (text.isEmpty) return;
 
                                                   final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
-                                                  repomanReponames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
+                                                  uiSettingsManager.renameNamespace(text);
+                                                  repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
 
-                                                  repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
+                                                  await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
 
-                                                  if (await repoManager.getInt(StorageKey.repoman_repoIndex) >= repomanReponames.length) {
-                                                    await repoManager.setInt(StorageKey.repoman_repoIndex, repomanReponames.length - 1);
-                                                  }
-
-                                                  if (await repoManager.getInt(StorageKey.repoman_tileSyncIndex) >= repomanReponames.length) {
-                                                    await repoManager.setInt(StorageKey.repoman_tileSyncIndex, repomanReponames.length - 1);
-                                                  }
-
-                                                  if (await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) >= repomanReponames.length) {
-                                                    await repoManager.setInt(StorageKey.repoman_tileManualSyncIndex, repomanReponames.length - 1);
-                                                  }
-
-                                                  await uiSettingsManager.reinit();
                                                   await reloadAll();
-                                                });
-                                              },
-                                              icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: colours.tertiaryNegative, size: textLG),
-                                            ),
-                                            IconButton(
-                                              style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                              constraints: BoxConstraints(),
-                                              onPressed: () async {
-                                                repoSettingsExpanded = false;
-                                                if (mounted) setState(() {});
-
-                                                if (repoNamesSnapshot.data == null || repoIndexSnapshot.data == null) return;
-
-                                                RenameContainerDialog.showDialog(
-                                                  context,
-                                                  repoNamesSnapshot.data![repoIndexSnapshot.data!].toLowerCase(),
-                                                  (text) async {
-                                                    if (text.isEmpty) return;
-
-                                                    final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
-                                                    uiSettingsManager.renameNamespace(text);
-                                                    repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
-
-                                                    await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
-
-                                                    await reloadAll();
-                                                  },
-                                                );
-                                              },
-                                              icon: FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textLG),
-                                            ),
-                                          ],
-                                        )
-                                      : SizedBox.shrink(),
-                                  SizedBox(width: spaceXXXS),
-                                  ...repoNamesSnapshot.data!.length > 1
-                                      ? [
-                                          SizedBox(width: spaceXXXS),
-                                          DropdownButton(
-                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                            padding: EdgeInsets.zero,
-                                            icon: Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                              child: FaIcon(FontAwesomeIcons.caretDown, color: colours.secondaryLight, size: textSM),
-                                            ),
-                                            value: repoIndexSnapshot.data ?? 0,
-                                            style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
-                                            isDense: true,
-                                            underline: const SizedBox.shrink(),
-                                            dropdownColor: colours.secondaryDark,
-                                            onChanged: (value) async {
-                                              if (value == null) return;
-                                              await repoManager.setInt(StorageKey.repoman_repoIndex, value);
-                                              await uiSettingsManager.reinit();
-                                              recentCommits.value.clear();
-                                              await reloadAll();
+                                                },
+                                              );
                                             },
-                                            selectedItemBuilder: (context) => List.generate(
-                                              repoNamesSnapshot.data!.length,
-                                              (index) => ConstrainedBox(
-                                                constraints: BoxConstraints(maxWidth: spaceXXL + spaceLG),
-                                                child: Text(
-                                                  repoNamesSnapshot.data![index].toUpperCase(),
-                                                  style: TextStyle(fontSize: textXS, color: colours.primaryLight),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            ),
-                                            items: List.generate(
-                                              repoNamesSnapshot.data!.length,
-                                              (index) => DropdownMenuItem(
-                                                value: index,
-                                                child: Text(
-                                                  repoNamesSnapshot.data![index].toUpperCase(),
-                                                  style: TextStyle(fontSize: textXS, color: colours.primaryLight),
-                                                ),
+                                            icon: FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textLG),
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                                SizedBox(width: spaceXXXS),
+                                ...repoNamesSnapshot.data!.length > 1
+                                    ? [
+                                        SizedBox(width: spaceXXXS),
+                                        DropdownButton(
+                                          borderRadius: BorderRadius.all(cornerRadiusMD),
+                                          padding: EdgeInsets.zero,
+                                          icon: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: spaceSM),
+                                            child: FaIcon(FontAwesomeIcons.caretDown, color: colours.secondaryLight, size: textSM),
+                                          ),
+                                          value: repoIndexSnapshot.data ?? 0,
+                                          style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
+                                          isDense: true,
+                                          underline: const SizedBox.shrink(),
+                                          dropdownColor: colours.secondaryDark,
+                                          onChanged: (value) async {
+                                            if (value == null) return;
+                                            await repoManager.setInt(StorageKey.repoman_repoIndex, value);
+                                            await uiSettingsManager.reinit();
+                                            recentCommits.value.clear();
+                                            await reloadAll();
+                                          },
+                                          selectedItemBuilder: (context) => List.generate(
+                                            repoNamesSnapshot.data!.length,
+                                            (index) => ConstrainedBox(
+                                              constraints: BoxConstraints(maxWidth: spaceXXL + spaceLG),
+                                              child: Text(
+                                                repoNamesSnapshot.data![index].toUpperCase(),
+                                                style: TextStyle(fontSize: textXS, color: colours.primaryLight),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ),
-                                        ]
-                                      : [SizedBox.shrink()],
-                                ],
-                              ),
-                      ),
+                                          items: List.generate(
+                                            repoNamesSnapshot.data!.length,
+                                            (index) => DropdownMenuItem(
+                                              value: index,
+                                              child: Text(
+                                                repoNamesSnapshot.data![index].toUpperCase(),
+                                                style: TextStyle(fontSize: textXS, color: colours.primaryLight),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                    : [SizedBox.shrink()],
+                              ],
+                            ),
                     ),
                   ),
                 ),
-                SizedBox(width: spaceMD),
-              ],
-            ),
-            body: ValueListenableBuilder<bool>(
-              valueListenable: aiFeaturesEnabled,
-              builder: (context, aiEnabled, _) => PageView(
+              ),
+              SizedBox(width: spaceMD),
+            ],
+          ),
+          body: ValueListenableBuilder<bool>(
+            valueListenable: aiFeaturesEnabled,
+            builder: (context, aiEnabled, _) => PageView(
               controller: _pageController,
               onPageChanged: (page) => _tabIndex.value = page,
               children: [
                 if (aiEnabled)
                   _KeepAlivePage(
-                  child: ValueListenableBuilder(
-                    valueListenable: _tabIndex,
-                    builder: (context, currentTab, child) => PopScope(
-                      canPop: currentTab != 0,
-                      onPopInvokedWithResult: (didPop, _) {
-                        if (!didPop) {
-                          _tabIndex.value = 1;
-                          _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                        }
-                      },
-                      child: child!,
+                    child: ValueListenableBuilder(
+                      valueListenable: _tabIndex,
+                      builder: (context, currentTab, child) => PopScope(
+                        canPop: currentTab != 0,
+                        onPopInvokedWithResult: (didPop, _) {
+                          if (!didPop) {
+                            _tabIndex.value = 1;
+                            _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
+                        },
+                        child: child!,
+                      ),
+                      child: AiFeaturesPage(),
                     ),
-                    child: AiFeaturesPage(),
                   ),
-                ),
                 _KeepAlivePage(
                   child: ValueListenableBuilder(
                     valueListenable: _homeCanPop,
@@ -2555,7 +2556,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                         );
                                                                                       },
                                                                                   child: IconButton(
-                                                                                    padding: EdgeInsets.all(spaceSM),
+                                                                                    padding: EdgeInsets.all(spaceMD),
                                                                                     style: ButtonStyle(
                                                                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                                       shape: WidgetStatePropertyAll(
@@ -2726,7 +2727,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                                   feature: pinned[0],
                                                                                   gitProvider: provider,
                                                                                   count: countsMap[pinned[0]],
-                                                                              countLoading: featureCountsLoading,
+                                                                                  countLoading: featureCountsLoading,
                                                                                   onAdd: resolveFeatureOnAdd(
                                                                                     context: context,
                                                                                     feature: pinned[0],
@@ -4034,7 +4035,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                               color: colours.primaryLight,
                                                             ),
                                                             leadIcon: ActionButtonIcon(
-                                                              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.primaryLight, size: textSM),
+                                                              icon: FaIcon(
+                                                                FontAwesomeIcons.solidFileLines,
+                                                                color: colours.primaryLight,
+                                                                size: textSM,
+                                                              ),
                                                             ),
                                                             name: t.learnMore.toUpperCase(),
                                                             onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
@@ -4063,13 +4068,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                 _KeepAlivePage(child: _buildFilesTab()),
               ],
             ),
-            ),
-            bottomNavigationBar: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ValueListenableBuilder<bool>(
-                  valueListenable: aiFeaturesEnabled,
-                  builder: (context, aiEnabled, _) => ValueListenableBuilder(
+          ),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ValueListenableBuilder<bool>(
+                valueListenable: aiFeaturesEnabled,
+                builder: (context, aiEnabled, _) => ValueListenableBuilder(
                   valueListenable: _tabIndex,
                   builder: (context, currentTabIndex, _) => Theme(
                     data: Theme.of(context).copyWith(
@@ -4084,107 +4089,107 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                     ),
                     child: NavigationBar(
                       selectedIndex: currentTabIndex.clamp(0, aiEnabled ? 2 : 1),
-                    onDestinationSelected: (i) {
-                      if (aiEnabled) {
-                        if (i == 1 && _tabIndex.value == 1) {
-                          _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                        } else if (i == 2 && _tabIndex.value == 2) {
-                          _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                      onDestinationSelected: (i) {
+                        if (aiEnabled) {
+                          if (i == 1 && _tabIndex.value == 1) {
+                            _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else if (i == 2 && _tabIndex.value == 2) {
+                            _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else {
+                            _tabIndex.value = i;
+                            _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
                         } else {
-                          _tabIndex.value = i;
-                          _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          if (i == 0 && _tabIndex.value == 0) {
+                            _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else if (i == 1 && _tabIndex.value == 1) {
+                            _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else {
+                            _tabIndex.value = i;
+                            _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
                         }
-                      } else {
-                        if (i == 0 && _tabIndex.value == 0) {
-                          _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                        } else if (i == 1 && _tabIndex.value == 1) {
-                          _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                        } else {
-                          _tabIndex.value = i;
-                          _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                        }
-                      }
-                    },
-                    backgroundColor: colours.secondaryDark,
-                    indicatorColor: colours.tertiaryDark,
-                    surfaceTintColor: Colors.transparent,
-                    labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                    height: 64,
-                    destinations: [
-                      if (aiEnabled)
+                      },
+                      backgroundColor: colours.secondaryDark,
+                      indicatorColor: colours.tertiaryDark,
+                      surfaceTintColor: Colors.transparent,
+                      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                      height: 64,
+                      destinations: [
+                        if (aiEnabled)
+                          NavigationDestination(
+                            icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
+                            selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
+                            label: t.tabChat,
+                          ),
                         NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabChat,
-                      ),
-                      NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabHome,
-                      ),
-                      NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabFiles,
-                      ),
+                          icon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.secondaryLight, size: textLG),
+                          selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textLG),
+                          label: t.tabHome,
+                        ),
+                        NavigationDestination(
+                          icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: textLG),
+                          selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.tertiaryInfo, size: textLG),
+                          label: t.tabFiles,
+                        ),
                       ],
                     ),
                   ),
-                  ),
                 ),
-                ValueListenableBuilder(
-                  valueListenable: hasGitFilters,
-                  builder: (context, hasFilters, child) => !hasFilters
-                      ? SizedBox.shrink()
-                      : GestureDetector(
-                          onTap: () => launchUrl(Uri.parse(playStoreLink)),
-                          child: Container(
-                            decoration: BoxDecoration(color: colours.tertiaryInfo),
-                            padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
-                            child: Center(
-                              child: Text.rich(
-                                textAlign: TextAlign.center,
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: t.unsupportedGitAttributes,
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(text: " "),
-                                    TextSpan(text: t.tapToOpenPlayStore),
-                                  ],
-                                ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: hasGitFilters,
+                builder: (context, hasFilters, child) => !hasFilters
+                    ? SizedBox.shrink()
+                    : GestureDetector(
+                        onTap: () => launchUrl(Uri.parse(playStoreLink)),
+                        child: Container(
+                          decoration: BoxDecoration(color: colours.tertiaryInfo),
+                          padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
+                          child: Center(
+                            child: Text.rich(
+                              textAlign: TextAlign.center,
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: t.unsupportedGitAttributes,
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(text: " "),
+                                  TextSpan(text: t.tapToOpenPlayStore),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                ),
-                FutureBuilder(
-                  future: hasNetworkConnection(),
-                  builder: (context, snapshot) => snapshot.data == false
-                      ? Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(color: colours.tertiaryNegative),
-                          padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
-                          child: Text.rich(
-                            textAlign: TextAlign.center,
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: t.youreOffline,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: " "),
-                                TextSpan(text: t.someFeaturesMayNotWork),
-                              ],
-                            ),
+                      ),
+              ),
+              FutureBuilder(
+                future: hasNetworkConnection(),
+                builder: (context, snapshot) => snapshot.data == false
+                    ? Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(color: colours.tertiaryNegative),
+                        padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
+                        child: Text.rich(
+                          textAlign: TextAlign.center,
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: t.youreOffline,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(text: " "),
+                              TextSpan(text: t.someFeaturesMayNotWork),
+                            ],
                           ),
-                        )
-                      : SizedBox.shrink(),
-                ),
-              ],
-            ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+              ),
+            ],
           ),
+        ),
         devTools
             ? Positioned(
                 left: spaceLG,
