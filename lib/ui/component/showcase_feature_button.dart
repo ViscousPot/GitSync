@@ -142,9 +142,6 @@ class ShowcaseFeatureButton extends StatelessWidget {
   }
 }
 
-/// Returns an updated pinned list after toggling [feature], or null if the toggle is rejected.
-/// - Unpinning with only 1 pinned: rejected (returns null)
-/// - Pinning with 2 already pinned: evicts the oldest (first in list)
 List<ShowcaseFeature>? togglePin(List<ShowcaseFeature> current, ShowcaseFeature feature) {
   final pinned = List<ShowcaseFeature>.of(current);
 
@@ -161,7 +158,6 @@ List<ShowcaseFeature>? togglePin(List<ShowcaseFeature> current, ShowcaseFeature 
   return pinned;
 }
 
-/// Returns a callback for the add button on a [ShowcaseFeature], or null if not supported.
 VoidCallback? resolveFeatureOnAdd({
   required BuildContext context,
   required ShowcaseFeature feature,
@@ -192,7 +188,6 @@ VoidCallback? resolveFeatureOnAdd({
   };
 }
 
-/// Maps a [ShowcaseFeature] to its navigation callback.
 VoidCallback resolveFeatureOnPressed({
   required BuildContext context,
   required ShowcaseFeature feature,

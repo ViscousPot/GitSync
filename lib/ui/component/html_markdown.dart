@@ -32,7 +32,6 @@ final RegExp tableRep = RegExp(r'<table[^>]*>', multiLine: true, caseSensitive: 
 
 final RegExp htmlRep = RegExp(r'<[^>]*>', multiLine: true, caseSensitive: true);
 
-///parse [m.Node] to [h.Node]
 List<SpanNode> parseHtml(m.Text node, {ValueCallback<dynamic>? onError, WidgetVisitor? visitor, TextStyle? parentStyle}) {
   try {
     final text = node.textContent.replaceAll(visitor?.splitRegExp ?? WidgetVisitor.defaultSplitRegExp, '');
@@ -108,8 +107,6 @@ class HtmlToSpanVisitor extends TreeVisitor {
   }
 }
 
-/// Custom block syntax that captures the full <details>...</details> block
-/// including blank lines, which the default HTML block parser splits apart.
 class DetailsBlockSyntax extends m.BlockSyntax {
   static final _startPattern = RegExp(r'^\s{0,3}<details[\s>]', caseSensitive: false);
   static final _endPattern = RegExp(r'</details\s*>', caseSensitive: false);
@@ -135,7 +132,6 @@ class DetailsBlockSyntax extends m.BlockSyntax {
   }
 }
 
-/// SpanNode that renders a <details>/<summary> collapsible section.
 class DetailsNode extends SpanNode {
   final m.Element element;
   final MarkdownConfig config;
