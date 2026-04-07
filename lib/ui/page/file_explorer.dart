@@ -782,6 +782,8 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                                   await Directory(
                                                     "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName",
                                                   ).create();
+                                                  controller.setCurrentPath =
+                                                     "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
                                                 } catch (e) {
                                                   Fluttertoast.showToast(
                                                     msg: "Failed to create directory: $e",
@@ -789,9 +791,6 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                                     gravity: null,
                                                   );
                                                 }
-                                                await Directory("${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName").create();
-                                                controller.setCurrentPath =
-                                                    "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
                                               });
                                             },
                                             style: ButtonStyle(
