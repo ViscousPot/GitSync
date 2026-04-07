@@ -451,7 +451,7 @@ class _ExpandedCommitsState extends State<ExpandedCommits> {
                             ],
                           ),
                           SizedBox(height: spaceMD),
-                          if (isOAuthProvider && widget.isAuthenticated) ...[
+                          if (isOAuthProvider && widget.isAuthenticated && widget.remoteWebUrl != null) ...[
                             Stack(
                               clipBehavior: Clip.none,
                               children: [

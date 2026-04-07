@@ -2505,7 +2505,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                       FutureBuilder<bool>(
                                                                         future: isAuthenticated(),
                                                                         builder: (context, authSnapshot) {
-                                                                          if (authSnapshot.data != true) return SizedBox.shrink();
+                                                                          if (authSnapshot.data != true || uiSettingsManager.gitDirPath?.$1 == null)
+                                                                            return SizedBox.shrink();
                                                                           return Positioned(
                                                                             top: orientation == Orientation.portrait ? -spaceXS : null,
                                                                             bottom: orientation == Orientation.portrait ? null : -spaceXS,
@@ -2696,7 +2697,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                                         if (data == null) return SizedBox(width: double.infinity, height: 0);
                                                                         final provider = data[0] as GitProvider;
                                                                         final authenticated = data[2] as bool;
-                                                                        if (!provider.isOAuthProvider || !authenticated) {
+                                                                        if (!provider.isOAuthProvider ||
+                                                                            !authenticated ||
+                                                                            remoteUrlLink.value == null) {
                                                                           return SizedBox(width: double.infinity, height: 0);
                                                                         }
                                                                         final pinned = ShowcaseFeature.fromStorageKeys(data[1] as List<String>);
