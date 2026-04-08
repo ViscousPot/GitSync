@@ -256,7 +256,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
             children: [
               _quickAction(FontAwesomeIcons.codeBranch, "What's my status?", "Summarize uncommitted changes, branch, and sync state"),
               _quickAction(FontAwesomeIcons.penToSquare, "Write a commit", "Stage changes and create a commit with a good message"),
-              _quickAction(FontAwesomeIcons.clockRotateLeft, "Recent history", "Show recent commits with details"),
+              _quickAction(FontAwesomeIcons.clockRotateLeft, "Tell me about my recent commits", "Summarize the latest commits on this branch"),
               _quickAction(FontAwesomeIcons.circleQuestion, "Open issues", "List open issues in this repo"),
             ],
           ),
