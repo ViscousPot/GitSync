@@ -29,8 +29,8 @@ dependencies:
   url_launcher: ^6.3.2
   rust_lib_GitSync:
     path: rust_builder
-  flutter_rust_bridge: 2.11.1
-  http: any
+  flutter_rust_bridge: 2.12.0
+  http: 1.6.0
   flutter_background_service:
     git:
       url: https://github.com/ViscousPot/flutter_background_service_with_intents
@@ -61,7 +61,7 @@ dependencies:
       ref: main
   connectivity_plus: ^6.1.4
   encrypt: ^5.0.1
-  cryptography: ^2.5.0
+  cryptography: ^2.9.0
   convert: ^3.1.1
   flutter_localized_locales: ^2.0.5
   flutter_email_sender: ^7.0.0
@@ -69,7 +69,7 @@ dependencies:
   showcaseview: ^4.0.1
   file_manager: ^1.0.2
   shared_preferences: ^2.5.5
-  re_editor: ^0.7.0
+  re_editor: ^0.8.0
   mmap2: ^0.1.0
   mmap2_flutter: ^0.2.1
   re_highlight: ^0.0.3
