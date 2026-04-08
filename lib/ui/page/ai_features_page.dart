@@ -1125,85 +1125,103 @@ class _UninitializedPageState extends State<_UninitializedPage> {
     return Container(
       color: colours.primaryDark,
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: spaceMD),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: spaceXL),
-              FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceXL),
-              SizedBox(height: spaceMD),
-              Text(
-                "GitSync AI",
-                style: TextStyle(color: colours.primaryLight, fontSize: textXXL, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: spaceXS),
-              Text(
-                "Your AI-powered Git assistant",
-                style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
-              ),
-              SizedBox(height: spaceLG),
-              _featureRow(FontAwesomeIcons.codeCommit, "Smart Commits", "Auto-generate meaningful commit messages from your changes"),
-              SizedBox(height: spaceSM),
-              _featureRow(FontAwesomeIcons.codeBranch, "Conflict Resolution", "Resolve merge conflicts with context-aware suggestions"),
-              SizedBox(height: spaceSM),
-              _featureRow(FontAwesomeIcons.filePen, "Code Editing", "Edit files, add headers, refactor code — all from chat"),
-              SizedBox(height: spaceSM),
-              _featureRow(FontAwesomeIcons.filter, "LFS & Filters", "Set up Git LFS, git-crypt, and .gitignore rules instantly"),
-              SizedBox(height: spaceLG * 2),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => _showByokDialog(context),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
-                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: spaceXL),
+            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceXL),
+            SizedBox(height: spaceMD),
+            Text(
+              "GitSync AI",
+              style: TextStyle(color: colours.primaryLight, fontSize: textXXL, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: spaceXS),
+            Text(
+              "Your AI-powered Git assistant",
+              style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
+            ),
+            SizedBox(height: spaceLG),
+            Flexible(
+              child: ShaderMask(
+                shaderCallback: (Rect rect) {
+                  return LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                    stops: [0, 0.05, 0.95, 1.0],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstOut,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textMD),
-                      SizedBox(width: spaceXS),
-                      Text(
-                        "Connect API Key",
-                        style: TextStyle(color: colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
-                      ),
+                      _featureRow(FontAwesomeIcons.codeCommit, "Smart Commits", "Auto-generate meaningful commit messages from your changes"),
+                      SizedBox(height: spaceSM),
+                      _featureRow(FontAwesomeIcons.codeBranch, "Conflict Resolution", "Resolve merge conflicts with context-aware suggestions"),
+                      SizedBox(height: spaceSM),
+                      _featureRow(FontAwesomeIcons.filePen, "Code Editing", "Edit files, add headers, refactor code — all from chat"),
+                      SizedBox(height: spaceSM),
+                      _featureRow(FontAwesomeIcons.filter, "LFS & Filters", "Set up Git LFS, git-crypt, and .gitignore rules instantly"),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: spaceSM),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => _showHideAiDialog(context),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                    shape: WidgetStatePropertyAll(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(cornerRadiusSM),
-                        side: BorderSide(color: colours.tertiaryDark),
-                      ),
+            ),
+            SizedBox(height: spaceLG * 2),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => _showByokDialog(context),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
+                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textMD),
+                    SizedBox(width: spaceXS),
+                    Text(
+                      "Connect API Key",
+                      style: TextStyle(color: colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
-                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FaIcon(FontAwesomeIcons.eyeSlash, color: colours.secondaryLight, size: textMD),
-                      SizedBox(width: spaceXS),
-                      Text(
-                        t.hideAiFeatures,
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-              SizedBox(height: spaceLG),
-            ],
-          ),
+            ),
+            SizedBox(height: spaceSM),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => _showHideAiDialog(context),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                      side: BorderSide(color: colours.tertiaryDark),
+                    ),
+                  ),
+                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FaIcon(FontAwesomeIcons.eyeSlash, color: colours.secondaryLight, size: textMD),
+                    SizedBox(width: spaceXS),
+                    Text(
+                      t.hideAiFeatures,
+                      style: TextStyle(color: colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: spaceLG),
+          ],
         ),
       ),
     );
@@ -1223,11 +1241,17 @@ class _UninitializedPageState extends State<_UninitializedPage> {
         ),
         actions: [
           TextButton(
-            child: Text(t.cancel.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontSize: textMD)),
+            child: Text(
+              t.cancel.toUpperCase(),
+              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            ),
             onPressed: () => Navigator.pop(dialogContext, false),
           ),
           TextButton(
-            child: Text(t.hideAiFeatures.toUpperCase(), style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD)),
+            child: Text(
+              t.hideAiFeatures.toUpperCase(),
+              style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
+            ),
             onPressed: () => Navigator.pop(dialogContext, true),
           ),
         ],
@@ -1453,7 +1477,11 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                                       if (provider != null) {
                                         final apiKey = apiKeyController.text.trim();
                                         final endpoint = selectedProvider == "Self-hosted" ? endpointController.text.trim() : null;
-                                        final (models, fetchError) = await fetchAvailableModels(provider: provider, apiKey: apiKey, endpoint: endpoint);
+                                        final (models, fetchError) = await fetchAvailableModels(
+                                          provider: provider,
+                                          apiKey: apiKey,
+                                          endpoint: endpoint,
+                                        );
                                         if (!dialogOpen) return;
                                         availableModels = models;
                                         modelFetchError = fetchError;
