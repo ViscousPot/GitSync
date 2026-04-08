@@ -90,6 +90,7 @@ class GitManager {
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
   static bool lastOperationWasNetworkStall = false;
+  static bool lastOperationWasNetworkUnavailable = false;
   static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
   static bool _isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
 
@@ -363,6 +364,7 @@ class GitManager {
     final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
     final result = await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, resolvedIndex, LogType.RecommendedAction, (dirPath) async {
+      lastOperationWasNetworkUnavailable = false;
       try {
         final result = await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
@@ -373,7 +375,12 @@ class GitManager {
         );
         return result;
       } catch (e, stackTrace) {
-        Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
+        final errorMsg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkUnavailableError(errorMsg) && !await hasNetworkConnection()) {
+          lastOperationWasNetworkUnavailable = true;
+        } else {
+          Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
+        }
         return null;
       }
     });
@@ -1214,6 +1221,8 @@ class GitManager {
   // Background Accessible
   static Future<bool?> backgroundDownloadChanges(int repomanRepoindex, SettingsManager settingsManager, Function() syncCallback) async {
     return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.DownloadChanges, (dirPath) async {
+      lastOperationWasNetworkStall = false;
+      lastOperationWasNetworkUnavailable = false;
       try {
         return await GitManagerRs.downloadChanges(
           pathString: dirPath,
@@ -1231,7 +1240,10 @@ class GitManager {
           lastOperationWasNetworkStall = true;
           return null;
         }
-        lastOperationWasNetworkStall = false;
+        if (isNetworkUnavailableError(e.message) && !await hasNetworkConnection()) {
+          lastOperationWasNetworkUnavailable = true;
+          return null;
+        }
         rethrow;
       }
     });
@@ -1265,6 +1277,8 @@ class GitManager {
       log: _logWrapper,
     );
     return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
+      lastOperationWasNetworkStall = false;
+      lastOperationWasNetworkUnavailable = false;
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {
@@ -1273,7 +1287,10 @@ class GitManager {
           lastOperationWasNetworkStall = true;
           return null;
         }
-        lastOperationWasNetworkStall = false;
+        if (isNetworkUnavailableError(e.message) && !await hasNetworkConnection()) {
+          lastOperationWasNetworkUnavailable = true;
+          return null;
+        }
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
           if (resyncCallback != null) {
             resyncCallback();

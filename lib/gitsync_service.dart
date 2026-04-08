@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:GitSync/api/manager/storage.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -101,6 +102,8 @@ class GitsyncService {
   );
   bool isScheduled = false;
   bool isSyncing = false;
+  final Set<int> _networkRetryRepoIndices = {};
+  StreamSubscription<List<ConnectivityResult>>? _networkRetrySubscription;
 
   static const String _widgetStatusKey = 'forceSyncWidget_status';
   // Must point at the Receiver (registered in AndroidManifest.xml), not the
@@ -218,6 +221,31 @@ class GitsyncService {
     }
   }
 
+  Future<bool> _handleNoNetwork(int repomanRepoindex) async {
+    if (!await hasNetworkConnection()) {
+      Logger.gmLog(type: LogType.Sync, "No network detected, scheduling retry");
+      _scheduleNetworkRetry(repomanRepoindex);
+      return true;
+    }
+    return false;
+  }
+
+  void _scheduleNetworkRetry(int repomanRepoindex) {
+    _networkRetryRepoIndices.add(repomanRepoindex);
+    Logger.gmLog(type: LogType.Sync, "Queued repo $repomanRepoindex for network retry (${_networkRetryRepoIndices.length} pending)");
+    _networkRetrySubscription ??= Connectivity().onConnectivityChanged.listen((result) async {
+      if (result[0] != ConnectivityResult.none && await hasNetworkConnection()) {
+        _networkRetrySubscription?.cancel();
+        _networkRetrySubscription = null;
+        Logger.gmLog(type: LogType.Sync, "Network restored, retrying sync for ${_networkRetryRepoIndices.length} repo(s)");
+        for (final repoIndex in _networkRetryRepoIndices) {
+          debouncedSync(repoIndex);
+        }
+        _networkRetryRepoIndices.clear();
+      }
+    });
+  }
+
   void _scheduleStallRetry(int repomanRepoindex) {
     Future.delayed(const Duration(seconds: 30), () {
       debouncedSync(repomanRepoindex);
@@ -242,11 +270,6 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "No remote configured, skipping sync");
         isScheduled = false;
         terminal = 'error';
-        return;
-      }
-
-      if (!await hasNetworkConnection()) {
-        Logger.gmLog(type: LogType.Sync, "No network connection, skipping sync");
         return;
       }
 
@@ -290,7 +313,10 @@ class GitsyncService {
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
         int? recommendedAction = await GitManager.getRecommendedAction(priority: 3);
 
-        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) return;
+        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
+          if (GitManager.lastOperationWasNetworkUnavailable) await _handleNoNetwork(repomanRepoindex);
+          return;
+        }
 
         if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
@@ -306,6 +332,8 @@ class GitsyncService {
                 if (GitManager.lastOperationWasNetworkStall) {
                   await _displaySyncMessage(settingsManager, s.networkStallRetry);
                   _scheduleStallRetry(repomanRepoindex);
+                } else if (GitManager.lastOperationWasNetworkUnavailable) {
+                  await _handleNoNetwork(repomanRepoindex);
                 }
                 innerError = true;
                 return;
@@ -328,7 +356,10 @@ class GitsyncService {
         }
 
         recommendedAction = await GitManager.getRecommendedAction(priority: 3);
-        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) return;
+        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
+          if (GitManager.lastOperationWasNetworkUnavailable) await _handleNoNetwork(repomanRepoindex);
+          return;
+        }
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
@@ -352,6 +383,8 @@ class GitsyncService {
                 if (GitManager.lastOperationWasNetworkStall) {
                   await _displaySyncMessage(settingsManager, s.networkStallRetry);
                   _scheduleStallRetry(repomanRepoindex);
+                } else if (GitManager.lastOperationWasNetworkUnavailable) {
+                  await _handleNoNetwork(repomanRepoindex);
                 }
                 innerError = true;
                 return;
@@ -388,9 +421,8 @@ class GitsyncService {
 
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
-      if (GitManager.isNetworkUnavailableError(e.toString()) && !await hasNetworkConnection()) {
-        Logger.gmLog(type: LogType.Sync, "Sync failed due to network unavailability, will retry later");
-        await _displaySyncMessage(null, s.networkUnavailableRetry);
+      if (GitManager.isNetworkUnavailableError(e.toString()) && await _handleNoNetwork(repomanRepoindex)) {
+        // Handled by _handleNoNetwork
       } else {
         Logger.logError(LogType.SyncException, e, st);
         terminal = 'error';
