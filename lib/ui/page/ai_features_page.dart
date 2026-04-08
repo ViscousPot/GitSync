@@ -23,7 +23,9 @@ class AiFeaturesPage extends StatefulWidget {
 
 class _AiFeaturesPageState extends State<AiFeaturesPage> {
   bool _initialized = false;
-  String? _currentModel;
+  String? _currentChatModel;
+  String? _currentToolModel;
+  String? _currentWandModel;
   String? _currentProvider;
 
   final _inputController = TextEditingController();
@@ -55,12 +57,16 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
   Future<void> _checkStoredApiKey() async {
     final provider = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
     final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
-    final model = await repoManager.getStringNullable(StorageKey.repoman_aiModel);
+    final chatModel = await repoManager.getStringNullable(StorageKey.repoman_aiChatModel);
+    final toolModel = await repoManager.getStringNullable(StorageKey.repoman_aiToolModel);
+    final wandModel = await repoManager.getStringNullable(StorageKey.repoman_aiWandModel);
     if (provider != null && provider.isNotEmpty && apiKey != null && apiKey.isNotEmpty) {
       if (mounted)
         setState(() {
           _initialized = true;
-          _currentModel = model;
+          _currentChatModel = chatModel;
+          _currentToolModel = toolModel;
+          _currentWandModel = wandModel;
           _currentProvider = provider;
         });
     }
@@ -264,10 +270,10 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                                 _currentProvider ?? '',
                                 style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
                               ),
-                              if (_currentModel != null) ...[
+                              if (_currentChatModel != null) ...[
                                 SizedBox(width: spaceXXS),
                                 Text(
-                                  _currentModel!,
+                                  _currentChatModel!,
                                   style: _mono.merge(TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold)),
                                 ),
                               ],
@@ -756,7 +762,9 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
 
   void _showTokenDialog(BuildContext context) async {
     final isSelfHosted = _currentProvider == 'Self-hosted';
-    String? selectedModel = _currentModel;
+    String? selectedChatModel = _currentChatModel;
+    String? selectedToolModel = _currentToolModel;
+    String? selectedWandModel = _currentWandModel;
     List<String> availableModels = [];
     bool loadingModels = true;
 
@@ -780,7 +788,74 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
         builder: (context, setDialogState) {
           _setDialogState = setDialogState;
 
-          final model = selectedModel ?? '';
+          Widget modelRow({
+            required String label,
+            required String? selectedValue,
+            required void Function(String) onChanged,
+          }) {
+            final displayed = selectedValue ?? '';
+            return Row(
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                ),
+                SizedBox(width: spaceSM),
+                Expanded(
+                  child: loadingModels
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: textSM,
+                              height: textSM,
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.secondaryLight),
+                            ),
+                            SizedBox(width: spaceXS),
+                            Text(
+                              displayed,
+                              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                            ),
+                          ],
+                        )
+                      : availableModels.isNotEmpty
+                      ? DropdownButton<String>(
+                          value: availableModels.contains(selectedValue) ? selectedValue : null,
+                          hint: Text(
+                            displayed,
+                            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                          ),
+                          isExpanded: true,
+                          dropdownColor: colours.secondaryDark,
+                          underline: SizedBox.shrink(),
+                          isDense: true,
+                          alignment: AlignmentDirectional.centerEnd,
+                          style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                          items: availableModels
+                              .map(
+                                (m) => DropdownMenuItem(
+                                  value: m,
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  child: Text(m, overflow: TextOverflow.ellipsis),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) {
+                            if (v == null) return;
+                            onChanged(v);
+                          },
+                        )
+                      : Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            displayed,
+                            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                ),
+              ],
+            );
+          }
 
           return Dialog(
             backgroundColor: colours.secondaryDark,
@@ -824,68 +899,34 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                           ],
                         ),
                         SizedBox(height: spaceXS),
-                        Row(
-                          children: [
-                            Text(
-                              "Model",
-                              style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
-                            ),
-                            SizedBox(width: spaceSM),
-                            Expanded(
-                              child: loadingModels
-                                  ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        SizedBox(
-                                          width: textSM,
-                                          height: textSM,
-                                          child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.secondaryLight),
-                                        ),
-                                        SizedBox(width: spaceXS),
-                                        Text(
-                                          model,
-                                          style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
-                                        ),
-                                      ],
-                                    )
-                                  : availableModels.isNotEmpty
-                                  ? DropdownButton<String>(
-                                      value: availableModels.contains(selectedModel) ? selectedModel : null,
-                                      hint: Text(
-                                        model,
-                                        style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
-                                      ),
-                                      isExpanded: true,
-                                      dropdownColor: colours.secondaryDark,
-                                      underline: SizedBox.shrink(),
-                                      isDense: true,
-                                      alignment: AlignmentDirectional.centerEnd,
-                                      style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
-                                      items: availableModels
-                                          .map(
-                                            (m) => DropdownMenuItem(
-                                              value: m,
-                                              alignment: AlignmentDirectional.centerEnd,
-                                              child: Text(m, overflow: TextOverflow.ellipsis),
-                                            ),
-                                          )
-                                          .toList(),
-                                      onChanged: (v) async {
-                                        if (v == null) return;
-                                        await repoManager.setStringNullable(StorageKey.repoman_aiModel, v);
-                                        setDialogState(() => selectedModel = v);
-                                        if (mounted) setState(() => _currentModel = v);
-                                      },
-                                    )
-                                  : Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(
-                                        model,
-                                        style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
-                                      ),
-                                    ),
-                            ),
-                          ],
+                        modelRow(
+                          label: "Chat",
+                          selectedValue: selectedChatModel,
+                          onChanged: (v) async {
+                            await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, v);
+                            setDialogState(() => selectedChatModel = v);
+                            if (mounted) setState(() => _currentChatModel = v);
+                          },
+                        ),
+                        SizedBox(height: spaceXS),
+                        modelRow(
+                          label: "Tool",
+                          selectedValue: selectedToolModel,
+                          onChanged: (v) async {
+                            await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, v);
+                            setDialogState(() => selectedToolModel = v);
+                            if (mounted) setState(() => _currentToolModel = v);
+                          },
+                        ),
+                        SizedBox(height: spaceXS),
+                        modelRow(
+                          label: "Wand",
+                          selectedValue: selectedWandModel,
+                          onChanged: (v) async {
+                            await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, v);
+                            setDialogState(() => selectedWandModel = v);
+                            if (mounted) setState(() => _currentWandModel = v);
+                          },
                         ),
                       ],
                     ),
@@ -900,7 +941,9 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                             await repoManager.setStringNullable(StorageKey.repoman_aiProvider, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiApiKey, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiEndpoint, null);
-                            await repoManager.setStringNullable(StorageKey.repoman_aiModel, null);
+                            await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, null);
+                            await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, null);
+                            await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, null);
                             aiKeyConfigured.value = false;
                             aiChatService.clearConversation();
                             Navigator.pop(context, true);
@@ -1268,7 +1311,9 @@ class _UninitializedPageState extends State<_UninitializedPage> {
     final endpointController = TextEditingController();
     final dialogScrollController = ScrollController();
     String? selectedProvider;
-    String? selectedModel;
+    String? selectedChatModel;
+    String? selectedToolModel;
+    String? selectedWandModel;
     List<String> availableModels = [];
     bool loadingModels = false;
     bool loading = false;
@@ -1294,7 +1339,11 @@ class _UninitializedPageState extends State<_UninitializedPage> {
           if (!dialogOpen) return;
           availableModels = models;
           modelFetchError = fetchError;
-          if (availableModels.isNotEmpty) selectedModel = availableModels.first;
+          if (availableModels.isNotEmpty) {
+            selectedChatModel = availableModels.first;
+            selectedToolModel = availableModels.first;
+            selectedWandModel = availableModels.first;
+          }
         }
         safeSetState?.call(() {
           loadingModels = false;
@@ -1321,7 +1370,13 @@ class _UninitializedPageState extends State<_UninitializedPage> {
             if (dialogOpen) setDialogState(fn);
           };
           final canConnect =
-              selectedProvider != null && apiKeyController.text.trim().isNotEmpty && selectedModel != null && !loading && !loadingModels;
+              selectedProvider != null &&
+              apiKeyController.text.trim().isNotEmpty &&
+              selectedChatModel != null &&
+              selectedToolModel != null &&
+              selectedWandModel != null &&
+              !loading &&
+              !loadingModels;
 
           return Dialog(
             backgroundColor: colours.secondaryDark,
@@ -1387,7 +1442,9 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                               safeSetState?.call(() {
                                 selectedProvider = name;
                                 availableModels = [];
-                                selectedModel = null;
+                                selectedChatModel = null;
+                                selectedToolModel = null;
+                                selectedWandModel = null;
                                 modelFetchError = null;
                               });
                               if (name != null && apiKeyController.text.trim().isNotEmpty) {
@@ -1453,7 +1510,7 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                           Row(
                             children: [
                               Text(
-                                "Model",
+                                "Models",
                                 style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: spaceXS),
@@ -1485,7 +1542,11 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                                         if (!dialogOpen) return;
                                         availableModels = models;
                                         modelFetchError = fetchError;
-                                        if (availableModels.isNotEmpty) selectedModel = availableModels.first;
+                                        if (availableModels.isNotEmpty) {
+                                          selectedChatModel = availableModels.first;
+                                          selectedToolModel = availableModels.first;
+                                          selectedWandModel = availableModels.first;
+                                        }
                                       }
                                       safeSetState?.call(() {
                                         loadingModels = false;
@@ -1513,28 +1574,31 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                                 ),
                               ),
                             )
-                          else if (availableModels.isNotEmpty)
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                              child: DropdownButton<String>(
-                                value: selectedModel,
-                                isExpanded: true,
-                                dropdownColor: colours.secondaryDark,
-                                underline: SizedBox.shrink(),
-                                style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
-                                items: availableModels
-                                    .map(
-                                      (m) => DropdownMenuItem(
-                                        value: m,
-                                        child: Text(m, overflow: TextOverflow.ellipsis),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: loading ? null : (v) => safeSetState?.call(() => selectedModel = v),
-                              ),
+                          else if (availableModels.isNotEmpty) ...[
+                            _byokModelDropdown(
+                              label: "Chat",
+                              selectedValue: selectedChatModel,
+                              availableModels: availableModels,
+                              loading: loading,
+                              onChanged: (v) => safeSetState?.call(() => selectedChatModel = v),
                             ),
+                            SizedBox(height: spaceXS),
+                            _byokModelDropdown(
+                              label: "Tool",
+                              selectedValue: selectedToolModel,
+                              availableModels: availableModels,
+                              loading: loading,
+                              onChanged: (v) => safeSetState?.call(() => selectedToolModel = v),
+                            ),
+                            SizedBox(height: spaceXS),
+                            _byokModelDropdown(
+                              label: "Wand",
+                              selectedValue: selectedWandModel,
+                              availableModels: availableModels,
+                              loading: loading,
+                              onChanged: (v) => safeSetState?.call(() => selectedWandModel = v),
+                            ),
+                          ],
                           if (modelFetchError != null) ...[
                             SizedBox(height: spaceXS),
                             Container(
@@ -1621,7 +1685,9 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                               await repoManager.setStringNullable(StorageKey.repoman_aiProvider, selectedProvider);
                               await repoManager.setStringNullable(StorageKey.repoman_aiApiKey, apiKey);
                               await repoManager.setStringNullable(StorageKey.repoman_aiEndpoint, endpoint);
-                              await repoManager.setStringNullable(StorageKey.repoman_aiModel, selectedModel);
+                              await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, selectedChatModel);
+                              await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, selectedToolModel);
+                              await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, selectedWandModel);
                               aiKeyConfigured.value = true;
 
                               if (!dialogOpen) return;
@@ -1669,6 +1735,50 @@ class _UninitializedPageState extends State<_UninitializedPage> {
     if (connected == true) {
       widget.onSubscribe();
     }
+  }
+
+  Widget _byokModelDropdown({
+    required String label,
+    required String? selectedValue,
+    required List<String> availableModels,
+    required bool loading,
+    required void Function(String?) onChanged,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: spaceXL,
+          child: Text(
+            label,
+            style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+          ),
+        ),
+        SizedBox(width: spaceXS),
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: spaceSM),
+            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            child: DropdownButton<String>(
+              value: selectedValue,
+              isExpanded: true,
+              dropdownColor: colours.secondaryDark,
+              underline: SizedBox.shrink(),
+              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+              items: availableModels
+                  .map(
+                    (m) => DropdownMenuItem(
+                      value: m,
+                      child: Text(m, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
+              onChanged: loading ? null : onChanged,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _featureRow(FaIconData icon, String title, String description) {

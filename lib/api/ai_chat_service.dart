@@ -151,7 +151,8 @@ class AiChatService {
     final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
     final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
     final endpoint = await repoManager.getStringNullable(StorageKey.repoman_aiEndpoint);
-    final storedModel = await repoManager.getStringNullable(StorageKey.repoman_aiModel);
+    final storedChatModel = await repoManager.getStringNullable(StorageKey.repoman_aiChatModel);
+    final storedToolModel = await repoManager.getStringNullable(StorageKey.repoman_aiToolModel);
 
     if (providerName == null || apiKey == null || apiKey.isEmpty) {
       conv.error = 'AI not configured. Set up your API key first.';
@@ -166,12 +167,13 @@ class AiChatService {
       return;
     }
 
-    if (storedModel == null || storedModel.isEmpty) {
-      conv.error = 'No model selected. Please configure a model in AI Settings.';
+    if (storedChatModel == null || storedChatModel.isEmpty || storedToolModel == null || storedToolModel.isEmpty) {
+      conv.error = 'Chat or tool model not selected. Please configure both in AI Settings.';
       _syncIfActive(repoIndex);
       return;
     }
-    final model = storedModel;
+    final chatModel = storedChatModel;
+    final toolModel = storedToolModel;
 
     final gitProvider = await uiSettingsManager.getGitProvider();
     final githubAppOauth = await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth);
@@ -194,7 +196,7 @@ class AiChatService {
 
     final systemPrompt = await buildSystemPrompt(repoIndex: repoIndex);
 
-    await _runAgenticLoop(repoIndex, toolContext, provider, apiKey, model, endpoint, systemPrompt);
+    await _runAgenticLoop(repoIndex, toolContext, provider, apiKey, chatModel, toolModel, endpoint, systemPrompt);
   }
 
   Future<void> _runAgenticLoop(
@@ -202,7 +204,8 @@ class AiChatService {
     ToolContext toolContext,
     AiProvider provider,
     String apiKey,
-    String model,
+    String chatModel,
+    String toolModel,
     String? endpoint,
     String systemPrompt,
   ) async {
@@ -211,107 +214,65 @@ class AiChatService {
     _syncIfActive(repoIndex);
 
     final hasOAuth = toolContext.providerManager != null && toolContext.accessToken.isNotEmpty;
+    final modelsDiffer = chatModel != toolModel;
 
     try {
       for (var round = 0; round < _maxToolRounds; round++) {
         if (conv.cancelled) break;
 
-        final apiMessages = _buildApiMessages(provider, conv.messages);
-        final filteredTools = _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: conv.activatedTools);
-        conv.streamingText = '';
-        _syncIfActive(repoIndex);
-
-        final contentBlocks = <ContentBlock>[];
-        var currentTextBlock = TextBlock('');
-        contentBlocks.add(currentTextBlock);
-
-        final toolCallBuilders = <String, _ToolCallBuilder>{};
-        var turnInputTokens = 0;
-        var turnOutputTokens = 0;
-
-        await for (final event in streamCompletion(
+        var roundResult = await _streamRound(
+          repoIndex: repoIndex,
           provider: provider,
-          systemPrompt: systemPrompt,
-          messages: apiMessages,
-          tools: filteredTools,
           apiKey: apiKey,
-          model: model,
+          model: toolModel,
           endpoint: endpoint,
-          isCancelled: () => conv.cancelled,
-        )) {
+          systemPrompt: systemPrompt,
+          hasOAuth: hasOAuth,
+          activatedTools: conv.activatedTools,
+          includeTools: true,
+        );
+
+        if (conv.cancelled) break;
+
+        final hadToolCalls = roundResult.contentBlocks.any((b) => b is ToolUseBlock);
+
+        // When chat and tool models differ and the tool model produced no tool
+        // calls, this round is the final synthesis. Discard the tool model's
+        // text and re-stream with the chat model so the user-facing reply
+        // comes from the chat model.
+        if (modelsDiffer && !hadToolCalls) {
+          conv.streamingText = '';
+          _syncIfActive(repoIndex);
+
+          final chatResult = await _streamRound(
+            repoIndex: repoIndex,
+            provider: provider,
+            apiKey: apiKey,
+            model: chatModel,
+            endpoint: endpoint,
+            systemPrompt: systemPrompt,
+            hasOAuth: hasOAuth,
+            activatedTools: conv.activatedTools,
+            includeTools: false,
+          );
+
           if (conv.cancelled) break;
 
-          switch (event) {
-            case TextDelta(:final text):
-              currentTextBlock.text += text;
-              conv.streamingText = currentTextBlock.text;
-              _syncIfActive(repoIndex);
-
-            case ToolCallStart(:final id, :final name):
-              toolCallBuilders[id] = _ToolCallBuilder(id: id, name: name);
-              if (currentTextBlock.text.isNotEmpty) {
-                currentTextBlock = TextBlock('');
-                contentBlocks.add(currentTextBlock);
-              }
-
-            case ToolCallInputDelta(:final id, :final jsonFragment):
-              toolCallBuilders[id]?.argsBuffer.write(jsonFragment);
-
-            case ToolCallEnd(:final id):
-              final builder = toolCallBuilders[id];
-              if (builder != null && builder.name.isNotEmpty) {
-                Map<String, dynamic> args = {};
-                try {
-                  args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
-                } catch (_) {}
-                contentBlocks.add(ToolUseBlock(
-                  toolCallId: builder.id,
-                  toolName: builder.name,
-                  input: args,
-                ));
-                currentTextBlock = TextBlock('');
-                contentBlocks.add(currentTextBlock);
-              }
-
-            case UsageUpdate(:final usage):
-              turnInputTokens += usage.inputTokens;
-              turnOutputTokens += usage.outputTokens;
-
-            case StreamComplete _:
-              break;
-
-            case StreamError(:final message):
-              conv.error = message;
-              _syncIfActive(repoIndex);
-          }
+          final combinedUsage = TokenUsage(
+            roundResult.usage.inputTokens + chatResult.usage.inputTokens,
+            roundResult.usage.outputTokens + chatResult.usage.outputTokens,
+          );
+          roundResult = (contentBlocks: chatResult.contentBlocks, usage: combinedUsage);
         }
 
-        contentBlocks.removeWhere((b) => b is TextBlock && b.text.isEmpty);
-        if (contentBlocks.isEmpty) contentBlocks.add(TextBlock(''));
-
-        for (final entry in toolCallBuilders.entries) {
-          final builder = entry.value;
-          if (builder.name.isNotEmpty && !contentBlocks.any((b) => b is ToolUseBlock && b.toolCallId == builder.id)) {
-            Map<String, dynamic> args = {};
-            try {
-              args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
-            } catch (_) {}
-            contentBlocks.add(ToolUseBlock(
-              toolCallId: builder.id,
-              toolName: builder.name,
-              input: args,
-            ));
-          }
-        }
-
-        final turnUsage = TokenUsage(turnInputTokens, turnOutputTokens);
+        final turnUsage = roundResult.usage;
         conv.lastTurnUsage = turnUsage;
         conv.sessionUsage = conv.sessionUsage + turnUsage;
-    
+
         final assistantMsg = ChatMessage(
           id: conv.nextId(),
           role: ChatRole.assistant,
-          content: contentBlocks,
+          content: roundResult.contentBlocks,
           usage: turnUsage,
         );
         conv.messages = [...conv.messages, assistantMsg];
@@ -353,6 +314,111 @@ class AiChatService {
       _syncIfActive(repoIndex);
       _saveToDisk(repoIndex);
     }
+  }
+
+  Future<({List<ContentBlock> contentBlocks, TokenUsage usage})> _streamRound({
+    required int repoIndex,
+    required AiProvider provider,
+    required String apiKey,
+    required String model,
+    required String? endpoint,
+    required String systemPrompt,
+    required bool hasOAuth,
+    required Set<String> activatedTools,
+    required bool includeTools,
+  }) async {
+    final conv = _convFor(repoIndex);
+    final apiMessages = _buildApiMessages(provider, conv.messages);
+    final filteredTools = includeTools
+        ? _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: activatedTools)
+        : <AiTool>[];
+    conv.streamingText = '';
+    _syncIfActive(repoIndex);
+
+    final contentBlocks = <ContentBlock>[];
+    var currentTextBlock = TextBlock('');
+    contentBlocks.add(currentTextBlock);
+
+    final toolCallBuilders = <String, _ToolCallBuilder>{};
+    var turnInputTokens = 0;
+    var turnOutputTokens = 0;
+
+    await for (final event in streamCompletion(
+      provider: provider,
+      systemPrompt: systemPrompt,
+      messages: apiMessages,
+      tools: filteredTools,
+      apiKey: apiKey,
+      model: model,
+      endpoint: endpoint,
+      isCancelled: () => conv.cancelled,
+    )) {
+      if (conv.cancelled) break;
+
+      switch (event) {
+        case TextDelta(:final text):
+          currentTextBlock.text += text;
+          conv.streamingText = currentTextBlock.text;
+          _syncIfActive(repoIndex);
+
+        case ToolCallStart(:final id, :final name):
+          toolCallBuilders[id] = _ToolCallBuilder(id: id, name: name);
+          if (currentTextBlock.text.isNotEmpty) {
+            currentTextBlock = TextBlock('');
+            contentBlocks.add(currentTextBlock);
+          }
+
+        case ToolCallInputDelta(:final id, :final jsonFragment):
+          toolCallBuilders[id]?.argsBuffer.write(jsonFragment);
+
+        case ToolCallEnd(:final id):
+          final builder = toolCallBuilders[id];
+          if (builder != null && builder.name.isNotEmpty) {
+            Map<String, dynamic> args = {};
+            try {
+              args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
+            } catch (_) {}
+            contentBlocks.add(ToolUseBlock(
+              toolCallId: builder.id,
+              toolName: builder.name,
+              input: args,
+            ));
+            currentTextBlock = TextBlock('');
+            contentBlocks.add(currentTextBlock);
+          }
+
+        case UsageUpdate(:final usage):
+          turnInputTokens += usage.inputTokens;
+          turnOutputTokens += usage.outputTokens;
+
+        case StreamComplete _:
+          break;
+
+        case StreamError(:final message):
+          conv.error = message;
+          _syncIfActive(repoIndex);
+      }
+    }
+
+    contentBlocks.removeWhere((b) => b is TextBlock && b.text.isEmpty);
+    if (contentBlocks.isEmpty) contentBlocks.add(TextBlock(''));
+
+    for (final entry in toolCallBuilders.entries) {
+      final builder = entry.value;
+      if (builder.name.isNotEmpty && !contentBlocks.any((b) => b is ToolUseBlock && b.toolCallId == builder.id)) {
+        Map<String, dynamic> args = {};
+        try {
+          args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
+        } catch (_) {}
+        contentBlocks.add(ToolUseBlock(
+          toolCallId: builder.id,
+          toolName: builder.name,
+          input: args,
+        ));
+      }
+    }
+
+    return (contentBlocks: contentBlocks, usage: TokenUsage(turnInputTokens, turnOutputTokens));
   }
 
   Future<String> _chatDir() async {

@@ -30,7 +30,9 @@ enum StorageKey<T> {
   repoman_aiProvider<String?>(name: "aiProvider", defaultValue: null),
   repoman_aiApiKey<String?>(name: "aiApiKey", defaultValue: null),
   repoman_aiEndpoint<String?>(name: "aiEndpoint", defaultValue: null),
-  repoman_aiModel<String?>(name: "aiModel", defaultValue: null),
+  repoman_aiChatModel<String?>(name: "aiChatModel", defaultValue: null),
+  repoman_aiToolModel<String?>(name: "aiToolModel", defaultValue: null),
+  repoman_aiWandModel<String?>(name: "aiWandModel", defaultValue: null),
   repoman_aiFeaturesEnabled<bool>(name: "aiFeaturesEnabled", defaultValue: true),
 
   // Settings Manager

@@ -12,7 +12,7 @@ Future<String?> aiComplete({
   final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
   final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
   final endpoint = await repoManager.getStringNullable(StorageKey.repoman_aiEndpoint);
-  final storedModel = await repoManager.getStringNullable(StorageKey.repoman_aiModel);
+  final storedModel = await repoManager.getStringNullable(StorageKey.repoman_aiWandModel);
 
   if (providerName == null || apiKey == null || apiKey.isEmpty) {
     return null;
