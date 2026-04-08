@@ -157,101 +157,8 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                   left: spaceMD,
                   right: spaceMD,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ValueListenableBuilder<List<ChatMessage>>(
-                        valueListenable: aiChatService.messages,
-                        builder: (context, messages, _) {
-                          if (messages.isEmpty) return const SizedBox.shrink();
-                          return GestureDetector(
-                            onTap: () async {
-                              final confirmed = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => Dialog(
-                                  backgroundColor: colours.secondaryDark,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(spaceMD),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          "Clear chat?",
-                                          style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(height: spaceXS),
-                                        Text(
-                                          "This will delete the entire conversation history for this container.",
-                                          style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(height: spaceMD),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
-                                                style: ButtonStyle(
-                                                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                                  ),
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
-                                                ),
-                                                child: Text(
-                                                  "Cancel",
-                                                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: spaceXS),
-                                            Expanded(
-                                              child: TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
-                                                style: ButtonStyle(
-                                                  backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                                  ),
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
-                                                ),
-                                                child: Text(
-                                                  "Clear",
-                                                  style: TextStyle(color: colours.primaryDark, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                              if (confirmed == true) aiChatService.clearConversation();
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
-                              decoration: BoxDecoration(
-                                color: colours.secondaryDark,
-                                borderRadius: BorderRadius.all(cornerRadiusMax),
-                                border: Border.all(color: colours.primaryNegative),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FaIcon(FontAwesomeIcons.trashCan, color: colours.primaryNegative, size: textXS),
-                                  SizedBox(width: spaceXXS),
-                                  Text(
-                                    "Clear chat",
-                                    style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      Spacer(),
                       GestureDetector(
                         onTap: () => _showTokenDialog(context),
                         child: Container(
@@ -1054,6 +961,80 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
     if (confirmed == true) aiChatService.stop();
   }
 
+  Future<void> _confirmClearChat(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: colours.secondaryDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
+        child: Padding(
+          padding: EdgeInsets.all(spaceMD),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Clear chat?",
+                style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: spaceXS),
+              Text(
+                "This will delete the entire conversation history for this container.",
+                style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: spaceMD),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                        ),
+                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
+                      ),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: spaceXS),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                        ),
+                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
+                      ),
+                      child: Text(
+                        "Clear",
+                        style: TextStyle(color: colours.primaryDark, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (confirmed == true) aiChatService.clearConversation();
+  }
+
+  String _formatTokens(int n) {
+    if (n < 1000) return '$n';
+    if (n < 100000) return '${(n / 1000).toStringAsFixed(1)}k';
+    if (n < 1000000) return '${(n / 1000).round()}k';
+    return '${(n / 1000000).toStringAsFixed(1)}M';
+  }
+
   Widget _inputBar() {
     return ValueListenableBuilder<bool>(
       valueListenable: aiChatService.isStreaming,
@@ -1064,8 +1045,9 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
             top: false,
             child: Container(
               decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: IntrinsicHeight(
+                child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
                     child: TextField(
@@ -1084,19 +1066,71 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                       onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
-                    child: Container(
-                      margin: EdgeInsets.all(spaceXXS),
-                      padding: EdgeInsets.all(spaceSM),
-                      decoration: BoxDecoration(
-                        color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
-                        borderRadius: BorderRadius.all(cornerRadiusSM),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: GestureDetector(
+                      onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
+                      child: Container(
+                        margin: EdgeInsets.all(spaceXXS),
+                        padding: EdgeInsets.all(spaceSM),
+                        decoration: BoxDecoration(
+                          color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
+                          borderRadius: BorderRadius.all(cornerRadiusSM),
+                        ),
+                        child: FaIcon(isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane, color: colours.primaryDark, size: textSM),
                       ),
-                      child: FaIcon(isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane, color: colours.primaryDark, size: textSM),
                     ),
                   ),
+                  ValueListenableBuilder<List<ChatMessage>>(
+                    valueListenable: aiChatService.messages,
+                    builder: (context, messages, _) {
+                      if (messages.isEmpty) return const SizedBox.shrink();
+                      return ValueListenableBuilder<TokenUsage>(
+                        valueListenable: aiChatService.sessionUsage,
+                        builder: (context, usage, _) {
+                          final disabled = isStreaming;
+                          final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
+                          return Padding(
+                            padding: EdgeInsets.all(spaceXXS),
+                            child: TextButton.icon(
+                              onPressed: disabled ? null : () => _confirmClearChat(context),
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                overlayColor: WidgetStatePropertyAll(fg.withValues(alpha: 0.1)),
+                                shape: WidgetStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                                    side: BorderSide(color: fg),
+                                  ),
+                                ),
+                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                                minimumSize: WidgetStatePropertyAll(Size.zero),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                iconColor: WidgetStatePropertyAll(fg),
+                              ),
+                              icon: FaIcon(FontAwesomeIcons.trashCan, color: fg, size: textSM),
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Clear",
+                                    style: _mono.merge(TextStyle(color: fg, fontSize: textXS, fontWeight: FontWeight.bold)),
+                                  ),
+                                  SizedBox(width: spaceXXS),
+                                  Text(
+                                    _formatTokens(usage.inputTokens + usage.outputTokens),
+                                    style: _mono.merge(TextStyle(color: fg.withValues(alpha: 0.7), fontSize: textXS)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
+              ),
               ),
             ),
           ),
