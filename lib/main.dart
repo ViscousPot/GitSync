@@ -1141,7 +1141,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     aiFeaturesEnabled.addListener(_onAiFeaturesEnabledChanged);
 
     initAsync(() async {
-      aiFeaturesEnabled.value = false;
+      aiFeaturesEnabled.value = await repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled);
     });
 
     switchToAiTab = () {
