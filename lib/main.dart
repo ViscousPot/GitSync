@@ -32,6 +32,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -197,9 +198,20 @@ void callbackDispatcher() async {
 
   Workmanager().executeTask((task, inputData) async {
     try {
-      if (task.contains(scheduledSyncKey)) {
+      if (task.contains(scheduledSyncKey) || task.contains(networkRetrySyncKey)) {
         final int repoIndex =
-            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
+            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "").replaceAll(networkRetrySyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
+
+        if (task.contains(networkRetrySyncKey)) {
+          final operation = inputData?["operation"];
+
+          if (operation == LogType.FetchRemote.name) {
+            FlutterBackgroundService().invoke(LogType.FetchRemote.name, {
+              "networkErrorMode": NetworkErrorMode.scheduleRetry.name,
+            });
+            return Future.value(true);
+          }
+        }
 
         if (Platform.isIOS) {
           await gitSyncService.debouncedSync(repoIndex, true, true);
@@ -246,7 +258,10 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.FetchRemote.name).listen((event) async {
-    await GitManager.fetchRemote();
+    final networkErrorMode = event?["networkErrorMode"] != null
+        ? NetworkErrorMode.values.byName(event!["networkErrorMode"])
+        : NetworkErrorMode.showToast;
+    await GitManager.fetchRemote(networkErrorMode: networkErrorMode);
     service.invoke(LogType.FetchRemote.name);
   });
 
@@ -1185,7 +1200,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
       await reloadAll();
     });
 
-    networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) => mounted ? setState(() {}) : null);
+    networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      if (!mounted) return;
+      setState(() {});
+      if (!result.contains(ConnectivityResult.none) && autoRefreshTimer == null) {
+        updateRecommendedAction();
+      }
+    });
 
     initAsync(() async {
       await promptClearKeychainValues();
@@ -1265,6 +1286,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
     });
     updatingRecommendedAction.value = false;
     await updateSyncOptions();
+    if (recommendedAction.value == null) return;
     _scheduleNextRecommendedAction(startTime);
   }
 
@@ -1466,7 +1488,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
           FontAwesomeIcons.caretDown,
           () async {
-            await runGitOperation(LogType.FetchRemote, (event) => event);
+            await runGitOperation(LogType.FetchRemote, (event) => event, {"networkErrorMode": NetworkErrorMode.scheduleRetry.name});
             if (recommendedAction.value == 0) {
               await updateRecommendedAction(override: 1, useOverride: true);
             }

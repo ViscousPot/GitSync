@@ -154,6 +154,7 @@ const dismissErrorDebounceReference = "dismiss_error";
 const refreshDebounceReference = "refresh";
 
 const scheduledSyncKey = "scheduled_sync_";
+const networkRetrySyncKey = "network_retry_sync_";
 
 final sshPattern = RegExp(r'^(ssh://[^@]+@|git@)[a-zA-Z0-9.-]+([:/])(\S+)/(\S+)(\.git)?$');
 final httpsPattern = RegExp(r'^(https?://)[a-zA-Z0-9.-]+([:/])(\S+)/(\S+)(\.git)?$');
@@ -168,5 +169,11 @@ const gitSyncBugChannelName = "GitSync Bug";
 const gitSyncSyncChannelId = "git_sync_sync_channel";
 const gitSyncSyncChannelName = "GitSync Sync Status";
 const int syncStatusNotificationId = 1733;
+const int networkRetryNotificationId = 1734;
+
+const String networkStallMessage = "Poor network — will retry shortly";
+const String networkUnavailableMessage = "Network unavailable — will retry when reconnected";
+const String networkStallManualMessage = "Poor network — please try again";
+const String networkUnavailableManualMessage = "Network unavailable — please try again";
 
 const bullet = "•";

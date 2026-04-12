@@ -37,6 +37,7 @@ import '../ui/dialog/submodules_found.dart' as SubmodulesFoundDialog;
 import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:workmanager/workmanager.dart';
 
 const int mergeConflictNotificationId = 1758;
 Map<String, Timer> debounceTimers = {};
@@ -167,6 +168,51 @@ Future<void> sendMergeConflictNotification() async {
 Future<bool> hasNetworkConnection() async {
   return (await Connectivity().checkConnectivity())[0] != ConnectivityResult.none;
 }
+
+Future<void> showNetworkMessage(String message) async {
+  if (Platform.isIOS) {
+    final active = await Logger.notificationsPlugin.getActiveNotifications();
+    final alreadyShowing = active.any((n) => n.id == networkRetryNotificationId);
+    final darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentList: true,
+      presentBadge: false,
+      presentSound: !alreadyShowing,
+    );
+    await Logger.notificationsPlugin.show(
+      networkRetryNotificationId,
+      appName,
+      message,
+      NotificationDetails(iOS: darwinDetails),
+    );
+  } else {
+    await Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_LONG, gravity: null);
+  }
+}
+
+void scheduleNetworkRetryOperation(int repoIndex, LogType operation) {
+  final uniqueName = "$networkRetrySyncKey${repoIndex}_${operation.name}";
+  Workmanager().registerOneOffTask(
+    uniqueName,
+    uniqueName,
+    inputData: {"repoIndex": repoIndex, "operation": operation.name},
+    existingWorkPolicy: ExistingWorkPolicy.replace,
+    constraints: Constraints(networkType: NetworkType.connected),
+  );
+}
+
+void scheduleNetworkStallRetryOperation(int repoIndex, LogType operation) {
+  final uniqueName = "$networkRetrySyncKey${repoIndex}_${operation.name}_stall";
+  Workmanager().registerOneOffTask(
+    uniqueName,
+    uniqueName,
+    inputData: {"repoIndex": repoIndex, "operation": operation.name},
+    existingWorkPolicy: ExistingWorkPolicy.replace,
+    initialDelay: const Duration(seconds: 30),
+  );
+}
+
 
 Future<String?> pickDirectory() async {
   try {
