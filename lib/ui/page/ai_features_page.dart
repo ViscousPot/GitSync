@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/api/ai_provider_validator.dart';
@@ -60,15 +62,17 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
     final chatModel = await repoManager.getStringNullable(StorageKey.repoman_aiChatModel);
     final toolModel = await repoManager.getStringNullable(StorageKey.repoman_aiToolModel);
     final wandModel = await repoManager.getStringNullable(StorageKey.repoman_aiWandModel);
+    if (!mounted) return;
     if (provider != null && provider.isNotEmpty && apiKey != null && apiKey.isNotEmpty) {
-      if (mounted)
-        setState(() {
-          _initialized = true;
-          _currentChatModel = chatModel;
-          _currentToolModel = toolModel;
-          _currentWandModel = wandModel;
-          _currentProvider = provider;
-        });
+      setState(() {
+        _initialized = true;
+        _currentChatModel = chatModel;
+        _currentToolModel = toolModel;
+        _currentWandModel = wandModel;
+        _currentProvider = provider;
+      });
+    } else if (_initialized) {
+      setState(() => _initialized = false);
     }
   }
 
@@ -206,11 +210,18 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        error,
-                        style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          await Clipboard.setData(ClipboardData(text: error));
+                          Fluttertoast.showToast(msg: "Error copied to clipboard", toastLength: Toast.LENGTH_SHORT);
+                        },
+                        child: Text(
+                          error,
+                          style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -237,7 +248,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Spacer(),
-          FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceLG),
+          FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceMD),
           SizedBox(height: spaceSM),
           Text(
             "GitSync AI",
@@ -845,6 +856,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                       Expanded(
                         child: TextButton(
                           onPressed: () async {
+                            aiChatService.stop(); // cancel active stream before wiping credentials
                             await repoManager.setStringNullable(StorageKey.repoman_aiProvider, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiApiKey, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiEndpoint, null);
@@ -1268,6 +1280,12 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: spaceMD),
+            Text(
+              "AI-generated content may not always be accurate and should be reviewed before use.",
+              style: TextStyle(color: colours.secondaryLight.withValues(alpha: 0.5), fontSize: textXS),
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: spaceSM),
             SizedBox(
