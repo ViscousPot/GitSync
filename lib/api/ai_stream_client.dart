@@ -90,6 +90,9 @@ Stream<StreamEvent> streamCompletion({
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final errorBody = await response.stream.bytesToString();
+      // Surface the full upstream body in logcat so we can debug 4xx/5xx
+      // without having to chase the banner UI on-device.
+      print('[AI Stream] $provider HTTP ${response.statusCode} body=$errorBody');
       yield StreamError('API error ${response.statusCode}: $errorBody');
       return;
     }

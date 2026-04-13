@@ -209,7 +209,7 @@ class UpdateIssueTool extends AiTool {
   @override String get name => 'update_issue';
   @override String get description => 'Update an issue title and/or body.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -238,7 +238,7 @@ class CloseReopenIssueTool extends AiTool {
   @override String get name => 'close_reopen_issue';
   @override String get description => 'Close or reopen an issue.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -400,7 +400,7 @@ class ListLabelsTool extends AiTool {
   @override String get name => 'list_labels';
   @override String get description => 'List all labels available in the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -417,7 +417,7 @@ class ListMilestonesTool extends AiTool {
   @override String get name => 'list_milestones';
   @override String get description => 'List active milestones in the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -434,7 +434,7 @@ class ListCollaboratorsTool extends AiTool {
   @override String get name => 'list_collaborators';
   @override String get description => 'List collaborators on the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -451,7 +451,7 @@ class ListTagsTool extends AiTool {
   @override String get name => 'list_tags';
   @override String get description => 'List tags in the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -479,7 +479,7 @@ class ListReleasesTool extends AiTool {
   @override String get name => 'list_releases';
   @override String get description => 'List releases in the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -511,7 +511,7 @@ class ListActionRunsTool extends AiTool {
   @override String get name => 'list_action_runs';
   @override String get description => 'List CI/CD action runs (GitHub Actions, GitLab Pipelines, Gitea Actions).';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -550,7 +550,7 @@ class AddReactionTool extends AiTool {
   @override String get name => 'add_reaction';
   @override String get description => 'Add an emoji reaction to an issue, PR, or comment.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -580,7 +580,7 @@ class RemoveReactionTool extends AiTool {
   @override String get name => 'remove_reaction';
   @override String get description => 'Remove your emoji reaction from an issue, PR, or comment.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -610,7 +610,7 @@ class GetIssueTemplatesTool extends AiTool {
   @override String get name => 'get_issue_templates';
   @override String get description => 'Get available issue templates for the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -634,7 +634,7 @@ class GetPrTemplatesTool extends AiTool {
   @override String get name => 'get_pr_templates';
   @override String get description => 'Get available pull request templates for the repository.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -655,7 +655,7 @@ class ListRemoteBranchesTool extends AiTool {
   @override String get name => 'list_remote_branches';
   @override String get description => 'List branches on the remote repository (via provider API), including the default branch.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -672,7 +672,7 @@ class CreateRepoTool extends AiTool {
   @override String get name => 'create_repo';
   @override String get description => 'Create a new repository on the remote provider.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -702,7 +702,7 @@ class ListReposTool extends AiTool {
   @override String get name => 'list_repos';
   @override String get description => 'List repositories accessible to the authenticated user.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
@@ -731,7 +731,7 @@ class ListProjectsTool extends AiTool {
   @override String get name => 'list_projects';
   @override String get description => 'List projects associated with the repository (GitHub Projects).';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override
@@ -748,7 +748,7 @@ class GetSettingsInfoTool extends AiTool {
   @override String get name => 'get_settings_info';
   @override String get description => 'Get current repository settings: git provider, sync message template, commit footer, and client mode status.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.contextual;
+  @override ToolTier get tier => ToolTier.advanced;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
   @override

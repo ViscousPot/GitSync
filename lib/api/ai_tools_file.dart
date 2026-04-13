@@ -29,14 +29,14 @@ String? _resolve(String relativePath, ToolContext? context) {
 
 class FileReadTool extends AiTool {
   @override String get name => 'file_read';
-  @override String get description => 'Read the contents of a file in the repository. For large files, use offset and limit.';
+  @override String get description => 'Read a file. Use offset/limit for large files.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'path': {'type': 'string', 'description': 'Relative path from repo root'},
-      'offset': {'type': 'integer', 'description': 'Line offset to start reading from (0-based)', 'default': 0},
-      'limit': {'type': 'integer', 'description': 'Maximum number of lines to read', 'default': 500},
+      'path': {'type': 'string'},
+      'offset': {'type': 'integer', 'default': 0},
+      'limit': {'type': 'integer', 'default': 500},
     },
     'required': ['path'],
   };
@@ -61,11 +61,21 @@ class FileReadTool extends AiTool {
       final slice = lines.sublist(start, end);
 
       final numbered = StringBuffer();
+      var truncatedLines = 0;
       for (var i = 0; i < slice.length; i++) {
+        if (numbered.length >= 4000) {
+          truncatedLines = slice.length - i;
+          numbered.writeln('... [truncated, $truncatedLines more lines in window; narrow with offset/limit]');
+          break;
+        }
         numbered.writeln('${start + i + 1}: ${slice[i]}');
       }
 
-      return ok({'total_lines': total, 'showing': '${start + 1}-$end', 'content': numbered.toString()});
+      return ok({
+        'total_lines': total,
+        'showing': '${start + 1}-${end - truncatedLines}',
+        'content': numbered.toString(),
+      });
     } catch (e) {
       return err('Could not read file (may be binary): $e');
     }
@@ -74,13 +84,13 @@ class FileReadTool extends AiTool {
 
 class FileWriteTool extends AiTool {
   @override String get name => 'file_write';
-  @override String get description => 'Write content to a file, creating it if it doesn\'t exist or replacing it entirely.';
+  @override String get description => 'Create or fully replace a file.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'path': {'type': 'string', 'description': 'Relative path from repo root'},
-      'content': {'type': 'string', 'description': 'Full file content to write'},
+      'path': {'type': 'string'},
+      'content': {'type': 'string'},
     },
     'required': ['path', 'content'],
   };
@@ -105,14 +115,14 @@ class FileWriteTool extends AiTool {
 
 class FileEditTool extends AiTool {
   @override String get name => 'file_edit';
-  @override String get description => 'Apply a targeted edit to a file by replacing an exact string match with new content.';
+  @override String get description => 'Replace an exact string in a file. old_content must match uniquely.';
   @override ToolConfirmation get confirmation => ToolConfirmation.warn;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'path': {'type': 'string', 'description': 'Relative path from repo root'},
-      'old_content': {'type': 'string', 'description': 'Exact text to find (must match uniquely)'},
-      'new_content': {'type': 'string', 'description': 'Replacement text'},
+      'path': {'type': 'string'},
+      'old_content': {'type': 'string'},
+      'new_content': {'type': 'string'},
     },
     'required': ['path', 'old_content', 'new_content'],
   };
@@ -141,14 +151,14 @@ class FileEditTool extends AiTool {
 
 class FileListTool extends AiTool {
   @override String get name => 'file_list';
-  @override String get description => 'List files and directories at a given path in the repository.';
+  @override String get description => 'List files in a directory.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'path': {'type': 'string', 'description': "Relative directory path ('.' for repo root)", 'default': '.'},
-      'recursive': {'type': 'boolean', 'description': 'List recursively', 'default': false},
-      'max_depth': {'type': 'integer', 'description': 'Max recursion depth (only with recursive=true)', 'default': 3},
+      'path': {'type': 'string', 'default': '.'},
+      'recursive': {'type': 'boolean', 'default': false},
+      'max_depth': {'type': 'integer', 'default': 3},
     },
   };
 
@@ -194,14 +204,14 @@ class FileListTool extends AiTool {
 
 class FileSearchTool extends AiTool {
   @override String get name => 'file_search';
-  @override String get description => 'Search for a text pattern across files in the repository.';
+  @override String get description => 'Regex search across files. file_glob filters filenames (e.g. "*.dart").';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'pattern': {'type': 'string', 'description': 'Text or regex pattern to search for'},
-      'path': {'type': 'string', 'description': 'Subdirectory to search in', 'default': '.'},
-      'file_glob': {'type': 'string', 'description': "File name filter, e.g. '*.dart'"},
+      'pattern': {'type': 'string'},
+      'path': {'type': 'string', 'default': '.'},
+      'file_glob': {'type': 'string'},
     },
     'required': ['pattern'],
   };

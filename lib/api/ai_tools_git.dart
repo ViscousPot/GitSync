@@ -9,7 +9,7 @@ String? _repoPath(ToolContext? context) => context?.repoPath ?? uiSettingsManage
 
 class GitStatusTool extends AiTool {
   @override String get name => 'git_status';
-  @override String get description => 'Get the current git status: uncommitted files, staged files, current branch, and pending conflicts.';
+  @override String get description => 'Branch, uncommitted, staged, conflicts.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
@@ -31,12 +31,12 @@ class GitStatusTool extends AiTool {
 
 class GitLogTool extends AiTool {
   @override String get name => 'git_log';
-  @override String get description => 'Get recent commits in the repository.';
+  @override String get description => 'Recent commits.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'count': {'type': 'integer', 'description': 'Number of recent commits to retrieve (max 50)', 'default': 10},
+      'count': {'type': 'integer', 'default': 10},
     },
   };
 
@@ -45,29 +45,33 @@ class GitLogTool extends AiTool {
     final count = (input['count'] as int?) ?? 10;
     final commits = await GitManager.getRecentCommits(repoIndex: context?.repoIndex);
     final limited = commits.take(count.clamp(1, 50)).toList();
-    return ok(limited.map((c) => {
-      'sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
-      'message': c.commitMessage,
-      'author': c.authorUsername,
-      'timestamp': DateTime.fromMillisecondsSinceEpoch(c.timestamp * 1000).toIso8601String(),
-      'additions': c.additions,
-      'deletions': c.deletions,
-      'unpushed': c.unpushed,
-      if (c.tags.isNotEmpty) 'tags': c.tags,
+    return ok(limited.map((c) {
+      final msg = c.commitMessage;
+      final trimmedMsg = msg.length > 200 ? '${msg.substring(0, 200)}…' : msg;
+      return {
+        'sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
+        'message': trimmedMsg,
+        'author': c.authorUsername,
+        'timestamp': DateTime.fromMillisecondsSinceEpoch(c.timestamp * 1000).toIso8601String(),
+        'additions': c.additions,
+        'deletions': c.deletions,
+        'unpushed': c.unpushed,
+        if (c.tags.isNotEmpty) 'tags': c.tags,
+      };
     }).toList());
   }
 }
 
 class GitDiffTool extends AiTool {
   @override String get name => 'git_diff';
-  @override String get description => 'Get the diff for a specific file (working directory changes) or between commits.';
+  @override String get description => 'Diff a working file (file_path) or a commit (commit_sha, optional end_sha for a range).';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'file_path': {'type': 'string', 'description': 'Relative path to the file to diff (for working directory diff)'},
-      'commit_sha': {'type': 'string', 'description': 'Commit SHA to diff (shows changes introduced by this commit)'},
-      'end_sha': {'type': 'string', 'description': 'End commit SHA for range diff'},
+      'file_path': {'type': 'string'},
+      'commit_sha': {'type': 'string'},
+      'end_sha': {'type': 'string'},
     },
   };
 
@@ -80,8 +84,16 @@ class GitDiffTool extends AiTool {
     if (filePath != null) {
       final diff = await GitManager.getWorkdirFileDiff(filePath, repoIndex: context?.repoIndex);
       if (diff == null) return err('No diff available for $filePath');
-      final lines = diff.lines.map((l) => '${l.origin} ${l.content}').join();
-      return ok({'file': diff.filePath, 'insertions': diff.insertions, 'deletions': diff.deletions, 'diff': lines});
+      final fullLines = diff.lines.map((l) => '${l.origin} ${l.content}').join();
+      const maxChars = 4000;
+      String diffOut;
+      if (fullLines.length > maxChars) {
+        final omitted = diff.lines.length - fullLines.substring(0, maxChars).split('\n').length;
+        diffOut = '${fullLines.substring(0, maxChars)}\n... [truncated, ~$omitted more lines]';
+      } else {
+        diffOut = fullLines;
+      }
+      return ok({'file': diff.filePath, 'insertions': diff.insertions, 'deletions': diff.deletions, 'diff': diffOut});
     }
 
     if (commitSha != null) {
@@ -96,12 +108,12 @@ class GitDiffTool extends AiTool {
 
 class GitCommitShowTool extends AiTool {
   @override String get name => 'git_commit_show';
-  @override String get description => 'Show the full details and diff of a specific commit.';
+  @override String get description => 'Show a commit with its diff.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'sha': {'type': 'string', 'description': 'Commit SHA'},
+      'sha': {'type': 'string'},
     },
     'required': ['sha'],
   };
@@ -117,12 +129,12 @@ class GitCommitShowTool extends AiTool {
 
 class GitStageTool extends AiTool {
   @override String get name => 'git_stage';
-  @override String get description => 'Stage files for the next commit.';
+  @override String get description => "Stage files. Use ['.'] for all.";
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'paths': {'type': 'array', 'items': {'type': 'string'}, 'description': "File paths to stage. Use ['.'] to stage all."},
+      'paths': {'type': 'array', 'items': {'type': 'string'}},
     },
     'required': ['paths'],
   };
@@ -137,12 +149,12 @@ class GitStageTool extends AiTool {
 
 class GitUnstageTool extends AiTool {
   @override String get name => 'git_unstage';
-  @override String get description => 'Unstage previously staged files.';
+  @override String get description => 'Unstage files.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'paths': {'type': 'array', 'items': {'type': 'string'}, 'description': 'File paths to unstage'},
+      'paths': {'type': 'array', 'items': {'type': 'string'}},
     },
     'required': ['paths'],
   };
@@ -157,12 +169,12 @@ class GitUnstageTool extends AiTool {
 
 class GitCommitTool extends AiTool {
   @override String get name => 'git_commit';
-  @override String get description => 'Commit staged changes with a message.';
+  @override String get description => 'Commit staged changes.';
   @override ToolConfirmation get confirmation => ToolConfirmation.warn;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'message': {'type': 'string', 'description': 'The commit message'},
+      'message': {'type': 'string'},
     },
     'required': ['message'],
   };
@@ -177,7 +189,7 @@ class GitCommitTool extends AiTool {
 
 class GitPushTool extends AiTool {
   @override String get name => 'git_push';
-  @override String get description => 'Push local commits to the remote repository.';
+  @override String get description => 'Push to remote.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
@@ -190,7 +202,7 @@ class GitPushTool extends AiTool {
 
 class GitPullTool extends AiTool {
   @override String get name => 'git_pull';
-  @override String get description => 'Pull changes from the remote repository.';
+  @override String get description => 'Pull from remote.';
   @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
@@ -203,7 +215,7 @@ class GitPullTool extends AiTool {
 
 class GitBranchListTool extends AiTool {
   @override String get name => 'git_branch_list';
-  @override String get description => 'List all local and remote branches.';
+  @override String get description => 'List local and remote branches.';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}, 'required': []};
 
@@ -216,13 +228,13 @@ class GitBranchListTool extends AiTool {
 
 class GitBranchCreateTool extends AiTool {
   @override String get name => 'git_branch_create';
-  @override String get description => 'Create a new branch from a source branch.';
+  @override String get description => 'Create a branch from a source branch.';
   @override ToolConfirmation get confirmation => ToolConfirmation.warn;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'name': {'type': 'string', 'description': 'New branch name'},
-      'based_on': {'type': 'string', 'description': 'Source branch to branch from'},
+      'name': {'type': 'string'},
+      'based_on': {'type': 'string'},
     },
     'required': ['name', 'based_on'],
   };
@@ -238,12 +250,12 @@ class GitBranchCreateTool extends AiTool {
 
 class GitBranchCheckoutTool extends AiTool {
   @override String get name => 'git_branch_checkout';
-  @override String get description => 'Switch to a different branch.';
+  @override String get description => 'Switch branch.';
   @override ToolConfirmation get confirmation => ToolConfirmation.warn;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'name': {'type': 'string', 'description': 'Branch name to check out'},
+      'name': {'type': 'string'},
     },
     'required': ['name'],
   };
@@ -263,7 +275,7 @@ class GitBranchDeleteTool extends AiTool {
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'name': {'type': 'string', 'description': 'Branch name to delete'},
+      'name': {'type': 'string'},
     },
     'required': ['name'],
   };
@@ -283,7 +295,7 @@ class GitDiscardTool extends AiTool {
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'paths': {'type': 'array', 'items': {'type': 'string'}, 'description': 'File paths to discard changes for'},
+      'paths': {'type': 'array', 'items': {'type': 'string'}},
     },
     'required': ['paths'],
   };
@@ -490,6 +502,66 @@ class GitFetchTool extends AiTool {
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     await GitManager.fetchRemote(repoIndex: context?.repoIndex);
     return ok('Fetched from remote');
+  }
+}
+
+/// Mirrors the in-app Sync feature: pull → check for conflicts → stage,
+/// commit, and push. Single tool call so the AI can fulfil "sync changes"
+/// in one confirmed operation instead of chaining git_pull → git_stage →
+/// git_commit → git_push and pausing between each.
+class GitSyncTool extends AiTool {
+  @override String get name => 'git_sync';
+  @override String get description =>
+      'Sync the repository the same way the in-app Sync button does: pull remote changes, then stage, commit, and push any local changes. Use this whenever the user asks to "sync", "sync changes", "pull and push", or otherwise wants the full round-trip in one step. One confirmation covers the whole flow.';
+  @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
+  @override Map<String, dynamic> get inputSchema => {
+    'type': 'object',
+    'properties': {
+      'message': {
+        'type': 'string',
+        'description':
+            "Optional commit message for the upload step. Defaults to the user's configured sync message template if omitted.",
+      },
+    },
+    'required': [],
+  };
+
+  @override
+  Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
+    final ri = context?.repoIndex;
+    if (ri == null || ri < 0) return err('No active repository.');
+
+    final message = input['message'] as String?;
+
+    // Step 1: pull (fetch + merge with conflict handling).
+    final pullResult = await GitManager.downloadChanges(ri, () {});
+    if (pullResult == null) {
+      return err('Pull failed: network stall. Try again in a moment.');
+    }
+
+    // Step 2: bail if the pull left conflicts behind — pushing on top would
+    // commit the conflict markers, which is the opposite of what the user
+    // wants. Same guard the auto-sync flow uses in gitsync_service.dart.
+    final conflicts = await GitManager.getConflicting(ri);
+    if (conflicts.isNotEmpty) {
+      return err(
+        'Pulled successfully but the merge produced ${conflicts.length} conflict(s) that must be resolved before pushing: '
+        '${conflicts.map((c) => c.$1).join(", ")}',
+      );
+    }
+
+    // Step 3: stage + commit + push.
+    final pushResult = await GitManager.uploadChanges(ri, () {}, null, message, null);
+    if (pushResult == null) {
+      return err('Pulled successfully, but push failed: network stall. Try again in a moment.');
+    }
+
+    final pulled = pullResult == true;
+    final pushed = pushResult == true;
+    if (pulled && pushed) return ok('Pulled remote changes and pushed local changes.');
+    if (pulled) return ok('Pulled remote changes. No local changes to push.');
+    if (pushed) return ok('Pushed local changes. Nothing new on remote.');
+    return ok('Already up to date. Nothing to pull or push.');
   }
 }
 
@@ -990,6 +1062,7 @@ List<AiTool> allGitTools() => [
   GitCherryPickTool(),
   GitSquashCommitsTool(),
   GitFetchTool(),
+  GitSyncTool(),
   GitBranchRenameTool(),
   GitForcePullTool(),
   GitForcePushTool(),

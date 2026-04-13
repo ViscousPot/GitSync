@@ -10,21 +10,16 @@ Future<String?> aiComplete({
   required String userPrompt,
 }) async {
   final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
+  if (providerName == null) return null;
+  final provider = aiProviderFromString(providerName);
+  if (provider == null) return null;
+
   final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
   final endpoint = await repoManager.getStringNullable(StorageKey.repoman_aiEndpoint);
   final storedModel = await repoManager.getStringNullable(StorageKey.repoman_aiWandModel);
 
-  if (providerName == null || apiKey == null || apiKey.isEmpty) {
-    return null;
-  }
-  if (storedModel == null || storedModel.isEmpty) {
-    return null;
-  }
-
-  final provider = aiProviderFromString(providerName);
-  if (provider == null) {
-    return null;
-  }
+  if (apiKey == null || apiKey.isEmpty) return null;
+  if (storedModel == null || storedModel.isEmpty) return null;
 
   final model = storedModel;
 

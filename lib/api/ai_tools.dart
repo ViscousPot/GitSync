@@ -107,7 +107,7 @@ class ListAvailableToolsTool extends AiTool {
 
   @override String get name => 'list_available_tools';
   @override String get description =>
-      'List additional tools not currently loaded. Call this when you need a capability not in your current tool set, such as advanced git operations, history rewriting, force operations, remote management, submodules, tags, or maintenance.';
+      'Discover advanced tools (history rewriting, force ops, remotes, submodules, tags, maintenance).';
   @override ToolConfirmation get confirmation => ToolConfirmation.none;
   @override ToolTier get tier => ToolTier.core;
   @override Map<String, dynamic> get inputSchema => {

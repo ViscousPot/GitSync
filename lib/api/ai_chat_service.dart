@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:mixin_logger/mixin_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:GitSync/api/ai_provider_validator.dart';
 import 'package:GitSync/api/ai_stream_client.dart';
@@ -149,26 +150,35 @@ class AiChatService {
     _saveToDisk(repoIndex);
 
     final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
+    if (providerName == null) {
+      conv.error = 'AI not configured. Set up your API key first.';
+      e('AiChatService.sendMessage: AI not configured');
+      _syncIfActive(repoIndex);
+      return;
+    }
+    final provider = aiProviderFromString(providerName);
+    if (provider == null) {
+      conv.error = 'Unknown provider: $providerName';
+      e('AiChatService.sendMessage: unknown provider $providerName');
+      _syncIfActive(repoIndex);
+      return;
+    }
+
     final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
     final endpoint = await repoManager.getStringNullable(StorageKey.repoman_aiEndpoint);
     final storedChatModel = await repoManager.getStringNullable(StorageKey.repoman_aiChatModel);
     final storedToolModel = await repoManager.getStringNullable(StorageKey.repoman_aiToolModel);
 
-    if (providerName == null || apiKey == null || apiKey.isEmpty) {
+    if (apiKey == null || apiKey.isEmpty) {
       conv.error = 'AI not configured. Set up your API key first.';
-      _syncIfActive(repoIndex);
-      return;
-    }
-
-    final provider = aiProviderFromString(providerName);
-    if (provider == null) {
-      conv.error = 'Unknown provider: $providerName';
+      e('AiChatService.sendMessage: ${conv.error}');
       _syncIfActive(repoIndex);
       return;
     }
 
     if (storedChatModel == null || storedChatModel.isEmpty || storedToolModel == null || storedToolModel.isEmpty) {
       conv.error = 'Chat or tool model not selected. Please configure both in AI Settings.';
+      e('AiChatService.sendMessage: chat/tool model not selected');
       _syncIfActive(repoIndex);
       return;
     }
@@ -194,9 +204,25 @@ class AiChatService {
       authorEmail: await uiSettingsManager.getAuthorEmail(),
     );
 
-    final systemPrompt = await buildSystemPrompt(repoIndex: repoIndex);
+    // Two prompts: a long detailed one for the tool model rounds (which both
+    // benefits from explicit tool guidance and acts as cache filler to keep
+    // us above Haiku 4.5's 4,096-token cache minimum), and a short one for
+    // the chat model final synthesis (which doesn't see tools and just needs
+    // persona + style).
+    final toolSystemPrompt = await buildToolModelSystemPrompt(repoIndex: repoIndex);
+    final chatSystemPrompt = await buildChatModelSystemPrompt(repoIndex: repoIndex);
 
-    await _runAgenticLoop(repoIndex, toolContext, provider, apiKey, chatModel, toolModel, endpoint, systemPrompt);
+    await _runAgenticLoop(
+      repoIndex,
+      toolContext,
+      provider,
+      apiKey,
+      chatModel,
+      toolModel,
+      endpoint,
+      toolSystemPrompt,
+      chatSystemPrompt,
+    );
   }
 
   Future<void> _runAgenticLoop(
@@ -207,7 +233,8 @@ class AiChatService {
     String chatModel,
     String toolModel,
     String? endpoint,
-    String systemPrompt,
+    String toolSystemPrompt,
+    String chatSystemPrompt,
   ) async {
     final conv = _convFor(repoIndex);
     conv.isStreaming = true;
@@ -226,7 +253,7 @@ class AiChatService {
           apiKey: apiKey,
           model: toolModel,
           endpoint: endpoint,
-          systemPrompt: systemPrompt,
+          systemPrompt: toolSystemPrompt,
           hasOAuth: hasOAuth,
           activatedTools: conv.activatedTools,
           includeTools: true,
@@ -237,20 +264,19 @@ class AiChatService {
         final hadToolCalls = roundResult.contentBlocks.any((b) => b is ToolUseBlock);
 
         // When chat and tool models differ and the tool model produced no tool
-        // calls, this round is the final synthesis. Discard the tool model's
-        // text and re-stream with the chat model so the user-facing reply
-        // comes from the chat model.
+        // calls, this round is the final synthesis. Re-stream with the chat
+        // model so the user-facing reply comes from the chat model. We do NOT
+        // pre-clear streamingText here — the tool model's draft stays visible
+        // until the chat model's first delta replaces it, which avoids a
+        // blank gap during sonnet's TTFT.
         if (modelsDiffer && !hadToolCalls) {
-          conv.streamingText = '';
-          _syncIfActive(repoIndex);
-
           final chatResult = await _streamRound(
             repoIndex: repoIndex,
             provider: provider,
             apiKey: apiKey,
             model: chatModel,
             endpoint: endpoint,
-            systemPrompt: systemPrompt,
+            systemPrompt: chatSystemPrompt,
             hasOAuth: hasOAuth,
             activatedTools: conv.activatedTools,
             includeTools: false,
@@ -262,7 +288,17 @@ class AiChatService {
             roundResult.usage.inputTokens + chatResult.usage.inputTokens,
             roundResult.usage.outputTokens + chatResult.usage.outputTokens,
           );
-          roundResult = (contentBlocks: chatResult.contentBlocks, usage: combinedUsage);
+          // Adopt the chat model's content only if it actually produced
+          // something usable. If sonnet errored or returned an empty stream,
+          // keep the tool model's text so the assistant bubble is never
+          // empty (which would render as an invisible widget and look like
+          // the message "disappeared").
+          final chatHasContent = chatResult.contentBlocks.any((b) =>
+              (b is TextBlock && b.text.isNotEmpty) || b is ToolUseBlock);
+          roundResult = (
+            contentBlocks: chatHasContent ? chatResult.contentBlocks : roundResult.contentBlocks,
+            usage: combinedUsage,
+          );
         }
 
         final turnUsage = roundResult.usage;
@@ -305,8 +341,9 @@ class AiChatService {
 
         if (toolCalls.every((tc) => tc.status == ToolCallStatus.rejected)) break;
       }
-    } catch (e) {
-      conv.error = e.toString();
+    } catch (err, st) {
+      conv.error = err.toString();
+      e('AiChatService._runAgenticLoop: $err\n$st');
       _syncIfActive(repoIndex);
     } finally {
       conv.isStreaming = false;
@@ -332,8 +369,11 @@ class AiChatService {
     final filteredTools = includeTools
         ? _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: activatedTools)
         : <AiTool>[];
-    conv.streamingText = '';
-    _syncIfActive(repoIndex);
+    // Note: we deliberately do NOT clear `conv.streamingText` here. The
+    // chat-synthesis path needs the tool model's draft to stay visible until
+    // the chat model's first TextDelta replaces it, otherwise the user sees
+    // a blank gap during the chat model's TTFT. For all other rounds the
+    // previous round's epilogue (line ~312) already left streamingText empty.
 
     final contentBlocks = <ContentBlock>[];
     var currentTextBlock = TextBlock('');
@@ -396,12 +436,12 @@ class AiChatService {
 
         case StreamError(:final message):
           conv.error = message;
+          e('AiChatService._streamRound: $message');
           _syncIfActive(repoIndex);
       }
     }
 
     contentBlocks.removeWhere((b) => b is TextBlock && b.text.isEmpty);
-    if (contentBlocks.isEmpty) contentBlocks.add(TextBlock(''));
 
     for (final entry in toolCallBuilders.entries) {
       final builder = entry.value;
@@ -463,45 +503,95 @@ class AiChatService {
   List<Map<String, dynamic>> _buildApiMessages(AiProvider provider, List<ChatMessage> msgs) {
     final apiMessages = <Map<String, dynamic>>[];
 
+    final isAnthropicShape = provider == AiProvider.anthropic;
+
+    // Anthropic requires that all tool_result blocks for parallel tool_use
+    // calls be packed into a single user turn. Google's functionResponse is
+    // analogous: one role:function message containing all parts. We buffer
+    // consecutive ChatRole.tool messages and flush at the next role boundary.
+    final pendingToolEntries = <Map<String, dynamic>>[];
+
+    void flushTools() {
+      if (pendingToolEntries.isEmpty) return;
+      if (isAnthropicShape) {
+        apiMessages.add({
+          'role': 'user',
+          'content': List<Map<String, dynamic>>.from(pendingToolEntries),
+        });
+      } else if (provider == AiProvider.google) {
+        apiMessages.add({
+          'role': 'function',
+          'parts': List<Map<String, dynamic>>.from(pendingToolEntries),
+        });
+      } else {
+        // OpenAI / self-hosted: each tool result is its own role:tool message.
+        for (final entry in pendingToolEntries) {
+          apiMessages.add(Map<String, dynamic>.from(entry));
+        }
+      }
+      pendingToolEntries.clear();
+    }
+
     for (final msg in msgs) {
+      if (msg.role == ChatRole.tool) {
+        final toolCall = _findToolCallForResult(msg, msgs);
+        if (isAnthropicShape) {
+          pendingToolEntries.add({
+            'type': 'tool_result',
+            'tool_use_id': toolCall?.toolCallId ?? '',
+            'content': msg.textContent,
+          });
+        } else if (provider == AiProvider.google) {
+          pendingToolEntries.add({
+            'functionResponse': {
+              'name': toolCall?.toolName ?? '',
+              'response': {'result': msg.textContent},
+            },
+          });
+        } else {
+          pendingToolEntries.add({
+            'role': 'tool',
+            'tool_call_id': toolCall?.toolCallId ?? '',
+            'content': msg.textContent,
+          });
+        }
+        continue;
+      }
+
+      flushTools();
+
       switch (msg.role) {
         case ChatRole.user:
           apiMessages.add({'role': 'user', 'content': msg.textContent});
 
         case ChatRole.assistant:
-          if (provider == AiProvider.anthropic) {
-            apiMessages.add(_anthropicAssistantMessage(msg));
+          // Skip empty-content assistant turns rather than emitting an empty
+          // text block — Anthropic rejects `{type:'text', text:''}`, and
+          // historically a single bad round (cancelled/errored stream) would
+          // poison the entire chat until cleared. The skip is safe because
+          // tool_use rounds always have content (the ToolUseBlock itself), so
+          // we never drop a turn that sits between a tool_use and its
+          // tool_result.
+          Map<String, dynamic>? built;
+          if (isAnthropicShape) {
+            built = _anthropicAssistantMessage(msg);
           } else if (provider == AiProvider.google) {
-            apiMessages.add(_googleAssistantMessage(msg));
+            built = _googleAssistantMessage(msg);
           } else {
-            apiMessages.add(_openaiAssistantMessage(msg));
+            built = _openaiAssistantMessage(msg);
           }
+          if (built != null) apiMessages.add(built);
 
         case ChatRole.tool:
-          final toolCall = _findToolCallForResult(msg, msgs);
-          if (provider == AiProvider.anthropic) {
-            apiMessages.add({
-              'role': 'user',
-              'content': [{'type': 'tool_result', 'tool_use_id': toolCall?.toolCallId ?? '', 'content': msg.textContent}],
-            });
-          } else if (provider == AiProvider.google) {
-            apiMessages.add({
-              'role': 'function',
-              'parts': [{'functionResponse': {'name': toolCall?.toolName ?? '', 'response': {'result': msg.textContent}}}],
-            });
-          } else {
-            apiMessages.add({
-              'role': 'tool',
-              'tool_call_id': toolCall?.toolCallId ?? '',
-              'content': msg.textContent,
-            });
-          }
+          // Unreachable: handled above.
+          break;
       }
     }
+    flushTools();
     return apiMessages;
   }
 
-  Map<String, dynamic> _anthropicAssistantMessage(ChatMessage msg) {
+  Map<String, dynamic>? _anthropicAssistantMessage(ChatMessage msg) {
     final content = <Map<String, dynamic>>[];
     for (final block in msg.content) {
       if (block is TextBlock && block.text.isNotEmpty) {
@@ -510,7 +600,10 @@ class AiChatService {
         content.add({'type': 'tool_use', 'id': block.toolCallId, 'name': block.toolName, 'input': block.input});
       }
     }
-    if (content.isEmpty) content.add({'type': 'text', 'text': ''});
+    // Anthropic rejects `{type:'text', text:''}`. If the assistant turn produced
+    // nothing usable (cancelled/errored stream, etc.) skip it entirely so a
+    // single bad round can't poison the whole chat.
+    if (content.isEmpty) return null;
     return {'role': 'assistant', 'content': content};
   }
 
@@ -530,7 +623,7 @@ class AiChatService {
     return result;
   }
 
-  Map<String, dynamic> _googleAssistantMessage(ChatMessage msg) {
+  Map<String, dynamic>? _googleAssistantMessage(ChatMessage msg) {
     final parts = <Map<String, dynamic>>[];
     for (final block in msg.content) {
       if (block is TextBlock && block.text.isNotEmpty) {
@@ -539,7 +632,7 @@ class AiChatService {
         parts.add({'functionCall': {'name': block.toolName, 'args': block.input}});
       }
     }
-    if (parts.isEmpty) parts.add({'text': ''});
+    if (parts.isEmpty) return null;
     return {'role': 'model', 'parts': parts};
   }
 
