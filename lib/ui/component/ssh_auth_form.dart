@@ -25,10 +25,25 @@ class _SshAuthFormState extends State<SshAuthForm> {
   bool pubKeyCopied = false;
   bool privKeyCopied = false;
 
+  String? _lastCopiedSensitive;
+
   @override
   void dispose() {
+    _maybeClearClipboard();
     passphraseController.dispose();
     super.dispose();
+  }
+
+  Future<void> _maybeClearClipboard() async {
+    final tracked = _lastCopiedSensitive;
+    if (tracked == null) return;
+    try {
+      final current = await Clipboard.getData(Clipboard.kTextPlain);
+      if (current?.text == tracked) {
+        await Clipboard.setData(const ClipboardData(text: ''));
+      }
+    } catch (_) {}
+    _lastCopiedSensitive = null;
   }
 
   @override
@@ -108,6 +123,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         : () async {
                             ConfirmPrivKeyCopyDialog.showDialog(widget.parentContext, () {
                               Clipboard.setData(ClipboardData(text: keyPair!.$1));
+                              _lastCopiedSensitive = keyPair!.$1;
                               privKeyCopied = true;
                               setState(() {});
                             });
@@ -141,6 +157,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         ? null
                         : () async {
                             Clipboard.setData(ClipboardData(text: keyPair!.$2));
+                            _lastCopiedSensitive = keyPair!.$2;
                             pubKeyCopied = true;
                             setState(() {});
                           },
@@ -191,6 +208,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         }
                       : (pubKeyCopied
                             ? () async {
+                                await _maybeClearClipboard();
                                 await widget.onAuthenticated(passphraseController.text, keyPair!.$1);
                               }
                             : null),
