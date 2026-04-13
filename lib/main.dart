@@ -128,14 +128,18 @@ Future<void> main() async {
 }
 
 Future<int> _resolveRepoIndex(Uri? uri, StorageKey<int> fallbackKey) async {
-  if (uri == null) return await repoManager.getInt(fallbackKey);
-
-  final indexParam = uri.queryParameters['index'];
-  if (indexParam != null) {
-    return int.tryParse(indexParam) ?? await repoManager.getInt(fallbackKey);
+  int index;
+  if (uri == null) {
+    index = await repoManager.getInt(fallbackKey);
+  } else {
+    final indexParam = uri.queryParameters['index'];
+    index = (indexParam != null)
+        ? int.tryParse(indexParam) ?? await repoManager.getInt(fallbackKey)
+        : await repoManager.getInt(fallbackKey);
   }
-
-  return await repoManager.getInt(fallbackKey);
+  final repoNames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+  if (repoNames.isEmpty) return 0;
+  return index.clamp(0, repoNames.length - 1);
 }
 
 @pragma("vm:entry-point")
