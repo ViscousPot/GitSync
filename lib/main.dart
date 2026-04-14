@@ -1701,15 +1701,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
           context,
           () async {
             await _openSettingsMain(showcaseAuthorDetails: true);
-            await showCloneRepoPage();
+            if (uiSettingsManager.gitDirPath?.$1 == null) await showCloneRepoPage();
           },
           () async {
-            await showCloneRepoPage();
+            if (uiSettingsManager.gitDirPath?.$1 == null) await showCloneRepoPage();
           },
         );
         return;
       }
-      await showCloneRepoPage();
+      if (uiSettingsManager.gitDirPath?.$1 == null) await showCloneRepoPage();
     });
   }
 

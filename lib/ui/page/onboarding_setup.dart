@@ -233,6 +233,17 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   bool _isBackNavigating = false;
   bool _notificationsScreenWasShown = false;
 
+  Future<void> _afterAuth() async {
+    if (uiSettingsManager.gitDirPath?.$1 != null) {
+      await repoManager.setOnboardingStep(4);
+      if (!mounted) return;
+      screenIndex.value = Screen.SyncSettings;
+      return;
+    }
+    await repoManager.setOnboardingStep(3);
+    _showCloneRepoPage();
+  }
+
   Future<void> _completeOAuthAuth((String, String, String) credentials, GitProvider provider) async {
     await uiSettingsManager.setGitHttpAuthCredentials(credentials.$1, credentials.$2, credentials.$3);
     await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, provider.name);
@@ -243,13 +254,8 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
       if (remotes.isEmpty && mounted) {
         await offerCreateRemoteForExistingRepo(context, dirPath);
       }
-      await repoManager.setOnboardingStep(4);
-      if (!mounted) return;
-      screenIndex.value = Screen.SyncSettings;
-      return;
     }
-    await repoManager.setOnboardingStep(3);
-    _showCloneRepoPage();
+    await _afterAuth();
   }
 
   @override
@@ -2721,8 +2727,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                       onAuthenticated: (username, token) async {
                                         await uiSettingsManager.setGitHttpAuthCredentials(username, "", token);
                                         await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, GitProvider.HTTPS.name);
-                                        await repoManager.setOnboardingStep(3);
-                                        _showCloneRepoPage();
+                                        await _afterAuth();
                                       },
                                     ),
                                   ],
@@ -2736,8 +2741,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                       onAuthenticated: (passphrase, privateKey) async {
                                         uiSettingsManager.setGitSshAuthCredentials(passphrase, privateKey);
                                         await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, GitProvider.SSH.name);
-                                        await repoManager.setOnboardingStep(3);
-                                        _showCloneRepoPage();
+                                        await _afterAuth();
                                       },
                                     ),
                                   ],
@@ -2824,8 +2828,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                           ),
                           TextButton(
                             onPressed: () async {
-                              await repoManager.setOnboardingStep(3);
-                              _showCloneRepoPage();
+                              await _afterAuth();
                             },
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
