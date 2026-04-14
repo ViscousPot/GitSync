@@ -204,7 +204,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
   }
 
   Future<void> _verifyGhSponsor() async {
-    final result = await GithubManager().launchOAuthFlow(["user", "user:email"]);
+    final result = await GithubManager().launchOAuthFlow(["read:user", "user:email"]);
     if (result == null) return;
 
     await repoManager.setStringNullable(StorageKey.repoman_ghSponsorToken, result.$3);
