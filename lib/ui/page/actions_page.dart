@@ -156,15 +156,30 @@ class _ActionsPageState extends State<ActionsPage> {
             SizedBox(height: spaceSM),
 
             Expanded(
-              child: _runs.isEmpty && !_loading
-                  ? Center(
-                      child: Text(
-                        t.actionsNotFound.toUpperCase(),
-                        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+              child: RefreshIndicator(
+                color: colours.tertiaryDark,
+                onRefresh: () async {
+                  _fetchActionRuns();
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                child: _runs.isEmpty && !_loading
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: Center(
+                            child: Text(
+                              t.actionsNotFound.toUpperCase(),
+                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   : ListView.builder(
                       controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       itemCount: _runs.length + (_loading || _loadNextPage != null ? 1 : 0),
                       itemBuilder: (context, index) {
@@ -182,6 +197,7 @@ class _ActionsPageState extends State<ActionsPage> {
                         );
                       },
                     ),
+              ),
             ),
           ],
         ),

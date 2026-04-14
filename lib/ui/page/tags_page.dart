@@ -128,15 +128,30 @@ class _TagsPageState extends State<TagsPage> {
             ),
 
             Expanded(
-              child: _tags.isEmpty && !_loading
-                  ? Center(
-                      child: Text(
-                        t.tagsNotFound.toUpperCase(),
-                        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+              child: RefreshIndicator(
+                color: colours.tertiaryDark,
+                onRefresh: () async {
+                  _fetchTags();
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                child: _tags.isEmpty && !_loading
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: Center(
+                            child: Text(
+                              t.tagsNotFound.toUpperCase(),
+                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   : ListView.builder(
                       controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       itemCount: _tags.length + (_loading || _loadNextPage != null ? 1 : 0),
                       itemBuilder: (context, index) {
@@ -159,6 +174,7 @@ class _TagsPageState extends State<TagsPage> {
                         );
                       },
                     ),
+              ),
             ),
           ],
         ),

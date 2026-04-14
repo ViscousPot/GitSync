@@ -129,15 +129,30 @@ class _ReleasesPageState extends State<ReleasesPage> {
               ),
             ),
             Expanded(
-              child: _releases.isEmpty && !_loading
-                  ? Center(
-                      child: Text(
-                        t.releasesNotFound.toUpperCase(),
-                        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+              child: RefreshIndicator(
+                color: colours.tertiaryDark,
+                onRefresh: () async {
+                  _fetchReleases();
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                child: _releases.isEmpty && !_loading
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: Center(
+                            child: Text(
+                              t.releasesNotFound.toUpperCase(),
+                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   : ListView.builder(
                       controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.symmetric(horizontal: spaceMD),
                       itemCount: _releases.length + (_loading || _loadNextPage != null ? 1 : 0),
                       itemBuilder: (context, index) {
@@ -159,6 +174,7 @@ class _ReleasesPageState extends State<ReleasesPage> {
                         );
                       },
                     ),
+              ),
             ),
           ],
         ),
