@@ -112,7 +112,22 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
     context: context,
     barrierColor: Colors.transparent,
     builder: (BuildContext context) => PopScope(
-      canPop: !uploading,
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (uploading) return;
+        if (onLinesPage) {
+          final selections = lineSelections[currentDiffFile];
+          if (selections == null || selections.isEmpty) {
+            lineSelections.remove(currentDiffFile);
+          }
+          onLinesPage = false;
+          pageController.animateToPage(0, duration: animMedium, curve: Curves.easeInOut);
+          setStater?.call(() {});
+          return;
+        }
+        Navigator.of(context).pop();
+      },
       child: StatefulBuilder(
         builder: (context, setState) {
           setStater = setState;
