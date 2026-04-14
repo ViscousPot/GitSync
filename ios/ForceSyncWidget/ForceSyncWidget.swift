@@ -1,32 +1,63 @@
 import WidgetKit
 import SwiftUI
 
-struct ForceSyncWidgetProvider: TimelineProvider {
-    func placeholder(in context: Context) -> ForceSyncWidgetEntry {
-        ForceSyncWidgetEntry(date: Date())
-    }
-    
-    func getSnapshot(in context: Context, completion: @escaping (ForceSyncWidgetEntry) -> Void) {
-        let entry = ForceSyncWidgetEntry(date: Date())
-        completion(entry)
-    }
-    
-    func getTimeline(in context: Context, completion: @escaping (Timeline<ForceSyncWidgetEntry>) -> Void) {
-        let entries = [ForceSyncWidgetEntry(date: Date())]
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
-    }
-}
-
 struct ForceSyncWidgetEntry: TimelineEntry {
     let date: Date
+    let status: String
+}
+
+struct ForceSyncWidgetProvider: TimelineProvider {
+    private let suite = UserDefaults(suiteName: "group.ForceSyncWidget")
+
+    func placeholder(in context: Context) -> ForceSyncWidgetEntry {
+        ForceSyncWidgetEntry(date: Date(), status: "idle")
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (ForceSyncWidgetEntry) -> Void) {
+        completion(currentEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<ForceSyncWidgetEntry>) -> Void) {
+        let timeline = Timeline(entries: [currentEntry()], policy: .atEnd)
+        completion(timeline)
+    }
+
+    private func currentEntry() -> ForceSyncWidgetEntry {
+        let status = suite?.string(forKey: "forceSyncWidget_status") ?? "idle"
+        return ForceSyncWidgetEntry(date: Date(), status: status)
+    }
 }
 
 struct ForceSyncWidgetEntryView: View {
     var entry: ForceSyncWidgetProvider.Entry
-    let data = UserDefaults.init(suiteName:"group.ForceSyncWidget")
+    let data = UserDefaults(suiteName: "group.ForceSyncWidget")
 
     @Environment(\.widgetFamily) var family
+
+    private var assetName: String {
+        switch entry.status {
+        case "success": return "widget_check"
+        case "error":   return "widget_error"
+        default:        return "sync_now_small"
+        }
+    }
+
+    private var tint: Color {
+        switch entry.status {
+        case "success": return Color(red: 0x85/255, green: 0xF4/255, blue: 0x8E/255)
+        case "error":   return Color(red: 0xFD/255, green: 0xA4/255, blue: 0xAF/255)
+        default:        return .white
+        }
+    }
+
+    private var label: String {
+        switch entry.status {
+        case "syncing": return "SYNCING"
+        case "success": return "SYNCED"
+        case "error":   return "ERROR"
+        default:        return "SYNC CHANGES"
+        }
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -43,15 +74,16 @@ struct ForceSyncWidgetEntryView: View {
                 )
               ) {
                   HStack(spacing: 16) {
-                      Image("sync_now_small")
+                      Image(assetName)
                           .resizable()
+                          .renderingMode(.template)
                           .scaledToFit()
-                          .foregroundColor(.white)
+                          .foregroundColor(tint)
                           .frame(maxWidth: 48, maxHeight: 48)
 
                       if geometry.size.width >= 140 {
-                          Text("SYNC CHANGES")
-                              .foregroundColor(.white)
+                          Text(label)
+                              .foregroundColor(tint)
                               .fontWeight(.bold)
                       }
                   }
@@ -64,15 +96,16 @@ struct ForceSyncWidgetEntryView: View {
                   action: {}
               ) {
                   HStack(spacing: 16) {
-                      Image("sync_now_small")
+                      Image(assetName)
                           .resizable()
+                          .renderingMode(.template)
                           .scaledToFit()
-                          .foregroundColor(.white)
+                          .foregroundColor(tint)
                           .frame(maxWidth: 48, maxHeight: 48)
 
                       if geometry.size.width >= 140 {
-                          Text("SYNC CHANGES")
-                              .foregroundColor(.white)
+                          Text(label)
+                              .foregroundColor(tint)
                               .fontWeight(.bold)
                       }
                   }
@@ -88,7 +121,7 @@ struct ForceSyncWidgetEntryView: View {
 
 struct ForceSyncWidget: Widget {
     let kind: String = "ForceSyncWidget"
-    
+
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: ForceSyncWidgetProvider()) { entry in
             ForceSyncWidgetEntryView(entry: entry)

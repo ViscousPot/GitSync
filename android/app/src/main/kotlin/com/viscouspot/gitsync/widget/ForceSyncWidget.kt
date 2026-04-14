@@ -86,6 +86,36 @@ class ForceSyncWidget : GlanceAppWidget() {
         val showChangesText = width >= 310.dp
         val showSyncText = width >= 140.dp
 
+        val state = currentState<HomeWidgetGlanceState>()
+        val prefs = state.preferences
+        val status = prefs.getString("forceSyncWidget_status", "idle") ?: "idle"
+
+        val iconRes: Int
+        val tintColor: Color
+        val primaryLabel: String
+        when (status) {
+            "syncing" -> {
+                iconRes = R.drawable.sync_now
+                tintColor = Color.White
+                primaryLabel = "SYNCING"
+            }
+            "success" -> {
+                iconRes = R.drawable.widget_check
+                tintColor = Color(0xFF85F48E)
+                primaryLabel = "SYNCED"
+            }
+            "error" -> {
+                iconRes = R.drawable.widget_error
+                tintColor = Color(0xFFFDA4AF)
+                primaryLabel = "ERROR"
+            }
+            else -> {
+                iconRes = R.drawable.sync_now
+                tintColor = Color.White
+                primaryLabel = "SYNC"
+            }
+        }
+
         Row(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -95,30 +125,32 @@ class ForceSyncWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = GlanceModifier.size(48.dp).padding(end = if (showSyncText) 16.dp else 0.dp),
+                modifier = GlanceModifier
+                    .size(48.dp)
+                    .padding(end = if (showSyncText) 16.dp else 0.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    provider = ImageProvider(R.drawable.sync_now),
-                    contentDescription = "Force Sync",
-                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                    provider = ImageProvider(iconRes),
+                    contentDescription = primaryLabel,
+                    colorFilter = ColorFilter.tint(ColorProvider(tintColor)),
                     contentScale = ContentScale.Fit
                 )
             }
 
             if (showSyncText) {
                 Text(
-                    text = "SYNC",
+                    text = primaryLabel,
                     modifier = GlanceModifier.padding(end = 8.dp),
                     style = TextStyle(
-                        color = ColorProvider(Color.White),
+                        color = ColorProvider(tintColor),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
             }
 
-            if (showChangesText) {
+            if (showChangesText && status == "idle") {
                 Text(
                     text = "CHANGES",
                     style = TextStyle(

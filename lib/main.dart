@@ -191,6 +191,10 @@ void callbackDispatcher() async {
   DartPluginRegistrant.ensureInitialized();
   if (!RustLib.instance.initialized) await RustLib.init();
 
+  // Required in this isolate so HomeWidget.saveWidgetData targets the
+  // correct SharedPreferences group when iOS runs syncs through Workmanager.
+  await HomeWidget.setAppGroupId('group.ForceSyncWidget');
+
   Workmanager().executeTask((task, inputData) async {
     try {
       if (task.contains(scheduledSyncKey)) {
@@ -217,6 +221,10 @@ void callbackDispatcher() async {
 void onServiceStart(ServiceInstance service) async {
   serviceInstance = service;
   if (!RustLib.instance.initialized) await RustLib.init();
+
+  // Required in the background isolate so HomeWidget.saveWidgetData from
+  // within _sync() writes to the correct SharedPreferences group.
+  await HomeWidget.setAppGroupId('group.ForceSyncWidget');
 
   service.on(LogType.Clone.name).listen((event) async {
     if (event == null) return;
@@ -630,6 +638,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     HomeWidget.setAppGroupId('group.ForceSyncWidget');
     HomeWidget.registerInteractivityCallback(backgroundCallback);
+    // Clear any "syncing" state left over if the app was killed mid-sync.
+    gitSyncService.resetForceSyncWidget();
     initAsync(() async {
       colours.reloadTheme(context);
       setState(() {});

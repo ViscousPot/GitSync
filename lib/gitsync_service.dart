@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:GitSync/api/manager/storage.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:GitSync/api/manager/repo_manager.dart';
 import 'package:GitSync/type/git_provider.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:workmanager/workmanager.dart';
 import '../api/helper.dart';
 import '../api/logger.dart';
@@ -95,6 +97,57 @@ class GitsyncService {
   bool isScheduled = false;
   bool isSyncing = false;
 
+  static const String _widgetStatusKey = 'forceSyncWidget_status';
+  // Must point at the Receiver (registered in AndroidManifest.xml), not the
+  // GlanceAppWidget class. updateWidget resolves this FQN via Class.forName
+  // and queries AppWidgetManager.getAppWidgetIds for that component.
+  static const String _widgetQualifiedName = 'com.viscouspot.gitsync.widget.ForceSyncWidgetReceiver';
+  // Matches the `kind` declared in ios/ForceSyncWidget/ForceSyncWidget.swift.
+  // Used by WidgetCenter.shared.reloadTimelines(ofKind:) on iOS.
+  static const String _widgetIOSName = 'ForceSyncWidget';
+
+  int _syncGeneration = 0;
+  Timer? _widgetRevertTimer;
+
+  Future<void> _updateForceSyncWidget(String status) async {
+    try {
+      await HomeWidget.saveWidgetData(_widgetStatusKey, status);
+      await HomeWidget.updateWidget(
+        qualifiedAndroidName: _widgetQualifiedName,
+        iOSName: _widgetIOSName,
+      );
+    } catch (e) {
+      // Widget not placed or platform doesn't support it — logged for diagnosis.
+      print('ForceSyncWidget update failed: $e');
+    }
+  }
+
+  Future<void> _finishWidget(String terminal) async {
+    final int gen = _syncGeneration;
+    await _updateForceSyncWidget(terminal);
+    _widgetRevertTimer?.cancel();
+    if (Platform.isIOS) {
+      // iOS runs _sync inline in the widget-callback isolate which tears
+      // down when backgroundCallback returns — the async Timer used on
+      // Android would never fire. Await the revert inline instead.
+      await Future.delayed(const Duration(seconds: 2));
+      if (_syncGeneration == gen && !isSyncing) {
+        await _updateForceSyncWidget('idle');
+      }
+    } else {
+      _widgetRevertTimer = Timer(const Duration(seconds: 2), () {
+        if (_syncGeneration == gen && !isSyncing) {
+          _updateForceSyncWidget('idle');
+        }
+      });
+    }
+  }
+
+  Future<void> resetForceSyncWidget() async {
+    _widgetRevertTimer?.cancel();
+    await _updateForceSyncWidget('idle');
+  }
+
   Future<void> initialise(Function(ServiceInstance) onServiceStart, Function() callbackDispatcher) async {
     final service = FlutterBackgroundService();
 
@@ -167,8 +220,12 @@ class GitsyncService {
   }
 
   Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage]) async {
+    _syncGeneration++;
+    final int myGen = _syncGeneration;
+    String terminal = 'success';
     try {
       isSyncing = true;
+      await _updateForceSyncWidget('syncing');
 
       final settingsManager = SettingsManager();
       await settingsManager.reinit(repoIndex: repomanRepoindex);
@@ -179,6 +236,7 @@ class GitsyncService {
       if (remotesList.isEmpty) {
         Logger.gmLog(type: LogType.Sync, "No remote configured, skipping sync");
         isScheduled = false;
+        terminal = 'error';
         return;
       }
 
@@ -188,11 +246,13 @@ class GitsyncService {
         Logger.gmLog(type: LogType.Sync, "Credentials Not Found");
         _displaySyncMessage(null, "Credentials not found");
         isScheduled = false;
+        terminal = 'error';
         return;
       }
       if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
         _displaySyncMessage(null, s.ongoingMergeConflict);
         isScheduled = false;
+        terminal = 'error';
         return;
       }
 
@@ -203,6 +263,7 @@ class GitsyncService {
 
       bool? pullResult = false;
       bool? pushResult = false;
+      bool innerError = false;
 
       await () async {
         final gitDirPath = settingsManager.gitDirPath?.$1;
@@ -210,6 +271,7 @@ class GitsyncService {
         if (gitDirPath == null) {
           Logger.gmLog(type: LogType.Sync, "Repository Not Found");
           _displaySyncMessage(null, repositoryNotFound);
+          innerError = true;
           return;
         }
 
@@ -235,6 +297,7 @@ class GitsyncService {
                   await _displaySyncMessage(settingsManager, s.networkStallRetry);
                   _scheduleStallRetry(repomanRepoindex);
                 }
+                innerError = true;
                 return;
               }
             case true:
@@ -250,6 +313,7 @@ class GitsyncService {
 
         if ((await GitManager.getConflicting(repomanRepoindex, 3)).isNotEmpty) {
           _displaySyncMessage(null, s.ongoingMergeConflict);
+          innerError = true;
           return;
         }
 
@@ -279,6 +343,7 @@ class GitsyncService {
                   await _displaySyncMessage(settingsManager, s.networkStallRetry);
                   _scheduleStallRetry(repomanRepoindex);
                 }
+                innerError = true;
                 return;
               }
             case true:
@@ -292,6 +357,10 @@ class GitsyncService {
           }
         }
       }();
+
+      if (innerError) {
+        terminal = 'error';
+      }
 
       if (!(pushResult == true || pullResult == true)) {
         if (forced) {
@@ -310,8 +379,12 @@ class GitsyncService {
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
       Logger.logError(LogType.SyncException, e, st);
+      terminal = 'error';
     } finally {
       isSyncing = false;
+      if (myGen == _syncGeneration) {
+        await _finishWidget(terminal);
+      }
       if (isScheduled) {
         Logger.gmLog(type: LogType.Sync, "Scheduled Sync Starting");
         isScheduled = false;
