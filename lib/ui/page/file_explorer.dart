@@ -404,62 +404,57 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
               children: [
                 ValueListenableBuilder<String?>(
                   valueListenable: openFilePathNotifier,
-                  builder: (context, openFile, _) {
-                    if (openFile != null) {
-                      return IconButton(
-                        onPressed: () {
-                          FocusScope.of(context).unfocus();
-                          openFilePathNotifier.value = null;
-                        },
-                        icon: FaIcon(FontAwesomeIcons.arrowUp, color: colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
-                      );
-                    }
-                    return ValueListenableBuilder(
-                      valueListenable: controller.getPathNotifier,
-                      builder: (context, currentPath, _) => ValueListenableBuilder(
-                        valueListenable: heldPathsNotifier,
-                        builder: (context, heldPaths, _) => ValueListenableBuilder(
-                          valueListenable: selectedPathsNotifier,
-                          builder: (context, selectedPaths, _) {
-                            final atRoot = _isAtRoot();
-                            final isLeftArrowState = widget.embedded && atRoot && heldPaths.isEmpty && selectedPaths.isEmpty;
-                            return IconButton(
-                              onPressed: isLeftArrowState
-                                  ? widget.onBackAtRoot
-                                  : () {
-                                      if (selectedPaths.isNotEmpty) {
-                                        selectedPathsNotifier.value = [];
-                                      } else {
-                                        if (atRoot) {
-                                          if (heldPaths.isNotEmpty) {
-                                            heldPathsNotifier.value = [];
-                                          } else if (!widget.embedded) {
-                                            (Navigator.of(context).canPop() ? Navigator.pop(context) : null);
-                                          }
-                                        } else {
-                                          controller.goToParentDirectory();
+                  builder: (context, openFile, _) => ValueListenableBuilder(
+                    valueListenable: controller.getPathNotifier,
+                    builder: (context, currentPath, _) => ValueListenableBuilder(
+                      valueListenable: heldPathsNotifier,
+                      builder: (context, heldPaths, _) => ValueListenableBuilder(
+                        valueListenable: selectedPathsNotifier,
+                        builder: (context, selectedPaths, _) {
+                          final fileOpen = openFile != null;
+                          final atRoot = _isAtRoot();
+                          final isLeftArrowState = fileOpen || (widget.embedded && atRoot && heldPaths.isEmpty && selectedPaths.isEmpty);
+                          return IconButton(
+                            onPressed: fileOpen
+                                ? () {
+                                    FocusScope.of(context).unfocus();
+                                    openFilePathNotifier.value = null;
+                                  }
+                                : isLeftArrowState
+                                ? widget.onBackAtRoot
+                                : () {
+                                    if (selectedPaths.isNotEmpty) {
+                                      selectedPathsNotifier.value = [];
+                                    } else {
+                                      if (atRoot) {
+                                        if (heldPaths.isNotEmpty) {
+                                          heldPathsNotifier.value = [];
+                                        } else if (!widget.embedded) {
+                                          (Navigator.of(context).canPop() ? Navigator.pop(context) : null);
                                         }
+                                      } else {
+                                        controller.goToParentDirectory();
                                       }
-                                    },
-                              icon: AnimatedRotation(
-                                turns: isLeftArrowState ? -0.25 : 0,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeInOut,
-                                child: FaIcon(
-                                  FontAwesomeIcons.arrowUp,
-                                  color: isLeftArrowState
-                                      ? (widget.onBackAtRoot != null ? colours.primaryLight : colours.secondaryLight)
-                                      : colours.primaryLight,
-                                  size: textLG,
-                                  semanticLabel: t.backLabel,
-                                ),
+                                    }
+                                  },
+                            icon: AnimatedRotation(
+                              turns: isLeftArrowState ? -0.25 : 0,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              child: FaIcon(
+                                FontAwesomeIcons.arrowUp,
+                                color: isLeftArrowState
+                                    ? (widget.onBackAtRoot != null ? colours.primaryLight : colours.secondaryLight)
+                                    : colours.primaryLight,
+                                size: textLG,
+                                semanticLabel: t.backLabel,
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
                 SizedBox(width: spaceXS),
                 Expanded(
@@ -783,7 +778,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                                     "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName",
                                                   ).create();
                                                   controller.setCurrentPath =
-                                                     "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
+                                                      "${controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '')}/$folderName";
                                                 } catch (e) {
                                                   Fluttertoast.showToast(
                                                     msg: "Failed to create directory: $e",
