@@ -7,7 +7,7 @@ struct SyncNowIntent: AppIntent {
     static var title: LocalizedStringResource = "Sync Now"
     static var description: IntentDescription? = IntentDescription(
         "Synchronize the currently selected repository")
-    static var openAppWhenRun: Bool = true
+    static var openAppWhenRun: Bool = false
     static var isDiscoverable: Bool = true
 
     func perform() async throws -> some IntentResult {
@@ -18,7 +18,3 @@ struct SyncNowIntent: AppIntent {
         return .result()
     }
 }
-
-@available(iOS 17, *)
-@available(iOSApplicationExtension, unavailable)
-extension SyncNowIntent: ForegroundContinuableIntent {}
