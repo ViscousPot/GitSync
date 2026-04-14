@@ -138,15 +138,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restorePurchase => '恢复购买';
 
   @override
-  String get verifyGhSponsorTitle => '验证 GitHub 赞助身份';
-
-  @override
-  String get verifyGhSponsorMsg => '如果你是 GitHub 赞助者，可以免费使用高级功能。请使用 GitHub 登录以验证你的赞助状态。';
-
-  @override
-  String get verifyGhSponsorNote => '注意：新的赞助关系可能需要最多 1 天才能在应用中生效。';
-
-  @override
   String get premiumStoreOnlyBanner => '仅限商店版本 — 请前往 App Store 或 Play Store 获取';
 
   @override

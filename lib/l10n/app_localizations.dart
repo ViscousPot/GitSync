@@ -366,24 +366,6 @@ abstract class AppLocalizations {
   /// **'Restore Purchase'**
   String get restorePurchase;
 
-  /// No description provided for @verifyGhSponsorTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify GitHub Sponsorship'**
-  String get verifyGhSponsorTitle;
-
-  /// No description provided for @verifyGhSponsorMsg.
-  ///
-  /// In en, this message translates to:
-  /// **'If you are a GitHub Sponsor, you can access premium features for free. Authenticate with GitHub so we can verify your sponsor status.'**
-  String get verifyGhSponsorMsg;
-
-  /// No description provided for @verifyGhSponsorNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Note: new sponsorships may take up to 1 day to become available in the app.'**
-  String get verifyGhSponsorNote;
-
   /// No description provided for @premiumStoreOnlyBanner.
   ///
   /// In en, this message translates to:

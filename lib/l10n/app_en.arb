@@ -55,9 +55,6 @@
     "@@x-PAID_FEATURES": "",
     "premiumDialogTitle": "Unlock Premium",
     "restorePurchase": "Restore Purchase",
-    "verifyGhSponsorTitle": "Verify GitHub Sponsorship",
-    "verifyGhSponsorMsg": "If you are a GitHub Sponsor, you can access premium features for free. Authenticate with GitHub so we can verify your sponsor status.",
-    "verifyGhSponsorNote": "Note: new sponsorships may take up to 1 day to become available in the app.",
 
     "premiumStoreOnlyBanner": "Store version only — Get it on the App Store or Play Store",
 

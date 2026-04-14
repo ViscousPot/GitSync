@@ -138,16 +138,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restorePurchase => 'Restore Purchase';
 
   @override
-  String get verifyGhSponsorTitle => 'Verify GitHub Sponsorship';
-
-  @override
-  String get verifyGhSponsorMsg =>
-      'If you are a GitHub Sponsor, you can access premium features for free. Authenticate with GitHub so we can verify your sponsor status.';
-
-  @override
-  String get verifyGhSponsorNote => 'Note: new sponsorships may take up to 1 day to become available in the app.';
-
-  @override
   String get premiumStoreOnlyBanner => 'Store version only — Get it on the App Store or Play Store';
 
   @override

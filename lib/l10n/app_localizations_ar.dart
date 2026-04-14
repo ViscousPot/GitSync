@@ -138,15 +138,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get restorePurchase => 'استعادة المشتريات';
 
   @override
-  String get verifyGhSponsorTitle => 'التحقق من دعم GitHub';
-
-  @override
-  String get verifyGhSponsorMsg => 'إذا كنت داعماً على GitHub، يمكنك الوصول للميزات الاحترافية مجاناً. سجل دخولك للتحقق.';
-
-  @override
-  String get verifyGhSponsorNote => 'ملاحظة: الدعم الجديد قد يستغرق يوماً ليظهر في التطبيق.';
-
-  @override
   String get premiumStoreOnlyBanner => 'نسخة المتجر فقط — احصل عليها من App Store أو Play Store';
 
   @override

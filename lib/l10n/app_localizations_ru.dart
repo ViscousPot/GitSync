@@ -138,16 +138,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restorePurchase => 'Восстановить покупку';
 
   @override
-  String get verifyGhSponsorTitle => 'Подтвердить спонсорство GitHub';
-
-  @override
-  String get verifyGhSponsorMsg =>
-      'Если вы являетесь спонсором GitHub, вы можете получить доступ к премиум-функциям бесплатно. Авторизуйтесь через GitHub, чтобы мы могли проверить ваш статус спонсора.';
-
-  @override
-  String get verifyGhSponsorNote => 'Примечание: новые спонсорства могут стать доступными в приложении в течение 1 дня.';
-
-  @override
   String get premiumStoreOnlyBanner => 'Store version only — Get it on the App Store or Play Store';
 
   @override
