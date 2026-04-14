@@ -198,25 +198,37 @@ void callbackDispatcher() async {
 
   Workmanager().executeTask((task, inputData) async {
     try {
-      if (task.contains(scheduledSyncKey) || task.contains(networkRetrySyncKey)) {
-        final int repoIndex =
-            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "").replaceAll(networkRetrySyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
+      if (task.contains(networkRetrySyncKey)) {
+        final operation = inputData?["operation"] as String?;
+        final eventJson = inputData?["event"];
+        final event = eventJson is String
+            ? (jsonDecode(eventJson) as Map).cast<String, dynamic>()
+            : <String, dynamic>{};
+        event["isRetry"] = true;
 
-        if (task.contains(networkRetrySyncKey)) {
-          final operation = inputData?["operation"];
-
-          if (operation == LogType.FetchRemote.name) {
-            FlutterBackgroundService().invoke(LogType.FetchRemote.name, {
-              "networkErrorMode": NetworkErrorMode.scheduleRetry.name,
-            });
-            return Future.value(true);
+        if (operation == LogType.Sync.name || operation == null) {
+          final repoIndex = int.tryParse(event[REPO_INDEX]?.toString() ?? '')
+              ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
+          if (Platform.isIOS) {
+            await gitSyncService.debouncedSync(repoIndex, true, true);
+          } else {
+            await _ensureServiceInvoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
           }
+          return Future.value(true);
         }
+
+        await _ensureServiceInvoke(operation, event);
+        return Future.value(true);
+      }
+
+      if (task.contains(scheduledSyncKey)) {
+        final int repoIndex =
+            inputData?["repoIndex"] ?? int.tryParse(task.replaceAll(scheduledSyncKey, "")) ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
 
         if (Platform.isIOS) {
           await gitSyncService.debouncedSync(repoIndex, true, true);
         } else {
-          FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
+          await _ensureServiceInvoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
         }
 
         return Future.value(true);
@@ -225,6 +237,34 @@ void callbackDispatcher() async {
       return Future.value(false);
     } catch (e) {
       return Future.error(e);
+    }
+  });
+}
+
+Future<void> _ensureServiceInvoke(String event, [dynamic data]) async {
+  final service = FlutterBackgroundService();
+  if (!await service.isRunning()) await service.startService();
+  service.invoke(event, data);
+}
+
+void _onGitOp(
+  ServiceInstance service,
+  LogType type,
+  Future<void> Function(Map<String, dynamic>? event) body, {
+  bool retryOnNetworkError = true,
+}) {
+  service.on(type.name).listen((event) async {
+    try {
+      await body(event);
+      if (event?["isRetry"] == true) {
+        await showNetworkMessage(gitSyncService.s.networkRetryComplete);
+      }
+    } catch (e) {
+      if (await handleIfNetworkError(e, type, event, schedule: retryOnNetworkError)) {
+        service.invoke(type.name);
+        return;
+      }
+      rethrow;
     }
   });
 }
@@ -238,7 +278,7 @@ void onServiceStart(ServiceInstance service) async {
   // within _sync() writes to the correct SharedPreferences group.
   await HomeWidget.setAppGroupId('group.ForceSyncWidget');
 
-  service.on(LogType.Clone.name).listen((event) async {
+  _onGitOp(service, LogType.Clone, (event) async {
     if (event == null) return;
     final result = await GitManager.clone(
       event["repoUrl"],
@@ -250,88 +290,85 @@ void onServiceStart(ServiceInstance service) async {
     );
 
     service.invoke(LogType.Clone.name, {"result": result});
-  });
+  }, retryOnNetworkError: false);
 
-  service.on(LogType.UpdateSubmodules.name).listen((event) async {
+  _onGitOp(service, LogType.UpdateSubmodules, (event) async {
     await GitManager.updateSubmodules();
     service.invoke(LogType.UpdateSubmodules.name);
   });
 
-  service.on(LogType.FetchRemote.name).listen((event) async {
-    final networkErrorMode = event?["networkErrorMode"] != null
-        ? NetworkErrorMode.values.byName(event!["networkErrorMode"])
-        : NetworkErrorMode.showToast;
-    await GitManager.fetchRemote(networkErrorMode: networkErrorMode);
+  _onGitOp(service, LogType.FetchRemote, (event) async {
+    await GitManager.fetchRemote();
     service.invoke(LogType.FetchRemote.name);
   });
 
-  service.on(LogType.PullFromRepo.name).listen((event) async {
+  _onGitOp(service, LogType.PullFromRepo, (event) async {
     await GitManager.pullChanges();
     service.invoke(LogType.PullFromRepo.name);
   });
 
-  service.on(LogType.Stage.name).listen((event) async {
+  _onGitOp(service, LogType.Stage, (event) async {
     if (event == null) return;
     await GitManager.stageFilePaths(event["paths"].map<String>((path) => "$path").toList());
     service.invoke(LogType.Stage.name);
   });
 
-  service.on(LogType.Unstage.name).listen((event) async {
+  _onGitOp(service, LogType.Unstage, (event) async {
     if (event == null) return;
     await GitManager.unstageFilePaths(event["paths"].map<String>((path) => "$path").toList());
     service.invoke(LogType.Unstage.name);
   });
 
-  service.on(LogType.RecommendedAction.name).listen((event) async {
+  _onGitOp(service, LogType.RecommendedAction, (event) async {
     final result = await GitManager.getRecommendedAction();
     service.invoke(LogType.RecommendedAction.name, {"result": result});
   });
 
-  service.on(LogType.Commit.name).listen((event) async {
+  _onGitOp(service, LogType.Commit, (event) async {
     if (event == null) return;
     await GitManager.commitChanges(event["syncMessage"]);
     service.invoke(LogType.Commit.name);
   });
 
-  service.on(LogType.PushToRepo.name).listen((event) async {
+  _onGitOp(service, LogType.PushToRepo, (event) async {
     await GitManager.pushChanges();
     service.invoke(LogType.PushToRepo.name);
   });
 
-  service.on(LogType.ForcePull.name).listen((event) async {
+  _onGitOp(service, LogType.ForcePull, (event) async {
     await GitManager.forcePull();
     service.invoke(LogType.ForcePull.name);
   });
 
-  service.on(LogType.ForcePush.name).listen((event) async {
+  _onGitOp(service, LogType.ForcePush, (event) async {
     await GitManager.forcePush();
     service.invoke(LogType.ForcePush.name);
   });
 
-  service.on(LogType.DownloadAndOverwrite.name).listen((event) async {
+  _onGitOp(service, LogType.DownloadAndOverwrite, (event) async {
     await GitManager.downloadAndOverwrite();
     service.invoke(LogType.DownloadAndOverwrite.name);
   });
 
-  service.on(LogType.UploadAndOverwrite.name).listen((event) async {
+  _onGitOp(service, LogType.UploadAndOverwrite, (event) async {
     await GitManager.uploadAndOverwrite();
     service.invoke(LogType.UploadAndOverwrite.name);
   });
 
-  service.on(LogType.DiscardChanges.name).listen((event) async {
+  _onGitOp(service, LogType.DiscardChanges, (event) async {
     if (event == null) return;
     await GitManager.discardChanges(event["paths"].map<String>((path) => "$path").toList());
     service.invoke(LogType.DiscardChanges.name);
   });
 
-  service.on(LogType.UntrackAll.name).listen((event) async {
+  _onGitOp(service, LogType.UntrackAll, (event) async {
     await GitManager.untrackAll(
       filePaths: event == null || !event.keys.contains("filePaths") ? null : event["filePaths"].map<String>((filePath) => "$filePath").toList(),
     );
     service.invoke(LogType.UntrackAll.name);
   });
 
-  service.on(LogType.CommitDiff.name).listen((event) async {
+  _onGitOp(service, LogType.CommitDiff, (event) async {
     if (event == null) return;
     final result = await GitManager.getCommitDiff(event["startRef"], event["endRef"]);
     service.invoke(
@@ -340,7 +377,7 @@ void onServiceStart(ServiceInstance service) async {
     );
   });
 
-  service.on(LogType.FileDiff.name).listen((event) async {
+  _onGitOp(service, LogType.FileDiff, (event) async {
     if (event == null) return;
     final result = await GitManager.getFileDiff(event["filePath"]);
     service.invoke(
@@ -349,7 +386,7 @@ void onServiceStart(ServiceInstance service) async {
     );
   });
 
-  service.on(LogType.WorkdirFileDiff.name).listen((event) async {
+  _onGitOp(service, LogType.WorkdirFileDiff, (event) async {
     if (event == null) return;
     final result = await GitManager.getWorkdirFileDiff(event["filePath"]);
     service.invoke(
@@ -377,118 +414,118 @@ void onServiceStart(ServiceInstance service) async {
     );
   });
 
-  service.on(LogType.StageFileLines.name).listen((event) async {
+  _onGitOp(service, LogType.StageFileLines, (event) async {
     if (event == null) return;
     await GitManager.stageFileLines(event["filePath"], event["selectedLineIndices"].map<int>((i) => i as int).toList());
     service.invoke(LogType.StageFileLines.name);
   });
 
-  service.on(LogType.RecentCommits.name).listen((event) async {
+  _onGitOp(service, LogType.RecentCommits, (event) async {
     final result = await GitManager.getRecentCommits();
     print(result);
     service.invoke(LogType.RecentCommits.name, {"result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList()});
   });
 
-  service.on(LogType.ConflictingFiles.name).listen((event) async {
+  _onGitOp(service, LogType.ConflictingFiles, (event) async {
     final result = await GitManager.getConflicting();
     service.invoke(LogType.ConflictingFiles.name, {
       "result": result.map<List<String>>((item) => [item.$1, item.$2.name]).toList(),
     });
   });
 
-  service.on(LogType.UncommittedFiles.name).listen((event) async {
+  _onGitOp(service, LogType.UncommittedFiles, (event) async {
     final result = await GitManager.getUncommittedFilePaths(event?["repomanRepoindex"]);
     service.invoke(LogType.UncommittedFiles.name, {
       "result": result.map<List<String>>((path) => [path.$1, "${path.$2}"]).toList(),
     });
   });
 
-  service.on(LogType.StagedFiles.name).listen((event) async {
+  _onGitOp(service, LogType.StagedFiles, (event) async {
     final result = await GitManager.getStagedFilePaths();
     service.invoke(LogType.StagedFiles.name, {
       "result": result.map((item) => [item.$1, "${item.$2}"]).toList(),
     });
   });
 
-  service.on(LogType.AbortMerge.name).listen((event) async {
+  _onGitOp(service, LogType.AbortMerge, (event) async {
     await GitManager.abortMerge();
     service.invoke(LogType.AbortMerge.name);
   });
 
-  service.on(LogType.BranchName.name).listen((event) async {
+  _onGitOp(service, LogType.BranchName, (event) async {
     final result = await GitManager.getBranchName();
     service.invoke(LogType.BranchName.name, {"result": result});
   });
 
-  service.on(LogType.BranchNames.name).listen((event) async {
+  _onGitOp(service, LogType.BranchNames, (event) async {
     final result = await GitManager.getBranchNames();
     service.invoke(LogType.BranchNames.name, {"result": result.map<String>((branch) => "${branch.$1}$conflictSeparator${branch.$2}").toList()});
   });
 
-  service.on(LogType.SetRemoteUrl.name).listen((event) async {
+  _onGitOp(service, LogType.SetRemoteUrl, (event) async {
     if (event == null) return;
     await GitManager.setRemoteUrl(event["newRemoteUrl"]);
     service.invoke(LogType.SetRemoteUrl.name);
   });
 
-  service.on(LogType.CheckoutBranch.name).listen((event) async {
+  _onGitOp(service, LogType.CheckoutBranch, (event) async {
     if (event == null) return;
     await GitManager.checkoutBranch(event["branchName"]);
     service.invoke(LogType.CheckoutBranch.name);
   });
 
-  service.on(LogType.CreateBranch.name).listen((event) async {
+  _onGitOp(service, LogType.CreateBranch, (event) async {
     if (event == null) return;
     await GitManager.createBranch(event["branchName"], event["basedOn"]);
     service.invoke(LogType.CreateBranch.name);
   });
 
-  service.on(LogType.RenameBranch.name).listen((event) async {
+  _onGitOp(service, LogType.RenameBranch, (event) async {
     if (event == null) return;
     await GitManager.renameBranch(event["oldName"], event["newName"]);
     service.invoke(LogType.RenameBranch.name);
   });
 
-  service.on(LogType.DeleteBranch.name).listen((event) async {
+  _onGitOp(service, LogType.DeleteBranch, (event) async {
     if (event == null) return;
     await GitManager.deleteBranch(event["branchName"]);
     service.invoke(LogType.DeleteBranch.name);
   });
 
-  service.on(LogType.ReadGitIgnore.name).listen((event) async {
+  _onGitOp(service, LogType.ReadGitIgnore, (event) async {
     final result = await GitManager.readGitignore();
     service.invoke(LogType.ReadGitIgnore.name, {"result": result});
   });
 
-  service.on(LogType.WriteGitIgnore.name).listen((event) async {
+  _onGitOp(service, LogType.WriteGitIgnore, (event) async {
     if (event == null) return;
     await GitManager.writeGitignore(event["gitignoreString"]);
     service.invoke(LogType.WriteGitIgnore.name);
   });
 
-  service.on(LogType.ReadGitInfoExclude.name).listen((event) async {
+  _onGitOp(service, LogType.ReadGitInfoExclude, (event) async {
     final result = await GitManager.readGitInfoExclude();
     service.invoke(LogType.ReadGitInfoExclude.name, {"result": result});
   });
 
-  service.on(LogType.WriteGitInfoExclude.name).listen((event) async {
+  _onGitOp(service, LogType.WriteGitInfoExclude, (event) async {
     if (event == null) return;
     await GitManager.writeGitInfoExclude(event["gitInfoExcludeString"]);
     service.invoke(LogType.WriteGitInfoExclude.name);
   });
 
-  service.on(LogType.GetDisableSsl.name).listen((event) async {
+  _onGitOp(service, LogType.GetDisableSsl, (event) async {
     final result = await GitManager.getDisableSsl();
     service.invoke(LogType.GetDisableSsl.name, {"result": result});
   });
 
-  service.on(LogType.SetDisableSsl.name).listen((event) async {
+  _onGitOp(service, LogType.SetDisableSsl, (event) async {
     if (event == null) return;
     await GitManager.setDisableSsl(event["disable"]);
     service.invoke(LogType.SetDisableSsl.name);
   });
 
-  service.on(LogType.GenerateKeyPair.name).listen((event) async {
+  _onGitOp(service, LogType.GenerateKeyPair, (event) async {
     if (event == null) return;
     final result = await GitManager.generateKeyPair(event["passphrase"]);
     service.invoke(LogType.GenerateKeyPair.name, {
@@ -496,81 +533,80 @@ void onServiceStart(ServiceInstance service) async {
     });
   });
 
-  service.on(LogType.GetRemoteUrlLink.name).listen((event) async {
+  _onGitOp(service, LogType.GetRemoteUrlLink, (event) async {
     final result = await GitManager.getRemoteUrlLink();
     service.invoke(LogType.GetRemoteUrlLink.name, {
       "result": result == null ? null : [result.$1, result.$2],
     });
   });
 
-  service.on(LogType.ListRemotes.name).listen((event) async {
+  _onGitOp(service, LogType.ListRemotes, (event) async {
     final result = await GitManager.listRemotes();
     service.invoke(LogType.ListRemotes.name, {"result": result.map<String>((r) => "$r").toList()});
   });
 
-  service.on(LogType.AddRemote.name).listen((event) async {
+  _onGitOp(service, LogType.AddRemote, (event) async {
     if (event == null) return;
     await GitManager.addRemote(event["name"], event["url"]);
     service.invoke(LogType.AddRemote.name);
   });
 
-  service.on(LogType.DeleteRemote.name).listen((event) async {
+  _onGitOp(service, LogType.DeleteRemote, (event) async {
     if (event == null) return;
     await GitManager.deleteRemote(event["name"]);
     service.invoke(LogType.DeleteRemote.name);
   });
 
-  service.on(LogType.RenameRemote.name).listen((event) async {
+  _onGitOp(service, LogType.RenameRemote, (event) async {
     if (event == null) return;
     await GitManager.renameRemote(event["oldName"], event["newName"]);
     service.invoke(LogType.RenameRemote.name);
   });
 
-  service.on(LogType.DiscardDir.name).listen((event) async {
+  _onGitOp(service, LogType.DiscardDir, (event) async {
     if (event == null) return;
-
     await GitManager.deleteDirContents(dirPath: event["dirPath"]);
     service.invoke(LogType.DiscardDir.name);
   });
 
-  service.on(LogType.DiscardGitIndex.name).listen((event) async {
+  _onGitOp(service, LogType.DiscardGitIndex, (event) async {
     await GitManager.deleteGitIndex();
     service.invoke(LogType.DiscardGitIndex.name);
   });
 
-  service.on(LogType.RecreateGitIndex.name).listen((event) async {
+  _onGitOp(service, LogType.RecreateGitIndex, (event) async {
     await GitManager.recreateGitIndex();
     service.invoke(LogType.RecreateGitIndex.name);
   });
 
-  service.on(LogType.DiscardFetchHead.name).listen((event) async {
+  _onGitOp(service, LogType.DiscardFetchHead, (event) async {
     await GitManager.deleteFetchHead();
     service.invoke(LogType.DiscardFetchHead.name);
   });
 
-  service.on(LogType.PruneCorruptedObjects.name).listen((event) async {
+  _onGitOp(service, LogType.PruneCorruptedObjects, (event) async {
     await GitManager.pruneCorruptedObjects();
     service.invoke(LogType.PruneCorruptedObjects.name);
   });
 
-  service.on(LogType.GetSubmodules.name).listen((event) async {
+  _onGitOp(service, LogType.GetSubmodules, (event) async {
     if (event == null) return;
     final result = await GitManager.getSubmodulePaths(event["dir"]);
     service.invoke(LogType.GetSubmodules.name, {"result": result.map<String>((branch) => "$branch").toList()});
   });
 
-  service.on(LogType.HasGitFilters.name).listen((event) async {
+  _onGitOp(service, LogType.HasGitFilters, (event) async {
     final result = await GitManager.hasGitFilters(event?["repomanRepoindex"]);
     service.invoke(LogType.HasGitFilters.name, {"result": result});
   });
 
-  service.on(LogType.DownloadChanges.name).listen((event) async {
+  _onGitOp(service, LogType.DownloadChanges, (event) async {
     if (event == null) return;
     final result = await GitManager.downloadChanges(event["repomanRepoindex"], () => service.invoke("downloadChanges-syncCallback"));
     service.invoke(LogType.DownloadChanges.name, {"result": result});
   });
 
-  service.on(LogType.UploadChanges.name).listen((event) async {
+  _onGitOp(service, LogType.UploadChanges, (event) async {
     if (event == null) return;
     final result = await GitManager.uploadChanges(
       event["repomanRepoindex"],
@@ -715,6 +751,9 @@ class _MyAppState extends State<MyApp> {
                 ongoingMergeConflict: t.ongoingMergeConflict,
                 networkStallRetry: t.networkStallRetry,
                 networkUnavailableRetry: t.networkUnavailableRetry,
+                networkStallManual: t.networkStallManual,
+                networkUnavailableManual: t.networkUnavailableManual,
+                networkRetryComplete: t.networkRetryComplete,
               ).toMap(),
             );
             return MyHomePage(
@@ -1488,7 +1527,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
         sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
           FontAwesomeIcons.caretDown,
           () async {
-            await runGitOperation(LogType.FetchRemote, (event) => event, {"networkErrorMode": NetworkErrorMode.scheduleRetry.name});
+            await runGitOperation(LogType.FetchRemote, (event) => event);
             if (recommendedAction.value == 0) {
               await updateRecommendedAction(override: 1, useOverride: true);
             }

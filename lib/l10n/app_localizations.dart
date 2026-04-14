@@ -3870,6 +3870,24 @@ abstract class AppLocalizations {
   /// **'Network unavailable!\nGitSync will retry when reconnected'**
   String get networkUnavailableRetry;
 
+  /// No description provided for @networkStallManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor network — please try again'**
+  String get networkStallManual;
+
+  /// No description provided for @networkUnavailableManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Network unavailable — please try again'**
+  String get networkUnavailableManual;
+
+  /// No description provided for @networkRetryComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued operation completed'**
+  String get networkRetryComplete;
+
   /// No description provided for @failedToResolveAddressMessage.
   ///
   /// In en, this message translates to:

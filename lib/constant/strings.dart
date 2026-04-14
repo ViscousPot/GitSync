@@ -171,9 +171,4 @@ const gitSyncSyncChannelName = "GitSync Sync Status";
 const int syncStatusNotificationId = 1733;
 const int networkRetryNotificationId = 1734;
 
-const String networkStallMessage = "Poor network — will retry shortly";
-const String networkUnavailableMessage = "Network unavailable — will retry when reconnected";
-const String networkStallManualMessage = "Poor network — please try again";
-const String networkUnavailableManualMessage = "Network unavailable — please try again";
-
 const bullet = "•";

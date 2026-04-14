@@ -29,6 +29,9 @@ class ServiceStrings {
   final String ongoingMergeConflict;
   final String networkStallRetry;
   final String networkUnavailableRetry;
+  final String networkStallManual;
+  final String networkUnavailableManual;
+  final String networkRetryComplete;
 
   const ServiceStrings({
     required this.syncStartPull,
@@ -41,6 +44,9 @@ class ServiceStrings {
     required this.ongoingMergeConflict,
     required this.networkStallRetry,
     required this.networkUnavailableRetry,
+    required this.networkStallManual,
+    required this.networkUnavailableManual,
+    required this.networkRetryComplete,
   });
 
   factory ServiceStrings.fromMap(Map<String, dynamic> map) {
@@ -55,6 +61,9 @@ class ServiceStrings {
       ongoingMergeConflict: map['ongoingMergeConflict'] ?? '',
       networkStallRetry: map['networkStallRetry'] ?? '',
       networkUnavailableRetry: map['networkUnavailableRetry'] ?? '',
+      networkStallManual: map['networkStallManual'] ?? '',
+      networkUnavailableManual: map['networkUnavailableManual'] ?? '',
+      networkRetryComplete: map['networkRetryComplete'] ?? '',
     );
   }
 
@@ -70,6 +79,9 @@ class ServiceStrings {
       'ongoingMergeConflict': ongoingMergeConflict,
       'networkStallRetry': networkStallRetry,
       'networkUnavailableRetry': networkUnavailableRetry,
+      'networkStallManual': networkStallManual,
+      'networkUnavailableManual': networkUnavailableManual,
+      'networkRetryComplete': networkRetryComplete,
     };
   }
 }
@@ -98,6 +110,9 @@ class GitsyncService {
     ongoingMergeConflict: "Ongoing merge conflict",
     networkStallRetry: "Poor network — will retry shortly",
     networkUnavailableRetry: "Network unavailable — will retry when reconnected",
+    networkStallManual: "Poor network — please try again",
+    networkUnavailableManual: "Network unavailable — please try again",
+    networkRetryComplete: "Queued operation completed",
   );
   bool isScheduled = false;
   bool isSyncing = false;
@@ -279,7 +294,7 @@ class GitsyncService {
         bool synced = false;
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
-        int? recommendedAction = await GitManager.getRecommendedAction(priority: 3, networkErrorMode: NetworkErrorMode.scheduleRetry);
+        int? recommendedAction = await GitManager.getRecommendedAction(priority: 3);
 
         if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
           return;
@@ -316,7 +331,7 @@ class GitsyncService {
           return;
         }
 
-        recommendedAction = await GitManager.getRecommendedAction(priority: 3, networkErrorMode: NetworkErrorMode.scheduleRetry);
+        recommendedAction = await GitManager.getRecommendedAction(priority: 3);
         if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
           return;
         }
@@ -376,8 +391,10 @@ class GitsyncService {
 
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
-      Logger.logError(LogType.SyncException, e, st);
-      terminal = 'error';
+      if (!await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex"})) {
+        Logger.logError(LogType.SyncException, e, st);
+        terminal = 'error';
+      }
     } finally {
       isSyncing = false;
       if (myGen == _syncGeneration) {
@@ -397,20 +414,27 @@ class GitsyncService {
 
     bool? pushResult = false;
 
-    if (await settingsManager.getClientModeEnabled()) {
-      pushResult = await GitManager.backgroundStageAndCommit(repomanRepoindex, settingsManager, conflictingPaths, commitMessage);
-    } else {
-      pushResult = await GitManager.backgroundUploadChanges(
-        repomanRepoindex,
-        settingsManager,
-        () {
-          _displaySyncMessage(null, resolvingMerge);
-        },
-        conflictingPaths,
-        commitMessage,
-        () => debouncedSync(repomanRepoindex),
-        NetworkErrorMode.showToast,
-      );
+    try {
+      if (await settingsManager.getClientModeEnabled()) {
+        pushResult = await GitManager.backgroundStageAndCommit(repomanRepoindex, settingsManager, conflictingPaths, commitMessage);
+      } else {
+        pushResult = await GitManager.backgroundUploadChanges(
+          repomanRepoindex,
+          settingsManager,
+          () {
+            _displaySyncMessage(null, resolvingMerge);
+          },
+          conflictingPaths,
+          commitMessage,
+          () => debouncedSync(repomanRepoindex),
+        );
+      }
+    } catch (e) {
+      if (await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex"})) {
+        serviceInstance?.invoke(MERGE_COMPLETE);
+        return;
+      }
+      rethrow;
     }
 
     switch (pushResult) {

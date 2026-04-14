@@ -73,8 +73,6 @@ Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? even
   return transformer(event);
 }
 
-enum NetworkErrorMode { scheduleRetry, showToast, silent }
-
 class GitManager {
   static final Map<String, Future<String?> Function()> _errorContentMap = {
     "failed to parse signature - Signature cannot have an empty name or email": () async => missingAuthorDetailsError,
@@ -92,7 +90,7 @@ class GitManager {
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
   static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
-  static bool _isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
+  static bool isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
 
   static final _networkUnavailablePatterns = [
     "failed to resolve address",
@@ -122,7 +120,6 @@ class GitManager {
     int priority = 3,
     bool expectGitDir = true,
     String? dirPath = null,
-    NetworkErrorMode networkErrorMode = NetworkErrorMode.showToast,
   }) async {
     final fnName = type.name;
 
@@ -134,31 +131,13 @@ class GitManager {
         } catch (e, stackTrace) {
           final errorMsg = e is AnyhowException ? e.message : e.toString();
 
-          if (_isNetworkStallError(errorMsg)) {
-            if (networkErrorMode == NetworkErrorMode.scheduleRetry) {
-              Logger.gmLog(type: type, "Network stall detected — retry scheduled");
-              showNetworkMessage(networkStallMessage);
-              scheduleNetworkStallRetryOperation(index, type);
-            } else if (networkErrorMode == NetworkErrorMode.showToast) {
-              Logger.gmLog(type: type, "Network stall detected");
-              showNetworkMessage(networkStallManualMessage);
-            } else {
-              Logger.gmLog(type: type, "Network stall detected");
-            }
-            return null;
+          if (isNetworkStallError(errorMsg)) {
+            Logger.gmLog(type: type, "Network stall detected");
+            rethrow;
           }
           if (isNetworkUnavailableError(errorMsg) && !await hasNetworkConnection()) {
-            if (networkErrorMode == NetworkErrorMode.scheduleRetry) {
-              Logger.gmLog(type: type, "Network unavailable — retry scheduled");
-              showNetworkMessage(networkUnavailableMessage);
-              scheduleNetworkRetryOperation(index, type);
-            } else if (networkErrorMode == NetworkErrorMode.showToast) {
-              Logger.gmLog(type: type, "Network unavailable");
-              showNetworkMessage(networkUnavailableManualMessage);
-            } else {
-              Logger.gmLog(type: type, "Network unavailable");
-            }
-            return null;
+            Logger.gmLog(type: type, "Network unavailable");
+            rethrow;
           }
 
           if (await _tryAutoFixCorruption(dirPath, errorMsg)) {
@@ -167,6 +146,14 @@ class GitManager {
               return await fn(dirPath);
             } catch (retryError, retryStackTrace) {
               final retryMsg = retryError is AnyhowException ? retryError.message : retryError.toString();
+              if (isNetworkStallError(retryMsg)) {
+                Logger.gmLog(type: type, "Network stall on retry");
+                rethrow;
+              }
+              if (isNetworkUnavailableError(retryMsg) && !await hasNetworkConnection()) {
+                Logger.gmLog(type: type, "Network unavailable on retry");
+                rethrow;
+              }
               final errorContent = await _getErrorContent(retryMsg);
               Logger.logError(type, retryError, retryStackTrace, errorContent: errorContent);
             }
@@ -206,12 +193,16 @@ class GitManager {
       try {
         return await action();
       } catch (e, stackTrace) {
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg)) rethrow;
+        if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
         Logger.logError(type, e, stackTrace);
       }
+      return null;
     }
 
     try {
-      return await typedRunWithLock!(
+      return await typedRunWithLock(
         queueDir: (await getApplicationSupportDirectory()).path,
         index: index,
         priority: priority,
@@ -219,6 +210,9 @@ class GitManager {
         function: action,
       );
     } catch (e, stackTrace) {
+      final msg = e is AnyhowException ? e.message : e.toString();
+      if (isNetworkStallError(msg)) rethrow;
+      if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
       Logger.logError(type, e, stackTrace);
     }
     return null;
@@ -339,13 +333,12 @@ class GitManager {
     );
   }
 
-  static Future<void> fetchRemote({int? repoIndex, NetworkErrorMode networkErrorMode = NetworkErrorMode.showToast}) async {
+  static Future<void> fetchRemote({int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
     return await _runWithLock(
       GitManagerRs.voidRunWithLock,
       await _resolveRepoIndex(repoIndex),
       LogType.FetchRemote,
-      networkErrorMode: networkErrorMode,
       (dirPath) async => await GitManagerRs.fetchRemote(
         pathString: dirPath,
         remote: await _remote(setman),
@@ -390,10 +383,10 @@ class GitManager {
     );
   }
 
-  static Future<int?> getRecommendedAction({int priority = 1, int? repoIndex, NetworkErrorMode networkErrorMode = NetworkErrorMode.silent}) async {
+  static Future<int?> getRecommendedAction({int priority = 1, int? repoIndex}) async {
     final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
-    final result = await _runWithLock(priority: priority, networkErrorMode: networkErrorMode, GitManagerRs.intRunWithLock, resolvedIndex, LogType.RecommendedAction, (dirPath) async {
+    final result = await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, resolvedIndex, LogType.RecommendedAction, (dirPath) async {
       return await GitManagerRs.getRecommendedAction(
         pathString: dirPath,
         remoteName: await _remote(setman),
@@ -1238,7 +1231,7 @@ class GitManager {
 
   // Background Accessible
   static Future<bool?> backgroundDownloadChanges(int repomanRepoindex, SettingsManager settingsManager, Function() syncCallback) async {
-    return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.DownloadChanges, networkErrorMode: NetworkErrorMode.scheduleRetry, (dirPath) async {
+    return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.DownloadChanges, (dirPath) async {
       return await GitManagerRs.downloadChanges(
         pathString: dirPath,
         remote: await settingsManager.getRemote(),
@@ -1259,7 +1252,6 @@ class GitManager {
     List<String>? filePaths,
     String? syncMessage,
     VoidCallback? resyncCallback,
-    NetworkErrorMode networkErrorMode = NetworkErrorMode.scheduleRetry,
   ]) async {
     Future<bool?> internalFn(String dirPath) async => await GitManagerRs.uploadChanges(
       pathString: dirPath,
@@ -1280,7 +1272,7 @@ class GitManager {
       ]),
       log: _logWrapper,
     );
-    return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.UploadChanges, networkErrorMode: networkErrorMode, (dirPath) async {
+    return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.UploadChanges, (dirPath) async {
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {

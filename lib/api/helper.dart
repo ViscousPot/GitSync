@@ -20,6 +20,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/logger.dart';
@@ -191,25 +192,35 @@ Future<void> showNetworkMessage(String message) async {
   }
 }
 
-void scheduleNetworkRetryOperation(int repoIndex, LogType operation) {
-  final uniqueName = "$networkRetrySyncKey${repoIndex}_${operation.name}";
-  Workmanager().registerOneOffTask(
-    uniqueName,
-    uniqueName,
-    inputData: {"repoIndex": repoIndex, "operation": operation.name},
-    existingWorkPolicy: ExistingWorkPolicy.replace,
-    constraints: Constraints(networkType: NetworkType.connected),
-  );
+Future<bool> handleIfNetworkError(Object e, LogType retryKey, Map<String, dynamic>? retryEvent, {bool schedule = true}) async {
+  final msg = e is AnyhowException ? e.message : e.toString();
+  final s = gitSyncService.s;
+  if (GitManager.isNetworkStallError(msg)) {
+    await showNetworkMessage(schedule ? s.networkStallRetry : s.networkStallManual);
+    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent);
+    return true;
+  }
+  if (GitManager.isNetworkUnavailableError(msg) && !await hasNetworkConnection()) {
+    await showNetworkMessage(schedule ? s.networkUnavailableRetry : s.networkUnavailableManual);
+    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent);
+    return true;
+  }
+  return false;
 }
 
-void scheduleNetworkStallRetryOperation(int repoIndex, LogType operation) {
-  final uniqueName = "$networkRetrySyncKey${repoIndex}_${operation.name}_stall";
+void scheduleNetworkRetryOp(LogType operation, Map<String, dynamic>? event) {
+  final repoTag = event?["repoman_repoIndex"] ?? event?["repomanRepoindex"] ?? '';
+  final uniqueName = "$networkRetrySyncKey${operation.name}_$repoTag";
   Workmanager().registerOneOffTask(
     uniqueName,
     uniqueName,
-    inputData: {"repoIndex": repoIndex, "operation": operation.name},
+    inputData: {
+      "operation": operation.name,
+      "event": jsonEncode(event ?? const {}),
+    },
     existingWorkPolicy: ExistingWorkPolicy.replace,
     initialDelay: const Duration(seconds: 30),
+    constraints: Constraints(networkType: NetworkType.connected),
   );
 }
 
