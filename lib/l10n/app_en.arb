@@ -362,6 +362,9 @@
 
 
     "@@x-AUTH": "",
+    "remoteAuthMismatchTitle": "Auth won't work with this remote",
+    "remoteAuthMismatchUsesSsh": "This remote uses SSH — tap to switch",
+    "remoteAuthMismatchUsesHttps": "This remote uses HTTPS or OAuth — tap to switch",
     "selectYourGitProviderAndAuthenticate": "Select your git provider and authenticate",
     "oauthProviders": "oAuth Providers",
     "gitProtocols": "Git Protocols",

@@ -671,3 +671,27 @@ extension ValueNotifierExtension on RestorableValue<bool> {
     return result;
   }
 }
+
+enum RemoteScheme { https, ssh, unknown }
+
+RemoteScheme detectRemoteScheme(String? url) {
+  if (url == null || url.isEmpty) return RemoteScheme.unknown;
+  final u = url.trim();
+  if (u.startsWith('http://') || u.startsWith('https://')) return RemoteScheme.https;
+  if (u.startsWith('ssh://') || RegExp(r'^[A-Za-z0-9_.-]+@[^:]+:').hasMatch(u)) return RemoteScheme.ssh;
+  return RemoteScheme.unknown;
+}
+
+/// Returns a token describing the direction of a remote-URL/auth mismatch, or
+/// null when the pair is compatible or the URL's scheme isn't detectable.
+/// - 'httpsWithSshAuth': remote URL is http(s), provider is SSH.
+/// - 'sshWithHttpsAuth': remote URL is ssh/git@, provider is a http-based one.
+String? remoteAuthMismatch(String? url, GitProvider? provider) {
+  if (provider == null) return null;
+  final scheme = detectRemoteScheme(url);
+  if (scheme == RemoteScheme.unknown) return null;
+  final providerIsHttps = provider != GitProvider.SSH;
+  if (scheme == RemoteScheme.https && !providerIsHttps) return 'httpsWithSshAuth';
+  if (scheme == RemoteScheme.ssh && providerIsHttps) return 'sshWithHttpsAuth';
+  return null;
+}

@@ -933,6 +933,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get useForWidgetManualSync => '手動同期ウィジェットに使用';
 
   @override
+  String get remoteAuthMismatchTitle => 'Auth won\'t work with this remote';
+
+  @override
+  String get remoteAuthMismatchUsesSsh => 'This remote uses SSH — tap to switch';
+
+  @override
+  String get remoteAuthMismatchUsesHttps => 'This remote uses HTTPS or OAuth — tap to switch';
+
+  @override
   String get selectYourGitProviderAndAuthenticate => 'Gitプロバイダーを選択して認証してください';
 
   @override

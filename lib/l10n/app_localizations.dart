@@ -1950,6 +1950,24 @@ abstract class AppLocalizations {
   /// **'Use for Manual Sync Widget'**
   String get useForWidgetManualSync;
 
+  /// No description provided for @remoteAuthMismatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auth won\'t work with this remote'**
+  String get remoteAuthMismatchTitle;
+
+  /// No description provided for @remoteAuthMismatchUsesSsh.
+  ///
+  /// In en, this message translates to:
+  /// **'This remote uses SSH — tap to switch'**
+  String get remoteAuthMismatchUsesSsh;
+
+  /// No description provided for @remoteAuthMismatchUsesHttps.
+  ///
+  /// In en, this message translates to:
+  /// **'This remote uses HTTPS or OAuth — tap to switch'**
+  String get remoteAuthMismatchUsesHttps;
+
   /// No description provided for @selectYourGitProviderAndAuthenticate.
   ///
   /// In en, this message translates to:

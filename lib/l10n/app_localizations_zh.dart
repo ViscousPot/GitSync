@@ -930,6 +930,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get useForWidgetManualSync => '用于手动同步小部件';
 
   @override
+  String get remoteAuthMismatchTitle => 'Auth won\'t work with this remote';
+
+  @override
+  String get remoteAuthMismatchUsesSsh => 'This remote uses SSH — tap to switch';
+
+  @override
+  String get remoteAuthMismatchUsesHttps => 'This remote uses HTTPS or OAuth — tap to switch';
+
+  @override
   String get selectYourGitProviderAndAuthenticate => '选择你的 Git 提供商并进行认证';
 
   @override

@@ -3815,6 +3815,75 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Re
                                                         ],
                                                       ),
                                                     ),
+                                                    ValueListenableBuilder(
+                                                      valueListenable: remoteUrlLink,
+                                                      builder: (context, urlSnap, _) => ValueListenableBuilder(
+                                                        valueListenable: currentGitProvider,
+                                                        builder: (context, providerSnap, _) {
+                                                          final mismatch = remoteAuthMismatch(urlSnap?.$1, providerSnap);
+                                                          if (mismatch == null) return const SizedBox.shrink();
+                                                          final subtitle = mismatch == 'httpsWithSshAuth'
+                                                              ? t.remoteAuthMismatchUsesHttps
+                                                              : t.remoteAuthMismatchUsesSsh;
+                                                          return Padding(
+                                                            padding: EdgeInsets.only(top: spaceSM),
+                                                            child: Material(
+                                                              color: Colors.transparent,
+                                                              child: InkWell(
+                                                                onTap: () async {
+                                                                  await showAuthDialog();
+                                                                },
+                                                                borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                child: Container(
+                                                                  decoration: BoxDecoration(
+                                                                    color: colours.secondaryDark,
+                                                                    border: Border.all(color: colours.tertiaryWarning, width: 1.5),
+                                                                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                  ),
+                                                                  padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                                                  child: Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                                    children: [
+                                                                      FaIcon(
+                                                                        FontAwesomeIcons.triangleExclamation,
+                                                                        color: colours.tertiaryWarning,
+                                                                        size: textLG,
+                                                                      ),
+                                                                      SizedBox(width: spaceMD),
+                                                                      Expanded(
+                                                                        child: Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          mainAxisSize: MainAxisSize.min,
+                                                                          children: [
+                                                                            Text(
+                                                                              t.remoteAuthMismatchTitle.toUpperCase(),
+                                                                              style: TextStyle(
+                                                                                color: colours.tertiaryWarning,
+                                                                                fontSize: textSM,
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(height: spaceXXXS),
+                                                                            Text(
+                                                                              subtitle,
+                                                                              style: TextStyle(
+                                                                                color: colours.secondaryLight,
+                                                                                fontSize: textXS,
+                                                                                fontWeight: FontWeight.w500,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
                                                     SizedBox(height: spaceMD),
 
                                                     IntrinsicHeight(

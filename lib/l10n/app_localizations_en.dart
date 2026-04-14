@@ -933,6 +933,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useForWidgetManualSync => 'Use for Manual Sync Widget';
 
   @override
+  String get remoteAuthMismatchTitle => 'Auth won\'t work with this remote';
+
+  @override
+  String get remoteAuthMismatchUsesSsh => 'This remote uses SSH — tap to switch';
+
+  @override
+  String get remoteAuthMismatchUsesHttps => 'This remote uses HTTPS or OAuth — tap to switch';
+
+  @override
   String get selectYourGitProviderAndAuthenticate => 'Select your git provider and authenticate';
 
   @override
