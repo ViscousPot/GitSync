@@ -1,0 +1,1 @@
+Cliente Git para sincronizar un repositorio entre el remoto y una carpeta local

@@ -1,0 +1,1 @@
+Git-Client zum Synchronisieren eines Repositorys zwischen Remote und Gerät
