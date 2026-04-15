@@ -122,22 +122,27 @@ class GitManager {
     String? dirPath = null,
   }) async {
     final fnName = type.name;
+    Object? pendingNetworkError;
+    StackTrace? pendingNetworkStackTrace;
 
     Future<T?> action() async {
       Future<T?> internalFn(dirPath) async {
         try {
-          final result = await fn(dirPath);
-          return result;
+          return await fn(dirPath);
         } catch (e, stackTrace) {
           final errorMsg = e is AnyhowException ? e.message : e.toString();
 
           if (isNetworkStallError(errorMsg)) {
             Logger.gmLog(type: type, "Network stall detected");
-            rethrow;
+            pendingNetworkError = e;
+            pendingNetworkStackTrace = stackTrace;
+            return null;
           }
           if (isNetworkUnavailableError(errorMsg) && !await hasNetworkConnection()) {
             Logger.gmLog(type: type, "Network unavailable");
-            rethrow;
+            pendingNetworkError = e;
+            pendingNetworkStackTrace = stackTrace;
+            return null;
           }
 
           if (await _tryAutoFixCorruption(dirPath, errorMsg)) {
@@ -148,11 +153,15 @@ class GitManager {
               final retryMsg = retryError is AnyhowException ? retryError.message : retryError.toString();
               if (isNetworkStallError(retryMsg)) {
                 Logger.gmLog(type: type, "Network stall on retry");
-                rethrow;
+                pendingNetworkError = retryError;
+                pendingNetworkStackTrace = retryStackTrace;
+                return null;
               }
               if (isNetworkUnavailableError(retryMsg) && !await hasNetworkConnection()) {
                 Logger.gmLog(type: type, "Network unavailable on retry");
-                rethrow;
+                pendingNetworkError = retryError;
+                pendingNetworkStackTrace = retryStackTrace;
+                return null;
               }
               final errorContent = await _getErrorContent(retryMsg);
               Logger.logError(type, retryError, retryStackTrace, errorContent: errorContent);
@@ -189,33 +198,39 @@ class GitManager {
       return result;
     }
 
+    T? result;
     if (typedRunWithLock == null) {
       try {
-        return await action();
+        result = await action();
       } catch (e, stackTrace) {
         final msg = e is AnyhowException ? e.message : e.toString();
         if (isNetworkStallError(msg)) rethrow;
         if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
         Logger.logError(type, e, stackTrace);
+        return null;
       }
-      return null;
+    } else {
+      try {
+        result = await typedRunWithLock(
+          queueDir: (await getApplicationSupportDirectory()).path,
+          index: index,
+          priority: priority,
+          fnName: fnName,
+          function: action,
+        );
+      } catch (e, stackTrace) {
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg)) rethrow;
+        if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
+        Logger.logError(type, e, stackTrace);
+        return null;
+      }
     }
 
-    try {
-      return await typedRunWithLock(
-        queueDir: (await getApplicationSupportDirectory()).path,
-        index: index,
-        priority: priority,
-        fnName: fnName,
-        function: action,
-      );
-    } catch (e, stackTrace) {
-      final msg = e is AnyhowException ? e.message : e.toString();
-      if (isNetworkStallError(msg)) rethrow;
-      if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
-      Logger.logError(type, e, stackTrace);
+    if (pendingNetworkError != null) {
+      Error.throwWithStackTrace(pendingNetworkError!, pendingNetworkStackTrace ?? StackTrace.current);
     }
-    return null;
+    return result;
   }
 
   static Future<String?> isLocked({waitForUnlock = true}) async {
