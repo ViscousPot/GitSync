@@ -1,0 +1,1 @@
+Git client for syncing a repository between remote and a local directory
