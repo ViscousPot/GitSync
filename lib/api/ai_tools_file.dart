@@ -115,7 +115,7 @@ class FileWriteTool extends AiTool {
 
 class FileEditTool extends AiTool {
   @override String get name => 'file_edit';
-  @override String get description => 'Replace an exact string in a file. old_content must match uniquely.';
+  @override String get description => 'Replace exact strings in a file. Supports a single edit (old_content/new_content) or batch edits (edits array). Each old_content must match uniquely.';
   @override ToolConfirmation get confirmation => ToolConfirmation.warn;
   @override Map<String, dynamic> get inputSchema => {
     'type': 'object',
@@ -123,15 +123,24 @@ class FileEditTool extends AiTool {
       'path': {'type': 'string'},
       'old_content': {'type': 'string'},
       'new_content': {'type': 'string'},
+      'edits': {
+        'type': 'array',
+        'items': {
+          'type': 'object',
+          'properties': {
+            'old_content': {'type': 'string'},
+            'new_content': {'type': 'string'},
+          },
+          'required': ['old_content', 'new_content'],
+        },
+      },
     },
-    'required': ['path', 'old_content', 'new_content'],
+    'required': ['path'],
   };
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     final path = input['path'] as String;
-    final oldContent = input['old_content'] as String;
-    final newContent = input['new_content'] as String;
 
     final resolved = _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
@@ -139,13 +148,39 @@ class FileEditTool extends AiTool {
     final file = File(resolved);
     if (!await file.exists()) return err('File not found: $path');
 
-    final content = await file.readAsString();
-    final count = oldContent.allMatches(content).length;
-    if (count == 0) return err('old_content not found in $path');
-    if (count > 1) return err('old_content matches $count times in $path — provide more context to make it unique');
+    // Build the list of edits — either from the edits array or single old/new.
+    final List<Map<String, String>> edits;
+    if (input.containsKey('edits')) {
+      final raw = input['edits'] as List<dynamic>;
+      edits = raw.map((e) {
+        final m = e as Map<String, dynamic>;
+        return {'old_content': m['old_content'] as String, 'new_content': m['new_content'] as String};
+      }).toList();
+    } else if (input.containsKey('old_content') && input.containsKey('new_content')) {
+      edits = [{'old_content': input['old_content'] as String, 'new_content': input['new_content'] as String}];
+    } else {
+      return err('Provide either old_content/new_content or an edits array');
+    }
 
-    await file.writeAsString(content.replaceFirst(oldContent, newContent));
-    return ok('Edited $path');
+    if (edits.isEmpty) return err('No edits provided');
+
+    var content = await file.readAsString();
+
+    // Validate all edits before applying any.
+    for (var i = 0; i < edits.length; i++) {
+      final old = edits[i]['old_content']!;
+      final count = old.allMatches(content).length;
+      if (count == 0) return err('Edit ${i + 1}: old_content not found in $path');
+      if (count > 1) return err('Edit ${i + 1}: old_content matches $count times in $path — provide more context to make it unique');
+    }
+
+    // Apply all edits sequentially.
+    for (final edit in edits) {
+      content = content.replaceFirst(edit['old_content']!, edit['new_content']!);
+    }
+
+    await file.writeAsString(content);
+    return ok(edits.length == 1 ? 'Edited $path' : 'Applied ${edits.length} edits to $path');
   }
 }
 

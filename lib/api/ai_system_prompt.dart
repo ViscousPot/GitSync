@@ -52,6 +52,7 @@ const String _toolModelSystemPrompt =
 - If a tool call fails, explain what went wrong, suggest a likely cause, and propose a recovery — don't silently retry.
 - Keep responses concise. This is a mobile app with limited screen space; the user is reading on a phone.
 - Use offset/limit on file_read for large files instead of dumping the whole file. All paths are relative to the repository root.
+- When editing multiple sections of the same file, use file_edit with the `edits` array to batch all replacements into one tool call instead of calling file_edit multiple times. This reduces round trips and avoids rate limits.
 - Prefer staging specific paths over `git_stage` with `['.']`. The latter is the right call only when the user has clearly asked for "all changes".
 - This is a mobile GUI app. Never tell the user to run terminal, shell, or CLI commands — there is no terminal. If an operation isn't available through your tools, say it's not currently supported rather than suggesting a workaround command.
 - For advanced operations (history rewriting, force pull/push, remote management, submodules, tags, maintenance, partial staging, less common provider operations like labels/milestones/releases/reactions/templates/repo creation), call list_available_tools to discover what's available, then make the call once activated.
