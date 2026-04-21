@@ -487,3 +487,35 @@ class GitDirPathNotifier extends AsyncNotifier<(String, String)?> {
 }
 
 final gitDirPathProvider = AsyncNotifierProvider<GitDirPathNotifier, (String, String)?>(GitDirPathNotifier.new);
+
+class AiFeaturesEnabledNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() => repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled);
+
+  void set(bool value) {
+    state = AsyncData(value);
+    repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, value);
+  }
+}
+
+final aiFeaturesEnabledProvider = AsyncNotifierProvider<AiFeaturesEnabledNotifier, bool>(AiFeaturesEnabledNotifier.new);
+
+final aiKeyConfiguredProvider = StateProvider<bool>((ref) => false);
+
+class PremiumStatusNotifier extends Notifier<bool?> {
+  @override
+  bool? build() {
+    void listener() {
+      state = premiumManager.hasPremiumNotifier.value;
+    }
+    premiumManager.hasPremiumNotifier.addListener(listener);
+    ref.onDispose(() => premiumManager.hasPremiumNotifier.removeListener(listener));
+    return premiumManager.hasPremiumNotifier.value;
+  }
+
+  void set(bool? value) {
+    premiumManager.hasPremiumNotifier.value = value;
+  }
+}
+
+final premiumStatusProvider = NotifierProvider<PremiumStatusNotifier, bool?>(PremiumStatusNotifier.new);
