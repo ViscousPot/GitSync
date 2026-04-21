@@ -28,7 +28,7 @@ class SettingsMain extends ConsumerStatefulWidget {
   ConsumerState<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin, RestorationMixin {
+class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();

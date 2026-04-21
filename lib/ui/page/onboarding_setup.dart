@@ -234,7 +234,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   bool _notificationsScreenWasShown = false;
 
   Future<void> _afterAuth() async {
-    if (uiSettingsManager.gitDirPath?.$1 != null) {
+    if ((await uiSettingsManager.getGitDirPath())?.$1 != null) {
       await repoManager.setOnboardingStep(4);
       if (!mounted) return;
       screenIndex.value = Screen.SyncSettings;
@@ -286,7 +286,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
     if (!mounted) return;
     if (step == 3) {
-      if (uiSettingsManager.gitDirPath?.$1 != null) {
+      if ((await uiSettingsManager.getGitDirPath())?.$1 != null) {
         await repoManager.setOnboardingStep(4);
         if (!mounted) return;
         screenIndex.value = Screen.SyncSettings;
