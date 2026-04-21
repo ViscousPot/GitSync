@@ -421,14 +421,12 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       ),
                     ),
                     SizedBox(height: spaceMD),
-                    FutureBuilder(
-                      future: repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled),
-                      builder: (context, aiFeaturesEnabledSnapshot) => TextButton.icon(
-                        onPressed: () async {
-                          final next = !(aiFeaturesEnabledSnapshot.data ?? true);
-                          await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, next);
-                          aiFeaturesEnabled.value = next;
-                          if (mounted) setState(() {});
+                    Builder(
+                      builder: (context) {
+                        final aiEnabled = ref.watch(aiFeaturesEnabledProvider).valueOrNull ?? true;
+                        return TextButton.icon(
+                        onPressed: () {
+                          ref.read(aiFeaturesEnabledProvider.notifier).set(!aiEnabled);
                         },
                         style: ButtonStyle(
                           alignment: Alignment.centerLeft,
@@ -442,7 +440,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         ),
                         iconAlignment: IconAlignment.end,
                         icon: FaIcon(
-                          (aiFeaturesEnabledSnapshot.data ?? true) ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                          aiEnabled ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
                           color: colours.primaryPositive,
                           size: textLG,
                         ),
@@ -453,7 +451,8 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
+                      );
+                      },
                     ),
                     if (Platform.isAndroid) ...[
                       SizedBox(height: spaceMD),
@@ -592,7 +591,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           }
 
                           if (settingsManagerSettings.length > 1) {
-                            if (premiumManager.hasPremiumNotifier.value != true) {
+                            if (ref.read(premiumStatusProvider) != true) {
                               final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
                               if (result == true) {
                                 await importSettings();
@@ -945,21 +944,23 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       ),
                     ),
                     SizedBox(height: spaceSM),
-                    ValueListenableBuilder(
-                      valueListenable: premiumManager.hasPremiumNotifier,
-                      builder: (context, hasPremium, child) => ButtonSetting(
-                        text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
-                        icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
-                        iconColor: colours.tertiaryPositive,
-                        onPressed: () async {
-                          if (hasPremium == true) {
-                            await launchUrl(Uri.parse(contributeLink));
-                          } else {
-                            final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
-                            if (result == true && mounted) setState(() {});
-                          }
-                        },
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final hasPremium = ref.watch(premiumStatusProvider);
+                        return ButtonSetting(
+                          text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
+                          icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
+                          iconColor: colours.tertiaryPositive,
+                          onPressed: () async {
+                            if (hasPremium == true) {
+                              await launchUrl(Uri.parse(contributeLink));
+                            } else {
+                              final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                              if (result == true && mounted) setState(() {});
+                            }
+                          },
+                        );
+                      },
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
@@ -1020,7 +1021,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           await uiSettingsManager.storage.deleteAll();
                           await repoManager.storage.deleteAll();
                           await uiSettingsManager.reinit();
-                          premiumManager.hasPremiumNotifier.value = false;
+                          ref.read(premiumStatusProvider.notifier).set(false);
 
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });

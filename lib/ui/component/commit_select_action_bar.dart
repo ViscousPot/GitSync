@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/dialog/confirm_multi_cherry_pick.dart' as ConfirmMultiCherryPickDialog;
 import 'package:GitSync/ui/dialog/confirm_squash_commits.dart' as ConfirmSquashCommitsDialog;
 
-class CommitSelectActionBar extends StatefulWidget {
+class CommitSelectActionBar extends ConsumerStatefulWidget {
   const CommitSelectActionBar({
     super.key,
     required this.selectMode,
@@ -36,10 +38,10 @@ class CommitSelectActionBar extends StatefulWidget {
   }
 
   @override
-  State<CommitSelectActionBar> createState() => _CommitSelectActionBarState();
+  ConsumerState<CommitSelectActionBar> createState() => _CommitSelectActionBarState();
 }
 
-class _CommitSelectActionBarState extends State<CommitSelectActionBar> with TickerProviderStateMixin {
+class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _expandAnimation;
   late final List<Animation<double>> _itemAnimations;
@@ -144,9 +146,8 @@ class _CommitSelectActionBarState extends State<CommitSelectActionBar> with Tick
                         position: _itemAnimations[1].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
                         child: TextButton.icon(
                           onPressed: cherryPickEnabled ? () async {
-                            final currentBranch = await GitManager.getBranchName();
-                            final branches = await GitManager.getBranchNames();
-                            final localBranchNames = branches.map((e) => e.$1).toList();
+                            final currentBranch = ref.read(branchNameProvider).valueOrNull;
+                            final localBranchNames = ref.read(branchNamesProvider).valueOrNull?.keys.toList() ?? [];
                             final selectedCommits = widget.commits
                                 .where((c) => shas.contains(c.reference))
                                 .toList()

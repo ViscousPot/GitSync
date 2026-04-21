@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +10,7 @@ import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -19,7 +21,7 @@ import 'package:GitSync/ui/component/post_footer_indicator.dart';
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class PrDetailPage extends StatefulWidget {
+class PrDetailPage extends ConsumerStatefulWidget {
   final GitProvider gitProvider;
   final String remoteWebUrl;
   final String accessToken;
@@ -38,10 +40,10 @@ class PrDetailPage extends StatefulWidget {
   });
 
   @override
-  State<PrDetailPage> createState() => _PrDetailPageState();
+  ConsumerState<PrDetailPage> createState() => _PrDetailPageState();
 }
 
-class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderStateMixin {
+class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerProviderStateMixin {
   PrDetail? _detail;
   bool _loading = true;
   bool _submittingComment = false;
@@ -95,7 +97,8 @@ class _PrDetailPageState extends State<PrDetailPage> with SingleTickerProviderSt
     final manager = _manager;
     if (manager == null) return;
 
-    final bodyWithFooter = await uiSettingsManager.applyPostFooter(body);
+    final footer = ref.read(postFooterProvider).valueOrNull ?? '';
+    final bodyWithFooter = footer.trim().isEmpty ? body : '$body\n$footer';
     final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.prNumber, bodyWithFooter);
     if (!mounted) return;
 
