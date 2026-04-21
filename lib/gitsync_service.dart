@@ -190,7 +190,7 @@ class GitsyncService {
     s = ServiceStrings.fromMap(stringMap);
   }
 
-  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false, String? syncMessage]) async {
+  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false, String? syncMessage, int retryCount = 0]) async {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
@@ -205,10 +205,10 @@ class GitsyncService {
         return;
       } else {
         if (immediate) {
-          await _sync(repomanRepoindex, forced, syncMessage);
+          await _sync(repomanRepoindex, forced, syncMessage, retryCount);
           return;
         }
-        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced, syncMessage));
+        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced, syncMessage, retryCount));
       }
     }
   }
@@ -233,7 +233,7 @@ class GitsyncService {
     }
   }
 
-  Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage]) async {
+  Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage, int retryCount = 0]) async {
     _syncGeneration++;
     final int myGen = _syncGeneration;
     String terminal = 'success';
@@ -391,7 +391,7 @@ class GitsyncService {
 
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
-      if (!await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex"})) {
+      if (!await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex", "retryCount": retryCount})) {
         Logger.logError(LogType.SyncException, e, st);
         terminal = 'error';
       }
@@ -430,7 +430,7 @@ class GitsyncService {
         );
       }
     } catch (e) {
-      if (await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex"})) {
+      if (await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex", "retryCount": 0})) {
         serviceInstance?.invoke(MERGE_COMPLETE);
         return;
       }

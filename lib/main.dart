@@ -200,19 +200,21 @@ void callbackDispatcher() async {
     try {
       if (task.contains(networkRetrySyncKey)) {
         final operation = inputData?["operation"] as String?;
+        final retryCount = inputData?["retryCount"] as int? ?? 0;
         final eventJson = inputData?["event"];
         final event = eventJson is String
             ? (jsonDecode(eventJson) as Map).cast<String, dynamic>()
             : <String, dynamic>{};
         event["isRetry"] = true;
+        event["retryCount"] = retryCount;
 
         if (operation == LogType.Sync.name || operation == null) {
           final repoIndex = int.tryParse(event[REPO_INDEX]?.toString() ?? '')
               ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
           if (Platform.isIOS) {
-            await gitSyncService.debouncedSync(repoIndex, true, true);
+            await gitSyncService.debouncedSync(repoIndex, true, true, null, retryCount);
           } else {
-            await _ensureServiceInvoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
+            await _ensureServiceInvoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex", "retryCount": retryCount});
           }
           return Future.value(true);
         }
@@ -628,7 +630,8 @@ void onServiceStart(ServiceInstance service) async {
 
   service.on(GitsyncService.FORCE_SYNC).listen((event) async {
     print(GitsyncService.FORCE_SYNC);
-    gitSyncService.debouncedSync(int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex), true);
+    final retryCount = event?["retryCount"] as int? ?? 0;
+    gitSyncService.debouncedSync(int.tryParse(event?[REPO_INDEX] ?? "null") ?? await repoManager.getInt(StorageKey.repoman_repoIndex), true, false, null, retryCount);
   });
 
   service.on(GitsyncService.INTENT_SYNC).listen((event) async {

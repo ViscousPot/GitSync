@@ -195,31 +195,37 @@ Future<void> showNetworkMessage(String message) async {
 Future<bool> handleIfNetworkError(Object e, LogType retryKey, Map<String, dynamic>? retryEvent, {bool schedule = true}) async {
   final msg = e is AnyhowException ? e.message : e.toString();
   final s = gitSyncService.s;
+  final retryCount = retryEvent?["retryCount"] as int? ?? 0;
   if (GitManager.isNetworkStallError(msg)) {
     await showNetworkMessage(schedule ? s.networkStallRetry : s.networkStallManual);
-    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent);
+    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent, retryCount: retryCount + 1);
     return true;
   }
   if (GitManager.isNetworkUnavailableError(msg) && !await hasNetworkConnection()) {
     await showNetworkMessage(schedule ? s.networkUnavailableRetry : s.networkUnavailableManual);
-    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent);
+    if (schedule) scheduleNetworkRetryOp(retryKey, retryEvent, retryCount: retryCount + 1);
     return true;
   }
   return false;
 }
 
-void scheduleNetworkRetryOp(LogType operation, Map<String, dynamic>? event) {
+void scheduleNetworkRetryOp(LogType operation, Map<String, dynamic>? event, {int retryCount = 0}) {
+  const maxRetries = 5;
+  if (retryCount >= maxRetries) return;
+
   final repoTag = event?["repoman_repoIndex"] ?? event?["repomanRepoindex"] ?? '';
   final uniqueName = "$networkRetrySyncKey${operation.name}_$repoTag";
+  final delay = Duration(seconds: 30 * math.pow(2, retryCount).toInt());
   Workmanager().registerOneOffTask(
     uniqueName,
     uniqueName,
     inputData: {
       "operation": operation.name,
       "event": jsonEncode(event ?? const {}),
+      "retryCount": retryCount,
     },
     existingWorkPolicy: ExistingWorkPolicy.replace,
-    initialDelay: const Duration(seconds: 30),
+    initialDelay: delay,
     constraints: Constraints(networkType: NetworkType.connected),
   );
 }
