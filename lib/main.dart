@@ -1121,7 +1121,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       aiKeyConfigured.value = provider != null && provider.isNotEmpty && apiKey != null && apiKey.isNotEmpty;
     });
 
+    aiFeaturesEnabled.addListener(_onAiFeaturesEnabledChanged);
+
+    initAsync(() async {
+      aiFeaturesEnabled.value = await repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled);
+    });
+
     switchToAiTab = () {
+      if (!aiFeaturesEnabled.value) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
       _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
       _tabIndex.value = 0;
@@ -1174,6 +1181,27 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     });
 
     super.initState();
+  }
+
+  void _onAiFeaturesEnabledChanged() {
+    final oldIndex = _tabIndex.value;
+    final int newIndex;
+    if (aiFeaturesEnabled.value) {
+      // 2 → 3 children. Old: 0=Home, 1=Files. New: 0=AI, 1=Home, 2=Files.
+      newIndex = oldIndex + 1;
+    } else {
+      // 3 → 2 children. Old: 0=AI, 1=Home, 2=Files. New: 0=Home, 1=Files.
+      newIndex = oldIndex == 0 ? 0 : oldIndex - 1;
+    }
+    if (newIndex != oldIndex) {
+      _tabIndex.value = newIndex;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_pageController.hasClients) return;
+      if ((_pageController.page ?? _pageController.initialPage.toDouble()).round() != newIndex) {
+        _pageController.jumpToPage(newIndex);
+      }
+    });
   }
 
   Future<void> launchWidgetManualSync() async {
@@ -1526,6 +1554,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     _commitSelectedShas.dispose();
 
     switchToAiTab = null;
+    aiFeaturesEnabled.removeListener(_onAiFeaturesEnabledChanged);
     autoRefreshTimer?.cancel();
     networkSubscription?.cancel();
     _tabIndex.dispose();
@@ -1669,8 +1698,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           );
         }
         void goToHomeTab() {
-          _tabIndex.value = 1;
-          _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+          final homeIndex = aiFeaturesEnabled.value ? 1 : 0;
+          _tabIndex.value = homeIndex;
+          _pageController.animateToPage(homeIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
         }
 
         return ValueListenableBuilder(
@@ -1678,7 +1708,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           builder: (context, currentTab, child) => ValueListenableBuilder(
             valueListenable: _filesCanPop,
             builder: (context, canPop, child) => PopScope(
-              canPop: currentTab != 2 && !canPop,
+              canPop: currentTab != (aiFeaturesEnabled.value ? 2 : 1) && !canPop,
               onPopInvokedWithResult: (didPop, _) {
                 if (didPop) return;
                 if (_filesNavigatorKey.currentState?.canPop() ?? false) {
@@ -2023,20 +2053,23 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
               SizedBox(width: spaceMD),
             ],
           ),
-          body: PageView(
-            controller: _pageController,
-            onPageChanged: (page) => _tabIndex.value = page,
-            children: [
-              _KeepAlivePage(
-                child: ValueListenableBuilder(
-                  valueListenable: _tabIndex,
-                  builder: (context, currentTab, child) => PopScope(
-                    canPop: currentTab != 0,
-                    onPopInvokedWithResult: (didPop, _) {
-                      if (!didPop) {
-                        _tabIndex.value = 1;
-                        _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                      }
+          body: ValueListenableBuilder<bool>(
+            valueListenable: aiFeaturesEnabled,
+            builder: (context, aiEnabled, _) => PageView(
+              controller: _pageController,
+              onPageChanged: (page) => _tabIndex.value = page,
+              children: [
+                if (aiEnabled)
+                  _KeepAlivePage(
+                    child: ValueListenableBuilder(
+                      valueListenable: _tabIndex,
+                      builder: (context, currentTab, child) => PopScope(
+                        canPop: currentTab != 0,
+                        onPopInvokedWithResult: (didPop, _) {
+                          if (!didPop) {
+                            _tabIndex.value = 1;
+                            _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
                     },
                     child: child!,
                   ),
@@ -3961,59 +3994,75 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   ),
                 ),
               ),
-              _KeepAlivePage(child: _buildFilesTab()),
-            ],
+                _KeepAlivePage(child: _buildFilesTab()),
+              ],
+            ),
           ),
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ValueListenableBuilder(
-                valueListenable: _tabIndex,
-                builder: (context, currentTabIndex, _) => Theme(
-                  data: Theme.of(context).copyWith(
-                    navigationBarTheme: NavigationBarThemeData(
-                      labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold);
-                        }
-                        return TextStyle(color: colours.secondaryLight, fontSize: textXS);
-                      }),
+              ValueListenableBuilder<bool>(
+                valueListenable: aiFeaturesEnabled,
+                builder: (context, aiEnabled, _) => ValueListenableBuilder(
+                  valueListenable: _tabIndex,
+                  builder: (context, currentTabIndex, _) => Theme(
+                    data: Theme.of(context).copyWith(
+                      navigationBarTheme: NavigationBarThemeData(
+                        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold);
+                          }
+                          return TextStyle(color: colours.secondaryLight, fontSize: textXS);
+                        }),
+                      ),
                     ),
-                  ),
-                  child: NavigationBar(
-                    selectedIndex: currentTabIndex,
-                    onDestinationSelected: (i) {
-                      if (i == 1 && _tabIndex.value == 1) {
-                        _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                      } else if (i == 2 && _tabIndex.value == 2) {
-                        _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-                      } else {
-                        _tabIndex.value = i;
-                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                      }
-                    },
-                    backgroundColor: colours.secondaryDark,
-                    indicatorColor: colours.tertiaryDark,
-                    surfaceTintColor: Colors.transparent,
-                    labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                    height: 64,
-                    destinations: [
-                      NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabChat,
-                      ),
-                      NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabHome,
-                      ),
-                      NavigationDestination(
-                        icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: textLG),
-                        selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.tertiaryInfo, size: textLG),
-                        label: t.tabFiles,
-                      ),
-                    ],
+                    child: NavigationBar(
+                      selectedIndex: currentTabIndex.clamp(0, aiEnabled ? 2 : 1),
+                      onDestinationSelected: (i) {
+                        if (aiEnabled) {
+                          if (i == 1 && _tabIndex.value == 1) {
+                            _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else if (i == 2 && _tabIndex.value == 2) {
+                            _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else {
+                            _tabIndex.value = i;
+                            _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
+                        } else {
+                          if (i == 0 && _tabIndex.value == 0) {
+                            _homeNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else if (i == 1 && _tabIndex.value == 1) {
+                            _filesNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+                          } else {
+                            _tabIndex.value = i;
+                            _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          }
+                        }
+                      },
+                      backgroundColor: colours.secondaryDark,
+                      indicatorColor: colours.tertiaryDark,
+                      surfaceTintColor: Colors.transparent,
+                      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                      height: 64,
+                      destinations: [
+                        if (aiEnabled)
+                          NavigationDestination(
+                            icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
+                            selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
+                            label: t.tabChat,
+                          ),
+                        NavigationDestination(
+                          icon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.secondaryLight, size: textLG),
+                          selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textLG),
+                          label: t.tabHome,
+                        ),
+                        NavigationDestination(
+                          icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: textLG),
+                          selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.tertiaryInfo, size: textLG),
+                          label: t.tabFiles,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
