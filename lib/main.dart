@@ -1725,10 +1725,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             key: _filesNavigatorKey,
             observers: [_NestedNavigatorObserver(_filesCanPop)],
             onGenerateRoute: (_) => MaterialPageRoute(
-              builder: (context) => ProviderBuilder<List<GitManagerRs.Commit>>(
-                provider: recentCommitsProvider,
-                builder: (context, commits) =>
-                    FileExplorer(commits.valueOrNull ?? [], key: _fileExplorerKey, path: path, embedded: true, onBackAtRoot: goToHomeTab),
+              builder: (context) => Consumer(
+                builder: (context, ref, _) {
+                  final currentPath = ref.watch(gitDirPathProvider).valueOrNull?.$2 ?? path;
+                  final commits = ref.watch(recentCommitsProvider).valueOrNull ?? [];
+                  return FileExplorer(commits, key: _fileExplorerKey, path: currentPath, embedded: true, onBackAtRoot: goToHomeTab);
+                },
               ),
             ),
           ),

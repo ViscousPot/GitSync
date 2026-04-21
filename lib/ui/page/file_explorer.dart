@@ -345,6 +345,18 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   }
 
   @override
+  void didUpdateWidget(FileExplorer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.path != widget.path) {
+      openFilePathNotifier.value = null;
+      selectedPathsNotifier.value = [];
+      heldPathsNotifier.value = [];
+      pastingNotifier.value = false;
+      controller.setCurrentPath = widget.path;
+    }
+  }
+
+  @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     openFilePathNotifier.dispose();
