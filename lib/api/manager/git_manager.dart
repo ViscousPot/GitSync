@@ -122,8 +122,7 @@ class GitManager {
     String? dirPath = null,
   }) async {
     final fnName = type.name;
-    Object? pendingNetworkError;
-    StackTrace? pendingNetworkStackTrace;
+    (Object, StackTrace)? pendingNetworkError;
 
     Future<T?> action() async {
       Future<T?> internalFn(dirPath) async {
@@ -134,14 +133,12 @@ class GitManager {
 
           if (isNetworkStallError(errorMsg)) {
             Logger.gmLog(type: type, "Network stall detected");
-            pendingNetworkError = e;
-            pendingNetworkStackTrace = stackTrace;
+            pendingNetworkError = (e, stackTrace);
             return null;
           }
           if (isNetworkUnavailableError(errorMsg) && !await hasNetworkConnection()) {
             Logger.gmLog(type: type, "Network unavailable");
-            pendingNetworkError = e;
-            pendingNetworkStackTrace = stackTrace;
+            pendingNetworkError = (e, stackTrace);
             return null;
           }
 
@@ -153,14 +150,12 @@ class GitManager {
               final retryMsg = retryError is AnyhowException ? retryError.message : retryError.toString();
               if (isNetworkStallError(retryMsg)) {
                 Logger.gmLog(type: type, "Network stall on retry");
-                pendingNetworkError = retryError;
-                pendingNetworkStackTrace = retryStackTrace;
+                pendingNetworkError = (retryError, retryStackTrace);
                 return null;
               }
               if (isNetworkUnavailableError(retryMsg) && !await hasNetworkConnection()) {
                 Logger.gmLog(type: type, "Network unavailable on retry");
-                pendingNetworkError = retryError;
-                pendingNetworkStackTrace = retryStackTrace;
+                pendingNetworkError = (retryError, retryStackTrace);
                 return null;
               }
               final errorContent = await _getErrorContent(retryMsg);
@@ -228,7 +223,7 @@ class GitManager {
     }
 
     if (pendingNetworkError != null) {
-      Error.throwWithStackTrace(pendingNetworkError!, pendingNetworkStackTrace ?? StackTrace.current);
+      Error.throwWithStackTrace(pendingNetworkError!.$1, pendingNetworkError!.$2);
     }
     return result;
   }
