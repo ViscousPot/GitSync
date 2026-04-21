@@ -266,7 +266,7 @@ class GitsyncService {
       bool innerError = false;
 
       await () async {
-        final gitDirPath = settingsManager.gitDirPath?.$1;
+        final gitDirPath = (await settingsManager.getGitDirPath())?.$1;
 
         if (gitDirPath == null) {
           Logger.gmLog(type: LogType.Sync, "Repository Not Found");

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:GitSync/api/ai_tools.dart';
 import 'package:GitSync/global.dart';
 
-String? _repoRoot(ToolContext? context) => context?.repoPath ?? uiSettingsManager.gitDirPath?.$1;
+Future<String?> _repoRoot(ToolContext? context) async => context?.repoPath ?? (await uiSettingsManager.getGitDirPath())?.$1;
 
-String? _resolve(String relativePath, ToolContext? context) {
-  final root = _repoRoot(context);
+Future<String?> _resolve(String relativePath, ToolContext? context) async {
+  final root = await _repoRoot(context);
   if (root == null || relativePath.contains('\x00')) return null;
   final joined = Uri.parse('$root/$relativePath').normalizePath().toFilePath();
   try {
@@ -47,7 +47,7 @@ class FileReadTool extends AiTool {
     final offset = (input['offset'] as int?) ?? 0;
     final limit = ((input['limit'] as int?) ?? 500).clamp(1, 500);
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
@@ -100,7 +100,7 @@ class FileWriteTool extends AiTool {
     final path = input['path'] as String;
     final content = input['content'] as String;
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
@@ -142,7 +142,7 @@ class FileEditTool extends AiTool {
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     final path = input['path'] as String;
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
@@ -203,10 +203,10 @@ class FileListTool extends AiTool {
     final recursive = (input['recursive'] as bool?) ?? false;
     final maxDepth = ((input['max_depth'] as int?) ?? 3).clamp(1, 5);
 
-    final root = _repoRoot(context);
+    final root = await _repoRoot(context);
     if (root == null) return err('No repository open');
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path');
 
     final dir = Directory(resolved);
@@ -257,10 +257,10 @@ class FileSearchTool extends AiTool {
     final path = (input['path'] as String?) ?? '.';
     final fileGlob = input['file_glob'] as String?;
 
-    final root = _repoRoot(context);
+    final root = await _repoRoot(context);
     if (root == null) return err('No repository open');
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path');
 
     final regex = RegExp(pattern, multiLine: true);

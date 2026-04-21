@@ -4,7 +4,9 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,14 +28,14 @@ const double _featureCardHeight =
     textSM * 1.5 +
     5 * (spaceXXXS * 2 + textMD * 1.5);
 
-class UnlockPremium extends StatefulWidget {
+class UnlockPremium extends ConsumerStatefulWidget {
   const UnlockPremium({super.key, this.onboarding = false});
   final bool onboarding;
   @override
-  State<UnlockPremium> createState() => _UnlockPremiumState();
+  ConsumerState<UnlockPremium> createState() => _UnlockPremiumState();
 }
 
-class _UnlockPremiumState extends State<UnlockPremium> {
+class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
   final pageController = PageController();
   int currentPage = 0;
   bool _restoringPurchase = false;
@@ -42,12 +44,12 @@ class _UnlockPremiumState extends State<UnlockPremium> {
   @override
   void initState() {
     super.initState();
-    if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+    if (mounted && ref.read(premiumStatusProvider) == true) {
       Navigator.pop(context, true);
     }
     initAsync(() async {
       await premiumManager.updateGitHubSponsorPremium();
-      if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+      if (mounted && ref.read(premiumStatusProvider) == true) {
         Navigator.pop(context, true);
       }
     });
@@ -209,7 +211,7 @@ class _UnlockPremiumState extends State<UnlockPremium> {
 
     await repoManager.setStringNullable(StorageKey.repoman_ghSponsorToken, result.$3);
     await premiumManager.updateGitHubSponsorPremium();
-    if (mounted && premiumManager.hasPremiumNotifier.value == true) {
+    if (mounted && ref.read(premiumStatusProvider) == true) {
       Navigator.pop(context, true);
     }
   }

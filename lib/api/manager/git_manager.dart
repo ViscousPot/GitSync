@@ -66,10 +66,25 @@ extension CommitJson on GitManagerRs.Commit {
   }
 }
 
+class OperationNotExecuted implements Exception {}
+
+int _requestIdCounter = 0;
+
 Future<T> runGitOperation<T>(LogType type, T Function(Map<String, dynamic>? event) transformer, [Map<String, dynamic>? arg]) async {
   if (!await FlutterBackgroundService().isRunning()) await FlutterBackgroundService().startService();
-  FlutterBackgroundService().invoke(type.name, arg);
-  final event = await FlutterBackgroundService().on(type.name).first;
+
+  final requestId = ++_requestIdCounter;
+  final invokeArgs = <String, dynamic>{if (arg != null) ...arg, '_rid': requestId};
+
+  final future = FlutterBackgroundService().on(type.name).firstWhere((event) {
+    final eventRid = event?['_rid'];
+    return eventRid == null || eventRid == requestId;
+  });
+
+  FlutterBackgroundService().invoke(type.name, invokeArgs);
+
+  final event = await future;
+  if (event?['_skipped'] == true) throw OperationNotExecuted();
   return transformer(event);
 }
 
@@ -112,8 +127,10 @@ class GitManager {
     String? dirPath = null,
   }) async {
     final fnName = type.name;
+    var actionCalled = false;
 
     Future<T?> action() async {
+      actionCalled = true;
       Future<T?> internalFn(dirPath) async {
         try {
           final result = await fn(dirPath);
@@ -142,7 +159,7 @@ class GitManager {
       T? result;
 
       if (dirPath == null) {
-        dirPath = setman.gitDirPath?.$1;
+        dirPath = (await setman.getGitDirPath())?.$1;
         if (dirPath == null) return null;
       }
       if (dirPath!.isNotEmpty) {
@@ -170,14 +187,17 @@ class GitManager {
     }
 
     try {
-      return await typedRunWithLock!(
+      final result = await typedRunWithLock!(
         queueDir: (await getApplicationSupportDirectory()).path,
         index: index,
         priority: priority,
         fnName: fnName,
         function: action,
       );
+      if (!actionCalled) throw OperationNotExecuted();
+      return result;
     } catch (e, stackTrace) {
+      if (e is OperationNotExecuted) rethrow;
       Logger.logError(type, e, stackTrace);
     }
     return null;
@@ -604,11 +624,6 @@ class GitManager {
       }
     });
 
-    if (result != null)
-      await setman.setStringList(
-        StorageKey.setman_recentCommits,
-        result.map((item) => stringToBase64.encode(jsonEncode(item.toJson()))).toList(),
-      );
     return result ?? <GitManagerRs.Commit>[];
   }
 
@@ -709,7 +724,7 @@ class GitManager {
   }
 
   static Future<String?> getBranchName({int? repoIndex}) async {
-    final result = await _runWithLock(priority: 1, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.BranchName, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.BranchName, (dirPath) async {
       try {
         return (await GitManagerRs.getBranchName(pathString: dirPath, log: _logWrapper));
       } catch (e, stackTrace) {
@@ -717,10 +732,6 @@ class GitManager {
         return repositoryNotFound;
       }
     });
-
-    final setman = await _resolveSettingsManager(repoIndex);
-    await setman.setStringNullable(StorageKey.setman_branchName, result);
-    return result;
   }
 
   static Future<List<(String, String)>> getBranchNames({int? repoIndex}) async {
@@ -741,7 +752,6 @@ class GitManager {
       return (parts[0], parts.length > 1 ? parts[1] : 'both');
     }).toList();
 
-    await setman.setStringList(StorageKey.setman_branchNames, parsed.map((e) => e.$1).toList());
     return parsed;
   }
 
@@ -996,7 +1006,7 @@ class GitManager {
 
   static Future<(String, String)?> getRemoteUrlLink({int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
-    final result = await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath) async {
       final remoteName = await setman.getRemote();
 
       try {
@@ -1042,12 +1052,6 @@ class GitManager {
         return null;
       }
     });
-
-    print("////?weee $result");
-
-    await setman.setStringList(StorageKey.setman_remoteUrlLink, result == null ? [] : [result.$1, result.$2]);
-
-    return result;
   }
 
   static String _convertToWebUrl(String remoteUrl) {

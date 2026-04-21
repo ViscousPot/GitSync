@@ -32,7 +32,7 @@ Future<void> showDialog(
 
   if (diffReferences.$2 == null) return;
 
-  final dirPath = await uiSettingsManager.gitDirPath?.$2;
+  final dirPath = (await uiSettingsManager.getGitDirPath())?.$2;
 
   Future<List<MapEntry<String, String>>> getDiffParts(GitManagerRs.Diff? diffSnapshotData) async {
     final diffFiles =

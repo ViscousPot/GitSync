@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +10,7 @@ import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/reactions.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -16,7 +18,7 @@ import 'package:GitSync/type/issue_detail.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class IssueDetailPage extends StatefulWidget {
+class IssueDetailPage extends ConsumerStatefulWidget {
   final GitProvider gitProvider;
   final String remoteWebUrl;
   final String accessToken;
@@ -35,10 +37,10 @@ class IssueDetailPage extends StatefulWidget {
   });
 
   @override
-  State<IssueDetailPage> createState() => _IssueDetailPageState();
+  ConsumerState<IssueDetailPage> createState() => _IssueDetailPageState();
 }
 
-class _IssueDetailPageState extends State<IssueDetailPage> {
+class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   IssueDetail? _detail;
   bool _loading = true;
   bool _togglingState = false;
@@ -97,7 +99,8 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
     final manager = _manager;
     if (manager == null) return;
 
-    final bodyWithFooter = await uiSettingsManager.applyPostFooter(body);
+    final footer = ref.read(postFooterProvider).valueOrNull ?? '';
+    final bodyWithFooter = footer.trim().isEmpty ? body : '$body\n$footer';
     final comment = await manager.addIssueComment(widget.accessToken, owner, repo, widget.issueNumber, bodyWithFooter);
     if (!mounted) return;
 

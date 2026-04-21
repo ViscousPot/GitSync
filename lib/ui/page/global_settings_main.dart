@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/api/accessibility_service_helper.dart';
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/api/manager/settings_manager.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
@@ -36,17 +37,16 @@ import '../dialog/change_language.dart' as ChangeLanguageDialog;
 import '../dialog/confirm_clear_data.dart' as ConfirmClearDataDialog;
 import '../dialog/enter_backup_restore_password.dart' as EnterBackupRestorePasswordDialog;
 
-class GlobalSettingsMain extends StatefulWidget {
-  const GlobalSettingsMain(this.recentCommits, {super.key, this.onboarding = false});
+class GlobalSettingsMain extends ConsumerStatefulWidget {
+  const GlobalSettingsMain({super.key, this.onboarding = false});
 
   final bool onboarding;
-  final List<GitManagerRs.Commit> recentCommits;
 
   @override
-  State<GlobalSettingsMain> createState() => _GlobalSettingsMain();
+  ConsumerState<GlobalSettingsMain> createState() => _GlobalSettingsMain();
 }
 
-class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   final _controller = ScrollController();
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
@@ -383,7 +383,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         if (selectedDirectory == null) return;
 
                         await useDirectory(selectedDirectory, (_) async {}, (path) async {
-                          await Navigator.of(context).push(createFileExplorerRoute(widget.recentCommits, path));
+                          await Navigator.of(context).push(createFileExplorerRoute(ref.read(recentCommitsProvider).valueOrNull ?? [], path));
                         });
                       },
                     ),
@@ -421,14 +421,12 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       ),
                     ),
                     SizedBox(height: spaceMD),
-                    FutureBuilder(
-                      future: repoManager.getBool(StorageKey.repoman_aiFeaturesEnabled),
-                      builder: (context, aiFeaturesEnabledSnapshot) => TextButton.icon(
-                        onPressed: () async {
-                          final next = !(aiFeaturesEnabledSnapshot.data ?? true);
-                          await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, next);
-                          aiFeaturesEnabled.value = next;
-                          if (mounted) setState(() {});
+                    Builder(
+                      builder: (context) {
+                        final aiEnabled = ref.watch(aiFeaturesEnabledProvider).valueOrNull ?? true;
+                        return TextButton.icon(
+                        onPressed: () {
+                          ref.read(aiFeaturesEnabledProvider.notifier).set(!aiEnabled);
                         },
                         style: ButtonStyle(
                           alignment: Alignment.centerLeft,
@@ -442,7 +440,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                         ),
                         iconAlignment: IconAlignment.end,
                         icon: FaIcon(
-                          (aiFeaturesEnabledSnapshot.data ?? true) ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                          aiEnabled ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
                           color: colours.primaryPositive,
                           size: textLG,
                         ),
@@ -453,7 +451,8 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                             style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
+                      );
+                      },
                     ),
                     if (Platform.isAndroid) ...[
                       SizedBox(height: spaceMD),
@@ -592,7 +591,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                           }
 
                           if (settingsManagerSettings.length > 1) {
-                            if (premiumManager.hasPremiumNotifier.value != true) {
+                            if (ref.read(premiumStatusProvider) != true) {
                               final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
                               if (result == true) {
                                 await importSettings();
@@ -945,21 +944,23 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                       ),
                     ),
                     SizedBox(height: spaceSM),
-                    ValueListenableBuilder(
-                      valueListenable: premiumManager.hasPremiumNotifier,
-                      builder: (context, hasPremium, child) => ButtonSetting(
-                        text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
-                        icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
-                        iconColor: colours.tertiaryPositive,
-                        onPressed: () async {
-                          if (hasPremium == true) {
-                            await launchUrl(Uri.parse(contributeLink));
-                          } else {
-                            final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
-                            if (result == true && mounted) setState(() {});
-                          }
-                        },
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final hasPremium = ref.watch(premiumStatusProvider);
+                        return ButtonSetting(
+                          text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
+                          icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
+                          iconColor: colours.tertiaryPositive,
+                          onPressed: () async {
+                            if (hasPremium == true) {
+                              await launchUrl(Uri.parse(contributeLink));
+                            } else {
+                              final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                              if (result == true && mounted) setState(() {});
+                            }
+                          },
+                        );
+                      },
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
@@ -1020,7 +1021,7 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
                           await uiSettingsManager.storage.deleteAll();
                           await repoManager.storage.deleteAll();
                           await uiSettingsManager.reinit();
-                          premiumManager.hasPremiumNotifier.value = false;
+                          ref.read(premiumStatusProvider.notifier).set(false);
 
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });
@@ -1041,14 +1042,13 @@ class _GlobalSettingsMain extends State<GlobalSettingsMain> with WidgetsBindingO
 
 @pragma('vm:entry-point')
 Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args) {
-  final argsMap = (args as Map).cast<String, dynamic>();
+  final args_ = Map<String, dynamic>.from(args as Map);
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => GlobalSettingsMain(
-        argsMap["recentCommits"].map<GitManagerRs.Commit>((path) => CommitJson.fromJson(jsonDecode(utf8.fuse(base64).decode("$path")))).toList(),
-        onboarding: argsMap["onboarding"] == true,
+        onboarding: args_["onboarding"] == true,
       ),
     ),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

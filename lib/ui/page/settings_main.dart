@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
@@ -16,20 +13,22 @@ import '../../../constant/dimens.dart';
 import '../../../constant/strings.dart';
 import '../../../global.dart';
 import '../../../ui/component/item_setting.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
+import 'package:GitSync/ui/component/provider_builder.dart';
 import 'package:GitSync/ui/dialog/import_priv_key.dart' as ImportPrivKeyDialog;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsMain extends StatefulWidget {
-  const SettingsMain(this.recentCommitStrings, {super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
+class SettingsMain extends ConsumerStatefulWidget {
+  const SettingsMain({super.key, this.showcaseAuthorDetails = false, this.openGlobalSettings});
 
-  final List<String> recentCommitStrings;
   final bool showcaseAuthorDetails;
   final VoidCallback? openGlobalSettings;
 
   @override
-  State<SettingsMain> createState() => _SettingsMain();
+  ConsumerState<SettingsMain> createState() => _SettingsMain();
 }
 
-class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   late AnimationController _pulseController;
   bool _borderVisible = false;
   final _controller = ScrollController();
@@ -37,7 +36,6 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
   bool atTop = true;
   bool unstaging = false;
   bool ignoreChanged = false;
-  String? gitDirPath;
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
 
@@ -82,11 +80,6 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
       });
     }
 
-    initAsync(() async {
-      gitDirPath = await uiSettingsManager.getStringNullable(StorageKey.setman_gitDirPath);
-      if (gitDirPath == "") gitDirPath = null;
-      if (mounted) setState(() {});
-    });
   }
 
   @override
@@ -190,7 +183,9 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                         ))([
                     SizedBox(height: spaceXXS),
                     SyncClientModeToggle(),
-                    gitDirPath == null
+                    ProviderBuilder<(String, String)?>(
+                      provider: gitDirPathProvider,
+                      builder: (context, gitDirPathAsync) => gitDirPathAsync.valueOrNull == null
                         ? SizedBox.shrink()
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,10 +344,11 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                               ),
                             ],
                           ),
+                    ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
-                      setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_syncMessage, value),
-                      getFn: () => uiSettingsManager.getSyncMessage(),
+                      setFn: (value) => ref.read(syncMessageProvider.notifier).set(value),
+                      getFn: () async => ref.read(syncMessageProvider).valueOrNull ?? "",
                       title: t.syncMessageLabel,
                       description: t.syncMessageDescription,
                       hint: defaultSyncMessage,
@@ -379,24 +375,24 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                       child: Column(
                         children: [
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorName, value.trim()),
-                            getFn: demo ? () async => "" : () => uiSettingsManager.getAuthorName(),
+                            setFn: (value) => ref.read(authorNameProvider.notifier).set(value.trim()),
+                            getFn: demo ? () async => "" : () async => ref.read(authorNameProvider).valueOrNull ?? "",
                             title: t.authorNameLabel,
                             description: t.authorNameDescription,
                             hint: t.authorName,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_authorEmail, value.trim()),
-                            getFn: demo ? () async => "" : () => uiSettingsManager.getAuthorEmail(),
+                            setFn: (value) => ref.read(authorEmailProvider.notifier).set(value.trim()),
+                            getFn: demo ? () async => "" : () async => ref.read(authorEmailProvider).valueOrNull ?? "",
                             title: t.authorEmailLabel,
                             description: t.authorEmailDescription,
                             hint: t.authorEmail,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
-                            setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_postFooter, value),
-                            getFn: () => uiSettingsManager.getPostFooter(),
+                            setFn: (value) => ref.read(postFooterProvider.notifier).set(value),
+                            getFn: () async => ref.read(postFooterProvider).valueOrNull ?? "",
                             title: t.postFooterLabel,
                             description: t.postFooterDescription,
                             hint: defaultPostFooter,
@@ -435,7 +431,7 @@ class _SettingsMain extends State<SettingsMain> with WidgetsBindingObserver, Tic
                             ),
                           ),
                         ))([
-                    ...gitDirPath == null
+                    ...ref.watch(gitDirPathProvider).valueOrNull == null
                         ? []
                         : [
                             TextButton(
@@ -609,7 +605,6 @@ Route<String?> createSettingsMainRoute(BuildContext context, Object? args) {
     settings: const RouteSettings(name: settings_main),
     pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
       builder: (context) => SettingsMain(
-        argsMap["recentCommits"].map<String>((path) => "$path").toList(),
         showcaseAuthorDetails: argsMap["showcaseAuthorDetails"] == true,
         openGlobalSettings: argsMap["openGlobalSettings"] as VoidCallback?,
       ),

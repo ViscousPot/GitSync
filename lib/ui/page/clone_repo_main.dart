@@ -6,6 +6,7 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/dialog/prompt_disable_ssl.dart' as PromptDisableSslDialog;
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../api/helper.dart';
 import '../../../api/manager/auth/git_provider_manager.dart';
@@ -20,16 +21,16 @@ import 'package:GitSync/ui/dialog/error_occurred.dart' as ErrorOccurredDialog;
 import '../../../ui/dialog/confirm_clone_overwrite.dart' as ConfirmCloneOverwriteDialog;
 import '../dialog/info_dialog.dart' as InfoDialog;
 
-class CloneRepoMain extends StatefulWidget {
+class CloneRepoMain extends ConsumerStatefulWidget {
   const CloneRepoMain({super.key, this.onboarding = false});
 
   final bool onboarding;
 
   @override
-  State<CloneRepoMain> createState() => _CloneRepoMain();
+  ConsumerState<CloneRepoMain> createState() => _CloneRepoMain();
 }
 
-class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObserver, TickerProviderStateMixin {
   final _controller = ScrollController();
   final searchController = TextEditingController();
   final cloneUrlController = TextEditingController();
@@ -170,7 +171,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
         await CloningRepositoryDialog.showDialog(context, repoUrl, selectedDirectory!, (result) async {
           if (result == null) {
             if (!mounted) return;
-            await setGitDirPathGetSubmodules(context, selectedDirectory!);
+            await setGitDirPathGetSubmodules(context, selectedDirectory!, ref);
             if (repoUrl.startsWith("http") && !repoUrl.startsWith("https")) {
               await PromptDisableSslDialog.showDialog(context, () async {
                 await runGitOperation(LogType.SetDisableSsl, (event) => event, {"disable": true});
@@ -644,7 +645,7 @@ class _CloneRepoMain extends State<CloneRepoMain> with WidgetsBindingObserver, T
                                       if (!isRepo) return;
 
                                       if (!mounted) return;
-                                      await setGitDirPathGetSubmodules(context, selectedDirectory);
+                                      await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
                                       await repoManager.setOnboardingStep(4);
                                       setState(() {});
 

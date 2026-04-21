@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:GitSync/api/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/dimens.dart';
@@ -66,7 +68,7 @@ class ChevronPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class ItemCommit extends StatefulWidget {
+class ItemCommit extends ConsumerStatefulWidget {
   const ItemCommit(this.commit, this.prevCommit, this.recentCommits, {this.gitProvider, this.remoteWebUrl, this.onRefresh, this.selectMode, this.selectedShas, this.onSelectModeRequested, super.key});
 
   final GitManagerRs.Commit commit;
@@ -80,10 +82,10 @@ class ItemCommit extends StatefulWidget {
   final VoidCallback? onSelectModeRequested;
 
   @override
-  State<ItemCommit> createState() => _ItemCommit();
+  ConsumerState<ItemCommit> createState() => _ItemCommit();
 }
 
-class _ItemCommit extends State<ItemCommit> {
+class _ItemCommit extends ConsumerState<ItemCommit> {
   late Timer _timer;
   late String _relativeCommitDate;
   bool _menuOpen = false;
@@ -192,9 +194,8 @@ class _ItemCommit extends State<ItemCommit> {
         }
       case 'cherry-pick':
         if (mounted) {
-          final currentBranch = await GitManager.getBranchName();
-          final branches = await GitManager.getBranchNames();
-          final localBranchNames = branches.map((e) => e.$1).toList();
+          final currentBranch = ref.read(branchNameProvider).valueOrNull;
+          final localBranchNames = ref.read(branchNamesProvider).valueOrNull?.keys.toList() ?? [];
           if (mounted) {
             await ConfirmCherryPickDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, currentBranch, localBranchNames, (targetBranch) async {
               await GitManager.cherryPickCommit(widget.commit.reference, targetBranch);

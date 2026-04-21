@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:markdown_widget/markdown_widget.dart';
@@ -11,19 +12,20 @@ import 'package:GitSync/api/ai_tools.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/constant/dimens.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/type/ai_chat.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 
 const _mono = TextStyle(fontFamily: "monospace", height: 1.6);
 
-class AiFeaturesPage extends StatefulWidget {
+class AiFeaturesPage extends ConsumerStatefulWidget {
   const AiFeaturesPage({super.key});
   @override
-  State<AiFeaturesPage> createState() => _AiFeaturesPageState();
+  ConsumerState<AiFeaturesPage> createState() => _AiFeaturesPageState();
 }
 
-class _AiFeaturesPageState extends State<AiFeaturesPage> {
+class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
   bool _initialized = false;
   String? _currentChatModel;
   String? _currentToolModel;
@@ -863,7 +865,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                             await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, null);
-                            aiKeyConfigured.value = false;
+                            ref.read(aiKeyConfiguredProvider.notifier).state = false;
                             aiChatService.clearConversation();
                             Navigator.pop(context, true);
                           },
@@ -1200,15 +1202,15 @@ class _AnimatedDotsState extends State<_AnimatedDots> with SingleTickerProviderS
   }
 }
 
-class _UninitializedPage extends StatefulWidget {
+class _UninitializedPage extends ConsumerStatefulWidget {
   final VoidCallback onSubscribe;
   const _UninitializedPage({required this.onSubscribe});
 
   @override
-  State<_UninitializedPage> createState() => _UninitializedPageState();
+  ConsumerState<_UninitializedPage> createState() => _UninitializedPageState();
 }
 
-class _UninitializedPageState extends State<_UninitializedPage> {
+class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1353,8 +1355,7 @@ class _UninitializedPageState extends State<_UninitializedPage> {
       ),
     );
     if (confirmed == true) {
-      await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, false);
-      aiFeaturesEnabled.value = false;
+      ref.read(aiFeaturesEnabledProvider.notifier).set(false);
     }
   }
 
@@ -1740,7 +1741,7 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                               await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, selectedChatModel);
                               await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, selectedToolModel);
                               await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, selectedWandModel);
-                              aiKeyConfigured.value = true;
+                              ref.read(aiKeyConfiguredProvider.notifier).state = true;
 
                               if (!dialogOpen) return;
                               Navigator.pop(context, true);

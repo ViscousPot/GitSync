@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,13 +10,14 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
 
-class CreatePrPage extends StatefulWidget {
+class CreatePrPage extends ConsumerStatefulWidget {
   final GitProvider gitProvider;
   final String remoteWebUrl;
   final String accessToken;
@@ -24,10 +26,10 @@ class CreatePrPage extends StatefulWidget {
   const CreatePrPage({super.key, required this.gitProvider, required this.remoteWebUrl, required this.accessToken, required this.githubAppOauth});
 
   @override
-  State<CreatePrPage> createState() => _CreatePrPageState();
+  ConsumerState<CreatePrPage> createState() => _CreatePrPageState();
 }
 
-class _CreatePrPageState extends State<CreatePrPage> {
+class _CreatePrPageState extends ConsumerState<CreatePrPage> {
   List<String> _branches = [];
   List<IssueTemplate> _templates = [];
   IssueTemplate? _selectedTemplate;
@@ -129,7 +131,8 @@ class _CreatePrPageState extends State<CreatePrPage> {
       return;
     }
 
-    final bodyWithFooter = await uiSettingsManager.applyPostFooter(_bodyController.text);
+    final footer = ref.read(postFooterProvider).valueOrNull ?? '';
+    final bodyWithFooter = footer.trim().isEmpty ? _bodyController.text : '${_bodyController.text}\n$footer';
     final result = await manager.createPullRequest(
       widget.accessToken,
       owner,
