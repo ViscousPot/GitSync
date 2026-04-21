@@ -224,7 +224,12 @@ class Logger {
 
     final deviceInfoEntries = await generateDeviceInfoEntries();
 
-    await GithubIssueReportDialog.showDialog(context, initialTitle: initialTitle, deviceInfoEntries: deviceInfoEntries, (title, description, minimalRepro, includeLogFiles) async {
+    await GithubIssueReportDialog.showDialog(context, initialTitle: initialTitle, deviceInfoEntries: deviceInfoEntries, (
+      title,
+      description,
+      minimalRepro,
+      includeLogFiles,
+    ) async {
       final logs = !includeLogFiles
           ? ""
           : utf8.decode(utf8.encode((await _generateLogs()).split("\n").reversed.join("\n")).take(62 * 1024).toList(), allowMalformed: true);
@@ -300,7 +305,10 @@ $logs
       ('Device Model', deviceModel),
       ('OS Version', osVersion),
       ('App Version', appVersion),
-      ('Git Provider', '${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}'),
+      (
+        'Git Provider',
+        '${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}${await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) ? " (scoped)" : ""}',
+      ),
       ('Repo URL', '${await uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink)}'),
     ];
 
