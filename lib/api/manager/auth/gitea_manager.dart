@@ -22,8 +22,9 @@ class GiteaManager extends GitProviderManager {
 
   bool get oAuthSupport => true;
 
+  @override
   get clientId => giteaClientId;
-  get clientSecret => giteaClientSecret;
+  @override
   get scopes => null;
 
   OAuth2Client get oauthClient => OAuth2Client(
@@ -209,30 +210,24 @@ class GiteaManager extends GitProviderManager {
     return [];
   }
 
-  Future<void> _getIssuesRequest(
-    String accessToken,
-    String url,
-    Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+  Future<void> _getIssuesRequest(String accessToken, String url, Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
         final List<Issue> issues = jsonArray
-            .map((item) => Issue(
-                  title: item["title"] ?? "",
-                  number: item["number"] ?? 0,
-                  isOpen: item["state"] == "open",
-                  authorUsername: item["user"]?["login"] ?? "",
-                  createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
-                  commentCount: item["comments"] ?? 0,
-                  labels: (item["labels"] as List<dynamic>?)
-                          ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                          .toList() ??
-                      [],
-                ))
+            .map(
+              (item) => Issue(
+                title: item["title"] ?? "",
+                number: item["number"] ?? 0,
+                isOpen: item["state"] == "open",
+                authorUsername: item["user"]?["login"] ?? "",
+                createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+                commentCount: item["comments"] ?? 0,
+                labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
+              ),
+            )
             .toList();
 
         updateCallback(issues);
@@ -344,22 +339,21 @@ class GiteaManager extends GitProviderManager {
           final PrState prState = isMerged
               ? PrState.merged
               : item["state"] == "open"
-                  ? PrState.open
-                  : PrState.closed;
+              ? PrState.open
+              : PrState.closed;
 
-          prs.add(PullRequest(
-            title: item["title"] ?? "",
-            number: item["number"] ?? 0,
-            state: prState,
-            authorUsername: item["user"]?["login"] ?? "",
-            createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
-            commentCount: item["comments"] ?? 0,
-            checkStatus: statuses[i],
-            labels: (item["labels"] as List<dynamic>?)
-                    ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                    .toList() ??
-                [],
-          ));
+          prs.add(
+            PullRequest(
+              title: item["title"] ?? "",
+              number: item["number"] ?? 0,
+              state: prState,
+              authorUsername: item["user"]?["login"] ?? "",
+              createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+              commentCount: item["comments"] ?? 0,
+              checkStatus: statuses[i],
+              labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
+            ),
+          );
         }
 
         updateCallback(prs);
@@ -399,24 +393,21 @@ class GiteaManager extends GitProviderManager {
     await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 
-  Future<void> _getTagsRequest(
-    String accessToken,
-    String url,
-    Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+  Future<void> _getTagsRequest(String accessToken, String url, Function(List<Tag>) updateCallback, Function(Function()?) nextPageCallback) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonArray = json.decode(utf8.decode(response.bodyBytes));
         final List<Tag> tags = jsonArray
-            .map((item) => Tag(
-                  name: item["name"] ?? "",
-                  sha: item["commit"]?["sha"] ?? "",
-                  createdAt: DateTime.tryParse(item["commit"]?["created"] ?? "") ?? DateTime.now(),
-                  message: (item["message"] as String?)?.isNotEmpty == true ? item["message"] as String : null,
-                ))
+            .map(
+              (item) => Tag(
+                name: item["name"] ?? "",
+                sha: item["commit"]?["sha"] ?? "",
+                createdAt: DateTime.tryParse(item["commit"]?["created"] ?? "") ?? DateTime.now(),
+                message: (item["message"] as String?)?.isNotEmpty == true ? item["message"] as String : null,
+              ),
+            )
             .toList();
 
         updateCallback(tags);
@@ -470,12 +461,14 @@ class GiteaManager extends GitProviderManager {
         final List<Release> releases = jsonArray.map((item) {
           final assetList = item["assets"] as List<dynamic>? ?? [];
           final assets = assetList
-              .map((a) => ReleaseAsset(
-                    name: a["name"] ?? "",
-                    downloadUrl: a["browser_download_url"] ?? "",
-                    size: a["size"] as int?,
-                    downloadCount: a["download_count"] as int?,
-                  ))
+              .map(
+                (a) => ReleaseAsset(
+                  name: a["name"] ?? "",
+                  downloadUrl: a["browser_download_url"] ?? "",
+                  size: a["size"] as int?,
+                  downloadCount: a["download_count"] as int?,
+                ),
+              )
               .toList();
 
           final targetCommitish = item["target_commitish"] as String? ?? "";
@@ -559,9 +552,7 @@ class GiteaManager extends GitProviderManager {
 
           final startedAt = DateTime.tryParse(item["run_started_at"] ?? "");
           final updatedAt = DateTime.tryParse(item["updated_at"] ?? "");
-          final Duration? duration = (startedAt != null && updatedAt != null && conclusion != null)
-              ? updatedAt.difference(startedAt)
-              : null;
+          final Duration? duration = (startedAt != null && updatedAt != null && conclusion != null) ? updatedAt.difference(startedAt) : null;
 
           final prs = item["pull_requests"] as List<dynamic>? ?? [];
           final int? prNumber = prs.isNotEmpty ? prs[0]["number"] as int? : null;
@@ -616,11 +607,15 @@ class GiteaManager extends GitProviderManager {
 
     try {
       final futures = <ShowcaseFeature, Future>{};
-      if (requested.contains(ShowcaseFeature.issues)) futures[ShowcaseFeature.issues] = httpGet(Uri.parse("$base/issues?state=open&type=issues&limit=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.pullRequests)) futures[ShowcaseFeature.pullRequests] = httpGet(Uri.parse("$base/pulls?state=open&limit=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.issues))
+        futures[ShowcaseFeature.issues] = httpGet(Uri.parse("$base/issues?state=open&type=issues&limit=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.pullRequests))
+        futures[ShowcaseFeature.pullRequests] = httpGet(Uri.parse("$base/pulls?state=open&limit=1"), headers: headers);
       if (requested.contains(ShowcaseFeature.tags)) futures[ShowcaseFeature.tags] = httpGet(Uri.parse("$base/tags?limit=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.releases)) futures[ShowcaseFeature.releases] = httpGet(Uri.parse("$base/releases?limit=1"), headers: headers);
-      if (requested.contains(ShowcaseFeature.actions)) futures[ShowcaseFeature.actions] = httpGet(Uri.parse("$base/actions/tasks?limit=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.releases))
+        futures[ShowcaseFeature.releases] = httpGet(Uri.parse("$base/releases?limit=1"), headers: headers);
+      if (requested.contains(ShowcaseFeature.actions))
+        futures[ShowcaseFeature.actions] = httpGet(Uri.parse("$base/actions/tasks?limit=1"), headers: headers);
 
       final results = await Future.wait(futures.values);
       final keys = futures.keys.toList();
@@ -711,13 +706,15 @@ class GiteaManager extends GitProviderManager {
             }
           } catch (_) {}
 
-          comments.add(IssueComment(
-            id: "${c["id"]}",
-            authorUsername: c["user"]?["login"] ?? "",
-            body: c["body"] ?? "",
-            createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
-            reactions: commentReactions,
-          ));
+          comments.add(
+            IssueComment(
+              id: "${c["id"]}",
+              authorUsername: c["user"]?["login"] ?? "",
+              body: c["body"] ?? "",
+              createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
+              reactions: commentReactions,
+            ),
+          );
         }
       }
 
@@ -729,10 +726,7 @@ class GiteaManager extends GitProviderManager {
         authorUsername: issue["user"]?["login"] ?? "",
         createdAt: DateTime.tryParse(issue["created_at"] ?? "") ?? DateTime.now(),
         body: issue["body"] ?? "",
-        labels: (issue["labels"] as List<dynamic>?)
-                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                .toList() ??
-            [],
+        labels: (issue["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
         reactions: reactions,
         comments: comments,
         viewerPermission: permission,
@@ -793,8 +787,8 @@ class GiteaManager extends GitProviderManager {
       final prState = isMerged
           ? PrState.merged
           : pr["state"] == "open"
-              ? PrState.open
-              : PrState.closed;
+          ? PrState.open
+          : PrState.closed;
 
       // Reactions
       List<IssueReaction> reactions = [];
@@ -816,13 +810,15 @@ class GiteaManager extends GitProviderManager {
         final commitList = json.decode(utf8.decode(commitsResp.bodyBytes)) as List<dynamic>;
         for (final c in commitList) {
           final sha = c["sha"] as String? ?? "";
-          commits.add(PrCommit(
-            sha: sha,
-            shortSha: sha.substring(0, sha.length.clamp(0, 7)),
-            message: c["commit"]?["message"] ?? "",
-            authorUsername: c["author"]?["login"] ?? c["commit"]?["author"]?["name"] ?? "",
-            createdAt: DateTime.tryParse(c["commit"]?["author"]?["date"] ?? c["created"] ?? "") ?? DateTime.now(),
-          ));
+          commits.add(
+            PrCommit(
+              sha: sha,
+              shortSha: sha.substring(0, sha.length.clamp(0, 7)),
+              message: c["commit"]?["message"] ?? "",
+              authorUsername: c["author"]?["login"] ?? c["commit"]?["author"]?["name"] ?? "",
+              createdAt: DateTime.tryParse(c["commit"]?["author"]?["date"] ?? c["created"] ?? "") ?? DateTime.now(),
+            ),
+          );
         }
       }
 
@@ -850,23 +846,22 @@ class GiteaManager extends GitProviderManager {
             }
           } catch (_) {}
 
-          commentList.add(IssueComment(
-            id: "${c["id"]}",
-            authorUsername: c["user"]?["login"] ?? "",
-            body: c["body"] ?? "",
-            createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
-            reactions: commentReactions,
-          ));
+          commentList.add(
+            IssueComment(
+              id: "${c["id"]}",
+              authorUsername: c["user"]?["login"] ?? "",
+              body: c["body"] ?? "",
+              createdAt: DateTime.tryParse(c["created_at"] ?? "") ?? DateTime.now(),
+              reactions: commentReactions,
+            ),
+          );
         }
       }
 
       // Fetch timeline for cross-references
       final List<PrTimelineItem> crossRefItems = [];
       try {
-        final timelineResp = await httpGet(
-          Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$prNumber/timeline"),
-          headers: headers,
-        );
+        final timelineResp = await httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues/$prNumber/timeline"), headers: headers);
         if (timelineResp.statusCode == 200) {
           final events = json.decode(utf8.decode(timelineResp.bodyBytes)) as List<dynamic>;
           for (final event in events) {
@@ -930,13 +925,15 @@ class GiteaManager extends GitProviderManager {
           final dels = f["deletions"] as int? ?? 0;
           totalAdditions += adds;
           totalDeletions += dels;
-          changedFiles.add(PrChangedFile(
-            filename: f["filename"] ?? "",
-            additions: adds,
-            deletions: dels,
-            status: f["status"] ?? "modified",
-            patch: f["patch"] as String?,
-          ));
+          changedFiles.add(
+            PrChangedFile(
+              filename: f["filename"] ?? "",
+              additions: adds,
+              deletions: dels,
+              status: f["status"] ?? "modified",
+              patch: f["patch"] as String?,
+            ),
+          );
         }
       }
 
@@ -946,10 +943,7 @@ class GiteaManager extends GitProviderManager {
       final headSha = pr["head"]?["sha"] as String? ?? "";
       if (headSha.isNotEmpty) {
         try {
-          final statusResp = await httpGet(
-            Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/commits/$headSha/status"),
-            headers: headers,
-          );
+          final statusResp = await httpGet(Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/commits/$headSha/status"), headers: headers);
           if (statusResp.statusCode == 200) {
             final statusData = json.decode(utf8.decode(statusResp.bodyBytes));
             final state = statusData["state"] as String? ?? "";
@@ -972,12 +966,14 @@ class GiteaManager extends GitProviderManager {
                 "failure" || "error" => "failure",
                 _ => null,
               };
-              checkRuns.add(PrCheckRun(
-                name: s["context"] ?? s["description"] ?? "",
-                status: crStatus,
-                conclusion: conclusion,
-                startedAt: DateTime.tryParse(s["created_at"] ?? ""),
-              ));
+              checkRuns.add(
+                PrCheckRun(
+                  name: s["context"] ?? s["description"] ?? "",
+                  status: crStatus,
+                  conclusion: conclusion,
+                  startedAt: DateTime.tryParse(s["created_at"] ?? ""),
+                ),
+              );
             }
           }
         } catch (_) {}
@@ -995,11 +991,13 @@ class GiteaManager extends GitProviderManager {
             "COMMENT" => PrReviewState.commented,
             _ => PrReviewState.pending,
           };
-          reviews.add(PrReview(
-            authorUsername: r["user"]?["login"] ?? "",
-            state: state,
-            createdAt: DateTime.tryParse(r["submitted_at"] ?? "") ?? DateTime.now(),
-          ));
+          reviews.add(
+            PrReview(
+              authorUsername: r["user"]?["login"] ?? "",
+              state: state,
+              createdAt: DateTime.tryParse(r["submitted_at"] ?? "") ?? DateTime.now(),
+            ),
+          );
         }
       }
 
@@ -1017,10 +1015,7 @@ class GiteaManager extends GitProviderManager {
         changedFileCount: changedFiles.length,
         state: prState,
         createdAt: DateTime.tryParse(pr["created_at"] ?? "") ?? DateTime.now(),
-        labels: (pr["labels"] as List<dynamic>?)
-                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                .toList() ??
-            [],
+        labels: (pr["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
         reactions: reactions,
         timelineItems: timelineItems,
         commits: commits,
@@ -1101,7 +1096,15 @@ class GiteaManager extends GitProviderManager {
   }
 
   @override
-  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+  Future<bool> removeReaction(
+    String accessToken,
+    String owner,
+    String repo,
+    int issueNumber,
+    String targetId,
+    String reaction,
+    bool isComment,
+  ) async {
     try {
       final String url;
       if (isComment) {
@@ -1124,7 +1127,15 @@ class GiteaManager extends GitProviderManager {
   }
 
   @override
-  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+  Future<CreateIssueResult?> createIssue(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body, {
+    List<String>? labels,
+    List<String>? assignees,
+  }) async {
     try {
       final response = await httpPost(
         Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/issues"),
@@ -1171,7 +1182,15 @@ class GiteaManager extends GitProviderManager {
   }
 
   @override
-  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+  Future<CreateIssueResult?> createPullRequest(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body,
+    String head,
+    String base,
+  ) async {
     try {
       final response = await httpPost(
         Uri.parse("https://$_domain/api/v1/repos/$owner/$repo/pulls"),
