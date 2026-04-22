@@ -29,6 +29,8 @@ class GithubManager extends GitProviderManager {
   @override
   get clientId => gitHubClientId;
   @override
+  get clientSecret => gitHubClientSecret;
+  @override
   get scopes => ["user", "user:email", "repo", "workflow", "read:org"];
   bool get supportsTokenRefresh => false;
 

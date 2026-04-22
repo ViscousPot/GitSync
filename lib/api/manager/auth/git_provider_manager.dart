@@ -56,7 +56,7 @@ class GitProviderManager {
   }
 
   String get clientId => "";
-  String get clientSecret => "";
+  String? get clientSecret => null;
   List<String>? get scopes => null;
 
   OAuth2Client get oauthClient => GitHubOAuth2Client(redirectUri: 'gitsync://auth', customUriScheme: 'gitsync');

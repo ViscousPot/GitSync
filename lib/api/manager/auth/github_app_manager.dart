@@ -11,6 +11,8 @@ class GithubAppManager extends GithubManager {
   @override
   get clientId => gitHubAppClientId;
   @override
+  get clientSecret => gitHubAppClientSecret;
+  @override
   bool get supportsTokenRefresh => true;
 
   Future<List<Map<String, dynamic>>> getGitHubAppInstallations(String accessToken) async {
