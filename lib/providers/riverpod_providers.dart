@@ -508,6 +508,7 @@ class PremiumStatusNotifier extends Notifier<bool?> {
     void listener() {
       state = premiumManager.hasPremiumNotifier.value;
     }
+
     premiumManager.hasPremiumNotifier.addListener(listener);
     ref.onDispose(() => premiumManager.hasPremiumNotifier.removeListener(listener));
     return premiumManager.hasPremiumNotifier.value;

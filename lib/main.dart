@@ -2072,1469 +2072,1791 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                             _tabIndex.value = 1;
                             _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                           }
-                    },
-                    child: child!,
+                        },
+                        child: child!,
+                      ),
+                      child: AiFeaturesPage(),
+                    ),
                   ),
-                  child: AiFeaturesPage(),
-                ),
-              ),
-              _KeepAlivePage(
-                child: ValueListenableBuilder(
-                  valueListenable: _homeCanPop,
-                  builder: (context, canPop, child) => PopScope(
-                    canPop: !canPop,
-                    onPopInvokedWithResult: (didPop, _) {
-                      if (!didPop && (_homeNavigatorKey.currentState?.canPop() ?? false)) {
-                        _homeNavigatorKey.currentState!.pop();
-                      }
-                    },
-                    child: child!,
-                  ),
-                  child: Navigator(
-                    key: _homeNavigatorKey,
-                    observers: [_NestedNavigatorObserver(_homeCanPop)],
-                    onGenerateRoute: (_) => MaterialPageRoute(
-                      builder: (context) => BetterOrientationBuilder(
-                        builder: (context, orientation) => SingleChildScrollView(
-                          scrollDirection: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
-                          child: ProviderBuilder<bool>(
-                            provider: clientModeEnabledProvider,
-                            builder: (context, clientModeEnabledAsync) {
-                              final clientModeEnabledValue = clientModeEnabledAsync.valueOrNull;
-                              return Container(
-                                width: orientation == Orientation.portrait
-                                    ? null
-                                    : MediaQuery.of(context).size.width -
-                                          (MediaQuery.of(context).systemGestureInsets.right > 0 || MediaQuery.of(context).systemGestureInsets.left > 0
-                                              ? (MediaQuery.of(context).systemGestureInsets.left > MediaQuery.of(context).systemGestureInsets.right
-                                                    ? (MediaQuery.of(context).systemGestureInsets.left -
-                                                          MediaQuery.of(context).systemGestureInsets.right)
-                                                    : (MediaQuery.of(context).systemGestureInsets.right -
-                                                          MediaQuery.of(context).systemGestureInsets.left))
-                                              : 0),
-                                padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
-                                child: Flex(
-                                  direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: <Widget>[
-                                    Expanded(
-                                      flex: orientation == Orientation.portrait ? 0 : 1,
-                                      child: CustomShowcase(
-                                        globalKey: _controlKey,
-                                        cornerRadius: cornerRadiusMD,
-                                        richContent: ShowcaseTooltipContent(
-                                          title: t.showcaseControlTitle,
-                                          subtitle: t.showcaseControlSubtitle,
-                                          featureRows: [
-                                            ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseControlFeatureSync),
-                                            ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseControlFeatureHistory),
-                                            ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleXmark, text: t.showcaseControlFeatureConflicts),
-                                            ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: t.showcaseControlFeatureMore),
-                                          ],
-                                        ),
-                                        child: ProviderBuilder<List<GitManagerRs.Commit>>(
-                                          provider: recentCommitsProvider,
-                                          builder: (context, recentCommitsAsync) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
-                                            provider: conflictingFilesProvider,
-                                            builder: (context, conflictingAsync) {
-                                              final recentCommits = recentCommitsAsync.valueOrNull ?? [];
-                                              final conflictingValue = conflictingAsync.valueOrNull ?? [];
-                                              final items = [
-                                                ...((conflictingValue.isEmpty)
-                                                    ? <GitManagerRs.Commit>[]
-                                                    : [
-                                                        GitManagerRs.Commit(
-                                                          timestamp: 0,
-                                                          authorUsername: "",
-                                                          authorEmail: "",
-                                                          reference: mergeConflictReference,
-                                                          commitMessage: "",
-                                                          additions: 0,
-                                                          deletions: 0,
-                                                          unpulled: false,
-                                                          unpushed: false,
-                                                          tags: [],
-                                                        ),
-                                                      ]),
-                                                ...recentCommits,
-                                              ];
-                                              if (conflictingValue.isEmpty) mergeConflictVisible.value = true;
+                _KeepAlivePage(
+                  child: ValueListenableBuilder(
+                    valueListenable: _homeCanPop,
+                    builder: (context, canPop, child) => PopScope(
+                      canPop: !canPop,
+                      onPopInvokedWithResult: (didPop, _) {
+                        if (!didPop && (_homeNavigatorKey.currentState?.canPop() ?? false)) {
+                          _homeNavigatorKey.currentState!.pop();
+                        }
+                      },
+                      child: child!,
+                    ),
+                    child: Navigator(
+                      key: _homeNavigatorKey,
+                      observers: [_NestedNavigatorObserver(_homeCanPop)],
+                      onGenerateRoute: (_) => MaterialPageRoute(
+                        builder: (context) => BetterOrientationBuilder(
+                          builder: (context, orientation) => SingleChildScrollView(
+                            scrollDirection: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
+                            child: ProviderBuilder<bool>(
+                              provider: clientModeEnabledProvider,
+                              builder: (context, clientModeEnabledAsync) {
+                                final clientModeEnabledValue = clientModeEnabledAsync.valueOrNull;
+                                return Container(
+                                  width: orientation == Orientation.portrait
+                                      ? null
+                                      : MediaQuery.of(context).size.width -
+                                            (MediaQuery.of(context).systemGestureInsets.right > 0 ||
+                                                    MediaQuery.of(context).systemGestureInsets.left > 0
+                                                ? (MediaQuery.of(context).systemGestureInsets.left > MediaQuery.of(context).systemGestureInsets.right
+                                                      ? (MediaQuery.of(context).systemGestureInsets.left -
+                                                            MediaQuery.of(context).systemGestureInsets.right)
+                                                      : (MediaQuery.of(context).systemGestureInsets.right -
+                                                            MediaQuery.of(context).systemGestureInsets.left))
+                                                : 0),
+                                  padding: EdgeInsets.only(left: spaceMD, right: spaceMD, bottom: orientation == Orientation.portrait ? 0 : spaceSM),
+                                  child: Flex(
+                                    direction: orientation == Orientation.portrait ? Axis.vertical : Axis.horizontal,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Expanded(
+                                        flex: orientation == Orientation.portrait ? 0 : 1,
+                                        child: CustomShowcase(
+                                          globalKey: _controlKey,
+                                          cornerRadius: cornerRadiusMD,
+                                          richContent: ShowcaseTooltipContent(
+                                            title: t.showcaseControlTitle,
+                                            subtitle: t.showcaseControlSubtitle,
+                                            featureRows: [
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseControlFeatureSync),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseControlFeatureHistory),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleXmark, text: t.showcaseControlFeatureConflicts),
+                                              ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: t.showcaseControlFeatureMore),
+                                            ],
+                                          ),
+                                          child: ProviderBuilder<List<GitManagerRs.Commit>>(
+                                            provider: recentCommitsProvider,
+                                            builder: (context, recentCommitsAsync) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
+                                              provider: conflictingFilesProvider,
+                                              builder: (context, conflictingAsync) {
+                                                final recentCommits = recentCommitsAsync.valueOrNull ?? [];
+                                                final conflictingValue = conflictingAsync.valueOrNull ?? [];
+                                                final items = [
+                                                  ...((conflictingValue.isEmpty)
+                                                      ? <GitManagerRs.Commit>[]
+                                                      : [
+                                                          GitManagerRs.Commit(
+                                                            timestamp: 0,
+                                                            authorUsername: "",
+                                                            authorEmail: "",
+                                                            reference: mergeConflictReference,
+                                                            commitMessage: "",
+                                                            additions: 0,
+                                                            deletions: 0,
+                                                            unpulled: false,
+                                                            unpushed: false,
+                                                            tags: [],
+                                                          ),
+                                                        ]),
+                                                  ...recentCommits,
+                                                ];
+                                                if (conflictingValue.isEmpty) mergeConflictVisible.value = true;
 
-                                              if (demoConflicting) {
-                                                while (items.length < 3) {
-                                                  items.add(
-                                                    GitManagerRs.Commit(
-                                                      timestamp: 0,
-                                                      authorUsername: "",
-                                                      authorEmail: "",
-                                                      reference: "REFERENCE${Random().nextInt(100)}",
-                                                      commitMessage: "",
-                                                      additions: 0,
-                                                      deletions: 0,
-                                                      unpulled: false,
-                                                      unpushed: false,
-                                                      tags: [],
-                                                    ),
+                                                if (demoConflicting) {
+                                                  while (items.length < 3) {
+                                                    items.add(
+                                                      GitManagerRs.Commit(
+                                                        timestamp: 0,
+                                                        authorUsername: "",
+                                                        authorEmail: "",
+                                                        reference: "REFERENCE${Random().nextInt(100)}",
+                                                        commitMessage: "",
+                                                        additions: 0,
+                                                        deletions: 0,
+                                                        unpulled: false,
+                                                        unpushed: false,
+                                                        tags: [],
+                                                      ),
+                                                    );
+                                                  }
+                                                  items[2] = GitManagerRs.Commit(
+                                                    timestamp: 0,
+                                                    authorUsername: "",
+                                                    authorEmail: "",
+                                                    reference: mergeConflictReference,
+                                                    commitMessage: "",
+                                                    additions: 0,
+                                                    deletions: 0,
+                                                    unpulled: false,
+                                                    unpushed: false,
+                                                    tags: [],
                                                   );
                                                 }
-                                                items[2] = GitManagerRs.Commit(
-                                                  timestamp: 0,
-                                                  authorUsername: "",
-                                                  authorEmail: "",
-                                                  reference: mergeConflictReference,
-                                                  commitMessage: "",
-                                                  additions: 0,
-                                                  deletions: 0,
-                                                  unpulled: false,
-                                                  unpushed: false,
-                                                  tags: [],
-                                                );
-                                              }
 
-                                              return Column(
-                                                verticalDirection: orientation == Orientation.portrait
-                                                    ? VerticalDirection.down
-                                                    : VerticalDirection.up,
-                                                children: [
-                                                  Expanded(
-                                                    flex: orientation == Orientation.portrait ? 0 : 1,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color: colours.secondaryDark,
-                                                        borderRadius: orientation == Orientation.portrait
-                                                            ? BorderRadius.only(
-                                                                topLeft: cornerRadiusMD,
-                                                                bottomLeft: cornerRadiusSM,
-                                                                topRight: cornerRadiusMD,
-                                                                bottomRight: cornerRadiusSM,
-                                                              )
-                                                            : BorderRadius.only(
-                                                                topLeft: cornerRadiusSM,
-                                                                bottomLeft: cornerRadiusMD,
-                                                                topRight: cornerRadiusSM,
-                                                                bottomRight: cornerRadiusMD,
-                                                              ),
-                                                      ),
-                                                      padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                                      child: Column(
-                                                        verticalDirection: orientation == Orientation.portrait
-                                                            ? VerticalDirection.down
-                                                            : VerticalDirection.up,
-                                                        children: [
-                                                          Expanded(
-                                                            flex: orientation == Orientation.portrait ? 0 : 1,
-                                                            child: Stack(
-                                                              clipBehavior: Clip.none,
-                                                              children: [
-                                                                Hero(
-                                                                  tag: hero_commits_list,
-                                                                  child: SizedBox(
-                                                                    height: orientation == Orientation.portrait ? 220 : double.infinity,
-                                                                    child: AnimatedBuilder(
-                                                                      animation: recentCommitsController,
-                                                                      builder: (context, _) => ShaderMask(
-                                                                        shaderCallback: (Rect rect) {
-                                                                          return LinearGradient(
-                                                                            begin: Alignment.topCenter,
-                                                                            end: Alignment.bottomCenter,
-                                                                            colors: [
-                                                                              Colors.black,
-                                                                              Colors.transparent,
-                                                                              Colors.transparent,
-                                                                              Colors.transparent,
-                                                                            ],
-                                                                            stops: [0.0, 0.1, 0.9, 1.0],
-                                                                          ).createShader(rect);
-                                                                        },
-                                                                        blendMode: BlendMode.dstOut,
-                                                                        child: recentCommits.isEmpty && recentCommitsAsync.isLoading
-                                                                            ? Center(child: CircularProgressIndicator(color: colours.tertiaryLight))
-                                                                            : (recentCommits.isEmpty && conflictingValue.isEmpty
-                                                                                  ? Center(
-                                                                                      child: Text(
-                                                                                        t.commitsNotFound.toUpperCase(),
-                                                                                        style: TextStyle(
-                                                                                          color: colours.secondaryLight,
-                                                                                          fontWeight: FontWeight.bold,
-                                                                                          fontSize: textLG,
-                                                                                        ),
-                                                                                      ),
-                                                                                    )
-                                                                                  : Column(
-                                                                                      children: [
-                                                                                        Expanded(
-                                                                                          child: Stack(
-                                                                                            children: [
-                                                                                              AnimatedListView(
-                                                                                                controller: recentCommitsController,
-                                                                                                reverse: true,
-                                                                                                items: items,
-                                                                                                isSameItem: (a, b) => a.reference == b.reference,
-                                                                                                removeDuration: Duration.zero,
-                                                                                                removeItemBuilder: (_, _) => SizedBox.shrink(),
-                                                                                                itemBuilder: (BuildContext context, int index) {
-                                                                                                  final reference = items[index].reference;
-
-                                                                                                  if (reference == mergeConflictReference) {
-                                                                                                    return AnchorItemWrapper(
-                                                                                                      index: index,
-                                                                                                      controller: recentCommitsController,
-                                                                                                      child: ItemMergeConflict(
-                                                                                                        key: Key(reference),
-                                                                                                        conflictingValue,
-                                                                                                        () => reloadAll(),
-                                                                                                        clientModeEnabledValue ?? false,
-                                                                                                      ),
-                                                                                                    );
-                                                                                                  }
-
-                                                                                                  return AnchorItemWrapper(
-                                                                                                    index: index,
-                                                                                                    controller: recentCommitsController,
-                                                                                                    child: Consumer(
-                                                                                                      builder: (context, ref, _) => ItemCommit(
-                                                                                                        key: Key(reference),
-                                                                                                        items[index],
-                                                                                                        index < items.length - 1
-                                                                                                            ? items[index + 1]
-                                                                                                            : null,
-                                                                                                        recentCommits,
-                                                                                                        gitProvider: ref
-                                                                                                            .watch(gitProviderProvider)
-                                                                                                            .valueOrNull,
-                                                                                                        remoteWebUrl: ref
-                                                                                                            .watch(remoteUrlLinkProvider)
-                                                                                                            .valueOrNull
-                                                                                                            ?.$2,
-                                                                                                        onRefresh: () => reloadAll(),
-                                                                                                        selectMode: _commitSelectMode,
-                                                                                                        selectedShas: _commitSelectedShas,
-                                                                                                        onSelectModeRequested: () {
-                                                                                                          _commitSelectMode.value = true;
-                                                                                                          _commitSelectedShas.value = {
-                                                                                                            items[index].reference,
-                                                                                                          };
-                                                                                                        },
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  );
-                                                                                                },
-                                                                                              ),
-                                                                                              ListenableBuilder(
-                                                                                                listenable: mergeConflictVisible,
-                                                                                                builder: (context, child) => AnimatedPositioned(
-                                                                                                  bottom:
-                                                                                                      conflictingValue.isEmpty ||
-                                                                                                          mergeConflictVisible.value
-                                                                                                      ? -spaceXL
-                                                                                                      : spaceMD,
-                                                                                                  left: 0,
-                                                                                                  right: 0,
-                                                                                                  width: null,
-                                                                                                  duration: animFast,
-                                                                                                  child: Center(
-                                                                                                    child: AnimatedOpacity(
-                                                                                                      duration: animFast,
-                                                                                                      opacity:
-                                                                                                          conflictingValue.isEmpty ||
-                                                                                                              mergeConflictVisible.value
-                                                                                                          ? 0
-                                                                                                          : 1,
-                                                                                                      child: TextButton(
-                                                                                                        onPressed: () async {
-                                                                                                          await recentCommitsController.animateTo(
-                                                                                                            0,
-                                                                                                            duration: animFast,
-                                                                                                            curve: Curves.easeInOut,
-                                                                                                          );
-                                                                                                          mergeConflictVisible.value = true;
-                                                                                                        },
-                                                                                                        style: ButtonStyle(
-                                                                                                          alignment: Alignment.centerLeft,
-                                                                                                          backgroundColor: WidgetStatePropertyAll(
-                                                                                                            colours.tertiaryNegative,
-                                                                                                          ),
-                                                                                                          padding: WidgetStatePropertyAll(
-                                                                                                            EdgeInsets.only(
-                                                                                                              top: spaceSM,
-                                                                                                              left: spaceSM,
-                                                                                                              right: spaceSM,
-                                                                                                              bottom: spaceXXXS,
-                                                                                                            ),
-                                                                                                          ),
-                                                                                                          shape: WidgetStatePropertyAll(
-                                                                                                            RoundedRectangleBorder(
-                                                                                                              borderRadius: BorderRadius.all(
-                                                                                                                cornerRadiusSM,
-                                                                                                              ),
-                                                                                                              side: BorderSide.none,
-                                                                                                            ),
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                        child: AnimatedContainer(
-                                                                                                          duration: animFast,
-                                                                                                          child: Column(
-                                                                                                            crossAxisAlignment:
-                                                                                                                CrossAxisAlignment.center,
-                                                                                                            mainAxisAlignment:
-                                                                                                                MainAxisAlignment.spaceBetween,
-                                                                                                            mainAxisSize: MainAxisSize.max,
-                                                                                                            children: [
-                                                                                                              Text(
-                                                                                                                t.mergeConflict.toUpperCase(),
-                                                                                                                style: TextStyle(
-                                                                                                                  color: colours.primaryDark,
-                                                                                                                  fontSize: textMD,
-                                                                                                                  overflow: TextOverflow.ellipsis,
-                                                                                                                  fontWeight: FontWeight.bold,
-                                                                                                                  height: 1,
-                                                                                                                ),
-                                                                                                              ),
-                                                                                                              FaIcon(
-                                                                                                                FontAwesomeIcons.caretDown,
-                                                                                                                color: colours.primaryDark,
-                                                                                                                size: textMD,
-                                                                                                              ),
-                                                                                                            ],
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ],
-                                                                                          ),
-                                                                                        ),
-                                                                                      ],
-                                                                                    )),
-                                                                      ),
-                                                                    ),
-                                                                  ),
+                                                return Column(
+                                                  verticalDirection: orientation == Orientation.portrait
+                                                      ? VerticalDirection.down
+                                                      : VerticalDirection.up,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: orientation == Orientation.portrait ? 0 : 1,
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                          color: colours.secondaryDark,
+                                                          borderRadius: orientation == Orientation.portrait
+                                                              ? BorderRadius.only(
+                                                                  topLeft: cornerRadiusMD,
+                                                                  bottomLeft: cornerRadiusSM,
+                                                                  topRight: cornerRadiusMD,
+                                                                  bottomRight: cornerRadiusSM,
+                                                                )
+                                                              : BorderRadius.only(
+                                                                  topLeft: cornerRadiusSM,
+                                                                  bottomLeft: cornerRadiusMD,
+                                                                  topRight: cornerRadiusSM,
+                                                                  bottomRight: cornerRadiusMD,
                                                                 ),
-                                                                ...(recentCommits.isNotEmpty == true && ref.watch(isLoadingCommitsProvider))
-                                                                    ? [
-                                                                        Positioned(
-                                                                          top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
-                                                                          left: 0,
-                                                                          right: 0,
-                                                                          child: LinearProgressIndicator(
-                                                                            value: null,
-                                                                            backgroundColor: colours.secondaryDark,
-                                                                            color: colours.tertiaryDark,
-                                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                          ),
-                                                                        ),
-                                                                      ]
-                                                                    : [],
-                                                                ProviderBuilder<bool>(
-                                                                  provider: isAuthenticatedProvider,
-                                                                  builder: (context, authAsync) {
-                                                                    if (authAsync.valueOrNull != true) return SizedBox.shrink();
-                                                                    return Positioned(
-                                                                      top: orientation == Orientation.portrait ? -spaceXS : null,
-                                                                      bottom: orientation == Orientation.portrait ? null : -spaceXS,
-                                                                      left: -spaceSM,
-                                                                      child: Stack(
-                                                                        children: [
-                                                                          Hero(
-                                                                            tag: hero_expand_contract,
-                                                                            flightShuttleBuilder:
-                                                                                (
-                                                                                  flightContext,
-                                                                                  animation,
-                                                                                  flightDirection,
-                                                                                  fromHeroContext,
-                                                                                  toHeroContext,
-                                                                                ) {
-                                                                                  return AnimatedBuilder(
-                                                                                    animation: animation,
-                                                                                    builder: (context, _) {
-                                                                                      final icon = flightDirection == HeroFlightDirection.push
-                                                                                          ? (animation.value < 0.5
-                                                                                                ? FontAwesomeIcons.upRightAndDownLeftFromCenter
-                                                                                                : FontAwesomeIcons.downLeftAndUpRightToCenter)
-                                                                                          : (animation.value < 0.5
-                                                                                                ? FontAwesomeIcons.downLeftAndUpRightToCenter
-                                                                                                : FontAwesomeIcons.upRightAndDownLeftFromCenter);
-                                                                                      return IconButton(
-                                                                                        padding: EdgeInsets.all(spaceSM),
-                                                                                        style: ButtonStyle(
-                                                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                                          shape: WidgetStatePropertyAll(
-                                                                                            RoundedRectangleBorder(
-                                                                                              borderRadius: BorderRadius.all(
-                                                                                                cornerRadiusSM,
-                                                                                              ).copyWith(topLeft: cornerRadiusMD),
-                                                                                            ),
-                                                                                          ),
-                                                                                          backgroundColor: WidgetStatePropertyAll(
-                                                                                            colours.secondaryDark.withOpacity(0.5),
-                                                                                          ),
-                                                                                        ),
-                                                                                        constraints: BoxConstraints(),
-                                                                                        onPressed: null,
-                                                                                        icon: FaIcon(icon, size: textMD, color: colours.primaryLight),
-                                                                                      );
-                                                                                    },
-                                                                                  );
-                                                                                },
-                                                                            child: IconButton(
-                                                                              padding: EdgeInsets.all(spaceSM),
-                                                                              style: ButtonStyle(
-                                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                                shape: WidgetStatePropertyAll(
-                                                                                  RoundedRectangleBorder(
-                                                                                    borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
-                                                                                      topLeft: orientation == Orientation.portrait
-                                                                                          ? cornerRadiusMD
-                                                                                          : cornerRadiusSM,
-                                                                                      bottomLeft: orientation == Orientation.portrait
-                                                                                          ? cornerRadiusSM
-                                                                                          : cornerRadiusMD,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                backgroundColor: WidgetStatePropertyAll(
-                                                                                  colours.secondaryDark.withOpacity(0.5),
-                                                                                ),
-                                                                              ),
-                                                                              constraints: BoxConstraints(),
-                                                                              onPressed: () => _navigateToExpandedCommits(
-                                                                                initialScrollOffset: recentCommitsController.offset,
-                                                                              ),
-                                                                              icon: FaIcon(
-                                                                                FontAwesomeIcons.upRightAndDownLeftFromCenter,
-                                                                                size: textMD,
-                                                                                color: colours.primaryLight,
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          CommitSelectActionBar(
-                                                                            selectMode: _commitSelectMode,
-                                                                            selectedShas: _commitSelectedShas,
-                                                                            commits: recentCommits,
-                                                                            onReloadAll: () => reloadAll(),
-                                                                            onExitSelectMode: _exitCommitSelectMode,
-                                                                            borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
-                                                                              topLeft: orientation == Orientation.portrait
-                                                                                  ? cornerRadiusMD
-                                                                                  : cornerRadiusSM,
-                                                                              bottomLeft: orientation == Orientation.portrait
-                                                                                  ? cornerRadiusSM
-                                                                                  : cornerRadiusMD,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
-
-                                                          ProviderBuilder<String?>(
-                                                            provider: branchNameProvider,
-                                                            builder: (context, branchNameAsync) => ProviderBuilder<Map<String, String>>(
-                                                              provider: branchNamesProvider,
-                                                              builder: (context, branchNamesAsync) => ProviderBuilder<bool>(
-                                                                provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
-                                                                builder: (context, hasConflictsAsync) {
-                                                                  final branchNameValue = branchNameAsync.valueOrNull;
-                                                                  final branchNamesMap = branchNamesAsync.valueOrNull ?? {};
-                                                                  final hasBranch = branchNamesMap.containsKey(branchNameValue);
-
-                                                                  return BranchSelector(
-                                                                    branchName: branchNameValue,
-                                                                    branchNames: branchNamesMap,
-                                                                    hasConflicts: hasConflictsAsync.valueOrNull ?? false,
-                                                                    onCheckoutBranch: (item) async {
-                                                                      await runGitOperation(LogType.CheckoutBranch, (event) => event, {
-                                                                        "branchName": item,
-                                                                      });
-                                                                      await reloadAll();
-                                                                    },
-                                                                    onRenameBranch: (item, newName) async {
-                                                                      await runGitOperation(LogType.RenameBranch, (event) => event, {
-                                                                        "oldName": item,
-                                                                        "newName": newName,
-                                                                      });
-                                                                      await reloadAll();
-                                                                    },
-                                                                    onDeleteBranch: (item) async {
-                                                                      await runGitOperation(LogType.DeleteBranch, (event) => event, {
-                                                                        "branchName": item,
-                                                                      });
-                                                                      await reloadAll();
-                                                                    },
-                                                                    onCreateBranch: hasBranch
-                                                                        ? () {
-                                                                            CreateBranchDialog.showDialog(
-                                                                              context,
-                                                                              branchNameValue,
-                                                                              branchNamesMap.keys.toList(),
-                                                                              (branchNameValue, basedOn) async {
-                                                                                await runGitOperation(LogType.CreateBranch, (event) => event, {
-                                                                                  "branchName": branchNameValue,
-                                                                                  "basedOn": basedOn,
-                                                                                });
-                                                                                await syncOptionCompletionCallback();
-                                                                              },
-                                                                            );
-                                                                          }
-                                                                        : null,
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                          AnimatedSize(
-                                                            duration: animFast,
-                                                            child: ProviderBuilder<Map<ShowcaseFeature, int?>>(
-                                                              provider: featureCountsProvider,
-                                                              builder: (context, featureCountsAsync) => Consumer(
-                                                                builder: (context, ref, _) {
-                                                                  final countsMap = featureCountsAsync.valueOrNull ?? {};
-                                                                  final featureCountsLoading = featureCountsAsync.isLoading;
-                                                                  final gitProviderValue =
-                                                                      ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
-                                                                  final webUrl = ref.watch(remoteUrlLinkProvider).valueOrNull?.$2;
-                                                                  final authenticated = ref.watch(isAuthenticatedProvider).valueOrNull ?? false;
-                                                                  final gitDirPath = ref.watch(gitDirPathProvider).valueOrNull;
-                                                                  return FutureBuilder<List<String>>(
-                                                                    future: uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures),
-                                                                    builder: (context, snapshot) {
-                                                                      final data = snapshot.data;
-                                                                      if (data == null) return SizedBox(width: double.infinity, height: 0);
-                                                                      if (!gitProviderValue.isOAuthProvider || !authenticated || gitDirPath == null) {
-                                                                        return SizedBox(width: double.infinity, height: 0);
-                                                                      }
-                                                                      final pinned = ShowcaseFeature.fromStorageKeys(data);
-                                                                      if (pinned.length == 1) {
-                                                                        return Hero(
-                                                                          tag: heroShowcaseFeature(pinned[0].storageKey),
-                                                                          child: ShowcaseFeatureButton(
-                                                                            feature: pinned[0],
-                                                                            gitProvider: gitProviderValue,
-                                                                            count: countsMap[pinned[0]],
-                                                                            countLoading: featureCountsLoading,
-                                                                            onAdd: resolveFeatureOnAdd(
-                                                                              context: context,
-                                                                              feature: pinned[0],
-                                                                              gitProvider: gitProviderValue,
-                                                                              remoteWebUrl: webUrl,
-                                                                            ),
-                                                                            onPressed: () => _navigateToExpandedCommits(
-                                                                              initialScrollOffset: recentCommitsController.offset,
-                                                                              pendingFeature: pinned[0],
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      }
-                                                                      return Row(
-                                                                        children: [
-                                                                          Expanded(
-                                                                            child: Hero(
-                                                                              tag: heroShowcaseFeature(pinned[0].storageKey),
-                                                                              child: ShowcaseFeatureButton(
-                                                                                feature: pinned[0],
-                                                                                gitProvider: gitProviderValue,
-                                                                                count: countsMap[pinned[0]],
-                                                                                countLoading: featureCountsLoading,
-                                                                                onAdd: resolveFeatureOnAdd(
-                                                                                  context: context,
-                                                                                  feature: pinned[0],
-                                                                                  gitProvider: gitProviderValue,
-                                                                                  remoteWebUrl: webUrl,
-                                                                                ),
-                                                                                onPressed: () => _navigateToExpandedCommits(
-                                                                                  initialScrollOffset: recentCommitsController.offset,
-                                                                                  pendingFeature: pinned[0],
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(width: spaceXS),
-                                                                          Expanded(
-                                                                            child: Hero(
-                                                                              tag: heroShowcaseFeature(pinned[1].storageKey),
-                                                                              child: ShowcaseFeatureButton(
-                                                                                feature: pinned[1],
-                                                                                gitProvider: gitProviderValue,
-                                                                                count: countsMap[pinned[1]],
-                                                                                countLoading: featureCountsLoading,
-                                                                                onAdd: resolveFeatureOnAdd(
-                                                                                  context: context,
-                                                                                  feature: pinned[1],
-                                                                                  gitProvider: gitProviderValue,
-                                                                                  remoteWebUrl: webUrl,
-                                                                                ),
-                                                                                onPressed: () => _navigateToExpandedCommits(
-                                                                                  initialScrollOffset: recentCommitsController.offset,
-                                                                                  pendingFeature: pinned[1],
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: spaceSM),
-                                                  ProviderBuilder<(String, String)?>(
-                                                    provider: gitDirPathProvider,
-                                                    builder: (context, gitDirPathAsync) {
-                                                      final gitDirPath = gitDirPathAsync.valueOrNull;
-                                                      return ValueListenableBuilder(
-                                                        valueListenable: syncOptions,
-                                                        builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
-                                                          provider: recommendedActionProvider,
-                                                          builder: (context, recommendedActionAsync) {
-                                                            final recommendedActionValue = recommendedActionAsync.valueOrNull;
-                                                            return FutureBuilder(
-                                                              future: getLastSyncOption(recommendedActionValue),
-                                                              builder: (context, lastSyncMethodSnapshot) => Column(
-                                                                children: [
-                                                                  IntrinsicHeight(
-                                                                    child: Row(
-                                                                      mainAxisSize: MainAxisSize.max,
-                                                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                                      children: [
-                                                                        Expanded(
-                                                                          child: Stack(
-                                                                            children: [
-                                                                              SizedBox.expand(
-                                                                                child: TextButton.icon(
-                                                                                  key: syncMethodMainButtonKey,
-                                                                                  onPressed: gitDirPath?.$2 == null
-                                                                                      ? null
-                                                                                      : () async {
-                                                                                          if (lastSyncMethodSnapshot.data == null) return;
-
-                                                                                          if (syncOptionsSnapshot.containsKey(
-                                                                                                lastSyncMethodSnapshot.data,
-                                                                                              ) ==
-                                                                                              true) {
-                                                                                            syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
-                                                                                          } else {
-                                                                                            await syncOptionsSnapshot.values.first.$2();
-                                                                                          }
-                                                                                        },
-                                                                                  style: ButtonStyle(
-                                                                                    alignment: Alignment.centerLeft,
-                                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                                    padding: WidgetStatePropertyAll(
-                                                                                      EdgeInsets.symmetric(horizontal: spaceMD),
-                                                                                    ),
-                                                                                    shape: WidgetStatePropertyAll(
-                                                                                      RoundedRectangleBorder(
-                                                                                        borderRadius: orientation == Orientation.portrait
-                                                                                            ? BorderRadius.only(
-                                                                                                topLeft: cornerRadiusSM,
-                                                                                                topRight: cornerRadiusSM,
-                                                                                                bottomLeft: cornerRadiusMD,
-                                                                                                bottomRight: clientModeEnabledValue == true
-                                                                                                    ? cornerRadiusMD
-                                                                                                    : cornerRadiusSM,
-                                                                                              )
-                                                                                            : BorderRadius.only(
-                                                                                                topLeft: cornerRadiusMD,
-                                                                                                bottomRight: cornerRadiusSM,
-                                                                                                bottomLeft: cornerRadiusSM,
-                                                                                                topRight: clientModeEnabledValue == true
-                                                                                                    ? cornerRadiusMD
-                                                                                                    : cornerRadiusSM,
-                                                                                              ),
-                                                                                        side: BorderSide.none,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  icon: Stack(
-                                                                                    clipBehavior: Clip.none,
-                                                                                    children: [
-                                                                                      if (clientModeEnabledValue == true)
-                                                                                        Positioned(
-                                                                                          top: -spaceXXS,
-                                                                                          bottom: -spaceXXS,
-                                                                                          left: -spaceXXS,
-                                                                                          right: -spaceXXS,
-                                                                                          child: ProviderBuilder<int?>(
-                                                                                            provider: recommendedActionProvider,
-                                                                                            builder: (context, value) => value.isLoading
-                                                                                                ? CircularProgressIndicator(
-                                                                                                    color: colours.tertiaryDark,
-                                                                                                  )
-                                                                                                : SizedBox.shrink(),
-                                                                                          ),
-                                                                                        ),
-                                                                                      SizedBox(
-                                                                                        height: textLG,
-                                                                                        width: textLG,
-                                                                                        child: Center(
-                                                                                          child: FaIcon(
-                                                                                            gitDirPath?.$2 == null
-                                                                                                ? FontAwesomeIcons.solidCircleDown
-                                                                                                : syncOptionsSnapshot[lastSyncMethodSnapshot.data]
-                                                                                                          ?.$1 ??
-                                                                                                      (syncOptionsSnapshot.values.isNotEmpty
-                                                                                                          ? syncOptionsSnapshot.values.first.$1
-                                                                                                          : null) ??
-                                                                                                      FontAwesomeIcons.solidCircleDown,
-                                                                                            color: gitDirPath?.$2 == null
-                                                                                                ? colours.secondaryLight
-                                                                                                : colours.primaryLight,
-                                                                                            size: textLG,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                  label: Padding(
-                                                                                    padding: EdgeInsets.only(left: spaceXS),
-                                                                                    child: Text(
-                                                                                      (gitDirPath?.$2 == null
-                                                                                              ? (clientModeEnabledValue == true
-                                                                                                    ? t.syncAllChanges
-                                                                                                    : t.syncNow)
-                                                                                              : ((syncOptionsSnapshot.containsKey(
-                                                                                                              lastSyncMethodSnapshot.data,
-                                                                                                            ) ==
-                                                                                                            true
-                                                                                                        ? lastSyncMethodSnapshot.data
-                                                                                                        : (syncOptionsSnapshot.keys.isNotEmpty
-                                                                                                              ? syncOptionsSnapshot.keys.first
-                                                                                                              : (clientModeEnabledValue == true
-                                                                                                                    ? t.syncAllChanges
-                                                                                                                    : t.syncNow))) ??
-                                                                                                    t.syncNow))
-                                                                                          .toUpperCase(),
-                                                                                      style: TextStyle(
-                                                                                        color: gitDirPath?.$2 == null
-                                                                                            ? colours.secondaryLight
-                                                                                            : (clientModeEnabledValue == true &&
-                                                                                                      recommendedActionValue != null &&
-                                                                                                      recommendedActionValue >= 0
-                                                                                                  ? colours.tertiaryInfo
-                                                                                                  : colours.primaryLight),
-                                                                                        fontSize: textMD,
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                              Positioned(
-                                                                                right: 0,
-                                                                                top: 0,
-                                                                                bottom: 0,
-                                                                                child: IconButton(
-                                                                                  onPressed: gitDirPath?.$2 == null
-                                                                                      ? null
-                                                                                      : () async {
-                                                                                          if (demo) {
-                                                                                            demoConflicting = true;
-                                                                                            await reloadAll();
-                                                                                            MergeConflictDialog.showDialog(context, [
-                                                                                              ("Readme.md", GitManagerRs.ConflictType.text),
-                                                                                            ]).then((_) async {
-                                                                                              demoConflicting = false;
-                                                                                              await reloadAll();
-                                                                                            });
-
-                                                                                            return;
-                                                                                          }
-
-                                                                                          GestureDetector? detector;
-
-                                                                                          void searchForGestureDetector(BuildContext? element) {
-                                                                                            element?.visitChildElements((element) {
-                                                                                              if (element.widget is GestureDetector) {
-                                                                                                detector = element.widget as GestureDetector;
-                                                                                                return;
-                                                                                              } else {
-                                                                                                searchForGestureDetector(element);
-                                                                                              }
-
-                                                                                              return;
-                                                                                            });
-                                                                                          }
-
-                                                                                          searchForGestureDetector(
-                                                                                            syncMethodsDropdownKey.currentContext,
-                                                                                          );
-
-                                                                                          if (detector?.onTap != null) detector?.onTap!();
-                                                                                        },
-
-                                                                                  style: ButtonStyle(
-                                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                                    padding: WidgetStatePropertyAll(
-                                                                                      EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                                    ),
-                                                                                    shape: WidgetStatePropertyAll(
-                                                                                      RoundedRectangleBorder(
-                                                                                        borderRadius: orientation == Orientation.portrait
-                                                                                            ? BorderRadius.only(
-                                                                                                topLeft: cornerRadiusSM,
-                                                                                                topRight: cornerRadiusSM,
-                                                                                                bottomLeft: cornerRadiusMD,
-                                                                                                bottomRight: clientModeEnabledValue == true
-                                                                                                    ? cornerRadiusMD
-                                                                                                    : cornerRadiusSM,
-                                                                                              )
-                                                                                            : BorderRadius.only(
-                                                                                                topLeft: cornerRadiusMD,
-                                                                                                bottomRight: cornerRadiusSM,
-                                                                                                bottomLeft: cornerRadiusSM,
-                                                                                                topRight: clientModeEnabledValue == true
-                                                                                                    ? cornerRadiusMD
-                                                                                                    : cornerRadiusSM,
-                                                                                              ),
-                                                                                        side: BorderSide.none,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  icon: FaIcon(
-                                                                                    FontAwesomeIcons.ellipsis,
-                                                                                    color: gitDirPath?.$2 == null
-                                                                                        ? colours.secondaryLight
-                                                                                        : colours.primaryLight,
-                                                                                    size: textLG,
-                                                                                    semanticLabel: t.moreSyncOptionsLabel,
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(width: spaceSM),
-                                                                        IconButton(
-                                                                          onPressed: () {
-                                                                            _openSettingsMain();
-                                                                          },
-                                                                          style: ButtonStyle(
-                                                                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                            padding: WidgetStatePropertyAll(
-                                                                              EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                            ),
-                                                                            shape: WidgetStatePropertyAll(
-                                                                              RoundedRectangleBorder(
-                                                                                borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                                side: BorderSide.none,
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          icon: FaIcon(
-                                                                            FontAwesomeIcons.gear,
-                                                                            color: colours.primaryLight,
-                                                                            size: textLG,
-                                                                            semanticLabel: t.repositorySettingsLabel,
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(width: spaceSM),
-                                                                        ProviderBuilder<bool>(
-                                                                          provider: syncMessageEnabledProvider,
-                                                                          builder: (context, syncMsgEnabledAsync) {
-                                                                            final syncMsgEnabled = syncMsgEnabledAsync.valueOrNull;
-                                                                            return IconButton(
-                                                                              onPressed: () async {
-                                                                                if (!(syncMsgEnabled ?? false)) {
-                                                                                  if (!(await Permission.notification.request().isGranted)) return;
-                                                                                }
-
-                                                                                ref
-                                                                                    .read(syncMessageEnabledProvider.notifier)
-                                                                                    .set(!(syncMsgEnabled ?? false));
-                                                                              },
-                                                                              style: ButtonStyle(
-                                                                                backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                                padding: WidgetStatePropertyAll(
-                                                                                  EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                                ),
-                                                                                shape: WidgetStatePropertyAll(
-                                                                                  RoundedRectangleBorder(
-                                                                                    borderRadius: orientation == Orientation.portrait
-                                                                                        ? BorderRadius.only(
-                                                                                            topLeft: cornerRadiusSM,
-                                                                                            topRight: cornerRadiusSM,
-                                                                                            bottomLeft: cornerRadiusSM,
-                                                                                            bottomRight: cornerRadiusMD,
-                                                                                          )
-                                                                                        : BorderRadius.only(
-                                                                                            topLeft: cornerRadiusSM,
-                                                                                            topRight: cornerRadiusMD,
-                                                                                            bottomLeft: cornerRadiusSM,
-                                                                                            bottomRight: cornerRadiusSM,
-                                                                                          ),
-                                                                                    side: BorderSide.none,
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                              icon: Stack(
-                                                                                alignment: Alignment.center,
-                                                                                children: [
-                                                                                  FaIcon(
-                                                                                    FontAwesomeIcons.solidBellSlash,
-                                                                                    color: Colors.transparent,
-                                                                                    size: textLG - 2,
-                                                                                  ),
-                                                                                  FaIcon(
-                                                                                    demo || syncMsgEnabled == true
-                                                                                        ? FontAwesomeIcons.solidBell
-                                                                                        : FontAwesomeIcons.solidBellSlash,
-                                                                                    color: demo || syncMsgEnabled == true
-                                                                                        ? colours.primaryPositive
-                                                                                        : colours.primaryLight,
-                                                                                    size: textLG - 2,
-                                                                                    semanticLabel: t.syncMessagesLabel,
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            );
-                                                                          },
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  Container(
-                                                                    height: 0,
-                                                                    width: double.infinity,
-                                                                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                                                    margin: EdgeInsets.symmetric(horizontal: spaceMD),
-                                                                    padding: EdgeInsets.only(top: spaceLG + spaceXS),
-                                                                    child: DropdownButton(
-                                                                      key: syncMethodsDropdownKey,
-                                                                      borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                      selectedItemBuilder: (context) =>
-                                                                          List.generate(syncOptionsSnapshot.length, (_) => SizedBox.shrink()),
-                                                                      icon: SizedBox.shrink(),
-                                                                      underline: const SizedBox.shrink(),
-                                                                      menuWidth: MediaQuery.of(context).size.width - (spaceMD * 2),
-                                                                      // menuWidth: null,
-                                                                      dropdownColor: colours.secondaryDark,
-                                                                      padding: EdgeInsets.zero,
-                                                                      alignment: Alignment.bottomCenter,
-                                                                      onChanged: (value) {},
-                                                                      items: (syncOptionsSnapshot).entries
-                                                                          .where(
-                                                                            (item) =>
-                                                                                item.key !=
-                                                                                (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) == true
-                                                                                    ? lastSyncMethodSnapshot.data
-                                                                                    : (syncOptionsSnapshot.keys.isNotEmpty
-                                                                                          ? syncOptionsSnapshot.keys.first
-                                                                                          : "")),
-                                                                          )
-                                                                          .map(
-                                                                            (item) => DropdownMenuItem(
-                                                                              onTap: () async {
-                                                                                if (![t.switchToClientMode, t.switchToSyncMode].contains(item.key)) {
-                                                                                  ref.read(lastSyncMethodProvider.notifier).set(item.key);
-                                                                                }
-
-                                                                                await item.value.$2();
-                                                                              },
-                                                                              value: item.key,
-                                                                              child: Row(
-                                                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                children: [
-                                                                                  FaIcon(
-                                                                                    item.value.$1,
-                                                                                    color:
-                                                                                        [t.switchToClientMode, t.switchToSyncMode].contains(item.key)
-                                                                                        ? colours.tertiaryInfo
-                                                                                        : colours.primaryLight,
-                                                                                    size: textLG,
-                                                                                  ),
-                                                                                  SizedBox(width: spaceMD),
-                                                                                  Flexible(
-                                                                                    child: Text(
-                                                                                      item.key.toUpperCase(),
-                                                                                      maxLines: 1,
-                                                                                      overflow: TextOverflow.ellipsis,
-                                                                                      style: TextStyle(
-                                                                                        fontSize: textMD,
-                                                                                        color:
-                                                                                            [
-                                                                                              t.switchToClientMode,
-                                                                                              t.switchToSyncMode,
-                                                                                            ].contains(item.key)
-                                                                                            ? colours.tertiaryInfo
-                                                                                            : colours.primaryLight,
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                        overflow: TextOverflow.ellipsis,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          )
-                                                                          .toList(),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            );
-                                                          },
                                                         ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: spaceLG, width: spaceMD),
-
-                                    Expanded(
-                                      flex: orientation == Orientation.portrait ? 0 : 1,
-                                      child: ProviderBuilder<bool>(
-                                        provider: isAuthenticatedProvider,
-                                        builder: (context, isAuthenticatedAsync) =>
-                                            (orientation == Orientation.portrait
-                                            ? (List<Widget> children) => Column(children: children)
-                                            : (List<Widget> children) => ShaderMask(
-                                                shaderCallback: (Rect rect) {
-                                                  return LinearGradient(
-                                                    begin: Alignment.topCenter,
-                                                    end: Alignment.bottomCenter,
-                                                    colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
-                                                    stops: [0, 0.05, 0.95, 1.0],
-                                                  ).createShader(rect);
-                                                },
-                                                blendMode: BlendMode.dstOut,
-                                                child: SingleChildScrollView(child: ListBody(children: children)),
-                                              ))([
-                                              CustomShowcase(
-                                                cornerRadius: cornerRadiusMD,
-                                                globalKey: _configKey,
-                                                first: true,
-                                                richContent: ShowcaseTooltipContent(
-                                                  title: t.showcaseRepoTitle,
-                                                  subtitle: t.showcaseRepoSubtitle,
-                                                  featureRows: [
-                                                    ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: t.showcaseRepoFeatureAuth),
-                                                    ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: t.showcaseRepoFeatureDir),
-                                                    ShowcaseFeatureRow(icon: FontAwesomeIcons.filePen, text: t.showcaseRepoFeatureBrowse),
-                                                    ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: t.showcaseRepoFeatureRemote),
-                                                  ],
-                                                ),
-                                                child: ProviderBuilder<(String, String)?>(
-                                                  provider: gitDirPathProvider,
-                                                  builder: (context, gitDirPathAsync) {
-                                                    final gitDirPath = gitDirPathAsync.valueOrNull;
-                                                    return Column(
-                                                      children: [
-                                                        IntrinsicHeight(
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                            children: [
-                                                              ProviderBuilder<(String, String)?>(
-                                                                provider: remoteUrlLinkProvider,
-                                                                builder: (context, remoteUrlLinkAsync) => ProviderBuilder<List<String>>(
-                                                                  provider: listRemotesProvider,
-                                                                  builder: (context, remotesAsync) {
-                                                                    final remoteUrlLinkValue = remoteUrlLinkAsync.valueOrNull;
-                                                                    final remotesList = remotesAsync.valueOrNull ?? [];
-                                                                    final actions = remoteEllipsisActions(remotesList.length);
-                                                                    return FutureBuilder<String>(
-                                                                      future: uiSettingsManager.getRemote(),
-                                                                      builder: (context, currentRemoteSnapshot) {
-                                                                        final currentRemoteName = currentRemoteSnapshot.data;
-                                                                        final hasDir = gitDirPath?.$1 != null;
-                                                                        final noRemoteWithDir = remotesList.isEmpty && hasDir;
-                                                                        // Build dropdown items: "Add Remote" first, then each remote name
-                                                                        final dropdownItems = <DropdownMenuItem<String>>[
-                                                                          DropdownMenuItem(
-                                                                            value: "__add_remote__",
-                                                                            child: Row(
-                                                                              children: [
-                                                                                FaIcon(
-                                                                                  FontAwesomeIcons.plus,
-                                                                                  color: colours.primaryPositive,
-                                                                                  size: textMD,
-                                                                                ),
-                                                                                SizedBox(width: spaceSM),
-                                                                                Text(
-                                                                                  t.addRemote.toUpperCase(),
-                                                                                  style: TextStyle(
-                                                                                    fontSize: textXS,
-                                                                                    color: colours.primaryLight,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                  ),
-                                                                                ),
+                                                        padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
+                                                        child: Column(
+                                                          verticalDirection: orientation == Orientation.portrait
+                                                              ? VerticalDirection.down
+                                                              : VerticalDirection.up,
+                                                          children: [
+                                                            Expanded(
+                                                              flex: orientation == Orientation.portrait ? 0 : 1,
+                                                              child: Stack(
+                                                                clipBehavior: Clip.none,
+                                                                children: [
+                                                                  Hero(
+                                                                    tag: hero_commits_list,
+                                                                    child: SizedBox(
+                                                                      height: orientation == Orientation.portrait ? 220 : double.infinity,
+                                                                      child: AnimatedBuilder(
+                                                                        animation: recentCommitsController,
+                                                                        builder: (context, _) => ShaderMask(
+                                                                          shaderCallback: (Rect rect) {
+                                                                            return LinearGradient(
+                                                                              begin: Alignment.topCenter,
+                                                                              end: Alignment.bottomCenter,
+                                                                              colors: [
+                                                                                Colors.black,
+                                                                                Colors.transparent,
+                                                                                Colors.transparent,
+                                                                                Colors.transparent,
                                                                               ],
-                                                                            ),
-                                                                          ),
-                                                                          ...remotesList.map(
-                                                                            (name) => DropdownMenuItem(
-                                                                              value: name,
-                                                                              child: name == currentRemoteName && remoteUrlLinkValue != null
-                                                                                  ? Row(
-                                                                                      children: [
-                                                                                        Text(
-                                                                                          name.toUpperCase(),
+                                                                              stops: [0.0, 0.1, 0.9, 1.0],
+                                                                            ).createShader(rect);
+                                                                          },
+                                                                          blendMode: BlendMode.dstOut,
+                                                                          child: recentCommits.isEmpty && recentCommitsAsync.isLoading
+                                                                              ? Center(child: CircularProgressIndicator(color: colours.tertiaryLight))
+                                                                              : (recentCommits.isEmpty && conflictingValue.isEmpty
+                                                                                    ? Center(
+                                                                                        child: Text(
+                                                                                          t.commitsNotFound.toUpperCase(),
                                                                                           style: TextStyle(
-                                                                                            fontSize: textXS,
-                                                                                            color: colours.primaryLight,
+                                                                                            color: colours.secondaryLight,
                                                                                             fontWeight: FontWeight.bold,
-                                                                                          ),
-                                                                                        ),
-                                                                                        Text(
-                                                                                          " · ",
-                                                                                          style: TextStyle(
-                                                                                            fontSize: textXS,
-                                                                                            color: colours.tertiaryLight,
-                                                                                          ),
-                                                                                        ),
-                                                                                        Flexible(
-                                                                                          child: Text(
-                                                                                            remoteUrlLinkValue.$1,
-                                                                                            style: TextStyle(
-                                                                                              fontSize: textXS,
-                                                                                              color: colours.tertiaryLight,
-                                                                                              fontWeight: FontWeight.w400,
-                                                                                            ),
-                                                                                            overflow: TextOverflow.ellipsis,
-                                                                                            maxLines: 1,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ],
-                                                                                    )
-                                                                                  : Text(
-                                                                                      name.toUpperCase(),
-                                                                                      style: TextStyle(
-                                                                                        fontSize: textXS,
-                                                                                        color: colours.primaryLight,
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                      ),
-                                                                                    ),
-                                                                            ),
-                                                                          ),
-                                                                        ];
-                                                                        return Expanded(
-                                                                          child: Row(
-                                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                                            children: [
-                                                                              Expanded(
-                                                                                child: Stack(
-                                                                                  children: [
-                                                                                    if (noRemoteWithDir)
-                                                                                      GestureDetector(
-                                                                                        onTap: () async {
-                                                                                          final provider = ref.read(gitProviderProvider).valueOrNull;
-                                                                                          final hasOAuth = provider?.isOAuthProvider == true;
-                                                                                          await AddRemoteDialog.showDialog(
-                                                                                            context,
-                                                                                            (name, url) async {
-                                                                                              await runGitOperation(
-                                                                                                LogType.AddRemote,
-                                                                                                (event) => event,
-                                                                                                {"name": name, "url": url},
-                                                                                              );
-                                                                                              await uiSettingsManager.setStringNullable(
-                                                                                                StorageKey.setman_remote,
-                                                                                                name,
-                                                                                              );
-                                                                                              await reloadAll();
-                                                                                            },
-                                                                                            oauthProviderName: hasOAuth ? provider!.name : null,
-                                                                                            onCreateRemote: hasOAuth
-                                                                                                ? () async {
-                                                                                                    final dirPath = ref
-                                                                                                        .read(gitDirPathProvider)
-                                                                                                        .valueOrNull
-                                                                                                        ?.$1;
-                                                                                                    if (dirPath != null) {
-                                                                                                      await offerCreateRemoteForExistingRepo(
-                                                                                                        context,
-                                                                                                        dirPath,
-                                                                                                      );
-                                                                                                      await reloadAll();
-                                                                                                    }
-                                                                                                  }
-                                                                                                : null,
-                                                                                          );
-                                                                                        },
-                                                                                        child: Container(
-                                                                                          padding: EdgeInsets.only(
-                                                                                            left: spaceMD,
-                                                                                            right: 0,
-                                                                                            top: 1,
-                                                                                            bottom: 1,
-                                                                                          ),
-                                                                                          decoration: BoxDecoration(
-                                                                                            color: colours.secondaryDark,
-                                                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                                          ),
-                                                                                          child: Row(
-                                                                                            children: [
-                                                                                              Expanded(
-                                                                                                child: Padding(
-                                                                                                  padding: EdgeInsets.symmetric(
-                                                                                                    vertical: spaceSM + spaceXXXS,
-                                                                                                  ),
-                                                                                                  child: Text(
-                                                                                                    t.addRemote,
-                                                                                                    maxLines: 1,
-                                                                                                    overflow: TextOverflow.ellipsis,
-                                                                                                    style: TextStyle(
-                                                                                                      color: colours.primaryLight,
-                                                                                                      fontSize: textMD,
-                                                                                                      fontWeight: FontWeight.w400,
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                              Padding(
-                                                                                                padding: EdgeInsets.only(
-                                                                                                  left: spaceSM,
-                                                                                                  right: spaceMD,
-                                                                                                ),
-                                                                                                child: FaIcon(
-                                                                                                  FontAwesomeIcons.plus,
-                                                                                                  color: colours.primaryLight,
-                                                                                                  size: textLG,
-                                                                                                ),
-                                                                                              ),
-                                                                                            ],
+                                                                                            fontSize: textLG,
                                                                                           ),
                                                                                         ),
                                                                                       )
-                                                                                    else
-                                                                                      Container(
-                                                                                        padding: EdgeInsets.zero,
-                                                                                        decoration: BoxDecoration(
-                                                                                          color: colours.secondaryDark,
-                                                                                          borderRadius: remotesList.isEmpty
-                                                                                              ? BorderRadius.all(cornerRadiusMD)
-                                                                                              : BorderRadius.only(
-                                                                                                  topLeft: cornerRadiusMD,
-                                                                                                  bottomLeft: cornerRadiusMD,
-                                                                                                  topRight: Radius.zero,
-                                                                                                  bottomRight: Radius.zero,
-                                                                                                ),
-                                                                                        ),
-                                                                                        child: DropdownButton<String>(
-                                                                                          borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                                          padding: EdgeInsets.only(
-                                                                                            left: spaceMD,
-                                                                                            right: remotesList.isEmpty ? spaceMD : 0,
-                                                                                            top: 1,
-                                                                                            bottom: 1,
-                                                                                          ),
-
-                                                                                          onTap: () {
-                                                                                            if (demo) {
-                                                                                              ManualSyncDialog.showDialog(
-                                                                                                context,
-                                                                                                hasRemotes:
-                                                                                                    (ref.read(listRemotesProvider).valueOrNull ?? [])
-                                                                                                        .isNotEmpty,
-                                                                                              ).then((_) => reloadAll());
-                                                                                              return;
-                                                                                            }
-                                                                                          },
-                                                                                          icon: Padding(
-                                                                                            padding: EdgeInsets.only(left: spaceSM),
-                                                                                            child: FaIcon(
-                                                                                              remoteUrlLinkValue != null
-                                                                                                  ? FontAwesomeIcons.caretDown
-                                                                                                  : FontAwesomeIcons.solidCircleXmark,
-                                                                                              color: remoteUrlLinkValue != null
-                                                                                                  ? colours.secondaryLight
-                                                                                                  : colours.tertiaryLight,
-                                                                                              size: textLG,
-                                                                                            ),
-                                                                                          ),
-                                                                                          value:
-                                                                                              currentRemoteName != null &&
-                                                                                                  remotesList.contains(currentRemoteName)
-                                                                                              ? currentRemoteName
-                                                                                              : null,
-                                                                                          isExpanded: true,
-                                                                                          underline: const SizedBox.shrink(),
-                                                                                          dropdownColor: colours.secondaryDark,
-                                                                                          hint: Text(
-                                                                                            t.repoNotFound,
-                                                                                            maxLines: 1,
-                                                                                            overflow: TextOverflow.ellipsis,
-                                                                                            style: TextStyle(
-                                                                                              color: colours.secondaryLight,
-                                                                                              fontSize: textMD,
-                                                                                              fontWeight: FontWeight.w400,
-                                                                                            ),
-                                                                                          ),
-                                                                                          onChanged: (gitDirPath?.$2 == null)
-                                                                                              ? null
-                                                                                              : (value) async {
-                                                                                                  if (value == "__add_remote__") {
-                                                                                                    await AddRemoteDialog.showDialog(context, (
-                                                                                                      name,
-                                                                                                      url,
-                                                                                                    ) async {
-                                                                                                      await runGitOperation(
-                                                                                                        LogType.AddRemote,
-                                                                                                        (event) => event,
-                                                                                                        {"name": name, "url": url},
-                                                                                                      );
-                                                                                                      await uiSettingsManager.setStringNullable(
-                                                                                                        StorageKey.setman_remote,
-                                                                                                        name,
-                                                                                                      );
-                                                                                                      await reloadAll();
-                                                                                                    });
-                                                                                                    return;
-                                                                                                  }
-                                                                                                  if (value != null) {
-                                                                                                    await uiSettingsManager.setStringNullable(
-                                                                                                      StorageKey.setman_remote,
-                                                                                                      value,
-                                                                                                    );
-                                                                                                    await reloadAll();
-                                                                                                  }
-                                                                                                },
-                                                                                          selectedItemBuilder: (context) => List.generate(
-                                                                                            dropdownItems.length,
-                                                                                            (index) => Row(
+                                                                                    : Column(
+                                                                                        children: [
+                                                                                          Expanded(
+                                                                                            child: Stack(
                                                                                               children: [
-                                                                                                Expanded(
-                                                                                                  child: ExtendedText(
-                                                                                                    demo
-                                                                                                        ? "https://github.com/ViscousTests/TestObsidianVault.git"
-                                                                                                        : (remoteUrlLinkValue == null
-                                                                                                              ? t.repoNotFound
-                                                                                                              : remoteUrlLinkValue.$1),
-                                                                                                    maxLines: 1,
-                                                                                                    textAlign: TextAlign.left,
-                                                                                                    softWrap: false,
-                                                                                                    overflowWidget: TextOverflowWidget(
-                                                                                                      position: TextOverflowPosition.start,
-                                                                                                      child: Text(
-                                                                                                        "…",
-                                                                                                        style: TextStyle(
-                                                                                                          color: colours.tertiaryLight,
-                                                                                                          fontSize: textMD,
-                                                                                                          fontWeight: FontWeight.w400,
+                                                                                                AnimatedListView(
+                                                                                                  controller: recentCommitsController,
+                                                                                                  reverse: true,
+                                                                                                  items: items,
+                                                                                                  isSameItem: (a, b) => a.reference == b.reference,
+                                                                                                  removeDuration: Duration.zero,
+                                                                                                  removeItemBuilder: (_, _) => SizedBox.shrink(),
+                                                                                                  itemBuilder: (BuildContext context, int index) {
+                                                                                                    final reference = items[index].reference;
+
+                                                                                                    if (reference == mergeConflictReference) {
+                                                                                                      return AnchorItemWrapper(
+                                                                                                        index: index,
+                                                                                                        controller: recentCommitsController,
+                                                                                                        child: ItemMergeConflict(
+                                                                                                          key: Key(reference),
+                                                                                                          conflictingValue,
+                                                                                                          () => reloadAll(),
+                                                                                                          clientModeEnabledValue ?? false,
+                                                                                                        ),
+                                                                                                      );
+                                                                                                    }
+
+                                                                                                    return AnchorItemWrapper(
+                                                                                                      index: index,
+                                                                                                      controller: recentCommitsController,
+                                                                                                      child: Consumer(
+                                                                                                        builder: (context, ref, _) => ItemCommit(
+                                                                                                          key: Key(reference),
+                                                                                                          items[index],
+                                                                                                          index < items.length - 1
+                                                                                                              ? items[index + 1]
+                                                                                                              : null,
+                                                                                                          recentCommits,
+                                                                                                          gitProvider: ref
+                                                                                                              .watch(gitProviderProvider)
+                                                                                                              .valueOrNull,
+                                                                                                          remoteWebUrl: ref
+                                                                                                              .watch(remoteUrlLinkProvider)
+                                                                                                              .valueOrNull
+                                                                                                              ?.$2,
+                                                                                                          onRefresh: () => reloadAll(),
+                                                                                                          selectMode: _commitSelectMode,
+                                                                                                          selectedShas: _commitSelectedShas,
+                                                                                                          onSelectModeRequested: () {
+                                                                                                            _commitSelectMode.value = true;
+                                                                                                            _commitSelectedShas.value = {
+                                                                                                              items[index].reference,
+                                                                                                            };
+                                                                                                          },
                                                                                                         ),
                                                                                                       ),
-                                                                                                    ),
-                                                                                                    style: TextStyle(
-                                                                                                      color: remoteUrlLinkValue != null
-                                                                                                          ? colours.primaryLight
-                                                                                                          : colours.secondaryLight,
-                                                                                                      fontSize: textMD,
-                                                                                                      fontWeight: FontWeight.w400,
+                                                                                                    );
+                                                                                                  },
+                                                                                                ),
+                                                                                                ListenableBuilder(
+                                                                                                  listenable: mergeConflictVisible,
+                                                                                                  builder: (context, child) => AnimatedPositioned(
+                                                                                                    bottom:
+                                                                                                        conflictingValue.isEmpty ||
+                                                                                                            mergeConflictVisible.value
+                                                                                                        ? -spaceXL
+                                                                                                        : spaceMD,
+                                                                                                    left: 0,
+                                                                                                    right: 0,
+                                                                                                    width: null,
+                                                                                                    duration: animFast,
+                                                                                                    child: Center(
+                                                                                                      child: AnimatedOpacity(
+                                                                                                        duration: animFast,
+                                                                                                        opacity:
+                                                                                                            conflictingValue.isEmpty ||
+                                                                                                                mergeConflictVisible.value
+                                                                                                            ? 0
+                                                                                                            : 1,
+                                                                                                        child: TextButton(
+                                                                                                          onPressed: () async {
+                                                                                                            await recentCommitsController.animateTo(
+                                                                                                              0,
+                                                                                                              duration: animFast,
+                                                                                                              curve: Curves.easeInOut,
+                                                                                                            );
+                                                                                                            mergeConflictVisible.value = true;
+                                                                                                          },
+                                                                                                          style: ButtonStyle(
+                                                                                                            alignment: Alignment.centerLeft,
+                                                                                                            backgroundColor: WidgetStatePropertyAll(
+                                                                                                              colours.tertiaryNegative,
+                                                                                                            ),
+                                                                                                            padding: WidgetStatePropertyAll(
+                                                                                                              EdgeInsets.only(
+                                                                                                                top: spaceSM,
+                                                                                                                left: spaceSM,
+                                                                                                                right: spaceSM,
+                                                                                                                bottom: spaceXXXS,
+                                                                                                              ),
+                                                                                                            ),
+                                                                                                            shape: WidgetStatePropertyAll(
+                                                                                                              RoundedRectangleBorder(
+                                                                                                                borderRadius: BorderRadius.all(
+                                                                                                                  cornerRadiusSM,
+                                                                                                                ),
+                                                                                                                side: BorderSide.none,
+                                                                                                              ),
+                                                                                                            ),
+                                                                                                          ),
+                                                                                                          child: AnimatedContainer(
+                                                                                                            duration: animFast,
+                                                                                                            child: Column(
+                                                                                                              crossAxisAlignment:
+                                                                                                                  CrossAxisAlignment.center,
+                                                                                                              mainAxisAlignment:
+                                                                                                                  MainAxisAlignment.spaceBetween,
+                                                                                                              mainAxisSize: MainAxisSize.max,
+                                                                                                              children: [
+                                                                                                                Text(
+                                                                                                                  t.mergeConflict.toUpperCase(),
+                                                                                                                  style: TextStyle(
+                                                                                                                    color: colours.primaryDark,
+                                                                                                                    fontSize: textMD,
+                                                                                                                    overflow: TextOverflow.ellipsis,
+                                                                                                                    fontWeight: FontWeight.bold,
+                                                                                                                    height: 1,
+                                                                                                                  ),
+                                                                                                                ),
+                                                                                                                FaIcon(
+                                                                                                                  FontAwesomeIcons.caretDown,
+                                                                                                                  color: colours.primaryDark,
+                                                                                                                  size: textMD,
+                                                                                                                ),
+                                                                                                              ],
+                                                                                                            ),
+                                                                                                          ),
+                                                                                                        ),
+                                                                                                      ),
                                                                                                     ),
                                                                                                   ),
                                                                                                 ),
                                                                                               ],
                                                                                             ),
                                                                                           ),
-                                                                                          items: dropdownItems,
-                                                                                        ),
-                                                                                      ),
-                                                                                    Positioned(
-                                                                                      top: spaceXXXXS / 2,
-                                                                                      left: spaceSM,
-                                                                                      child: Text(
-                                                                                        "${t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}"
-                                                                                            .toUpperCase(),
-                                                                                        style: TextStyle(
-                                                                                          color: colours.tertiaryLight,
-                                                                                          fontSize: textXXS,
-                                                                                          fontWeight: FontWeight.w900,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                              ),
-                                                                              if (remotesList.isNotEmpty)
-                                                                                Container(
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: colours.secondaryDark,
-                                                                                    borderRadius: BorderRadius.only(
-                                                                                      topRight: cornerRadiusMD,
-                                                                                      bottomRight: cornerRadiusMD,
-                                                                                      topLeft: Radius.zero,
-                                                                                      bottomLeft: Radius.zero,
-                                                                                    ),
-                                                                                  ),
-                                                                                  child: PopupMenuButton<int>(
-                                                                                    icon: Padding(
-                                                                                      padding: EdgeInsets.symmetric(horizontal: spaceXS),
-                                                                                      child: FaIcon(
-                                                                                        FontAwesomeIcons.ellipsisVertical,
-                                                                                        color: colours.secondaryLight,
-                                                                                        size: textLG,
-                                                                                      ),
-                                                                                    ),
-                                                                                    color: colours.secondaryDark,
-                                                                                    shape: RoundedRectangleBorder(
-                                                                                      borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                                    ),
-                                                                                    onSelected: (index) async {
-                                                                                      await actions[index].$2(context, remoteUrlLinkValue);
-                                                                                      await reloadAll();
-                                                                                    },
-                                                                                    itemBuilder: (context) => List.generate(
-                                                                                      actions.length,
-                                                                                      (index) => PopupMenuItem(
-                                                                                        value: index,
-                                                                                        enabled: actions[index].$3,
-                                                                                        child: Row(
-                                                                                          children: [
-                                                                                            actions[index].$1.$2,
-                                                                                            SizedBox(width: spaceSM),
-                                                                                            Text(
-                                                                                              actions[index].$1.$1.toUpperCase(),
-                                                                                              style: TextStyle(
-                                                                                                fontSize: textXS,
-                                                                                                color: actions[index].$3
-                                                                                                    ? colours.primaryLight
-                                                                                                    : colours.tertiaryLight,
-                                                                                                fontWeight: FontWeight.bold,
+                                                                                        ],
+                                                                                      )),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  ...(recentCommits.isNotEmpty == true && ref.watch(isLoadingCommitsProvider))
+                                                                      ? [
+                                                                          Positioned(
+                                                                            top: orientation == Orientation.portrait ? -(spaceXS / 2) : 0,
+                                                                            left: 0,
+                                                                            right: 0,
+                                                                            child: LinearProgressIndicator(
+                                                                              value: null,
+                                                                              backgroundColor: colours.secondaryDark,
+                                                                              color: colours.tertiaryDark,
+                                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                            ),
+                                                                          ),
+                                                                        ]
+                                                                      : [],
+                                                                  ProviderBuilder<bool>(
+                                                                    provider: isAuthenticatedProvider,
+                                                                    builder: (context, authAsync) {
+                                                                      if (authAsync.valueOrNull != true) return SizedBox.shrink();
+                                                                      return Positioned(
+                                                                        top: orientation == Orientation.portrait ? -spaceXS : null,
+                                                                        bottom: orientation == Orientation.portrait ? null : -spaceXS,
+                                                                        left: -spaceSM,
+                                                                        child: Stack(
+                                                                          children: [
+                                                                            Hero(
+                                                                              tag: hero_expand_contract,
+                                                                              flightShuttleBuilder:
+                                                                                  (
+                                                                                    flightContext,
+                                                                                    animation,
+                                                                                    flightDirection,
+                                                                                    fromHeroContext,
+                                                                                    toHeroContext,
+                                                                                  ) {
+                                                                                    return AnimatedBuilder(
+                                                                                      animation: animation,
+                                                                                      builder: (context, _) {
+                                                                                        final icon = flightDirection == HeroFlightDirection.push
+                                                                                            ? (animation.value < 0.5
+                                                                                                  ? FontAwesomeIcons.upRightAndDownLeftFromCenter
+                                                                                                  : FontAwesomeIcons.downLeftAndUpRightToCenter)
+                                                                                            : (animation.value < 0.5
+                                                                                                  ? FontAwesomeIcons.downLeftAndUpRightToCenter
+                                                                                                  : FontAwesomeIcons.upRightAndDownLeftFromCenter);
+                                                                                        return IconButton(
+                                                                                          padding: EdgeInsets.all(spaceSM),
+                                                                                          style: ButtonStyle(
+                                                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                                            shape: WidgetStatePropertyAll(
+                                                                                              RoundedRectangleBorder(
+                                                                                                borderRadius: BorderRadius.all(
+                                                                                                  cornerRadiusSM,
+                                                                                                ).copyWith(topLeft: cornerRadiusMD),
                                                                                               ),
                                                                                             ),
-                                                                                          ],
-                                                                                        ),
+                                                                                            backgroundColor: WidgetStatePropertyAll(
+                                                                                              colours.secondaryDark.withOpacity(0.5),
+                                                                                            ),
+                                                                                          ),
+                                                                                          constraints: BoxConstraints(),
+                                                                                          onPressed: null,
+                                                                                          icon: FaIcon(
+                                                                                            icon,
+                                                                                            size: textMD,
+                                                                                            color: colours.primaryLight,
+                                                                                          ),
+                                                                                        );
+                                                                                      },
+                                                                                    );
+                                                                                  },
+                                                                              child: IconButton(
+                                                                                padding: EdgeInsets.all(spaceSM),
+                                                                                style: ButtonStyle(
+                                                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                                  shape: WidgetStatePropertyAll(
+                                                                                    RoundedRectangleBorder(
+                                                                                      borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
+                                                                                        topLeft: orientation == Orientation.portrait
+                                                                                            ? cornerRadiusMD
+                                                                                            : cornerRadiusSM,
+                                                                                        bottomLeft: orientation == Orientation.portrait
+                                                                                            ? cornerRadiusSM
+                                                                                            : cornerRadiusMD,
                                                                                       ),
                                                                                     ),
                                                                                   ),
+                                                                                  backgroundColor: WidgetStatePropertyAll(
+                                                                                    colours.secondaryDark.withOpacity(0.5),
+                                                                                  ),
                                                                                 ),
-                                                                            ],
-                                                                          ),
+                                                                                constraints: BoxConstraints(),
+                                                                                onPressed: () => _navigateToExpandedCommits(
+                                                                                  initialScrollOffset: recentCommitsController.offset,
+                                                                                ),
+                                                                                icon: FaIcon(
+                                                                                  FontAwesomeIcons.upRightAndDownLeftFromCenter,
+                                                                                  size: textMD,
+                                                                                  color: colours.primaryLight,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            CommitSelectActionBar(
+                                                                              selectMode: _commitSelectMode,
+                                                                              selectedShas: _commitSelectedShas,
+                                                                              commits: recentCommits,
+                                                                              onReloadAll: () => reloadAll(),
+                                                                              onExitSelectMode: _exitCommitSelectMode,
+                                                                              borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(
+                                                                                topLeft: orientation == Orientation.portrait
+                                                                                    ? cornerRadiusMD
+                                                                                    : cornerRadiusSM,
+                                                                                bottomLeft: orientation == Orientation.portrait
+                                                                                    ? cornerRadiusSM
+                                                                                    : cornerRadiusMD,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: orientation == Orientation.portrait ? spaceXS : 0),
+
+                                                            ProviderBuilder<String?>(
+                                                              provider: branchNameProvider,
+                                                              builder: (context, branchNameAsync) => ProviderBuilder<Map<String, String>>(
+                                                                provider: branchNamesProvider,
+                                                                builder: (context, branchNamesAsync) => ProviderBuilder<bool>(
+                                                                  provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
+                                                                  builder: (context, hasConflictsAsync) {
+                                                                    final branchNameValue = branchNameAsync.valueOrNull;
+                                                                    final branchNamesMap = branchNamesAsync.valueOrNull ?? {};
+                                                                    final hasBranch = branchNamesMap.containsKey(branchNameValue);
+
+                                                                    return BranchSelector(
+                                                                      branchName: branchNameValue,
+                                                                      branchNames: branchNamesMap,
+                                                                      hasConflicts: hasConflictsAsync.valueOrNull ?? false,
+                                                                      onCheckoutBranch: (item) async {
+                                                                        await runGitOperation(LogType.CheckoutBranch, (event) => event, {
+                                                                          "branchName": item,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onRenameBranch: (item, newName) async {
+                                                                        await runGitOperation(LogType.RenameBranch, (event) => event, {
+                                                                          "oldName": item,
+                                                                          "newName": newName,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onDeleteBranch: (item) async {
+                                                                        await runGitOperation(LogType.DeleteBranch, (event) => event, {
+                                                                          "branchName": item,
+                                                                        });
+                                                                        await reloadAll();
+                                                                      },
+                                                                      onCreateBranch: hasBranch
+                                                                          ? () {
+                                                                              CreateBranchDialog.showDialog(
+                                                                                context,
+                                                                                branchNameValue,
+                                                                                branchNamesMap.keys.toList(),
+                                                                                (branchNameValue, basedOn) async {
+                                                                                  await runGitOperation(LogType.CreateBranch, (event) => event, {
+                                                                                    "branchName": branchNameValue,
+                                                                                    "basedOn": basedOn,
+                                                                                  });
+                                                                                  await syncOptionCompletionCallback();
+                                                                                },
+                                                                              );
+                                                                            }
+                                                                          : null,
+                                                                    );
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+
+                                                            AnimatedSize(
+                                                              duration: animFast,
+                                                              child: ProviderBuilder<Map<ShowcaseFeature, int?>>(
+                                                                provider: featureCountsProvider,
+                                                                builder: (context, featureCountsAsync) => Consumer(
+                                                                  builder: (context, ref, _) {
+                                                                    final countsMap = featureCountsAsync.valueOrNull ?? {};
+                                                                    final featureCountsLoading = featureCountsAsync.isLoading;
+                                                                    final gitProviderValue =
+                                                                        ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
+                                                                    final webUrl = ref.watch(remoteUrlLinkProvider).valueOrNull?.$2;
+                                                                    final authenticated = ref.watch(isAuthenticatedProvider).valueOrNull ?? false;
+                                                                    final gitDirPath = ref.watch(gitDirPathProvider).valueOrNull;
+                                                                    return FutureBuilder<List<String>>(
+                                                                      future: uiSettingsManager.getStringList(
+                                                                        StorageKey.setman_pinnedShowcaseFeatures,
+                                                                      ),
+                                                                      builder: (context, snapshot) {
+                                                                        final data = snapshot.data;
+                                                                        if (data == null) return SizedBox(width: double.infinity, height: 0);
+                                                                        if (!gitProviderValue.isOAuthProvider ||
+                                                                            !authenticated ||
+                                                                            gitDirPath == null) {
+                                                                          return SizedBox(width: double.infinity, height: 0);
+                                                                        }
+                                                                        final pinned = ShowcaseFeature.fromStorageKeys(data);
+                                                                        if (pinned.length == 1) {
+                                                                          return Hero(
+                                                                            tag: heroShowcaseFeature(pinned[0].storageKey),
+                                                                            child: ShowcaseFeatureButton(
+                                                                              feature: pinned[0],
+                                                                              gitProvider: gitProviderValue,
+                                                                              count: countsMap[pinned[0]],
+                                                                              countLoading: featureCountsLoading,
+                                                                              onAdd: resolveFeatureOnAdd(
+                                                                                context: context,
+                                                                                feature: pinned[0],
+                                                                                gitProvider: gitProviderValue,
+                                                                                remoteWebUrl: webUrl,
+                                                                              ),
+                                                                              onPressed: () => _navigateToExpandedCommits(
+                                                                                initialScrollOffset: recentCommitsController.offset,
+                                                                                pendingFeature: pinned[0],
+                                                                              ),
+                                                                            ),
+                                                                          );
+                                                                        }
+                                                                        return Row(
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Hero(
+                                                                                tag: heroShowcaseFeature(pinned[0].storageKey),
+                                                                                child: ShowcaseFeatureButton(
+                                                                                  feature: pinned[0],
+                                                                                  gitProvider: gitProviderValue,
+                                                                                  count: countsMap[pinned[0]],
+                                                                                  countLoading: featureCountsLoading,
+                                                                                  onAdd: resolveFeatureOnAdd(
+                                                                                    context: context,
+                                                                                    feature: pinned[0],
+                                                                                    gitProvider: gitProviderValue,
+                                                                                    remoteWebUrl: webUrl,
+                                                                                  ),
+                                                                                  onPressed: () => _navigateToExpandedCommits(
+                                                                                    initialScrollOffset: recentCommitsController.offset,
+                                                                                    pendingFeature: pinned[0],
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(width: spaceXS),
+                                                                            Expanded(
+                                                                              child: Hero(
+                                                                                tag: heroShowcaseFeature(pinned[1].storageKey),
+                                                                                child: ShowcaseFeatureButton(
+                                                                                  feature: pinned[1],
+                                                                                  gitProvider: gitProviderValue,
+                                                                                  count: countsMap[pinned[1]],
+                                                                                  countLoading: featureCountsLoading,
+                                                                                  onAdd: resolveFeatureOnAdd(
+                                                                                    context: context,
+                                                                                    feature: pinned[1],
+                                                                                    gitProvider: gitProviderValue,
+                                                                                    remoteWebUrl: webUrl,
+                                                                                  ),
+                                                                                  onPressed: () => _navigateToExpandedCommits(
+                                                                                    initialScrollOffset: recentCommitsController.offset,
+                                                                                    pendingFeature: pinned[1],
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
                                                                         );
                                                                       },
                                                                     );
                                                                   },
                                                                 ),
                                                               ),
-                                                              SizedBox(width: gitDirPath?.$2 == null ? spaceSM : 0),
-                                                              Visibility(
-                                                                visible: gitDirPath?.$2 == null,
-                                                                child: AnimatedBuilder(
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: spaceSM),
+                                                    ProviderBuilder<(String, String)?>(
+                                                      provider: gitDirPathProvider,
+                                                      builder: (context, gitDirPathAsync) {
+                                                        final gitDirPath = gitDirPathAsync.valueOrNull;
+                                                        return ValueListenableBuilder(
+                                                          valueListenable: syncOptions,
+                                                          builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
+                                                            provider: recommendedActionProvider,
+                                                            builder: (context, recommendedActionAsync) {
+                                                              final recommendedActionValue = recommendedActionAsync.valueOrNull;
+                                                              return FutureBuilder(
+                                                                future: getLastSyncOption(recommendedActionValue),
+                                                                builder: (context, lastSyncMethodSnapshot) => Column(
+                                                                  children: [
+                                                                    IntrinsicHeight(
+                                                                      child: Row(
+                                                                        mainAxisSize: MainAxisSize.max,
+                                                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child: Stack(
+                                                                              children: [
+                                                                                SizedBox.expand(
+                                                                                  child: TextButton.icon(
+                                                                                    key: syncMethodMainButtonKey,
+                                                                                    onPressed: gitDirPath?.$2 == null
+                                                                                        ? null
+                                                                                        : () async {
+                                                                                            if (lastSyncMethodSnapshot.data == null) return;
+
+                                                                                            if (syncOptionsSnapshot.containsKey(
+                                                                                                  lastSyncMethodSnapshot.data,
+                                                                                                ) ==
+                                                                                                true) {
+                                                                                              syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                                            } else {
+                                                                                              await syncOptionsSnapshot.values.first.$2();
+                                                                                            }
+                                                                                          },
+                                                                                    style: ButtonStyle(
+                                                                                      alignment: Alignment.centerLeft,
+                                                                                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                                      padding: WidgetStatePropertyAll(
+                                                                                        EdgeInsets.symmetric(horizontal: spaceMD),
+                                                                                      ),
+                                                                                      shape: WidgetStatePropertyAll(
+                                                                                        RoundedRectangleBorder(
+                                                                                          borderRadius: orientation == Orientation.portrait
+                                                                                              ? BorderRadius.only(
+                                                                                                  topLeft: cornerRadiusSM,
+                                                                                                  topRight: cornerRadiusSM,
+                                                                                                  bottomLeft: cornerRadiusMD,
+                                                                                                  bottomRight: clientModeEnabledValue == true
+                                                                                                      ? cornerRadiusMD
+                                                                                                      : cornerRadiusSM,
+                                                                                                )
+                                                                                              : BorderRadius.only(
+                                                                                                  topLeft: cornerRadiusMD,
+                                                                                                  bottomRight: cornerRadiusSM,
+                                                                                                  bottomLeft: cornerRadiusSM,
+                                                                                                  topRight: clientModeEnabledValue == true
+                                                                                                      ? cornerRadiusMD
+                                                                                                      : cornerRadiusSM,
+                                                                                                ),
+                                                                                          side: BorderSide.none,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    icon: Stack(
+                                                                                      clipBehavior: Clip.none,
+                                                                                      children: [
+                                                                                        if (clientModeEnabledValue == true)
+                                                                                          Positioned(
+                                                                                            top: -spaceXXS,
+                                                                                            bottom: -spaceXXS,
+                                                                                            left: -spaceXXS,
+                                                                                            right: -spaceXXS,
+                                                                                            child: ProviderBuilder<int?>(
+                                                                                              provider: recommendedActionProvider,
+                                                                                              builder: (context, value) => value.isLoading
+                                                                                                  ? CircularProgressIndicator(
+                                                                                                      color: colours.tertiaryDark,
+                                                                                                    )
+                                                                                                  : SizedBox.shrink(),
+                                                                                            ),
+                                                                                          ),
+                                                                                        SizedBox(
+                                                                                          height: textLG,
+                                                                                          width: textLG,
+                                                                                          child: Center(
+                                                                                            child: FaIcon(
+                                                                                              gitDirPath?.$2 == null
+                                                                                                  ? FontAwesomeIcons.solidCircleDown
+                                                                                                  : syncOptionsSnapshot[lastSyncMethodSnapshot.data]
+                                                                                                            ?.$1 ??
+                                                                                                        (syncOptionsSnapshot.values.isNotEmpty
+                                                                                                            ? syncOptionsSnapshot.values.first.$1
+                                                                                                            : null) ??
+                                                                                                        FontAwesomeIcons.solidCircleDown,
+                                                                                              color: gitDirPath?.$2 == null
+                                                                                                  ? colours.secondaryLight
+                                                                                                  : colours.primaryLight,
+                                                                                              size: textLG,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                    label: Padding(
+                                                                                      padding: EdgeInsets.only(left: spaceXS),
+                                                                                      child: Text(
+                                                                                        (gitDirPath?.$2 == null
+                                                                                                ? (clientModeEnabledValue == true
+                                                                                                      ? t.syncAllChanges
+                                                                                                      : t.syncNow)
+                                                                                                : ((syncOptionsSnapshot.containsKey(
+                                                                                                                lastSyncMethodSnapshot.data,
+                                                                                                              ) ==
+                                                                                                              true
+                                                                                                          ? lastSyncMethodSnapshot.data
+                                                                                                          : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                                                ? syncOptionsSnapshot.keys.first
+                                                                                                                : (clientModeEnabledValue == true
+                                                                                                                      ? t.syncAllChanges
+                                                                                                                      : t.syncNow))) ??
+                                                                                                      t.syncNow))
+                                                                                            .toUpperCase(),
+                                                                                        style: TextStyle(
+                                                                                          color: gitDirPath?.$2 == null
+                                                                                              ? colours.secondaryLight
+                                                                                              : (clientModeEnabledValue == true &&
+                                                                                                        recommendedActionValue != null &&
+                                                                                                        recommendedActionValue >= 0
+                                                                                                    ? colours.tertiaryInfo
+                                                                                                    : colours.primaryLight),
+                                                                                          fontSize: textMD,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Positioned(
+                                                                                  right: 0,
+                                                                                  top: 0,
+                                                                                  bottom: 0,
+                                                                                  child: IconButton(
+                                                                                    onPressed: gitDirPath?.$2 == null
+                                                                                        ? null
+                                                                                        : () async {
+                                                                                            if (demo) {
+                                                                                              demoConflicting = true;
+                                                                                              await reloadAll();
+                                                                                              MergeConflictDialog.showDialog(context, [
+                                                                                                ("Readme.md", GitManagerRs.ConflictType.text),
+                                                                                              ]).then((_) async {
+                                                                                                demoConflicting = false;
+                                                                                                await reloadAll();
+                                                                                              });
+
+                                                                                              return;
+                                                                                            }
+
+                                                                                            GestureDetector? detector;
+
+                                                                                            void searchForGestureDetector(BuildContext? element) {
+                                                                                              element?.visitChildElements((element) {
+                                                                                                if (element.widget is GestureDetector) {
+                                                                                                  detector = element.widget as GestureDetector;
+                                                                                                  return;
+                                                                                                } else {
+                                                                                                  searchForGestureDetector(element);
+                                                                                                }
+
+                                                                                                return;
+                                                                                              });
+                                                                                            }
+
+                                                                                            searchForGestureDetector(
+                                                                                              syncMethodsDropdownKey.currentContext,
+                                                                                            );
+
+                                                                                            if (detector?.onTap != null) detector?.onTap!();
+                                                                                          },
+
+                                                                                    style: ButtonStyle(
+                                                                                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                                      padding: WidgetStatePropertyAll(
+                                                                                        EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                                      ),
+                                                                                      shape: WidgetStatePropertyAll(
+                                                                                        RoundedRectangleBorder(
+                                                                                          borderRadius: orientation == Orientation.portrait
+                                                                                              ? BorderRadius.only(
+                                                                                                  topLeft: cornerRadiusSM,
+                                                                                                  topRight: cornerRadiusSM,
+                                                                                                  bottomLeft: cornerRadiusMD,
+                                                                                                  bottomRight: clientModeEnabledValue == true
+                                                                                                      ? cornerRadiusMD
+                                                                                                      : cornerRadiusSM,
+                                                                                                )
+                                                                                              : BorderRadius.only(
+                                                                                                  topLeft: cornerRadiusMD,
+                                                                                                  bottomRight: cornerRadiusSM,
+                                                                                                  bottomLeft: cornerRadiusSM,
+                                                                                                  topRight: clientModeEnabledValue == true
+                                                                                                      ? cornerRadiusMD
+                                                                                                      : cornerRadiusSM,
+                                                                                                ),
+                                                                                          side: BorderSide.none,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    icon: FaIcon(
+                                                                                      FontAwesomeIcons.ellipsis,
+                                                                                      color: gitDirPath?.$2 == null
+                                                                                          ? colours.secondaryLight
+                                                                                          : colours.primaryLight,
+                                                                                      size: textLG,
+                                                                                      semanticLabel: t.moreSyncOptionsLabel,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(width: spaceSM),
+                                                                          IconButton(
+                                                                            onPressed: () {
+                                                                              _openSettingsMain();
+                                                                            },
+                                                                            style: ButtonStyle(
+                                                                              backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                              padding: WidgetStatePropertyAll(
+                                                                                EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                              ),
+                                                                              shape: WidgetStatePropertyAll(
+                                                                                RoundedRectangleBorder(
+                                                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                                  side: BorderSide.none,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            icon: FaIcon(
+                                                                              FontAwesomeIcons.gear,
+                                                                              color: colours.primaryLight,
+                                                                              size: textLG,
+                                                                              semanticLabel: t.repositorySettingsLabel,
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(width: spaceSM),
+                                                                          ProviderBuilder<bool>(
+                                                                            provider: syncMessageEnabledProvider,
+                                                                            builder: (context, syncMsgEnabledAsync) {
+                                                                              final syncMsgEnabled = syncMsgEnabledAsync.valueOrNull;
+                                                                              return IconButton(
+                                                                                onPressed: () async {
+                                                                                  if (!(syncMsgEnabled ?? false)) {
+                                                                                    if (!(await Permission.notification.request().isGranted)) return;
+                                                                                  }
+
+                                                                                  ref
+                                                                                      .read(syncMessageEnabledProvider.notifier)
+                                                                                      .set(!(syncMsgEnabled ?? false));
+                                                                                },
+                                                                                style: ButtonStyle(
+                                                                                  backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                                  padding: WidgetStatePropertyAll(
+                                                                                    EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                                  ),
+                                                                                  shape: WidgetStatePropertyAll(
+                                                                                    RoundedRectangleBorder(
+                                                                                      borderRadius: orientation == Orientation.portrait
+                                                                                          ? BorderRadius.only(
+                                                                                              topLeft: cornerRadiusSM,
+                                                                                              topRight: cornerRadiusSM,
+                                                                                              bottomLeft: cornerRadiusSM,
+                                                                                              bottomRight: cornerRadiusMD,
+                                                                                            )
+                                                                                          : BorderRadius.only(
+                                                                                              topLeft: cornerRadiusSM,
+                                                                                              topRight: cornerRadiusMD,
+                                                                                              bottomLeft: cornerRadiusSM,
+                                                                                              bottomRight: cornerRadiusSM,
+                                                                                            ),
+                                                                                      side: BorderSide.none,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                icon: Stack(
+                                                                                  alignment: Alignment.center,
+                                                                                  children: [
+                                                                                    FaIcon(
+                                                                                      FontAwesomeIcons.solidBellSlash,
+                                                                                      color: Colors.transparent,
+                                                                                      size: textLG - 2,
+                                                                                    ),
+                                                                                    FaIcon(
+                                                                                      demo || syncMsgEnabled == true
+                                                                                          ? FontAwesomeIcons.solidBell
+                                                                                          : FontAwesomeIcons.solidBellSlash,
+                                                                                      color: demo || syncMsgEnabled == true
+                                                                                          ? colours.primaryPositive
+                                                                                          : colours.primaryLight,
+                                                                                      size: textLG - 2,
+                                                                                      semanticLabel: t.syncMessagesLabel,
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      height: 0,
+                                                                      width: double.infinity,
+                                                                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                                                      margin: EdgeInsets.symmetric(horizontal: spaceMD),
+                                                                      padding: EdgeInsets.only(top: spaceLG + spaceXS),
+                                                                      child: DropdownButton(
+                                                                        key: syncMethodsDropdownKey,
+                                                                        borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                        selectedItemBuilder: (context) =>
+                                                                            List.generate(syncOptionsSnapshot.length, (_) => SizedBox.shrink()),
+                                                                        icon: SizedBox.shrink(),
+                                                                        underline: const SizedBox.shrink(),
+                                                                        menuWidth: MediaQuery.of(context).size.width - (spaceMD * 2),
+                                                                        // menuWidth: null,
+                                                                        dropdownColor: colours.secondaryDark,
+                                                                        padding: EdgeInsets.zero,
+                                                                        alignment: Alignment.bottomCenter,
+                                                                        onChanged: (value) {},
+                                                                        items: (syncOptionsSnapshot).entries
+                                                                            .where(
+                                                                              (item) =>
+                                                                                  item.key !=
+                                                                                  (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) ==
+                                                                                          true
+                                                                                      ? lastSyncMethodSnapshot.data
+                                                                                      : (syncOptionsSnapshot.keys.isNotEmpty
+                                                                                            ? syncOptionsSnapshot.keys.first
+                                                                                            : "")),
+                                                                            )
+                                                                            .map(
+                                                                              (item) => DropdownMenuItem(
+                                                                                onTap: () async {
+                                                                                  if (![
+                                                                                    t.switchToClientMode,
+                                                                                    t.switchToSyncMode,
+                                                                                  ].contains(item.key)) {
+                                                                                    ref.read(lastSyncMethodProvider.notifier).set(item.key);
+                                                                                  }
+
+                                                                                  await item.value.$2();
+                                                                                },
+                                                                                value: item.key,
+                                                                                child: Row(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                  children: [
+                                                                                    FaIcon(
+                                                                                      item.value.$1,
+                                                                                      color:
+                                                                                          [
+                                                                                            t.switchToClientMode,
+                                                                                            t.switchToSyncMode,
+                                                                                          ].contains(item.key)
+                                                                                          ? colours.tertiaryInfo
+                                                                                          : colours.primaryLight,
+                                                                                      size: textLG,
+                                                                                    ),
+                                                                                    SizedBox(width: spaceMD),
+                                                                                    Flexible(
+                                                                                      child: Text(
+                                                                                        item.key.toUpperCase(),
+                                                                                        maxLines: 1,
+                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                        style: TextStyle(
+                                                                                          fontSize: textMD,
+                                                                                          color:
+                                                                                              [
+                                                                                                t.switchToClientMode,
+                                                                                                t.switchToSyncMode,
+                                                                                              ].contains(item.key)
+                                                                                              ? colours.tertiaryInfo
+                                                                                              : colours.primaryLight,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            )
+                                                                            .toList(),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            },
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: spaceLG, width: spaceMD),
+
+                                      Expanded(
+                                        flex: orientation == Orientation.portrait ? 0 : 1,
+                                        child: ProviderBuilder<bool>(
+                                          provider: isAuthenticatedProvider,
+                                          builder: (context, isAuthenticatedAsync) =>
+                                              (orientation == Orientation.portrait
+                                              ? (List<Widget> children) => Column(children: children)
+                                              : (List<Widget> children) => ShaderMask(
+                                                  shaderCallback: (Rect rect) {
+                                                    return LinearGradient(
+                                                      begin: Alignment.topCenter,
+                                                      end: Alignment.bottomCenter,
+                                                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                                                      stops: [0, 0.05, 0.95, 1.0],
+                                                    ).createShader(rect);
+                                                  },
+                                                  blendMode: BlendMode.dstOut,
+                                                  child: SingleChildScrollView(child: ListBody(children: children)),
+                                                ))([
+                                                CustomShowcase(
+                                                  cornerRadius: cornerRadiusMD,
+                                                  globalKey: _configKey,
+                                                  first: true,
+                                                  richContent: ShowcaseTooltipContent(
+                                                    title: t.showcaseRepoTitle,
+                                                    subtitle: t.showcaseRepoSubtitle,
+                                                    featureRows: [
+                                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: t.showcaseRepoFeatureAuth),
+                                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: t.showcaseRepoFeatureDir),
+                                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.filePen, text: t.showcaseRepoFeatureBrowse),
+                                                      ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: t.showcaseRepoFeatureRemote),
+                                                    ],
+                                                  ),
+                                                  child: ProviderBuilder<(String, String)?>(
+                                                    provider: gitDirPathProvider,
+                                                    builder: (context, gitDirPathAsync) {
+                                                      final gitDirPath = gitDirPathAsync.valueOrNull;
+                                                      return Column(
+                                                        children: [
+                                                          IntrinsicHeight(
+                                                            child: Row(
+                                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                              children: [
+                                                                ProviderBuilder<(String, String)?>(
+                                                                  provider: remoteUrlLinkProvider,
+                                                                  builder: (context, remoteUrlLinkAsync) => ProviderBuilder<List<String>>(
+                                                                    provider: listRemotesProvider,
+                                                                    builder: (context, remotesAsync) {
+                                                                      final remoteUrlLinkValue = remoteUrlLinkAsync.valueOrNull;
+                                                                      final remotesList = remotesAsync.valueOrNull ?? [];
+                                                                      final actions = remoteEllipsisActions(remotesList.length);
+                                                                      return FutureBuilder<String>(
+                                                                        future: uiSettingsManager.getRemote(),
+                                                                        builder: (context, currentRemoteSnapshot) {
+                                                                          final currentRemoteName = currentRemoteSnapshot.data;
+                                                                          final hasDir = gitDirPath?.$1 != null;
+                                                                          final noRemoteWithDir = remotesList.isEmpty && hasDir;
+                                                                          // Build dropdown items: "Add Remote" first, then each remote name
+                                                                          final dropdownItems = <DropdownMenuItem<String>>[
+                                                                            DropdownMenuItem(
+                                                                              value: "__add_remote__",
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  FaIcon(
+                                                                                    FontAwesomeIcons.plus,
+                                                                                    color: colours.primaryPositive,
+                                                                                    size: textMD,
+                                                                                  ),
+                                                                                  SizedBox(width: spaceSM),
+                                                                                  Text(
+                                                                                    t.addRemote.toUpperCase(),
+                                                                                    style: TextStyle(
+                                                                                      fontSize: textXS,
+                                                                                      color: colours.primaryLight,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                            ...remotesList.map(
+                                                                              (name) => DropdownMenuItem(
+                                                                                value: name,
+                                                                                child: name == currentRemoteName && remoteUrlLinkValue != null
+                                                                                    ? Row(
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            name.toUpperCase(),
+                                                                                            style: TextStyle(
+                                                                                              fontSize: textXS,
+                                                                                              color: colours.primaryLight,
+                                                                                              fontWeight: FontWeight.bold,
+                                                                                            ),
+                                                                                          ),
+                                                                                          Text(
+                                                                                            " · ",
+                                                                                            style: TextStyle(
+                                                                                              fontSize: textXS,
+                                                                                              color: colours.tertiaryLight,
+                                                                                            ),
+                                                                                          ),
+                                                                                          Flexible(
+                                                                                            child: Text(
+                                                                                              remoteUrlLinkValue.$1,
+                                                                                              style: TextStyle(
+                                                                                                fontSize: textXS,
+                                                                                                color: colours.tertiaryLight,
+                                                                                                fontWeight: FontWeight.w400,
+                                                                                              ),
+                                                                                              overflow: TextOverflow.ellipsis,
+                                                                                              maxLines: 1,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      )
+                                                                                    : Text(
+                                                                                        name.toUpperCase(),
+                                                                                        style: TextStyle(
+                                                                                          fontSize: textXS,
+                                                                                          color: colours.primaryLight,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                        ),
+                                                                                      ),
+                                                                              ),
+                                                                            ),
+                                                                          ];
+                                                                          return Expanded(
+                                                                            child: Row(
+                                                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                                              children: [
+                                                                                Expanded(
+                                                                                  child: Stack(
+                                                                                    children: [
+                                                                                      if (noRemoteWithDir)
+                                                                                        GestureDetector(
+                                                                                          onTap: () async {
+                                                                                            final provider = ref
+                                                                                                .read(gitProviderProvider)
+                                                                                                .valueOrNull;
+                                                                                            final hasOAuth = provider?.isOAuthProvider == true;
+                                                                                            await AddRemoteDialog.showDialog(
+                                                                                              context,
+                                                                                              (name, url) async {
+                                                                                                await runGitOperation(
+                                                                                                  LogType.AddRemote,
+                                                                                                  (event) => event,
+                                                                                                  {"name": name, "url": url},
+                                                                                                );
+                                                                                                await uiSettingsManager.setStringNullable(
+                                                                                                  StorageKey.setman_remote,
+                                                                                                  name,
+                                                                                                );
+                                                                                                await reloadAll();
+                                                                                              },
+                                                                                              oauthProviderName: hasOAuth ? provider!.name : null,
+                                                                                              onCreateRemote: hasOAuth
+                                                                                                  ? () async {
+                                                                                                      final dirPath = ref
+                                                                                                          .read(gitDirPathProvider)
+                                                                                                          .valueOrNull
+                                                                                                          ?.$1;
+                                                                                                      if (dirPath != null) {
+                                                                                                        await offerCreateRemoteForExistingRepo(
+                                                                                                          context,
+                                                                                                          dirPath,
+                                                                                                        );
+                                                                                                        await reloadAll();
+                                                                                                      }
+                                                                                                    }
+                                                                                                  : null,
+                                                                                            );
+                                                                                          },
+                                                                                          child: Container(
+                                                                                            padding: EdgeInsets.only(
+                                                                                              left: spaceMD,
+                                                                                              right: 0,
+                                                                                              top: 1,
+                                                                                              bottom: 1,
+                                                                                            ),
+                                                                                            decoration: BoxDecoration(
+                                                                                              color: colours.secondaryDark,
+                                                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                                            ),
+                                                                                            child: Row(
+                                                                                              children: [
+                                                                                                Expanded(
+                                                                                                  child: Padding(
+                                                                                                    padding: EdgeInsets.symmetric(
+                                                                                                      vertical: spaceSM + spaceXXXS,
+                                                                                                    ),
+                                                                                                    child: Text(
+                                                                                                      t.addRemote,
+                                                                                                      maxLines: 1,
+                                                                                                      overflow: TextOverflow.ellipsis,
+                                                                                                      style: TextStyle(
+                                                                                                        color: colours.primaryLight,
+                                                                                                        fontSize: textMD,
+                                                                                                        fontWeight: FontWeight.w400,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ),
+                                                                                                Padding(
+                                                                                                  padding: EdgeInsets.only(
+                                                                                                    left: spaceSM,
+                                                                                                    right: spaceMD,
+                                                                                                  ),
+                                                                                                  child: FaIcon(
+                                                                                                    FontAwesomeIcons.plus,
+                                                                                                    color: colours.primaryLight,
+                                                                                                    size: textLG,
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ],
+                                                                                            ),
+                                                                                          ),
+                                                                                        )
+                                                                                      else
+                                                                                        Container(
+                                                                                          padding: EdgeInsets.zero,
+                                                                                          decoration: BoxDecoration(
+                                                                                            color: colours.secondaryDark,
+                                                                                            borderRadius: remotesList.isEmpty
+                                                                                                ? BorderRadius.all(cornerRadiusMD)
+                                                                                                : BorderRadius.only(
+                                                                                                    topLeft: cornerRadiusMD,
+                                                                                                    bottomLeft: cornerRadiusMD,
+                                                                                                    topRight: Radius.zero,
+                                                                                                    bottomRight: Radius.zero,
+                                                                                                  ),
+                                                                                          ),
+                                                                                          child: DropdownButton<String>(
+                                                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                                            padding: EdgeInsets.only(
+                                                                                              left: spaceMD,
+                                                                                              right: remotesList.isEmpty ? spaceMD : 0,
+                                                                                              top: 1,
+                                                                                              bottom: 1,
+                                                                                            ),
+
+                                                                                            onTap: () {
+                                                                                              if (demo) {
+                                                                                                ManualSyncDialog.showDialog(
+                                                                                                  context,
+                                                                                                  hasRemotes:
+                                                                                                      (ref.read(listRemotesProvider).valueOrNull ??
+                                                                                                              [])
+                                                                                                          .isNotEmpty,
+                                                                                                ).then((_) => reloadAll());
+                                                                                                return;
+                                                                                              }
+                                                                                            },
+                                                                                            icon: Padding(
+                                                                                              padding: EdgeInsets.only(left: spaceSM),
+                                                                                              child: FaIcon(
+                                                                                                remoteUrlLinkValue != null
+                                                                                                    ? FontAwesomeIcons.caretDown
+                                                                                                    : FontAwesomeIcons.solidCircleXmark,
+                                                                                                color: remoteUrlLinkValue != null
+                                                                                                    ? colours.secondaryLight
+                                                                                                    : colours.tertiaryLight,
+                                                                                                size: textLG,
+                                                                                              ),
+                                                                                            ),
+                                                                                            value:
+                                                                                                currentRemoteName != null &&
+                                                                                                    remotesList.contains(currentRemoteName)
+                                                                                                ? currentRemoteName
+                                                                                                : null,
+                                                                                            isExpanded: true,
+                                                                                            underline: const SizedBox.shrink(),
+                                                                                            dropdownColor: colours.secondaryDark,
+                                                                                            hint: Text(
+                                                                                              t.repoNotFound,
+                                                                                              maxLines: 1,
+                                                                                              overflow: TextOverflow.ellipsis,
+                                                                                              style: TextStyle(
+                                                                                                color: colours.secondaryLight,
+                                                                                                fontSize: textMD,
+                                                                                                fontWeight: FontWeight.w400,
+                                                                                              ),
+                                                                                            ),
+                                                                                            onChanged: (gitDirPath?.$2 == null)
+                                                                                                ? null
+                                                                                                : (value) async {
+                                                                                                    if (value == "__add_remote__") {
+                                                                                                      await AddRemoteDialog.showDialog(context, (
+                                                                                                        name,
+                                                                                                        url,
+                                                                                                      ) async {
+                                                                                                        await runGitOperation(
+                                                                                                          LogType.AddRemote,
+                                                                                                          (event) => event,
+                                                                                                          {"name": name, "url": url},
+                                                                                                        );
+                                                                                                        await uiSettingsManager.setStringNullable(
+                                                                                                          StorageKey.setman_remote,
+                                                                                                          name,
+                                                                                                        );
+                                                                                                        await reloadAll();
+                                                                                                      });
+                                                                                                      return;
+                                                                                                    }
+                                                                                                    if (value != null) {
+                                                                                                      await uiSettingsManager.setStringNullable(
+                                                                                                        StorageKey.setman_remote,
+                                                                                                        value,
+                                                                                                      );
+                                                                                                      await reloadAll();
+                                                                                                    }
+                                                                                                  },
+                                                                                            selectedItemBuilder: (context) => List.generate(
+                                                                                              dropdownItems.length,
+                                                                                              (index) => Row(
+                                                                                                children: [
+                                                                                                  Expanded(
+                                                                                                    child: ExtendedText(
+                                                                                                      demo
+                                                                                                          ? "https://github.com/ViscousTests/TestObsidianVault.git"
+                                                                                                          : (remoteUrlLinkValue == null
+                                                                                                                ? t.repoNotFound
+                                                                                                                : remoteUrlLinkValue.$1),
+                                                                                                      maxLines: 1,
+                                                                                                      textAlign: TextAlign.left,
+                                                                                                      softWrap: false,
+                                                                                                      overflowWidget: TextOverflowWidget(
+                                                                                                        position: TextOverflowPosition.start,
+                                                                                                        child: Text(
+                                                                                                          "…",
+                                                                                                          style: TextStyle(
+                                                                                                            color: colours.tertiaryLight,
+                                                                                                            fontSize: textMD,
+                                                                                                            fontWeight: FontWeight.w400,
+                                                                                                          ),
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                      style: TextStyle(
+                                                                                                        color: remoteUrlLinkValue != null
+                                                                                                            ? colours.primaryLight
+                                                                                                            : colours.secondaryLight,
+                                                                                                        fontSize: textMD,
+                                                                                                        fontWeight: FontWeight.w400,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                            items: dropdownItems,
+                                                                                          ),
+                                                                                        ),
+                                                                                      Positioned(
+                                                                                        top: spaceXXXXS / 2,
+                                                                                        left: spaceSM,
+                                                                                        child: Text(
+                                                                                          "${t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}"
+                                                                                              .toUpperCase(),
+                                                                                          style: TextStyle(
+                                                                                            color: colours.tertiaryLight,
+                                                                                            fontSize: textXXS,
+                                                                                            fontWeight: FontWeight.w900,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                if (remotesList.isNotEmpty)
+                                                                                  Container(
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: colours.secondaryDark,
+                                                                                      borderRadius: BorderRadius.only(
+                                                                                        topRight: cornerRadiusMD,
+                                                                                        bottomRight: cornerRadiusMD,
+                                                                                        topLeft: Radius.zero,
+                                                                                        bottomLeft: Radius.zero,
+                                                                                      ),
+                                                                                    ),
+                                                                                    child: PopupMenuButton<int>(
+                                                                                      icon: Padding(
+                                                                                        padding: EdgeInsets.symmetric(horizontal: spaceXS),
+                                                                                        child: FaIcon(
+                                                                                          FontAwesomeIcons.ellipsisVertical,
+                                                                                          color: colours.secondaryLight,
+                                                                                          size: textLG,
+                                                                                        ),
+                                                                                      ),
+                                                                                      color: colours.secondaryDark,
+                                                                                      shape: RoundedRectangleBorder(
+                                                                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                                      ),
+                                                                                      onSelected: (index) async {
+                                                                                        await actions[index].$2(context, remoteUrlLinkValue);
+                                                                                        await reloadAll();
+                                                                                      },
+                                                                                      itemBuilder: (context) => List.generate(
+                                                                                        actions.length,
+                                                                                        (index) => PopupMenuItem(
+                                                                                          value: index,
+                                                                                          enabled: actions[index].$3,
+                                                                                          child: Row(
+                                                                                            children: [
+                                                                                              actions[index].$1.$2,
+                                                                                              SizedBox(width: spaceSM),
+                                                                                              Text(
+                                                                                                actions[index].$1.$1.toUpperCase(),
+                                                                                                style: TextStyle(
+                                                                                                  fontSize: textXS,
+                                                                                                  color: actions[index].$3
+                                                                                                      ? colours.primaryLight
+                                                                                                      : colours.tertiaryLight,
+                                                                                                  fontWeight: FontWeight.bold,
+                                                                                                ),
+                                                                                              ),
+                                                                                            ],
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                              ],
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                                SizedBox(width: gitDirPath?.$2 == null ? spaceSM : 0),
+                                                                Visibility(
+                                                                  visible: gitDirPath?.$2 == null,
+                                                                  child: AnimatedBuilder(
+                                                                    animation: _pulseAnimation,
+                                                                    builder: (context, child) => TextButton.icon(
+                                                                      onPressed: () async {
+                                                                        await showCloneRepoPage();
+                                                                      },
+                                                                      style: ButtonStyle(
+                                                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                        padding: WidgetStatePropertyAll(
+                                                                          EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                        ),
+                                                                        shape: WidgetStatePropertyAll(
+                                                                          RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                            side: gitDirPath?.$2 == null
+                                                                                ? BorderSide(
+                                                                                    color: colours.tertiaryInfo.withAlpha(
+                                                                                      isAuthenticatedAsync.valueOrNull != true
+                                                                                          ? _pulseAnimation.value.toInt()
+                                                                                          : 120,
+                                                                                    ),
+                                                                                    width: 2,
+                                                                                    strokeAlign: BorderSide.strokeAlignInside,
+                                                                                  )
+                                                                                : BorderSide.none,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      icon: FaIcon(
+                                                                        FontAwesomeIcons.cloudArrowDown,
+                                                                        color: colours.primaryLight,
+                                                                        size: textLG - 2,
+                                                                      ),
+                                                                      iconAlignment: IconAlignment.start,
+                                                                      label: Padding(
+                                                                        padding: EdgeInsets.only(left: spaceXS),
+                                                                        child: Text(
+                                                                          t.clone.toUpperCase(),
+                                                                          style: TextStyle(
+                                                                            color: colours.primaryLight,
+                                                                            fontSize: textMD,
+                                                                            fontWeight: FontWeight.bold,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(width: spaceSM),
+                                                                Container(
+                                                                  decoration: BoxDecoration(
+                                                                    borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                    color: colours.secondaryDark,
+                                                                  ),
+                                                                  child: Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                                    children: [
+                                                                      AnimatedBuilder(
+                                                                        animation: _pulseAnimation,
+                                                                        builder: (context, child) => TextButton.icon(
+                                                                          onPressed: () async {
+                                                                            await showAuthDialog();
+                                                                          },
+                                                                          style: ButtonStyle(
+                                                                            alignment: Alignment.centerLeft,
+                                                                            backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                                                            padding: WidgetStatePropertyAll(
+                                                                              EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                            ),
+                                                                            shape: WidgetStatePropertyAll(
+                                                                              RoundedRectangleBorder(
+                                                                                borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                                side: isAuthenticatedAsync.valueOrNull != true
+                                                                                    ? BorderSide(
+                                                                                        color: colours.tertiaryNegative.withAlpha(
+                                                                                          gitDirPath?.$2 == null
+                                                                                              ? _pulseAnimation.value.toInt()
+                                                                                              : 120,
+                                                                                        ),
+                                                                                        width: 2,
+                                                                                        strokeAlign: BorderSide.strokeAlignInside,
+                                                                                      )
+                                                                                    : BorderSide.none,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          icon: FaIcon(
+                                                                            isAuthenticatedAsync.valueOrNull == true
+                                                                                ? FontAwesomeIcons.solidCircleCheck
+                                                                                : FontAwesomeIcons.solidCircleXmark,
+                                                                            color: isAuthenticatedAsync.valueOrNull == true
+                                                                                ? colours.primaryPositive
+                                                                                : colours.primaryNegative,
+                                                                            size: textLG,
+                                                                          ),
+                                                                          label: Padding(
+                                                                            padding: EdgeInsets.only(left: spaceXS),
+                                                                            child: Text(
+                                                                              t.auth.toUpperCase(),
+                                                                              style: TextStyle(
+                                                                                color: colours.primaryLight,
+                                                                                fontSize: textMD,
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+
+                                                                      Consumer(
+                                                                        builder: (context, ref, _) =>
+                                                                            !((ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB) ==
+                                                                                    GitProvider.GITHUB &&
+                                                                                (ref.watch(githubScopedOauthProvider).valueOrNull ?? false))
+                                                                            ? SizedBox.shrink()
+                                                                            : IconButton(
+                                                                                padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
+                                                                                style: ButtonStyle(
+                                                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                                                  shape: WidgetStatePropertyAll(
+                                                                                    RoundedRectangleBorder(
+                                                                                      borderRadius: BorderRadiusGeometry.only(
+                                                                                        topRight: cornerRadiusMD,
+                                                                                        bottomRight: cornerRadiusMD,
+                                                                                        bottomLeft: Radius.zero,
+                                                                                        topLeft: Radius.zero,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                constraints: BoxConstraints(),
+                                                                                onPressed: () async {
+                                                                                  final gitProviderManager = GithubAppManager();
+
+                                                                                  final usernameToken = await uiSettingsManager
+                                                                                      .getGitHttpAuthCredentials();
+
+                                                                                  final token = await gitProviderManager.getToken(
+                                                                                    usernameToken.$2,
+                                                                                    (_, _, _) async {},
+                                                                                  );
+
+                                                                                  if (token == null) return;
+
+                                                                                  final githubAppInstallations = await gitProviderManager
+                                                                                      .getGitHubAppInstallations(token);
+                                                                                  if (githubAppInstallations.isEmpty) {
+                                                                                    await launchUrl(
+                                                                                      Uri.parse(githubAppsLink),
+                                                                                      mode: LaunchMode.inAppBrowserView,
+                                                                                    );
+                                                                                  } else {
+                                                                                    await launchUrl(
+                                                                                      Uri.parse(
+                                                                                        "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
+                                                                                      ),
+                                                                                      mode: LaunchMode.inAppBrowserView,
+                                                                                    );
+                                                                                  }
+                                                                                },
+                                                                                icon: FaIcon(
+                                                                                  FontAwesomeIcons.sliders,
+                                                                                  size: textLG,
+                                                                                  color: colours.secondaryLight,
+                                                                                ),
+                                                                              ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          SizedBox(height: spaceMD),
+
+                                                          IntrinsicHeight(
+                                                            child: Row(
+                                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Stack(
+                                                                    children: [
+                                                                      Container(
+                                                                        decoration: BoxDecoration(
+                                                                          color: colours.secondaryDark,
+                                                                          borderRadius: BorderRadius.only(
+                                                                            bottomLeft: cornerRadiusMD,
+                                                                            bottomRight: cornerRadiusSM,
+                                                                            topLeft: cornerRadiusMD,
+                                                                            topRight: cornerRadiusSM,
+                                                                          ),
+                                                                        ),
+                                                                        child: Row(
+                                                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Flexible(
+                                                                              child: Padding(
+                                                                                padding: EdgeInsets.all(spaceMD),
+                                                                                child: ExtendedText(
+                                                                                  demo
+                                                                                      ? (Platform.isIOS
+                                                                                            ? "TestObsidianVault"
+                                                                                            : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
+                                                                                      : (gitDirPath?.$2 == null
+                                                                                            ? t.repoNotFound
+                                                                                            : (Platform.isIOS
+                                                                                                      ? gitDirPath?.$2.split("/").last
+                                                                                                      : gitDirPath?.$2) ??
+                                                                                                  ""),
+                                                                                  maxLines: 1,
+                                                                                  textAlign: TextAlign.left,
+                                                                                  softWrap: false,
+                                                                                  overflowWidget: TextOverflowWidget(
+                                                                                    position: TextOverflowPosition.start,
+                                                                                    child: Text(
+                                                                                      "…",
+                                                                                      style: TextStyle(
+                                                                                        color: gitDirPath?.$2 == null
+                                                                                            ? colours.secondaryLight
+                                                                                            : colours.primaryLight,
+                                                                                        fontSize: textMD,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                  style: TextStyle(
+                                                                                    color: gitDirPath?.$2 == null
+                                                                                        ? colours.secondaryLight
+                                                                                        : colours.primaryLight,
+                                                                                    fontSize: textMD,
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            gitDirPath?.$2 == null
+                                                                                ? SizedBox.shrink()
+                                                                                : IconButton(
+                                                                                    onPressed: () async {
+                                                                                      ref.read(gitDirPathProvider.notifier).set(null);
+                                                                                      ref.read(branchNameProvider.notifier).set(null);
+                                                                                      ref.read(remoteUrlLinkProvider.notifier).set(null);
+                                                                                      ref.read(listRemotesProvider.notifier).set([]);
+                                                                                      ref.read(gitProviderProvider.notifier).set(GitProvider.GITHUB);
+                                                                                      ref.read(recommendedActionProvider.notifier).set(null);
+                                                                                      ref.read(branchNamesProvider.notifier).set({});
+                                                                                      ref.read(hasGitFiltersProvider.notifier).set(false);
+                                                                                      ref.read(recentCommitsProvider.notifier).set([]);
+                                                                                      ref.read(conflictingFilesProvider.notifier).set([]);
+                                                                                      await updateSyncOptions();
+                                                                                      if (mounted) setState(() {});
+                                                                                    },
+                                                                                    constraints: BoxConstraints(),
+                                                                                    style: ButtonStyle(
+                                                                                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                                      padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
+                                                                                      visualDensity: VisualDensity.compact,
+                                                                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                                      shape: WidgetStatePropertyAll(
+                                                                                        RoundedRectangleBorder(
+                                                                                          borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                                                          side: BorderSide.none,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    icon: FaIcon(
+                                                                                      FontAwesomeIcons.solidCircleXmark,
+                                                                                      size: textLG,
+                                                                                      color: colours.primaryLight,
+                                                                                      semanticLabel: t.deselectDirLabel,
+                                                                                    ),
+                                                                                  ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Positioned(
+                                                                        top: spaceXXXXS / 2,
+                                                                        left: spaceSM,
+                                                                        child: Text(
+                                                                          t.directory.toUpperCase(),
+                                                                          style: TextStyle(
+                                                                            color: colours.tertiaryLight,
+                                                                            fontSize: textXXS,
+                                                                            fontWeight: FontWeight.w900,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(width: spaceSM),
+                                                                AnimatedBuilder(
                                                                   animation: _pulseAnimation,
-                                                                  builder: (context, child) => TextButton.icon(
+                                                                  builder: (context, child) => IconButton(
                                                                     onPressed: () async {
-                                                                      await showCloneRepoPage();
+                                                                      String? selectedDirectory;
+                                                                      if (await requestStoragePerm()) {
+                                                                        selectedDirectory = await pickDirectory();
+                                                                      }
+                                                                      if (selectedDirectory == null) return;
+
+                                                                      if (!mounted) return;
+                                                                      final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                                                                      if (!isRepo) return;
+
+                                                                      if (!mounted) return;
+                                                                      await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
+                                                                      await reloadAll();
                                                                     },
                                                                     style: ButtonStyle(
                                                                       backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
@@ -3543,7 +3865,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       ),
                                                                       shape: WidgetStatePropertyAll(
                                                                         RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                          borderRadius: BorderRadius.only(
+                                                                            bottomLeft: cornerRadiusSM,
+                                                                            bottomRight: cornerRadiusMD,
+                                                                            topLeft: cornerRadiusSM,
+                                                                            topRight: cornerRadiusMD,
+                                                                          ),
                                                                           side: gitDirPath?.$2 == null
                                                                               ? BorderSide(
                                                                                   color: colours.tertiaryInfo.withAlpha(
@@ -3559,443 +3886,140 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       ),
                                                                     ),
                                                                     icon: FaIcon(
-                                                                      FontAwesomeIcons.cloudArrowDown,
+                                                                      FontAwesomeIcons.solidFolderOpen,
                                                                       color: colours.primaryLight,
                                                                       size: textLG - 2,
-                                                                    ),
-                                                                    iconAlignment: IconAlignment.start,
-                                                                    label: Padding(
-                                                                      padding: EdgeInsets.only(left: spaceXS),
-                                                                      child: Text(
-                                                                        t.clone.toUpperCase(),
-                                                                        style: TextStyle(
-                                                                          color: colours.primaryLight,
-                                                                          fontSize: textMD,
-                                                                          fontWeight: FontWeight.bold,
-                                                                        ),
-                                                                      ),
+                                                                      semanticLabel: t.selectDirLabel,
                                                                     ),
                                                                   ),
                                                                 ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+
+                                                SizedBox(height: spaceLG),
+                                                ...clientModeEnabledValue == true
+                                                    ? [
+                                                        TextButton.icon(
+                                                          onPressed: () async {
+                                                            _homeNavigatorKey.currentState
+                                                                ?.push(createSyncSettingsMainRoute())
+                                                                .then((_) => reloadAll());
+                                                          },
+                                                          iconAlignment: IconAlignment.end,
+                                                          style: ButtonStyle(
+                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                            padding: WidgetStatePropertyAll(
+                                                              EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
+                                                            ),
+                                                            shape: WidgetStatePropertyAll(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                side: BorderSide.none,
                                                               ),
+                                                            ),
+                                                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                          ),
+                                                          icon: IconButton(
+                                                            padding: EdgeInsets.zero,
+                                                            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                                            constraints: BoxConstraints(),
+                                                            onPressed: () async {
+                                                              launchUrl(Uri.parse(syncOptionsDocsLink));
+                                                            },
+                                                            icon: FaIcon(FontAwesomeIcons.circleQuestion, color: colours.primaryLight, size: textLG),
+                                                          ),
+                                                          label: Row(
+                                                            children: [
+                                                              FaIcon(FontAwesomeIcons.rightLeft, color: colours.primaryLight, size: textLG),
                                                               SizedBox(width: spaceSM),
-                                                              Container(
-                                                                decoration: BoxDecoration(
-                                                                  borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                  color: colours.secondaryDark,
-                                                                ),
-                                                                child: Row(
-                                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                                  children: [
-                                                                    AnimatedBuilder(
-                                                                      animation: _pulseAnimation,
-                                                                      builder: (context, child) => TextButton.icon(
-                                                                        onPressed: () async {
-                                                                          await showAuthDialog();
-                                                                        },
-                                                                        style: ButtonStyle(
-                                                                          alignment: Alignment.centerLeft,
-                                                                          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                                                          padding: WidgetStatePropertyAll(
-                                                                            EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                          ),
-                                                                          shape: WidgetStatePropertyAll(
-                                                                            RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                              side: isAuthenticatedAsync.valueOrNull != true
-                                                                                  ? BorderSide(
-                                                                                      color: colours.tertiaryNegative.withAlpha(
-                                                                                        gitDirPath?.$2 == null ? _pulseAnimation.value.toInt() : 120,
-                                                                                      ),
-                                                                                      width: 2,
-                                                                                      strokeAlign: BorderSide.strokeAlignInside,
-                                                                                    )
-                                                                                  : BorderSide.none,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        icon: FaIcon(
-                                                                          isAuthenticatedAsync.valueOrNull == true
-                                                                              ? FontAwesomeIcons.solidCircleCheck
-                                                                              : FontAwesomeIcons.solidCircleXmark,
-                                                                          color: isAuthenticatedAsync.valueOrNull == true
-                                                                              ? colours.primaryPositive
-                                                                              : colours.primaryNegative,
-                                                                          size: textLG,
-                                                                        ),
-                                                                        label: Padding(
-                                                                          padding: EdgeInsets.only(left: spaceXS),
-                                                                          child: Text(
-                                                                            t.auth.toUpperCase(),
-                                                                            style: TextStyle(
-                                                                              color: colours.primaryLight,
-                                                                              fontSize: textMD,
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-
-                                                                    Consumer(
-                                                                      builder: (context, ref, _) =>
-                                                                          !((ref.watch(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB) ==
-                                                                                  GitProvider.GITHUB &&
-                                                                              (ref.watch(githubScopedOauthProvider).valueOrNull ?? false))
-                                                                          ? SizedBox.shrink()
-                                                                          : IconButton(
-                                                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                              style: ButtonStyle(
-                                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                                                                                shape: WidgetStatePropertyAll(
-                                                                                  RoundedRectangleBorder(
-                                                                                    borderRadius: BorderRadiusGeometry.only(
-                                                                                      topRight: cornerRadiusMD,
-                                                                                      bottomRight: cornerRadiusMD,
-                                                                                      bottomLeft: Radius.zero,
-                                                                                      topLeft: Radius.zero,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                              constraints: BoxConstraints(),
-                                                                              onPressed: () async {
-                                                                                final gitProviderManager = GithubAppManager();
-
-                                                                                final usernameToken = await uiSettingsManager
-                                                                                    .getGitHttpAuthCredentials();
-
-                                                                                final token = await gitProviderManager.getToken(
-                                                                                  usernameToken.$2,
-                                                                                  (_, _, _) async {},
-                                                                                );
-
-                                                                                if (token == null) return;
-
-                                                                                final githubAppInstallations = await gitProviderManager
-                                                                                    .getGitHubAppInstallations(token);
-                                                                                if (githubAppInstallations.isEmpty) {
-                                                                                  await launchUrl(
-                                                                                    Uri.parse(githubAppsLink),
-                                                                                    mode: LaunchMode.inAppBrowserView,
-                                                                                  );
-                                                                                } else {
-                                                                                  await launchUrl(
-                                                                                    Uri.parse(
-                                                                                      "https://github.com/settings/installations/${githubAppInstallations[0]["id"]}",
-                                                                                    ),
-                                                                                    mode: LaunchMode.inAppBrowserView,
-                                                                                  );
-                                                                                }
-                                                                              },
-                                                                              icon: FaIcon(
-                                                                                FontAwesomeIcons.sliders,
-                                                                                size: textLG,
-                                                                                color: colours.secondaryLight,
-                                                                              ),
-                                                                            ),
-                                                                    ),
-                                                                  ],
+                                                              Expanded(
+                                                                child: Text(
+                                                                  t.syncSettings,
+                                                                  style: TextStyle(
+                                                                    fontFeatures: [FontFeature.enable('smcp')],
+                                                                    color: colours.primaryLight,
+                                                                    fontSize: textLG,
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ],
                                                           ),
                                                         ),
                                                         SizedBox(height: spaceMD),
-
-                                                        IntrinsicHeight(
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Stack(
-                                                                  children: [
-                                                                    Container(
-                                                                      decoration: BoxDecoration(
-                                                                        color: colours.secondaryDark,
-                                                                        borderRadius: BorderRadius.only(
-                                                                          bottomLeft: cornerRadiusMD,
-                                                                          bottomRight: cornerRadiusSM,
-                                                                          topLeft: cornerRadiusMD,
-                                                                          topRight: cornerRadiusSM,
-                                                                        ),
-                                                                      ),
-                                                                      child: Row(
-                                                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                        children: [
-                                                                          Flexible(
-                                                                            child: Padding(
-                                                                              padding: EdgeInsets.all(spaceMD),
-                                                                              child: ExtendedText(
-                                                                                demo
-                                                                                    ? (Platform.isIOS
-                                                                                          ? "TestObsidianVault"
-                                                                                          : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
-                                                                                    : (gitDirPath?.$2 == null
-                                                                                          ? t.repoNotFound
-                                                                                          : (Platform.isIOS
-                                                                                                    ? gitDirPath?.$2.split("/").last
-                                                                                                    : gitDirPath?.$2) ??
-                                                                                                ""),
-                                                                                maxLines: 1,
-                                                                                textAlign: TextAlign.left,
-                                                                                softWrap: false,
-                                                                                overflowWidget: TextOverflowWidget(
-                                                                                  position: TextOverflowPosition.start,
-                                                                                  child: Text(
-                                                                                    "…",
-                                                                                    style: TextStyle(
-                                                                                      color: gitDirPath?.$2 == null
-                                                                                          ? colours.secondaryLight
-                                                                                          : colours.primaryLight,
-                                                                                      fontSize: textMD,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                style: TextStyle(
-                                                                                  color: gitDirPath?.$2 == null
-                                                                                      ? colours.secondaryLight
-                                                                                      : colours.primaryLight,
-                                                                                  fontSize: textMD,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          gitDirPath?.$2 == null
-                                                                              ? SizedBox.shrink()
-                                                                              : IconButton(
-                                                                                  onPressed: () async {
-                                                                                    ref.read(gitDirPathProvider.notifier).set(null);
-                                                                                    ref.read(branchNameProvider.notifier).set(null);
-                                                                                    ref.read(remoteUrlLinkProvider.notifier).set(null);
-                                                                                    ref.read(listRemotesProvider.notifier).set([]);
-                                                                                    ref.read(gitProviderProvider.notifier).set(GitProvider.GITHUB);
-                                                                                    ref.read(recommendedActionProvider.notifier).set(null);
-                                                                                    ref.read(branchNamesProvider.notifier).set({});
-                                                                                    ref.read(hasGitFiltersProvider.notifier).set(false);
-                                                                                    ref.read(recentCommitsProvider.notifier).set([]);
-                                                                                    ref.read(conflictingFilesProvider.notifier).set([]);
-                                                                                    await updateSyncOptions();
-                                                                                    if (mounted) setState(() {});
-                                                                                  },
-                                                                                  constraints: BoxConstraints(),
-                                                                                  style: ButtonStyle(
-                                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                                    padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
-                                                                                    visualDensity: VisualDensity.compact,
-                                                                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                                    shape: WidgetStatePropertyAll(
-                                                                                      RoundedRectangleBorder(
-                                                                                        borderRadius: BorderRadius.all(cornerRadiusSM),
-                                                                                        side: BorderSide.none,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  icon: FaIcon(
-                                                                                    FontAwesomeIcons.solidCircleXmark,
-                                                                                    size: textLG,
-                                                                                    color: colours.primaryLight,
-                                                                                    semanticLabel: t.deselectDirLabel,
-                                                                                  ),
-                                                                                ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Positioned(
-                                                                      top: spaceXXXXS / 2,
-                                                                      left: spaceSM,
-                                                                      child: Text(
-                                                                        t.directory.toUpperCase(),
-                                                                        style: TextStyle(
-                                                                          color: colours.tertiaryLight,
-                                                                          fontSize: textXXS,
-                                                                          fontWeight: FontWeight.w900,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                      ]
+                                                    : [
+                                                        CustomShowcase(
+                                                          globalKey: _autoSyncOptionsKey,
+                                                          cornerRadius: cornerRadiusMD,
+                                                          richContent: ShowcaseTooltipContent(
+                                                            title: t.showcaseAutoSyncTitle,
+                                                            subtitle: t.showcaseAutoSyncSubtitle,
+                                                            featureRows: [
+                                                              ShowcaseFeatureRow(
+                                                                icon: FontAwesomeIcons.solidBell,
+                                                                text: t.showcaseAutoSyncFeatureApp,
                                                               ),
-                                                              SizedBox(width: spaceSM),
-                                                              AnimatedBuilder(
-                                                                animation: _pulseAnimation,
-                                                                builder: (context, child) => IconButton(
-                                                                  onPressed: () async {
-                                                                    String? selectedDirectory;
-                                                                    if (await requestStoragePerm()) {
-                                                                      selectedDirectory = await pickDirectory();
-                                                                    }
-                                                                    if (selectedDirectory == null) return;
-
-                                                                    if (!mounted) return;
-                                                                    final isRepo = await validateOrInitGitDir(context, selectedDirectory);
-                                                                    if (!isRepo) return;
-
-                                                                    if (!mounted) return;
-                                                                    await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
-                                                                    await reloadAll();
-                                                                  },
-                                                                  style: ButtonStyle(
-                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                                    padding: WidgetStatePropertyAll(
-                                                                      EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
-                                                                    ),
-                                                                    shape: WidgetStatePropertyAll(
-                                                                      RoundedRectangleBorder(
-                                                                        borderRadius: BorderRadius.only(
-                                                                          bottomLeft: cornerRadiusSM,
-                                                                          bottomRight: cornerRadiusMD,
-                                                                          topLeft: cornerRadiusSM,
-                                                                          topRight: cornerRadiusMD,
-                                                                        ),
-                                                                        side: gitDirPath?.$2 == null
-                                                                            ? BorderSide(
-                                                                                color: colours.tertiaryInfo.withAlpha(
-                                                                                  isAuthenticatedAsync.valueOrNull != true
-                                                                                      ? _pulseAnimation.value.toInt()
-                                                                                      : 120,
-                                                                                ),
-                                                                                width: 2,
-                                                                                strokeAlign: BorderSide.strokeAlignInside,
-                                                                              )
-                                                                            : BorderSide.none,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  icon: FaIcon(
-                                                                    FontAwesomeIcons.solidFolderOpen,
-                                                                    color: colours.primaryLight,
-                                                                    size: textLG - 2,
-                                                                    semanticLabel: t.selectDirLabel,
-                                                                  ),
-                                                                ),
+                                                              ShowcaseFeatureRow(
+                                                                icon: FontAwesomeIcons.clockRotateLeft,
+                                                                text: t.showcaseAutoSyncFeatureSchedule,
+                                                              ),
+                                                              ShowcaseFeatureRow(
+                                                                icon: FontAwesomeIcons.barsStaggered,
+                                                                text: t.showcaseAutoSyncFeatureQuick,
+                                                              ),
+                                                              ShowcaseFeatureRow(
+                                                                icon: FontAwesomeIcons.solidGem,
+                                                                text: t.showcaseAutoSyncFeaturePremium,
                                                               ),
                                                             ],
                                                           ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-
-                                              SizedBox(height: spaceLG),
-                                              ...clientModeEnabledValue == true
-                                                  ? [
-                                                      TextButton.icon(
-                                                        onPressed: () async {
-                                                          _homeNavigatorKey.currentState
-                                                              ?.push(createSyncSettingsMainRoute())
-                                                              .then((_) => reloadAll());
-                                                        },
-                                                        iconAlignment: IconAlignment.end,
-                                                        style: ButtonStyle(
-                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                          padding: WidgetStatePropertyAll(
-                                                            EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD),
-                                                          ),
-                                                          shape: WidgetStatePropertyAll(
-                                                            RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                              side: BorderSide.none,
-                                                            ),
-                                                          ),
-                                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
-                                                        ),
-                                                        icon: IconButton(
-                                                          padding: EdgeInsets.zero,
-                                                          style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                                          constraints: BoxConstraints(),
-                                                          onPressed: () async {
-                                                            launchUrl(Uri.parse(syncOptionsDocsLink));
-                                                          },
-                                                          icon: FaIcon(FontAwesomeIcons.circleQuestion, color: colours.primaryLight, size: textLG),
-                                                        ),
-                                                        label: Row(
-                                                          children: [
-                                                            FaIcon(FontAwesomeIcons.rightLeft, color: colours.primaryLight, size: textLG),
-                                                            SizedBox(width: spaceSM),
-                                                            Expanded(
-                                                              child: Text(
-                                                                t.syncSettings,
-                                                                style: TextStyle(
-                                                                  fontFeatures: [FontFeature.enable('smcp')],
+                                                          targetPadding: EdgeInsets.all(spaceSM),
+                                                          customTooltipActions: [
+                                                            TooltipActionButton(
+                                                              backgroundColor: colours.secondaryInfo,
+                                                              textStyle: TextStyle(
+                                                                fontWeight: FontWeight.bold,
+                                                                fontSize: textSM,
+                                                                color: colours.primaryLight,
+                                                              ),
+                                                              leadIcon: ActionButtonIcon(
+                                                                icon: FaIcon(
+                                                                  FontAwesomeIcons.solidFileLines,
                                                                   color: colours.primaryLight,
-                                                                  fontSize: textLG,
+                                                                  size: textSM,
                                                                 ),
                                                               ),
+                                                              name: t.learnMore.toUpperCase(),
+                                                              onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
+                                                              type: null,
+                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                              padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                                             ),
                                                           ],
+                                                          child: GroupSyncSettings(),
                                                         ),
-                                                      ),
-                                                      SizedBox(height: spaceMD),
-                                                    ]
-                                                  : [
-                                                      CustomShowcase(
-                                                        globalKey: _autoSyncOptionsKey,
-                                                        cornerRadius: cornerRadiusMD,
-                                                        richContent: ShowcaseTooltipContent(
-                                                          title: t.showcaseAutoSyncTitle,
-                                                          subtitle: t.showcaseAutoSyncSubtitle,
-                                                          featureRows: [
-                                                            ShowcaseFeatureRow(icon: FontAwesomeIcons.solidBell, text: t.showcaseAutoSyncFeatureApp),
-                                                            ShowcaseFeatureRow(
-                                                              icon: FontAwesomeIcons.clockRotateLeft,
-                                                              text: t.showcaseAutoSyncFeatureSchedule,
-                                                            ),
-                                                            ShowcaseFeatureRow(
-                                                              icon: FontAwesomeIcons.barsStaggered,
-                                                              text: t.showcaseAutoSyncFeatureQuick,
-                                                            ),
-                                                            ShowcaseFeatureRow(
-                                                              icon: FontAwesomeIcons.solidGem,
-                                                              text: t.showcaseAutoSyncFeaturePremium,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        targetPadding: EdgeInsets.all(spaceSM),
-                                                        customTooltipActions: [
-                                                          TooltipActionButton(
-                                                            backgroundColor: colours.secondaryInfo,
-                                                            textStyle: TextStyle(
-                                                              fontWeight: FontWeight.bold,
-                                                              fontSize: textSM,
-                                                              color: colours.primaryLight,
-                                                            ),
-                                                            leadIcon: ActionButtonIcon(
-                                                              icon: FaIcon(
-                                                                FontAwesomeIcons.solidFileLines,
-                                                                color: colours.primaryLight,
-                                                                size: textSM,
-                                                              ),
-                                                            ),
-                                                            name: t.learnMore.toUpperCase(),
-                                                            onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
-                                                            type: null,
-                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                            padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                                          ),
-                                                        ],
-                                                        child: GroupSyncSettings(),
-                                                      ),
-                                                    ],
-                                              SizedBox(height: spaceMD),
-                                            ]),
+                                                      ],
+                                                SizedBox(height: spaceMD),
+                                              ]),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
                 _KeepAlivePage(child: _buildFilesTab()),
               ],
             ),

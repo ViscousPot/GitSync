@@ -9,13 +9,8 @@ class ChatMessage {
   final List<ContentBlock> content;
   TokenUsage? usage;
 
-  ChatMessage({
-    required this.id,
-    required this.role,
-    required this.content,
-    this.usage,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
+  ChatMessage({required this.id, required this.role, required this.content, this.usage, DateTime? timestamp})
+    : timestamp = timestamp ?? DateTime.now();
 
   bool get hasToolCalls => content.any((b) => b is ToolUseBlock);
   List<ToolUseBlock> get toolCalls => content.whereType<ToolUseBlock>().toList();
@@ -27,15 +22,16 @@ class ChatMessage {
     'timestamp': timestamp.millisecondsSinceEpoch,
     'content': content.map((b) {
       if (b is TextBlock) return {'type': 'text', 'text': b.text};
-      if (b is ToolUseBlock) return {
-        'type': 'tool_use',
-        'toolCallId': b.toolCallId,
-        'toolName': b.toolName,
-        'input': b.input,
-        'status': b.status.name,
-        'output': b.output,
-        'error': b.error,
-      };
+      if (b is ToolUseBlock)
+        return {
+          'type': 'tool_use',
+          'toolCallId': b.toolCallId,
+          'toolName': b.toolName,
+          'input': b.input,
+          'status': b.status.name,
+          'output': b.output,
+          'error': b.error,
+        };
       return {};
     }).toList(),
     if (usage != null) 'usage': {'input': usage!.inputTokens, 'output': usage!.outputTokens},
@@ -44,14 +40,15 @@ class ChatMessage {
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     final content = (json['content'] as List).map<ContentBlock>((b) {
       if (b['type'] == 'text') return TextBlock(b['text'] ?? '');
-      if (b['type'] == 'tool_use') return ToolUseBlock(
-        toolCallId: b['toolCallId'] ?? '',
-        toolName: b['toolName'] ?? '',
-        input: (b['input'] as Map<String, dynamic>?) ?? {},
-        status: _parseToolCallStatus(b['status']),
-        output: b['output'],
-        error: b['error'],
-      );
+      if (b['type'] == 'tool_use')
+        return ToolUseBlock(
+          toolCallId: b['toolCallId'] ?? '',
+          toolName: b['toolName'] ?? '',
+          input: (b['input'] as Map<String, dynamic>?) ?? {},
+          status: _parseToolCallStatus(b['status']),
+          output: b['output'],
+          error: b['error'],
+        );
       return TextBlock('');
     }).toList();
 
@@ -107,8 +104,5 @@ class TokenUsage {
 
   const TokenUsage(this.inputTokens, this.outputTokens);
 
-  TokenUsage operator +(TokenUsage other) => TokenUsage(
-    inputTokens + other.inputTokens,
-    outputTokens + other.outputTokens,
-  );
+  TokenUsage operator +(TokenUsage other) => TokenUsage(inputTokens + other.inputTokens, outputTokens + other.outputTokens);
 }

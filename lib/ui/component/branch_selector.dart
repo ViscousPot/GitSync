@@ -163,8 +163,8 @@ class _BranchSelectorState extends State<BranchSelector> {
                                 hasBranch
                                     ? (widget.branchName ?? '').toUpperCase()
                                     : widget.branchNames.isEmpty
-                                        ? t.unbornBranch.toUpperCase()
-                                        : t.detachedHead.toUpperCase(),
+                                    ? t.unbornBranch.toUpperCase()
+                                    : t.detachedHead.toUpperCase(),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: textMD,

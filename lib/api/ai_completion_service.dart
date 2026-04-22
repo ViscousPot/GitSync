@@ -5,10 +5,7 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
 import 'package:http/http.dart' as http;
 
-Future<String?> aiComplete({
-  required String systemPrompt,
-  required String userPrompt,
-}) async {
+Future<String?> aiComplete({required String systemPrompt, required String userPrompt}) async {
   final providerName = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
   if (providerName == null) return null;
   final provider = aiProviderFromString(providerName);
@@ -55,11 +52,7 @@ Future<String?> aiComplete({
 
       case AiProvider.anthropic:
         url = Uri.parse('https://api.anthropic.com/v1/messages');
-        headers = {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
-        };
+        headers = {'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json'};
         body = jsonEncode({
           'model': model,
           'max_tokens': 1024,
@@ -73,9 +66,17 @@ Future<String?> aiComplete({
         url = Uri.parse('https://generativelanguage.googleapis.com/v1/models/$model:generateContent?key=$apiKey');
         headers = {'Content-Type': 'application/json'};
         body = jsonEncode({
-          'system_instruction': {'parts': [{'text': systemPrompt}]},
+          'system_instruction': {
+            'parts': [
+              {'text': systemPrompt},
+            ],
+          },
           'contents': [
-            {'parts': [{'text': userPrompt}]},
+            {
+              'parts': [
+                {'text': userPrompt},
+              ],
+            },
           ],
         });
     }
@@ -124,7 +125,5 @@ String formatDiffParts(Map<String, Map<String, String>> diffParts, {int maxChars
 }
 
 String _cleanDiffMarkers(String raw) {
-  return raw
-      .replaceAll('+++++insertion+++++', '+ ')
-      .replaceAll('-----deletion-----', '- ');
+  return raw.replaceAll('+++++insertion+++++', '+ ').replaceAll('-----deletion-----', '- ');
 }

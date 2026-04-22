@@ -39,33 +39,32 @@ Future<void> showDialog(
                 ),
               ),
               SizedBox(height: spaceXS),
-              ...selectedCommits.map((commit) => Padding(
-                padding: EdgeInsets.only(bottom: spaceXXXS),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: colours.tertiaryDark,
-                        borderRadius: BorderRadius.all(cornerRadiusXS),
+              ...selectedCommits.map(
+                (commit) => Padding(
+                  padding: EdgeInsets.only(bottom: spaceXXXS),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                        padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                        child: Text(
+                          commit.reference.substring(0, 7).toUpperCase(),
+                          style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                      child: Text(
-                        commit.reference.substring(0, 7).toUpperCase(),
-                        style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
+                      SizedBox(width: spaceXS),
+                      Expanded(
+                        child: Text(
+                          commit.commitMessage,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: spaceXS),
-                    Expanded(
-                      child: Text(
-                        commit.commitMessage,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
               SizedBox(height: spaceMD),
               Stack(
                 clipBehavior: Clip.none,

@@ -64,7 +64,6 @@ class AiChatService {
   final ValueNotifier<TokenUsage> lastTurnUsage = ValueNotifier(const TokenUsage(0, 0));
   final ValueNotifier<String?> error = ValueNotifier(null);
 
-
   final ToolRegistry _toolRegistry = ToolRegistry();
   late final ToolExecutor _toolExecutor;
 
@@ -117,7 +116,6 @@ class AiChatService {
     if (repoIndex == _activeRepoIndex) _syncNotifiers();
   }
 
-
   Future<void> clearConversation() async {
     final conv = _conv();
     conv.cancelled = true;
@@ -140,11 +138,7 @@ class AiChatService {
     conv.cancelled = false;
     conv.error = null;
 
-    final userMsg = ChatMessage(
-      id: conv.nextId(),
-      role: ChatRole.user,
-      content: [TextBlock(text)],
-    );
+    final userMsg = ChatMessage(id: conv.nextId(), role: ChatRole.user, content: [TextBlock(text)]);
     conv.messages = [...conv.messages, userMsg];
     _syncIfActive(repoIndex);
     _saveToDisk(repoIndex);
@@ -212,17 +206,7 @@ class AiChatService {
     final toolSystemPrompt = await buildToolModelSystemPrompt(repoIndex: repoIndex);
     final chatSystemPrompt = await buildChatModelSystemPrompt(repoIndex: repoIndex);
 
-    await _runAgenticLoop(
-      repoIndex,
-      toolContext,
-      provider,
-      apiKey,
-      chatModel,
-      toolModel,
-      endpoint,
-      toolSystemPrompt,
-      chatSystemPrompt,
-    );
+    await _runAgenticLoop(repoIndex, toolContext, provider, apiKey, chatModel, toolModel, endpoint, toolSystemPrompt, chatSystemPrompt);
   }
 
   Future<void> _runAgenticLoop(
@@ -293,24 +277,15 @@ class AiChatService {
           // keep the tool model's text so the assistant bubble is never
           // empty (which would render as an invisible widget and look like
           // the message "disappeared").
-          final chatHasContent = chatResult.contentBlocks.any((b) =>
-              (b is TextBlock && b.text.isNotEmpty) || b is ToolUseBlock);
-          roundResult = (
-            contentBlocks: chatHasContent ? chatResult.contentBlocks : roundResult.contentBlocks,
-            usage: combinedUsage,
-          );
+          final chatHasContent = chatResult.contentBlocks.any((b) => (b is TextBlock && b.text.isNotEmpty) || b is ToolUseBlock);
+          roundResult = (contentBlocks: chatHasContent ? chatResult.contentBlocks : roundResult.contentBlocks, usage: combinedUsage);
         }
 
         final turnUsage = roundResult.usage;
         conv.lastTurnUsage = turnUsage;
         conv.sessionUsage = conv.sessionUsage + turnUsage;
 
-        final assistantMsg = ChatMessage(
-          id: conv.nextId(),
-          role: ChatRole.assistant,
-          content: roundResult.contentBlocks,
-          usage: turnUsage,
-        );
+        final assistantMsg = ChatMessage(id: conv.nextId(), role: ChatRole.assistant, content: roundResult.contentBlocks, usage: turnUsage);
         conv.messages = [...conv.messages, assistantMsg];
         conv.streamingText = '';
         _syncIfActive(repoIndex);
@@ -329,11 +304,7 @@ class AiChatService {
 
           final result = await _toolExecutor.execute(toolCall, toolContext);
 
-          final toolResultMsg = ChatMessage(
-            id: conv.nextId(),
-            role: ChatRole.tool,
-            content: [TextBlock(result)],
-          );
+          final toolResultMsg = ChatMessage(id: conv.nextId(), role: ChatRole.tool, content: [TextBlock(result)]);
           conv.messages = [...conv.messages, toolResultMsg];
           _syncIfActive(repoIndex);
           _saveToDisk(repoIndex);
@@ -366,9 +337,7 @@ class AiChatService {
   }) async {
     final conv = _convFor(repoIndex);
     final apiMessages = _buildApiMessages(provider, conv.messages);
-    final filteredTools = includeTools
-        ? _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: activatedTools)
-        : <AiTool>[];
+    final filteredTools = includeTools ? _toolRegistry.getFiltered(hasOAuth: hasOAuth, activated: activatedTools) : <AiTool>[];
     // Note: we deliberately do NOT clear `conv.streamingText` here. The
     // chat-synthesis path needs the tool model's draft to stay visible until
     // the chat model's first TextDelta replaces it, otherwise the user sees
@@ -418,11 +387,7 @@ class AiChatService {
             try {
               args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
             } catch (_) {}
-            contentBlocks.add(ToolUseBlock(
-              toolCallId: builder.id,
-              toolName: builder.name,
-              input: args,
-            ));
+            contentBlocks.add(ToolUseBlock(toolCallId: builder.id, toolName: builder.name, input: args));
             currentTextBlock = TextBlock('');
             contentBlocks.add(currentTextBlock);
           }
@@ -450,11 +415,7 @@ class AiChatService {
         try {
           args = jsonDecode(builder.argsBuffer.toString()) as Map<String, dynamic>;
         } catch (_) {}
-        contentBlocks.add(ToolUseBlock(
-          toolCallId: builder.id,
-          toolName: builder.name,
-          input: args,
-        ));
+        contentBlocks.add(ToolUseBlock(toolCallId: builder.id, toolName: builder.name, input: args));
       }
     }
 
@@ -514,15 +475,9 @@ class AiChatService {
     void flushTools() {
       if (pendingToolEntries.isEmpty) return;
       if (isAnthropicShape) {
-        apiMessages.add({
-          'role': 'user',
-          'content': List<Map<String, dynamic>>.from(pendingToolEntries),
-        });
+        apiMessages.add({'role': 'user', 'content': List<Map<String, dynamic>>.from(pendingToolEntries)});
       } else if (provider == AiProvider.google) {
-        apiMessages.add({
-          'role': 'function',
-          'parts': List<Map<String, dynamic>>.from(pendingToolEntries),
-        });
+        apiMessages.add({'role': 'function', 'parts': List<Map<String, dynamic>>.from(pendingToolEntries)});
       } else {
         // OpenAI / self-hosted: each tool result is its own role:tool message.
         for (final entry in pendingToolEntries) {
@@ -536,11 +491,7 @@ class AiChatService {
       if (msg.role == ChatRole.tool) {
         final toolCall = _findToolCallForResult(msg, msgs);
         if (isAnthropicShape) {
-          pendingToolEntries.add({
-            'type': 'tool_result',
-            'tool_use_id': toolCall?.toolCallId ?? '',
-            'content': msg.textContent,
-          });
+          pendingToolEntries.add({'type': 'tool_result', 'tool_use_id': toolCall?.toolCallId ?? '', 'content': msg.textContent});
         } else if (provider == AiProvider.google) {
           pendingToolEntries.add({
             'functionResponse': {
@@ -549,11 +500,7 @@ class AiChatService {
             },
           });
         } else {
-          pendingToolEntries.add({
-            'role': 'tool',
-            'tool_call_id': toolCall?.toolCallId ?? '',
-            'content': msg.textContent,
-          });
+          pendingToolEntries.add({'role': 'tool', 'tool_call_id': toolCall?.toolCallId ?? '', 'content': msg.textContent});
         }
         continue;
       }
@@ -613,11 +560,15 @@ class AiChatService {
     final result = <String, dynamic>{'role': 'assistant'};
     if (text.isNotEmpty) result['content'] = text;
     if (toolCalls.isNotEmpty) {
-      result['tool_calls'] = toolCalls.map((tc) => {
-        'id': tc.toolCallId,
-        'type': 'function',
-        'function': {'name': tc.toolName, 'arguments': jsonEncode(tc.input)},
-      }).toList();
+      result['tool_calls'] = toolCalls
+          .map(
+            (tc) => {
+              'id': tc.toolCallId,
+              'type': 'function',
+              'function': {'name': tc.toolName, 'arguments': jsonEncode(tc.input)},
+            },
+          )
+          .toList();
     }
     if (text.isEmpty && toolCalls.isEmpty) result['content'] = '';
     return result;
@@ -629,7 +580,9 @@ class AiChatService {
       if (block is TextBlock && block.text.isNotEmpty) {
         parts.add({'text': block.text});
       } else if (block is ToolUseBlock) {
-        parts.add({'functionCall': {'name': block.toolName, 'args': block.input}});
+        parts.add({
+          'functionCall': {'name': block.toolName, 'args': block.input},
+        });
       }
     }
     if (parts.isEmpty) return null;
@@ -657,7 +610,6 @@ class AiChatService {
     }
     return null;
   }
-
 }
 
 class _ToolCallBuilder {

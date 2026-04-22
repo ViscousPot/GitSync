@@ -5,11 +5,7 @@ import 'package:http/http.dart' as http;
 
 enum AiProvider { anthropic, openai, google, selfHosted }
 
-Future<String?> validateAiApiKey({
-  required AiProvider provider,
-  required String apiKey,
-  String? endpoint,
-}) async {
+Future<String?> validateAiApiKey({required AiProvider provider, required String apiKey, String? endpoint}) async {
   if (apiKey.trim().isEmpty) return "API key cannot be empty";
   if (provider == AiProvider.selfHosted && (endpoint == null || endpoint.trim().isEmpty)) {
     return "Endpoint URL is required for self-hosted providers";
@@ -19,25 +15,14 @@ Future<String?> validateAiApiKey({
     final http.Response response;
     switch (provider) {
       case AiProvider.anthropic:
-        response = await httpGet(
-          Uri.parse('https://api.anthropic.com/v1/models'),
-          headers: {'x-api-key': apiKey, 'anthropic-version': '2023-06-01'},
-        );
+        response = await httpGet(Uri.parse('https://api.anthropic.com/v1/models'), headers: {'x-api-key': apiKey, 'anthropic-version': '2023-06-01'});
       case AiProvider.openai:
-        response = await httpGet(
-          Uri.parse('https://api.openai.com/v1/models'),
-          headers: {'Authorization': 'Bearer $apiKey'},
-        );
+        response = await httpGet(Uri.parse('https://api.openai.com/v1/models'), headers: {'Authorization': 'Bearer $apiKey'});
       case AiProvider.google:
-        response = await httpGet(
-          Uri.parse('https://generativelanguage.googleapis.com/v1/models?key=$apiKey'),
-        );
+        response = await httpGet(Uri.parse('https://generativelanguage.googleapis.com/v1/models?key=$apiKey'));
       case AiProvider.selfHosted:
         final normalized = normalizeEndpoint(endpoint!);
-        response = await httpGet(
-          Uri.parse('$normalized/models'),
-          headers: {'Authorization': 'Bearer $apiKey'},
-        );
+        response = await httpGet(Uri.parse('$normalized/models'), headers: {'Authorization': 'Bearer $apiKey'});
     }
 
     if (response.statusCode == 408) return "Connection timed out";
@@ -60,42 +45,32 @@ String normalizeEndpoint(String endpoint) {
 
 AiProvider? aiProviderFromString(String? name) {
   switch (name) {
-    case 'Anthropic': return AiProvider.anthropic;
-    case 'OpenAI': return AiProvider.openai;
-    case 'Google': return AiProvider.google;
-    case 'Self-hosted': return AiProvider.selfHosted;
-    default: return null;
+    case 'Anthropic':
+      return AiProvider.anthropic;
+    case 'OpenAI':
+      return AiProvider.openai;
+    case 'Google':
+      return AiProvider.google;
+    case 'Self-hosted':
+      return AiProvider.selfHosted;
+    default:
+      return null;
   }
 }
 
-Future<(List<String>, String?)> fetchAvailableModels({
-  required AiProvider provider,
-  required String apiKey,
-  String? endpoint,
-}) async {
+Future<(List<String>, String?)> fetchAvailableModels({required AiProvider provider, required String apiKey, String? endpoint}) async {
   try {
     final http.Response response;
     switch (provider) {
       case AiProvider.anthropic:
-        response = await httpGet(
-          Uri.parse('https://api.anthropic.com/v1/models'),
-          headers: {'x-api-key': apiKey, 'anthropic-version': '2023-06-01'},
-        );
+        response = await httpGet(Uri.parse('https://api.anthropic.com/v1/models'), headers: {'x-api-key': apiKey, 'anthropic-version': '2023-06-01'});
       case AiProvider.openai:
-        response = await httpGet(
-          Uri.parse('https://api.openai.com/v1/models'),
-          headers: {'Authorization': 'Bearer $apiKey'},
-        );
+        response = await httpGet(Uri.parse('https://api.openai.com/v1/models'), headers: {'Authorization': 'Bearer $apiKey'});
       case AiProvider.google:
-        response = await httpGet(
-          Uri.parse('https://generativelanguage.googleapis.com/v1/models?key=$apiKey'),
-        );
+        response = await httpGet(Uri.parse('https://generativelanguage.googleapis.com/v1/models?key=$apiKey'));
       case AiProvider.selfHosted:
         final normalized = normalizeEndpoint(endpoint ?? '');
-        response = await httpGet(
-          Uri.parse('$normalized/models'),
-          headers: {'Authorization': 'Bearer $apiKey'},
-        );
+        response = await httpGet(Uri.parse('$normalized/models'), headers: {'Authorization': 'Bearer $apiKey'});
     }
 
     if (response.statusCode == 408) return (<String>[], "Connection timed out. Check your network and try again.");
@@ -129,9 +104,13 @@ Future<(List<String>, String?)> fetchAvailableModels({
 
 String aiProviderToString(AiProvider provider) {
   switch (provider) {
-    case AiProvider.anthropic: return 'Anthropic';
-    case AiProvider.openai: return 'OpenAI';
-    case AiProvider.google: return 'Google';
-    case AiProvider.selfHosted: return 'Self-hosted';
+    case AiProvider.anthropic:
+      return 'Anthropic';
+    case AiProvider.openai:
+      return 'OpenAI';
+    case AiProvider.google:
+      return 'Google';
+    case AiProvider.selfHosted:
+      return 'Self-hosted';
   }
 }

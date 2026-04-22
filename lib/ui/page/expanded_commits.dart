@@ -203,354 +203,257 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
               builder: (context, commitsAsync) => ProviderBuilder<List<(String, GitManagerRs.ConflictType)>>(
                 provider: conflictingFilesProvider,
                 builder: (context, conflictingAsync) => ProviderBuilder<Map<String, String>>(
-                    provider: branchNamesProvider,
-                    builder: (context, branchNamesAsync) {
-                      final branchNamesValue = branchNamesAsync.valueOrNull ?? {};
-                      final conflictingValue = conflictingAsync.valueOrNull ?? [];
-                      final commitsValue = commitsAsync.valueOrNull ?? [];
-                      final items = _buildItems(commitsValue, conflictingValue);
+                  provider: branchNamesProvider,
+                  builder: (context, branchNamesAsync) {
+                    final branchNamesValue = branchNamesAsync.valueOrNull ?? {};
+                    final conflictingValue = conflictingAsync.valueOrNull ?? [];
+                    final commitsValue = commitsAsync.valueOrNull ?? [];
+                    final items = _buildItems(commitsValue, conflictingValue);
 
-                      return Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                            padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Hero(
-                                  tag: hero_commits_list,
-                                  child: SizedBox(
-                                    height: screenHeight * 0.35,
-                                    width: double.infinity,
-                                    child: ShaderMask(
-                                      shaderCallback: (Rect rect) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
-                                          stops: [0.0, 0.1, 0.9, 1.0],
-                                        ).createShader(rect);
-                                      },
-                                      blendMode: BlendMode.dstOut,
-                                      child: items.isEmpty
-                                          ? Center(
-                                              child: Text(
-                                                t.commitsNotFound.toUpperCase(),
-                                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
-                                              ),
-                                            )
-                                          : ListView.builder(
-                                              controller: _scrollController,
-                                              reverse: true,
-                                              itemCount: items.length,
-                                              itemBuilder: (BuildContext context, int index) {
-                                                final reference = items[index].reference;
+                    return Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                          padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Hero(
+                                tag: hero_commits_list,
+                                child: SizedBox(
+                                  height: screenHeight * 0.35,
+                                  width: double.infinity,
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect rect) {
+                                      return LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [Colors.black, Colors.transparent, Colors.transparent, Colors.transparent],
+                                        stops: [0.0, 0.1, 0.9, 1.0],
+                                      ).createShader(rect);
+                                    },
+                                    blendMode: BlendMode.dstOut,
+                                    child: items.isEmpty
+                                        ? Center(
+                                            child: Text(
+                                              t.commitsNotFound.toUpperCase(),
+                                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                            ),
+                                          )
+                                        : ListView.builder(
+                                            controller: _scrollController,
+                                            reverse: true,
+                                            itemCount: items.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              final reference = items[index].reference;
 
-                                                if (reference == mergeConflictReference) {
-                                                  return ItemMergeConflict(
-                                                    key: Key(reference),
-                                                    conflictingValue,
-                                                    () async => await widget.onReloadAll(),
-                                                    widget.isClientMode,
-                                                  );
-                                                }
-
-                                                return ItemCommit(
+                                              if (reference == mergeConflictReference) {
+                                                return ItemMergeConflict(
                                                   key: Key(reference),
-                                                  items[index],
-                                                  index < items.length - 1 ? items[index + 1] : null,
-                                                  commitsValue,
-                                                  gitProvider: widget.gitProvider,
-                                                  remoteWebUrl: widget.remoteWebUrl,
-                                                  onRefresh: () => widget.onReloadAll(),
-                                                  selectMode: _selectMode,
-                                                  selectedShas: _selectedShas,
-                                                  onSelectModeRequested: () {
-                                                    _selectMode.value = true;
-                                                    _selectedShas.value = {items[index].reference};
-                                                  },
+                                                  conflictingValue,
+                                                  () async => await widget.onReloadAll(),
+                                                  widget.isClientMode,
                                                 );
-                                              },
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: -(spaceXS),
-                                  left: -(spaceSM - spaceXXXXS),
-                                  child: Stack(
-                                    children: [
-                                      Hero(
-                                        tag: hero_expand_contract,
-                                        child: IconButton(
-                                          padding: EdgeInsets.all(spaceMD),
-                                          style: ButtonStyle(
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            shape: WidgetStatePropertyAll(
-                                              RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD),
-                                              ),
-                                            ),
-                                            backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
+                                              }
+
+                                              return ItemCommit(
+                                                key: Key(reference),
+                                                items[index],
+                                                index < items.length - 1 ? items[index + 1] : null,
+                                                commitsValue,
+                                                gitProvider: widget.gitProvider,
+                                                remoteWebUrl: widget.remoteWebUrl,
+                                                onRefresh: () => widget.onReloadAll(),
+                                                selectMode: _selectMode,
+                                                selectedShas: _selectedShas,
+                                                onSelectModeRequested: () {
+                                                  _selectMode.value = true;
+                                                  _selectedShas.value = {items[index].reference};
+                                                },
+                                              );
+                                            },
                                           ),
-                                          constraints: BoxConstraints(),
-                                          onPressed: () => Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null),
-                                          icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
-                                        ),
-                                      ),
-                                      CommitSelectActionBar(
-                                        selectMode: _selectMode,
-                                        selectedShas: _selectedShas,
-                                        commits: commitsValue,
-                                        onReloadAll: widget.onReloadAll,
-                                        onExitSelectMode: _exitSelectMode,
-                                        borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD),
-                                      ),
-                                    ],
                                   ),
                                 ),
-                                Positioned(
-                                  top: -spaceMD,
-                                  left: 0,
-                                  right: 0,
-                                  child: Center(
-                                    child: Text(
-                                      t.recentCommits.toUpperCase(),
-                                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: spaceMD),
-                          ProviderBuilder<String?>(
-                            provider: branchNameProvider,
-                            builder: (context, branchNameAsync) {
-                              final branchNameValue = branchNameAsync.valueOrNull;
-                              final hasBranch = branchNamesValue.containsKey(branchNameValue);
-                              return Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                    padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                    child: Column(
-                                      children: [
-                                        ProviderBuilder<bool>(
-                                          provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
-                                          builder: (context, hasConflictsAsync) => BranchSelector(
-                                            branchName: branchNameValue,
-                                            branchNames: branchNamesValue,
-                                            hasConflicts: hasConflictsAsync.valueOrNull ?? false,
-                                            showLabel: false,
-                                            dropdownDecoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                            onCheckoutBranch: (item) async => await widget.onBranchChanged(item),
-                                            onRenameBranch: (oldName, newName) async => await widget.onRenameBranch(oldName, newName),
-                                            onDeleteBranch: (item) async => await widget.onDeleteBranch(item),
-                                            onCreateBranch: hasBranch ? () => widget.onCreateBranch?.call() : null,
+                              ),
+                              Positioned(
+                                top: -(spaceXS),
+                                left: -(spaceSM - spaceXXXXS),
+                                child: Stack(
+                                  children: [
+                                    Hero(
+                                      tag: hero_expand_contract,
+                                      child: IconButton(
+                                        padding: EdgeInsets.all(spaceMD),
+                                        style: ButtonStyle(
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          shape: WidgetStatePropertyAll(
+                                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
                                           ),
+                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
                                         ),
-                                    // SizedBox(height: spaceXS),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: TextButton.icon(
-                                    //         onPressed: () {},
-                                    //         icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: colours.primaryLight, size: textMD),
-                                    //         label: Text(
-                                    //           'UPDATE FROM MAIN',
-                                    //           maxLines: 1,
-                                    //           overflow: TextOverflow.ellipsis,
-                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //         style: TextButton.styleFrom(
-                                    //           backgroundColor: colours.tertiaryDark,
-                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //     SizedBox(width: spaceXS),
-                                    //     Expanded(
-                                    //       child: TextButton.icon(
-                                    //         onPressed: () {},
-                                    //         icon: FaIcon(FontAwesomeIcons.codeCompare, color: colours.primaryLight, size: textMD),
-                                    //         label: Text(
-                                    //           'COMPARE TO BRANCH',
-                                    //           maxLines: 1,
-                                    //           overflow: TextOverflow.ellipsis,
-                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //         style: TextButton.styleFrom(
-                                    //           backgroundColor: colours.tertiaryDark,
-                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: TextButton.icon(
-                                    //         onPressed: () {},
-                                    //         icon: FaIcon(FontAwesomeIcons.codeMerge, color: colours.primaryLight, size: textMD),
-                                    //         label: Text(
-                                    //           'MERGE INTO BRANCH',
-                                    //           maxLines: 1,
-                                    //           overflow: TextOverflow.ellipsis,
-                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //         style: TextButton.styleFrom(
-                                    //           backgroundColor: colours.tertiaryDark,
-                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //     SizedBox(width: spaceXS),
-                                    //     Expanded(
-                                    //       child: TextButton.icon(
-                                    //         onPressed: () {},
-                                    //         icon: FaIcon(FontAwesomeIcons.layerGroup, color: colours.primaryLight, size: textMD),
-                                    //         label: Text(
-                                    //           'SQUASH & MERGE',
-                                    //           maxLines: 1,
-                                    //           overflow: TextOverflow.ellipsis,
-                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //         style: TextButton.styleFrom(
-                                    //           backgroundColor: colours.tertiaryDark,
-                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: TextButton.icon(
-                                    //         onPressed: () {},
-                                    //         icon: FaIcon(FontAwesomeIcons.diagramNext, color: colours.primaryLight, size: textMD),
-                                    //         label: Text(
-                                    //           'REBASE',
-                                    //           maxLines: 1,
-                                    //           overflow: TextOverflow.ellipsis,
-                                    //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                    //         ),
-                                    //         style: TextButton.styleFrom(
-                                    //           backgroundColor: colours.tertiaryDark,
-                                    //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                                    //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
+                                        constraints: BoxConstraints(),
+                                        onPressed: () => Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null),
+                                        icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
+                                      ),
+                                    ),
+                                    CommitSelectActionBar(
+                                      selectMode: _selectMode,
+                                      selectedShas: _selectedShas,
+                                      commits: commitsValue,
+                                      onReloadAll: widget.onReloadAll,
+                                      onExitSelectMode: _exitSelectMode,
+                                      borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD),
+                                    ),
                                   ],
                                 ),
                               ),
                               Positioned(
-                                top: -spaceXS,
+                                top: -spaceMD,
                                 left: 0,
                                 right: 0,
                                 child: Center(
                                   child: Text(
-                                    t.branchManagement.toUpperCase(),
+                                    t.recentCommits.toUpperCase(),
                                     style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                   ),
                                 ),
                               ),
-                              ],
-                              );
-                            },
+                            ],
                           ),
-                          SizedBox(height: spaceMD),
-                          if (isOAuthProvider && widget.isAuthenticated && widget.remoteWebUrl != null) ...[
-                            Stack(
+                        ),
+                        SizedBox(height: spaceMD),
+                        ProviderBuilder<String?>(
+                          provider: branchNameProvider,
+                          builder: (context, branchNameAsync) {
+                            final branchNameValue = branchNameAsync.valueOrNull;
+                            final hasBranch = branchNamesValue.containsKey(branchNameValue);
+                            return Stack(
                               clipBehavior: Clip.none,
                               children: [
                                 Container(
                                   decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                   padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
-                                  child: ValueListenableBuilder<Map<ShowcaseFeature, int?>>(
-                                    valueListenable: _featureCounts,
-                                    builder: (context, featureCounts, _) => ValueListenableBuilder<List<ShowcaseFeature>>(
-                                      valueListenable: _pinnedFeatures,
-                                      builder: (context, pinned, _) {
-                                        final features = ShowcaseFeature.availableFor(widget.gitProvider);
-                                        final rows = <Widget>[];
-                                        for (var i = 0; i < features.length; i += 2) {
-                                          final first = features[i];
-                                          final second = i + 1 < features.length ? features[i + 1] : null;
-                                          rows.add(
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Hero(
-                                                    tag: heroShowcaseFeature(first.storageKey),
-                                                    child: ShowcaseFeatureButton(
-                                                      feature: first,
-                                                      gitProvider: widget.gitProvider,
-                                                      isPinned: pinned.contains(first),
-                                                      count: featureCounts[first],
-                                                      countLoading: _featureCountsLoading,
-                                                      onPinToggle: () => _handlePinToggle(first),
-                                                      onAdd: resolveFeatureOnAdd(
-                                                        context: context,
-                                                        feature: first,
-                                                        gitProvider: widget.gitProvider,
-                                                        remoteWebUrl: widget.remoteWebUrl,
-                                                      ),
-                                                      onPressed: resolveFeatureOnPressed(
-                                                        context: context,
-                                                        feature: first,
-                                                        gitProvider: widget.gitProvider,
-                                                        remoteWebUrl: widget.remoteWebUrl,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                if (second != null) ...[
-                                                  SizedBox(width: spaceXS),
-                                                  Expanded(
-                                                    child: Hero(
-                                                      tag: heroShowcaseFeature(second.storageKey),
-                                                      child: ShowcaseFeatureButton(
-                                                        feature: second,
-                                                        gitProvider: widget.gitProvider,
-                                                        isPinned: pinned.contains(second),
-                                                        count: featureCounts[second],
-                                                        countLoading: _featureCountsLoading,
-                                                        onPinToggle: () => _handlePinToggle(second),
-                                                        onAdd: resolveFeatureOnAdd(
-                                                          context: context,
-                                                          feature: second,
-                                                          gitProvider: widget.gitProvider,
-                                                          remoteWebUrl: widget.remoteWebUrl,
-                                                        ),
-                                                        onPressed: resolveFeatureOnPressed(
-                                                          context: context,
-                                                          feature: second,
-                                                          gitProvider: widget.gitProvider,
-                                                          remoteWebUrl: widget.remoteWebUrl,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                        return Column(spacing: spaceXS, children: rows);
-                                      },
-                                    ),
+                                  child: Column(
+                                    children: [
+                                      ProviderBuilder<bool>(
+                                        provider: conflictingFilesProvider.select((v) => v.whenData((d) => d.isNotEmpty)),
+                                        builder: (context, hasConflictsAsync) => BranchSelector(
+                                          branchName: branchNameValue,
+                                          branchNames: branchNamesValue,
+                                          hasConflicts: hasConflictsAsync.valueOrNull ?? false,
+                                          showLabel: false,
+                                          dropdownDecoration: BoxDecoration(
+                                            color: colours.tertiaryDark,
+                                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                                          ),
+                                          onCheckoutBranch: (item) async => await widget.onBranchChanged(item),
+                                          onRenameBranch: (oldName, newName) async => await widget.onRenameBranch(oldName, newName),
+                                          onDeleteBranch: (item) async => await widget.onDeleteBranch(item),
+                                          onCreateBranch: hasBranch ? () => widget.onCreateBranch?.call() : null,
+                                        ),
+                                      ),
+                                      // SizedBox(height: spaceXS),
+                                      // Row(
+                                      //   children: [
+                                      //     Expanded(
+                                      //       child: TextButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: colours.primaryLight, size: textMD),
+                                      //         label: Text(
+                                      //           'UPDATE FROM MAIN',
+                                      //           maxLines: 1,
+                                      //           overflow: TextOverflow.ellipsis,
+                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //         ),
+                                      //         style: TextButton.styleFrom(
+                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //     SizedBox(width: spaceXS),
+                                      //     Expanded(
+                                      //       child: TextButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: FaIcon(FontAwesomeIcons.codeCompare, color: colours.primaryLight, size: textMD),
+                                      //         label: Text(
+                                      //           'COMPARE TO BRANCH',
+                                      //           maxLines: 1,
+                                      //           overflow: TextOverflow.ellipsis,
+                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //         ),
+                                      //         style: TextButton.styleFrom(
+                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
+                                      // Row(
+                                      //   children: [
+                                      //     Expanded(
+                                      //       child: TextButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: FaIcon(FontAwesomeIcons.codeMerge, color: colours.primaryLight, size: textMD),
+                                      //         label: Text(
+                                      //           'MERGE INTO BRANCH',
+                                      //           maxLines: 1,
+                                      //           overflow: TextOverflow.ellipsis,
+                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //         ),
+                                      //         style: TextButton.styleFrom(
+                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //     SizedBox(width: spaceXS),
+                                      //     Expanded(
+                                      //       child: TextButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: FaIcon(FontAwesomeIcons.layerGroup, color: colours.primaryLight, size: textMD),
+                                      //         label: Text(
+                                      //           'SQUASH & MERGE',
+                                      //           maxLines: 1,
+                                      //           overflow: TextOverflow.ellipsis,
+                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //         ),
+                                      //         style: TextButton.styleFrom(
+                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
+                                      // Row(
+                                      //   children: [
+                                      //     Expanded(
+                                      //       child: TextButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: FaIcon(FontAwesomeIcons.diagramNext, color: colours.primaryLight, size: textMD),
+                                      //         label: Text(
+                                      //           'REBASE',
+                                      //           maxLines: 1,
+                                      //           overflow: TextOverflow.ellipsis,
+                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //         ),
+                                      //         style: TextButton.styleFrom(
+                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
+                                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
+                                    ],
                                   ),
                                 ),
                                 Positioned(
@@ -559,18 +462,116 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                   right: 0,
                                   child: Center(
                                     child: Text(
-                                      t.providerTools.toUpperCase(),
+                                      t.branchManagement.toUpperCase(),
                                       style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                     ),
                                   ),
                                 ),
                               ],
-                            ),
-                          ],
+                            );
+                          },
+                        ),
+                        SizedBox(height: spaceMD),
+                        if (isOAuthProvider && widget.isAuthenticated && widget.remoteWebUrl != null) ...[
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
+                                child: ValueListenableBuilder<Map<ShowcaseFeature, int?>>(
+                                  valueListenable: _featureCounts,
+                                  builder: (context, featureCounts, _) => ValueListenableBuilder<List<ShowcaseFeature>>(
+                                    valueListenable: _pinnedFeatures,
+                                    builder: (context, pinned, _) {
+                                      final features = ShowcaseFeature.availableFor(widget.gitProvider);
+                                      final rows = <Widget>[];
+                                      for (var i = 0; i < features.length; i += 2) {
+                                        final first = features[i];
+                                        final second = i + 1 < features.length ? features[i + 1] : null;
+                                        rows.add(
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Hero(
+                                                  tag: heroShowcaseFeature(first.storageKey),
+                                                  child: ShowcaseFeatureButton(
+                                                    feature: first,
+                                                    gitProvider: widget.gitProvider,
+                                                    isPinned: pinned.contains(first),
+                                                    count: featureCounts[first],
+                                                    countLoading: _featureCountsLoading,
+                                                    onPinToggle: () => _handlePinToggle(first),
+                                                    onAdd: resolveFeatureOnAdd(
+                                                      context: context,
+                                                      feature: first,
+                                                      gitProvider: widget.gitProvider,
+                                                      remoteWebUrl: widget.remoteWebUrl,
+                                                    ),
+                                                    onPressed: resolveFeatureOnPressed(
+                                                      context: context,
+                                                      feature: first,
+                                                      gitProvider: widget.gitProvider,
+                                                      remoteWebUrl: widget.remoteWebUrl,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              if (second != null) ...[
+                                                SizedBox(width: spaceXS),
+                                                Expanded(
+                                                  child: Hero(
+                                                    tag: heroShowcaseFeature(second.storageKey),
+                                                    child: ShowcaseFeatureButton(
+                                                      feature: second,
+                                                      gitProvider: widget.gitProvider,
+                                                      isPinned: pinned.contains(second),
+                                                      count: featureCounts[second],
+                                                      countLoading: _featureCountsLoading,
+                                                      onPinToggle: () => _handlePinToggle(second),
+                                                      onAdd: resolveFeatureOnAdd(
+                                                        context: context,
+                                                        feature: second,
+                                                        gitProvider: widget.gitProvider,
+                                                        remoteWebUrl: widget.remoteWebUrl,
+                                                      ),
+                                                      onPressed: resolveFeatureOnPressed(
+                                                        context: context,
+                                                        feature: second,
+                                                        gitProvider: widget.gitProvider,
+                                                        remoteWebUrl: widget.remoteWebUrl,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                      return Column(spacing: spaceXS, children: rows);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: -spaceXS,
+                                left: 0,
+                                right: 0,
+                                child: Center(
+                                  child: Text(
+                                    t.providerTools.toUpperCase(),
+                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
-                      );
-                    },
-                  ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),

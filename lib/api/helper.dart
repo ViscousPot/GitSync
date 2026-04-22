@@ -303,12 +303,7 @@ Future<(GitProvider, String, String, bool)?> _getOAuthInfo() async {
   return (provider, credentials.$1, credentials.$2, githubAppOauth);
 }
 
-Future<void> _offerCreateRemoteForDir(
-  BuildContext context,
-  String dirName,
-  (GitProvider, String, String, bool) oAuthInfo,
-  String? dirPath,
-) async {
+Future<void> _offerCreateRemoteForDir(BuildContext context, String dirName, (GitProvider, String, String, bool) oAuthInfo, String? dirPath) async {
   final result = await CreateRepositoryDialog.showDialog(
     context,
     hasOAuth: true,

@@ -883,7 +883,8 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   final labels = detail.labels.map((l) => l.name).join(', ');
                   final prompt = 'Title: ${detail.title}\nLabels: $labels\n\nCurrent body:\n${_bodyEditController.text}';
                   final result = await aiComplete(
-                    systemPrompt: "Improve this issue description. Maintain the original intent, enhance clarity. Use markdown. Output only the improved body.",
+                    systemPrompt:
+                        "Improve this issue description. Maintain the original intent, enhance clarity. Use markdown. Output only the improved body.",
                     userPrompt: prompt,
                   );
                   if (result != null) {

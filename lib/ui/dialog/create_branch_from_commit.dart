@@ -6,11 +6,7 @@ import '../../../ui/dialog/base_alert_dialog.dart';
 import 'package:GitSync/global.dart';
 import 'package:sprintf/sprintf.dart';
 
-Future<void> showDialog(
-  BuildContext context,
-  String commitSha,
-  Future<void> Function(String branchName) callback,
-) async {
+Future<void> showDialog(BuildContext context, String commitSha, Future<void> Function(String branchName) callback) async {
   final textController = TextEditingController();
 
   return mat.showDialog(
@@ -80,10 +76,7 @@ Future<void> showDialog(
                 : null,
             child: Text(
               t.create.toUpperCase(),
-              style: TextStyle(
-                color: textController.text.isNotEmpty ? colours.primaryPositive : colours.secondaryPositive,
-                fontSize: textMD,
-              ),
+              style: TextStyle(color: textController.text.isNotEmpty ? colours.primaryPositive : colours.secondaryPositive, fontSize: textMD),
             ),
           ),
         ],

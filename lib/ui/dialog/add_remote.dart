@@ -140,7 +140,9 @@ Future<void> showDialog(
             child: Text(
               t.add.toUpperCase(),
               style: TextStyle(
-                color: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty) ? colours.primaryPositive : colours.secondaryPositive,
+                color: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty)
+                    ? colours.primaryPositive
+                    : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

@@ -112,10 +112,7 @@ class GitsyncService {
   Future<void> _updateForceSyncWidget(String status) async {
     try {
       await HomeWidget.saveWidgetData(_widgetStatusKey, status);
-      await HomeWidget.updateWidget(
-        qualifiedAndroidName: _widgetQualifiedName,
-        iOSName: _widgetIOSName,
-      );
+      await HomeWidget.updateWidget(qualifiedAndroidName: _widgetQualifiedName, iOSName: _widgetIOSName);
     } catch (e) {
       // Widget not placed or platform doesn't support it — logged for diagnosis.
       print('ForceSyncWidget update failed: $e');

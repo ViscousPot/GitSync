@@ -28,10 +28,14 @@ Future<String?> _resolve(String relativePath, ToolContext? context) async {
 }
 
 class FileReadTool extends AiTool {
-  @override String get name => 'file_read';
-  @override String get description => 'Read a file. Use offset/limit for large files.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_read';
+  @override
+  String get description => 'Read a file. Use offset/limit for large files.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
@@ -71,11 +75,7 @@ class FileReadTool extends AiTool {
         numbered.writeln('${start + i + 1}: ${slice[i]}');
       }
 
-      return ok({
-        'total_lines': total,
-        'showing': '${start + 1}-${end - truncatedLines}',
-        'content': numbered.toString(),
-      });
+      return ok({'total_lines': total, 'showing': '${start + 1}-${end - truncatedLines}', 'content': numbered.toString()});
     } catch (e) {
       return err('Could not read file (may be binary): $e');
     }
@@ -83,10 +83,14 @@ class FileReadTool extends AiTool {
 }
 
 class FileWriteTool extends AiTool {
-  @override String get name => 'file_write';
-  @override String get description => 'Create or fully replace a file.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_write';
+  @override
+  String get description => 'Create or fully replace a file.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.confirm;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
@@ -114,10 +118,15 @@ class FileWriteTool extends AiTool {
 }
 
 class FileEditTool extends AiTool {
-  @override String get name => 'file_edit';
-  @override String get description => 'Replace exact strings in a file. Supports a single edit (old_content/new_content) or batch edits (edits array). Each old_content must match uniquely.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.warn;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_edit';
+  @override
+  String get description =>
+      'Replace exact strings in a file. Supports a single edit (old_content/new_content) or batch edits (edits array). Each old_content must match uniquely.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.warn;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
@@ -157,7 +166,9 @@ class FileEditTool extends AiTool {
         return {'old_content': m['old_content'] as String, 'new_content': m['new_content'] as String};
       }).toList();
     } else if (input.containsKey('old_content') && input.containsKey('new_content')) {
-      edits = [{'old_content': input['old_content'] as String, 'new_content': input['new_content'] as String}];
+      edits = [
+        {'old_content': input['old_content'] as String, 'new_content': input['new_content'] as String},
+      ];
     } else {
       return err('Provide either old_content/new_content or an edits array');
     }
@@ -185,10 +196,14 @@ class FileEditTool extends AiTool {
 }
 
 class FileListTool extends AiTool {
-  @override String get name => 'file_list';
-  @override String get description => 'List files in a directory.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_list';
+  @override
+  String get description => 'List files in a directory.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string', 'default': '.'},
@@ -238,10 +253,14 @@ class FileListTool extends AiTool {
 }
 
 class FileSearchTool extends AiTool {
-  @override String get name => 'file_search';
-  @override String get description => 'Regex search across files. file_glob filters filenames (e.g. "*.dart").';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_search';
+  @override
+  String get description => 'Regex search across files. file_glob filters filenames (e.g. "*.dart").';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'pattern': {'type': 'string'},
@@ -303,10 +322,4 @@ class FileSearchTool extends AiTool {
   }
 }
 
-List<AiTool> allFileTools() => [
-  FileReadTool(),
-  FileWriteTool(),
-  FileEditTool(),
-  FileListTool(),
-  FileSearchTool(),
-];
+List<AiTool> allFileTools() => [FileReadTool(), FileWriteTool(), FileEditTool(), FileListTool(), FileSearchTool()];

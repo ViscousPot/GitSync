@@ -157,11 +157,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                 ),
               ),
               iconAlignment: IconAlignment.end,
-              icon: FaIcon(
-                FontAwesomeIcons.codeCompare,
-                color: clientModeEnabled == true ? colours.primaryDark : colours.primaryLight,
-                size: textMD,
-              ),
+              icon: FaIcon(FontAwesomeIcons.codeCompare, color: clientModeEnabled == true ? colours.primaryDark : colours.primaryLight, size: textMD),
               label: SizedBox(
                 width: double.infinity,
                 child: Column(

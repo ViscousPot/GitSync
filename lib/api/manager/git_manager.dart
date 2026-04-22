@@ -255,8 +255,7 @@ class GitManager {
   static bool isGitDir(String dirPath) =>
       Directory("$dirPath/$gitPath").existsSync() || File("$dirPath/$gitIndexPath").existsSync() || File("$dirPath/$gitPath").existsSync();
 
-  static Future<int> _resolveRepoIndex(int? repoIndex) async =>
-      repoIndex ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
+  static Future<int> _resolveRepoIndex(int? repoIndex) async => repoIndex ?? await repoManager.getInt(StorageKey.repoman_repoIndex);
 
   static Future<SettingsManager> _resolveSettingsManager(int? repoIndex) async {
     if (repoIndex == null) return uiSettingsManager;
@@ -269,7 +268,14 @@ class GitManager {
       (await (setman ?? uiSettingsManager).getAuthorName(), await (setman ?? uiSettingsManager).getAuthorEmail());
 
   // UI Accessible Only
-  static Future<String?> clone(String repoUrl, String repoPath, Function(String) cloneTaskCallback, Function(int) cloneProgressCallback, {int? depth, bool bare = false}) async {
+  static Future<String?> clone(
+    String repoUrl,
+    String repoPath,
+    Function(String) cloneTaskCallback,
+    Function(int) cloneProgressCallback, {
+    int? depth,
+    bool bare = false,
+  }) async {
     if (await isLocked() != null) return operationInProgressError;
 
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
@@ -486,9 +492,7 @@ class GitManager {
         credentials: await _getCredentials(setman),
         commitSigningCredentials: await setman.getGitCommitSigningCredentials(),
         author: await _author(setman),
-        syncMessage: sprintf(await setman.getSyncMessage(), [
-          (DateFormat(await setman.getSyncMessageTimeFormat())).format(DateTime.now()),
-        ]),
+        syncMessage: sprintf(await setman.getSyncMessage(), [(DateFormat(await setman.getSyncMessageTimeFormat())).format(DateTime.now())]),
         log: _logWrapper,
       ),
     );
@@ -550,12 +554,8 @@ class GitManager {
       GitManagerRs.voidRunWithLock,
       await _resolveRepoIndex(repoIndex),
       LogType.StageFileLines,
-      (dirPath) async => await GitManagerRs.stageFileLines(
-        pathString: dirPath,
-        filePath: filePath,
-        selectedLineIndices: selectedLineIndices,
-        log: _logWrapper,
-      ),
+      (dirPath) async =>
+          await GitManagerRs.stageFileLines(pathString: dirPath, filePath: filePath, selectedLineIndices: selectedLineIndices, log: _logWrapper),
     );
   }
 
@@ -631,20 +631,26 @@ class GitManager {
     final setman = await _resolveSettingsManager(repoIndex);
     final cachedCommits = await getInitialRecentCommits();
     final cachedDiffStats = <String, (int, int)>{for (final c in cachedCommits) c.reference: (c.additions, c.deletions)};
-    final result = await _runWithLock(priority: priority, GitManagerRs.commitListRunWithLock, await _resolveRepoIndex(repoIndex), LogType.RecentCommits, (dirPath) async {
-      try {
-        return await GitManagerRs.getRecentCommits(
-          pathString: dirPath,
-          remoteName: await _remote(setman),
-          cachedDiffStats: cachedDiffStats,
-          skip: BigInt.from(skip),
-          log: _logWrapper,
-        );
-      } catch (e, stackTrace) {
-        Logger.logError(LogType.RecentCommits, e, stackTrace);
-        return <GitManagerRs.Commit>[];
-      }
-    });
+    final result = await _runWithLock(
+      priority: priority,
+      GitManagerRs.commitListRunWithLock,
+      await _resolveRepoIndex(repoIndex),
+      LogType.RecentCommits,
+      (dirPath) async {
+        try {
+          return await GitManagerRs.getRecentCommits(
+            pathString: dirPath,
+            remoteName: await _remote(setman),
+            cachedDiffStats: cachedDiffStats,
+            skip: BigInt.from(skip),
+            log: _logWrapper,
+          );
+        } catch (e, stackTrace) {
+          Logger.logError(LogType.RecentCommits, e, stackTrace);
+          return <GitManagerRs.Commit>[];
+        }
+      },
+    );
     return result ?? <GitManagerRs.Commit>[];
   }
 
@@ -704,7 +710,9 @@ class GitManager {
     }
 
     final result =
-        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repoIndex), LogType.StagedFiles, (dirPath) async {
+        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repoIndex), LogType.StagedFiles, (
+          dirPath,
+        ) async {
           return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
         }) ??
         <(String, int)>[];
@@ -758,26 +766,25 @@ class GitManager {
   static Future<void> setRemoteUrl(String newRemoteUrl, {int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), LogType.SetRemoteUrl, (dirPath) async {
-      await GitManagerRs.setRemoteUrl(
-        pathString: dirPath,
-        remoteName: await setman.getRemote(),
-        newRemoteUrl: newRemoteUrl,
-        log: _logWrapper,
-      );
+      await GitManagerRs.setRemoteUrl(pathString: dirPath, remoteName: await setman.getRemote(), newRemoteUrl: newRemoteUrl, log: _logWrapper);
     });
   }
 
   static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
-    return await _runWithLock(priority: priority, GitManagerRs.stringListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.ListRemotes, (
-          dirPath,
-        ) async {
-          try {
-            return (await GitManagerRs.listRemotes(pathString: dirPath, log: _logWrapper));
-          } catch (e, stackTrace) {
-            Logger.logError(LogType.ListRemotes, e, stackTrace);
-          }
-          return null;
-        }) ??
+    return await _runWithLock(
+          priority: priority,
+          GitManagerRs.stringListRunWithLock,
+          await _resolveRepoIndex(repomanRepoindex),
+          LogType.ListRemotes,
+          (dirPath) async {
+            try {
+              return (await GitManagerRs.listRemotes(pathString: dirPath, log: _logWrapper));
+            } catch (e, stackTrace) {
+              Logger.logError(LogType.ListRemotes, e, stackTrace);
+            }
+            return null;
+          },
+        ) ??
         <String>[];
   }
 
@@ -928,7 +935,9 @@ class GitManager {
   }
 
   static Future<String> readGitignore({int? repoIndex}) async {
-    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.ReadGitIgnore, (dirPath) async {
+    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.ReadGitIgnore, (
+          dirPath,
+        ) async {
           final gitignorePath = '$dirPath/$gitIgnorePath';
           final file = File(gitignorePath);
           if (!file.existsSync()) return '';
@@ -947,7 +956,9 @@ class GitManager {
   }
 
   static Future<String> readGitInfoExclude({int? repoIndex}) async {
-    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.ReadGitInfoExclude, (dirPath) async {
+    return await _runWithLock(priority: 2, GitManagerRs.stringRunWithLock, await _resolveRepoIndex(repoIndex), LogType.ReadGitInfoExclude, (
+          dirPath,
+        ) async {
           final gitInfoExcludeFullPath = '$dirPath/$gitInfoExcludePath';
           final file = File(gitInfoExcludeFullPath);
           if (!file.existsSync()) return '';
@@ -1006,7 +1017,9 @@ class GitManager {
 
   static Future<(String, String)?> getRemoteUrlLink({int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
-    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath) async {
+    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (
+      dirPath,
+    ) async {
       final remoteName = await setman.getRemote();
 
       try {
@@ -1093,44 +1106,51 @@ class GitManager {
   }
 
   static Future<void> deleteDirContents({String? dirPath, int? repoIndex}) async {
-    return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), dirPath: dirPath, expectGitDir: false, LogType.DiscardDir, (dirPath) async {
-      final dir = Directory(dirPath);
-      try {
-        if (Platform.isIOS) {
-          final entities = dir.listSync(recursive: false);
-          for (var entity in entities) {
-            try {
-              final type = FileSystemEntity.typeSync(entity.path, followLinks: false);
-              if (type == FileSystemEntityType.link) {
-                await entity.delete();
-              } else {
-                await entity.delete(recursive: true);
+    return await _runWithLock(
+      GitManagerRs.voidRunWithLock,
+      await _resolveRepoIndex(repoIndex),
+      dirPath: dirPath,
+      expectGitDir: false,
+      LogType.DiscardDir,
+      (dirPath) async {
+        final dir = Directory(dirPath);
+        try {
+          if (Platform.isIOS) {
+            final entities = dir.listSync(recursive: false);
+            for (var entity in entities) {
+              try {
+                final type = FileSystemEntity.typeSync(entity.path, followLinks: false);
+                if (type == FileSystemEntityType.link) {
+                  await entity.delete();
+                } else {
+                  await entity.delete(recursive: true);
+                }
+              } catch (e) {
+                print('Error while processing entity ${entity.path}: $e');
               }
-            } catch (e) {
-              print('Error while processing entity ${entity.path}: $e');
             }
-          }
-          print('iOS directory cleanup complete for: ${dir.path}');
-        } else {
-          final entities = dir.listSync(recursive: false);
-          for (var entity in entities) {
-            try {
-              final type = FileSystemEntity.typeSync(entity.path, followLinks: false);
-              if (type == FileSystemEntityType.link) {
-                await entity.delete();
+            print('iOS directory cleanup complete for: ${dir.path}');
+          } else {
+            final entities = dir.listSync(recursive: false);
+            for (var entity in entities) {
+              try {
+                final type = FileSystemEntity.typeSync(entity.path, followLinks: false);
+                if (type == FileSystemEntityType.link) {
+                  await entity.delete();
+                }
+              } catch (e) {
+                print('Error while deleting symlink ${entity.path}: $e');
               }
-            } catch (e) {
-              print('Error while deleting symlink ${entity.path}: $e');
             }
-          }
 
-          await dir.delete(recursive: true);
-          await dir.create();
+            await dir.delete(recursive: true);
+            await dir.create();
+          }
+        } catch (e) {
+          print('Error while deleting folder contents: $e');
         }
-      } catch (e) {
-        print('Error while deleting folder contents: $e');
-      }
-    });
+      },
+    );
   }
 
   static Future<void> deleteGitIndex({int? repoIndex}) async {

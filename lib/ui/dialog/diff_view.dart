@@ -355,27 +355,28 @@ Future<void> showDialog(
                         scrollDirection: Axis.horizontal,
                         reverse: true,
                         child: Row(
-                          children: tags.map((tag) => Padding(
-                            padding: EdgeInsets.only(left: spaceXXS),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: colours.tertiaryDark,
-                                borderRadius: BorderRadius.all(cornerRadiusXS),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FaIcon(FontAwesomeIcons.tag, size: textXXS, color: colours.tertiaryLight),
-                                  SizedBox(width: spaceXXXXS),
-                                  Text(
-                                    tag.toUpperCase(),
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                          children: tags
+                              .map(
+                                (tag) => Padding(
+                                  padding: EdgeInsets.only(left: spaceXXS),
+                                  child: Container(
+                                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                                    padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        FaIcon(FontAwesomeIcons.tag, size: textXXS, color: colours.tertiaryLight),
+                                        SizedBox(width: spaceXXXXS),
+                                        Text(
+                                          tag.toUpperCase(),
+                                          style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          )).toList(),
+                                ),
+                              )
+                              .toList(),
                         ),
                       ),
                     ),

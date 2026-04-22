@@ -79,7 +79,6 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
         ShowCaseWidget.of(context).startShowCase([_authorDetailsKey]);
       });
     }
-
   }
 
   @override
@@ -186,164 +185,166 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                     ProviderBuilder<(String, String)?>(
                       provider: gitDirPathProvider,
                       builder: (context, gitDirPathAsync) => gitDirPathAsync.valueOrNull == null
-                        ? SizedBox.shrink()
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              SizedBox(height: spaceMD + spaceSM),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                                child: Text(
-                                  t.signedCommitsLabel.toUpperCase(),
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                          ? SizedBox.shrink()
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                SizedBox(height: spaceMD + spaceSM),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                                  child: Text(
+                                    t.signedCommitsLabel.toUpperCase(),
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                                child: Text(
-                                  t.signedCommitsDescription,
-                                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                                  child: Text(
+                                    t.signedCommitsDescription,
+                                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: spaceSM),
-                              FutureBuilder(
-                                future: uiSettingsManager.getStringNullable(StorageKey.setman_gitCommitSigningKey),
-                                builder: (context, gitCommitSigningKeySnapshot) => Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                  child: FutureBuilder(
-                                    future: uiSettingsManager.getGitProvider(),
-                                    builder: (context, snapshot) => Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        snapshot.data == GitProvider.SSH && gitCommitSigningKeySnapshot.data == ""
-                                            ? SizedBox.shrink()
-                                            : Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: TextButton.icon(
-                                                      onPressed: () async {
-                                                        await ImportPrivKeyDialog.showDialog(context, ((String, String) sshCredentials) async {
-                                                          await uiSettingsManager.setStringNullable(
-                                                            StorageKey.setman_gitCommitSigningKey,
-                                                            sshCredentials.$2,
-                                                          );
-                                                          await uiSettingsManager.setStringNullable(
-                                                            StorageKey.setman_gitCommitSigningPassphrase,
-                                                            sshCredentials.$1,
-                                                          );
-                                                          if (mounted) setState(() {});
-                                                        });
-                                                      },
-                                                      style: ButtonStyle(
-                                                        alignment: Alignment.centerLeft,
-                                                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                                        shape: WidgetStatePropertyAll(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                            side: BorderSide.none,
+                                SizedBox(height: spaceSM),
+                                FutureBuilder(
+                                  future: uiSettingsManager.getStringNullable(StorageKey.setman_gitCommitSigningKey),
+                                  builder: (context, gitCommitSigningKeySnapshot) => Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                    child: FutureBuilder(
+                                      future: uiSettingsManager.getGitProvider(),
+                                      builder: (context, snapshot) => Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          snapshot.data == GitProvider.SSH && gitCommitSigningKeySnapshot.data == ""
+                                              ? SizedBox.shrink()
+                                              : Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: TextButton.icon(
+                                                        onPressed: () async {
+                                                          await ImportPrivKeyDialog.showDialog(context, ((String, String) sshCredentials) async {
+                                                            await uiSettingsManager.setStringNullable(
+                                                              StorageKey.setman_gitCommitSigningKey,
+                                                              sshCredentials.$2,
+                                                            );
+                                                            await uiSettingsManager.setStringNullable(
+                                                              StorageKey.setman_gitCommitSigningPassphrase,
+                                                              sshCredentials.$1,
+                                                            );
+                                                            if (mounted) setState(() {});
+                                                          });
+                                                        },
+                                                        style: ButtonStyle(
+                                                          alignment: Alignment.centerLeft,
+                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                          padding: WidgetStatePropertyAll(
+                                                            EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                                                           ),
+                                                          shape: WidgetStatePropertyAll(
+                                                            RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                              side: BorderSide.none,
+                                                            ),
+                                                          ),
+                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                          minimumSize: WidgetStatePropertyAll(Size.zero),
                                                         ),
-                                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                        minimumSize: WidgetStatePropertyAll(Size.zero),
-                                                      ),
-                                                      icon: FaIcon(
-                                                        FontAwesomeIcons.key,
-                                                        color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                            ? colours.primaryPositive
-                                                            : colours.primaryLight,
-                                                      ),
-                                                      label: Padding(
-                                                        padding: EdgeInsets.only(left: spaceXS),
-                                                        child: Text(
-                                                          (gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                                  ? t.commitKeyImported
-                                                                  : t.importCommitKey)
-                                                              .toUpperCase(),
-                                                          style: TextStyle(
-                                                            color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                                ? colours.primaryPositive
-                                                                : colours.primaryLight,
-                                                            fontSize: textMD,
-                                                            fontWeight: FontWeight.bold,
+                                                        icon: FaIcon(
+                                                          FontAwesomeIcons.key,
+                                                          color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
+                                                              ? colours.primaryPositive
+                                                              : colours.primaryLight,
+                                                        ),
+                                                        label: Padding(
+                                                          padding: EdgeInsets.only(left: spaceXS),
+                                                          child: Text(
+                                                            (gitCommitSigningKeySnapshot.data?.isNotEmpty == true
+                                                                    ? t.commitKeyImported
+                                                                    : t.importCommitKey)
+                                                                .toUpperCase(),
+                                                            style: TextStyle(
+                                                              color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
+                                                                  ? colours.primaryPositive
+                                                                  : colours.primaryLight,
+                                                              fontSize: textMD,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                      ? IconButton(
-                                                          padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                                                          style: ButtonStyle(
-                                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                            shape: WidgetStatePropertyAll(
-                                                              RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                side: BorderSide.none,
+                                                    gitCommitSigningKeySnapshot.data?.isNotEmpty == true
+                                                        ? IconButton(
+                                                            padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                                            style: ButtonStyle(
+                                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                              shape: WidgetStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                                                                  side: BorderSide.none,
+                                                                ),
                                                               ),
                                                             ),
-                                                          ),
-                                                          constraints: BoxConstraints(),
-                                                          onPressed: () async {
-                                                            await uiSettingsManager.setStringNullable(
-                                                              StorageKey.setman_gitCommitSigningPassphrase,
-                                                              null,
-                                                            );
-                                                            await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
-                                                            if (mounted) setState(() {});
-                                                          },
-                                                          icon: FaIcon(FontAwesomeIcons.trash, color: colours.tertiaryNegative, size: textMD),
-                                                        )
-                                                      : SizedBox.shrink(),
-                                                ],
-                                              ),
-                                        snapshot.data == GitProvider.SSH &&
-                                                (gitCommitSigningKeySnapshot.data == null || gitCommitSigningKeySnapshot.data == "")
-                                            ? TextButton.icon(
-                                                onPressed: () async {
-                                                  await uiSettingsManager.setStringNullable(
-                                                    StorageKey.setman_gitCommitSigningKey,
-                                                    gitCommitSigningKeySnapshot.data == null ? "" : null,
-                                                  );
-                                                  if (mounted) setState(() {});
-                                                },
-                                                style: ButtonStyle(
-                                                  alignment: Alignment.centerLeft,
-                                                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                                  shape: WidgetStatePropertyAll(
-                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                                            constraints: BoxConstraints(),
+                                                            onPressed: () async {
+                                                              await uiSettingsManager.setStringNullable(
+                                                                StorageKey.setman_gitCommitSigningPassphrase,
+                                                                null,
+                                                              );
+                                                              await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
+                                                              if (mounted) setState(() {});
+                                                            },
+                                                            icon: FaIcon(FontAwesomeIcons.trash, color: colours.tertiaryNegative, size: textMD),
+                                                          )
+                                                        : SizedBox.shrink(),
+                                                  ],
+                                                ),
+                                          snapshot.data == GitProvider.SSH &&
+                                                  (gitCommitSigningKeySnapshot.data == null || gitCommitSigningKeySnapshot.data == "")
+                                              ? TextButton.icon(
+                                                  onPressed: () async {
+                                                    await uiSettingsManager.setStringNullable(
+                                                      StorageKey.setman_gitCommitSigningKey,
+                                                      gitCommitSigningKeySnapshot.data == null ? "" : null,
+                                                    );
+                                                    if (mounted) setState(() {});
+                                                  },
+                                                  style: ButtonStyle(
+                                                    alignment: Alignment.centerLeft,
+                                                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                                                    shape: WidgetStatePropertyAll(
+                                                      RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                                    ),
+                                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                    minimumSize: WidgetStatePropertyAll(Size.zero),
                                                   ),
-                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                  minimumSize: WidgetStatePropertyAll(Size.zero),
-                                                ),
-                                                iconAlignment: IconAlignment.end,
-                                                icon: FaIcon(
-                                                  gitCommitSigningKeySnapshot.data != null
-                                                      ? FontAwesomeIcons.solidSquareCheck
-                                                      : FontAwesomeIcons.squareCheck,
-                                                  color: colours.primaryPositive,
-                                                  size: textLG,
-                                                ),
-                                                label: SizedBox(
-                                                  width: double.infinity,
-                                                  child: Text(
-                                                    t.useSshKey.toUpperCase(),
-                                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                  iconAlignment: IconAlignment.end,
+                                                  icon: FaIcon(
+                                                    gitCommitSigningKeySnapshot.data != null
+                                                        ? FontAwesomeIcons.solidSquareCheck
+                                                        : FontAwesomeIcons.squareCheck,
+                                                    color: colours.primaryPositive,
+                                                    size: textLG,
                                                   ),
-                                                ),
-                                              )
-                                            : SizedBox.shrink(),
-                                      ],
+                                                  label: SizedBox(
+                                                    width: double.infinity,
+                                                    child: Text(
+                                                      t.useSshKey.toUpperCase(),
+                                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                )
+                                              : SizedBox.shrink(),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                     ),
                     SizedBox(height: spaceMD),
                     ItemSetting(

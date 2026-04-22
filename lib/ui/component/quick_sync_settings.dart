@@ -36,14 +36,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                     ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                     : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
               ),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-              ),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
             ),
             icon: FutureBuilder(
               future: (() async =>
-                  await repoManager.getInt(StorageKey.repoman_tileSyncIndex) ==
-                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                  await repoManager.getInt(StorageKey.repoman_tileSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
               builder: (context, snapshot) => FaIcon(
                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
                 color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -61,10 +58,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
         if (!Platform.isIOS)
           TextButton.icon(
             onPressed: () async {
-              await repoManager.setInt(
-                StorageKey.repoman_tileManualSyncIndex,
-                await repoManager.getInt(StorageKey.repoman_repoIndex),
-              );
+              await repoManager.setInt(StorageKey.repoman_tileManualSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
               setState(() {});
             },
             iconAlignment: IconAlignment.end,
@@ -75,14 +69,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                     ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                     : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
               ),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-              ),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
             ),
             icon: FutureBuilder(
               future: (() async =>
-                  await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) ==
-                  await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                  await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
               builder: (context, snapshot) => FaIcon(
                 snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
                 color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -110,14 +101,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                   : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
             ),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-            ),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           icon: FutureBuilder(
             future: (() async =>
-                await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex) ==
-                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
             builder: (context, snapshot) => FaIcon(
               snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
               color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -134,10 +122,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
         ),
         TextButton.icon(
           onPressed: () async {
-            await repoManager.setInt(
-              StorageKey.repoman_shortcutManualSyncIndex,
-              await repoManager.getInt(StorageKey.repoman_repoIndex),
-            );
+            await repoManager.setInt(StorageKey.repoman_shortcutManualSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
             setState(() {});
           },
           iconAlignment: IconAlignment.end,
@@ -148,14 +133,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                   : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
             ),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-            ),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           icon: FutureBuilder(
             future: (() async =>
-                await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex) ==
-                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                await repoManager.getInt(StorageKey.repoman_shortcutManualSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
             builder: (context, snapshot) => FaIcon(
               snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
               color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -183,14 +165,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                   : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
             ),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-            ),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           icon: FutureBuilder(
             future: (() async =>
-                await repoManager.getInt(StorageKey.repoman_widgetSyncIndex) ==
-                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                await repoManager.getInt(StorageKey.repoman_widgetSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
             builder: (context, snapshot) => FaIcon(
               snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
               color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -207,10 +186,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
         ),
         TextButton.icon(
           onPressed: () async {
-            await repoManager.setInt(
-              StorageKey.repoman_widgetManualSyncIndex,
-              await repoManager.getInt(StorageKey.repoman_repoIndex),
-            );
+            await repoManager.setInt(StorageKey.repoman_widgetManualSyncIndex, await repoManager.getInt(StorageKey.repoman_repoIndex));
             setState(() {});
           },
           iconAlignment: IconAlignment.end,
@@ -221,14 +197,11 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                   ? EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)
                   : EdgeInsets.only(left: spaceMD + spaceXS, right: spaceLG, top: spaceMD, bottom: spaceMD),
             ),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-            ),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           icon: FutureBuilder(
             future: (() async =>
-                await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex) ==
-                await repoManager.getInt(StorageKey.repoman_repoIndex))(),
+                await repoManager.getInt(StorageKey.repoman_widgetManualSyncIndex) == await repoManager.getInt(StorageKey.repoman_repoIndex))(),
             builder: (context, snapshot) => FaIcon(
               snapshot.data == true ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
               color: snapshot.data == true ? colours.primaryPositive : colours.secondaryLight,
@@ -345,10 +318,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
             ),
             AnimatedSize(
               duration: animFast,
-              child: SizedBox(
-                height: (snapshot.data ?? false) ? null : 0,
-                child: (snapshot.data ?? false) ? _buildBody() : SizedBox.shrink(),
-              ),
+              child: SizedBox(height: (snapshot.data ?? false) ? null : 0, child: (snapshot.data ?? false) ? _buildBody() : SizedBox.shrink()),
             ),
           ],
         ),

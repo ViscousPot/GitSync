@@ -86,10 +86,7 @@ class ShowcaseFeatureButton extends StatelessWidget {
                     Center(
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: spaceXXXS + 1, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: colours.showcaseBorder,
-                          borderRadius: BorderRadius.all(cornerRadiusMax),
-                        ),
+                        decoration: BoxDecoration(color: colours.showcaseBorder, borderRadius: BorderRadius.all(cornerRadiusMax)),
                         child: Text(
                           count! > 99 ? '99+' : '$count',
                           style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textXXS, fontWeight: FontWeight.bold),
@@ -170,19 +167,13 @@ VoidCallback? resolveFeatureOnAdd({
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
     if (!context.mounted) return;
     if (feature == ShowcaseFeature.issues) {
-      Navigator.of(context).push(createCreateIssuePageRoute(
-        gitProvider: gitProvider,
-        remoteWebUrl: remoteWebUrl,
-        accessToken: accessToken,
-        githubAppOauth: githubAppOauth,
-      ));
+      Navigator.of(context).push(
+        createCreateIssuePageRoute(gitProvider: gitProvider, remoteWebUrl: remoteWebUrl, accessToken: accessToken, githubAppOauth: githubAppOauth),
+      );
     } else {
-      Navigator.of(context).push(createCreatePrPageRoute(
-        gitProvider: gitProvider,
-        remoteWebUrl: remoteWebUrl,
-        accessToken: accessToken,
-        githubAppOauth: githubAppOauth,
-      ));
+      Navigator.of(
+        context,
+      ).push(createCreatePrPageRoute(gitProvider: gitProvider, remoteWebUrl: remoteWebUrl, accessToken: accessToken, githubAppOauth: githubAppOauth));
     }
   };
 }

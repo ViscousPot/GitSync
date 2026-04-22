@@ -44,11 +44,13 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                 onPressed: () async {
                   final diff = await GitManager.getCommitDiff(commitSha, '$commitSha^');
                   final diffText = diff != null ? formatDiffParts(diff.diffParts) : '';
-                  final prompt = "Commit ${commitSha.substring(0, 7)}:\n"
+                  final prompt =
+                      "Commit ${commitSha.substring(0, 7)}:\n"
                       "Current message: ${controller.text}\n\n"
                       "Changes (+${diff?.insertions ?? 0}/-${diff?.deletions ?? 0}):\n$diffText";
                   final result = await aiComplete(
-                    systemPrompt: "Improve this git commit message based on the actual changes. Use conventional commit format. Output only the improved message, nothing else.",
+                    systemPrompt:
+                        "Improve this git commit message based on the actual changes. Use conventional commit format. Output only the improved message, nothing else.",
                     userPrompt: prompt,
                   );
                   if (result != null) controller.text = result.trim();

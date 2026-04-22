@@ -425,33 +425,33 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       builder: (context) {
                         final aiEnabled = ref.watch(aiFeaturesEnabledProvider).valueOrNull ?? true;
                         return TextButton.icon(
-                        onPressed: () {
-                          ref.read(aiFeaturesEnabledProvider.notifier).set(!aiEnabled);
-                        },
-                        style: ButtonStyle(
-                          alignment: Alignment.centerLeft,
-                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                          onPressed: () {
+                            ref.read(aiFeaturesEnabledProvider.notifier).set(!aiEnabled);
+                          },
+                          style: ButtonStyle(
+                            alignment: Alignment.centerLeft,
+                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                            ),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            minimumSize: WidgetStatePropertyAll(Size.zero),
                           ),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          minimumSize: WidgetStatePropertyAll(Size.zero),
-                        ),
-                        iconAlignment: IconAlignment.end,
-                        icon: FaIcon(
-                          aiEnabled ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                          color: colours.primaryPositive,
-                          size: textLG,
-                        ),
-                        label: SizedBox(
-                          width: double.infinity,
-                          child: Text(
-                            t.enableAiFeatures.toUpperCase(),
-                            style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                          iconAlignment: IconAlignment.end,
+                          icon: FaIcon(
+                            aiEnabled ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+                            color: colours.primaryPositive,
+                            size: textLG,
                           ),
-                        ),
-                      );
+                          label: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              t.enableAiFeatures.toUpperCase(),
+                              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        );
                       },
                     ),
                     if (Platform.isAndroid) ...[
@@ -1046,11 +1046,8 @@ Route<String?> createGlobalSettingsMainRoute(BuildContext context, Object? args)
 
   return PageRouteBuilder(
     settings: const RouteSettings(name: global_settings_main),
-    pageBuilder: (context, animation, secondaryAnimation) => ShowCaseWidget(
-      builder: (context) => GlobalSettingsMain(
-        onboarding: args_["onboarding"] == true,
-      ),
-    ),
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        ShowCaseWidget(builder: (context) => GlobalSettingsMain(onboarding: args_["onboarding"] == true)),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;

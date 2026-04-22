@@ -893,9 +893,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   if (detail == null) return;
                   final labels = detail.labels.map((l) => l.name).join(', ');
                   final files = detail.changedFiles.map((f) => f.filename).join(', ');
-                  final recentComments = detail.timelineItems
-                      .where((t) => t.type == PrTimelineItemType.comment && t.comment != null)
-                      .toList();
+                  final recentComments = detail.timelineItems.where((t) => t.type == PrTimelineItemType.comment && t.comment != null).toList();
                   final lastComments = recentComments.length > 5 ? recentComments.sublist(recentComments.length - 5) : recentComments;
                   final commentText = lastComments.map((t) => '@${t.comment!.authorUsername}: ${t.comment!.body}').join('\n');
                   final patchText = StringBuffer();
@@ -907,7 +905,8 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                       patchText.writeln(f.patch!.length > remaining ? f.patch!.substring(0, remaining) : f.patch);
                     }
                   }
-                  final prompt = 'PR: ${detail.title} [${detail.state.name}]\n'
+                  final prompt =
+                      'PR: ${detail.title} [${detail.state.name}]\n'
                       '${detail.headBranch} → ${detail.baseBranch}\n'
                       '+${detail.additions}/-${detail.deletions} across ${detail.changedFileCount} files\n'
                       'Labels: $labels\n\n'

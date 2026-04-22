@@ -124,7 +124,8 @@ const String discordLink = "https://discord.gg/cgvjdDyzzB";
 const String premiumDocsLink = "https://gitsync.viscouspotenti.al/wiki/premium";
 const String scheduledSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/scheduled-sync";
 const String autoSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/app-based";
-const String iosAppSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/app-based#sync-on-other-app-openclose-via-shortcuts";
+const String iosAppSyncDocsLink =
+    "https://gitsync.viscouspotenti.al/wiki/sync-options/background/app-based#sync-on-other-app-openclose-via-shortcuts";
 const String tileSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/quick-tile";
 const String quickSyncDocsLink = "https://gitsync.viscouspotenti.al/wiki/sync-options/background/quick-sync";
 const String enhancedShcheduledSyncDocsLink =

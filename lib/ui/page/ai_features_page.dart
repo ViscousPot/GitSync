@@ -708,11 +708,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
         builder: (context, setDialogState) {
           _setDialogState = setDialogState;
 
-          Widget modelRow({
-            required String label,
-            required String? selectedValue,
-            required void Function(String) onChanged,
-          }) {
+          Widget modelRow({required String label, required String? selectedValue, required void Function(String) onChanged}) {
             final displayed = selectedValue ?? '';
             return Row(
               children: [
@@ -1004,9 +1000,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                       onPressed: () => Navigator.pop(context, false),
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                        ),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
@@ -1021,9 +1015,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                       onPressed: () => Navigator.pop(context, true),
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                        ),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
@@ -1061,90 +1053,94 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: IntrinsicHeight(
                 child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _inputController,
-                      focusNode: _focusNode,
-                      enabled: !isStreaming,
-                      style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
-                      maxLines: 4,
-                      minLines: 1,
-                      decoration: InputDecoration(
-                        hintText: "Ask anything...",
-                        hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: GestureDetector(
-                      onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
-                      child: Container(
-                        margin: EdgeInsets.all(spaceXXS),
-                        padding: EdgeInsets.all(spaceSM),
-                        decoration: BoxDecoration(
-                          color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
-                          borderRadius: BorderRadius.all(cornerRadiusSM),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _inputController,
+                        focusNode: _focusNode,
+                        enabled: !isStreaming,
+                        style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                        maxLines: 4,
+                        minLines: 1,
+                        decoration: InputDecoration(
+                          hintText: "Ask anything...",
+                          hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                         ),
-                        child: FaIcon(isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane, color: colours.primaryDark, size: textSM),
+                        onSubmitted: (_) => _sendMessage(),
                       ),
                     ),
-                  ),
-                  ValueListenableBuilder<List<ChatMessage>>(
-                    valueListenable: aiChatService.messages,
-                    builder: (context, messages, _) {
-                      if (messages.isEmpty) return const SizedBox.shrink();
-                      return ValueListenableBuilder<TokenUsage>(
-                        valueListenable: aiChatService.sessionUsage,
-                        builder: (context, usage, _) {
-                          final disabled = isStreaming;
-                          final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
-                          return Padding(
-                            padding: EdgeInsets.all(spaceXXS),
-                            child: TextButton.icon(
-                              onPressed: disabled ? null : () => _confirmClearChat(context),
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                overlayColor: WidgetStatePropertyAll(fg.withValues(alpha: 0.1)),
-                                shape: WidgetStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                                    side: BorderSide(color: fg),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: GestureDetector(
+                        onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
+                        child: Container(
+                          margin: EdgeInsets.all(spaceXXS),
+                          padding: EdgeInsets.all(spaceSM),
+                          decoration: BoxDecoration(
+                            color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
+                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                          ),
+                          child: FaIcon(
+                            isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane,
+                            color: colours.primaryDark,
+                            size: textSM,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ValueListenableBuilder<List<ChatMessage>>(
+                      valueListenable: aiChatService.messages,
+                      builder: (context, messages, _) {
+                        if (messages.isEmpty) return const SizedBox.shrink();
+                        return ValueListenableBuilder<TokenUsage>(
+                          valueListenable: aiChatService.sessionUsage,
+                          builder: (context, usage, _) {
+                            final disabled = isStreaming;
+                            final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
+                            return Padding(
+                              padding: EdgeInsets.all(spaceXXS),
+                              child: TextButton.icon(
+                                onPressed: disabled ? null : () => _confirmClearChat(context),
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                  overlayColor: WidgetStatePropertyAll(fg.withValues(alpha: 0.1)),
+                                  shape: WidgetStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                                      side: BorderSide(color: fg),
+                                    ),
                                   ),
+                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                                  minimumSize: WidgetStatePropertyAll(Size.zero),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  iconColor: WidgetStatePropertyAll(fg),
                                 ),
-                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                                minimumSize: WidgetStatePropertyAll(Size.zero),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                iconColor: WidgetStatePropertyAll(fg),
+                                icon: FaIcon(FontAwesomeIcons.trashCan, color: fg, size: textSM),
+                                label: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Clear",
+                                      style: _mono.merge(TextStyle(color: fg, fontSize: textXS, fontWeight: FontWeight.bold)),
+                                    ),
+                                    SizedBox(width: spaceXXS),
+                                    Text(
+                                      _formatTokens(usage.inputTokens + usage.outputTokens),
+                                      style: _mono.merge(TextStyle(color: fg.withValues(alpha: 0.7), fontSize: textXS)),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              icon: FaIcon(FontAwesomeIcons.trashCan, color: fg, size: textSM),
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Clear",
-                                    style: _mono.merge(TextStyle(color: fg, fontSize: textXS, fontWeight: FontWeight.bold)),
-                                  ),
-                                  SizedBox(width: spaceXXS),
-                                  Text(
-                                    _formatTokens(usage.inputTokens + usage.outputTokens),
-                                    style: _mono.merge(TextStyle(color: fg.withValues(alpha: 0.7), fontSize: textXS)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

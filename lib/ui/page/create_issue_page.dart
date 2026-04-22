@@ -284,7 +284,8 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
               }
             }
             final result = await aiComplete(
-              systemPrompt: "Enhance this issue title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Follow the template structure if provided. Maintain the user's original intent.",
+              systemPrompt:
+                  "Enhance this issue title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Follow the template structure if provided. Maintain the user's original intent.",
               userPrompt: buffer.toString(),
             );
             if (result != null) {

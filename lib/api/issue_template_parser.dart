@@ -31,14 +31,7 @@ IssueTemplate parseYamlTemplate(String content, String fileName) {
     }
   }
 
-  return IssueTemplate(
-    name: name,
-    description: description,
-    title: title,
-    labels: labels,
-    assignees: assignees,
-    fields: fields,
-  );
+  return IssueTemplate(name: name, description: description, title: title, labels: labels, assignees: assignees, fields: fields);
 }
 
 IssueTemplateField? _parseField(YamlMap item) {
@@ -76,10 +69,7 @@ IssueTemplateField? _parseField(YamlMap item) {
     checkboxes = <IssueTemplateCheckbox>[];
     for (final opt in attrs['options'] as YamlList) {
       if (opt is YamlMap) {
-        checkboxes.add(IssueTemplateCheckbox(
-          label: opt['label']?.toString() ?? '',
-          required: opt['required'] == true,
-        ));
+        checkboxes.add(IssueTemplateCheckbox(label: opt['label']?.toString() ?? '', required: opt['required'] == true));
       } else {
         checkboxes.add(IssueTemplateCheckbox(label: opt.toString(), required: false));
       }
@@ -132,14 +122,7 @@ IssueTemplate parseMarkdownTemplate(String content, String fileName) {
     } catch (_) {}
   }
 
-  return IssueTemplate(
-    name: name,
-    description: description,
-    title: title,
-    labels: labels,
-    assignees: assignees,
-    body: body,
-  );
+  return IssueTemplate(name: name, description: description, title: title, labels: labels, assignees: assignees, body: body);
 }
 
 String buildIssueBodyFromTemplate(IssueTemplate template, Map<String, dynamic> fieldValues) {

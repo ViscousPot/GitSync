@@ -210,9 +210,21 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
       position: position,
       color: colours.secondaryDark,
       items: [
-        PopupMenuItem(value: PrSortOption.newest, child: Text(t.sortNewest, style: TextStyle(color: _sortOption == PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight))),
-        PopupMenuItem(value: PrSortOption.oldest, child: Text(t.sortOldest, style: TextStyle(color: _sortOption == PrSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight))),
-        PopupMenuItem(value: PrSortOption.recentlyUpdated, child: Text(t.sortRecentlyUpdated, style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight))),
+        PopupMenuItem(
+          value: PrSortOption.newest,
+          child: Text(t.sortNewest, style: TextStyle(color: _sortOption == PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight)),
+        ),
+        PopupMenuItem(
+          value: PrSortOption.oldest,
+          child: Text(t.sortOldest, style: TextStyle(color: _sortOption == PrSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight)),
+        ),
+        PopupMenuItem(
+          value: PrSortOption.recentlyUpdated,
+          child: Text(
+            t.sortRecentlyUpdated,
+            style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight),
+          ),
+        ),
       ],
     ).then((value) {
       if (value != null && value != _sortOption) {
@@ -222,7 +234,13 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     });
   }
 
-  Widget _buildAutocompleteField(TextEditingController controller, FocusNode focusNode, String label, Future<void> Function() ensureData, List<String>? options) {
+  Widget _buildAutocompleteField(
+    TextEditingController controller,
+    FocusNode focusNode,
+    String label,
+    Future<void> Function() ensureData,
+    List<String>? options,
+  ) {
     return RawAutocomplete<String>(
       textEditingController: controller,
       focusNode: focusNode,
@@ -238,13 +256,22 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
           controller: textEditingController,
           focusNode: focusNode,
           maxLines: 1,
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+          style: TextStyle(
+            color: colours.primaryLight,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.none,
+            decorationThickness: 0,
+            fontSize: textMD,
+          ),
           decoration: InputDecoration(
             fillColor: colours.tertiaryDark,
             filled: true,
             border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
             isCollapsed: true,
-            label: Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+            label: Text(
+              label,
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
             isDense: true,
@@ -269,7 +296,10 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   final option = options.elementAt(index);
                   return ListTile(
                     dense: true,
-                    title: Text(option, style: TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                    title: Text(
+                      option,
+                      style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                    ),
                     onTap: () => onSelected(option),
                   );
                 },
@@ -292,7 +322,10 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
               padding: EdgeInsets.all(spaceMD),
               child: Row(
                 children: [
-                  Text(t.filterSidebar.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold)),
+                  Text(
+                    t.filterSidebar.toUpperCase(),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                  ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -305,15 +338,39 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                 children: [
-                  _buildAutocompleteField(_authorController, _authorFocusNode, t.filterAuthor.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  _buildAutocompleteField(
+                    _authorController,
+                    _authorFocusNode,
+                    t.filterAuthor.toUpperCase(),
+                    _ensureCollaborators,
+                    _repoCollaborators,
+                  ),
                   SizedBox(height: spaceSM),
                   _buildAutocompleteField(_labelsController, _labelsFocusNode, t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_assigneeController, _assigneeFocusNode, t.filterAssignee.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  _buildAutocompleteField(
+                    _assigneeController,
+                    _assigneeFocusNode,
+                    t.filterAssignee.toUpperCase(),
+                    _ensureCollaborators,
+                    _repoCollaborators,
+                  ),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_reviewerController, _reviewerFocusNode, t.filterReviewer.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  _buildAutocompleteField(
+                    _reviewerController,
+                    _reviewerFocusNode,
+                    t.filterReviewer.toUpperCase(),
+                    _ensureCollaborators,
+                    _repoCollaborators,
+                  ),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_milestoneController, _milestoneFocusNode, t.filterMilestone.toUpperCase(), _ensureMilestones, _repoMilestones),
+                  _buildAutocompleteField(
+                    _milestoneController,
+                    _milestoneFocusNode,
+                    t.filterMilestone.toUpperCase(),
+                    _ensureMilestones,
+                    _repoMilestones,
+                  ),
                 ],
               ),
             ),
@@ -435,7 +492,11 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     onTap: _showSortMenu,
                     child: Container(
                       padding: EdgeInsets.all(spaceXS),
-                      child: FaIcon(FontAwesomeIcons.arrowDownWideShort, size: textMD, color: _sortOption != PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight),
+                      child: FaIcon(
+                        FontAwesomeIcons.arrowDownWideShort,
+                        size: textMD,
+                        color: _sortOption != PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight,
+                      ),
                     ),
                   ),
                 ],
@@ -471,55 +532,55 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   await Future.delayed(const Duration(milliseconds: 500));
                 },
                 child: _pullRequests.isEmpty && !_loading
-                  ? LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: constraints.maxHeight,
-                          child: Center(
-                            child: Text(
-                              t.pullRequestsNotFound.toUpperCase(),
-                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Text(
+                                t.pullRequestsNotFound.toUpperCase(),
+                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      itemCount: _pullRequests.length + (_loading || _loadNextPage != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= _pullRequests.length) {
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                        itemCount: _pullRequests.length + (_loading || _loadNextPage != null ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _pullRequests.length) {
+                            return Padding(
+                              padding: EdgeInsets.all(spaceMD),
+                              child: Center(
+                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                              ),
+                            );
+                          }
+                          final pr = _pullRequests[index];
                           return Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Center(
-                              child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                            padding: EdgeInsets.only(bottom: spaceXS),
+                            child: _ItemPullRequest(
+                              pr: pr,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  createPrDetailPageRoute(
+                                    gitProvider: widget.gitProvider,
+                                    remoteWebUrl: widget.remoteWebUrl,
+                                    accessToken: widget.accessToken,
+                                    githubAppOauth: widget.githubAppOauth,
+                                    prNumber: pr.number,
+                                    prTitle: pr.title,
+                                  ),
+                                );
+                              },
                             ),
                           );
-                        }
-                        final pr = _pullRequests[index];
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemPullRequest(
-                            pr: pr,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                createPrDetailPageRoute(
-                                  gitProvider: widget.gitProvider,
-                                  remoteWebUrl: widget.remoteWebUrl,
-                                  accessToken: widget.accessToken,
-                                  githubAppOauth: widget.githubAppOauth,
-                                  prNumber: pr.number,
-                                  prTitle: pr.title,
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                        },
+                      ),
               ),
             ),
           ],

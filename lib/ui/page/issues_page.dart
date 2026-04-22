@@ -213,10 +213,34 @@ class _IssuesPageState extends State<IssuesPage> {
       position: position,
       color: colours.secondaryDark,
       items: [
-        PopupMenuItem(value: IssueSortOption.newest, child: Text(t.sortNewest, style: TextStyle(color: _sortOption == IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight))),
-        PopupMenuItem(value: IssueSortOption.oldest, child: Text(t.sortOldest, style: TextStyle(color: _sortOption == IssueSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight))),
-        PopupMenuItem(value: IssueSortOption.mostCommented, child: Text(t.sortMostCommented, style: TextStyle(color: _sortOption == IssueSortOption.mostCommented ? colours.showcaseFeatureIcon : colours.primaryLight))),
-        PopupMenuItem(value: IssueSortOption.recentlyUpdated, child: Text(t.sortRecentlyUpdated, style: TextStyle(color: _sortOption == IssueSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight))),
+        PopupMenuItem(
+          value: IssueSortOption.newest,
+          child: Text(
+            t.sortNewest,
+            style: TextStyle(color: _sortOption == IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight),
+          ),
+        ),
+        PopupMenuItem(
+          value: IssueSortOption.oldest,
+          child: Text(
+            t.sortOldest,
+            style: TextStyle(color: _sortOption == IssueSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight),
+          ),
+        ),
+        PopupMenuItem(
+          value: IssueSortOption.mostCommented,
+          child: Text(
+            t.sortMostCommented,
+            style: TextStyle(color: _sortOption == IssueSortOption.mostCommented ? colours.showcaseFeatureIcon : colours.primaryLight),
+          ),
+        ),
+        PopupMenuItem(
+          value: IssueSortOption.recentlyUpdated,
+          child: Text(
+            t.sortRecentlyUpdated,
+            style: TextStyle(color: _sortOption == IssueSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight),
+          ),
+        ),
       ],
     ).then((value) {
       if (value != null && value != _sortOption) {
@@ -242,22 +266,30 @@ class _IssuesPageState extends State<IssuesPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(spaceMD),
-                child: Text(t.filterMilestone.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD)),
+                child: Text(
+                  t.filterMilestone.toUpperCase(),
+                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                ),
               ),
               if (milestones.isEmpty)
                 Padding(
                   padding: EdgeInsets.all(spaceMD),
-                  child: Text(t.filterMilestonesEmpty, style: TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                  child: Text(
+                    t.filterMilestonesEmpty,
+                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                  ),
                 )
               else ...[
                 _buildSheetOption(t.filterNone, _milestoneFilter == null, () {
                   setState(() => _milestoneFilter = null);
                   Navigator.pop(context);
                 }),
-                ...milestones.map((m) => _buildSheetOption(m.title, _milestoneFilter == m.title, () {
-                  setState(() => _milestoneFilter = m.title);
-                  Navigator.pop(context);
-                })),
+                ...milestones.map(
+                  (m) => _buildSheetOption(m.title, _milestoneFilter == m.title, () {
+                    setState(() => _milestoneFilter = m.title);
+                    Navigator.pop(context);
+                  }),
+                ),
               ],
               SizedBox(height: spaceSM),
             ],
@@ -283,22 +315,30 @@ class _IssuesPageState extends State<IssuesPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(spaceMD),
-                child: Text(t.filterProject.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD)),
+                child: Text(
+                  t.filterProject.toUpperCase(),
+                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                ),
               ),
               if (projects.isEmpty)
                 Padding(
                   padding: EdgeInsets.all(spaceMD),
-                  child: Text(t.filterProjectsEmpty, style: TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                  child: Text(
+                    t.filterProjectsEmpty,
+                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                  ),
                 )
               else ...[
                 _buildSheetOption(t.filterNone, _projectFilter == null, () {
                   setState(() => _projectFilter = null);
                   Navigator.pop(context);
                 }),
-                ...projects.map((p) => _buildSheetOption(p.title, _projectFilter == p.title, () {
-                  setState(() => _projectFilter = p.title);
-                  Navigator.pop(context);
-                })),
+                ...projects.map(
+                  (p) => _buildSheetOption(p.title, _projectFilter == p.title, () {
+                    setState(() => _projectFilter = p.title);
+                    Navigator.pop(context);
+                  }),
+                ),
               ],
               SizedBox(height: spaceSM),
             ],
@@ -310,13 +350,22 @@ class _IssuesPageState extends State<IssuesPage> {
 
   Widget _buildSheetOption(String title, bool selected, VoidCallback onTap) {
     return ListTile(
-      title: Text(title, style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.primaryLight, fontSize: textSM)),
+      title: Text(
+        title,
+        style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.primaryLight, fontSize: textSM),
+      ),
       trailing: selected ? FaIcon(FontAwesomeIcons.check, size: textSM, color: colours.showcaseFeatureIcon) : null,
       onTap: onTap,
     );
   }
 
-  Widget _buildAutocompleteField(TextEditingController controller, FocusNode focusNode, String label, Future<void> Function() ensureData, List<String>? options) {
+  Widget _buildAutocompleteField(
+    TextEditingController controller,
+    FocusNode focusNode,
+    String label,
+    Future<void> Function() ensureData,
+    List<String>? options,
+  ) {
     return RawAutocomplete<String>(
       textEditingController: controller,
       focusNode: focusNode,
@@ -332,13 +381,22 @@ class _IssuesPageState extends State<IssuesPage> {
           controller: textEditingController,
           focusNode: focusNode,
           maxLines: 1,
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+          style: TextStyle(
+            color: colours.primaryLight,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.none,
+            decorationThickness: 0,
+            fontSize: textMD,
+          ),
           decoration: InputDecoration(
             fillColor: colours.tertiaryDark,
             filled: true,
             border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
             isCollapsed: true,
-            label: Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+            label: Text(
+              label,
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+            ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
             isDense: true,
@@ -363,7 +421,10 @@ class _IssuesPageState extends State<IssuesPage> {
                   final option = options.elementAt(index);
                   return ListTile(
                     dense: true,
-                    title: Text(option, style: TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                    title: Text(
+                      option,
+                      style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                    ),
                     onTap: () => onSelected(option),
                   );
                 },
@@ -381,21 +442,25 @@ class _IssuesPageState extends State<IssuesPage> {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-        decoration: BoxDecoration(
-          color: colours.tertiaryDark,
-          borderRadius: BorderRadius.all(cornerRadiusSM),
-        ),
+        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
+            Text(
+              label,
+              style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: spaceXXXS),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     value ?? t.filterNone,
-                    style: TextStyle(color: value != null ? colours.primaryLight : colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                    style: TextStyle(
+                      color: value != null ? colours.primaryLight : colours.tertiaryLight,
+                      fontWeight: FontWeight.bold,
+                      fontSize: textMD,
+                    ),
                   ),
                 ),
                 FaIcon(FontAwesomeIcons.chevronDown, size: textXS, color: colours.secondaryLight),
@@ -418,7 +483,10 @@ class _IssuesPageState extends State<IssuesPage> {
               padding: EdgeInsets.all(spaceMD),
               child: Row(
                 children: [
-                  Text(t.filterSidebar.toUpperCase(), style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold)),
+                  Text(
+                    t.filterSidebar.toUpperCase(),
+                    style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                  ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -431,11 +499,23 @@ class _IssuesPageState extends State<IssuesPage> {
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                 children: [
-                  _buildAutocompleteField(_authorController, _authorFocusNode, t.filterAuthor.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  _buildAutocompleteField(
+                    _authorController,
+                    _authorFocusNode,
+                    t.filterAuthor.toUpperCase(),
+                    _ensureCollaborators,
+                    _repoCollaborators,
+                  ),
                   SizedBox(height: spaceSM),
                   _buildAutocompleteField(_labelsController, _labelsFocusNode, t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_assigneeController, _assigneeFocusNode, t.filterAssignee.toUpperCase(), _ensureCollaborators, _repoCollaborators),
+                  _buildAutocompleteField(
+                    _assigneeController,
+                    _assigneeFocusNode,
+                    t.filterAssignee.toUpperCase(),
+                    _ensureCollaborators,
+                    _repoCollaborators,
+                  ),
                   SizedBox(height: spaceSM),
                   _buildSelectorField(t.filterMilestone.toUpperCase(), _milestoneFilter, _showMilestoneSheet),
                   SizedBox(height: spaceSM),
@@ -561,7 +641,11 @@ class _IssuesPageState extends State<IssuesPage> {
                     onTap: _showSortMenu,
                     child: Container(
                       padding: EdgeInsets.all(spaceXS),
-                      child: FaIcon(FontAwesomeIcons.arrowDownWideShort, size: textMD, color: _sortOption != IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight),
+                      child: FaIcon(
+                        FontAwesomeIcons.arrowDownWideShort,
+                        size: textMD,
+                        color: _sortOption != IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight,
+                      ),
                     ),
                   ),
                 ],
@@ -597,70 +681,70 @@ class _IssuesPageState extends State<IssuesPage> {
                   await Future.delayed(const Duration(milliseconds: 500));
                 },
                 child: _issues.isEmpty && !_loading
-                  ? LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: constraints.maxHeight,
-                          child: Center(
-                            child: Text(
-                              t.issuesNotFound.toUpperCase(),
-                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Text(
+                                t.issuesNotFound.toUpperCase(),
+                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      itemCount: _issues.length + (_loading || _loadNextPage != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= _issues.length) {
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                        itemCount: _issues.length + (_loading || _loadNextPage != null ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _issues.length) {
+                            return Padding(
+                              padding: EdgeInsets.all(spaceMD),
+                              child: Center(
+                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                              ),
+                            );
+                          }
                           return Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Center(
-                              child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                            padding: EdgeInsets.only(bottom: spaceXS),
+                            child: _ItemIssue(
+                              issue: _issues[index],
+                              onTap: () async {
+                                final result = await Navigator.of(context).push(
+                                  createIssueDetailPageRoute(
+                                    gitProvider: widget.gitProvider,
+                                    remoteWebUrl: widget.remoteWebUrl,
+                                    accessToken: widget.accessToken,
+                                    githubAppOauth: widget.githubAppOauth,
+                                    issueNumber: _issues[index].number,
+                                    issueTitle: _issues[index].title,
+                                  ),
+                                );
+                                // If the issue state was changed, update the list item
+                                if (result is bool && mounted) {
+                                  setState(() {
+                                    final old = _issues[index];
+                                    _issues[index] = Issue(
+                                      title: old.title,
+                                      number: old.number,
+                                      isOpen: result,
+                                      authorUsername: old.authorUsername,
+                                      createdAt: old.createdAt,
+                                      commentCount: old.commentCount,
+                                      linkedPrCount: old.linkedPrCount,
+                                      labels: old.labels,
+                                    );
+                                  });
+                                }
+                              },
                             ),
                           );
-                        }
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemIssue(
-                            issue: _issues[index],
-                            onTap: () async {
-                              final result = await Navigator.of(context).push(
-                                createIssueDetailPageRoute(
-                                  gitProvider: widget.gitProvider,
-                                  remoteWebUrl: widget.remoteWebUrl,
-                                  accessToken: widget.accessToken,
-                                  githubAppOauth: widget.githubAppOauth,
-                                  issueNumber: _issues[index].number,
-                                  issueTitle: _issues[index].title,
-                                ),
-                              );
-                              // If the issue state was changed, update the list item
-                              if (result is bool && mounted) {
-                                setState(() {
-                                  final old = _issues[index];
-                                  _issues[index] = Issue(
-                                    title: old.title,
-                                    number: old.number,
-                                    isOpen: result,
-                                    authorUsername: old.authorUsername,
-                                    createdAt: old.createdAt,
-                                    commentCount: old.commentCount,
-                                    linkedPrCount: old.linkedPrCount,
-                                    labels: old.labels,
-                                  );
-                                });
-                              }
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                        },
+                      ),
               ),
             ),
           ],
