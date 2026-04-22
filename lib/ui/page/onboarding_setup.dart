@@ -2440,6 +2440,43 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           onPressed: () async {
                                             _oauthLoading.value = true;
                                             try {
+                                              final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.CODEBERG, false);
+                                              if (gitProviderManager == null) return;
+                                              final result = await gitProviderManager.launchOAuthFlow();
+                                              if (result == null) return;
+                                              await _completeOAuthAuth(result, GitProvider.CODEBERG);
+                                            } finally {
+                                              _oauthLoading.value = false;
+                                            }
+                                          },
+                                          style: ButtonStyle(
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            alignment: Alignment.centerLeft,
+                                            shape: WidgetStatePropertyAll(
+                                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                            ),
+                                          ),
+                                          icon: FaIcon(codeberg_logo, size: textSM, color: colours.codebergBlue),
+                                          label: Text(
+                                            "CODEBERG",
+                                            style: TextStyle(
+                                              color: colours.primaryLight,
+                                              fontSize: textMD,
+                                              fontFamily: "AtkinsonHyperlegible",
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: spaceXXS),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            _oauthLoading.value = true;
+                                            try {
                                               ref.read(githubScopedOauthProvider.notifier).set(false);
 
                                               final gitProviderManager = GithubManager();
@@ -2869,9 +2906,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
           if (!loading) return SizedBox.shrink();
           return Container(
             color: colours.secondaryDark.withValues(alpha: 0.7),
-            child: Center(
-              child: CircularProgressIndicator(color: colours.primaryLight),
-            ),
+            child: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
           );
         },
       ),

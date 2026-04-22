@@ -114,6 +114,9 @@ flutter:
     - family: GitlabLogo
       fonts:
         - asset: fonts/GitlabLogo.ttf
+    - family: CodebergLogo
+      fonts:
+        - asset: fonts/CodebergLogo.ttf
     - family: RobotoMono
       fonts:
         - asset: fonts/RobotoMono/RobotoMono-Regular.ttf

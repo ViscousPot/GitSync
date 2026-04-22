@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/auth/codeberg_manager.dart';
 import 'package:GitSync/api/manager/auth/gitea_manager.dart';
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
@@ -155,6 +156,8 @@ class SettingsManager extends Storage {
             : await GithubManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITEA:
         oauthToken = await GiteaManager().getToken(token, setAccessRefreshToken);
+      case GitProvider.CODEBERG:
+        oauthToken = await CodebergManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITLAB:
         oauthToken = await GitlabManager().getToken(token, setAccessRefreshToken);
       default:

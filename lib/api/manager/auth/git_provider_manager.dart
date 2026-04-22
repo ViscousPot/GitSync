@@ -13,10 +13,12 @@ import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/release.dart';
 import 'package:GitSync/type/showcase_feature.dart';
 import 'package:GitSync/type/tag.dart';
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/api/manager/auth/gitlab_manager.dart';
 import 'package:oauth2_client/github_oauth2_client.dart';
 import 'package:oauth2_client/oauth2_client.dart';
+import '../../manager/auth/codeberg_manager.dart';
 import '../../manager/auth/gitea_manager.dart';
 import '../../manager/auth/github_manager.dart';
 import '../../../constant/dimens.dart';
@@ -25,7 +27,10 @@ import '../../../type/git_provider.dart';
 
 class GitProviderManager {
   // ignore: non_constant_identifier_names
-  static Map<GitProvider, FaIcon> get GitProviderIconsMap => {
+  static Map<GitProvider, Widget> get GitProviderIconsMap => {
+    GitProvider.CODEBERG: Platform.isIOS
+        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
+        : FaIcon(codeberg_logo, size: textMD, color: colours.codebergBlue),
     GitProvider.GITHUB: Platform.isIOS
         ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
         : FaIcon(FontAwesomeIcons.github, size: textMD, color: colours.primaryLight),
@@ -43,6 +48,7 @@ class GitProviderManager {
     return switch (provider) {
       GitProvider.GITHUB => githubAppOauth ? GithubAppManager() : GithubManager(),
       GitProvider.GITEA => GiteaManager(),
+      GitProvider.CODEBERG => CodebergManager(),
       GitProvider.GITLAB => GitlabManager(),
       GitProvider.HTTPS => null,
       GitProvider.SSH => null,
@@ -203,11 +209,27 @@ class GitProviderManager {
     return false;
   }
 
-  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+  Future<bool> removeReaction(
+    String accessToken,
+    String owner,
+    String repo,
+    int issueNumber,
+    String targetId,
+    String reaction,
+    bool isComment,
+  ) async {
     return false;
   }
 
-  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+  Future<CreateIssueResult?> createIssue(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body, {
+    List<String>? labels,
+    List<String>? assignees,
+  }) async {
     return null;
   }
 
@@ -219,7 +241,15 @@ class GitProviderManager {
     return false;
   }
 
-  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+  Future<CreateIssueResult?> createPullRequest(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body,
+    String head,
+    String base,
+  ) async {
     return null;
   }
 
