@@ -2259,9 +2259,15 @@ pub async fn pull_changes(
         "Getting local directory".to_string(),
     );
 
+    let remote_name = repo.remotes()
+        .ok()
+        .and_then(|r| r.get(0).map(|s| s.to_string()))
+        .unwrap_or_else(|| "origin".to_string());
+
     tokio::task::block_in_place(|| {
         pull_changes_priv(
             &repo,
+            &remote_name,
             &provider,
             &credentials,
             commit_signing_credentials,
@@ -2273,6 +2279,7 @@ pub async fn pull_changes(
 
 fn pull_changes_priv(
     repo: &Repository,
+    remote_name: &str,
     provider: &String,
     credentials: &(String, String),
     commit_signing_credentials: Option<(String, String)>,
@@ -2302,8 +2309,9 @@ fn pull_changes_priv(
         .shorthand()
         .ok_or_else(|| git2::Error::from_str("Could not determine branch name")))?;
 
-    let fetch_head = swl!(repo.find_reference("FETCH_HEAD"))?;
-    let fetch_commit = swl!(repo.reference_to_annotated_commit(&fetch_head))?;
+    let tracking_ref_name = format!("refs/remotes/{}/{}", remote_name, remote_branch);
+    let tracking_ref = swl!(repo.find_reference(&tracking_ref_name))?;
+    let fetch_commit = swl!(repo.reference_to_annotated_commit(&tracking_ref))?;
     let analysis = swl!(repo.merge_analysis(&[&fetch_commit]))?;
 
     if analysis.0.is_up_to_date() {
@@ -2463,18 +2471,20 @@ pub async fn download_changes(
         &log_callback
     ))?;
 
-    if tokio::task::block_in_place(|| {
+    match tokio::task::block_in_place(|| {
         pull_changes_priv(
             &repo,
+            &remote,
             &provider,
             &credentials,
             commit_signing_credentials,
             sync_callback,
             &log_callback,
         )
-    }) == Ok(Some(false))
-    {
-        return Ok(Some(false));
+    }) {
+        Ok(Some(false)) => return Ok(Some(false)),
+        Err(e) => return Err(e),
+        _ => {}
     }
 
     Ok(Some(true))
@@ -2891,9 +2901,13 @@ pub async fn get_recommended_action(
         let mut found = false;
 
         if let Ok(tracking_ref) = repo.find_reference(&tracking_ref_name) {
+            let target_ref_name = format!("refs/heads/{}", &branch_name);
             for r in remote_refs {
-                if tracking_ref.target() == Some(r.oid()) {
+                if r.name() == target_ref_name.as_str()
+                    && tracking_ref.target() == Some(r.oid())
+                {
                     found = true;
+                    break;
                 }
             }
         } else {
@@ -3690,12 +3704,6 @@ pub async fn download_and_overwrite(
         "Force fetching changes".to_string(),
     );
 
-    swl!(remote.fetch::<&str>(&[], Some(&mut fetch_options), None))?;
-
-    let fetch_commit = swl!(repo
-        .find_reference("FETCH_HEAD")
-        .and_then(|r| repo.reference_to_annotated_commit(&r)))?;
-
     let git_dir = repo.path();
     let rebase_head_path = git_dir.join("rebase-merge").join("head-name");
     let refname = if rebase_head_path.exists() {
@@ -3752,6 +3760,14 @@ pub async fn download_and_overwrite(
 
         format!("refs/heads/{}", branch_name)
     };
+
+    swl!(remote.fetch::<&str>(&[], Some(&mut fetch_options), None))?;
+
+    let branch = refname.strip_prefix("refs/heads/").unwrap_or("master");
+    let tracking_ref_name = format!("refs/remotes/{}/{}", remote_name, branch);
+    let fetch_commit = swl!(repo
+        .find_reference(&tracking_ref_name)
+        .and_then(|r| repo.reference_to_annotated_commit(&r)))?;
 
     let mut reference = swl!(repo.find_reference(&refname))?;
     swl!(reference.set_target(fetch_commit.id(), "force pull"))?;
