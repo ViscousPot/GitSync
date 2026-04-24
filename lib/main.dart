@@ -2623,6 +2623,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           return SizedBox(width: double.infinity, height: 0);
                                                                         }
                                                                         final pinned = ShowcaseFeature.fromStorageKeys(data);
+                                                                        if (pinned.isEmpty) return SizedBox(width: double.infinity, height: 0);
                                                                         if (pinned.length == 1) {
                                                                           return Hero(
                                                                             tag: heroShowcaseFeature(pinned[0].storageKey),
