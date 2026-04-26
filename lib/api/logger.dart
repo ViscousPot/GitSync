@@ -11,6 +11,7 @@ import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/dialog/github_issue_oauth.dart' as GithubIssueOauthDialog;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/api/manager/storage.dart';
@@ -121,7 +122,7 @@ enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEA
 
 void notificationClicked(NotificationResponse _) {
   Logger.notifClicked = true;
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class Logger {
