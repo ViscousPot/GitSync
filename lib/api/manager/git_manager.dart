@@ -421,13 +421,18 @@ class GitManager {
     final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
     final result = await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, resolvedIndex, LogType.RecommendedAction, (dirPath) async {
-      return await GitManagerRs.getRecommendedAction(
-        pathString: dirPath,
-        remoteName: await _remote(setman),
-        provider: await _gitProvider(setman),
-        credentials: await _getCredentials(setman),
-        log: _logWrapper,
-      );
+      try {
+        return await GitManagerRs.getRecommendedAction(
+          pathString: dirPath,
+          remoteName: await _remote(setman),
+          provider: await _gitProvider(setman),
+          credentials: await _getCredentials(setman),
+          log: _logWrapper,
+        );
+      } catch (e, stackTrace) {
+        Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
+        return null;
+      }
     });
     if (result != null) {
       await setman.setIntNullable(StorageKey.setman_recommendedAction, result);
@@ -1054,7 +1059,8 @@ class GitManager {
 
   static Future<(String, String)?> getRemoteUrlLink({int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
-    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (dirPath,,
+    return await _runWithLock(priority: 1, GitManagerRs.stringPairRunWithLock, await _resolveRepoIndex(repoIndex), LogType.GetRemoteUrlLink, (
+      dirPath,
     ) async {
       final remoteName = await setman.getRemote();
 

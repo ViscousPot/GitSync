@@ -1293,7 +1293,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       await ref.read(recommendedActionProvider.notifier).refresh();
     }
     await updateSyncOptions();
-    if (recommendedAction.value == null) return;
+    if (ref.read(recommendedActionProvider).valueOrNull == null) return;
     _scheduleNextRecommendedAction(startTime);
   }
 
