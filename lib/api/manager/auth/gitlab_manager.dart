@@ -23,8 +23,9 @@ class GitlabManager extends GitProviderManager {
 
   bool get oAuthSupport => true;
 
+  @override
   get clientId => gitlabClientId;
-  get clientSecret => gitlabClientSecret;
+  @override
   get scopes => ["read_user", "api", "write_repository"];
 
   OAuth2Client get oauthClient => OAuth2Client(

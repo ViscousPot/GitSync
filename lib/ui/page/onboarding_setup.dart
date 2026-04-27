@@ -8,11 +8,13 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/component/https_auth_form.dart';
 import 'package:GitSync/ui/component/ssh_auth_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sprintf/sprintf.dart';
@@ -170,16 +172,16 @@ enum Screen {
   SyncSettings,
 }
 
-class OnboardingSetup extends StatefulWidget {
+class OnboardingSetup extends ConsumerStatefulWidget {
   const OnboardingSetup({super.key, this.legacy = false});
 
   final legacy;
 
   @override
-  State<OnboardingSetup> createState() => _OnboardingSetup();
+  ConsumerState<OnboardingSetup> createState() => _OnboardingSetup();
 }
 
-class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserver, RestorationMixin, TickerProviderStateMixin {
+class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindingObserver, RestorationMixin, TickerProviderStateMixin {
   late AnimationController _controller = AnimationController(vsync: this, duration: animationDuration, reverseDuration: reverseAnimationDuration)
     ..forward();
   late final Animation<double> _curvedAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut, reverseCurve: Curves.easeIn);
@@ -234,7 +236,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
   bool _notificationsScreenWasShown = false;
 
   Future<void> _afterAuth() async {
-    if (uiSettingsManager.gitDirPath?.$1 != null) {
+    if ((await uiSettingsManager.getGitDirPath())?.$1 != null) {
       await repoManager.setOnboardingStep(4);
       if (!mounted) return;
       screenIndex.value = Screen.SyncSettings;
@@ -246,9 +248,9 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
 
   Future<void> _completeOAuthAuth((String, String, String) credentials, GitProvider provider) async {
     await uiSettingsManager.setGitHttpAuthCredentials(credentials.$1, credentials.$2, credentials.$3);
-    await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, provider.name);
+    ref.read(gitProviderProvider.notifier).set(provider);
     // If a repo dir is already set and has no remotes, offer remote creation
-    final dirPath = uiSettingsManager.gitDirPath?.$1;
+    final dirPath = (await uiSettingsManager.getGitDirPath())?.$1;
     if (dirPath != null) {
       final remotes = await GitManager.listRemotes();
       if (remotes.isEmpty && mounted) {
@@ -272,7 +274,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
       _controller.forward();
 
       if (screenIndex.value == Screen.ClientSyncMode) {
-        clientModeEnabled.value = await uiSettingsManager.getBoolNullable(StorageKey.setman_clientModeEnabled, true) ?? false;
+        clientModeEnabled.value = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
         clientSyncModeScrollController.animateTo(
           clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
           duration: animFast,
@@ -286,7 +288,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
     final step = await repoManager.getInt(StorageKey.repoman_onboardingStep);
     if (!mounted) return;
     if (step == 3) {
-      if (uiSettingsManager.gitDirPath?.$1 != null) {
+      if ((await uiSettingsManager.getGitDirPath())?.$1 != null) {
         await repoManager.setOnboardingStep(4);
         if (!mounted) return;
         screenIndex.value = Screen.SyncSettings;
@@ -963,7 +965,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           duration: animFast,
                                           curve: Curves.easeInOut,
                                         );
-                                        await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, true);
+                                        ref.read(clientModeEnabledProvider.notifier).set(true);
                                       },
                                       child: Padding(
                                         padding: EdgeInsets.all(spaceMD).add(EdgeInsets.only(top: spaceMD)),
@@ -1057,7 +1059,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           duration: animFast,
                                           curve: Curves.easeInOut,
                                         );
-                                        await uiSettingsManager.setBoolNullable(StorageKey.setman_clientModeEnabled, false);
+                                        ref.read(clientModeEnabledProvider.notifier).set(false);
                                       },
                                       child: Padding(
                                         padding: EdgeInsets.all(spaceMD).add(EdgeInsets.only(bottom: spaceMD)),
@@ -1526,17 +1528,19 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                             ),
                           ),
                         ),
-                        child: ValueListenableBuilder<bool?>(
-                          valueListenable: premiumManager.hasPremiumNotifier,
-                          builder: (context, hasPremium, _) => Text(
-                            (hasPremium == true ? t.continueLabel : t.onboardingPremiumFeatures).toUpperCase(),
-                            style: TextStyle(
-                              color: colours.secondaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: textMD,
-                              fontFamily: "AtkinsonHyperlegible",
-                            ),
-                          ),
+                        child: Builder(
+                          builder: (context) {
+                            final hasPremium = ref.watch(premiumStatusProvider);
+                            return Text(
+                              (hasPremium == true ? t.continueLabel : t.onboardingPremiumFeatures).toUpperCase(),
+                              style: TextStyle(
+                                color: colours.secondaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
+                              ),
+                            );
+                          },
                         ),
                         onPressed: () async {
                           await _controller.reverse();
@@ -2436,7 +2440,44 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           onPressed: () async {
                                             _oauthLoading.value = true;
                                             try {
-                                              uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, false);
+                                              final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.CODEBERG, false);
+                                              if (gitProviderManager == null) return;
+                                              final result = await gitProviderManager.launchOAuthFlow();
+                                              if (result == null) return;
+                                              await _completeOAuthAuth(result, GitProvider.CODEBERG);
+                                            } finally {
+                                              _oauthLoading.value = false;
+                                            }
+                                          },
+                                          style: ButtonStyle(
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            alignment: Alignment.centerLeft,
+                                            shape: WidgetStatePropertyAll(
+                                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                            ),
+                                          ),
+                                          icon: FaIcon(codeberg_logo, size: textSM, color: colours.codebergBlue),
+                                          label: Text(
+                                            "CODEBERG",
+                                            style: TextStyle(
+                                              color: colours.primaryLight,
+                                              fontSize: textMD,
+                                              fontFamily: "AtkinsonHyperlegible",
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: spaceXXS),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            _oauthLoading.value = true;
+                                            try {
+                                              ref.read(githubScopedOauthProvider.notifier).set(false);
 
                                               final gitProviderManager = GithubManager();
 
@@ -2481,7 +2522,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                           onPressed: () async {
                                             _oauthLoading.value = true;
                                             try {
-                                              uiSettingsManager.setBool(StorageKey.setman_githubScopedOauth, true);
+                                              ref.read(githubScopedOauthProvider.notifier).set(true);
 
                                               final gitProviderManager = GithubAppManager();
 
@@ -2726,7 +2767,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                     HttpsAuthForm(
                                       onAuthenticated: (username, token) async {
                                         await uiSettingsManager.setGitHttpAuthCredentials(username, "", token);
-                                        await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, GitProvider.HTTPS.name);
+                                        ref.read(gitProviderProvider.notifier).set(GitProvider.HTTPS);
                                         await _afterAuth();
                                       },
                                     ),
@@ -2740,7 +2781,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
                                       parentContext: context,
                                       onAuthenticated: (passphrase, privateKey) async {
                                         uiSettingsManager.setGitSshAuthCredentials(passphrase, privateKey);
-                                        await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, GitProvider.SSH.name);
+                                        ref.read(gitProviderProvider.notifier).set(GitProvider.SSH);
                                         await _afterAuth();
                                       },
                                     ),
@@ -2865,9 +2906,7 @@ class _OnboardingSetup extends State<OnboardingSetup> with WidgetsBindingObserve
           if (!loading) return SizedBox.shrink();
           return Container(
             color: colours.secondaryDark.withValues(alpha: 0.7),
-            child: Center(
-              child: CircularProgressIndicator(color: colours.primaryLight),
-            ),
+            child: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
           );
         },
       ),

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:GitSync/api/ai_tools.dart';
 import 'package:GitSync/global.dart';
 
-String? _repoRoot(ToolContext? context) => context?.repoPath ?? uiSettingsManager.gitDirPath?.$1;
+Future<String?> _repoRoot(ToolContext? context) async => context?.repoPath ?? (await uiSettingsManager.getGitDirPath())?.$1;
 
-String? _resolve(String relativePath, ToolContext? context) {
-  final root = _repoRoot(context);
+Future<String?> _resolve(String relativePath, ToolContext? context) async {
+  final root = await _repoRoot(context);
   if (root == null || relativePath.contains('\x00')) return null;
   final joined = Uri.parse('$root/$relativePath').normalizePath().toFilePath();
   try {
@@ -28,10 +28,14 @@ String? _resolve(String relativePath, ToolContext? context) {
 }
 
 class FileReadTool extends AiTool {
-  @override String get name => 'file_read';
-  @override String get description => 'Read a file. Use offset/limit for large files.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_read';
+  @override
+  String get description => 'Read a file. Use offset/limit for large files.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
@@ -47,7 +51,7 @@ class FileReadTool extends AiTool {
     final offset = (input['offset'] as int?) ?? 0;
     final limit = ((input['limit'] as int?) ?? 500).clamp(1, 500);
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
@@ -71,11 +75,7 @@ class FileReadTool extends AiTool {
         numbered.writeln('${start + i + 1}: ${slice[i]}');
       }
 
-      return ok({
-        'total_lines': total,
-        'showing': '${start + 1}-${end - truncatedLines}',
-        'content': numbered.toString(),
-      });
+      return ok({'total_lines': total, 'showing': '${start + 1}-${end - truncatedLines}', 'content': numbered.toString()});
     } catch (e) {
       return err('Could not read file (may be binary): $e');
     }
@@ -83,10 +83,14 @@ class FileReadTool extends AiTool {
 }
 
 class FileWriteTool extends AiTool {
-  @override String get name => 'file_write';
-  @override String get description => 'Create or fully replace a file.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.confirm;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_write';
+  @override
+  String get description => 'Create or fully replace a file.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.confirm;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
@@ -100,7 +104,7 @@ class FileWriteTool extends AiTool {
     final path = input['path'] as String;
     final content = input['content'] as String;
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
@@ -114,46 +118,92 @@ class FileWriteTool extends AiTool {
 }
 
 class FileEditTool extends AiTool {
-  @override String get name => 'file_edit';
-  @override String get description => 'Replace an exact string in a file. old_content must match uniquely.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.warn;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_edit';
+  @override
+  String get description =>
+      'Replace exact strings in a file. Supports a single edit (old_content/new_content) or batch edits (edits array). Each old_content must match uniquely.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.warn;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string'},
       'old_content': {'type': 'string'},
       'new_content': {'type': 'string'},
+      'edits': {
+        'type': 'array',
+        'items': {
+          'type': 'object',
+          'properties': {
+            'old_content': {'type': 'string'},
+            'new_content': {'type': 'string'},
+          },
+          'required': ['old_content', 'new_content'],
+        },
+      },
     },
-    'required': ['path', 'old_content', 'new_content'],
+    'required': ['path'],
   };
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     final path = input['path'] as String;
-    final oldContent = input['old_content'] as String;
-    final newContent = input['new_content'] as String;
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
 
     final file = File(resolved);
     if (!await file.exists()) return err('File not found: $path');
 
-    final content = await file.readAsString();
-    final count = oldContent.allMatches(content).length;
-    if (count == 0) return err('old_content not found in $path');
-    if (count > 1) return err('old_content matches $count times in $path — provide more context to make it unique');
+    // Build the list of edits — either from the edits array or single old/new.
+    final List<Map<String, String>> edits;
+    if (input.containsKey('edits')) {
+      final raw = input['edits'] as List<dynamic>;
+      edits = raw.map((e) {
+        final m = e as Map<String, dynamic>;
+        return {'old_content': m['old_content'] as String, 'new_content': m['new_content'] as String};
+      }).toList();
+    } else if (input.containsKey('old_content') && input.containsKey('new_content')) {
+      edits = [
+        {'old_content': input['old_content'] as String, 'new_content': input['new_content'] as String},
+      ];
+    } else {
+      return err('Provide either old_content/new_content or an edits array');
+    }
 
-    await file.writeAsString(content.replaceFirst(oldContent, newContent));
-    return ok('Edited $path');
+    if (edits.isEmpty) return err('No edits provided');
+
+    var content = await file.readAsString();
+
+    // Validate all edits before applying any.
+    for (var i = 0; i < edits.length; i++) {
+      final old = edits[i]['old_content']!;
+      final count = old.allMatches(content).length;
+      if (count == 0) return err('Edit ${i + 1}: old_content not found in $path');
+      if (count > 1) return err('Edit ${i + 1}: old_content matches $count times in $path — provide more context to make it unique');
+    }
+
+    // Apply all edits sequentially.
+    for (final edit in edits) {
+      content = content.replaceFirst(edit['old_content']!, edit['new_content']!);
+    }
+
+    await file.writeAsString(content);
+    return ok(edits.length == 1 ? 'Edited $path' : 'Applied ${edits.length} edits to $path');
   }
 }
 
 class FileListTool extends AiTool {
-  @override String get name => 'file_list';
-  @override String get description => 'List files in a directory.';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_list';
+  @override
+  String get description => 'List files in a directory.';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'path': {'type': 'string', 'default': '.'},
@@ -168,10 +218,10 @@ class FileListTool extends AiTool {
     final recursive = (input['recursive'] as bool?) ?? false;
     final maxDepth = ((input['max_depth'] as int?) ?? 3).clamp(1, 5);
 
-    final root = _repoRoot(context);
+    final root = await _repoRoot(context);
     if (root == null) return err('No repository open');
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path');
 
     final dir = Directory(resolved);
@@ -203,10 +253,14 @@ class FileListTool extends AiTool {
 }
 
 class FileSearchTool extends AiTool {
-  @override String get name => 'file_search';
-  @override String get description => 'Regex search across files. file_glob filters filenames (e.g. "*.dart").';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override Map<String, dynamic> get inputSchema => {
+  @override
+  String get name => 'file_search';
+  @override
+  String get description => 'Regex search across files. file_glob filters filenames (e.g. "*.dart").';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
       'pattern': {'type': 'string'},
@@ -222,10 +276,10 @@ class FileSearchTool extends AiTool {
     final path = (input['path'] as String?) ?? '.';
     final fileGlob = input['file_glob'] as String?;
 
-    final root = _repoRoot(context);
+    final root = await _repoRoot(context);
     if (root == null) return err('No repository open');
 
-    final resolved = _resolve(path, context);
+    final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path');
 
     final regex = RegExp(pattern, multiLine: true);
@@ -268,10 +322,4 @@ class FileSearchTool extends AiTool {
   }
 }
 
-List<AiTool> allFileTools() => [
-  FileReadTool(),
-  FileWriteTool(),
-  FileEditTool(),
-  FileListTool(),
-  FileSearchTool(),
-];
+List<AiTool> allFileTools() => [FileReadTool(), FileWriteTool(), FileEditTool(), FileListTool(), FileSearchTool()];

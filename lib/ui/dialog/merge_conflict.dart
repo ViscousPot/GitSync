@@ -380,7 +380,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                               Expanded(
                                 child: TextButton.icon(
                                   onPressed: () async =>
-                                      OpenFile.open("${await uiSettingsManager.gitDirPath?.$2}/${conflictingPaths[conflictIndex].$1}"),
+                                      OpenFile.open("${(await uiSettingsManager.getGitDirPath())?.$2}/${conflictingPaths[conflictIndex].$1}"),
                                   style: ButtonStyle(
                                     alignment: Alignment.centerLeft,
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

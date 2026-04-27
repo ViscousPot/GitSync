@@ -54,8 +54,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="gitsync" 
-                android:host="auth"/>
+                <data android:scheme="gitsync" />
             </intent-filter>
         </activity>
         <service

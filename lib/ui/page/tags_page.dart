@@ -135,45 +135,45 @@ class _TagsPageState extends State<TagsPage> {
                   await Future.delayed(const Duration(milliseconds: 500));
                 },
                 child: _tags.isEmpty && !_loading
-                  ? LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: constraints.maxHeight,
-                          child: Center(
-                            child: Text(
-                              t.tagsNotFound.toUpperCase(),
-                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Text(
+                                t.tagsNotFound.toUpperCase(),
+                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      itemCount: _tags.length + (_loading || _loadNextPage != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= _tags.length) {
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                        itemCount: _tags.length + (_loading || _loadNextPage != null ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _tags.length) {
+                            return Padding(
+                              padding: EdgeInsets.all(spaceMD),
+                              child: Center(
+                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                              ),
+                            );
+                          }
                           return Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Center(
-                              child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                            padding: EdgeInsets.only(bottom: spaceXS),
+                            child: _ItemTag(
+                              tag: _tags[index],
+                              gitProvider: widget.gitProvider,
+                              remoteWebUrl: widget.remoteWebUrl,
+                              accessToken: widget.accessToken,
                             ),
                           );
-                        }
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemTag(
-                            tag: _tags[index],
-                            gitProvider: widget.gitProvider,
-                            remoteWebUrl: widget.remoteWebUrl,
-                            accessToken: widget.accessToken,
-                          ),
-                        );
-                      },
-                    ),
+                        },
+                      ),
               ),
             ),
           ],

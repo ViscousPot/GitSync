@@ -23,48 +23,71 @@ class _H3 extends H3Config {
   HeadingDivider? get divider => null;
 }
 
-MarkdownConfig buildMarkdownConfig() => MarkdownConfig(configs: [
-      PConfig(textStyle: TextStyle(color: colours.primaryLight, fontSize: textSM)),
-      _H1(style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold)),
-      _H2(style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold)),
-      _H3(style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
-      H4Config(style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
-      H5Config(style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
-      H6Config(style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
-      CodeConfig(style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono', backgroundColor: colours.tertiaryDark)),
-      PreConfig(
-        textStyle: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
-        styleNotMatched: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
-        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-        padding: EdgeInsets.all(spaceXS),
-        theme: {},
-      ),
-      LinkConfig(style: TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline)),
-      BlockquoteConfig(
-        sideColor: colours.tertiaryInfo,
-        sideWith: spaceXXXXS,
-        textColor: colours.primaryLight,
-      ),
-      TableConfig(
-        border: TableBorder.all(color: colours.tertiaryDark),
-        headerStyle: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-        bodyStyle: TextStyle(color: colours.primaryLight, fontSize: textSM),
-      ),
-      HrConfig(color: colours.tertiaryDark),
-      ListConfig(
-        marker: (isOrdered, depth, index) {
-          return Text(
-            isOrdered ? '${index + 1}.' : '•',
-            style: TextStyle(color: colours.primaryLight, fontSize: textSM),
-          );
-        },
-      ),
-    ]);
+MarkdownConfig buildMarkdownConfig() => MarkdownConfig(
+  configs: [
+    PConfig(
+      textStyle: TextStyle(color: colours.primaryLight, fontSize: textSM),
+    ),
+    _H1(
+      style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+    ),
+    _H2(
+      style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+    ),
+    _H3(
+      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+    ),
+    H4Config(
+      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+    ),
+    H5Config(
+      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+    ),
+    H6Config(
+      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+    ),
+    CodeConfig(
+      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono', backgroundColor: colours.tertiaryDark),
+    ),
+    PreConfig(
+      textStyle: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+      styleNotMatched: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+      padding: EdgeInsets.all(spaceXS),
+      theme: {},
+    ),
+    LinkConfig(
+      style: TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline),
+    ),
+    BlockquoteConfig(sideColor: colours.tertiaryInfo, sideWith: spaceXXXXS, textColor: colours.primaryLight),
+    TableConfig(
+      border: TableBorder.all(color: colours.tertiaryDark),
+      headerStyle: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+      bodyStyle: TextStyle(color: colours.primaryLight, fontSize: textSM),
+    ),
+    HrConfig(color: colours.tertiaryDark),
+    ListConfig(
+      marker: (isOrdered, depth, index) {
+        return Text(
+          isOrdered ? '${index + 1}.' : '•',
+          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+        );
+      },
+    ),
+  ],
+);
 
-MarkdownConfig buildFooterMarkdownConfig() => MarkdownConfig(configs: [
-      PConfig(textStyle: TextStyle(color: colours.tertiaryLight, fontSize: textXXS)),
-      LinkConfig(style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, decoration: TextDecoration.underline), onTap: (_) {}),
-    ]);
+MarkdownConfig buildFooterMarkdownConfig() => MarkdownConfig(
+  configs: [
+    PConfig(
+      textStyle: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+    ),
+    LinkConfig(
+      style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, decoration: TextDecoration.underline),
+      onTap: (_) {},
+    ),
+  ],
+);
 
 SpanNode? _htmlTextGenerator(m.Node node, MarkdownConfig config, WidgetVisitor visitor) {
   if (node is m.Text) {
@@ -84,12 +107,7 @@ SpanNode? _htmlTextGenerator(m.Node node, MarkdownConfig config, WidgetVisitor v
 }
 
 MarkdownGenerator buildMarkdownGenerator() => MarkdownGenerator(
-      textGenerator: _htmlTextGenerator,
-      blockSyntaxList: [DetailsBlockSyntax()],
-      generators: [
-        SpanNodeGeneratorWithTag(
-          tag: 'details',
-          generator: (e, config, visitor) => DetailsNode(e, config),
-        ),
-      ],
-    );
+  textGenerator: _htmlTextGenerator,
+  blockSyntaxList: [DetailsBlockSyntax()],
+  generators: [SpanNodeGeneratorWithTag(tag: 'details', generator: (e, config, visitor) => DetailsNode(e, config))],
+);

@@ -132,10 +132,7 @@ class GitsyncService {
   Future<void> _updateForceSyncWidget(String status) async {
     try {
       await HomeWidget.saveWidgetData(_widgetStatusKey, status);
-      await HomeWidget.updateWidget(
-        qualifiedAndroidName: _widgetQualifiedName,
-        iOSName: _widgetIOSName,
-      );
+      await HomeWidget.updateWidget(qualifiedAndroidName: _widgetQualifiedName, iOSName: _widgetIOSName);
     } catch (e) {
       // Widget not placed or platform doesn't support it — logged for diagnosis.
       print('ForceSyncWidget update failed: $e');
@@ -282,7 +279,7 @@ class GitsyncService {
       bool innerError = false;
 
       await () async {
-        final gitDirPath = settingsManager.gitDirPath?.$1;
+        final gitDirPath = (await settingsManager.getGitDirPath())?.$1;
 
         if (gitDirPath == null) {
           Logger.gmLog(type: LogType.Sync, "Repository Not Found");
@@ -296,9 +293,7 @@ class GitsyncService {
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
         int? recommendedAction = await GitManager.getRecommendedAction(priority: 3);
 
-        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
-          return;
-        }
+        if (optimisedSyncFlag && recommendedAction == -1) return;
 
         if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
@@ -332,9 +327,7 @@ class GitsyncService {
         }
 
         recommendedAction = await GitManager.getRecommendedAction(priority: 3);
-        if (optimisedSyncFlag && (recommendedAction == null || recommendedAction == -1)) {
-          return;
-        }
+        if (optimisedSyncFlag && recommendedAction == -1) return;
 
         if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");

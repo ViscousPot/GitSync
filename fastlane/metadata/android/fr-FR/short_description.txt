@@ -1,0 +1,1 @@
+Client Git pour synchroniser un dépôt entre serveur distant et dossier local

@@ -5,11 +5,7 @@ import 'package:GitSync/type/git_provider.dart';
 
 enum ToolConfirmation { none, warn, confirm, danger }
 
-enum ToolTier {
-  core,
-  contextual,
-  advanced,
-}
+enum ToolTier { core, contextual, advanced }
 
 class ToolContext {
   final int repoIndex;
@@ -48,26 +44,14 @@ abstract class AiTool {
 
   Future<String> execute(Map<String, dynamic> input, ToolContext? context);
 
-  Map<String, dynamic> toAnthropic() => {
-    'name': name,
-    'description': description,
-    'input_schema': inputSchema,
-  };
+  Map<String, dynamic> toAnthropic() => {'name': name, 'description': description, 'input_schema': inputSchema};
 
   Map<String, dynamic> toOpenAI() => {
     'type': 'function',
-    'function': {
-      'name': name,
-      'description': description,
-      'parameters': inputSchema,
-    },
+    'function': {'name': name, 'description': description, 'parameters': inputSchema},
   };
 
-  Map<String, dynamic> toGoogle() => {
-    'name': name,
-    'description': description,
-    'parameters': inputSchema,
-  };
+  Map<String, dynamic> toGoogle() => {'name': name, 'description': description, 'parameters': inputSchema};
 
   String ok(dynamic data) => jsonEncode({'result': data});
   String err(String message) => jsonEncode({'error': message});
@@ -94,10 +78,7 @@ class ToolRegistry {
   }
 
   List<Map<String, String>> listAdvancedTools() {
-    return _tools.values
-        .where((t) => t.tier == ToolTier.advanced)
-        .map((t) => {'name': t.name, 'description': t.description})
-        .toList();
+    return _tools.values.where((t) => t.tier == ToolTier.advanced).map((t) => {'name': t.name, 'description': t.description}).toList();
   }
 }
 
@@ -105,15 +86,16 @@ class ListAvailableToolsTool extends AiTool {
   final ToolRegistry _registry;
   ListAvailableToolsTool(this._registry);
 
-  @override String get name => 'list_available_tools';
-  @override String get description =>
-      'Discover advanced tools (history rewriting, force ops, remotes, submodules, tags, maintenance).';
-  @override ToolConfirmation get confirmation => ToolConfirmation.none;
-  @override ToolTier get tier => ToolTier.core;
-  @override Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {},
-  };
+  @override
+  String get name => 'list_available_tools';
+  @override
+  String get description => 'Discover advanced tools (history rewriting, force ops, remotes, submodules, tags, maintenance).';
+  @override
+  ToolConfirmation get confirmation => ToolConfirmation.none;
+  @override
+  ToolTier get tier => ToolTier.core;
+  @override
+  Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}};
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {

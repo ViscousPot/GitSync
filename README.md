@@ -35,34 +35,47 @@
 
 </div>
 
-GitSync is a cross-platform git client for Android and iOS that aims to simplify the process of syncing a folder between a git remote and a local directory. It works in the background to keep your files synced with a simple one-time setup and numerous options for activating manual syncs
+GitSync is a cross-platform git client for Android and iOS that aims to simplify the process of syncing a folder between a git remote and a local directory. It works in the background to keep your files synced with a simple one-time setup and a range of options for activating manual syncs.
 
-- **Supports Android 6+ & iOS 12+**
+- **Supports Android 5+ & iOS 13+**
 - Authenticate with
   - **HTTP/S**
   - **SSH**
-  - **OAuth**
-    - **GitHub**
-    - **Gitea**
-    - **Gitlab**
+  - **OAuth** (GitHub, GitLab, Gitea)
 - Clone a remote repository
 - Sync repository
-  - Fetch changes
-  - Pull changes
-  - Stage & commit changes
-  - Push changes
+  - Fetch, pull, stage, commit, push
   - Resolve merge conflicts
-- Setup automated sync mechanisms
-  - Automatically, when an app is opened or closed
-  - Automatically, on a schedule
-  - From a quick tile
+  - Retry automatically when the network returns
+- Sync mechanisms
+  - When an app is opened or closed (Android)
+  - On a recurring schedule
+  - From a quick tile (Android)
+  - From a home screen widget
+  - From an iOS shortcut or automation
   - From a custom intent (advanced)
-- Repository Settings
+- Browse and edit in-app
+  - File explorer with code editor and image viewer
+  - Recent commits, plus file, line and commit diffs
+  - Branch management (create, rename, delete, checkout)
+  - Multiple remotes (add, rename, delete, set URL)
+- GitHub and GitLab integration (when signed in via OAuth)
+  - View, comment on and create issues
+  - View, comment on and create pull requests
+  - View workflow runs (GitHub Actions)
+- AI features
+  - Chat about your repository
+  - Wand auto-complete on text fields like commit messages
+  - Agent that can run repo actions for you
+  - Separate model selection for chat, tools and the wand
+  - A global toggle to hide all AI features
+- Manage multiple repositories with containers
+- Repository settings
   - Signed commits
   - Customisable sync commit messages
   - Author details
-  - Edit .gitignore & .git/info/exclude files
-  - Disable SSL
+  - Edit `.gitignore` and `.git/info/exclude`
+  - Disable SSL verification per repo
 
 More information can be found at the [wiki](https://gitsync.viscouspotenti.al/wiki)
 <br>
@@ -76,52 +89,47 @@ For support, email bugs.viscouspotential@gmail.com or create an issue in this re
 
 If you just want to try the app out, feel free to download a release from an official platform!
 
-_Build instructions coming soon..._
+GitSync is a Flutter app with a Rust core (via [`flutter_rust_bridge`](https://github.com/fzyzcjy/flutter_rust_bridge)). 
 
-<!-- ### 1. Setup
+### 1. Prerequisites
 
-- Clone the project
+- **Flutter**: version pinned in [`.fvmrc`](.fvmrc) (currently 3.35.2). The repo is set up for [FVM](https://fvm.app/); install with `dart pub global activate fvm` and then `fvm install`.
+- **Rust**: stable toolchain via [rustup](https://rustup.rs/). The Rust crate lives in [`rust/`](rust/).
+- **Android**: Android Studio with a recent SDK (compileSdk follows Flutter, minSdk 21). The Rust crate cross-compiles to `aarch64`, `armv7`, `x86_64` and `i686` targets, which you can add via `rustup target add`.
+- **iOS**: Xcode 15+ on macOS, the `aarch64-apple-ios`, `aarch64-apple-ios-sim` and `x86_64-apple-ios` Rust targets, and CocoaPods.
+
+### 2. Clone & install
 
 ```bash
-  git clone https://github.com/ViscousPot/GitSync.git
+git clone https://github.com/ViscousPot/GitSync.git
+cd GitSync
+fvm flutter pub get
 ```
 
-- Go to the project directory
+### 3. OAuth secrets
+
+OAuth providers (GitHub, GitLab, Gitea) need client IDs/secrets. The repo ships a template:
 
 ```bash
-  cd GitSync
+cp lib/constant/secrets.dart.template lib/constant/secrets.dart
 ```
- -->
 
-<!-- Check Your Entitlements File
+Set `oauthRedirectUrl = "gitsync://auth"`. Without these the OAuth sign-in flows won't work, but HTTPS Basic and SSH still do.
 
-Ensure that the .entitlements file contains the correct APS environment string:
+### 4. Generate the Rust ↔ Dart bindings
 
-<key>aps-environment</key>
-<string>development</string>
+The bridge is regenerated when the Rust API changes:
 
-    Use "development" for development builds.
+```bash
+cargo install flutter_rust_bridge_codegen --version 2.12.0
+flutter_rust_bridge_codegen generate
+```
 
-    Use "production" for App Store or TestFlight builds.
+### 5. Run
 
-If the file doesn’t exist, create one manually or let Xcode generate it when adding the capability. -->
-
-<!-- - Open the project in Android Studio
-- Sync the gradle project
-
-### 2. Secrets
-- Rename `Secrets.kt.template` to `Secrets.kt`
-- Visit `https://github.com/settings/developers`
-- Select `OAuth Apps`
-- Select `New OAuth App`
-  - Application Name: GitSync
-  - Homepage URL: `https://github.com/ViscousPot/GitSync`
-  - Authorization callback URL: `gitsync://auth`
-  - Enable Device Flow: `leave unchecked`
-- Fill `Secrets.kt` with the new OAuth App ID and SECRET
-
-### 3. Build & Run
-- Build from within Android Studio -->
+```bash
+fvm flutter run
+```
 
 ## Contributing
 
@@ -146,13 +154,17 @@ If you’d like to contribute translations:
 
 Currently supported languages:
 
-- English (`app_en.arb`)
-- Spanish (`app_es.arb`)
-- Chinese (`app_zh.arb`)
+- English (`app_en.arb`, the source file)
+- Arabic (`app_ar.arb`)
+- Chinese, Simplified (`app_zh.arb`)
+- Chinese, Traditional (`app_zh_Hant.arb`, early stage)
+- French (`app_fr.arb`)
+- German (`app.de.arb`)
+- Japanese (`app_ja.arb`)
 - Russian (`app_ru.arb`)
-- German (`app_de.arb`)
+- Spanish (`app_es.arb`)
 
-Even small improvements to wording or grammar are welcome.
+If you'd like to know what's still untranslated for a given locale, see [`untranslated.txt`](untranslated.txt). Even small improvements to wording or grammar are welcome.
 
 </details>
 
@@ -160,24 +172,3 @@ Even small improvements to wording or grammar are welcome.
 
 - [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge)
 - [git2-rs](https://github.com/rust-lang/git2-rs)
-
-<!-- Find unstringed strings regex:
-`^(?!.*\b(?:Logger\.log|Logger\.logError|Logger\.gmLog|import|static|invokeMethod|initLogger|GitManagerRs\.init|pragma)\b).*['"](?![^'"]*\$)(.{2,})['"]`
-
-include
-ui/
--->
-
-<!-- ### Building Binaries
-
-`flutter run -v`
-
-#### Android
-
-[ +100 ms] INFO: Building rust_lib_GitSync for aarch64-linux-android
-[+65599 ms] INFO: Building rust_lib_GitSync for i686-linux-android
-[+35800 ms] INFO: Building rust_lib_GitSync for x86_64-linux-android
-
-for android builds??
-export LIBGIT2_SYS_USE_PKG_CONFIG=0
-export ZLIB_SRC=1 -->

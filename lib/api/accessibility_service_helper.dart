@@ -22,9 +22,7 @@ class AccessibilityServiceHelper {
         switch (action) {
           case GitsyncService.MANUAL_SYNC:
             {
-              final int repoIndex = intentIndex >= 0
-                  ? intentIndex
-                  : await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex);
+              final int repoIndex = intentIndex >= 0 ? intentIndex : await repoManager.getInt(StorageKey.repoman_tileManualSyncIndex);
 
               await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
               await uiSettingsManager.reinit();
@@ -34,9 +32,7 @@ class AccessibilityServiceHelper {
             break;
           case GitsyncService.FORCE_SYNC:
             {
-              final int repoIndex = intentIndex >= 0
-                  ? intentIndex
-                  : await repoManager.getInt(StorageKey.repoman_tileSyncIndex);
+              final int repoIndex = intentIndex >= 0 ? intentIndex : await repoManager.getInt(StorageKey.repoman_tileSyncIndex);
 
               FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: repoIndex.toString()});
             }

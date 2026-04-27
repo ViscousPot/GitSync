@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,13 +10,14 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
 
-class CreatePrPage extends StatefulWidget {
+class CreatePrPage extends ConsumerStatefulWidget {
   final GitProvider gitProvider;
   final String remoteWebUrl;
   final String accessToken;
@@ -24,10 +26,10 @@ class CreatePrPage extends StatefulWidget {
   const CreatePrPage({super.key, required this.gitProvider, required this.remoteWebUrl, required this.accessToken, required this.githubAppOauth});
 
   @override
-  State<CreatePrPage> createState() => _CreatePrPageState();
+  ConsumerState<CreatePrPage> createState() => _CreatePrPageState();
 }
 
-class _CreatePrPageState extends State<CreatePrPage> {
+class _CreatePrPageState extends ConsumerState<CreatePrPage> {
   List<String> _branches = [];
   List<IssueTemplate> _templates = [];
   IssueTemplate? _selectedTemplate;
@@ -129,7 +131,8 @@ class _CreatePrPageState extends State<CreatePrPage> {
       return;
     }
 
-    final bodyWithFooter = await uiSettingsManager.applyPostFooter(_bodyController.text);
+    final footer = ref.read(postFooterProvider).valueOrNull ?? '';
+    final bodyWithFooter = footer.trim().isEmpty ? _bodyController.text : '${_bodyController.text}\n$footer';
     final result = await manager.createPullRequest(
       widget.accessToken,
       owner,
@@ -212,7 +215,9 @@ class _CreatePrPageState extends State<CreatePrPage> {
             SizedBox(height: spaceXS),
             Expanded(
               child: _loadingBranches
-                  ? Center(child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS))
+                  ? Center(
+                      child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                    )
                   : _buildForm(),
             ),
           ],
@@ -242,9 +247,7 @@ class _CreatePrPageState extends State<CreatePrPage> {
         // Title field
         AiWandField(
           onPressed: () async {
-            final diff = (_baseBranch != null && _headBranch != null)
-                ? await GitManager.getCommitDiff(_baseBranch!, _headBranch!)
-                : null;
+            final diff = (_baseBranch != null && _headBranch != null) ? await GitManager.getCommitDiff(_baseBranch!, _headBranch!) : null;
             final buffer = StringBuffer('Branch: $_headBranch → $_baseBranch\n');
             if (diff != null) {
               buffer.writeln('+${diff.insertions}/-${diff.deletions}');
@@ -255,7 +258,8 @@ class _CreatePrPageState extends State<CreatePrPage> {
               buffer.writeln('\nTemplate:\n${_selectedTemplate!.body}');
             }
             final result = await aiComplete(
-              systemPrompt: "Generate a pull request title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Include a summary section and what changed.",
+              systemPrompt:
+                  "Generate a pull request title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Include a summary section and what changed.",
               userPrompt: buffer.toString(),
             );
             if (result != null) {
@@ -272,13 +276,22 @@ class _CreatePrPageState extends State<CreatePrPage> {
             contextMenuBuilder: globalContextMenuBuilder,
             controller: _titleController,
             maxLines: 1,
-            style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+            style: TextStyle(
+              color: colours.primaryLight,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.none,
+              decorationThickness: 0,
+              fontSize: textMD,
+            ),
             decoration: InputDecoration(
               fillColor: colours.secondaryDark,
               filled: true,
               border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
               isCollapsed: true,
-              label: Text(t.createPrTitle.toUpperCase(), style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+              label: Text(
+                t.createPrTitle.toUpperCase(),
+                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              ),
               floatingLabelBehavior: FloatingLabelBehavior.always,
               hintText: t.createPrTitleHint,
               hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textMD, fontWeight: FontWeight.normal),
@@ -336,7 +349,10 @@ class _CreatePrPageState extends State<CreatePrPage> {
                   margin: EdgeInsets.symmetric(horizontal: spaceSM),
                   decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                   child: _bodyController.text.isEmpty
-                      ? Text(t.createPrBodyHint, style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic))
+                      ? Text(
+                          t.createPrBodyHint,
+                          style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+                        )
                       : MarkdownBlock(data: _bodyController.text, config: _markdownConfig, generator: _markdownGenerator),
                 ),
               PostFooterIndicator(),
@@ -359,7 +375,13 @@ class _CreatePrPageState extends State<CreatePrPage> {
                 borderRadius: BorderRadius.all(cornerRadiusSM),
               ),
               child: _submitting
-                  ? Center(child: SizedBox(height: textMD, width: textMD, child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS)))
+                  ? Center(
+                      child: SizedBox(
+                        height: textMD,
+                        width: textMD,
+                        child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                      ),
+                    )
                   : Text(
                       t.createPrSubmit.toUpperCase(),
                       textAlign: TextAlign.center,
@@ -382,7 +404,10 @@ class _CreatePrPageState extends State<CreatePrPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+        ),
         SizedBox(height: spaceXXXS),
         GestureDetector(
           onTap: () => _showBranchSheet(label, selected, onSelect),
@@ -395,10 +420,7 @@ class _CreatePrPageState extends State<CreatePrPage> {
                 Expanded(
                   child: Text(
                     selected ?? t.createPrSelectBranch,
-                    style: TextStyle(
-                      color: selected != null ? colours.primaryLight : colours.tertiaryLight,
-                      fontSize: textSM,
-                    ),
+                    style: TextStyle(color: selected != null ? colours.primaryLight : colours.tertiaryLight, fontSize: textSM),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -427,7 +449,10 @@ class _CreatePrPageState extends State<CreatePrPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: spaceSM),
               Expanded(
                 child: ListView.builder(
@@ -453,13 +478,23 @@ class _CreatePrPageState extends State<CreatePrPage> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(branch, style: TextStyle(color: colours.primaryLight, fontSize: textSM), overflow: TextOverflow.ellipsis),
+                              child: Text(
+                                branch,
+                                style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             if (isDefault)
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                                decoration: BoxDecoration(color: colours.tertiaryInfo.withValues(alpha: 0.15), borderRadius: BorderRadius.all(cornerRadiusXS)),
-                                child: Text('default', style: TextStyle(color: colours.tertiaryInfo, fontSize: textXXS)),
+                                decoration: BoxDecoration(
+                                  color: colours.tertiaryInfo.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.all(cornerRadiusXS),
+                                ),
+                                child: Text(
+                                  'default',
+                                  style: TextStyle(color: colours.tertiaryInfo, fontSize: textXXS),
+                                ),
                               ),
                           ],
                         ),
@@ -489,10 +524,7 @@ class _WritePreviewTab extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
-        decoration: BoxDecoration(
-          color: selected ? colours.tertiaryDark : Colors.transparent,
-          borderRadius: BorderRadius.all(cornerRadiusXS),
-        ),
+        decoration: BoxDecoration(color: selected ? colours.tertiaryDark : Colors.transparent, borderRadius: BorderRadius.all(cornerRadiusXS)),
         child: Text(
           label,
           style: TextStyle(color: selected ? colours.primaryLight : colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),

@@ -2,10 +2,12 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/page/code_editor.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -15,7 +17,7 @@ import '../dialog/diff_view.dart' as DiffViewDialog;
 final insertionRegex = RegExp(r'\+{5}insertion\+{5}');
 final deletionRegex = RegExp(r'-{5}deletion-{5}');
 
-class DiffFile extends StatefulWidget {
+class DiffFile extends ConsumerStatefulWidget {
   DiffFile(this.recentCommits, this.entry, this.filePath, this.expandedDefault, {required this.orientation, required this.openedFromFile, super.key});
 
   final List<GitManagerRs.Commit> recentCommits;
@@ -26,10 +28,10 @@ class DiffFile extends StatefulWidget {
   final String? openedFromFile;
 
   @override
-  State<DiffFile> createState() => _DiffFileState();
+  ConsumerState<DiffFile> createState() => _DiffFileState();
 }
 
-class _DiffFileState extends State<DiffFile> {
+class _DiffFileState extends ConsumerState<DiffFile> {
   bool expanded = false;
   int insertions = 0;
   int deletions = 0;
@@ -367,7 +369,7 @@ class _DiffFileState extends State<DiffFile> {
                     onPressed: () async {
                       await viewOrEditFile(
                         context,
-                        "${await uiSettingsManager.gitDirPath?.$2}/${widget.entry.key.contains(conflictSeparator) ? widget.filePath : widget.entry.key}",
+                        "${ref.read(gitDirPathProvider).valueOrNull?.$2}/${widget.entry.key.contains(conflictSeparator) ? widget.filePath : widget.entry.key}",
                       );
                     },
                     style: ButtonStyle(

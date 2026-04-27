@@ -31,14 +31,16 @@ class ToolExecutor {
 
     block.status = ToolCallStatus.running;
     try {
-      final result = await tool.execute(block.input, context).timeout(
-        const Duration(seconds: 60),
-        onTimeout: () {
-          block.status = ToolCallStatus.failed;
-          block.error = 'Tool execution timed out after 60s';
-          return jsonEncode({'error': 'Tool execution timed out after 60s'});
-        },
-      );
+      final result = await tool
+          .execute(block.input, context)
+          .timeout(
+            const Duration(seconds: 60),
+            onTimeout: () {
+              block.status = ToolCallStatus.failed;
+              block.error = 'Tool execution timed out after 60s';
+              return jsonEncode({'error': 'Tool execution timed out after 60s'});
+            },
+          );
       if (block.status == ToolCallStatus.running) {
         block.status = ToolCallStatus.completed;
         block.output = result;

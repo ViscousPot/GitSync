@@ -26,10 +26,12 @@ class GithubManager extends GitProviderManager {
 
   bool get oAuthSupport => true;
 
+  @override
   get clientId => gitHubClientId;
+  @override
   get clientSecret => gitHubClientSecret;
+  @override
   get scopes => ["user", "user:email", "repo", "workflow", "read:org"];
-
   bool get supportsTokenRefresh => false;
 
   OAuth2Client get oauthClient => GitHubOAuth2Client(redirectUri: 'gitsync://auth', customUriScheme: 'gitsync');
@@ -216,7 +218,21 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
   ) async {
     final useSearch = (searchFilter != null && searchFilter.isNotEmpty) || (projectFilter != null && projectFilter.isNotEmpty);
     if (useSearch) {
-      await _searchIssues(accessToken, owner, repo, state, searchFilter ?? "", authorFilter, labelFilter, assigneeFilter, sortOption, milestoneFilter, projectFilter, updateCallback, nextPageCallback);
+      await _searchIssues(
+        accessToken,
+        owner,
+        repo,
+        state,
+        searchFilter ?? "",
+        authorFilter,
+        labelFilter,
+        assigneeFilter,
+        sortOption,
+        milestoneFilter,
+        projectFilter,
+        updateCallback,
+        nextPageCallback,
+      );
       return;
     }
 
@@ -238,11 +254,21 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
   }
 
   Future<void> _searchIssues(
-    String accessToken, String owner, String repo, String state, String search,
-    String? authorFilter, String? labelFilter, String? assigneeFilter,
-    String? sortOption, String? milestoneFilter, String? projectFilter,
-    Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
-  ) async {
+    String accessToken,
+    String owner,
+    String repo,
+    String state,
+    String search,
+    String? authorFilter,
+    String? labelFilter,
+    String? assigneeFilter,
+    String? sortOption,
+    String? milestoneFilter,
+    String? projectFilter,
+    Function(List<Issue>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    int page = 1,
+  }) async {
     try {
       var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:issue" : "repo:$owner/$repo+type:issue";
       if (state != "all") q += "+state:$state";
@@ -267,21 +293,46 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         final items = data["items"] as List<dynamic>? ?? [];
         final totalCount = data["total_count"] as int? ?? 0;
 
-        final issues = items.map((item) => Issue(
-          title: item["title"] ?? "",
-          number: item["number"] ?? 0,
-          isOpen: item["state"] == "open",
-          authorUsername: item["user"]?["login"] ?? "",
-          createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
-          commentCount: item["comments"] ?? 0,
-          linkedPrCount: 0,
-          labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', ''))).toList() ?? [],
-        )).toList();
+        final issues = items
+            .map(
+              (item) => Issue(
+                title: item["title"] ?? "",
+                number: item["number"] ?? 0,
+                isOpen: item["state"] == "open",
+                authorUsername: item["user"]?["login"] ?? "",
+                createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
+                commentCount: item["comments"] ?? 0,
+                linkedPrCount: 0,
+                labels:
+                    (item["labels"] as List<dynamic>?)
+                        ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', '')))
+                        .toList() ??
+                    [],
+              ),
+            )
+            .toList();
 
         updateCallback(issues);
 
         if (page * 30 < totalCount) {
-          nextPageCallback(() => _searchIssues(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, sortOption, milestoneFilter, projectFilter, updateCallback, nextPageCallback, page: page + 1));
+          nextPageCallback(
+            () => _searchIssues(
+              accessToken,
+              owner,
+              repo,
+              state,
+              search,
+              authorFilter,
+              labelFilter,
+              assigneeFilter,
+              sortOption,
+              milestoneFilter,
+              projectFilter,
+              updateCallback,
+              nextPageCallback,
+              page: page + 1,
+            ),
+          );
         } else {
           nextPageCallback(null);
         }
@@ -338,10 +389,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
             createdAt: DateTime.tryParse(item["createdAt"] ?? "") ?? DateTime.now(),
             commentCount: item["comments"]?["totalCount"] ?? 0,
             linkedPrCount: linkedPrCount,
-            labels: (item["labels"]?["nodes"] as List<dynamic>?)
-                    ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                    .toList() ??
-                [],
+            labels: (item["labels"]?["nodes"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
           );
         }).toList();
 
@@ -392,7 +440,10 @@ query(\$owner: String!, \$repo: String!) {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
         headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
-        body: json.encode({"query": _milestonesQuery, "variables": {"owner": owner, "repo": repo}}),
+        body: json.encode({
+          "query": _milestonesQuery,
+          "variables": {"owner": owner, "repo": repo},
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -412,7 +463,10 @@ query(\$owner: String!, \$repo: String!) {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
         headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
-        body: json.encode({"query": _projectsQuery, "variables": {"owner": owner, "repo": repo}}),
+        body: json.encode({
+          "query": _projectsQuery,
+          "variables": {"owner": owner, "repo": repo},
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -535,13 +589,28 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback,
   ) async {
-    final useSearch = (searchFilter != null && searchFilter.isNotEmpty) ||
+    final useSearch =
+        (searchFilter != null && searchFilter.isNotEmpty) ||
         (authorFilter != null && authorFilter.isNotEmpty) ||
         (assigneeFilter != null && assigneeFilter.isNotEmpty) ||
         (reviewerFilter != null && reviewerFilter.isNotEmpty) ||
         (milestoneFilter != null && milestoneFilter.isNotEmpty);
     if (useSearch) {
-      await _searchPullRequests(accessToken, owner, repo, state, searchFilter ?? "", authorFilter, labelFilter, assigneeFilter, sortOption, reviewerFilter, milestoneFilter, updateCallback, nextPageCallback);
+      await _searchPullRequests(
+        accessToken,
+        owner,
+        repo,
+        state,
+        searchFilter ?? "",
+        authorFilter,
+        labelFilter,
+        assigneeFilter,
+        sortOption,
+        reviewerFilter,
+        milestoneFilter,
+        updateCallback,
+        nextPageCallback,
+      );
       return;
     }
 
@@ -558,11 +627,21 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
   }
 
   Future<void> _searchPullRequests(
-    String accessToken, String owner, String repo, String state, String search,
-    String? authorFilter, String? labelFilter, String? assigneeFilter,
-    String? sortOption, String? reviewerFilter, String? milestoneFilter,
-    Function(List<PullRequest>) updateCallback, Function(Function()?) nextPageCallback, {int page = 1}
-  ) async {
+    String accessToken,
+    String owner,
+    String repo,
+    String state,
+    String search,
+    String? authorFilter,
+    String? labelFilter,
+    String? assigneeFilter,
+    String? sortOption,
+    String? reviewerFilter,
+    String? milestoneFilter,
+    Function(List<PullRequest>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    int page = 1,
+  }) async {
     try {
       var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:pr" : "repo:$owner/$repo+type:pr";
       if (state != "all") {
@@ -607,14 +686,35 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
             commentCount: item["comments"] ?? 0,
             linkedIssueCount: 0,
             checkStatus: CheckStatus.none,
-            labels: (item["labels"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', ''))).toList() ?? [],
+            labels:
+                (item["labels"] as List<dynamic>?)
+                    ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', '')))
+                    .toList() ??
+                [],
           );
         }).toList();
 
         updateCallback(prs);
 
         if (page * 30 < totalCount) {
-          nextPageCallback(() => _searchPullRequests(accessToken, owner, repo, state, search, authorFilter, labelFilter, assigneeFilter, sortOption, reviewerFilter, milestoneFilter, updateCallback, nextPageCallback, page: page + 1));
+          nextPageCallback(
+            () => _searchPullRequests(
+              accessToken,
+              owner,
+              repo,
+              state,
+              search,
+              authorFilter,
+              labelFilter,
+              assigneeFilter,
+              sortOption,
+              reviewerFilter,
+              milestoneFilter,
+              updateCallback,
+              nextPageCallback,
+              page: page + 1,
+            ),
+          );
         } else {
           nextPageCallback(null);
         }
@@ -664,8 +764,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
             _ => PrState.closed,
           };
 
-          final rollupState = (item["commits"]?["nodes"] as List<dynamic>?)
-              ?.firstOrNull?["commit"]?["statusCheckRollup"]?["state"] as String?;
+          final rollupState = (item["commits"]?["nodes"] as List<dynamic>?)?.firstOrNull?["commit"]?["statusCheckRollup"]?["state"] as String?;
           final CheckStatus checkStatus = switch (rollupState) {
             "SUCCESS" => CheckStatus.success,
             "FAILURE" || "ERROR" => CheckStatus.failure,
@@ -682,10 +781,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
             commentCount: item["comments"]?["totalCount"] ?? 0,
             linkedIssueCount: item["closingIssuesReferences"]?["totalCount"] ?? 0,
             checkStatus: checkStatus,
-            labels: (item["labels"]?["nodes"] as List<dynamic>?)
-                    ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                    .toList() ??
-                [],
+            labels: (item["labels"]?["nodes"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
           );
         }).toList();
 
@@ -778,12 +874,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
             final String sha = innerTarget["oid"] as String? ?? innerTarget["target"]?["oid"] as String? ?? "";
             final String dateStr = target["tagger"]?["date"] as String? ?? "";
             final String? message = (target["message"] as String?)?.isNotEmpty == true ? target["message"] as String : null;
-            return Tag(
-              name: item["name"] ?? "",
-              sha: sha,
-              createdAt: DateTime.tryParse(dateStr) ?? DateTime.now(),
-              message: message,
-            );
+            return Tag(name: item["name"] ?? "", sha: sha, createdAt: DateTime.tryParse(dateStr) ?? DateTime.now(), message: message);
           } else {
             return Tag(
               name: item["name"] ?? "",
@@ -869,12 +960,14 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         final List<Release> releases = nodes.map((item) {
           final assetNodes = item["releaseAssets"]?["nodes"] as List<dynamic>? ?? [];
           final assets = assetNodes
-              .map((a) => ReleaseAsset(
-                    name: a["name"] ?? "",
-                    downloadUrl: a["downloadUrl"] ?? "",
-                    size: a["size"] as int?,
-                    downloadCount: a["downloadCount"] as int?,
-                  ))
+              .map(
+                (a) => ReleaseAsset(
+                  name: a["name"] ?? "",
+                  downloadUrl: a["downloadUrl"] ?? "",
+                  size: a["size"] as int?,
+                  downloadCount: a["downloadCount"] as int?,
+                ),
+              )
               .toList();
 
           return Release(
@@ -951,9 +1044,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
 
           final startedAt = DateTime.tryParse(item["run_started_at"] ?? "");
           final updatedAt = DateTime.tryParse(item["updated_at"] ?? "");
-          final Duration? duration = (startedAt != null && updatedAt != null && conclusion != null)
-              ? updatedAt.difference(startedAt)
-              : null;
+          final Duration? duration = (startedAt != null && updatedAt != null && conclusion != null) ? updatedAt.difference(startedAt) : null;
 
           final prs = item["pull_requests"] as List<dynamic>? ?? [];
           final int? prNumber = prs.isNotEmpty ? prs[0]["number"] as int? : null;
@@ -1043,10 +1134,7 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
       final content = githubReactionNamesReverse[node["content"] as String? ?? ""] ?? (node["content"] as String? ?? "").toLowerCase();
       final isViewer = (node["user"]?["login"] as String? ?? "") == viewerLogin;
       final existing = counts[content];
-      counts[content] = (
-        (existing?.$1 ?? 0) + 1,
-        (existing?.$2 ?? false) || isViewer,
-      );
+      counts[content] = ((existing?.$1 ?? 0) + 1, (existing?.$2 ?? false) || isViewer);
     }
     return counts.entries.map((e) => IssueReaction(content: e.key, count: e.value.$1, viewerHasReacted: e.value.$2)).toList();
   }
@@ -1068,7 +1156,10 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         final response = await httpPost(
           Uri.parse("https://api.$_domain/graphql"),
           headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
-          body: json.encode({"query": query, "variables": {"owner": owner, "repo": repo}}),
+          body: json.encode({
+            "query": query,
+            "variables": {"owner": owner, "repo": repo},
+          }),
         );
         if (response.statusCode == 200) {
           final data = json.decode(utf8.decode(response.bodyBytes));
@@ -1102,16 +1193,16 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
   Future<IssueDetail?> getIssueDetail(String accessToken, String owner, String repo, int issueNumber) async {
     try {
       // Get viewer login for reaction matching
-      final userResp = await httpGet(
-        Uri.parse("https://api.$_domain/user"),
-        headers: {"Authorization": "token $accessToken"},
-      );
+      final userResp = await httpGet(Uri.parse("https://api.$_domain/user"), headers: {"Authorization": "token $accessToken"});
       final viewerLogin = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["login"] as String? ?? "") : "";
 
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
         headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
-        body: json.encode({"query": _issueDetailQuery, "variables": {"owner": owner, "repo": repo, "number": issueNumber}}),
+        body: json.encode({
+          "query": _issueDetailQuery,
+          "variables": {"owner": owner, "repo": repo, "number": issueNumber},
+        }),
       );
 
       if (response.statusCode != 200) return null;
@@ -1152,10 +1243,7 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         authorUsername: issue["author"]?["login"] ?? "",
         createdAt: DateTime.tryParse(issue["createdAt"] ?? "") ?? DateTime.now(),
         body: issue["body"] ?? "",
-        labels: (issue["labels"]?["nodes"] as List<dynamic>?)
-                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                .toList() ??
-            [],
+        labels: (issue["labels"]?["nodes"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
         reactions: _aggregateReactions(reactionNodes, viewerLogin),
         comments: comments,
         viewerPermission: permission,
@@ -1278,16 +1366,16 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
   Future<PrDetail?> getPrDetail(String accessToken, String owner, String repo, int prNumber) async {
     try {
       // Get viewer login for reaction matching
-      final userResp = await httpGet(
-        Uri.parse("https://api.$_domain/user"),
-        headers: {"Authorization": "token $accessToken"},
-      );
+      final userResp = await httpGet(Uri.parse("https://api.$_domain/user"), headers: {"Authorization": "token $accessToken"});
       final viewerLogin = userResp.statusCode == 200 ? (json.decode(utf8.decode(userResp.bodyBytes))["login"] as String? ?? "") : "";
 
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
         headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
-        body: json.encode({"query": _prDetailQuery, "variables": {"owner": owner, "repo": repo, "number": prNumber}}),
+        body: json.encode({
+          "query": _prDetailQuery,
+          "variables": {"owner": owner, "repo": repo, "number": prNumber},
+        }),
       );
 
       if (response.statusCode != 200) return null;
@@ -1394,13 +1482,15 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
             "IN_PROGRESS" => CheckRunStatus.inProgress,
             _ => CheckRunStatus.queued,
           };
-          checkRuns.add(PrCheckRun(
-            name: ctx["name"] ?? "",
-            status: status,
-            conclusion: (ctx["conclusion"] as String?)?.toLowerCase(),
-            startedAt: DateTime.tryParse(ctx["startedAt"] ?? ""),
-            completedAt: DateTime.tryParse(ctx["completedAt"] ?? ""),
-          ));
+          checkRuns.add(
+            PrCheckRun(
+              name: ctx["name"] ?? "",
+              status: status,
+              conclusion: (ctx["conclusion"] as String?)?.toLowerCase(),
+              startedAt: DateTime.tryParse(ctx["startedAt"] ?? ""),
+              completedAt: DateTime.tryParse(ctx["completedAt"] ?? ""),
+            ),
+          );
         } else if (ctxType == "StatusContext") {
           final stateStr = ctx["state"] as String? ?? "";
           final CheckRunStatus status = switch (stateStr) {
@@ -1414,12 +1504,9 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
             "ERROR" => "failure",
             _ => null,
           };
-          checkRuns.add(PrCheckRun(
-            name: ctx["context"] ?? "",
-            status: status,
-            conclusion: conclusion,
-            startedAt: DateTime.tryParse(ctx["createdAt"] ?? ""),
-          ));
+          checkRuns.add(
+            PrCheckRun(name: ctx["context"] ?? "", status: status, conclusion: conclusion, startedAt: DateTime.tryParse(ctx["createdAt"] ?? "")),
+          );
         }
       }
 
@@ -1433,13 +1520,15 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         if (filesResp.statusCode == 200) {
           final files = json.decode(utf8.decode(filesResp.bodyBytes)) as List<dynamic>;
           for (final f in files) {
-            changedFiles.add(PrChangedFile(
-              filename: f["filename"] ?? "",
-              additions: f["additions"] as int? ?? 0,
-              deletions: f["deletions"] as int? ?? 0,
-              status: f["status"] ?? "modified",
-              patch: f["patch"] as String?,
-            ));
+            changedFiles.add(
+              PrChangedFile(
+                filename: f["filename"] ?? "",
+                additions: f["additions"] as int? ?? 0,
+                deletions: f["deletions"] as int? ?? 0,
+                status: f["status"] ?? "modified",
+                patch: f["patch"] as String?,
+              ),
+            );
           }
         }
       } catch (_) {}
@@ -1476,10 +1565,7 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         changedFileCount: pr["changedFiles"] as int? ?? 0,
         state: prState,
         createdAt: DateTime.tryParse(pr["createdAt"] ?? "") ?? DateTime.now(),
-        labels: (pr["labels"]?["nodes"] as List<dynamic>?)
-                ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]))
-                .toList() ??
-            [],
+        labels: (pr["labels"]?["nodes"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
         reactions: _aggregateReactions(reactionNodes, viewerLogin),
         timelineItems: timelineItems,
         commits: allCommits,
@@ -1565,13 +1651,18 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
   }
 
   @override
-  Future<bool> removeReaction(String accessToken, String owner, String repo, int issueNumber, String targetId, String reaction, bool isComment) async {
+  Future<bool> removeReaction(
+    String accessToken,
+    String owner,
+    String repo,
+    int issueNumber,
+    String targetId,
+    String reaction,
+    bool isComment,
+  ) async {
     try {
       // Get viewer login
-      final userResp = await httpGet(
-        Uri.parse("https://api.$_domain/user"),
-        headers: {"Authorization": "token $accessToken"},
-      );
+      final userResp = await httpGet(Uri.parse("https://api.$_domain/user"), headers: {"Authorization": "token $accessToken"});
       if (userResp.statusCode != 200) return false;
       final viewerLogin = json.decode(utf8.decode(userResp.bodyBytes))["login"] as String? ?? "";
 
@@ -1580,17 +1671,11 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
           ? "https://api.$_domain/repos/$owner/$repo/issues/comments/$targetId/reactions?content=${Uri.encodeComponent(reaction)}&per_page=100"
           : "https://api.$_domain/repos/$owner/$repo/issues/$issueNumber/reactions?content=${Uri.encodeComponent(reaction)}&per_page=100";
 
-      final listResp = await httpGet(
-        Uri.parse(listUrl),
-        headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"},
-      );
+      final listResp = await httpGet(Uri.parse(listUrl), headers: {"Authorization": "token $accessToken", "Accept": "application/vnd.github+json"});
       if (listResp.statusCode != 200) return false;
 
       final reactions = json.decode(utf8.decode(listResp.bodyBytes)) as List<dynamic>;
-      final viewerReaction = reactions.firstWhere(
-        (r) => (r["user"]?["login"] as String? ?? "") == viewerLogin,
-        orElse: () => null,
-      );
+      final viewerReaction = reactions.firstWhere((r) => (r["user"]?["login"] as String? ?? "") == viewerLogin, orElse: () => null);
       if (viewerReaction == null) return false;
 
       // Delete the reaction
@@ -1611,7 +1696,15 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
   }
 
   @override
-  Future<CreateIssueResult?> createIssue(String accessToken, String owner, String repo, String title, String body, {List<String>? labels, List<String>? assignees}) async {
+  Future<CreateIssueResult?> createIssue(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body, {
+    List<String>? labels,
+    List<String>? assignees,
+  }) async {
     try {
       final payload = <String, dynamic>{"title": title, "body": body};
       if (labels != null && labels.isNotEmpty) payload["labels"] = labels;
@@ -1666,10 +1759,7 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
         if (!isYaml && !isMd) continue;
 
         try {
-          final contentResponse = await httpGet(
-            Uri.parse(downloadUrl),
-            headers: {"Authorization": "token $accessToken"},
-          );
+          final contentResponse = await httpGet(Uri.parse(downloadUrl), headers: {"Authorization": "token $accessToken"});
           if (contentResponse.statusCode != 200) continue;
 
           final content = utf8.decode(contentResponse.bodyBytes);
@@ -1709,7 +1799,15 @@ query(\$owner: String!, \$repo: String!, \$number: Int!) {
   }
 
   @override
-  Future<CreateIssueResult?> createPullRequest(String accessToken, String owner, String repo, String title, String body, String head, String base) async {
+  Future<CreateIssueResult?> createPullRequest(
+    String accessToken,
+    String owner,
+    String repo,
+    String title,
+    String body,
+    String head,
+    String base,
+  ) async {
     try {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/repos/$owner/$repo/pulls"),

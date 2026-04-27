@@ -74,7 +74,9 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
             child: Text(
               t.rename.toUpperCase(),
               style: TextStyle(
-                color: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName) ? colours.primaryPositive : colours.secondaryPositive,
+                color: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName)
+                    ? colours.primaryPositive
+                    : colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

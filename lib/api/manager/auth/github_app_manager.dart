@@ -12,7 +12,6 @@ class GithubAppManager extends GithubManager {
   get clientId => gitHubAppClientId;
   @override
   get clientSecret => gitHubAppClientSecret;
-
   @override
   bool get supportsTokenRefresh => true;
 

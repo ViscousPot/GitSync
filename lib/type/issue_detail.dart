@@ -16,13 +16,7 @@ class IssueComment {
   final DateTime createdAt;
   final List<IssueReaction> reactions;
 
-  const IssueComment({
-    required this.id,
-    required this.authorUsername,
-    required this.body,
-    required this.createdAt,
-    this.reactions = const [],
-  });
+  const IssueComment({required this.id, required this.authorUsername, required this.body, required this.createdAt, this.reactions = const []});
 }
 
 enum ViewerPermission { admin, maintain, write, triage, read, none }
@@ -56,7 +50,8 @@ class IssueDetail {
 
   bool get canComment => viewerPermission != ViewerPermission.none;
 
-  bool get canWrite => viewerPermission == ViewerPermission.admin ||
+  bool get canWrite =>
+      viewerPermission == ViewerPermission.admin ||
       viewerPermission == ViewerPermission.maintain ||
       viewerPermission == ViewerPermission.write ||
       viewerPermission == ViewerPermission.triage;

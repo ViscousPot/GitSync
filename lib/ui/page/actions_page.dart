@@ -163,40 +163,40 @@ class _ActionsPageState extends State<ActionsPage> {
                   await Future.delayed(const Duration(milliseconds: 500));
                 },
                 child: _runs.isEmpty && !_loading
-                  ? LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: constraints.maxHeight,
-                          child: Center(
-                            child: Text(
-                              t.actionsNotFound.toUpperCase(),
-                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Text(
+                                t.actionsNotFound.toUpperCase(),
+                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      itemCount: _runs.length + (_loading || _loadNextPage != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= _runs.length) {
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                        itemCount: _runs.length + (_loading || _loadNextPage != null ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _runs.length) {
+                            return Padding(
+                              padding: EdgeInsets.all(spaceMD),
+                              child: Center(
+                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                              ),
+                            );
+                          }
                           return Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Center(
-                              child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
-                            ),
+                            padding: EdgeInsets.only(bottom: spaceXS),
+                            child: _ItemActionRun(run: _runs[index]),
                           );
-                        }
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemActionRun(run: _runs[index]),
-                        );
-                      },
-                    ),
+                        },
+                      ),
               ),
             ),
           ],

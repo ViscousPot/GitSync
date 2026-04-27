@@ -71,10 +71,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
                     },
               child: Text(
                 (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
-                style: TextStyle(
-                  color: disabled ? colours.tertiaryLight : colours.primaryPositive,
-                  fontSize: textMD,
-                ),
+                style: TextStyle(color: disabled ? colours.tertiaryLight : colours.primaryPositive, fontSize: textMD),
               ),
             );
           },

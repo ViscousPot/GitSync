@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,13 +10,14 @@ import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue_template.dart';
 import 'package:GitSync/ui/component/post_footer_indicator.dart';
 
-class CreateIssuePage extends StatefulWidget {
+class CreateIssuePage extends ConsumerStatefulWidget {
   final GitProvider gitProvider;
   final String remoteWebUrl;
   final String accessToken;
@@ -24,10 +26,10 @@ class CreateIssuePage extends StatefulWidget {
   const CreateIssuePage({super.key, required this.gitProvider, required this.remoteWebUrl, required this.accessToken, required this.githubAppOauth});
 
   @override
-  State<CreateIssuePage> createState() => _CreateIssuePageState();
+  ConsumerState<CreateIssuePage> createState() => _CreateIssuePageState();
 }
 
-class _CreateIssuePageState extends State<CreateIssuePage> {
+class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
   List<IssueTemplate> _templates = [];
   IssueTemplate? _selectedTemplate;
   bool _loadingTemplates = true;
@@ -176,7 +178,8 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
       assignees = template?.assignees.isNotEmpty == true ? template!.assignees : null;
     }
 
-    body = await uiSettingsManager.applyPostFooter(body);
+    final footer = ref.read(postFooterProvider).valueOrNull ?? '';
+    if (footer.trim().isNotEmpty) body = '$body\n$footer';
     final result = await manager.createIssue(widget.accessToken, owner, repo, title, body, labels: labels, assignees: assignees);
     if (!mounted) return;
 
@@ -281,7 +284,8 @@ class _CreateIssuePageState extends State<CreateIssuePage> {
               }
             }
             final result = await aiComplete(
-              systemPrompt: "Enhance this issue title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Follow the template structure if provided. Maintain the user's original intent.",
+              systemPrompt:
+                  "Enhance this issue title and description. The first line is the title (under 70 chars), then a blank line, then the markdown description. Follow the template structure if provided. Maintain the user's original intent.",
               userPrompt: buffer.toString(),
             );
             if (result != null) {

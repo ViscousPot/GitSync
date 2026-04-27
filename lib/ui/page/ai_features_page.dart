@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:markdown_widget/markdown_widget.dart';
@@ -11,19 +12,20 @@ import 'package:GitSync/api/ai_tools.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/constant/dimens.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/type/ai_chat.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 
 const _mono = TextStyle(fontFamily: "monospace", height: 1.6);
 
-class AiFeaturesPage extends StatefulWidget {
+class AiFeaturesPage extends ConsumerStatefulWidget {
   const AiFeaturesPage({super.key});
   @override
-  State<AiFeaturesPage> createState() => _AiFeaturesPageState();
+  ConsumerState<AiFeaturesPage> createState() => _AiFeaturesPageState();
 }
 
-class _AiFeaturesPageState extends State<AiFeaturesPage> {
+class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
   bool _initialized = false;
   String? _currentChatModel;
   String? _currentToolModel;
@@ -706,11 +708,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
         builder: (context, setDialogState) {
           _setDialogState = setDialogState;
 
-          Widget modelRow({
-            required String label,
-            required String? selectedValue,
-            required void Function(String) onChanged,
-          }) {
+          Widget modelRow({required String label, required String? selectedValue, required void Function(String) onChanged}) {
             final displayed = selectedValue ?? '';
             return Row(
               children: [
@@ -863,7 +861,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                             await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, null);
                             await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, null);
-                            aiKeyConfigured.value = false;
+                            ref.read(aiKeyConfiguredProvider.notifier).state = false;
                             aiChatService.clearConversation();
                             Navigator.pop(context, true);
                           },
@@ -1002,9 +1000,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                       onPressed: () => Navigator.pop(context, false),
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                        ),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
@@ -1019,9 +1015,7 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
                       onPressed: () => Navigator.pop(context, true),
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                        ),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
@@ -1059,90 +1053,94 @@ class _AiFeaturesPageState extends State<AiFeaturesPage> {
               decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: IntrinsicHeight(
                 child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _inputController,
-                      focusNode: _focusNode,
-                      enabled: !isStreaming,
-                      style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
-                      maxLines: 4,
-                      minLines: 1,
-                      decoration: InputDecoration(
-                        hintText: "Ask anything...",
-                        hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: GestureDetector(
-                      onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
-                      child: Container(
-                        margin: EdgeInsets.all(spaceXXS),
-                        padding: EdgeInsets.all(spaceSM),
-                        decoration: BoxDecoration(
-                          color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
-                          borderRadius: BorderRadius.all(cornerRadiusSM),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _inputController,
+                        focusNode: _focusNode,
+                        enabled: !isStreaming,
+                        style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                        maxLines: 4,
+                        minLines: 1,
+                        decoration: InputDecoration(
+                          hintText: "Ask anything...",
+                          hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                         ),
-                        child: FaIcon(isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane, color: colours.primaryDark, size: textSM),
+                        onSubmitted: (_) => _sendMessage(),
                       ),
                     ),
-                  ),
-                  ValueListenableBuilder<List<ChatMessage>>(
-                    valueListenable: aiChatService.messages,
-                    builder: (context, messages, _) {
-                      if (messages.isEmpty) return const SizedBox.shrink();
-                      return ValueListenableBuilder<TokenUsage>(
-                        valueListenable: aiChatService.sessionUsage,
-                        builder: (context, usage, _) {
-                          final disabled = isStreaming;
-                          final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
-                          return Padding(
-                            padding: EdgeInsets.all(spaceXXS),
-                            child: TextButton.icon(
-                              onPressed: disabled ? null : () => _confirmClearChat(context),
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                overlayColor: WidgetStatePropertyAll(fg.withValues(alpha: 0.1)),
-                                shape: WidgetStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(cornerRadiusSM),
-                                    side: BorderSide(color: fg),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: GestureDetector(
+                        onTap: isStreaming ? () => _confirmStop(context) : _sendMessage,
+                        child: Container(
+                          margin: EdgeInsets.all(spaceXXS),
+                          padding: EdgeInsets.all(spaceSM),
+                          decoration: BoxDecoration(
+                            color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
+                            borderRadius: BorderRadius.all(cornerRadiusSM),
+                          ),
+                          child: FaIcon(
+                            isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane,
+                            color: colours.primaryDark,
+                            size: textSM,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ValueListenableBuilder<List<ChatMessage>>(
+                      valueListenable: aiChatService.messages,
+                      builder: (context, messages, _) {
+                        if (messages.isEmpty) return const SizedBox.shrink();
+                        return ValueListenableBuilder<TokenUsage>(
+                          valueListenable: aiChatService.sessionUsage,
+                          builder: (context, usage, _) {
+                            final disabled = isStreaming;
+                            final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
+                            return Padding(
+                              padding: EdgeInsets.all(spaceXXS),
+                              child: TextButton.icon(
+                                onPressed: disabled ? null : () => _confirmClearChat(context),
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                  overlayColor: WidgetStatePropertyAll(fg.withValues(alpha: 0.1)),
+                                  shape: WidgetStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(cornerRadiusSM),
+                                      side: BorderSide(color: fg),
+                                    ),
                                   ),
+                                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
+                                  minimumSize: WidgetStatePropertyAll(Size.zero),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  iconColor: WidgetStatePropertyAll(fg),
                                 ),
-                                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                                minimumSize: WidgetStatePropertyAll(Size.zero),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                iconColor: WidgetStatePropertyAll(fg),
+                                icon: FaIcon(FontAwesomeIcons.trashCan, color: fg, size: textSM),
+                                label: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Clear",
+                                      style: _mono.merge(TextStyle(color: fg, fontSize: textXS, fontWeight: FontWeight.bold)),
+                                    ),
+                                    SizedBox(width: spaceXXS),
+                                    Text(
+                                      _formatTokens(usage.inputTokens + usage.outputTokens),
+                                      style: _mono.merge(TextStyle(color: fg.withValues(alpha: 0.7), fontSize: textXS)),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              icon: FaIcon(FontAwesomeIcons.trashCan, color: fg, size: textSM),
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Clear",
-                                    style: _mono.merge(TextStyle(color: fg, fontSize: textXS, fontWeight: FontWeight.bold)),
-                                  ),
-                                  SizedBox(width: spaceXXS),
-                                  Text(
-                                    _formatTokens(usage.inputTokens + usage.outputTokens),
-                                    style: _mono.merge(TextStyle(color: fg.withValues(alpha: 0.7), fontSize: textXS)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1200,15 +1198,15 @@ class _AnimatedDotsState extends State<_AnimatedDots> with SingleTickerProviderS
   }
 }
 
-class _UninitializedPage extends StatefulWidget {
+class _UninitializedPage extends ConsumerStatefulWidget {
   final VoidCallback onSubscribe;
   const _UninitializedPage({required this.onSubscribe});
 
   @override
-  State<_UninitializedPage> createState() => _UninitializedPageState();
+  ConsumerState<_UninitializedPage> createState() => _UninitializedPageState();
 }
 
-class _UninitializedPageState extends State<_UninitializedPage> {
+class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1353,8 +1351,7 @@ class _UninitializedPageState extends State<_UninitializedPage> {
       ),
     );
     if (confirmed == true) {
-      await repoManager.setBool(StorageKey.repoman_aiFeaturesEnabled, false);
-      aiFeaturesEnabled.value = false;
+      ref.read(aiFeaturesEnabledProvider.notifier).set(false);
     }
   }
 
@@ -1740,7 +1737,7 @@ class _UninitializedPageState extends State<_UninitializedPage> {
                               await repoManager.setStringNullable(StorageKey.repoman_aiChatModel, selectedChatModel);
                               await repoManager.setStringNullable(StorageKey.repoman_aiToolModel, selectedToolModel);
                               await repoManager.setStringNullable(StorageKey.repoman_aiWandModel, selectedWandModel);
-                              aiKeyConfigured.value = true;
+                              ref.read(aiKeyConfiguredProvider.notifier).state = true;
 
                               if (!dialogOpen) return;
                               Navigator.pop(context, true);

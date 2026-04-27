@@ -51,6 +51,7 @@ class Colours {
 
   Color get gitlabOrange => Color(0xFFFC6D26);
   Color get giteaGreen => Color(0xFF609926);
+  Color get codebergBlue => Color(0xFF2185D0);
 
   Future<void> reloadTheme(BuildContext context) async {
     final newDarkMode = await repoManager.getBoolNullable(StorageKey.repoman_themeMode);

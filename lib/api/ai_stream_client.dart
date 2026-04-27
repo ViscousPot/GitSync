@@ -8,13 +8,43 @@ import 'package:GitSync/type/ai_chat.dart';
 import 'package:http/http.dart' as http;
 
 sealed class StreamEvent {}
-class TextDelta extends StreamEvent { final String text; TextDelta(this.text); }
-class ToolCallStart extends StreamEvent { final String id; final String name; ToolCallStart(this.id, this.name); }
-class ToolCallInputDelta extends StreamEvent { final String id; final String jsonFragment; ToolCallInputDelta(this.id, this.jsonFragment); }
-class ToolCallEnd extends StreamEvent { final String id; ToolCallEnd(this.id); }
-class UsageUpdate extends StreamEvent { final TokenUsage usage; UsageUpdate(this.usage); }
-class StreamComplete extends StreamEvent { final String? stopReason; StreamComplete(this.stopReason); }
-class StreamError extends StreamEvent { final String message; StreamError(this.message); }
+
+class TextDelta extends StreamEvent {
+  final String text;
+  TextDelta(this.text);
+}
+
+class ToolCallStart extends StreamEvent {
+  final String id;
+  final String name;
+  ToolCallStart(this.id, this.name);
+}
+
+class ToolCallInputDelta extends StreamEvent {
+  final String id;
+  final String jsonFragment;
+  ToolCallInputDelta(this.id, this.jsonFragment);
+}
+
+class ToolCallEnd extends StreamEvent {
+  final String id;
+  ToolCallEnd(this.id);
+}
+
+class UsageUpdate extends StreamEvent {
+  final TokenUsage usage;
+  UsageUpdate(this.usage);
+}
+
+class StreamComplete extends StreamEvent {
+  final String? stopReason;
+  StreamComplete(this.stopReason);
+}
+
+class StreamError extends StreamEvent {
+  final String message;
+  StreamError(this.message);
+}
 
 Stream<StreamEvent> streamCompletion({
   required AiProvider provider,
@@ -33,11 +63,7 @@ Stream<StreamEvent> streamCompletion({
   switch (provider) {
     case AiProvider.anthropic:
       url = Uri.parse('https://api.anthropic.com/v1/messages');
-      headers = {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      };
+      headers = {'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json'};
       body = {
         'model': model,
         'max_tokens': 4096,
@@ -52,7 +78,10 @@ Stream<StreamEvent> streamCompletion({
       headers = {'Authorization': 'Bearer $apiKey', 'Content-Type': 'application/json'};
       body = {
         'model': model,
-        'messages': [{'role': 'system', 'content': systemPrompt}, ...messages],
+        'messages': [
+          {'role': 'system', 'content': systemPrompt},
+          ...messages,
+        ],
         'stream': true,
         'stream_options': {'include_usage': true},
         if (tools.isNotEmpty) 'tools': tools.map((t) => t.toOpenAI()).toList(),
@@ -62,9 +91,16 @@ Stream<StreamEvent> streamCompletion({
       url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/$model:streamGenerateContent?alt=sse&key=$apiKey');
       headers = {'Content-Type': 'application/json'};
       body = {
-        'system_instruction': {'parts': [{'text': systemPrompt}]},
+        'system_instruction': {
+          'parts': [
+            {'text': systemPrompt},
+          ],
+        },
         'contents': messages.map((m) => _toGoogleMessage(m)).toList(),
-        if (tools.isNotEmpty) 'tools': [{'functionDeclarations': tools.map((t) => t.toGoogle()).toList()}],
+        if (tools.isNotEmpty)
+          'tools': [
+            {'functionDeclarations': tools.map((t) => t.toGoogle()).toList()},
+          ],
       };
 
     case AiProvider.selfHosted:
@@ -73,7 +109,10 @@ Stream<StreamEvent> streamCompletion({
       headers = {'Authorization': 'Bearer $apiKey', 'Content-Type': 'application/json'};
       body = {
         'model': model,
-        'messages': [{'role': 'system', 'content': systemPrompt}, ...messages],
+        'messages': [
+          {'role': 'system', 'content': systemPrompt},
+          ...messages,
+        ],
         'stream': true,
         'stream_options': {'include_usage': true},
         if (tools.isNotEmpty) 'tools': tools.map((t) => t.toOpenAI()).toList(),
@@ -171,10 +210,7 @@ List<StreamEvent> _parseAnthropic(Map<String, dynamic> json, Map<int, String> bl
     case 'message_start':
       final usage = json['message']?['usage'];
       if (usage != null) {
-        events.add(UsageUpdate(TokenUsage(
-          (usage['input_tokens'] as int?) ?? 0,
-          0,
-        )));
+        events.add(UsageUpdate(TokenUsage((usage['input_tokens'] as int?) ?? 0, 0)));
       }
 
     case 'content_block_start':
@@ -221,10 +257,7 @@ List<StreamEvent> _parseOpenAI(Map<String, dynamic> json) {
 
   final usage = json['usage'];
   if (usage != null) {
-    events.add(UsageUpdate(TokenUsage(
-      (usage['prompt_tokens'] as int?) ?? 0,
-      (usage['completion_tokens'] as int?) ?? 0,
-    )));
+    events.add(UsageUpdate(TokenUsage((usage['prompt_tokens'] as int?) ?? 0, (usage['completion_tokens'] as int?) ?? 0)));
   }
 
   final choices = json['choices'] as List?;
@@ -270,10 +303,7 @@ List<StreamEvent> _parseGoogle(Map<String, dynamic> json) {
 
   final usageMeta = json['usageMetadata'];
   if (usageMeta != null) {
-    events.add(UsageUpdate(TokenUsage(
-      (usageMeta['promptTokenCount'] as int?) ?? 0,
-      (usageMeta['candidatesTokenCount'] as int?) ?? 0,
-    )));
+    events.add(UsageUpdate(TokenUsage((usageMeta['promptTokenCount'] as int?) ?? 0, (usageMeta['candidatesTokenCount'] as int?) ?? 0)));
   }
 
   final candidates = json['candidates'] as List?;
@@ -327,7 +357,14 @@ Map<String, dynamic> _toGoogleMessage(Map<String, dynamic> msg) {
   if (role == 'tool') {
     return {
       'role': 'function',
-      'parts': [{'functionResponse': {'name': msg['name'] ?? '', 'response': {'result': msg['content']}}}],
+      'parts': [
+        {
+          'functionResponse': {
+            'name': msg['name'] ?? '',
+            'response': {'result': msg['content']},
+          },
+        },
+      ],
     };
   }
 
@@ -340,13 +377,17 @@ Map<String, dynamic> _toGoogleMessage(Map<String, dynamic> msg) {
     }
     for (final tc in toolCalls) {
       final fn = tc['function'] as Map<String, dynamic>;
-      parts.add({'functionCall': {'name': fn['name'], 'args': jsonDecode(fn['arguments'] as String? ?? '{}')}});
+      parts.add({
+        'functionCall': {'name': fn['name'], 'args': jsonDecode(fn['arguments'] as String? ?? '{}')},
+      });
     }
     return {'role': 'model', 'parts': parts};
   }
 
   return {
     'role': role == 'assistant' ? 'model' : 'user',
-    'parts': [{'text': msg['content'] ?? ''}],
+    'parts': [
+      {'text': msg['content'] ?? ''},
+    ],
   };
 }

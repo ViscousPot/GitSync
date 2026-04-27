@@ -704,35 +704,35 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
               behavior: HitTestBehavior.opaque,
               onTap: _showExperimentalInfoDialog,
               child: Container(
-              decoration: BoxDecoration(color: colours.primaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-              padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                        constraints: BoxConstraints(),
-                        onPressed: _showExperimentalInfoDialog,
-                        visualDensity: VisualDensity.compact,
-                        icon: FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
-                      ),
-                      Text(
-                        t.experimental.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(width: spaceXS),
-                    ],
-                  ),
-                  SizedBox(height: spaceXXXS),
-                  Text(
-                    t.experimentalMsg,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
-                  ),
-                ],
+                decoration: BoxDecoration(color: colours.primaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                          constraints: BoxConstraints(),
+                          onPressed: _showExperimentalInfoDialog,
+                          visualDensity: VisualDensity.compact,
+                          icon: FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
+                        ),
+                        Text(
+                          t.experimental.toUpperCase(),
+                          style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(width: spaceXS),
+                      ],
+                    ),
+                    SizedBox(height: spaceXXXS),
+                    Text(
+                      t.experimentalMsg,
+                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                    ),
+                  ],
+                ),
               ),
-            ),
             ),
           ),
         widget.type == EditorType.DEFAULT

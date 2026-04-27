@@ -26,7 +26,7 @@ enum StorageKey<T> {
   repoman_defaultAuthorEmail<String>(name: "defaultAuthorEmail", defaultValue: ""),
   repoman_defaultPostFooter<String>(name: "defaultPostFooter", defaultValue: defaultPostFooter),
   repoman_defaultRemote<String>(name: "defaultRemote", defaultValue: "origin"),
-  repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: false),
+  repoman_editorLineWrap<bool>(name: "editorLineWrap", defaultValue: true),
   repoman_aiProvider<String?>(name: "aiProvider", defaultValue: null),
   repoman_aiApiKey<String?>(name: "aiApiKey", defaultValue: null),
   repoman_aiEndpoint<String?>(name: "aiEndpoint", defaultValue: null),
@@ -70,10 +70,12 @@ enum StorageKey<T> {
   setman_uncommittedFilePaths<List<String>>(name: "uncommittedFilePaths", defaultValue: []),
   setman_stagedFilePaths<List<String>>(name: "stagedFilePaths", defaultValue: []),
   setman_remoteUrlLink<List<String>>(name: "remoteUrlLink", defaultValue: []),
+  setman_remotes<List<String>>(name: "remotes", defaultValue: []),
   setman_branchName<String?>(name: "branchName", defaultValue: null),
   setman_branchNames<List<String>>(name: "branchNames", defaultValue: []),
   setman_disableSsl<bool>(name: "disableSsl", defaultValue: false),
   setman_submodulePaths<List<String>>(name: "submodulePaths", defaultValue: []),
+  setman_hasGitFilters<bool>(name: "hasGitFilters", defaultValue: false),
   setman_pinnedShowcaseFeatures<List<String>>(name: "pinnedShowcaseFeatures", defaultValue: ["issues", "pull_requests"]);
 
   const StorageKey({required this.name, required this.defaultValue, this.hasDefault = false});

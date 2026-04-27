@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:GitSync/ui/dialog/confirm_multi_cherry_pick.dart' as ConfirmMultiCherryPickDialog;
 import 'package:GitSync/ui/dialog/confirm_squash_commits.dart' as ConfirmSquashCommitsDialog;
 
-class CommitSelectActionBar extends StatefulWidget {
+class CommitSelectActionBar extends ConsumerStatefulWidget {
   const CommitSelectActionBar({
     super.key,
     required this.selectMode,
@@ -36,10 +38,10 @@ class CommitSelectActionBar extends StatefulWidget {
   }
 
   @override
-  State<CommitSelectActionBar> createState() => _CommitSelectActionBarState();
+  ConsumerState<CommitSelectActionBar> createState() => _CommitSelectActionBarState();
 }
 
-class _CommitSelectActionBarState extends State<CommitSelectActionBar> with TickerProviderStateMixin {
+class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _expandAnimation;
   late final List<Animation<double>> _itemAnimations;
@@ -107,9 +109,7 @@ class _CommitSelectActionBarState extends State<CommitSelectActionBar> with Tick
                 axis: Axis.horizontal,
                 axisAlignment: -1,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: colours.secondaryDark.withOpacity(0.5),
-                  ),
+                  decoration: BoxDecoration(color: colours.secondaryDark.withOpacity(0.5)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -117,113 +117,112 @@ class _CommitSelectActionBarState extends State<CommitSelectActionBar> with Tick
                         padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                         style: ButtonStyle(
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(borderRadius: widget.borderRadius),
-                          ),
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: widget.borderRadius)),
                           backgroundColor: WidgetStatePropertyAll(Colors.transparent),
                         ),
                         constraints: BoxConstraints(),
                         onPressed: widget.onExitSelectMode,
                         icon: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.primaryLight),
                       ),
-                    SizedBox(width: spaceXS),
-                    FadeTransition(
-                      opacity: _itemAnimations[0],
-                      child: SlideTransition(
-                        position: _itemAnimations[0].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
-                        child: Text(
-                          sprintf(t.selectedCount, [shas.length]).toUpperCase(),
-                          style: TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                      SizedBox(width: spaceXS),
+                      FadeTransition(
+                        opacity: _itemAnimations[0],
+                        child: SlideTransition(
+                          position: _itemAnimations[0].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
+                          child: Text(
+                            sprintf(t.selectedCount, [shas.length]).toUpperCase(),
+                            style: TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: spaceXS),
-                    FadeTransition(
-                      opacity: _itemAnimations[1],
-                      child: SlideTransition(
-                        position: _itemAnimations[1].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
-                        child: TextButton.icon(
-                          onPressed: cherryPickEnabled ? () async {
-                            final currentBranch = await GitManager.getBranchName();
-                            final branches = await GitManager.getBranchNames();
-                            final localBranchNames = branches.map((e) => e.$1).toList();
-                            final selectedCommits = widget.commits
-                                .where((c) => shas.contains(c.reference))
-                                .toList()
-                                .reversed
-                                .toList();
-                            if (context.mounted) {
-                              await ConfirmMultiCherryPickDialog.showDialog(
-                                context,
-                                selectedCommits,
-                                currentBranch,
-                                localBranchNames,
-                                (targetBranch) async {
-                                  for (final commit in selectedCommits) {
-                                    await GitManager.cherryPickCommit(commit.reference, targetBranch);
+                      SizedBox(width: spaceXS),
+                      FadeTransition(
+                        opacity: _itemAnimations[1],
+                        child: SlideTransition(
+                          position: _itemAnimations[1].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
+                          child: TextButton.icon(
+                            onPressed: cherryPickEnabled
+                                ? () async {
+                                    final currentBranch = ref.read(branchNameProvider).valueOrNull;
+                                    final localBranchNames = ref.read(branchNamesProvider).valueOrNull?.keys.toList() ?? [];
+                                    final selectedCommits = widget.commits.where((c) => shas.contains(c.reference)).toList().reversed.toList();
+                                    if (context.mounted) {
+                                      await ConfirmMultiCherryPickDialog.showDialog(context, selectedCommits, currentBranch, localBranchNames, (
+                                        targetBranch,
+                                      ) async {
+                                        for (final commit in selectedCommits) {
+                                          await GitManager.cherryPickCommit(commit.reference, targetBranch);
+                                        }
+                                        await widget.onReloadAll();
+                                        widget.onExitSelectMode();
+                                      });
+                                    }
                                   }
-                                  await widget.onReloadAll();
-                                  widget.onExitSelectMode();
-                                },
-                              );
-                            }
-                          } : null,
-                          icon: FaIcon(FontAwesomeIcons.codeBranch, size: textXS, color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark),
-                          label: Text(
-                            t.cherryPick.toUpperCase(),
-                            style: TextStyle(color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: spaceXXXS),
-                    FadeTransition(
-                      opacity: _itemAnimations[2],
-                      child: SlideTransition(
-                        position: _itemAnimations[2].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
-                        child: TextButton.icon(
-                          onPressed: squashEnabled ? () async {
-                            final selectedCommits = widget.commits
-                                .where((c) => shas.contains(c.reference))
-                                .toList();
-                            final oldestCommit = selectedCommits.last;
-                            final combinedMessage = selectedCommits
-                                .reversed
-                                .map((c) => c.commitMessage)
-                                .join('\n\n');
-                            if (context.mounted) {
-                              await ConfirmSquashCommitsDialog.showDialog(
-                                context,
-                                selectedCommits,
-                                combinedMessage,
-                                (squashMessage) async {
-                                  await GitManager.squashCommits(oldestCommit.reference, squashMessage);
-                                  await widget.onReloadAll();
-                                  widget.onExitSelectMode();
-                                },
-                              );
-                            }
-                          } : null,
-                          icon: FaIcon(FontAwesomeIcons.layerGroup, size: textXS, color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark),
-                          label: Text(
-                            t.squash.toUpperCase(),
-                            style: TextStyle(color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                : null,
+                            icon: FaIcon(
+                              FontAwesomeIcons.codeBranch,
+                              size: textXS,
+                              color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark,
+                            ),
+                            label: Text(
+                              t.cherryPick.toUpperCase(),
+                              style: TextStyle(
+                                color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark,
+                                fontSize: textXS,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      SizedBox(width: spaceXXXS),
+                      FadeTransition(
+                        opacity: _itemAnimations[2],
+                        child: SlideTransition(
+                          position: _itemAnimations[2].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
+                          child: TextButton.icon(
+                            onPressed: squashEnabled
+                                ? () async {
+                                    final selectedCommits = widget.commits.where((c) => shas.contains(c.reference)).toList();
+                                    final oldestCommit = selectedCommits.last;
+                                    final combinedMessage = selectedCommits.reversed.map((c) => c.commitMessage).join('\n\n');
+                                    if (context.mounted) {
+                                      await ConfirmSquashCommitsDialog.showDialog(context, selectedCommits, combinedMessage, (squashMessage) async {
+                                        await GitManager.squashCommits(oldestCommit.reference, squashMessage);
+                                        await widget.onReloadAll();
+                                        widget.onExitSelectMode();
+                                      });
+                                    }
+                                  }
+                                : null,
+                            icon: FaIcon(
+                              FontAwesomeIcons.layerGroup,
+                              size: textXS,
+                              color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark,
+                            ),
+                            label: Text(
+                              t.squash.toUpperCase(),
+                              style: TextStyle(
+                                color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark,
+                                fontSize: textXS,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

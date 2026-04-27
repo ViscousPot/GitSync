@@ -11,6 +11,7 @@ import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/ui/dialog/github_issue_oauth.dart' as GithubIssueOauthDialog;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/api/manager/storage.dart';
@@ -121,7 +122,7 @@ enum From { GLOBAL_SETTINGS, ERROR_DIALOG, CODE_EDITOR, SYNC_DURING_DETACHED_HEA
 
 void notificationClicked(NotificationResponse _) {
   Logger.notifClicked = true;
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class Logger {
@@ -224,7 +225,12 @@ class Logger {
 
     final deviceInfoEntries = await generateDeviceInfoEntries();
 
-    await GithubIssueReportDialog.showDialog(context, initialTitle: initialTitle, deviceInfoEntries: deviceInfoEntries, (title, description, minimalRepro, includeLogFiles) async {
+    await GithubIssueReportDialog.showDialog(context, initialTitle: initialTitle, deviceInfoEntries: deviceInfoEntries, (
+      title,
+      description,
+      minimalRepro,
+      includeLogFiles,
+    ) async {
       final logs = !includeLogFiles
           ? ""
           : utf8.decode(utf8.encode((await _generateLogs()).split("\n").reversed.join("\n")).take(62 * 1024).toList(), allowMalformed: true);
@@ -300,7 +306,10 @@ $logs
       ('Device Model', deviceModel),
       ('OS Version', osVersion),
       ('App Version', appVersion),
-      ('Git Provider', '${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}'),
+      (
+        'Git Provider',
+        '${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}${await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) ? " (scoped)" : ""}',
+      ),
       ('Repo URL', '${await uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink)}'),
     ];
 

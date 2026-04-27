@@ -46,7 +46,7 @@ enum ShowcaseFeature {
   };
 
   static List<ShowcaseFeature> availableFor(GitProvider? provider) => switch (provider) {
-    GitProvider.GITEA => values,
+    GitProvider.GITEA || GitProvider.CODEBERG => values,
     _ => values,
   };
 }

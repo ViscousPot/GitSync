@@ -136,44 +136,40 @@ class _ReleasesPageState extends State<ReleasesPage> {
                   await Future.delayed(const Duration(milliseconds: 500));
                 },
                 child: _releases.isEmpty && !_loading
-                  ? LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: SizedBox(
-                          height: constraints.maxHeight,
-                          child: Center(
-                            child: Text(
-                              t.releasesNotFound.toUpperCase(),
-                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: Center(
+                              child: Text(
+                                t.releasesNotFound.toUpperCase(),
+                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: spaceMD),
-                      itemCount: _releases.length + (_loading || _loadNextPage != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index >= _releases.length) {
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: spaceMD),
+                        itemCount: _releases.length + (_loading || _loadNextPage != null ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _releases.length) {
+                            return Padding(
+                              padding: EdgeInsets.all(spaceMD),
+                              child: Center(
+                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                              ),
+                            );
+                          }
                           return Padding(
-                            padding: EdgeInsets.all(spaceMD),
-                            child: Center(
-                              child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
-                            ),
+                            padding: EdgeInsets.only(bottom: spaceXS),
+                            child: _ItemRelease(release: _releases[index], gitProvider: widget.gitProvider, accessToken: widget.accessToken),
                           );
-                        }
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: spaceXS),
-                          child: _ItemRelease(
-                            release: _releases[index],
-                            gitProvider: widget.gitProvider,
-                            accessToken: widget.accessToken,
-                          ),
-                        );
-                      },
-                    ),
+                        },
+                      ),
               ),
             ),
           ],
@@ -213,9 +209,9 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
   }
 
   Map<String, String> get _authHeaders => switch (widget.gitProvider) {
-        GitProvider.GITLAB => {'Authorization': 'Bearer ${widget.accessToken}'},
-        _ => {'Authorization': 'token ${widget.accessToken}'},
-      };
+    GitProvider.GITLAB => {'Authorization': 'Bearer ${widget.accessToken}'},
+    _ => {'Authorization': 'token ${widget.accessToken}'},
+  };
 
   Future<void> _downloadAsset(ReleaseAsset asset) async {
     Fluttertoast.showToast(msg: 'Downloading...', toastLength: Toast.LENGTH_SHORT, gravity: null);
@@ -240,7 +236,9 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
   Widget build(BuildContext context) {
     final release = widget.release;
     final title = release.name.isNotEmpty ? release.name : release.tagName;
-    final relativeTime = timeago.format(release.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
+    final relativeTime = timeago
+        .format(release.createdAt, locale: 'en')
+        .replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
 
     return GestureDetector(
       onTap: () {
@@ -301,7 +299,10 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                       ),
                     ),
                     if (release.authorUsername.isNotEmpty) ...[
-                      Text(' $bullet ', style: TextStyle(color: colours.tertiaryLight, fontSize: textXS)),
+                      Text(
+                        ' $bullet ',
+                        style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      ),
                       Flexible(
                         child: Text(
                           release.authorUsername,
@@ -310,8 +311,14 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                         ),
                       ),
                     ],
-                    Text(' $bullet ', style: TextStyle(color: colours.tertiaryLight, fontSize: textXS)),
-                    Text(relativeTime, style: TextStyle(color: colours.tertiaryLight, fontSize: textXS)),
+                    Text(
+                      ' $bullet ',
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    ),
+                    Text(
+                      relativeTime,
+                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    ),
                   ],
                 ),
               ),
@@ -326,7 +333,10 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                       if (release.isPrerelease)
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                          decoration: BoxDecoration(color: colours.tertiaryWarning.withValues(alpha: 0.2), borderRadius: BorderRadius.all(cornerRadiusXS)),
+                          decoration: BoxDecoration(
+                            color: colours.tertiaryWarning.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.all(cornerRadiusXS),
+                          ),
                           child: Text(
                             t.preRelease,
                             style: TextStyle(color: colours.tertiaryWarning, fontSize: textXXS, fontWeight: FontWeight.bold),
@@ -401,45 +411,47 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                     ),
                   )
                 else
-                  ...release.assets.map((asset) => Padding(
-                        padding: EdgeInsets.only(left: textMD + spaceXS, bottom: spaceXXXS),
-                        child: GestureDetector(
-                          onTap: () => _downloadAsset(asset),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
-                            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-                            child: Row(
-                              children: [
-                                FaIcon(FontAwesomeIcons.download, size: textXXS, color: colours.tertiaryInfo),
-                                SizedBox(width: spaceXXS),
-                                Expanded(
-                                  child: Text(
-                                    asset.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textXS),
-                                  ),
+                  ...release.assets.map(
+                    (asset) => Padding(
+                      padding: EdgeInsets.only(left: textMD + spaceXS, bottom: spaceXXXS),
+                      child: GestureDetector(
+                        onTap: () => _downloadAsset(asset),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
+                          decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                          child: Row(
+                            children: [
+                              FaIcon(FontAwesomeIcons.download, size: textXXS, color: colours.tertiaryInfo),
+                              SizedBox(width: spaceXXS),
+                              Expanded(
+                                child: Text(
+                                  asset.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textXS),
                                 ),
-                                if (asset.size != null) ...[
-                                  SizedBox(width: spaceXXS),
-                                  Text(
-                                    formatBytes(asset.size),
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
-                                  ),
-                                ],
-                                if (asset.downloadCount != null) ...[
-                                  SizedBox(width: spaceXXS),
-                                  FaIcon(FontAwesomeIcons.arrowDown, size: textXXS, color: colours.tertiaryLight),
-                                  SizedBox(width: spaceXXXXS),
-                                  Text(
-                                    '${asset.downloadCount}',
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
-                                  ),
-                                ],
+                              ),
+                              if (asset.size != null) ...[
+                                SizedBox(width: spaceXXS),
+                                Text(
+                                  formatBytes(asset.size),
+                                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+                                ),
                               ],
-                            ),
+                              if (asset.downloadCount != null) ...[
+                                SizedBox(width: spaceXXS),
+                                FaIcon(FontAwesomeIcons.arrowDown, size: textXXS, color: colours.tertiaryLight),
+                                SizedBox(width: spaceXXXXS),
+                                Text(
+                                  '${asset.downloadCount}',
+                                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
               ],
             ],
           ),

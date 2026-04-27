@@ -24,7 +24,9 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
     if (context.mounted) setState?.call(() {});
   });
 
-  runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir, "depth": depth, "bare": bare}).then((result) {
+  runGitOperation(LogType.Clone, (event) => event?["result"] as String?, {"repoUrl": repoUrl, "repoPath": dir, "depth": depth, "bare": bare}).then((
+    result,
+  ) {
     taskSub.cancel();
     progressSub.cancel();
     final rootNavigator = Navigator.of(context, rootNavigator: true);

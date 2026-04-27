@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:GitSync/api/helper.dart';
+import 'package:GitSync/api/manager/auth/codeberg_manager.dart';
 import 'package:GitSync/api/manager/auth/gitea_manager.dart';
 import 'package:GitSync/api/manager/auth/github_app_manager.dart';
 import 'package:GitSync/api/manager/auth/github_manager.dart';
@@ -19,11 +20,16 @@ class SettingsManager extends Storage {
   Future<SettingsManager> reinit({int? repoIndex}) async {
     final repoName = await repoManager.getRepoName(repoIndex ?? await repoManager.getInt(StorageKey.repoman_repoIndex));
     keyNamespace = "$keyPrefix---$repoName";
-    gitDirPath = await getGitDirPath();
     return this;
   }
 
   static String k(String key) => "$keyNamespace::$key";
+
+  static Future<SettingsManager> scoped(int repoIndex) async {
+    final repoName = await repoManager.getRepoName(repoIndex);
+    final namespace = "$keyPrefix---$repoName";
+    return SettingsManager(keyTransformer: (key) => "$namespace::$key");
+  }
 
   Future<T> _getOrDefault<T>(
     StorageKey<T?> key,
@@ -89,10 +95,8 @@ class SettingsManager extends Storage {
     keyNamespace = newNamespace;
   }
 
-  (String, String)? gitDirPath;
   Future<void> setGitDirPath(String dir, [bookmark = false]) async {
     await setString(StorageKey.setman_gitDirPath, dir);
-    if (!bookmark) gitDirPath = await getGitDirPath();
 
     if (!bookmark) {
       await setStringNullable(StorageKey.setman_branchName, null);
@@ -100,6 +104,8 @@ class SettingsManager extends Storage {
       await setStringList(StorageKey.setman_branchNames, []);
       await setStringList(StorageKey.setman_recentCommits, []);
       await setStringList(StorageKey.setman_remoteUrlLink, []);
+      await setStringList(StorageKey.setman_remotes, []);
+      await setBool(StorageKey.setman_hasGitFilters, false);
     }
   }
 
@@ -150,6 +156,8 @@ class SettingsManager extends Storage {
             : await GithubManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITEA:
         oauthToken = await GiteaManager().getToken(token, setAccessRefreshToken);
+      case GitProvider.CODEBERG:
+        oauthToken = await CodebergManager().getToken(token, setAccessRefreshToken);
       case GitProvider.GITLAB:
         oauthToken = await GitlabManager().getToken(token, setAccessRefreshToken);
       default:
