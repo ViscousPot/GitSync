@@ -715,6 +715,36 @@ pub fn init(homepath: Option<String>) {
     if let Ok(mut config) = git2::Config::open_default() {
         let _ = config.set_str("safe.directory", "*");
     }
+
+    ensure_empty_known_hosts();
+}
+
+fn ensure_empty_known_hosts() {
+    let Ok(home) = env::var("HOME") else { return };
+    let ssh_dir = PathBuf::from(home).join(".ssh");
+    let known_hosts = ssh_dir.join("known_hosts");
+
+    if !ssh_dir.exists() {
+        if fs::create_dir_all(&ssh_dir).is_err() {
+            return;
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = fs::set_permissions(&ssh_dir, fs::Permissions::from_mode(0o700));
+        }
+    }
+
+    if !known_hosts.exists() {
+        if fs::write(&known_hosts, b"").is_err() {
+            return;
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = fs::set_permissions(&known_hosts, fs::Permissions::from_mode(0o600));
+        }
+    }
 }
 
 fn get_default_callbacks<'cb>(
