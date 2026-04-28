@@ -77,6 +77,7 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
                 setState(() {});
 
                 await runGitOperation(LogType.AbortMerge, (event) => event);
+                widget.conflictCallback();
               },
               style: ButtonStyle(
                 alignment: Alignment.center,
