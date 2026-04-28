@@ -114,6 +114,9 @@ Future<void> main() async {
       await GitManager.clearLocks();
       initAsync(() async {
         await gitSyncService.initialise(onServiceStart, callbackDispatcher);
+        if (await FlutterBackgroundService().isRunning()) {
+          FlutterBackgroundService().invoke("clearLocks");
+        }
         await Logger.init();
         await requestStoragePerm(false);
       });
@@ -215,6 +218,12 @@ void callbackDispatcher() async {
 void onServiceStart(ServiceInstance service) async {
   serviceInstance = service;
   if (!RustLib.instance.initialized) await RustLib.init();
+  await GitManager.clearLocks();
+
+  service.on("clearLocks").listen((event) async {
+    await GitManager.clearLocks();
+    service.invoke("clearLocks");
+  });
 
   service.on(LogType.Clone.name).listen((event) async {
     if (event == null) return;
@@ -263,6 +272,9 @@ void onServiceStart(ServiceInstance service) async {
       final result = await GitManager.getRecommendedAction();
       service.invoke(LogType.RecommendedAction.name, {"result": result, if (rid != null) '_rid': rid});
     } on OperationNotExecuted {
+      service.invoke(LogType.RecommendedAction.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.RecommendedAction, e, s);
       service.invoke(LogType.RecommendedAction.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
@@ -373,6 +385,9 @@ void onServiceStart(ServiceInstance service) async {
       });
     } on OperationNotExecuted {
       service.invoke(LogType.RecentCommits.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.RecentCommits, e, s);
+      service.invoke(LogType.RecentCommits.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
 
@@ -385,6 +400,9 @@ void onServiceStart(ServiceInstance service) async {
         if (rid != null) '_rid': rid,
       });
     } on OperationNotExecuted {
+      service.invoke(LogType.ConflictingFiles.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.ConflictingFiles, e, s);
       service.invoke(LogType.ConflictingFiles.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
@@ -404,8 +422,14 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   service.on(LogType.AbortMerge.name).listen((event) async {
-    await GitManager.abortMerge();
-    service.invoke(LogType.AbortMerge.name);
+    final rid = event?['_rid'];
+    try {
+      await GitManager.abortMerge();
+      service.invoke(LogType.AbortMerge.name, {if (rid != null) '_rid': rid});
+    } catch (e, s) {
+      Logger.logError(LogType.AbortMerge, e, s);
+      service.invoke(LogType.AbortMerge.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    }
   });
 
   service.on(LogType.BranchName.name).listen((event) async {
@@ -414,6 +438,9 @@ void onServiceStart(ServiceInstance service) async {
       final result = await GitManager.getBranchName();
       service.invoke(LogType.BranchName.name, {"result": result, if (rid != null) '_rid': rid});
     } on OperationNotExecuted {
+      service.invoke(LogType.BranchName.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.BranchName, e, s);
       service.invoke(LogType.BranchName.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
@@ -427,6 +454,9 @@ void onServiceStart(ServiceInstance service) async {
         if (rid != null) '_rid': rid,
       });
     } on OperationNotExecuted {
+      service.invoke(LogType.BranchNames.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.BranchNames, e, s);
       service.invoke(LogType.BranchNames.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
@@ -512,6 +542,9 @@ void onServiceStart(ServiceInstance service) async {
       });
     } on OperationNotExecuted {
       service.invoke(LogType.GetRemoteUrlLink.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.GetRemoteUrlLink, e, s);
+      service.invoke(LogType.GetRemoteUrlLink.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
 
@@ -521,6 +554,9 @@ void onServiceStart(ServiceInstance service) async {
       final result = await GitManager.listRemotes();
       service.invoke(LogType.ListRemotes.name, {"result": result.map<String>((r) => "$r").toList(), if (rid != null) '_rid': rid});
     } on OperationNotExecuted {
+      service.invoke(LogType.ListRemotes.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.ListRemotes, e, s);
       service.invoke(LogType.ListRemotes.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
@@ -582,6 +618,9 @@ void onServiceStart(ServiceInstance service) async {
       final result = await GitManager.hasGitFilters(event?["repomanRepoindex"]);
       service.invoke(LogType.HasGitFilters.name, {"result": result, if (rid != null) '_rid': rid});
     } on OperationNotExecuted {
+      service.invoke(LogType.HasGitFilters.name, {if (rid != null) '_rid': rid, '_skipped': true});
+    } catch (e, s) {
+      Logger.logError(LogType.HasGitFilters, e, s);
       service.invoke(LogType.HasGitFilters.name, {if (rid != null) '_rid': rid, '_skipped': true});
     }
   });
