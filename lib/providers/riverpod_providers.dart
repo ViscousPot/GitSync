@@ -546,3 +546,34 @@ class PremiumStatusNotifier extends Notifier<bool?> {
 }
 
 final premiumStatusProvider = NotifierProvider<PremiumStatusNotifier, bool?>(PremiumStatusNotifier.new);
+
+class RemoteNameNotifier extends SettingNotifier<String> {
+  @override
+  Future<String> read() => uiSettingsManager.getRemote();
+
+  @override
+  Future<void> write(String value) => uiSettingsManager.setStringNullable(StorageKey.setman_remote, value);
+}
+
+final remoteNameProvider = AsyncNotifierProvider<RemoteNameNotifier, String>(RemoteNameNotifier.new);
+
+class SubmodulePathsNotifier extends CachedGitNotifier<List<String>> {
+  @override
+  Future<List<String>> readCache(SettingsManager manager) => manager.getStringList(StorageKey.setman_submodulePaths);
+
+  @override
+  Future<List<String>> fetchLive() async {
+    final dirPath = (await ref.read(gitDirPathProvider.future))?.$1;
+    if (dirPath == null) return [];
+    return runGitOperation<List<String>>(
+      LogType.GetSubmodules,
+      (event) => event?["result"].map<String>((path) => "$path").toList() ?? <String>[],
+      {"dir": dirPath},
+    );
+  }
+
+  @override
+  Future<void> writeCache(SettingsManager manager, List<String> value) => manager.setStringList(StorageKey.setman_submodulePaths, value);
+}
+
+final submodulePathsProvider = AsyncNotifierProvider<SubmodulePathsNotifier, List<String>>(SubmodulePathsNotifier.new);

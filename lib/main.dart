@@ -892,7 +892,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
   final ValueNotifier<bool> _commitSelectMode = ValueNotifier(false);
   final ValueNotifier<Set<String>> _commitSelectedShas = ValueNotifier({});
-  ValueNotifier<Map<String, (FaIconData, Future<void> Function())>> syncOptions = ValueNotifier({});
 
   RestorableBool mergeConflictVisible = RestorableBool(true);
 
@@ -991,8 +990,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(repoIndexProvider);
     ref.invalidate(featureCountsProvider);
     ref.invalidate(gitDirPathProvider);
+    ref.invalidate(remoteNameProvider);
+    ref.invalidate(submodulePathsProvider);
     if (token != _reloadToken) return;
-    await updateSyncOptions();
     if (mounted) setState(() {});
   }
 
@@ -1085,9 +1085,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
     // TODO: put behind an on for all the sync option fns?
     //
-    syncOptions.value.addAll({
-      t.syncNow: (FontAwesomeIcons.solidCircleDown, () async => FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC)),
-    });
 
     initAsync(() async {
       if (kDebugMode) {
@@ -1252,10 +1249,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Future<void> updateRecommendedAction({int? override}) async {
-    if (!(ref.read(clientModeEnabledProvider).valueOrNull ?? false)) {
-      await updateSyncOptions();
-      return;
-    }
+    if (!(ref.read(clientModeEnabledProvider).valueOrNull ?? false)) return;
     autoRefreshTimer?.cancel();
     final startTime = DateTime.now();
     if (override != null) {
@@ -1263,7 +1257,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     } else {
       await ref.read(recommendedActionProvider.notifier).refresh();
     }
-    await updateSyncOptions();
     _scheduleNextRecommendedAction(startTime);
   }
 
@@ -1341,11 +1334,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     return provider == GitProvider.GITHUB;
   }
 
-  Future<String> getLastSyncOption(int? recommendedActionValue) async {
+  String getLastSyncOption(int? recommendedActionValue) {
     if (ref.read(clientModeEnabledProvider).valueOrNull ?? false) {
       if (recommendedActionValue != null && recommendedActionValue >= 0) {
         return [
-          sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]),
+          sprintf(t.fetchRemote, [ref.read(remoteNameProvider).valueOrNull ?? "origin"]),
           t.pullChanges,
           t.stageAndCommit,
           t.pushChanges,
@@ -1355,21 +1348,69 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     return ref.read(lastSyncMethodProvider).valueOrNull ?? "";
   }
 
-  Future<void> updateSyncOptions() async {
-    final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
-    final clientModeEnabled = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
-    final dirPath = ref.read(gitDirPathProvider).valueOrNull?.$1;
-    final noRemotes = (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty;
+  Map<String, (FaIconData, Future<void> Function())> _buildSyncOptions({
+    required bool clientModeEnabled,
+    required bool noRemotes,
+    required String? dirPath,
+    required List<String> submodulePaths,
+    required String remoteName,
+    required bool hasConflicts,
+    required int repomanRepoindex,
+  }) {
+    if (hasConflicts) {
+      return {
+        if (!noRemotes && clientModeEnabled)
+          t.forcePush: (
+            FontAwesomeIcons.anglesUp,
+            () async {
+              ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
+                ForcePushPullDialog.showDialog(context, push: true);
+                await runGitOperation(LogType.ForcePush, (event) => event);
+                Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                await syncOptionCompletionCallback();
+              });
+            },
+          ),
+        if (!noRemotes && clientModeEnabled)
+          t.forcePull: (
+            FontAwesomeIcons.anglesDown,
+            () async {
+              ConfirmForcePushPullDialog.showDialog(context, () async {
+                ForcePushPullDialog.showDialog(context);
+                await runGitOperation(LogType.ForcePull, (event) => event);
+                Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                await syncOptionCompletionCallback();
+              });
+            },
+          ),
+        if (!noRemotes && !clientModeEnabled)
+          t.uploadAndOverwrite: (
+            FontAwesomeIcons.anglesUp,
+            () async {
+              ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
+                ForcePushPullDialog.showDialog(context, push: true);
+                await runGitOperation(LogType.UploadAndOverwrite, (event) => event);
+                Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                syncOptionCompletionCallback();
+              });
+            },
+          ),
+        if (!noRemotes && !clientModeEnabled)
+          t.downloadAndOverwrite: (
+            FontAwesomeIcons.anglesDown,
+            () async {
+              ConfirmForcePushPullDialog.showDialog(context, () async {
+                ForcePushPullDialog.showDialog(context);
+                await runGitOperation(LogType.DownloadAndOverwrite, (event) => event);
+                Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                syncOptionCompletionCallback();
+              });
+            },
+          ),
+      };
+    }
 
-    final submodulePaths = dirPath == null
-        ? []
-        : await runGitOperation<List<String>>(LogType.GetSubmodules, (event) => event?["result"].map<String>((path) => "$path").toList() ?? [], {
-            "dir": dirPath,
-          });
-    ;
-    syncOptions.value = {};
-
-    syncOptions.value.addAll({
+    return {
       if (!noRemotes)
         clientModeEnabled ? t.syncAllChanges : t.syncNow: (
           FontAwesomeIcons.solidCircleDown,
@@ -1419,7 +1460,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]): (
+        sprintf(t.fetchRemote, [remoteName]): (
           FontAwesomeIcons.caretDown,
           () async {
             await runGitOperation(LogType.FetchRemote, (event) => event);
@@ -1561,23 +1602,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             });
           },
         ),
-    });
-
-    Future.delayed(Duration.zero, () async {
-      if ((ref.read(conflictingFilesProvider).valueOrNull ?? []).isNotEmpty) {
-        syncOptions.value.remove(t.syncAllChanges);
-        syncOptions.value.remove(t.syncNow);
-        syncOptions.value.remove(t.manualSync);
-        syncOptions.value.remove(t.updateSubmodules);
-        syncOptions.value.remove(sprintf(t.fetchRemote, [await uiSettingsManager.getRemote()]));
-        syncOptions.value.remove(t.downloadChanges);
-        syncOptions.value.remove(t.pullChanges);
-        syncOptions.value.remove(t.stageAndCommit);
-        syncOptions.value.remove(t.uploadChanges);
-        syncOptions.value.remove(t.pushChanges);
-        if (mounted) setState(() {});
-      }
-    });
+    };
   }
 
   @override
@@ -2746,15 +2771,31 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                       provider: gitDirPathProvider,
                                                       builder: (context, gitDirPathAsync) {
                                                         final gitDirPath = gitDirPathAsync.valueOrNull;
-                                                        return ValueListenableBuilder(
-                                                          valueListenable: syncOptions,
-                                                          builder: (context, syncOptionsSnapshot, child) => ProviderBuilder<int?>(
-                                                            provider: recommendedActionProvider,
-                                                            builder: (context, recommendedActionAsync) {
-                                                              final recommendedActionValue = recommendedActionAsync.valueOrNull;
-                                                              return FutureBuilder(
-                                                                future: getLastSyncOption(recommendedActionValue),
-                                                                builder: (context, lastSyncMethodSnapshot) => Column(
+                                                        return ProviderBuilder<List<String>>(
+                                                          provider: listRemotesProvider,
+                                                          builder: (context, remotesAsync) => ProviderBuilder<List<String>>(
+                                                            provider: submodulePathsProvider,
+                                                            builder: (context, submodulePathsAsync) => ProviderBuilder<String>(
+                                                              provider: remoteNameProvider,
+                                                              builder: (context, remoteNameAsync) => ProviderBuilder<int>(
+                                                                provider: repoIndexProvider,
+                                                                builder: (context, repoIndexAsync) => ProviderBuilder<int?>(
+                                                                  provider: recommendedActionProvider,
+                                                                  builder: (context, recommendedActionAsync) {
+                                                                    final recommendedActionValue = recommendedActionAsync.valueOrNull;
+                                                                    final noRemotes = (remotesAsync.valueOrNull ?? []).isEmpty;
+                                                                    final remoteName = remoteNameAsync.valueOrNull ?? "origin";
+                                                                    final syncOptionsSnapshot = _buildSyncOptions(
+                                                                      clientModeEnabled: clientModeEnabledValue ?? false,
+                                                                      noRemotes: noRemotes,
+                                                                      dirPath: gitDirPath?.$1,
+                                                                      submodulePaths: submodulePathsAsync.valueOrNull ?? [],
+                                                                      remoteName: remoteName,
+                                                                      hasConflicts: (conflictingAsync.valueOrNull ?? []).isNotEmpty,
+                                                                      repomanRepoindex: repoIndexAsync.valueOrNull ?? 0,
+                                                                    );
+                                                                    final lastSyncMethod = getLastSyncOption(recommendedActionValue);
+                                                                    return Column(
                                                                   children: [
                                                                     IntrinsicHeight(
                                                                       child: Row(
@@ -2770,13 +2811,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     onPressed: gitDirPath?.$2 == null
                                                                                         ? null
                                                                                         : () async {
-                                                                                            if (lastSyncMethodSnapshot.data == null) return;
+                                                                                            if (syncOptionsSnapshot.isEmpty) return;
 
                                                                                             if (syncOptionsSnapshot.containsKey(
-                                                                                                  lastSyncMethodSnapshot.data,
+                                                                                                  lastSyncMethod,
                                                                                                 ) ==
                                                                                                 true) {
-                                                                                              syncOptionsSnapshot[lastSyncMethodSnapshot.data]!.$2();
+                                                                                              syncOptionsSnapshot[lastSyncMethod]!.$2();
                                                                                             } else {
                                                                                               await syncOptionsSnapshot.values.first.$2();
                                                                                             }
@@ -2835,7 +2876,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                             child: FaIcon(
                                                                                               gitDirPath?.$2 == null
                                                                                                   ? FontAwesomeIcons.solidCircleDown
-                                                                                                  : syncOptionsSnapshot[lastSyncMethodSnapshot.data]
+                                                                                                  : syncOptionsSnapshot[lastSyncMethod]
                                                                                                             ?.$1 ??
                                                                                                         (syncOptionsSnapshot.values.isNotEmpty
                                                                                                             ? syncOptionsSnapshot.values.first.$1
@@ -2858,10 +2899,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                       ? t.syncAllChanges
                                                                                                       : t.syncNow)
                                                                                                 : ((syncOptionsSnapshot.containsKey(
-                                                                                                                lastSyncMethodSnapshot.data,
+                                                                                                                lastSyncMethod,
                                                                                                               ) ==
                                                                                                               true
-                                                                                                          ? lastSyncMethodSnapshot.data
+                                                                                                          ? lastSyncMethod
                                                                                                           : (syncOptionsSnapshot.keys.isNotEmpty
                                                                                                                 ? syncOptionsSnapshot.keys.first
                                                                                                                 : (clientModeEnabledValue == true
@@ -3080,9 +3121,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             .where(
                                                                               (item) =>
                                                                                   item.key !=
-                                                                                  (syncOptionsSnapshot.containsKey(lastSyncMethodSnapshot.data) ==
+                                                                                  (syncOptionsSnapshot.containsKey(lastSyncMethod) ==
                                                                                           true
-                                                                                      ? lastSyncMethodSnapshot.data
+                                                                                      ? lastSyncMethod
                                                                                       : (syncOptionsSnapshot.keys.isNotEmpty
                                                                                             ? syncOptionsSnapshot.keys.first
                                                                                             : "")),
@@ -3142,9 +3183,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       ),
                                                                     ),
                                                                   ],
+                                                                );
+                                                                  },
                                                                 ),
-                                                              );
-                                                            },
+                                                              ),
+                                                            ),
                                                           ),
                                                         );
                                                       },
@@ -3838,7 +3881,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       ref.read(hasGitFiltersProvider.notifier).set(false);
                                                                                       ref.read(recentCommitsProvider.notifier).set([]);
                                                                                       ref.read(conflictingFilesProvider.notifier).set([]);
-                                                                                      await updateSyncOptions();
                                                                                       if (mounted) setState(() {});
                                                                                     },
                                                                                     constraints: BoxConstraints(),
