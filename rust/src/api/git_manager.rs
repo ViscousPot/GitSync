@@ -2447,7 +2447,7 @@ fn pull_changes_priv(
             );
 
             return Err(git2::Error::from_str(
-                "Merge conflicts detected during pull. Please resolve conflicts.",
+                "Merge conflicts detected during pull. Push your local changes first to trigger the merge conflict UI, then resolve conflicts from there.",
             ));
         }
         let result_tree = swl!(repo.find_tree(swl!(idx.write_tree_to(&repo))?))?;
