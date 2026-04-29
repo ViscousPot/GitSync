@@ -329,17 +329,9 @@ void onServiceStart(ServiceInstance service) async {
     return null;
   });
 
-  service.on(LogType.RecommendedAction.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getRecommendedAction();
-      service.invoke(LogType.RecommendedAction.name, {"result": result, if (rid != null) '_rid': rid});
-    } on OperationNotExecuted {
-      service.invoke(LogType.RecommendedAction.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.RecommendedAction, e, s);
-      service.invoke(LogType.RecommendedAction.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.RecommendedAction, (event) async {
+    final result = await GitManager.getRecommendedAction();
+    return {"result": result};
   });
 
   _onGitOp(service, LogType.Commit, (event) async {
@@ -431,36 +423,14 @@ void onServiceStart(ServiceInstance service) async {
     return null;
   });
 
-  service.on(LogType.RecentCommits.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getRecentCommits();
-      service.invoke(LogType.RecentCommits.name, {
-        "result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList(),
-        if (rid != null) '_rid': rid,
-      });
-    } on OperationNotExecuted {
-      service.invoke(LogType.RecentCommits.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.RecentCommits, e, s);
-      service.invoke(LogType.RecentCommits.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.RecentCommits, (event) async {
+    final result = await GitManager.getRecentCommits();
+    return {"result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList()};
   });
 
-  service.on(LogType.ConflictingFiles.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getConflicting();
-      service.invoke(LogType.ConflictingFiles.name, {
-        "result": result.map<List<String>>((item) => [item.$1, item.$2.name]).toList(),
-        if (rid != null) '_rid': rid,
-      });
-    } on OperationNotExecuted {
-      service.invoke(LogType.ConflictingFiles.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.ConflictingFiles, e, s);
-      service.invoke(LogType.ConflictingFiles.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.ConflictingFiles, (event) async {
+    final result = await GitManager.getConflicting();
+    return {"result": result.map<List<String>>((item) => [item.$1, item.$2.name]).toList()};
   });
 
   _onGitOp(service, LogType.UncommittedFiles, (event) async {
@@ -473,44 +443,19 @@ void onServiceStart(ServiceInstance service) async {
     return {"result": result.map((item) => [item.$1, "${item.$2}"]).toList()};
   });
 
-  service.on(LogType.AbortMerge.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      await GitManager.abortMerge();
-      service.invoke(LogType.AbortMerge.name, {if (rid != null) '_rid': rid});
-    } catch (e, s) {
-      Logger.logError(LogType.AbortMerge, e, s);
-      service.invoke(LogType.AbortMerge.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.AbortMerge, (event) async {
+    await GitManager.abortMerge();
+    return null;
   });
 
-  service.on(LogType.BranchName.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getBranchName();
-      service.invoke(LogType.BranchName.name, {"result": result, if (rid != null) '_rid': rid});
-    } on OperationNotExecuted {
-      service.invoke(LogType.BranchName.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.BranchName, e, s);
-      service.invoke(LogType.BranchName.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.BranchName, (event) async {
+    final result = await GitManager.getBranchName();
+    return {"result": result};
   });
 
-  service.on(LogType.BranchNames.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getBranchNames();
-      service.invoke(LogType.BranchNames.name, {
-        "result": result.map<String>((branch) => "${branch.$1}$conflictSeparator${branch.$2}").toList(),
-        if (rid != null) '_rid': rid,
-      });
-    } on OperationNotExecuted {
-      service.invoke(LogType.BranchNames.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.BranchNames, e, s);
-      service.invoke(LogType.BranchNames.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.BranchNames, (event) async {
+    final result = await GitManager.getBranchNames();
+    return {"result": result.map<String>((branch) => "${branch.$1}$conflictSeparator${branch.$2}").toList()};
   });
 
   _onGitOp(service, LogType.SetRemoteUrl, (event) async {
@@ -582,33 +527,14 @@ void onServiceStart(ServiceInstance service) async {
     return {"result": result == null ? null : [result.$1, result.$2]};
   });
 
-  service.on(LogType.GetRemoteUrlLink.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.getRemoteUrlLink();
-      service.invoke(LogType.GetRemoteUrlLink.name, {
-        "result": result == null ? null : [result.$1, result.$2],
-        if (rid != null) '_rid': rid,
-      });
-    } on OperationNotExecuted {
-      service.invoke(LogType.GetRemoteUrlLink.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.GetRemoteUrlLink, e, s);
-      service.invoke(LogType.GetRemoteUrlLink.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.GetRemoteUrlLink, (event) async {
+    final result = await GitManager.getRemoteUrlLink();
+    return {"result": result == null ? null : [result.$1, result.$2]};
   });
 
-  service.on(LogType.ListRemotes.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.listRemotes();
-      service.invoke(LogType.ListRemotes.name, {"result": result.map<String>((r) => "$r").toList(), if (rid != null) '_rid': rid});
-    } on OperationNotExecuted {
-      service.invoke(LogType.ListRemotes.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.ListRemotes, e, s);
-      service.invoke(LogType.ListRemotes.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.ListRemotes, (event) async {
+    final result = await GitManager.listRemotes();
+    return {"result": result.map<String>((r) => "$r").toList()};
   });
 
   _onGitOp(service, LogType.AddRemote, (event) async {
@@ -661,17 +587,9 @@ void onServiceStart(ServiceInstance service) async {
     return {"result": result.map<String>((branch) => "$branch").toList()};
   });
 
-  service.on(LogType.HasGitFilters.name).listen((event) async {
-    final rid = event?['_rid'];
-    try {
-      final result = await GitManager.hasGitFilters(event?["repomanRepoindex"]);
-      service.invoke(LogType.HasGitFilters.name, {"result": result, if (rid != null) '_rid': rid});
-    } on OperationNotExecuted {
-      service.invoke(LogType.HasGitFilters.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    } catch (e, s) {
-      Logger.logError(LogType.HasGitFilters, e, s);
-      service.invoke(LogType.HasGitFilters.name, {if (rid != null) '_rid': rid, '_skipped': true});
-    }
+  _onGitOp(service, LogType.HasGitFilters, (event) async {
+    final result = await GitManager.hasGitFilters(event?["repomanRepoindex"]);
+    return {"result": result};
   });
 
   _onGitOp(service, LogType.DownloadChanges, (event) async {
