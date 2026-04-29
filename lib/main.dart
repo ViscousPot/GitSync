@@ -479,7 +479,7 @@ void onServiceStart(ServiceInstance service) async {
     });
   });
 
-  _onGitOp(service, LogType.AbortMerge, (event) async {
+  service.on(LogType.AbortMerge.name).listen((event) async {
     final rid = event?['_rid'];
     try {
       await GitManager.abortMerge();
