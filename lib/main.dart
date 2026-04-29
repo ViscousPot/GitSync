@@ -253,14 +253,17 @@ void _onGitOp(
   bool retryOnNetworkError = true,
 }) {
   service.on(type.name).listen((event) async {
+    final rid = event?['_rid'];
     try {
       await body(event);
       if (event?["isRetry"] == true) {
         await showNetworkMessage(gitSyncService.s.networkRetryComplete);
       }
+    } on OperationNotExecuted {
+      service.invoke(type.name, {if (rid != null) '_rid': rid, '_skipped': true});
     } catch (e) {
       if (await handleIfNetworkError(e, type, event, schedule: retryOnNetworkError)) {
-        service.invoke(type.name);
+        service.invoke(type.name, {if (rid != null) '_rid': rid});
         return;
       }
       rethrow;
