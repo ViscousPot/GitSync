@@ -92,6 +92,11 @@ dependency_overrides:
     git:
       url: https://github.com/ViscousPot/flutter_background_service_with_intents
       path: packages/flutter_background_service_ios
+  mmap2_flutter:
+    git:
+      url: https://github.com/ViscousPot/mmap-flutter.git
+      path: mmap2_flutter
+      ref: 62a6837693100110fb98e749d66fe12d88d75b00
 
 dev_dependencies:
   flutter_test:
