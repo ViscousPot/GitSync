@@ -698,17 +698,18 @@ class GitManager {
 
   static Future<List<(String, GitManagerRs.ConflictType)>> getInitialConflicting() async {
     return (await uiSettingsManager.getStringList(StorageKey.setman_conflicting)).map((item) {
-      final decoded = jsonDecode(item) as List;
-      return (decoded[0] as String, GitManagerRs.ConflictType.values.byName(decoded[1] as String));
+      final parts = item.split(conflictSeparator);
+      return (parts[0], GitManagerRs.ConflictType.values.byName(parts[1]));
     }).toList();
   }
 
   static Future<List<(String, GitManagerRs.ConflictType)>> getConflicting([int? repomanRepoindex, int priority = 1]) async {
+    final resolvedIndex = await _resolveRepoIndex(repomanRepoindex);
     final result =
         await _runWithLock(
           priority: priority,
           GitManagerRs.stringConflicttypeListRunWithLock,
-          await _resolveRepoIndex(repomanRepoindex),
+          resolvedIndex,
           LogType.ConflictingFiles,
           (dirPath) async {
             return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
@@ -717,7 +718,7 @@ class GitManager {
         <(String, GitManagerRs.ConflictType)>[];
 
     final settingsManager = await _resolveSettingsManager(repomanRepoindex);
-    await settingsManager.setStringList(StorageKey.setman_conflicting, result.map((e) => jsonEncode([e.$1, e.$2.name])).toList());
+    await settingsManager.setStringList(StorageKey.setman_conflicting, result.map((e) => "${e.$1}$conflictSeparator${e.$2.name}").toList());
     return result;
   }
 

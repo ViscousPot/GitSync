@@ -914,7 +914,9 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
 
                       closeMmap();
                       await runGitOperation(LogType.AbortMerge, (event) => event);
-                      Navigator.of(parentContext).canPop() ? Navigator.pop(parentContext) : null;
+                      isAborting = false;
+                      setState(() {});
+                      Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,
