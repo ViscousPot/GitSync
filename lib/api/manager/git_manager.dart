@@ -430,6 +430,8 @@ class GitManager {
           log: _logWrapper,
         );
       } catch (e, stackTrace) {
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg) || isNetworkUnavailableError(msg)) rethrow;
         Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
         return null;
       }
