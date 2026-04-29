@@ -12,6 +12,17 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// Pin javac/Kotlin compiler JDK to 21 in both build envs so bytecode emission
+// (e.g. enum switch synthetic class generation) matches.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+kotlin {
+    jvmToolchain(21)
+}
+
 android {
     namespace = "com.viscouspot.gitsync"
     compileSdk = flutter.compileSdkVersion
@@ -55,6 +66,9 @@ android {
             applicationIdSuffix ".dev"
         }
         release {
+            // R8 minify on (with -dontobfuscate in proguard rules) so unused
+            // classes — notably Flutter's FlutterPlayStoreSplitApplication and
+            // its proprietary play-core deps — get tree-shaken out.
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -69,7 +83,7 @@ android.applicationVariants.all { variant ->
     }
 }
 
-dependencies { 
+dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
     implementation 'androidx.glance:glance-appwidget:1.1.1'
 }

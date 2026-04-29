@@ -29,7 +29,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'rust/.cargo/config.toml') }}
 
       - uses: actions/checkout@v6
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -66,7 +66,9 @@ jobs:
         run: flutter pub get
 
       - name: Generate Rust
-        run: flutter_rust_bridge_codegen generate
+        run: |
+          flutter_rust_bridge_codegen generate
+          git checkout HEAD -- rust/src/frb_generated.rs
 
       - uses: nttld/setup-ndk@v1
         with:
@@ -75,7 +77,14 @@ jobs:
       - uses: SimonMarquis/android-accept-licenses@v1
 
       - name: Build Release APKs
-        run: flutter build apk --release --split-per-abi
+        run: |
+          export CARGO_ENCODED_RUSTFLAGS=$(printf '%s\x1f%s\x1f%s' "--remap-path-prefix=$HOME/.cargo/registry/src=/cargo/registry/src" "--remap-path-prefix=$GITHUB_WORKSPACE=." "-Ccodegen-units=1")
+          export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          # Build each ABI in its own gradle invocation so the gradle task graph
+          # matches F-Droid (which builds one ABI per metadata entry job).
+          flutter build apk --release --split-per-abi --target-platform="android-arm"
+          flutter build apk --release --split-per-abi --target-platform="android-arm64"
+          flutter build apk --release --split-per-abi --target-platform="android-x64"
 
       - name: Sign App
         id: sign_app

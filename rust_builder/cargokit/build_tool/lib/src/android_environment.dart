@@ -102,16 +102,44 @@ class AndroidEnvironment {
     }
 
     final targetArg = '--target=${target.rust}$minSdkVersion';
+    // Emit prefix-map entries for every common NDK install location so the
+    // CFLAGS string is deterministic across build envs (CI / F-Droid VM /
+    // contributor laptops). clang only applies the matching entry against
+    // the realpath'd NDK location it uses internally; the rest are no-ops
+    // but keep the embedded `compiler:` string identical everywhere.
+    final ndkRemap = ([
+      '/home/kdavidson/Android/Sdk/ndk/$ndkVersion',
+      '/home/runner/Android/Sdk/ndk/$ndkVersion',
+      '/home/vagrant/Android/Sdk/ndk/$ndkVersion',
+      '/opt/android-sdk/ndk/$ndkVersion',
+      '/usr/local/lib/android/sdk/ndk/$ndkVersion',
+    ]..sort()).map((p) => '-ffile-prefix-map=$p=/ndk').join(' ');
+
+    // Symlink NDK toolchain bins into a deterministic path so the absolute CC/
+    // CXX path embedded by build scripts (e.g. OpenSSL `compiler:`) matches
+    // across CI and F-Droid build envs even when the underlying NDK lives in
+    // different locations.
+    final shimDir = '/tmp/cargokit-ndk-shim';
+    Directory(shimDir).createSync(recursive: true);
+    void mkLink(String name) {
+      final link = Link(path.join(shimDir, name));
+      if (link.existsSync()) link.deleteSync();
+      link.createSync(path.join(toolchainPath, name));
+    }
+    mkLink('clang$exe');
+    mkLink('clang++$exe');
+    mkLink('llvm-ranlib$exe');
+    mkLink('llvm-ar$exe');
 
     final ccKey = 'CC_${target.rust}';
-    final ccValue = path.join(toolchainPath, 'clang$exe');
+    final ccValue = path.join(shimDir, 'clang$exe');
     final cfFlagsKey = 'CFLAGS_${target.rust}';
-    final cFlagsValue = targetArg;
+    final cFlagsValue = '$targetArg $ndkRemap';
 
     final cxxKey = 'CXX_${target.rust}';
-    final cxxValue = path.join(toolchainPath, 'clang++$exe');
+    final cxxValue = path.join(shimDir, 'clang++$exe');
     final cxxFlagsKey = 'CXXFLAGS_${target.rust}';
-    final cxxFlagsValue = targetArg;
+    final cxxFlagsValue = '$targetArg $ndkRemap';
 
     final linkerKey = 'cargo_target_${target.rust.replaceAll('-', '_')}_linker'.toUpperCase();
 

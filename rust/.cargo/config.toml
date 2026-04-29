@@ -1,3 +1,13 @@
 [env]
 ZLIB_SRC = "1"
 LIBGIT2_SYS_USE_PKG_CONFIG = "0"
+
+[build]
+rustflags = [
+  "--remap-path-prefix=/home/runner/work/GitSync/GitSync=.",
+  "--remap-path-prefix=/build/com.viscouspot.gitsync=.",
+  "--remap-path-prefix=/home/runner/.cargo/registry/src=/cargo/registry/src",
+  "--remap-path-prefix=/root/.cargo/registry/src=/cargo/registry/src",
+  "--remap-path-prefix=/home/vagrant/.cargo/registry/src=/cargo/registry/src",
+  "-Ccodegen-units=1",
+]

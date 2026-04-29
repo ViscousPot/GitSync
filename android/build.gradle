@@ -8,6 +8,26 @@ allprojects {
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    // F-Droid disallows proprietary Google Play Core (deferred-components)
+    // deps that Flutter pulls in transitively even when unused.
+    configurations.configureEach {
+        exclude group: 'com.google.android.play', module: 'core'
+        exclude group: 'com.google.android.play', module: 'core-ktx'
+    }
+    afterEvaluate { sub ->
+        if (sub.plugins.hasPlugin('com.android.library') || sub.plugins.hasPlugin('com.android.application')) {
+            sub.android.defaultConfig.externalNativeBuild.cmake {
+                cFlags   "-ffile-prefix-map=${rootProject.projectDir.parentFile.absolutePath}=."
+                cppFlags "-ffile-prefix-map=${rootProject.projectDir.parentFile.absolutePath}=."
+                arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--build-id=none"
+            }
+        }
+    }
+    // Force consistent javac flags so MethodParameters annotation emission
+    // doesn't depend on the host JDK's default behavior.
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.add('-parameters')
+    }
 }
 subprojects {
     project.evaluationDependsOn(":app")

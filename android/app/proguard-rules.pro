@@ -19,3 +19,6 @@
 }
 
 -keep class org.xmlpull.v1.** { *; }
+
+# Keep names stable so dex output is deterministic across build envs.
+-dontobfuscate
