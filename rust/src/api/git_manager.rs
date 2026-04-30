@@ -3177,6 +3177,11 @@ pub async fn commit_changes(
                 }
             }
             swl!(index.write())?;
+            if index.has_conflicts() {
+                return Err(git2::Error::from_str(
+                    "Failed to clear stale conflict entries; cannot commit",
+                ));
+            }
         }
     }
     let updated_tree_oid = swl!(index.write_tree())?;
