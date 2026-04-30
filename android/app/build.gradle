@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    id "org.jetbrains.kotlin.plugin.compose" version "2.1.0"
+    id "org.jetbrains.kotlin.plugin.compose" version "2.3.21"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -81,7 +81,7 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies { 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'androidx.glance:glance-appwidget:1.1.1'
 }
 
