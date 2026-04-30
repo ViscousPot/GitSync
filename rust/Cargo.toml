@@ -15,7 +15,7 @@ regex = "1.12.3"
 libssh2-sys = { version = "0.3.1" }
 nix = { version = "0.31.2", features = ["fs", "process"] }
 tokio = { version = "1", features = ["rt", "time"] }
-uuid = {version = "1.22", features = [
+uuid = {version = "1.23", features = [
     "v4",
 ]}
 
