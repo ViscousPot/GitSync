@@ -2840,6 +2840,10 @@ pub async fn stage_file_paths(
     }
 
     for path in &paths {
+        let _ = index.conflict_remove(Path::new(path));
+    }
+
+    for path in &paths {
         if let Ok(mut sm) = repo.find_submodule(path) {
             if let Ok(sm_repo) = sm.open() {
                 swl!(sm_repo.index()?.write())?;
@@ -3083,14 +3087,34 @@ pub async fn commit_changes(
 
     let mut index = swl!(repo.index())?;
     if index.has_conflicts() {
+        let unmerged: Vec<String> = index
+            .conflicts()
+            .ok()
+            .map(|iter| {
+                iter.filter_map(|c| c.ok())
+                    .filter_map(|c| {
+                        c.our
+                            .or(c.their)
+                            .or(c.ancestor)
+                            .map(|e| String::from_utf8_lossy(&e.path).into_owned())
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
         _log(
             Arc::clone(&log_callback),
             LogType::PushToRepo,
-            "Index has unresolved conflicts, cannot commit".to_string(),
+            format!("Index has unresolved conflicts, cannot commit: {:?}", unmerged),
         );
-        return Err(git2::Error::from_str(
-            "Cannot commit: unresolved merge conflicts exist. Please resolve conflicts first.",
-        ));
+        let suffix = if unmerged.is_empty() {
+            String::new()
+        } else {
+            format!(" Unmerged paths: {}", unmerged.join(", "))
+        };
+        return Err(git2::Error::from_str(&format!(
+            "Cannot commit: unresolved merge conflicts exist. Please resolve conflicts first.{}",
+            suffix
+        )));
     }
     let updated_tree_oid = swl!(index.write_tree())?;
 
