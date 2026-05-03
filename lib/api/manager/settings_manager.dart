@@ -118,7 +118,9 @@ class SettingsManager extends Storage {
         await setString(StorageKey.setman_gitDirPath, "");
         return null;
       }
-      if (!await Directory('$path/$gitPath').exists() && await File('$path/$gitIndexPath').length() < 1) {
+      if (await Directory('$path/$gitPath').exists() &&
+          await File('$path/$gitIndexPath').exists() &&
+          await File('$path/$gitIndexPath').length() < 1) {
         await File('$path/$gitIndexPath').delete();
       }
       return path.isEmpty == true ? null : (bookmarkPath, path);
