@@ -1897,6 +1897,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get networkUnavailableRetry => 'ネットワークが利用不可です！\n接続復旧時に再試行します';
 
   @override
+  String get networkStallManual => 'Poor network — please try again';
+
+  @override
+  String get networkUnavailableManual => 'Network unavailable — please try again';
+
+  @override
+  String get networkRetryComplete => 'Queued operation completed';
+
+  @override
   String get failedToResolveAddressMessage => 'Could not reach the server. Check your internet connection or verify the repository URL is correct.';
 
   @override

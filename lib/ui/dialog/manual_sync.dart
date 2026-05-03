@@ -96,7 +96,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
 
     op.then((_) {
       diffCache.remove(filePath);
-      diffCache[filePath] = runGitOperation(LogType.WorkdirFileDiff, (event) => event, {"filePath": filePath});
+      diffCache[filePath] = runGitOperation(LogType.WorkdirFileDiff, (event) => event?["result"] as Map<String, dynamic>?, {"filePath": filePath});
       staging = false;
       unstaging = false;
       reload();
@@ -550,7 +550,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                   onLinesPage = true;
                                                                   final future = diffCache.putIfAbsent(
                                                                     fileName,
-                                                                    () => runGitOperation(LogType.WorkdirFileDiff, (event) => event, {
+                                                                    () => runGitOperation(LogType.WorkdirFileDiff, (event) => event?["result"] as Map<String, dynamic>?, {
                                                                       "filePath": fileName,
                                                                     }),
                                                                   );

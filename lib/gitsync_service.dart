@@ -28,6 +28,10 @@ class ServiceStrings {
   final String detectingChanges;
   final String ongoingMergeConflict;
   final String networkStallRetry;
+  final String networkUnavailableRetry;
+  final String networkStallManual;
+  final String networkUnavailableManual;
+  final String networkRetryComplete;
 
   const ServiceStrings({
     required this.syncStartPull,
@@ -39,6 +43,10 @@ class ServiceStrings {
     required this.detectingChanges,
     required this.ongoingMergeConflict,
     required this.networkStallRetry,
+    required this.networkUnavailableRetry,
+    required this.networkStallManual,
+    required this.networkUnavailableManual,
+    required this.networkRetryComplete,
   });
 
   factory ServiceStrings.fromMap(Map<String, dynamic> map) {
@@ -52,6 +60,10 @@ class ServiceStrings {
       detectingChanges: map['detectingChanges'] ?? '',
       ongoingMergeConflict: map['ongoingMergeConflict'] ?? '',
       networkStallRetry: map['networkStallRetry'] ?? '',
+      networkUnavailableRetry: map['networkUnavailableRetry'] ?? '',
+      networkStallManual: map['networkStallManual'] ?? '',
+      networkUnavailableManual: map['networkUnavailableManual'] ?? '',
+      networkRetryComplete: map['networkRetryComplete'] ?? '',
     );
   }
 
@@ -66,6 +78,10 @@ class ServiceStrings {
       'detectingChanges': detectingChanges,
       'ongoingMergeConflict': ongoingMergeConflict,
       'networkStallRetry': networkStallRetry,
+      'networkUnavailableRetry': networkUnavailableRetry,
+      'networkStallManual': networkStallManual,
+      'networkUnavailableManual': networkUnavailableManual,
+      'networkRetryComplete': networkRetryComplete,
     };
   }
 }
@@ -93,6 +109,10 @@ class GitsyncService {
     detectingChanges: "Detecting Changes…",
     ongoingMergeConflict: "Ongoing merge conflict",
     networkStallRetry: "Poor network — will retry shortly",
+    networkUnavailableRetry: "Network unavailable — will retry when reconnected",
+    networkStallManual: "Poor network — please try again",
+    networkUnavailableManual: "Network unavailable — please try again",
+    networkRetryComplete: "Queued operation completed",
   );
   bool isScheduled = false;
   bool isSyncing = false;
@@ -167,7 +187,7 @@ class GitsyncService {
     s = ServiceStrings.fromMap(stringMap);
   }
 
-  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false, String? syncMessage]) async {
+  Future<void> debouncedSync(int repomanRepoindex, [bool forced = false, bool immediate = false, String? syncMessage, int retryCount = 0]) async {
     final settingsManager = SettingsManager();
     await settingsManager.reinit(repoIndex: repomanRepoindex);
 
@@ -182,10 +202,10 @@ class GitsyncService {
         return;
       } else {
         if (immediate) {
-          await _sync(repomanRepoindex, forced, syncMessage);
+          await _sync(repomanRepoindex, forced, syncMessage, retryCount);
           return;
         }
-        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced, syncMessage));
+        debounce(repomanRepoindex.toString(), 500, () => _sync(repomanRepoindex, forced, syncMessage, retryCount));
       }
     }
   }
@@ -210,19 +230,15 @@ class GitsyncService {
     }
   }
 
-  void _scheduleStallRetry(int repomanRepoindex) {
-    Future.delayed(const Duration(seconds: 30), () {
-      debouncedSync(repomanRepoindex);
-    });
-  }
-
-  Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage]) async {
+  Future<void> _sync(int repomanRepoindex, [bool forced = false, String? syncMessage, int retryCount = 0]) async {
     _syncGeneration++;
     final int myGen = _syncGeneration;
     String terminal = 'success';
     try {
       isSyncing = true;
       await _updateForceSyncWidget('syncing');
+
+      Logger.gmLog(type: LogType.Sync, "Sync started for repo $repomanRepoindex (forced: $forced)");
 
       final settingsManager = SettingsManager();
       await settingsManager.reinit(repoIndex: repomanRepoindex);
@@ -290,10 +306,6 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Pull Repo Failed");
-                if (GitManager.lastOperationWasNetworkStall) {
-                  await _displaySyncMessage(settingsManager, s.networkStallRetry);
-                  _scheduleStallRetry(repomanRepoindex);
-                }
                 innerError = true;
                 return;
               }
@@ -336,10 +348,6 @@ class GitsyncService {
             case null:
               {
                 Logger.gmLog(type: LogType.Sync, "Push Repo Failed");
-                if (GitManager.lastOperationWasNetworkStall) {
-                  await _displaySyncMessage(settingsManager, s.networkStallRetry);
-                  _scheduleStallRetry(repomanRepoindex);
-                }
                 innerError = true;
                 return;
               }
@@ -359,24 +367,27 @@ class GitsyncService {
         terminal = 'error';
       }
 
-      if (!(pushResult == true || pullResult == true)) {
+      if (pushResult == null || pullResult == null) {
+        Logger.gmLog(type: LogType.Sync, "Sync failed");
+      } else if (pushResult == true || pullResult == true) {
+        await GitManager.getRecentCommits();
+        await _displaySyncMessage(settingsManager, s.syncComplete);
+        Logger.dismissError(null);
+        Logger.gmLog(type: LogType.Sync, "Sync Complete!");
+      } else {
         if (forced) {
           await _displaySyncMessage(settingsManager, s.syncNotRequired);
         }
-      } else {
-        await GitManager.getRecentCommits();
-        await _displaySyncMessage(settingsManager, s.syncComplete);
-      }
-
-      if (!(pushResult == null || pullResult == null)) {
         Logger.dismissError(null);
         Logger.gmLog(type: LogType.Sync, "Sync Complete!");
       }
 
       await GitManager.getRecentCommits(priority: 3);
     } catch (e, st) {
-      Logger.logError(LogType.SyncException, e, st);
-      terminal = 'error';
+      if (!await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex", "retryCount": retryCount})) {
+        Logger.logError(LogType.SyncException, e, st);
+        terminal = 'error';
+      }
     } finally {
       isSyncing = false;
       if (myGen == _syncGeneration) {
@@ -396,19 +407,27 @@ class GitsyncService {
 
     bool? pushResult = false;
 
-    if (await settingsManager.getClientModeEnabled()) {
-      pushResult = await GitManager.backgroundStageAndCommit(repomanRepoindex, settingsManager, conflictingPaths, commitMessage);
-    } else {
-      pushResult = await GitManager.backgroundUploadChanges(
-        repomanRepoindex,
-        settingsManager,
-        () {
-          _displaySyncMessage(null, resolvingMerge);
-        },
-        conflictingPaths,
-        commitMessage,
-        () => debouncedSync(repomanRepoindex),
-      );
+    try {
+      if (await settingsManager.getClientModeEnabled()) {
+        pushResult = await GitManager.backgroundStageAndCommit(repomanRepoindex, settingsManager, conflictingPaths, commitMessage);
+      } else {
+        pushResult = await GitManager.backgroundUploadChanges(
+          repomanRepoindex,
+          settingsManager,
+          () {
+            _displaySyncMessage(null, resolvingMerge);
+          },
+          conflictingPaths,
+          commitMessage,
+          () => debouncedSync(repomanRepoindex),
+        );
+      }
+    } catch (e) {
+      if (await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex", "retryCount": 0})) {
+        serviceInstance?.invoke(MERGE_COMPLETE);
+        return;
+      }
+      rethrow;
     }
 
     switch (pushResult) {
