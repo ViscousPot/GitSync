@@ -1891,6 +1891,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get networkUnavailableRetry => 'الشبكة غير متوفرة! سأحاول عند الاتصال';
 
   @override
+  String get networkStallManual => 'Poor network — please try again';
+
+  @override
+  String get networkUnavailableManual => 'Network unavailable — please try again';
+
+  @override
+  String get networkRetryComplete => 'Queued operation completed';
+
+  @override
   String get failedToResolveAddressMessage => 'تعذر الوصول للخادم. تحقق من الإنترنت أو الرابط.';
 
   @override

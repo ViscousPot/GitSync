@@ -65,34 +65,40 @@ Future<void> showDialog(
     diffNotifier.value = await (diffReferences.$1 == null
         ? runGitOperation(
             LogType.FileDiff,
-            (event) => event == null
-                ? null
-                : GitManagerRs.Diff(
-                    insertions: event["insertions"],
-                    deletions: event["deletions"],
-                    diffParts: event["diffParts"].map<String, Map<String, String>>(
-                      (key, value) => MapEntry<String, Map<String, String>>(
-                        "$key",
-                        value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+            (event) {
+              final result = event?["result"];
+              return result == null
+                  ? null
+                  : GitManagerRs.Diff(
+                      insertions: result["insertions"],
+                      deletions: result["deletions"],
+                      diffParts: result["diffParts"].map<String, Map<String, String>>(
+                        (key, value) => MapEntry<String, Map<String, String>>(
+                          "$key",
+                          value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+            },
             {"filePath": diffReferences.$2!},
           )
         : runGitOperation(
             LogType.CommitDiff,
-            (event) => event == null
-                ? null
-                : GitManagerRs.Diff(
-                    insertions: event["insertions"],
-                    deletions: event["deletions"],
-                    diffParts: event["diffParts"].map<String, Map<String, String>>(
-                      (key, value) => MapEntry<String, Map<String, String>>(
-                        "$key",
-                        value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+            (event) {
+              final result = event?["result"];
+              return result == null
+                  ? null
+                  : GitManagerRs.Diff(
+                      insertions: result["insertions"],
+                      deletions: result["deletions"],
+                      diffParts: result["diffParts"].map<String, Map<String, String>>(
+                        (key, value) => MapEntry<String, Map<String, String>>(
+                          "$key",
+                          value.map<String, String>((valueKey, valueValue) => MapEntry<String, String>("$valueKey", "$valueValue")),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+            },
             {"startRef": diffReferences.$1!, "endRef": diffReferences.$2!},
           ));
 

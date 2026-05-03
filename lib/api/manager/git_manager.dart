@@ -104,9 +104,18 @@ class GitManager {
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
-  static bool lastOperationWasNetworkStall = false;
   static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
-  static bool _isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
+  static bool isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
+
+  static final _networkUnavailablePatterns = [
+    "failed to resolve address",
+    "no address associated with hostname",
+    "name resolution failed",
+    "could not resolve host",
+    "network is unreachable",
+    "failed host lookup",
+  ];
+  static bool isNetworkUnavailableError(String message) => _networkUnavailablePatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
 
   static Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
@@ -128,21 +137,43 @@ class GitManager {
   }) async {
     final fnName = type.name;
     var actionCalled = false;
+    (Object, StackTrace)? pendingNetworkError;
 
     Future<T?> action() async {
       actionCalled = true;
       Future<T?> internalFn(dirPath) async {
         try {
-          final result = await fn(dirPath);
-          return result;
+          return await fn(dirPath);
         } catch (e, stackTrace) {
           final errorMsg = e is AnyhowException ? e.message : e.toString();
+
+          if (isNetworkStallError(errorMsg)) {
+            Logger.gmLog(type: type, "Network stall detected");
+            pendingNetworkError = (e, stackTrace);
+            return null;
+          }
+          if (isNetworkUnavailableError(errorMsg) && !await hasNetworkConnection()) {
+            Logger.gmLog(type: type, "Network unavailable");
+            pendingNetworkError = (e, stackTrace);
+            return null;
+          }
+
           if (await _tryAutoFixCorruption(dirPath, errorMsg)) {
             Logger.gmLog(type: type, "Corruption detected and auto-fixed, retrying");
             try {
               return await fn(dirPath);
             } catch (retryError, retryStackTrace) {
               final retryMsg = retryError is AnyhowException ? retryError.message : retryError.toString();
+              if (isNetworkStallError(retryMsg)) {
+                Logger.gmLog(type: type, "Network stall on retry");
+                pendingNetworkError = (retryError, retryStackTrace);
+                return null;
+              }
+              if (isNetworkUnavailableError(retryMsg) && !await hasNetworkConnection()) {
+                Logger.gmLog(type: type, "Network unavailable on retry");
+                pendingNetworkError = (retryError, retryStackTrace);
+                return null;
+              }
               final errorContent = await _getErrorContent(retryMsg);
               Logger.logError(type, retryError, retryStackTrace, errorContent: errorContent);
             }
@@ -178,29 +209,41 @@ class GitManager {
       return result;
     }
 
+    T? result;
     if (typedRunWithLock == null) {
       try {
-        return await action();
+        result = await action();
       } catch (e, stackTrace) {
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg)) rethrow;
+        if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
         Logger.logError(type, e, stackTrace);
+        return null;
+      }
+    } else {
+      try {
+        result = await typedRunWithLock(
+          queueDir: (await getApplicationSupportDirectory()).path,
+          index: index,
+          priority: priority,
+          fnName: fnName,
+          function: action,
+        );
+        if (!actionCalled) throw OperationNotExecuted();
+      } catch (e, stackTrace) {
+        if (e is OperationNotExecuted) rethrow;
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg)) rethrow;
+        if (isNetworkUnavailableError(msg) && !await hasNetworkConnection()) rethrow;
+        Logger.logError(type, e, stackTrace);
+        return null;
       }
     }
 
-    try {
-      final result = await typedRunWithLock!(
-        queueDir: (await getApplicationSupportDirectory()).path,
-        index: index,
-        priority: priority,
-        fnName: fnName,
-        function: action,
-      );
-      if (!actionCalled) throw OperationNotExecuted();
-      return result;
-    } catch (e, stackTrace) {
-      if (e is OperationNotExecuted) rethrow;
-      Logger.logError(type, e, stackTrace);
+    if (pendingNetworkError != null) {
+      Error.throwWithStackTrace(pendingNetworkError!.$1, pendingNetworkError!.$2);
     }
-    return null;
+    return result;
   }
 
   static Future<String?> isLocked({waitForUnlock = true}) async {
@@ -379,15 +422,16 @@ class GitManager {
     final setman = await _resolveSettingsManager(repoIndex);
     final result = await _runWithLock(priority: priority, GitManagerRs.intRunWithLock, resolvedIndex, LogType.RecommendedAction, (dirPath) async {
       try {
-        final result = await GitManagerRs.getRecommendedAction(
+        return await GitManagerRs.getRecommendedAction(
           pathString: dirPath,
           remoteName: await _remote(setman),
           provider: await _gitProvider(setman),
           credentials: await _getCredentials(setman),
           log: _logWrapper,
         );
-        return result;
       } catch (e, stackTrace) {
+        final msg = e is AnyhowException ? e.message : e.toString();
+        if (isNetworkStallError(msg) || isNetworkUnavailableError(msg)) rethrow;
         Logger.logError(LogType.RecommendedAction, e, stackTrace, causeError: false);
         return null;
       }
@@ -1228,26 +1272,16 @@ class GitManager {
   // Background Accessible
   static Future<bool?> backgroundDownloadChanges(int repomanRepoindex, SettingsManager settingsManager, Function() syncCallback) async {
     return await _runWithLock(GitManagerRs.boolRunWithLock, repomanRepoindex, LogType.DownloadChanges, (dirPath) async {
-      try {
-        return await GitManagerRs.downloadChanges(
-          pathString: dirPath,
-          remote: await settingsManager.getRemote(),
-          provider: (await settingsManager.getGitProvider()).name,
-          author: (await settingsManager.getAuthorName(), await settingsManager.getAuthorEmail()),
-          credentials: await _getCredentials(settingsManager),
-          commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
-          syncCallback: syncCallback,
-          log: _logWrapper,
-        );
-      } on AnyhowException catch (e) {
-        if (_isNetworkStallError(e.message)) {
-          Logger.gmLog(type: LogType.DownloadChanges, "Network stall - will retry");
-          lastOperationWasNetworkStall = true;
-          return null;
-        }
-        lastOperationWasNetworkStall = false;
-        rethrow;
-      }
+      return await GitManagerRs.downloadChanges(
+        pathString: dirPath,
+        remote: await settingsManager.getRemote(),
+        provider: (await settingsManager.getGitProvider()).name,
+        author: (await settingsManager.getAuthorName(), await settingsManager.getAuthorEmail()),
+        credentials: await _getCredentials(settingsManager),
+        commitSigningCredentials: await settingsManager.getGitCommitSigningCredentials(),
+        syncCallback: syncCallback,
+        log: _logWrapper,
+      );
     });
   }
 
@@ -1282,12 +1316,6 @@ class GitManager {
       try {
         return await internalFn(dirPath);
       } on AnyhowException catch (e, stackTrace) {
-        if (_isNetworkStallError(e.message)) {
-          Logger.gmLog(type: LogType.UploadChanges, "Network stall - will retry");
-          lastOperationWasNetworkStall = true;
-          return null;
-        }
-        lastOperationWasNetworkStall = false;
         if (resyncStrings.any((resyncString) => e.message.contains(resyncString))) {
           if (resyncCallback != null) {
             resyncCallback();
