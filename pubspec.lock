@@ -652,10 +652,11 @@ packages:
   mmap2_flutter:
     dependency: "direct main"
     description:
-      name: mmap2_flutter
-      sha256: "9e43959f232f516791a5b49b2d5ec59a226c83955e9ff6c66ad961462c998f37"
-      url: "https://pub.dev"
-    source: hosted
+      path: mmap2_flutter
+      ref: "62a6837693100110fb98e749d66fe12d88d75b00"
+      resolved-ref: "62a6837693100110fb98e749d66fe12d88d75b00"
+      url: "https://github.com/ViscousPot/mmap-flutter.git"
+    source: git
     version: "0.2.1"
   nm:
     dependency: transitive
