@@ -383,6 +383,7 @@ class GitsyncService {
       }
 
       await GitManager.getRecentCommits(priority: 3);
+    } on OperationNotExecuted {
     } catch (e, st) {
       if (!await handleIfNetworkError(e, LogType.Sync, {"repoman_repoIndex": "$repomanRepoindex", "retryCount": retryCount})) {
         Logger.logError(LogType.SyncException, e, st);
