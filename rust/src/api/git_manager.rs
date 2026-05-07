@@ -4682,8 +4682,19 @@ pub async fn prune_corrupted_loose_objects(path_string: String) -> Result<(), gi
             };
 
             if odb.read_header(oid).is_err() {
-                let _ = fs::remove_file(file_entry.path());
-                pruned += 1;
+                let object_path = file_entry.path();
+                match fs::remove_file(&object_path) {
+                    Ok(()) => {
+                        pruned += 1;
+                    }
+                    Err(err) => {
+                        return Err(git2::Error::from_str(&format!(
+                            "failed to remove corrupted loose object {}: {}",
+                            object_path.display(),
+                            err
+                        )));
+                    }
+                }
             }
         }
     }
