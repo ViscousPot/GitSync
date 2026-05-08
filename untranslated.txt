@@ -4,13 +4,13 @@
     "remoteAuthMismatchUsesSsh",
     "remoteAuthMismatchUsesHttps",
     "globalSettings",
+    "networkStallManual",
+    "networkUnavailableManual",
+    "networkRetryComplete",
     "enableAiFeatures",
     "hideAiFeatures",
     "hideAiFeaturesConfirmTitle",
-    "hideAiFeaturesConfirmMsg",
-    "networkStallManual",
-    "networkUnavailableManual",
-    "networkRetryComplete"
+    "hideAiFeaturesConfirmMsg"
   ],
 
   "de": [
