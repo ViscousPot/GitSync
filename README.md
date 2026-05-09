@@ -37,6 +37,9 @@
 
 GitSync is a cross-platform git client for Android and iOS that aims to simplify the process of syncing a folder between a git remote and a local directory. It works in the background to keep your files synced with a simple one-time setup and a range of options for activating manual syncs.
 
+| ![Seamless Git File Sync](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/01.png) | ![Resolve Merge Conflicts on Mobile](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/02.png) | ![Connect any Git Provider](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/03.png) | ![Sync in the Background](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/04.png) | ![Manage it All](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/05.png) | ![Trusted by Developers](https://github.com/ViscousPot/GitSync/blob/main/fastlane/metadata/android/en-GB/images/phoneScreenshots/06.png) |
+|---|---|---|---|---|---|
+
 - **Supports Android 5+ & iOS 13+**
 - Authenticate with
   - **HTTP/S**
