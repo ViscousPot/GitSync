@@ -310,7 +310,6 @@ $logs
         'Git Provider',
         '${await uiSettingsManager.getStringNullable(StorageKey.setman_gitProvider)}${await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth) ? " (scoped)" : ""}',
       ),
-      ('Repo URL', '${await uiSettingsManager.getStringList(StorageKey.setman_remoteUrlLink)}'),
     ];
 
     if (await AccessibilityServiceHelper.isAccessibilityServiceEnabled()) {
