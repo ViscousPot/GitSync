@@ -243,39 +243,41 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
   }
 
   Widget _emptyState() {
-    return Padding(
+    return ListView(
+      reverse: true,
       padding: EdgeInsets.symmetric(horizontal: spaceMD),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Spacer(),
-          FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceMD),
-          SizedBox(height: spaceSM),
-          Text(
-            "GitSync AI",
-            style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: spaceXXS),
-          Text(
-            "Ask anything about your repository",
-            style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
-          ),
-          SizedBox(height: spaceLG),
-          Wrap(
-            spacing: spaceXS,
-            runSpacing: spaceXS,
-            alignment: WrapAlignment.center,
-            children: [
-              _quickAction(FontAwesomeIcons.codeBranch, "What's my status?", "Summarize uncommitted changes, branch, and sync state"),
-              _quickAction(FontAwesomeIcons.penToSquare, "Write a commit", "Stage changes and create a commit with a good message"),
-              _quickAction(FontAwesomeIcons.clockRotateLeft, "Tell me about my recent commits", "Summarize the latest commits on this branch"),
-              _quickAction(FontAwesomeIcons.circleQuestion, "Open issues", "List open issues in this repo"),
-            ],
-          ),
-          SizedBox(height: spaceLG),
-        ],
-      ),
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceMD),
+            SizedBox(height: spaceSM),
+            Text(
+              "GitSync AI",
+              style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: spaceXXS),
+            Text(
+              "Ask anything about your repository",
+              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+            ),
+            SizedBox(height: spaceLG),
+            Wrap(
+              spacing: spaceXS,
+              runSpacing: spaceXS,
+              alignment: WrapAlignment.center,
+              children: [
+                _quickAction(FontAwesomeIcons.codeBranch, "What's my status?", "Summarize uncommitted changes, branch, and sync state"),
+                _quickAction(FontAwesomeIcons.penToSquare, "Write a commit", "Stage changes and create a commit with a good message"),
+                _quickAction(FontAwesomeIcons.clockRotateLeft, "Tell me about my recent commits", "Summarize the latest commits on this branch"),
+                _quickAction(FontAwesomeIcons.circleQuestion, "Open issues", "List open issues in this repo"),
+              ],
+            ),
+            SizedBox(height: spaceLG),
+          ],
+        ),
+      ],
     );
   }
 
