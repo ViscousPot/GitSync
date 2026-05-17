@@ -58,7 +58,7 @@ class GitLogTool extends AiTool {
         final msg = c.commitMessage;
         final trimmedMsg = msg.length > 200 ? '${msg.substring(0, 200)}…' : msg;
         return {
-          'sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
+          'commit_sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
           'message': trimmedMsg,
           'author': c.authorUsername,
           'timestamp': DateTime.fromMillisecondsSinceEpoch(c.timestamp * 1000).toIso8601String(),
@@ -131,16 +131,16 @@ class GitCommitShowTool extends AiTool {
   Map<String, dynamic> get inputSchema => {
     'type': 'object',
     'properties': {
-      'sha': {'type': 'string'},
+      'commit_sha': {'type': 'string'},
     },
-    'required': ['sha'],
+    'required': ['commit_sha'],
   };
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final sha = input['sha'] as String;
-    final diff = await GitManager.getCommitDiff(sha, null, repoIndex: context?.repoIndex);
-    if (diff == null) return err('Could not get diff for commit $sha');
+    final commitSha = input['commit_sha'] as String;
+    final diff = await GitManager.getCommitDiff(commitSha, null, repoIndex: context?.repoIndex);
+    if (diff == null) return err('Could not get diff for commit $commitSha');
     return ok({'insertions': diff.insertions, 'deletions': diff.deletions, 'diff': formatDiffParts(diff.diffParts)});
   }
 }
@@ -1181,7 +1181,7 @@ class GitMoreCommitsTool extends AiTool {
       commits
           .map(
             (c) => {
-              'sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
+              'commit_sha': c.reference.length >= 7 ? c.reference.substring(0, 7) : c.reference,
               'message': c.commitMessage,
               'author': c.authorUsername,
               'timestamp': DateTime.fromMillisecondsSinceEpoch(c.timestamp * 1000).toIso8601String(),

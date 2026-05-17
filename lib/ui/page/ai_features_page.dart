@@ -498,7 +498,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     if (input.containsKey('path')) return input['path'] as String;
     if (input.containsKey('file_path')) return input['file_path'] as String;
     if (input.containsKey('name')) return input['name'] as String;
-    if (input.containsKey('sha')) return input['sha'] as String;
+    if (input.containsKey('commit_sha')) return input['commit_sha'] as String;
     if (input.containsKey('message')) {
       final msg = input['message'] as String;
       return msg.length > 50 ? '${msg.substring(0, 50)}...' : msg;
