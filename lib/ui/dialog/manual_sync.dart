@@ -527,65 +527,66 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                 ),
                                                               ),
                                                             ),
-                                                            if (fileType != 2)
-                                                              IconButton(
-                                                                icon: FaIcon(FontAwesomeIcons.listCheck, color: colours.secondaryLight, size: textMD),
-                                                                style: ButtonStyle(
-                                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark.withAlpha(128)),
-                                                                  padding: WidgetStatePropertyAll(
-                                                                    EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                                                                  ),
-                                                                  shape: WidgetStatePropertyAll(
-                                                                    RoundedRectangleBorder(
-                                                                      borderRadius: BorderRadius.horizontal(
-                                                                        left: cornerRadiusXS,
-                                                                        right: cornerRadiusSM,
-                                                                      ),
+                                                            IconButton(
+                                                              icon: FaIcon(FontAwesomeIcons.listCheck, color: colours.secondaryLight, size: textMD),
+                                                              style: ButtonStyle(
+                                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark.withAlpha(128)),
+                                                                padding: WidgetStatePropertyAll(
+                                                                  EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                                                                ),
+                                                                shape: WidgetStatePropertyAll(
+                                                                  RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.horizontal(
+                                                                      left: cornerRadiusXS,
+                                                                      right: cornerRadiusSM,
                                                                     ),
                                                                   ),
                                                                 ),
-                                                                onPressed: () {
-                                                                  currentDiffFile = fileName;
-                                                                  onLinesPage = true;
-                                                                  final future = diffCache.putIfAbsent(
-                                                                    fileName,
-                                                                    () => runGitOperation(LogType.WorkdirFileDiff, (event) => event?["result"] as Map<String, dynamic>?, {
-                                                                      "filePath": fileName,
-                                                                    }),
-                                                                  );
-                                                                  future.then((data) {
-                                                                    if (data == null || (lineSelections[fileName]?.isNotEmpty ?? false)) return;
-                                                                    final lines = data["lines"] as List? ?? [];
-
-                                                                    final isFullyStaged =
-                                                                        clientModeEnabled &&
-                                                                        (stagedFilePathsSnapshot.data ?? []).any((f) => f.$1 == fileName) &&
-                                                                        !(uncommittedFilePathsSnapshot.data ?? []).any((f) => f.$1 == fileName);
-
-                                                                    final Set<int> preSelected;
-                                                                    if (isFullyStaged) {
-                                                                      preSelected = lines
-                                                                          .where((l) => l["origin"] != " ")
-                                                                          .map<int>((l) => l["lineIndex"] as int)
-                                                                          .toSet();
-                                                                    } else {
-                                                                      preSelected = lines
-                                                                          .where((l) => l["isStaged"] == true)
-                                                                          .map<int>((l) => l["lineIndex"] as int)
-                                                                          .toSet();
-                                                                    }
-
-                                                                    if (preSelected.isNotEmpty) {
-                                                                      lineSelections[fileName] = preSelected;
-                                                                      selectedFiles.remove(fileName);
-                                                                      if (context.mounted) setState(() {});
-                                                                    }
-                                                                  });
-                                                                  if (context.mounted) setState(() {});
-                                                                  pageController.animateToPage(1, duration: animMedium, curve: Curves.easeInOut);
-                                                                },
                                                               ),
+                                                              onPressed: () {
+                                                                currentDiffFile = fileName;
+                                                                onLinesPage = true;
+                                                                final future = diffCache.putIfAbsent(
+                                                                  fileName,
+                                                                  () => runGitOperation(
+                                                                    LogType.WorkdirFileDiff,
+                                                                    (event) => event?["result"] as Map<String, dynamic>?,
+                                                                    {"filePath": fileName},
+                                                                  ),
+                                                                );
+                                                                future.then((data) {
+                                                                  if (data == null || (lineSelections[fileName]?.isNotEmpty ?? false)) return;
+                                                                  final lines = data["lines"] as List? ?? [];
+
+                                                                  final isFullyStaged =
+                                                                      clientModeEnabled &&
+                                                                      (stagedFilePathsSnapshot.data ?? []).any((f) => f.$1 == fileName) &&
+                                                                      !(uncommittedFilePathsSnapshot.data ?? []).any((f) => f.$1 == fileName);
+
+                                                                  final Set<int> preSelected;
+                                                                  if (isFullyStaged) {
+                                                                    preSelected = lines
+                                                                        .where((l) => l["origin"] != " ")
+                                                                        .map<int>((l) => l["lineIndex"] as int)
+                                                                        .toSet();
+                                                                  } else {
+                                                                    preSelected = lines
+                                                                        .where((l) => l["isStaged"] == true)
+                                                                        .map<int>((l) => l["lineIndex"] as int)
+                                                                        .toSet();
+                                                                  }
+
+                                                                  if (preSelected.isNotEmpty) {
+                                                                    lineSelections[fileName] = preSelected;
+                                                                    selectedFiles.remove(fileName);
+                                                                    if (context.mounted) setState(() {});
+                                                                  }
+                                                                });
+                                                                if (context.mounted) setState(() {});
+                                                                pageController.animateToPage(1, duration: animMedium, curve: Curves.easeInOut);
+                                                              },
+                                                            ),
                                                           ],
                                                         ),
                                                       );
