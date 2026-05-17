@@ -19,5 +19,4 @@ final aiChatService = AiChatService();
 late AppLocalizations t;
 
 final ValueNotifier<bool> aiKeyConfigured = ValueNotifier(false);
-final ValueNotifier<bool> aiFeaturesEnabled = ValueNotifier(true);
 VoidCallback? switchToAiTab;
