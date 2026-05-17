@@ -2102,7 +2102,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             valueListenable: aiFeaturesEnabled,
             builder: (context, aiEnabled, _) => PageView(
               controller: _pageController,
-              onPageChanged: (page) => _tabIndex.value = page,
+              onPageChanged: (page) {
+                _tabIndex.value = page;
+                final homeIndex = aiEnabled ? 1 : 0;
+                if (page == homeIndex) reloadAll();
+              },
               children: [
                 if (aiEnabled)
                   _KeepAlivePage(
