@@ -1,6 +1,5 @@
 import AppIntents
 import Foundation
-import home_widget
 
 @available(iOS 17, *)
 struct SyncNowIntent: AppIntent {
@@ -11,10 +10,16 @@ struct SyncNowIntent: AppIntent {
     static var isDiscoverable: Bool = true
 
     func perform() async throws -> some IntentResult {
-        let syncUrl = URL(string: "gitsync://sync-now")!
-
-        await HomeWidgetBackgroundWorker.run(url: syncUrl, appGroup: "group.ForceSyncWidget")
+        let backgroundIntent = BackgroundIntent(
+            url: URL(string: "gitsync://sync-now?homeWidget"),
+            appGroup: "group.ForceSyncWidget"
+        )
+        try await backgroundIntent.perform()
 
         return .result()
     }
 }
+
+@available(iOS 17, *)
+@available(iOSApplicationExtension, unavailable)
+extension SyncNowIntent: ForegroundContinuableIntent {}

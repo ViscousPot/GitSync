@@ -173,12 +173,12 @@ Future<void> backgroundCallback(Uri? data) async {
     }
 
     if (scheme == 'gitsync' && data?.host == 'sync-now') {
-      final shortcutSyncIndex = await repoManager.getInt(StorageKey.repoman_shortcutSyncIndex);
+      final repoIndex = await _resolveRepoIndex(data, StorageKey.repoman_shortcutSyncIndex);
 
       if (Platform.isIOS) {
-        await gitSyncService.debouncedSync(shortcutSyncIndex, true, true);
+        await gitSyncService.debouncedSync(repoIndex, true, true);
       } else {
-        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$shortcutSyncIndex"});
+        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: "$repoIndex"});
       }
       return;
     }
