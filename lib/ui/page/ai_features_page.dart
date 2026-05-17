@@ -358,9 +358,15 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
           style: _mono.merge(TextStyle(color: colours.tertiaryInfo, fontSize: textMD, fontWeight: FontWeight.bold)),
         ),
         Expanded(
-          child: Text(
-            text,
-            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
+          child: GestureDetector(
+            onLongPress: () async {
+              await Clipboard.setData(ClipboardData(text: text));
+              Fluttertoast.showToast(msg: "Copied to clipboard", toastLength: Toast.LENGTH_SHORT);
+            },
+            child: Text(
+              text,
+              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
+            ),
           ),
         ),
       ],
