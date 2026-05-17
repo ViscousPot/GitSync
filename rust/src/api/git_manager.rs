@@ -1570,6 +1570,35 @@ pub async fn get_workdir_file_diff(
     }
     let staged_entries = staged_lines.lock().unwrap().clone();
 
+    let file_status = swl!(repo.status_file(Path::new(file_path)))?;
+    if file_status.contains(git2::Status::WT_NEW) {
+        let abs_path = Path::new(path_string).join(file_path);
+        let content = match std::fs::read_to_string(&abs_path) {
+            Ok(c) => c,
+            Err(_) => String::new(),
+        };
+        let mut lines: Vec<WorkdirDiffLine> = Vec::new();
+        for (i, line) in content.lines().enumerate() {
+            let idx = i as i32;
+            lines.push(WorkdirDiffLine {
+                line_index: idx,
+                origin: "+".to_string(),
+                content: line.to_string(),
+                old_lineno: -1,
+                new_lineno: idx + 1,
+                is_staged: false,
+            });
+        }
+        let line_count = lines.len() as i32;
+        return Ok(WorkdirFileDiff {
+            file_path: file_path.clone(),
+            insertions: line_count,
+            deletions: 0,
+            is_binary: false,
+            lines,
+        });
+    }
+
     let mut diff_opts2 = DiffOptions::new();
     diff_opts2.pathspec(file_path);
 
