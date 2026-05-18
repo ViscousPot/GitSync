@@ -47,7 +47,7 @@ class _TagsPageState extends State<TagsPage> {
 
   (String, String) _parseOwnerRepo() {
     final segments = Uri.parse(widget.remoteWebUrl).pathSegments;
-    return (segments[0], segments[1].replaceAll(".git", ""));
+    return (segments[0], segments[1].replaceAll(RegExp(r'\.git$'), ''));
   }
 
   void _fetchTags() {
@@ -196,7 +196,7 @@ class _ItemTag extends StatelessWidget {
     final base = '${uri.scheme}://${uri.host}';
     final segments = uri.pathSegments;
     final owner = segments[0];
-    final repo = segments[1].replaceAll('.git', '');
+    final repo = segments[1].replaceAll(RegExp(r'\.git$'), '');
     final encodedTag = Uri.encodeComponent(tag.name);
 
     return switch (gitProvider) {
@@ -207,7 +207,7 @@ class _ItemTag extends StatelessWidget {
 
   String get _repoName {
     final segments = Uri.parse(remoteWebUrl).pathSegments;
-    return segments[1].replaceAll('.git', '');
+    return segments[1].replaceAll(RegExp(r'\.git$'), '');
   }
 
   Map<String, String> get _authHeaders => switch (gitProvider) {

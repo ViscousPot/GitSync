@@ -493,7 +493,7 @@ class FeatureCountsNotifier extends AsyncNotifier<Map<ShowcaseFeature, int?>> {
     if (manager == null) return {};
     final segments = Uri.parse(webUrl).pathSegments;
     final owner = segments[0];
-    final repo = segments[1].replaceAll(".git", "");
+    final repo = segments[1].replaceAll(RegExp(r'\.git$'), '');
     final pinnedKeys = await uiSettingsManager.getStringList(StorageKey.setman_pinnedShowcaseFeatures);
     final pinned = ShowcaseFeature.fromStorageKeys(pinnedKeys);
     return await manager.getFeatureCounts(accessToken, owner, repo, pinned);

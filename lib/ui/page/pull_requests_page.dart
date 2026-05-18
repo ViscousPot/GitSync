@@ -80,7 +80,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
 
   (String, String) _parseOwnerRepo() {
     final segments = Uri.parse(widget.remoteWebUrl).pathSegments;
-    return (segments[0], segments[1].replaceAll(".git", ""));
+    return (segments[0], segments[1].replaceAll(RegExp(r'\.git$'), ''));
   }
 
   bool get _hasActiveFilters =>

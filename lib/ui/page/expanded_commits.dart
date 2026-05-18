@@ -125,7 +125,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
     }
     final segments = Uri.parse(widget.remoteWebUrl!).pathSegments;
     final owner = segments[0];
-    final repo = segments[1].replaceAll(".git", "");
+    final repo = segments[1].replaceAll(RegExp(r'\.git$'), '');
     final counts = await manager.getFeatureCounts(accessToken, owner, repo);
     if (mounted) {
       _featureCounts.value = counts;

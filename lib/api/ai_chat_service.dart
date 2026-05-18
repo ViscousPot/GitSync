@@ -192,7 +192,7 @@ class AiChatService {
       accessToken: credentials.$2,
       username: credentials.$1,
       owner: segments.length >= 2 ? segments[segments.length - 2] : '',
-      repo: segments.length >= 2 ? segments[segments.length - 1].replaceAll('.git', '') : '',
+      repo: segments.length >= 2 ? segments[segments.length - 1].replaceAll(RegExp(r'\.git$'), '') : '',
       providerManager: gitProvider.isOAuthProvider ? GitProviderManager.getGitProviderManager(gitProvider, githubAppOauth) : null,
       authorName: await uiSettingsManager.getAuthorName(),
       authorEmail: await uiSettingsManager.getAuthorEmail(),

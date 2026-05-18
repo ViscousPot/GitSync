@@ -70,7 +70,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
 
   (String, String) _parseOwnerRepo() {
     final segments = Uri.parse(widget.remoteWebUrl).pathSegments;
-    return (segments[0], segments[1].replaceAll(".git", ""));
+    return (segments[0], segments[1].replaceAll(RegExp(r'\.git$'), ''));
   }
 
   GitProviderManager? get _manager => GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth);

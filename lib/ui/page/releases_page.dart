@@ -49,7 +49,7 @@ class _ReleasesPageState extends State<ReleasesPage> {
 
   (String, String) _parseOwnerRepo() {
     final segments = Uri.parse(widget.remoteWebUrl).pathSegments;
-    return (segments[0], segments[1].replaceAll(".git", ""));
+    return (segments[0], segments[1].replaceAll(RegExp(r'\.git$'), ''));
   }
 
   void _fetchReleases() {

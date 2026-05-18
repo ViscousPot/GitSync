@@ -41,7 +41,7 @@ Future<_ProviderContext?> _getContext(ToolContext? toolContext) async {
     manager: manager,
     accessToken: accessToken,
     owner: segments[segments.length - 2],
-    repo: segments[segments.length - 1].replaceAll('.git', ''),
+    repo: segments[segments.length - 1].replaceAll(RegExp(r'\.git$'), ''),
   );
 }
 
