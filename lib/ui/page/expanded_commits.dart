@@ -290,7 +290,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                           shape: WidgetStatePropertyAll(
                                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
                                           ),
-                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withOpacity(0.5)),
+                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withAlpha(127)),
                                         ),
                                         constraints: BoxConstraints(),
                                         onPressed: () => Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null),

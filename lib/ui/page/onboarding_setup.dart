@@ -981,7 +981,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
+                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -1015,7 +1015,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
+                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
@@ -1075,7 +1075,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
+                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -1109,7 +1109,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
+                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
@@ -1569,7 +1569,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       duration: animFast,
       padding: EdgeInsets.symmetric(horizontal: spaceSM + spaceXS, vertical: spaceXS + spaceXXXS),
       decoration: BoxDecoration(
-        color: isSelected ? colours.tertiaryDark : colours.tertiaryDark.withOpacity(0.8),
+        color: isSelected ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
         borderRadius: BorderRadius.only(
           topLeft: !right ? cornerRadiusSM : Radius.zero,
           bottomLeft: right && last || !right ? cornerRadiusSM : Radius.zero,

@@ -37,7 +37,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
   final editorLineWrap = await repoManager.getBool(StorageKey.repoman_editorLineWrap);
   final bool resolvedHasRemotes =
       hasRemotes ??
-      (await runGitOperation<List<String>>(LogType.ListRemotes, (event) => event?["result"].map<String>((r) => "$r").toList()))?.isNotEmpty == true;
+      (await runGitOperation<List<String>>(LogType.ListRemotes, (event) => event?["result"].map<String>((r) => "$r").toList())).isNotEmpty == true;
 
   if (demo) {
     selectedFiles.add("storage/external/example/file_changed.md");

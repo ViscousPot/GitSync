@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';

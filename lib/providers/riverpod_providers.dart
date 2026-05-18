@@ -321,7 +321,7 @@ class RecommendedActionNotifier extends CachedGitNotifier<int?> {
         await writeCache(manager, live);
       }
       return live;
-    } catch (e, s) {
+    } catch (e) {
       if (await _isCurrentIndex(repoIndex)) state = AsyncData(previous);
       rethrow;
     }
@@ -565,11 +565,9 @@ class SubmodulePathsNotifier extends CachedGitNotifier<List<String>> {
   Future<List<String>> fetchLive() async {
     final dirPath = (await ref.read(gitDirPathProvider.future))?.$1;
     if (dirPath == null) return [];
-    return runGitOperation<List<String>>(
-      LogType.GetSubmodules,
-      (event) => event?["result"].map<String>((path) => "$path").toList() ?? <String>[],
-      {"dir": dirPath},
-    );
+    return runGitOperation<List<String>>(LogType.GetSubmodules, (event) => event?["result"].map<String>((path) => "$path").toList() ?? <String>[], {
+      "dir": dirPath,
+    });
   }
 
   @override

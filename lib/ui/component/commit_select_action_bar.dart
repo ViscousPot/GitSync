@@ -109,7 +109,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                 axis: Axis.horizontal,
                 axisAlignment: -1,
                 child: Container(
-                  decoration: BoxDecoration(color: colours.secondaryDark.withOpacity(0.5)),
+                  decoration: BoxDecoration(color: colours.secondaryDark.withAlpha(127)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

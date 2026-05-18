@@ -7,7 +7,6 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/main.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 import 'package:GitSync/api/ai_completion_service.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart' as mat;
 import 'package:flutter/material.dart';
