@@ -113,7 +113,9 @@ class AndroidEnvironment {
       '/home/vagrant/Android/Sdk/ndk/$ndkVersion',
       '/opt/android-sdk/ndk/$ndkVersion',
       '/usr/local/lib/android/sdk/ndk/$ndkVersion',
-    ]..sort()).map((p) => '-ffile-prefix-map=$p=/ndk').join(' ');
+    ]..sort())
+        .map((p) => '-ffile-prefix-map=$p=/ndk')
+        .join(' ');
 
     // Symlink NDK toolchain bins into a deterministic path so the absolute CC/
     // CXX path embedded by build scripts (e.g. OpenSSL `compiler:`) matches
@@ -126,6 +128,7 @@ class AndroidEnvironment {
       if (link.existsSync()) link.deleteSync();
       link.createSync(path.join(toolchainPath, name));
     }
+
     mkLink('clang$exe');
     mkLink('clang++$exe');
     mkLink('llvm-ranlib$exe');
@@ -202,7 +205,16 @@ class AndroidEnvironment {
     if (rustFlags.isNotEmpty) {
       rustFlags = '$rustFlags\x1f';
     }
-    rustFlags = '$rustFlags-L\x1f$workaroundDir';
+    if (["arm64-v8a", "x86_64"].contains(target.android)) {
+      rustFlags = '$rustFlags-L\x1f$workaroundDir\x1f';
+
+      const pageSizeArgs = ["-C", "link-arg=-Wl,--hash-style=both", "-C", "link-arg=-Wl,-z,max-page-size=16384"];
+      final pageSizeArgsString = pageSizeArgs.join("\x1f");
+
+      rustFlags = '$rustFlags$pageSizeArgsString';
+    } else {
+      rustFlags = '$rustFlags-L\x1f$workaroundDir';
+    }
     return rustFlags;
   }
 }
