@@ -153,6 +153,12 @@ jobs:
           find: "/github/workspace/"
           replace: ""
 
+      - name: Get Previous Tag
+        id: previous_tag
+        run: |
+          PREVIOUS_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | sed -n '2p')
+          echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.21.0
@@ -160,5 +166,7 @@ jobs:
           artifacts: "${{ steps.signed_file_path_0.outputs.value }},${{ steps.signed_file_path_1.outputs.value }},${{ steps.signed_file_path_2.outputs.value }}"
           body: ${{ steps.changelog.outputs.changelog }}
           draft: true
+          generateReleaseNotes: true
+          generateReleaseNotesPreviousTag: ${{ steps.previous_tag.outputs.previous_tag }}
           name: Release ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
