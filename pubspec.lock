@@ -653,8 +653,8 @@ packages:
     dependency: "direct main"
     description:
       path: mmap2_flutter
-      ref: "62a6837693100110fb98e749d66fe12d88d75b00"
-      resolved-ref: "62a6837693100110fb98e749d66fe12d88d75b00"
+      ref: c3c82e9ae850bcf12886ce9c2d3edebb980d7a41
+      resolved-ref: c3c82e9ae850bcf12886ce9c2d3edebb980d7a41
       url: "https://github.com/ViscousPot/mmap-flutter.git"
     source: git
     version: "0.2.1"
