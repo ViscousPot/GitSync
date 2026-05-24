@@ -1882,7 +1882,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get someFeaturesMayNotWork => '一部の機能が動作しない可能性があります。';
 
   @override
-  String get unsupportedGitAttributes => 'このリポジトリはストア版でのみ利用可能なGit機能を使用しています。';
+  String get unsupportedGitAttributes => 'このリポジトリはストア版でのみ利用可能なGitフィルターを使用しています。';
 
   @override
   String get tapToOpenPlayStore => 'タップして更新してください。';

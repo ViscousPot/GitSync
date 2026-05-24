@@ -1888,7 +1888,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get someFeaturesMayNotWork => 'Algunas funciones pueden no funcionar.';
 
   @override
-  String get unsupportedGitAttributes => 'This repo uses git features only available in store versions.';
+  String get unsupportedGitAttributes => 'This repo uses git filters, only available in store versions.';
 
   @override
   String get tapToOpenPlayStore => 'Tap to update.';

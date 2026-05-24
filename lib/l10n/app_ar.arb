@@ -656,7 +656,7 @@
     "troubleshooting": "استكشاف الأخطاء وإصلاحها",
     "youreOffline": "أنت غير متصل.",
     "someFeaturesMayNotWork": "بعض الميزات قد لا تعمل.",
-    "unsupportedGitAttributes": "هذا المستودع يستخدم ميزات متوفرة فقط في نسخة المتجر.",
+    "unsupportedGitAttributes": "هذا المستودع يستخدم فلاتر متوفرة فقط في نسخة المتجر.",
     "tapToOpenPlayStore": "انقر للتحديث.",
     "ongoingMergeConflict": "تعارض دمج مستمر",
     "networkStallRetry": "شبكة ضعيفة — سأحاول مجدداً قريباً",

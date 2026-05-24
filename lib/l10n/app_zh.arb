@@ -521,7 +521,7 @@
     "troubleshooting": "故障排除",
     "youreOffline": "你处于离线状态。",
     "someFeaturesMayNotWork": "某些功能可能无法使用。",
-    "unsupportedGitAttributes": "此仓库使用了仅商店版本支持的 Git 功能。",
+    "unsupportedGitAttributes": "此仓库使用了仅商店版本支持的 Git 过滤器。",
     "tapToOpenPlayStore": "点击更新。",
     "ongoingMergeConflict": "正在进行合并冲突",
     "networkStallRetry": "网络较差 — 稍后将重试",

@@ -434,7 +434,7 @@
     "troubleshooting": "トラブルシューティング",
     "youreOffline": "オフラインです。",
     "someFeaturesMayNotWork": "一部の機能が動作しない可能性があります。",
-    "unsupportedGitAttributes": "このリポジトリはストア版でのみ利用可能なGit機能を使用しています。",
+    "unsupportedGitAttributes": "このリポジトリはストア版でのみ利用可能なGitフィルターを使用しています。",
     "tapToOpenPlayStore": "タップして更新してください。",
     "ongoingMergeConflict": "進行中のマージコンフリクト",
     "enableAccessibilityService": "「インストール済みのアプリ」からGitSyncを有効にしてください",

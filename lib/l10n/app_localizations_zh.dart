@@ -1877,7 +1877,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get someFeaturesMayNotWork => '某些功能可能无法使用。';
 
   @override
-  String get unsupportedGitAttributes => '此仓库使用了仅商店版本支持的 Git 功能。';
+  String get unsupportedGitAttributes => '此仓库使用了仅商店版本支持的 Git 过滤器。';
 
   @override
   String get tapToOpenPlayStore => '点击更新。';

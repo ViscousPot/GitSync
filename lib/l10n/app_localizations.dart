@@ -3843,7 +3843,7 @@ abstract class AppLocalizations {
   /// No description provided for @unsupportedGitAttributes.
   ///
   /// In en, this message translates to:
-  /// **'This repo uses git features only available in store versions.'**
+  /// **'This repo uses git filters, only available in store versions.'**
   String get unsupportedGitAttributes;
 
   /// No description provided for @tapToOpenPlayStore.

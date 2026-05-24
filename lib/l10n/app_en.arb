@@ -721,7 +721,7 @@
     "troubleshooting": "Troubleshooting",
     "youreOffline": "You're offline.",
     "someFeaturesMayNotWork": "Some features may not work.",
-    "unsupportedGitAttributes": "This repo uses git features only available in store versions.",
+    "unsupportedGitAttributes": "This repo uses git filters, only available in store versions.",
     "tapToOpenPlayStore": "Tap to update.",
     "ongoingMergeConflict": "Ongoing merge conflict",
     "networkStallRetry": "Poor network — will retry shortly",

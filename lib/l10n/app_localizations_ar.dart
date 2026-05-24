@@ -1876,7 +1876,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get someFeaturesMayNotWork => 'بعض الميزات قد لا تعمل.';
 
   @override
-  String get unsupportedGitAttributes => 'هذا المستودع يستخدم ميزات متوفرة فقط في نسخة المتجر.';
+  String get unsupportedGitAttributes => 'هذا المستودع يستخدم فلاتر متوفرة فقط في نسخة المتجر.';
 
   @override
   String get tapToOpenPlayStore => 'انقر للتحديث.';
