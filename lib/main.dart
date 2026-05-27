@@ -1094,6 +1094,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     initAsync(() async {
       Uri? uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
       print("////init $uri");
+      if (uri?.scheme == 'forcesyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
+        final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetSyncIndex);
+        await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
+        await uiSettingsManager.reinit();
+        await reloadAll();
+        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: repoIndex.toString()});
+        return;
+      }
       if (uri?.scheme == 'manualsyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
         final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetManualSyncIndex);
         await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
@@ -1104,6 +1112,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     });
 
     HomeWidget.widgetClicked.listen((uri) async {
+      if (uri?.scheme == 'forcesyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
+        final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetSyncIndex);
+        await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
+        await uiSettingsManager.reinit();
+        await reloadAll();
+        FlutterBackgroundService().invoke(GitsyncService.FORCE_SYNC, {REPO_INDEX: repoIndex.toString()});
+        return;
+      }
       if (uri?.scheme == 'manualsyncwidget' && (uri?.queryParameters.containsKey('homeWidget') ?? false)) {
         final repoIndex = await _resolveRepoIndex(uri, StorageKey.repoman_widgetManualSyncIndex);
         await repoManager.setInt(StorageKey.repoman_repoIndex, repoIndex);
