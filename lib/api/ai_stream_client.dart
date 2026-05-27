@@ -67,6 +67,7 @@ Stream<StreamEvent> streamCompletion({
       body = {
         'model': model,
         'max_tokens': 4096,
+        'cache_control': {'type': 'ephemeral'},
         'system': systemPrompt,
         'messages': messages,
         'stream': true,
