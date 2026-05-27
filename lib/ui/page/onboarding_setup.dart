@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,6 +30,7 @@ import 'package:GitSync/ui/component/scheduled_sync_settings.dart';
 import 'package:GitSync/ui/component/quick_sync_settings.dart';
 import 'package:GitSync/ui/dialog/github_scoped_guide.dart' as github_scoped_guide;
 import 'package:GitSync/ui/dialog/prominent_disclosure.dart' as ProminentDisclosureDialog;
+import 'package:GitSync/api/logger.dart';
 import 'package:GitSync/ui/page/clone_repo_main.dart';
 import 'package:GitSync/ui/page/unlock_premium.dart';
 
@@ -163,6 +166,7 @@ class GentleArchLinePainter extends CustomPainter {
 enum Screen {
   LegacyAppUser,
   Welcome,
+  HowYouFoundUs,
   ClientSyncMode,
   BrowseAndEdit,
   EnableNotifications,
@@ -196,6 +200,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   final animationValue = ValueNotifier<double>(0.0);
   final screenIndex = ValueNotifier<Screen>(Screen.Welcome);
   final clientModeEnabled = ValueNotifier<bool>(false);
+  String? selectedSources;
+  final otherTextController = TextEditingController();
+  final showOtherField = ValueNotifier<bool>(false);
+
+  List<(String, String)> get _discoverySources => [
+    ("reddit", t.sourceReddit),
+    ("youtube", t.sourceYoutube),
+    ("discord", t.sourceDiscord),
+    ("medium", t.sourceMedium),
+    ("google", t.sourceGoogle),
+    ("github_fdroid", t.sourceGithubFdroid),
+    ("store", t.sourceStore),
+    ("advertisements", t.sourceAdvertisements),
+    ("word_of_mouth", t.sourceWordOfMouth),
+    ("other", t.sourceOther),
+  ];
 
   final animationDuration = Duration(seconds: 2);
   final reverseAnimationDuration = Duration(milliseconds: 800);
@@ -270,16 +290,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       _resumeFromStep();
     }
 
+    otherTextController.addListener(() {
+      if (mounted) setState(() {});
+    });
+
     screenIndex.addListener(() async {
       _controller.forward();
 
       if (screenIndex.value == Screen.ClientSyncMode) {
         clientModeEnabled.value = ref.read(clientModeEnabledProvider).valueOrNull ?? false;
-        clientSyncModeScrollController.animateTo(
-          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
-          duration: animFast,
-          curve: Curves.easeInOut,
-        );
+        if (clientSyncModeScrollController.hasClients) {
+          clientSyncModeScrollController.animateTo(
+            clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+            duration: animFast,
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
   }
@@ -311,6 +337,8 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
     _syncPageController.dispose();
     _expandedSyncCard.dispose();
     _oauthLoading.dispose();
+    otherTextController.dispose();
+    showOtherField.dispose();
     super.dispose();
   }
 
@@ -327,6 +355,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       case Screen.Welcome:
       case Screen.LegacyAppUser:
         _isBackNavigating = false;
+
+      case Screen.HowYouFoundUs:
+        _controller.reverse().then((_) {
+          if (!mounted) return;
+          screenIndex.value = Screen.Welcome;
+          _isBackNavigating = false;
+        });
 
       case Screen.ClientSyncMode:
         _controller.reverse().then((_) {
@@ -826,7 +861,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             ),
                             onPressed: () async {
                               await _controller.reverse();
-                              screenIndex.value = Screen.ClientSyncMode;
+                              screenIndex.value = Screen.HowYouFoundUs;
                             },
                           ),
                         ),
@@ -842,6 +877,304 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       ),
     ],
   );
+
+  Future<void> _submitDiscovery() async {
+    if (selectedSources == null) return;
+
+    try {
+      final res = await http.post(
+        Uri.parse('$apiBaseUrl/api/v1/discovery'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'app_type': isOssBuild ? 'oss' : 'store',
+          'source': selectedSources,
+          if (selectedSources == "other" && otherTextController.text.trim().isNotEmpty) 'other_text': otherTextController.text.trim(),
+        }),
+      );
+      Logger.log(res.body, type: LogType.TEST);
+    } catch (e) {
+      Logger.log(e, type: LogType.TEST);
+    }
+
+  }
+
+  Widget get howYouFoundUs => Stack(
+    children: [
+      Positioned(
+        right: spaceXXL,
+        top: spaceXXL,
+        child: Transform.rotate(
+          angle: -math.pi / 1.5,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2,
+            child: AnimatedBuilder(
+              animation: _curvedAnimation,
+              builder: (context, child) {
+                return RepaintBoundary(
+                  child: CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.primaryLight, 200),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        right: 0,
+        top: spaceXXL * 0.5,
+        child: Transform.rotate(
+          angle: -math.pi / 1.5,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2,
+            child: AnimatedBuilder(
+              animation: _curvedAnimation,
+              builder: (context, child) {
+                return RepaintBoundary(
+                  child: CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 200),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        right: -spaceXXL,
+        top: 0,
+        child: Transform.rotate(
+          angle: -math.pi / 1.5,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2,
+            child: AnimatedBuilder(
+              animation: _curvedAnimation,
+              builder: (context, child) {
+                return RepaintBoundary(
+                  child: CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 200),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      FadeTransition(
+        opacity: CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+        child: Padding(
+          padding: EdgeInsets.only(top: spaceSM * 2, left: spaceMD * 2, right: spaceMD * 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
+                    Text(
+                      t.onboardingHowYouFoundUsTitle,
+                      style: TextStyle(
+                        color: colours.primaryLight,
+                        fontSize: textMD * 2,
+                        fontFamily: "AtkinsonHyperlegible",
+                        fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
+                      ),
+                    ),
+                    SizedBox(height: spaceXS),
+                    Text(
+                      t.onboardingHowYouFoundUsSubtitle,
+                      style: TextStyle(
+                        color: colours.secondaryLight,
+                        fontSize: textSM,
+                        fontFamily: "AtkinsonHyperlegible",
+                        fontWeight: FontWeight.bold,
+                        shadows: _bgTextShadow,
+                      ),
+                    ),
+                    SizedBox(height: spaceMD),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ..._discoverySources.map((source) => _discoverySourceItem(source.$1, source.$2)),
+                            ValueListenableBuilder<bool>(
+                              valueListenable: showOtherField,
+                              builder: (context, show, _) {
+                                if (!show) return SizedBox.shrink();
+                                return Padding(
+                                  padding: EdgeInsets.only(top: spaceSM, left: spaceMD + spaceSM + spaceSM),
+                                  child: TextField(
+                                    controller: otherTextController,
+                                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
+                                    decoration: InputDecoration(
+                                      hintText: t.sourceOtherHint,
+                                      hintStyle: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                        borderSide: BorderSide(color: colours.tertiaryLight),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                        borderSide: BorderSide(color: colours.tertiaryLight),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(cornerRadiusMD),
+                                        borderSide: BorderSide(color: colours.tertiaryInfo, width: 2),
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                    ),
+                                    maxLines: 2,
+                                    maxLength: 500,
+                                    buildCounter: (context, {required int currentLength, required bool isFocused, required int? maxLength}) => null,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            await _controller.reverse();
+                            screenIndex.value = Screen.Welcome;
+                          },
+                          style: ButtonStyle(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                            ),
+                          ),
+                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                          label: Text(
+                            t.backLabel.toUpperCase(),
+                            style: TextStyle(
+                              color: colours.primaryDark,
+                              fontWeight: FontWeight.bold,
+                              fontSize: textMD,
+                              fontFamily: "AtkinsonHyperlegible",
+                            ),
+                          ),
+                        ),
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: showOtherField,
+                        builder: (context, showOther, _) {
+                          final hasSelection = selectedSources != null;
+                          final otherEmpty = showOther && otherTextController.text.trim().isEmpty;
+                          final isContinue = hasSelection;
+                          final disabled = isContinue && otherEmpty;
+                          return TextButton(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
+                              backgroundColor: WidgetStatePropertyAll(
+                                disabled ? colours.tertiaryDark.withValues(alpha: 0.5) : colours.tertiaryPositive,
+                              ),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                                  side: disabled
+                                      ? BorderSide.none
+                                      : BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              (isContinue ? t.continueLabel : t.skip).toUpperCase(),
+                              style: TextStyle(
+                                color: disabled ? colours.secondaryLight : colours.secondaryDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: textMD,
+                                fontFamily: "AtkinsonHyperlegible",
+                              ),
+                            ),
+                            onPressed: isContinue
+                                ? (disabled
+                                      ? null
+                                      : () async {
+                                          await _submitDiscovery();
+                                          await _controller.reverse();
+                                          screenIndex.value = Screen.ClientSyncMode;
+                                        })
+                                : () async {
+                                    await _controller.reverse();
+                                    screenIndex.value = Screen.ClientSyncMode;
+                                  },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: spaceLG),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _discoverySourceItem(String key, String label) {
+    final checked = selectedSources == key;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: spaceXXXS),
+      child: SizedBox(
+        width: double.infinity,
+        child: TextButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedSources = checked ? null : key;
+              showOtherField.value = key == "other" && !checked;
+            });
+          },
+          style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
+            backgroundColor: WidgetStatePropertyAll(checked ? colours.tertiaryDark.withValues(alpha: 0.8) : colours.tertiaryDark),
+            alignment: Alignment.centerLeft,
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(cornerRadiusMD),
+                side: checked ? BorderSide(width: 2, color: colours.tertiaryPositive) : BorderSide.none,
+              ),
+            ),
+          ),
+          icon: FaIcon(
+            checked ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
+            color: checked ? colours.tertiaryPositive : colours.secondaryLight,
+            size: textSM,
+          ),
+          label: Text(
+            label,
+            style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget get clientSyncMode => Stack(
     children: [
@@ -960,11 +1293,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     child: GestureDetector(
                                       onTap: () async {
                                         clientModeEnabled.value = true;
-                                        clientSyncModeScrollController.animateTo(
-                                          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
-                                          duration: animFast,
-                                          curve: Curves.easeInOut,
-                                        );
+                                        if (clientSyncModeScrollController.hasClients) {
+                                          clientSyncModeScrollController.animateTo(
+                                            clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+                                            duration: animFast,
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }
                                         ref.read(clientModeEnabledProvider.notifier).set(true);
                                       },
                                       child: Padding(
@@ -1054,11 +1389,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     child: GestureDetector(
                                       onTap: () async {
                                         clientModeEnabled.value = false;
-                                        clientSyncModeScrollController.animateTo(
-                                          clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
-                                          duration: animFast,
-                                          curve: Curves.easeInOut,
-                                        );
+                                        if (clientSyncModeScrollController.hasClients) {
+                                          clientSyncModeScrollController.animateTo(
+                                            clientModeEnabled.value ? 0 : clientSyncModeScrollController.position.maxScrollExtent,
+                                            duration: animFast,
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }
                                         ref.read(clientModeEnabledProvider.notifier).set(false);
                                       },
                                       child: Padding(
@@ -1166,7 +1503,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           child: TextButton.icon(
                             onPressed: () async {
                               await _controller.reverse();
-                              screenIndex.value = Screen.Welcome;
+                              screenIndex.value = Screen.HowYouFoundUs;
                             },
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -3335,6 +3672,8 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
             child = legacyAppUser;
           case Screen.Welcome:
             child = welcome;
+          case Screen.HowYouFoundUs:
+            child = howYouFoundUs;
           case Screen.ClientSyncMode:
             child = clientSyncMode;
           case Screen.BrowseAndEdit:

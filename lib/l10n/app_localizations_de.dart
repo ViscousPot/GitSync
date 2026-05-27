@@ -755,6 +755,45 @@ class AppLocalizationsDe extends AppLocalizations {
   String get onboardingLaunchWiki => 'Launch the wiki';
 
   @override
+  String get onboardingHowYouFoundUsTitle => 'How did you discover GitSync?';
+
+  @override
+  String get onboardingHowYouFoundUsSubtitle => 'Help us understand where our users come from (select all that apply)';
+
+  @override
+  String get sourceReddit => 'Reddit';
+
+  @override
+  String get sourceYoutube => 'YouTube';
+
+  @override
+  String get sourceDiscord => 'Discord';
+
+  @override
+  String get sourceMedium => 'Medium';
+
+  @override
+  String get sourceGoogle => 'Google Search';
+
+  @override
+  String get sourceGithubFdroid => 'GitHub / F-Droid';
+
+  @override
+  String get sourceStore => 'Play Store / App Store';
+
+  @override
+  String get sourceWordOfMouth => 'Word of mouth';
+
+  @override
+  String get sourceAdvertisements => 'Advertisements';
+
+  @override
+  String get sourceOther => 'Other';
+
+  @override
+  String get sourceOtherHint => 'Tell us where';
+
+  @override
   String get currentBranch => 'Current Branch';
 
   @override

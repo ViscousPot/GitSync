@@ -114,6 +114,8 @@ const String defaultSyncMessage = "Last Sync: %s (Mobile)";
 const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
 const String defaultPostFooter = '\n<sub>CREATED WITH <a href="https://github.com/ViscousPot/GitSync">GITSYNC</a></sub>';
 
+const String apiBaseUrl = "https://api.gitsync.viscouspotenti.al";
+
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";
 const String troubleshootingLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting";
 const String androidLimitedFilepathCharactersLink = "https://gitsync.viscouspotenti.al/wiki/troubleshooting#android-limited-filepath-characters";

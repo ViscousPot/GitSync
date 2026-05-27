@@ -10,6 +10,9 @@ import '../gitsync_service.dart';
 // TODO: Must be false for release
 const demo = false;
 
+/// TODO: Must be false for store release
+const isOssBuild = false;
+
 final repoManager = RepoManager();
 final uiSettingsManager = SettingsManager();
 final gitSyncService = GitsyncService();

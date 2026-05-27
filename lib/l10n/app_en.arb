@@ -297,6 +297,20 @@
 
     "onboardingLaunchWiki": "Launch the wiki",
 
+    "onboardingHowYouFoundUsTitle": "How did you discover GitSync?",
+    "onboardingHowYouFoundUsSubtitle": "Help us understand where our users come from (select all that apply)",
+    "sourceReddit": "Reddit",
+    "sourceYoutube": "YouTube",
+    "sourceDiscord": "Discord",
+    "sourceMedium": "Medium",
+    "sourceGoogle": "Google Search",
+    "sourceGithubFdroid": "GitHub / F-Droid",
+    "sourceStore": "Play Store / App Store",
+    "sourceWordOfMouth": "Word of mouth",
+    "sourceAdvertisements": "Advertisements",
+    "sourceOther": "Other",
+    "sourceOtherHint": "Tell us where",
+
 
     "@@x-HOME_PAGE": "",
     "currentBranch": "Current Branch",

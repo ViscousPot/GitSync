@@ -1590,6 +1590,84 @@ abstract class AppLocalizations {
   /// **'Launch the wiki'**
   String get onboardingLaunchWiki;
 
+  /// No description provided for @onboardingHowYouFoundUsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How did you discover GitSync?'**
+  String get onboardingHowYouFoundUsTitle;
+
+  /// No description provided for @onboardingHowYouFoundUsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us understand where our users come from (select all that apply)'**
+  String get onboardingHowYouFoundUsSubtitle;
+
+  /// No description provided for @sourceReddit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reddit'**
+  String get sourceReddit;
+
+  /// No description provided for @sourceYoutube.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube'**
+  String get sourceYoutube;
+
+  /// No description provided for @sourceDiscord.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord'**
+  String get sourceDiscord;
+
+  /// No description provided for @sourceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get sourceMedium;
+
+  /// No description provided for @sourceGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Search'**
+  String get sourceGoogle;
+
+  /// No description provided for @sourceGithubFdroid.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub / F-Droid'**
+  String get sourceGithubFdroid;
+
+  /// No description provided for @sourceStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Store / App Store'**
+  String get sourceStore;
+
+  /// No description provided for @sourceWordOfMouth.
+  ///
+  /// In en, this message translates to:
+  /// **'Word of mouth'**
+  String get sourceWordOfMouth;
+
+  /// No description provided for @sourceAdvertisements.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertisements'**
+  String get sourceAdvertisements;
+
+  /// No description provided for @sourceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get sourceOther;
+
+  /// No description provided for @sourceOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us where'**
+  String get sourceOtherHint;
+
   /// No description provided for @currentBranch.
   ///
   /// In en, this message translates to:
