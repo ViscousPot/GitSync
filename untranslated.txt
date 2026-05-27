@@ -2026,6 +2026,22 @@
     "aiSetupMsg"
   ],
 
+  "pt": [
+    "onboardingHowYouFoundUsTitle",
+    "onboardingHowYouFoundUsSubtitle",
+    "sourceReddit",
+    "sourceYoutube",
+    "sourceDiscord",
+    "sourceMedium",
+    "sourceGoogle",
+    "sourceGithubFdroid",
+    "sourceStore",
+    "sourceWordOfMouth",
+    "sourceAdvertisements",
+    "sourceOther",
+    "sourceOtherHint"
+  ],
+
   "ru": [
     "previous",
     "next",

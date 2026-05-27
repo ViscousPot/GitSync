@@ -818,7 +818,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       } else if (result == "ui_guide") {
         _triggerUiGuideShowcase();
       }
-      reloadAll();
+      await reloadAll();
+      widget.reloadLocale();
     },
   );
 
@@ -1878,10 +1879,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   padding: EdgeInsets.zero,
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
-                  onPressed: () async {
-                    _restorableGlobalSettings.present({});
-                    widget.reloadLocale();
-                  },
+                  onPressed: () => _restorableGlobalSettings.present({}),
                   icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7),
                 ),
               ),
