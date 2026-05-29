@@ -1932,14 +1932,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                   ),
                                   onPressed: () async {
                                     if (demo) {
-                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      final result = await Navigator.of(context, rootNavigator: true).push(createUnlockPremiumRoute(context, {}));
                                       if (result == true) {
                                         if (mounted) setState(() {});
                                       }
                                     }
 
                                     if (premiumManager.hasPremiumNotifier.value != true) {
-                                      final result = await Navigator.of(context).push(createUnlockPremiumRoute(context, {}));
+                                      final result = await Navigator.of(context, rootNavigator: true).push(createUnlockPremiumRoute(context, {}));
                                       if (result == true) {
                                         if (mounted) setState(() {});
                                         await addRepo();
