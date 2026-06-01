@@ -11,7 +11,7 @@ import '../gitsync_service.dart';
 const demo = false;
 
 /// TODO: Must be false for store release
-const isOssBuild = false;
+const isOssBuild = true;
 
 final repoManager = RepoManager();
 final uiSettingsManager = SettingsManager();
