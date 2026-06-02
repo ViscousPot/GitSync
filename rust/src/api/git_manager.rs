@@ -895,20 +895,20 @@ pub async fn clone_repository(
     let _ = repo.cleanup_state();
 
     if !bare {
-    let mut remote = repo.find_remote("origin")?;
-    let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
-    let mut fo2 = FetchOptions::new();
-    fo2.update_fetchhead(true);
-    fo2.remote_callbacks(callbacks);
-    let _ = remote.fetch::<&str>(&[], Some(&mut fo2), None);
+        let mut remote = repo.find_remote("origin")?;
+        let callbacks = get_default_callbacks(Some(&provider), Some(&credentials));
+        let mut fo2 = FetchOptions::new();
+        fo2.update_fetchhead(true);
+        fo2.remote_callbacks(callbacks);
+        let _ = remote.fetch::<&str>(&[], Some(&mut fo2), None);
 
-    _log(
-        Arc::clone(&log_callback),
-        LogType::Clone,
-        "Repository cloned successfully".to_string(),
-    );
+        _log(
+            Arc::clone(&log_callback),
+            LogType::Clone,
+            "Repository cloned successfully".to_string(),
+        );
 
-    swl!(swl!(repo.submodules())?.iter_mut().try_for_each(|sm| {
+        swl!(swl!(repo.submodules())?.iter_mut().try_for_each(|sm| {
         let sm_name = sm.name().unwrap_or("unknown").to_string();
 
         _log(
@@ -1078,14 +1078,14 @@ pub async fn clone_repository(
         Ok::<(), git2::Error>(())
     }))?;
 
-    set_author(&repo, &author);
-    let _ = repo.cleanup_state();
+        set_author(&repo, &author);
+        let _ = repo.cleanup_state();
 
-    _log(
-        Arc::clone(&log_callback),
-        LogType::Clone,
-        "Submodules updated successfully".to_string(),
-    );
+        _log(
+            Arc::clone(&log_callback),
+            LogType::Clone,
+            "Submodules updated successfully".to_string(),
+        );
     } // !bare
 
     Ok(())
@@ -1552,16 +1552,25 @@ pub async fn get_workdir_file_diff(
     diff_opts.pathspec(file_path);
 
     let staged_lines: Arc<Mutex<Vec<(char, String)>>> = Arc::new(Mutex::new(Vec::new()));
-    if let Ok(staged_diff) = repo.diff_tree_to_index(head_tree.as_ref(), Some(&repo.index()?), Some(&mut diff_opts)) {
+    if let Ok(staged_diff) = repo.diff_tree_to_index(
+        head_tree.as_ref(),
+        Some(&repo.index()?),
+        Some(&mut diff_opts),
+    ) {
         let staged_lines_ref = Arc::clone(&staged_lines);
         let _ = staged_diff.foreach(
             &mut |_: git2::DiffDelta, _: f32| -> bool { true },
             None,
             Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
-            Some(&mut |_: git2::DiffDelta, _: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+            Some(&mut |_: git2::DiffDelta,
+                       _: Option<git2::DiffHunk>,
+                       line: git2::DiffLine|
+             -> bool {
                 let origin = line.origin();
                 if origin == '+' || origin == '-' {
-                    let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
+                    let content = String::from_utf8_lossy(line.content())
+                        .trim_end_matches('\n')
+                        .to_string();
                     staged_lines_ref.lock().unwrap().push((origin, content));
                 }
                 true
@@ -1602,10 +1611,8 @@ pub async fn get_workdir_file_diff(
     let mut diff_opts2 = DiffOptions::new();
     diff_opts2.pathspec(file_path);
 
-    let diff = swl!(repo.diff_tree_to_workdir_with_index(
-        head_tree.as_ref(),
-        Some(&mut diff_opts2),
-    ))?;
+    let diff =
+        swl!(repo.diff_tree_to_workdir_with_index(head_tree.as_ref(), Some(&mut diff_opts2),))?;
 
     let diff_stats = swl!(diff.stats())?;
     let mut staged_bag: HashMap<(char, String), i32> = HashMap::new();
@@ -1627,7 +1634,9 @@ pub async fn get_workdir_file_diff(
         },
         None,
         Some(&mut |_: git2::DiffDelta, hunk: git2::DiffHunk| -> bool {
-            let header = String::from_utf8_lossy(hunk.header()).trim_end().to_string();
+            let header = String::from_utf8_lossy(hunk.header())
+                .trim_end()
+                .to_string();
             let idx = line_index.fetch_add(1, Ordering::SeqCst);
             lines.lock().unwrap().push(WorkdirDiffLine {
                 line_index: idx,
@@ -1639,50 +1648,51 @@ pub async fn get_workdir_file_diff(
             });
             true
         }),
-        Some(&mut |_: git2::DiffDelta,
-                   _: Option<git2::DiffHunk>,
-                   line: git2::DiffLine|
-         -> bool {
-            let origin = match line.origin() {
-                '+' => "+".to_string(),
-                '-' => "-".to_string(),
-                ' ' => " ".to_string(),
-                _ => return true,
-            };
+        Some(
+            &mut |_: git2::DiffDelta, _: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+                let origin = match line.origin() {
+                    '+' => "+".to_string(),
+                    '-' => "-".to_string(),
+                    ' ' => " ".to_string(),
+                    _ => return true,
+                };
 
-            let content = String::from_utf8_lossy(line.content()).trim_end_matches('\n').to_string();
-            let idx = line_index.fetch_add(1, Ordering::SeqCst);
+                let content = String::from_utf8_lossy(line.content())
+                    .trim_end_matches('\n')
+                    .to_string();
+                let idx = line_index.fetch_add(1, Ordering::SeqCst);
 
-            let is_staged = if origin != " " {
-                let origin_char = origin.chars().next().unwrap_or(' ');
-                let key = (origin_char, content.clone());
-                let mut bag = staged_bag.lock().unwrap();
-                if let Some(count) = bag.get_mut(&key) {
-                    if *count > 0 {
-                        *count -= 1;
-                        true
+                let is_staged = if origin != " " {
+                    let origin_char = origin.chars().next().unwrap_or(' ');
+                    let key = (origin_char, content.clone());
+                    let mut bag = staged_bag.lock().unwrap();
+                    if let Some(count) = bag.get_mut(&key) {
+                        if *count > 0 {
+                            *count -= 1;
+                            true
+                        } else {
+                            false
+                        }
                     } else {
                         false
                     }
                 } else {
                     false
-                }
-            } else {
-                false
-            };
+                };
 
-            let mut lines_vec = lines.lock().unwrap();
-            lines_vec.push(WorkdirDiffLine {
-                line_index: idx,
-                origin,
-                content,
-                old_lineno: line.old_lineno().map(|n| n as i32).unwrap_or(-1),
-                new_lineno: line.new_lineno().map(|n| n as i32).unwrap_or(-1),
-                is_staged,
-            });
+                let mut lines_vec = lines.lock().unwrap();
+                lines_vec.push(WorkdirDiffLine {
+                    line_index: idx,
+                    origin,
+                    content,
+                    old_lineno: line.old_lineno().map(|n| n as i32).unwrap_or(-1),
+                    new_lineno: line.new_lineno().map(|n| n as i32).unwrap_or(-1),
+                    is_staged,
+                });
 
-            true
-        })
+                true
+            }
+        )
     ))?;
 
     let lines = lines.lock().unwrap().drain(..).collect();
@@ -1690,7 +1700,11 @@ pub async fn get_workdir_file_diff(
     _log(
         Arc::clone(&log_callback),
         LogType::WorkdirFileDiff,
-        format!("Workdir diff complete - {} insertions, {} deletions", diff_stats.insertions(), diff_stats.deletions()),
+        format!(
+            "Workdir diff complete - {} insertions, {} deletions",
+            diff_stats.insertions(),
+            diff_stats.deletions()
+        ),
     );
 
     Ok(WorkdirFileDiff {
@@ -1713,7 +1727,11 @@ pub async fn stage_file_lines(
     _log(
         Arc::clone(&log_callback),
         LogType::StageFileLines,
-        format!("Staging {} selected lines for {}", selected_line_indices.len(), file_path),
+        format!(
+            "Staging {} selected lines for {}",
+            selected_line_indices.len(),
+            file_path
+        ),
     );
 
     let repo = swl!(Repository::open(path_string))?;
@@ -1725,10 +1743,8 @@ pub async fn stage_file_lines(
 
     let mut diff_opts = DiffOptions::new();
     diff_opts.pathspec(file_path);
-    let diff = swl!(repo.diff_tree_to_workdir_with_index(
-        head_tree.as_ref(),
-        Some(&mut diff_opts),
-    ))?;
+    let diff =
+        swl!(repo.diff_tree_to_workdir_with_index(head_tree.as_ref(), Some(&mut diff_opts),))?;
 
     let selected_set: std::collections::HashSet<i32> = selected_line_indices.into_iter().collect();
     let diff_lines: Arc<Mutex<Vec<(i32, char, String)>>> = Arc::new(Mutex::new(Vec::new()));
@@ -1738,18 +1754,17 @@ pub async fn stage_file_lines(
         &mut |_: git2::DiffDelta, _: f32| -> bool { true },
         None,
         Some(&mut |_: git2::DiffDelta, _: git2::DiffHunk| -> bool { true }),
-        Some(&mut |_: git2::DiffDelta,
-                   _: Option<git2::DiffHunk>,
-                   line: git2::DiffLine|
-         -> bool {
-            let origin = line.origin();
-            if origin == '+' || origin == '-' || origin == ' ' {
-                let idx = idx_counter.fetch_add(1, Ordering::SeqCst);
-                let content = String::from_utf8_lossy(line.content()).to_string();
-                diff_lines.lock().unwrap().push((idx, origin, content));
+        Some(
+            &mut |_: git2::DiffDelta, _: Option<git2::DiffHunk>, line: git2::DiffLine| -> bool {
+                let origin = line.origin();
+                if origin == '+' || origin == '-' || origin == ' ' {
+                    let idx = idx_counter.fetch_add(1, Ordering::SeqCst);
+                    let content = String::from_utf8_lossy(line.content()).to_string();
+                    diff_lines.lock().unwrap().push((idx, origin, content));
+                }
+                true
             }
-            true
-        })
+        )
     ))?;
 
     let diff_lines = diff_lines.lock().unwrap().clone();
@@ -2076,15 +2091,14 @@ fn commit(
         if let Ok(mut head) = repo.head() {
             swl!(head.set_target(commit_id, message))?;
         } else {
-            let current_branch =
-                get_branch_name_priv(&repo).unwrap_or_else(|| {
-                    // On unborn branch, read HEAD's symbolic target to get the intended branch name
-                    repo.find_reference("HEAD")
-                        .ok()
-                        .and_then(|r| r.symbolic_target().map(|s| s.to_string()))
-                        .and_then(|s| s.strip_prefix("refs/heads/").map(|s| s.to_string()))
-                        .unwrap_or_else(|| "main".to_string())
-                });
+            let current_branch = get_branch_name_priv(&repo).unwrap_or_else(|| {
+                // On unborn branch, read HEAD's symbolic target to get the intended branch name
+                repo.find_reference("HEAD")
+                    .ok()
+                    .and_then(|r| r.symbolic_target().map(|s| s.to_string()))
+                    .and_then(|s| s.strip_prefix("refs/heads/").map(|s| s.to_string()))
+                    .unwrap_or_else(|| "main".to_string())
+            });
 
             swl!(repo.reference(
                 &format!("refs/heads/{}", current_branch),
@@ -2318,7 +2332,8 @@ pub async fn pull_changes(
         "Getting local directory".to_string(),
     );
 
-    let remote_name = repo.remotes()
+    let remote_name = repo
+        .remotes()
         .ok()
         .and_then(|r| r.get(0).map(|s| s.to_string()))
         .unwrap_or_else(|| "origin".to_string());
@@ -2966,9 +2981,7 @@ pub async fn get_recommended_action(
         if let Ok(tracking_ref) = repo.find_reference(&tracking_ref_name) {
             let target_ref_name = format!("refs/heads/{}", &branch_name);
             for r in remote_refs {
-                if r.name() == target_ref_name.as_str()
-                    && tracking_ref.target() == Some(r.oid())
-                {
+                if r.name() == target_ref_name.as_str() && tracking_ref.target() == Some(r.oid()) {
                     found = true;
                     break;
                 }
@@ -3062,9 +3075,7 @@ pub async fn commit_changes(
     let repo = swl!(Repository::open(&path_string))?;
     set_author(&repo, &author);
 
-    if repo.state() == RepositoryState::Rebase
-        || repo.state() == RepositoryState::RebaseMerge
-    {
+    if repo.state() == RepositoryState::Rebase || repo.state() == RepositoryState::RebaseMerge {
         _log(
             Arc::clone(&log_callback),
             LogType::PushToRepo,
@@ -3089,7 +3100,8 @@ pub async fn commit_changes(
                     _log(
                         Arc::clone(&log_callback),
                         LogType::PushToRepo,
-                        "Subsequent rebase step has conflicts — leaving rebase in progress".to_string(),
+                        "Subsequent rebase step has conflicts — leaving rebase in progress"
+                            .to_string(),
                     );
                     return Ok(());
                 }
@@ -3133,7 +3145,10 @@ pub async fn commit_changes(
         _log(
             Arc::clone(&log_callback),
             LogType::PushToRepo,
-            format!("Index has unresolved conflicts, cannot commit: {:?}", unmerged),
+            format!(
+                "Index has unresolved conflicts, cannot commit: {:?}",
+                unmerged
+            ),
         );
         let suffix = if unmerged.is_empty() {
             String::new()
@@ -4809,10 +4824,7 @@ pub async fn checkout_commit(
     _log(
         Arc::clone(&log_callback),
         LogType::CheckoutCommit,
-        format!(
-            "HEAD is now at {}",
-            &commit_sha[..7.min(commit_sha.len())]
-        ),
+        format!("HEAD is now at {}", &commit_sha[..7.min(commit_sha.len())]),
     );
 
     Ok(())
@@ -4882,10 +4894,7 @@ pub async fn revert_commit(
     let signature = swl!(repo.signature())?;
     let head_commit = swl!(repo.head()?.peel_to_commit())?;
 
-    let message = format!(
-        "Revert \"{}\"",
-        commit.message().unwrap_or("").trim()
-    );
+    let message = format!("Revert \"{}\"", commit.message().unwrap_or("").trim());
 
     swl!(repo.commit(
         Some("HEAD"),
@@ -4928,9 +4937,7 @@ pub async fn amend_commit(
 
     let head_commit = swl!(repo.head()?.peel_to_commit())?;
     let tree = swl!(head_commit.tree())?;
-    let parents: Vec<git2::Commit> = head_commit
-        .parents()
-        .collect();
+    let parents: Vec<git2::Commit> = head_commit.parents().collect();
     let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
 
     let signature = if let (Some(name), Some(email)) = (&author_name, &author_email) {
@@ -5060,7 +5067,9 @@ pub async fn cherry_pick_commit(
         let mut checkout_builder = git2::build::CheckoutBuilder::new();
         checkout_builder.force();
 
-        tokio::task::block_in_place(|| swl!(repo.checkout_tree(&object, Some(&mut checkout_builder))))?;
+        tokio::task::block_in_place(|| {
+            swl!(repo.checkout_tree(&object, Some(&mut checkout_builder)))
+        })?;
         swl!(repo.set_head(&format!("refs/heads/{}", target_branch)))?;
     }
 
@@ -5136,7 +5145,9 @@ pub async fn squash_commits(
     let oldest_commit = swl!(repo.find_commit(oldest_oid))?;
 
     if oldest_commit.parent_count() == 0 {
-        return Err(git2::Error::from_str("Cannot squash: oldest selected commit has no parent"));
+        return Err(git2::Error::from_str(
+            "Cannot squash: oldest selected commit has no parent",
+        ));
     }
 
     let parent_commit = swl!(oldest_commit.parent(0))?;
