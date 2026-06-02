@@ -1231,7 +1231,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   Future<void> updateRecommendedAction({int? override}) async {
-    if (!(ref.read(clientModeEnabledProvider).valueOrNull ?? false)) return;
     autoRefreshTimer?.cancel();
     final startTime = DateTime.now();
     if (override != null) {
@@ -1318,8 +1317,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   String getLastSyncOption(int? recommendedActionValue) {
-    if (ref.read(clientModeEnabledProvider).valueOrNull ?? false) {
-      if (recommendedActionValue != null && recommendedActionValue >= 0) {
+    if (recommendedActionValue != null && recommendedActionValue >= 0) {
+      if (ref.read(clientModeEnabledProvider).valueOrNull ?? false) {
         return [
           sprintf(t.fetchRemote, [ref.read(remoteNameProvider).valueOrNull ?? "origin"]),
           t.pullChanges,
@@ -1327,6 +1326,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           t.pushChanges,
         ][recommendedActionValue];
       }
+      return t.syncNow;
     }
     return ref.read(lastSyncMethodProvider).valueOrNull ?? "";
   }
@@ -2929,11 +2929,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               style: TextStyle(
                                                                                                 color: gitDirPath?.$2 == null
                                                                                                     ? colours.secondaryLight
-                                                                                                    : (clientModeEnabledValue == true &&
-                                                                                                              recommendedActionValue != null &&
-                                                                                                              recommendedActionValue >= 0
-                                                                                                          ? colours.tertiaryInfo
-                                                                                                          : colours.primaryLight),
+                                    : (recommendedActionValue != null &&
+                                              recommendedActionValue >= 0
+                                          ? colours.tertiaryInfo
+                                          : colours.primaryLight),
                                                                                                 fontSize: textMD,
                                                                                                 fontWeight: FontWeight.bold,
                                                                                               ),
