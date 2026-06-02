@@ -2129,6 +2129,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   _tabIndex.value = page;
                   final homeIndex = aiEnabled ? 1 : 0;
                   if (page == homeIndex) reloadAll();
+                  final filesIndex = aiEnabled ? 2 : 1;
+                  if (page == filesIndex) {
+                    _fileExplorerKey.currentState?.reloadOpenFile();
+                  }
                 },
                 children: [
                   if (aiEnabled)

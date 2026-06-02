@@ -50,6 +50,13 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   final ValueNotifier<bool?> copyingMovingNotifier = ValueNotifier(null);
   final ValueNotifier<List<String>> entityPathsNotifier = ValueNotifier([]);
   final ValueNotifier<String?> openFilePathNotifier = ValueNotifier(null);
+  int _editorReloadVersion = 0;
+
+  void reloadOpenFile() {
+    if (openFilePathNotifier.value == null) return;
+    _editorReloadVersion++;
+    if (mounted) setState(() {});
+  }
 
   late final moreOptionsDropdownKey = GlobalKey();
 
@@ -866,7 +873,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                       child: openFile == null
                           ? const SizedBox.shrink(key: ValueKey('no-editor'))
                           : Container(
-                              key: ValueKey('editor-inner:$openFile'),
+                              key: ValueKey('editor-inner:$openFile:$_editorReloadVersion'),
                               color: colours.primaryDark,
                               child: Editor(path: openFile, type: EditorType.DEFAULT),
                             ),
