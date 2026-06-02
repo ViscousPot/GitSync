@@ -1799,6 +1799,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       final enabled = next.valueOrNull;
       if (enabled == null) return;
       final oldIndex = _tabIndex.value;
+      if ((prev == null || prev.valueOrNull == null) && enabled) return;
       final int newIndex;
       if (enabled) {
         newIndex = oldIndex + 1;
