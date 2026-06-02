@@ -308,6 +308,8 @@
     "sourceStore": "Play Store / App Store",
     "sourceWordOfMouth": "Word of mouth",
     "sourceAdvertisements": "Advertisements",
+    "sourceObsidian": "Obsidian Git Plugin",
+    "sourceAiSearch": "AI Search (ChatGPT, Claude, Grok)",
     "sourceOther": "Other",
     "sourceOtherHint": "Tell us where",
 

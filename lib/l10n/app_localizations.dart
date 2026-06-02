@@ -1658,6 +1658,18 @@ abstract class AppLocalizations {
   /// **'Advertisements'**
   String get sourceAdvertisements;
 
+  /// No description provided for @sourceObsidian.
+  ///
+  /// In en, this message translates to:
+  /// **'Obsidian Git Plugin'**
+  String get sourceObsidian;
+
+  /// No description provided for @sourceAiSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Search (ChatGPT, Claude, Grok)'**
+  String get sourceAiSearch;
+
   /// No description provided for @sourceOther.
   ///
   /// In en, this message translates to:

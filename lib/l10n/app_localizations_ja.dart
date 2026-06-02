@@ -785,6 +785,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sourceAdvertisements => 'Advertisements';
 
   @override
+  String get sourceObsidian => 'Obsidian Git Plugin';
+
+  @override
+  String get sourceAiSearch => 'AI Search (ChatGPT, Claude, Grok)';
+
+  @override
   String get sourceOther => 'Other';
 
   @override

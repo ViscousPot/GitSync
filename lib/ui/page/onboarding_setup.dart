@@ -206,10 +206,12 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
 
   List<(String, String)> get _discoverySources => [
     ("reddit", t.sourceReddit),
+    ("obsidian", t.sourceObsidian),
     ("youtube", t.sourceYoutube),
     ("discord", t.sourceDiscord),
     ("medium", t.sourceMedium),
     ("google", t.sourceGoogle),
+    ("ai_search", t.sourceAiSearch),
     ("github_fdroid", t.sourceGithubFdroid),
     ("store", t.sourceStore),
     ("advertisements", t.sourceAdvertisements),
@@ -895,7 +897,6 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
     } catch (e) {
       Logger.log(e, type: LogType.TEST);
     }
-
   }
 
   Widget get howYouFoundUs => Stack(
