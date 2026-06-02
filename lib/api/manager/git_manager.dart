@@ -708,15 +708,11 @@ class GitManager {
   static Future<List<(String, GitManagerRs.ConflictType)>> getConflicting([int? repomanRepoindex, int priority = 1]) async {
     final resolvedIndex = await _resolveRepoIndex(repomanRepoindex);
     final result =
-        await _runWithLock(
-          priority: priority,
-          GitManagerRs.stringConflicttypeListRunWithLock,
-          resolvedIndex,
-          LogType.ConflictingFiles,
-          (dirPath) async {
-            return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
-          },
-        ) ??
+        await _runWithLock(priority: priority, GitManagerRs.stringConflicttypeListRunWithLock, resolvedIndex, LogType.ConflictingFiles, (
+          dirPath,
+        ) async {
+          return (await GitManagerRs.getConflicting(pathString: dirPath, log: _logWrapper)).toSet().toList();
+        }) ??
         <(String, GitManagerRs.ConflictType)>[];
 
     final settingsManager = await _resolveSettingsManager(repomanRepoindex);
@@ -936,12 +932,14 @@ class GitManager {
     });
   }
 
-  static Future<void> amendCommit(String newMessage, {int? repoIndex}) async {
+  static Future<void> amendCommit(String newMessage, {String? authorName, String? authorEmail, int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), LogType.AmendCommit, (dirPath) async {
       await GitManagerRs.amendCommit(
         pathString: dirPath,
         newMessage: newMessage,
+        authorName: authorName,
+        authorEmail: authorEmail,
         commitSigningCredentials: await setman.getGitCommitSigningCredentials(),
         log: _logWrapper,
       );

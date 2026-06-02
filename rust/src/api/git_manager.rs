@@ -4911,6 +4911,8 @@ pub async fn revert_commit(
 pub async fn amend_commit(
     path_string: &String,
     new_message: &String,
+    author_name: Option<String>,
+    author_email: Option<String>,
     commit_signing_credentials: Option<(String, String)>,
     log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
 ) -> Result<(), git2::Error> {
@@ -4931,7 +4933,12 @@ pub async fn amend_commit(
         .collect();
     let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
 
-    let signature = swl!(repo.signature())?;
+    let signature = if let (Some(name), Some(email)) = (&author_name, &author_email) {
+        let sig = repo.signature()?;
+        git2::Signature::new(name, email, &sig.when())?
+    } else {
+        repo.signature()?
+    };
 
     let new_oid = commit(
         &repo,

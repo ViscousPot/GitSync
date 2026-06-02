@@ -157,6 +157,8 @@ fn wire__crate__api__git_manager__amend_commit_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_path_string = <String>::sse_decode(&mut deserializer);
             let api_new_message = <String>::sse_decode(&mut deserializer);
+            let api_author_name = <Option<String>>::sse_decode(&mut deserializer);
+            let api_author_email = <Option<String>>::sse_decode(&mut deserializer);
             let api_commit_signing_credentials =
                 <Option<(String, String)>>::sse_decode(&mut deserializer);
             let api_log = decode_DartFn_Inputs_log_type_String_Output_unit_AnyhowException(
@@ -169,6 +171,8 @@ fn wire__crate__api__git_manager__amend_commit_impl(
                         let output_ok = crate::api::git_manager::amend_commit(
                             &api_path_string,
                             &api_new_message,
+                            api_author_name,
+                            api_author_email,
                             api_commit_signing_credentials,
                             api_log,
                         )

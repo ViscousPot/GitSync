@@ -7,9 +7,18 @@ import 'package:GitSync/api/manager/git_manager.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/ui/component/ai_wand_field.dart';
 
-Future<void> showDialog(BuildContext context, String commitSha, String commitMessage, Future<void> Function(String newMessage) callback) {
+Future<void> showDialog(
+  BuildContext context,
+  String commitSha,
+  String commitMessage,
+  String originalAuthorName,
+  String originalAuthorEmail,
+  Future<void> Function(String newMessage, String? newAuthorName, String? newAuthorEmail) callback,
+) {
   bool loading = false;
   final controller = TextEditingController(text: commitMessage);
+  final nameController = TextEditingController(text: originalAuthorName);
+  final emailController = TextEditingController(text: originalAuthorEmail);
 
   return mat.showDialog(
     context: context,
@@ -36,6 +45,42 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                     ),
                     TextSpan(text: "."),
                   ],
+                ),
+              ),
+              SizedBox(height: spaceSM),
+              TextField(
+                controller: nameController,
+                style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                decoration: InputDecoration(
+                  labelText: 'Author Name',
+                  labelStyle: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    borderSide: BorderSide(color: colours.tertiaryDark),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    borderSide: BorderSide(color: colours.tertiaryInfo),
+                  ),
+                ),
+              ),
+              SizedBox(height: spaceSM),
+              TextField(
+                controller: emailController,
+                style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                decoration: InputDecoration(
+                  labelText: 'Author Email',
+                  labelStyle: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    borderSide: BorderSide(color: colours.tertiaryDark),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(cornerRadiusSM),
+                    borderSide: BorderSide(color: colours.tertiaryInfo),
+                  ),
                 ),
               ),
               SizedBox(height: spaceSM),
@@ -105,9 +150,11 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                 : SizedBox.shrink(),
             onPressed: () async {
               if (controller.text.trim().isEmpty) return;
+              final newName = nameController.text.trim();
+              final newEmail = emailController.text.trim();
               loading = true;
               setState(() {});
-              await callback(controller.text.trim());
+              await callback(controller.text.trim(), newName.isNotEmpty ? newName : null, newEmail.isNotEmpty ? newEmail : null);
               loading = false;
               setState(() {});
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;

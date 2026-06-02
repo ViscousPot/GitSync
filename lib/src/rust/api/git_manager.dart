@@ -726,11 +726,15 @@ Future<void> revertCommit({
 Future<void> amendCommit({
   required String pathString,
   required String newMessage,
+  String? authorName,
+  String? authorEmail,
   (String, String)? commitSigningCredentials,
   required FutureOr<void> Function(LogType, String) log,
 }) => RustLib.instance.api.crateApiGitManagerAmendCommit(
   pathString: pathString,
   newMessage: newMessage,
+  authorName: authorName,
+  authorEmail: authorEmail,
   commitSigningCredentials: commitSigningCredentials,
   log: log,
 );

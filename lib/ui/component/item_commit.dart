@@ -181,10 +181,17 @@ class _ItemCommit extends ConsumerState<ItemCommit> {
     switch (result) {
       case 'amend-commit':
         if (mounted) {
-          await AmendCommitDialog.showDialog(context, widget.commit.reference, widget.commit.commitMessage, (newMessage) async {
-            await GitManager.amendCommit(newMessage);
-            await widget.onRefresh?.call();
-          });
+          await AmendCommitDialog.showDialog(
+            context,
+            widget.commit.reference,
+            widget.commit.commitMessage,
+            widget.commit.authorUsername,
+            widget.commit.authorEmail,
+            (newMessage, newAuthorName, newAuthorEmail) async {
+              await GitManager.amendCommit(newMessage, authorName: newAuthorName, authorEmail: newAuthorEmail);
+              await widget.onRefresh?.call();
+            },
+          );
         }
       case 'undo-commit':
         if (mounted) {
