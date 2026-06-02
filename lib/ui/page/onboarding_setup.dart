@@ -203,6 +203,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   String? selectedSources;
   final otherTextController = TextEditingController();
   final showOtherField = ValueNotifier<bool>(false);
+  bool _isSubmitting = false;
 
   List<(String, String)> get _discoverySources => [
     ("reddit", t.sourceReddit),
@@ -881,7 +882,8 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   );
 
   Future<void> _submitDiscovery() async {
-    if (selectedSources == null) return;
+    if (selectedSources == null || _isSubmitting) return;
+    _isSubmitting = true;
 
     try {
       final res = await http.post(
@@ -895,6 +897,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       );
       Logger.log(res.body, type: LogType.TEST);
     } catch (e) {
+      _isSubmitting = false;
       Logger.log(e, type: LogType.TEST);
     }
   }
@@ -1085,7 +1088,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           final hasSelection = selectedSources != null;
                           final otherEmpty = showOther && otherTextController.text.trim().isEmpty;
                           final isContinue = hasSelection;
-                          final disabled = isContinue && otherEmpty;
+                          final disabled = (isContinue && otherEmpty) || _isSubmitting;
                           return TextButton(
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
