@@ -1,7 +1,7 @@
 name: GitSync
 description: "Git client for syncing a repository between remote and a local directory"
 publish_to: "none"
-version: 1.8.59+1859
+version: 1.8.60+1860
 
 environment:
   sdk: 3.9.0
