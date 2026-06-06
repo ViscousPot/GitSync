@@ -252,7 +252,6 @@ async fn run_with_lock<T: Default>(
     use nix::fcntl::{Flock, FlockArg};
     use std::fs;
     use std::io::{Read, Seek, SeekFrom, Write};
-    init(None);
 
     let queues_dir = format!("{}/queues", queue_dir);
     fs::create_dir_all(&queues_dir)

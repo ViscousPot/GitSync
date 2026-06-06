@@ -141,6 +141,7 @@ class GitManager {
 
     Future<T?> action() async {
       actionCalled = true;
+      await GitManagerRs.init(homepath: Platform.isAndroid ? (await getApplicationDocumentsDirectory()).path : null);
       Future<T?> internalFn(dirPath) async {
         try {
           return await fn(dirPath);
