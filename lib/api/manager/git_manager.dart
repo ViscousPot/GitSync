@@ -104,7 +104,7 @@ class GitManager {
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
 
-  static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out"];
+  static final _networkStallPatterns = ["network stall detected", "transfer speed was below", "timed out", "network is unreachable"];
   static bool isNetworkStallError(String message) => _networkStallPatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
 
   static final _networkUnavailablePatterns = [
@@ -112,7 +112,6 @@ class GitManager {
     "no address associated with hostname",
     "name resolution failed",
     "could not resolve host",
-    "network is unreachable",
     "failed host lookup",
   ];
   static bool isNetworkUnavailableError(String message) => _networkUnavailablePatterns.any((p) => message.toLowerCase().contains(p.toLowerCase()));
