@@ -2052,7 +2052,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                   if (text.isEmpty) return;
 
                                                   final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
-                                                  uiSettingsManager.renameNamespace(text);
+                                                  await uiSettingsManager.renameNamespace(text);
                                                   repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
 
                                                   await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
