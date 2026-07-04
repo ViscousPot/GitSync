@@ -825,7 +825,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
   Future<void> _openSettingsMain({bool showcaseAuthorDetails = false}) async {
     await _homeNavigatorKey.currentState?.push<String?>(
-      createSettingsMainRoute(_homeNavigatorKey.currentContext!, {"showcaseAuthorDetails": showcaseAuthorDetails}),
+      createSettingsMainRoute(_homeNavigatorKey.currentContext!, {
+        "showcaseAuthorDetails": showcaseAuthorDetails,
+        "openGlobalSettings": () => _restorableGlobalSettings.present({}),
+      }),
     );
     reloadAll();
   }
