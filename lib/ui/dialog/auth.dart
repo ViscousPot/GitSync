@@ -27,6 +27,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
   Future<void> finish(BuildContext context, GitProvider selectedGitProvider) async {
     await uiSettingsManager.setStringNullable(StorageKey.setman_gitProvider, selectedGitProvider.name);
     Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+    Navigator.of(context).canPop() ? Navigator.pop(context) : null;
     callback();
   }
 
