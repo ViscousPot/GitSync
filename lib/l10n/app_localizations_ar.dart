@@ -360,13 +360,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get keepChanges => 'الإبقاء على التغييرات';
 
   @override
-  String get local => 'المحلي';
+  String get current => 'Current';
 
   @override
   String get both => 'كلاهما';
 
   @override
   String get remote => 'البعيد';
+
+  @override
+  String get incoming => 'Incoming';
 
   @override
   String get merge => 'دمج';
@@ -390,10 +393,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resolveAll => 'حل الكل';
 
   @override
-  String get allLocal => 'الكل محلي';
+  String get allCurrent => 'All Current';
 
   @override
-  String get allRemote => 'الكل بعيد';
+  String get allIncoming => 'All Incoming';
 
   @override
   String get iosClearDataTitle => 'هل هذا تثبيت جديد؟';

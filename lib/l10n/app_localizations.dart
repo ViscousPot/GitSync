@@ -812,11 +812,11 @@ abstract class AppLocalizations {
   /// **'Keep Changes'**
   String get keepChanges;
 
-  /// No description provided for @local.
+  /// No description provided for @current.
   ///
   /// In en, this message translates to:
-  /// **'Local'**
-  String get local;
+  /// **'Current'**
+  String get current;
 
   /// No description provided for @both.
   ///
@@ -829,6 +829,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remote'**
   String get remote;
+
+  /// No description provided for @incoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming'**
+  String get incoming;
 
   /// No description provided for @merge.
   ///
@@ -872,17 +878,17 @@ abstract class AppLocalizations {
   /// **'Resolve All'**
   String get resolveAll;
 
-  /// No description provided for @allLocal.
+  /// No description provided for @allCurrent.
   ///
   /// In en, this message translates to:
-  /// **'All Local'**
-  String get allLocal;
+  /// **'All Current'**
+  String get allCurrent;
 
-  /// No description provided for @allRemote.
+  /// No description provided for @allIncoming.
   ///
   /// In en, this message translates to:
-  /// **'All Remote'**
-  String get allRemote;
+  /// **'All Incoming'**
+  String get allIncoming;
 
   /// No description provided for @iosClearDataTitle.
   ///

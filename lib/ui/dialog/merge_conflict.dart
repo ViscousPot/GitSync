@@ -497,7 +497,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         ),
                                       ),
                                       child: Text(
-                                        t.allLocal.toUpperCase(),
+                                        t.allCurrent.toUpperCase(),
                                         style: TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
@@ -541,7 +541,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         ),
                                       ),
                                       child: Text(
-                                        t.allRemote.toUpperCase(),
+                                        t.allIncoming.toUpperCase(),
                                         style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
@@ -703,7 +703,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                          t.local.toUpperCase(),
+                                                                           t.current.toUpperCase(),
                                                                           style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -768,7 +768,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                          t.remote.toUpperCase(),
+                                                                           t.incoming.toUpperCase(),
                                                                           style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),

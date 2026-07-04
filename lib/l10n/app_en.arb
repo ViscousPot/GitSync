@@ -138,9 +138,10 @@
     "abortMerge": "Abort Merge",
     "resolveLater": "Resolve Later",
     "keepChanges": "Keep Changes",
-    "local": "Local",
+    "current": "Current",
     "both": "Both",
     "remote": "Remote",
+    "incoming": "Incoming",
     "merge": "Merge",
     "resolve": "Resolve",
     "merging": "Merging…",
@@ -148,8 +149,8 @@
     "clearSelection": "Clear Selection",
     "keepSelected": "Keep Selected",
     "resolveAll": "Resolve All",
-    "allLocal": "All Local",
-    "allRemote": "All Remote",
+    "allCurrent": "All Current",
+    "allIncoming": "All Incoming",
 
 
 

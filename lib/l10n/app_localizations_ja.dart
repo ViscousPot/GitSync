@@ -360,13 +360,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get keepChanges => '変更を保持';
 
   @override
-  String get local => 'ローカル';
+  String get current => 'Current';
 
   @override
   String get both => '両方';
 
   @override
   String get remote => 'リモート';
+
+  @override
+  String get incoming => 'Incoming';
 
   @override
   String get merge => 'マージ';
@@ -390,10 +393,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get resolveAll => 'Resolve All';
 
   @override
-  String get allLocal => 'All Local';
+  String get allCurrent => 'All Current';
 
   @override
-  String get allRemote => 'All Remote';
+  String get allIncoming => 'All Incoming';
 
   @override
   String get iosClearDataTitle => '新規インストールですか？';

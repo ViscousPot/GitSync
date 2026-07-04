@@ -363,13 +363,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get keepChanges => 'Manter Alterações';
 
   @override
-  String get local => 'Local';
+  String get current => 'Current';
 
   @override
   String get both => 'Ambos';
 
   @override
   String get remote => 'Remote';
+
+  @override
+  String get incoming => 'Incoming';
 
   @override
   String get merge => 'Merge';
@@ -393,10 +396,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get resolveAll => 'Resolver Todos';
 
   @override
-  String get allLocal => 'Todos Locais';
+  String get allCurrent => 'All Current';
 
   @override
-  String get allRemote => 'Todos Remotos';
+  String get allIncoming => 'All Incoming';
 
   @override
   String get iosClearDataTitle => 'Esta é uma instalação nova?';

@@ -360,13 +360,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get keepChanges => '保留更改';
 
   @override
-  String get local => '本地';
+  String get current => 'Current';
 
   @override
   String get both => '两者';
 
   @override
   String get remote => '远程';
+
+  @override
+  String get incoming => 'Incoming';
 
   @override
   String get merge => '合并';
@@ -390,10 +393,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get resolveAll => 'Resolve All';
 
   @override
-  String get allLocal => 'All Local';
+  String get allCurrent => 'All Current';
 
   @override
-  String get allRemote => 'All Remote';
+  String get allIncoming => 'All Incoming';
 
   @override
   String get iosClearDataTitle => '这是全新安装吗？';

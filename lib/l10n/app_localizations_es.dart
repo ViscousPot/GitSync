@@ -362,13 +362,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get keepChanges => 'Mantener Cambios';
 
   @override
-  String get local => 'Local';
+  String get current => 'Current';
 
   @override
   String get both => 'Ambos';
 
   @override
   String get remote => 'Remoto';
+
+  @override
+  String get incoming => 'Incoming';
 
   @override
   String get merge => 'Fusionar';
@@ -392,10 +395,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get resolveAll => 'Resolve All';
 
   @override
-  String get allLocal => 'All Local';
+  String get allCurrent => 'All Current';
 
   @override
-  String get allRemote => 'All Remote';
+  String get allIncoming => 'All Incoming';
 
   @override
   String get iosClearDataTitle => 'Is this a fresh install?';
