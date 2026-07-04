@@ -200,7 +200,9 @@ class Logger {
       await tempSettingsManager.reinit(repoIndex: 0);
       final provider = await tempSettingsManager.getGitProvider();
       if (provider == GitProvider.GITHUB) {
-        reportIssueToken = (await tempSettingsManager.getGitHttpAuthCredentials()).$2;
+        if (!await tempSettingsManager.getBool(StorageKey.setman_githubScopedOauth)) {
+          reportIssueToken = (await tempSettingsManager.getGitHttpAuthCredentials()).$2;
+        }
       }
       uiSettingsManager.reinit();
     }
