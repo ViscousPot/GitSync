@@ -138,6 +138,7 @@ Stream<StreamEvent> streamCompletion({
     }
 
     final anthropicBlockIds = <int, String>{};
+    final openaiToolIds = <int, String>{};
 
     final lineBuffer = StringBuffer();
     await for (final chunk in response.stream.transform(utf8.decoder)) {
@@ -163,7 +164,7 @@ Stream<StreamEvent> streamCompletion({
         final jsonStr = trimmed.substring(6);
         try {
           final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-          final events = _parse(provider, json, anthropicBlockIds);
+          final events = _parse(provider, json, anthropicBlockIds, openaiToolIds);
           for (final e in events) {
             yield e;
           }
@@ -177,7 +178,7 @@ Stream<StreamEvent> streamCompletion({
     if (remaining.isNotEmpty && remaining.startsWith('data: ') && remaining != 'data: [DONE]') {
       try {
         final json = jsonDecode(remaining.substring(6)) as Map<String, dynamic>;
-        for (final e in _parse(provider, json, anthropicBlockIds)) {
+        for (final e in _parse(provider, json, anthropicBlockIds, openaiToolIds)) {
           yield e;
         }
       } catch (e) {
@@ -191,13 +192,13 @@ Stream<StreamEvent> streamCompletion({
   }
 }
 
-List<StreamEvent> _parse(AiProvider provider, Map<String, dynamic> json, Map<int, String> anthropicBlockIds) {
+List<StreamEvent> _parse(AiProvider provider, Map<String, dynamic> json, Map<int, String> anthropicBlockIds, Map<int, String> openaiToolIds) {
   switch (provider) {
     case AiProvider.anthropic:
       return _parseAnthropic(json, anthropicBlockIds);
     case AiProvider.openai:
     case AiProvider.selfHosted:
-      return _parseOpenAI(json);
+      return _parseOpenAI(json, openaiToolIds);
     case AiProvider.google:
       return _parseGoogle(json);
   }
@@ -253,7 +254,7 @@ List<StreamEvent> _parseAnthropic(Map<String, dynamic> json, Map<int, String> bl
   return events;
 }
 
-List<StreamEvent> _parseOpenAI(Map<String, dynamic> json) {
+List<StreamEvent> _parseOpenAI(Map<String, dynamic> json, Map<int, String> toolIds) {
   final events = <StreamEvent>[];
 
   final usage = json['usage'];
@@ -280,12 +281,16 @@ List<StreamEvent> _parseOpenAI(Map<String, dynamic> json) {
         final function = tc['function'] as Map<String, dynamic>?;
 
         if (id != null && function != null && function['name'] != null) {
+          toolIds[index] = id;
           events.add(ToolCallStart(id, function['name']));
         }
         if (function != null && function['arguments'] != null) {
           final fragment = function['arguments'] as String;
           if (fragment.isNotEmpty) {
-            events.add(ToolCallInputDelta(id ?? '$index', fragment));
+            final resolvedId = id ?? toolIds[index];
+            if (resolvedId != null) {
+              events.add(ToolCallInputDelta(resolvedId, fragment));
+            }
           }
         }
       }

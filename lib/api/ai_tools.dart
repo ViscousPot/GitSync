@@ -44,6 +44,11 @@ abstract class AiTool {
 
   Future<String> execute(Map<String, dynamic> input, ToolContext? context);
 
+  String? optString(Map<String, dynamic> input, String key) => input[key] as String?;
+  int? optInt(Map<String, dynamic> input, String key) => input[key] as int?;
+  bool? optBool(Map<String, dynamic> input, String key) => input[key] as bool?;
+  List? optList(Map<String, dynamic> input, String key) => input[key] as List?;
+
   Map<String, dynamic> toAnthropic() => {'name': name, 'description': description, 'input_schema': inputSchema};
 
   Map<String, dynamic> toOpenAI() => {

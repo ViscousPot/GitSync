@@ -47,9 +47,10 @@ class FileReadTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final path = input['path'] as String;
-    final offset = (input['offset'] as int?) ?? 0;
-    final limit = ((input['limit'] as int?) ?? 500).clamp(1, 500);
+    final path = optString(input, 'path');
+    if (path == null) return err('Missing required parameter: path');
+    final offset = optInt(input, 'offset') ?? 0;
+    final limit = (optInt(input, 'limit') ?? 500).clamp(1, 500);
 
     final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
@@ -101,8 +102,10 @@ class FileWriteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final path = input['path'] as String;
-    final content = input['content'] as String;
+    final path = optString(input, 'path');
+    final content = optString(input, 'content');
+    if (path == null) return err('Missing required parameter: path');
+    if (content == null) return err('Missing required parameter: content');
 
     final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
@@ -149,7 +152,8 @@ class FileEditTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final path = input['path'] as String;
+    final path = optString(input, 'path');
+    if (path == null) return err('Missing required parameter: path');
 
     final resolved = await _resolve(path, context);
     if (resolved == null) return err('Invalid path or no repository open');
@@ -160,14 +164,21 @@ class FileEditTool extends AiTool {
     // Build the list of edits — either from the edits array or single old/new.
     final List<Map<String, String>> edits;
     if (input.containsKey('edits')) {
-      final raw = input['edits'] as List<dynamic>;
+      final raw = optList(input, 'edits');
+      if (raw == null) return err('Invalid parameter: edits must be an array');
       edits = raw.map((e) {
         final m = e as Map<String, dynamic>;
-        return {'old_content': m['old_content'] as String, 'new_content': m['new_content'] as String};
+        final oldContent = optString(m, 'old_content');
+        final newContent = optString(m, 'new_content');
+        if (oldContent == null || newContent == null) throw FormatException('Each edit needs old_content and new_content');
+        return {'old_content': oldContent, 'new_content': newContent};
       }).toList();
     } else if (input.containsKey('old_content') && input.containsKey('new_content')) {
+      final oldContent = optString(input, 'old_content');
+      final newContent = optString(input, 'new_content');
+      if (oldContent == null || newContent == null) return err('Invalid parameter: old_content and new_content must be strings');
       edits = [
-        {'old_content': input['old_content'] as String, 'new_content': input['new_content'] as String},
+        {'old_content': oldContent, 'new_content': newContent},
       ];
     } else {
       return err('Provide either old_content/new_content or an edits array');
@@ -272,9 +283,10 @@ class FileSearchTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final pattern = input['pattern'] as String;
-    final path = (input['path'] as String?) ?? '.';
-    final fileGlob = input['file_glob'] as String?;
+    final pattern = optString(input, 'pattern');
+    if (pattern == null) return err('Missing required parameter: pattern');
+    final path = optString(input, 'path') ?? '.';
+    final fileGlob = optString(input, 'file_glob');
 
     final root = await _repoRoot(context);
     if (root == null) return err('No repository open');

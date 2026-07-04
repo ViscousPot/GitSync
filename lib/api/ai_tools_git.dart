@@ -138,7 +138,8 @@ class GitCommitShowTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final commitSha = input['commit_sha'] as String;
+    final commitSha = optString(input, 'commit_sha');
+    if (commitSha == null) return err('Missing required parameter: commit_sha');
     final diff = await GitManager.getCommitDiff(commitSha, null, repoIndex: context?.repoIndex);
     if (diff == null) return err('Could not get diff for commit $commitSha');
     return ok({'insertions': diff.insertions, 'deletions': diff.deletions, 'diff': formatDiffParts(diff.diffParts)});
@@ -166,7 +167,9 @@ class GitStageTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final paths = (input['paths'] as List).cast<String>();
+    final pathsRaw = optList(input, 'paths');
+    if (pathsRaw == null) return err('Missing required parameter: paths');
+    final paths = pathsRaw.cast<String>();
     await GitManager.stageFilePaths(paths, repoIndex: context?.repoIndex);
     return ok('Staged ${paths.length} file(s)');
   }
@@ -193,7 +196,9 @@ class GitUnstageTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final paths = (input['paths'] as List).cast<String>();
+    final pathsRaw = optList(input, 'paths');
+    if (pathsRaw == null) return err('Missing required parameter: paths');
+    final paths = pathsRaw.cast<String>();
     await GitManager.unstageFilePaths(paths, repoIndex: context?.repoIndex);
     return ok('Unstaged ${paths.length} file(s)');
   }
@@ -217,7 +222,8 @@ class GitCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final message = input['message'] as String;
+    final message = optString(input, 'message');
+    if (message == null) return err('Missing required parameter: message');
     await GitManager.commitChanges(message, repoIndex: context?.repoIndex);
     return ok('Committed with message: $message');
   }
@@ -293,8 +299,10 @@ class GitBranchCreateTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
-    final basedOn = input['based_on'] as String;
+    final name = optString(input, 'name');
+    final basedOn = optString(input, 'based_on');
+    if (name == null) return err('Missing required parameter: name');
+    if (basedOn == null) return err('Missing required parameter: based_on');
     await GitManager.createBranch(name, basedOn, repoIndex: context?.repoIndex);
     return ok('Created branch $name from $basedOn');
   }
@@ -318,7 +326,8 @@ class GitBranchCheckoutTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
+    final name = optString(input, 'name');
+    if (name == null) return err('Missing required parameter: name');
     await GitManager.checkoutBranch(name, repoIndex: context?.repoIndex);
     return ok('Checked out branch $name');
   }
@@ -342,7 +351,8 @@ class GitBranchDeleteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
+    final name = optString(input, 'name');
+    if (name == null) return err('Missing required parameter: name');
     await GitManager.deleteBranch(name, repoIndex: context?.repoIndex);
     return ok('Deleted branch $name');
   }
@@ -369,7 +379,9 @@ class GitDiscardTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final paths = (input['paths'] as List).cast<String>();
+    final pathsRaw = optList(input, 'paths');
+    if (pathsRaw == null) return err('Missing required parameter: paths');
+    final paths = pathsRaw.cast<String>();
     await GitManager.discardChanges(paths, repoIndex: context?.repoIndex);
     return ok('Discarded changes for ${paths.length} file(s)');
   }
@@ -395,7 +407,8 @@ class GitAmendCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final message = input['message'] as String;
+    final message = optString(input, 'message');
+    if (message == null) return err('Missing required parameter: message');
     await GitManager.amendCommit(message, repoIndex: context?.repoIndex);
     return ok('Amended commit with message: $message');
   }
@@ -421,7 +434,8 @@ class GitRevertCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final sha = input['commit_sha'] as String;
+    final sha = optString(input, 'commit_sha');
+    if (sha == null) return err('Missing required parameter: commit_sha');
     await GitManager.revertCommit(sha, repoIndex: context?.repoIndex);
     return ok('Reverted commit $sha');
   }
@@ -447,7 +461,8 @@ class GitResetToCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final sha = input['commit_sha'] as String;
+    final sha = optString(input, 'commit_sha');
+    if (sha == null) return err('Missing required parameter: commit_sha');
     await GitManager.resetToCommit(sha, repoIndex: context?.repoIndex);
     return ok('Reset to commit $sha');
   }
@@ -474,8 +489,10 @@ class GitCherryPickTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final sha = input['commit_sha'] as String;
-    final targetBranch = input['target_branch'] as String;
+    final sha = optString(input, 'commit_sha');
+    final targetBranch = optString(input, 'target_branch');
+    if (sha == null) return err('Missing required parameter: commit_sha');
+    if (targetBranch == null) return err('Missing required parameter: target_branch');
     await GitManager.cherryPickCommit(sha, targetBranch, repoIndex: context?.repoIndex);
     return ok('Cherry-picked commit $sha onto $targetBranch');
   }
@@ -503,8 +520,10 @@ class GitSquashCommitsTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final oldestSha = input['oldest_commit_sha'] as String;
-    final message = input['message'] as String;
+    final oldestSha = optString(input, 'oldest_commit_sha');
+    final message = optString(input, 'message');
+    if (oldestSha == null) return err('Missing required parameter: oldest_commit_sha');
+    if (message == null) return err('Missing required parameter: message');
     await GitManager.squashCommits(oldestSha, message, repoIndex: context?.repoIndex);
     return ok('Squashed commits from $oldestSha to HEAD with message: $message');
   }
@@ -550,7 +569,8 @@ class GitIgnoreWriteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final content = input['content'] as String;
+    final content = optString(input, 'content');
+    if (content == null) return err('Missing required parameter: content');
     final root = await _repoPath(context);
     if (root == null) return err('No repository open');
     await File('$root/.gitignore').writeAsString(content);
@@ -596,8 +616,10 @@ class GitCreateTagTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final tagName = input['tag_name'] as String;
-    final commitSha = input['commit_sha'] as String;
+    final tagName = optString(input, 'tag_name');
+    final commitSha = optString(input, 'commit_sha');
+    if (tagName == null) return err('Missing required parameter: tag_name');
+    if (commitSha == null) return err('Missing required parameter: commit_sha');
     await GitManager.createTag(tagName, commitSha, repoIndex: context?.repoIndex);
     return ok('Created tag $tagName on commit $commitSha');
   }
@@ -704,8 +726,10 @@ class GitBranchRenameTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final oldName = input['old_name'] as String;
-    final newName = input['new_name'] as String;
+    final oldName = optString(input, 'old_name');
+    final newName = optString(input, 'new_name');
+    if (oldName == null) return err('Missing required parameter: old_name');
+    if (newName == null) return err('Missing required parameter: new_name');
     await GitManager.renameBranch(oldName, newName, repoIndex: context?.repoIndex);
     return ok('Renamed branch $oldName to $newName');
   }
@@ -869,7 +893,8 @@ class GitSetDisableSslTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final disable = input['disable'] as bool;
+    final disable = optBool(input, 'disable');
+    if (disable == null) return err('Missing required parameter: disable');
     await GitManager.setDisableSsl(disable, repoIndex: context?.repoIndex);
     return ok('SSL verification ${disable ? 'disabled' : 'enabled'}');
   }
@@ -895,7 +920,8 @@ class GitSetRemoteUrlTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final url = input['url'] as String;
+    final url = optString(input, 'url');
+    if (url == null) return err('Missing required parameter: url');
     await GitManager.setRemoteUrl(url, repoIndex: context?.repoIndex);
     return ok('Remote URL set to $url');
   }
@@ -922,8 +948,10 @@ class GitAddRemoteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
-    final url = input['url'] as String;
+    final name = optString(input, 'name');
+    final url = optString(input, 'url');
+    if (name == null) return err('Missing required parameter: name');
+    if (url == null) return err('Missing required parameter: url');
     await GitManager.addRemote(name, url, repoIndex: context?.repoIndex);
     return ok('Added remote $name ($url)');
   }
@@ -949,7 +977,8 @@ class GitDeleteRemoteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
+    final name = optString(input, 'name');
+    if (name == null) return err('Missing required parameter: name');
     await GitManager.deleteRemote(name, repoIndex: context?.repoIndex);
     return ok('Deleted remote $name');
   }
@@ -976,8 +1005,10 @@ class GitRenameRemoteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final oldName = input['old_name'] as String;
-    final newName = input['new_name'] as String;
+    final oldName = optString(input, 'old_name');
+    final newName = optString(input, 'new_name');
+    if (oldName == null) return err('Missing required parameter: old_name');
+    if (newName == null) return err('Missing required parameter: new_name');
     await GitManager.renameRemote(oldName, newName, repoIndex: context?.repoIndex);
     return ok('Renamed remote $oldName to $newName');
   }
@@ -1003,7 +1034,8 @@ class GitCheckoutCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final sha = input['commit_sha'] as String;
+    final sha = optString(input, 'commit_sha');
+    if (sha == null) return err('Missing required parameter: commit_sha');
     await GitManager.checkoutCommit(sha, repoIndex: context?.repoIndex);
     return ok('Checked out commit $sha (detached HEAD)');
   }
@@ -1030,8 +1062,10 @@ class GitCreateBranchFromCommitTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final name = input['name'] as String;
-    final sha = input['commit_sha'] as String;
+    final name = optString(input, 'name');
+    final sha = optString(input, 'commit_sha');
+    if (name == null) return err('Missing required parameter: name');
+    if (sha == null) return err('Missing required parameter: commit_sha');
     await GitManager.createBranchFromCommit(name, sha, repoIndex: context?.repoIndex);
     return ok('Created branch $name at commit $sha');
   }
@@ -1148,8 +1182,11 @@ class GitStageLinesTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final path = input['file_path'] as String;
-    final lines = (input['line_indices'] as List).cast<int>();
+    final path = optString(input, 'file_path');
+    final linesRaw = optList(input, 'line_indices');
+    if (path == null) return err('Missing required parameter: file_path');
+    if (linesRaw == null) return err('Missing required parameter: line_indices');
+    final lines = linesRaw.cast<int>();
     await GitManager.stageFileLines(path, lines, repoIndex: context?.repoIndex);
     return ok('Staged ${lines.length} line(s) from $path');
   }
@@ -1175,7 +1212,8 @@ class GitMoreCommitsTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final skip = input['skip'] as int;
+    final skip = optInt(input, 'skip');
+    if (skip == null) return err('Missing required parameter: skip');
     final commits = await GitManager.getMoreRecentCommits(skip, repoIndex: context?.repoIndex);
     return ok(
       commits
@@ -1254,7 +1292,8 @@ class GitInfoExcludeWriteTool extends AiTool {
 
   @override
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
-    final content = input['content'] as String;
+    final content = optString(input, 'content');
+    if (content == null) return err('Missing required parameter: content');
     await GitManager.writeGitInfoExclude(content, repoIndex: context?.repoIndex);
     return ok('Updated .git/info/exclude');
   }

@@ -136,7 +136,8 @@ class GetIssueDetailTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
     final detail = await ctx.manager.getIssueDetail(ctx.accessToken, ctx.owner, ctx.repo, number);
     if (detail == null) return err('Issue #$number not found');
 
@@ -187,8 +188,10 @@ class CreateIssueTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final title = input['title'] as String;
-    final body = input['body'] as String;
+    final title = optString(input, 'title');
+    if (title == null) return err('Missing required parameter: title');
+    final body = optString(input, 'body');
+    if (body == null) return err('Missing required parameter: body');
     final labels = (input['labels'] as List?)?.cast<String>();
     final assignees = (input['assignees'] as List?)?.cast<String>();
 
@@ -224,8 +227,10 @@ class AddIssueCommentTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
-    final body = input['body'] as String;
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
+    final body = optString(input, 'body');
+    if (body == null) return err('Missing required parameter: body');
 
     final comment = await ctx.manager.addIssueComment(ctx.accessToken, ctx.owner, ctx.repo, number, body);
     if (comment == null) return err('Failed to add comment');
@@ -258,7 +263,8 @@ class UpdateIssueTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
     final title = input['title'] as String?;
     final body = input['body'] as String?;
 
@@ -295,8 +301,11 @@ class CloseReopenIssueTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
-    final close = (input['action'] as String) == 'close';
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
+    final action = optString(input, 'action');
+    if (action == null) return err('Missing required parameter: action');
+    final close = action == 'close';
 
     final detail = await ctx.manager.getIssueDetail(ctx.accessToken, ctx.owner, ctx.repo, number);
     if (detail == null) return err('Issue #$number not found');
@@ -390,7 +399,8 @@ class GetPrDetailTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['pr_number'] as int;
+    final number = optInt(input, 'pr_number');
+    if (number == null) return err('Missing required parameter: pr_number');
     final detail = await ctx.manager.getPrDetail(ctx.accessToken, ctx.owner, ctx.repo, number);
     if (detail == null) return err('PR #$number not found');
 
@@ -446,10 +456,14 @@ class CreatePullRequestTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final title = input['title'] as String;
-    final body = input['body'] as String;
-    final head = input['head'] as String;
-    final base = input['base'] as String;
+    final title = optString(input, 'title');
+    if (title == null) return err('Missing required parameter: title');
+    final body = optString(input, 'body');
+    if (body == null) return err('Missing required parameter: body');
+    final head = optString(input, 'head');
+    if (head == null) return err('Missing required parameter: head');
+    final base = optString(input, 'base');
+    if (base == null) return err('Missing required parameter: base');
 
     final result = await ctx.manager.createPullRequest(ctx.accessToken, ctx.owner, ctx.repo, title, body, head, base);
     if (result == null || result.error != null) {
@@ -679,8 +693,10 @@ class AddReactionTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
-    final reaction = input['reaction'] as String;
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
+    final reaction = optString(input, 'reaction');
+    if (reaction == null) return err('Missing required parameter: reaction');
     final commentId = input['comment_id'] as String?;
     final isComment = commentId != null;
 
@@ -714,8 +730,10 @@ class RemoveReactionTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final number = input['issue_number'] as int;
-    final reaction = input['reaction'] as String;
+    final number = optInt(input, 'issue_number');
+    if (number == null) return err('Missing required parameter: issue_number');
+    final reaction = optString(input, 'reaction');
+    if (reaction == null) return err('Missing required parameter: reaction');
     final commentId = input['comment_id'] as String?;
     final isComment = commentId != null;
 
@@ -827,7 +845,8 @@ class CreateRepoTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final repoName = input['repo_name'] as String;
+    final repoName = optString(input, 'repo_name');
+    if (repoName == null) return err('Missing required parameter: repo_name');
     final isPrivate = (input['private'] as bool?) ?? false;
     final username = context?.username ?? (await uiSettingsManager.getGitHttpAuthCredentials()).$1;
 
