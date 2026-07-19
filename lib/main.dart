@@ -541,9 +541,24 @@ void onServiceStart(ServiceInstance service) async {
   });
 
   _onGitOp(service, LogType.ListRemotes, (event) async {
+    if (event != null && event['dirPath'] != null) {
+      final result = await GitManagerRs.listRemotes(pathString: event['dirPath'], log: (_, __) {});
+      return {"result": result.map<String>((r) => "$r").toList()};
+    }
     final result = await GitManager.listRemotes();
     return {"result": result.map<String>((r) => "$r").toList()};
   });
+
+  _onGitOp(service, LogType.InitRepo, (event) async {
+    if (event == null) return null;
+    try {
+      await GitManagerRs.initRepository(pathString: event['dirPath'], log: (_, __) {});
+      return {'result': true};
+    } catch (e, st) {
+      Logger.logError(LogType.InitRepo, e, st);
+      return {'result': false};
+    }
+  }, retryOnNetworkError: false);
 
   _onGitOp(service, LogType.AddRemote, (event) async {
     if (event == null) return null;
