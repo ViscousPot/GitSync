@@ -35,7 +35,6 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
   final searchController = TextEditingController();
   final cloneUrlController = TextEditingController();
   final _urlFocusNode = FocusNode();
-  bool _urlFocused = false;
 
   bool atTop = true;
   bool atBottom = false;
@@ -54,9 +53,6 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
   void initState() {
     super.initState();
     _controller.addListener(scrollListener);
-    _urlFocusNode.addListener(() {
-      setState(() => _urlFocused = _urlFocusNode.hasFocus);
-    });
 
     initAsync(() async {
       searchRepos("");
@@ -95,6 +91,9 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
       await uiSettingsManager.getBool(StorageKey.setman_githubScopedOauth),
     );
     if (gitProviderManager == null) return;
+
+    repoMap.clear();
+    if (mounted) setState(() {});
 
     setLoadingRepos(true);
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
@@ -216,7 +215,6 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colours.primaryDark,
-      resizeToAvoidBottomInset: false,
       appBar: widget.onboarding
           ? null
           : AppBar(
@@ -397,9 +395,8 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                       children: <Widget>[
                         if (hasList)
                           Expanded(
-                            flex: _urlFocused ? 0 : 1,
+                            flex: 1,
                             child: Container(
-                              height: 0,
                               margin: EdgeInsets.only(bottom: spaceLG),
                               decoration: BoxDecoration(
                                 color: colours.secondaryDark,
@@ -461,8 +458,6 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                       isDense: true,
                                     ),
                                     onChanged: (text) async {
-                                      repoMap.clear();
-                                      setState(() {});
                                       debounce("clone_repo_search_string", 500, () async {
                                         await searchRepos(text);
                                       });
@@ -670,12 +665,11 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                         ),
                       ],
                     );
-                    if (!widget.onboarding) return contentColumn;
                     return LayoutBuilder(
                       builder: (context, constraints) {
                         return SingleChildScrollView(
                           child: SizedBox(
-                            height: constraints.maxHeight < spaceXXL * 2 * 5.5 ? spaceXXL * 2 * 5.5 : constraints.maxHeight,
+                            height: constraints.maxHeight < spaceXXL * 2 * 5 ? spaceXXL * 2 * 5 : constraints.maxHeight,
                             child: contentColumn,
                           ),
                         );
