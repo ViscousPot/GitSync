@@ -1245,7 +1245,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     await repoManager.setInt(StorageKey.repoman_repoIndex, widgetManualSyncIndex);
     await uiSettingsManager.reinit();
     await reloadAll();
-    await ManualSyncDialog.showDialog(context, hasRemotes: (ref.read(listRemotesProvider).valueOrNull ?? []).isNotEmpty);
+    final remotes = await GitManager.listRemotes(widgetManualSyncIndex, 3);
+    await ManualSyncDialog.showDialog(context, hasRemotes: remotes.isNotEmpty);
   }
 
   Future<void> updateRecommendedAction({int? override}) async {
@@ -1677,15 +1678,18 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     return AuthDialog.showDialog(context, () async {
       await reloadAll();
       // After auth, offer remote creation if current repo has no remotes
-      final gitDirPath = ref.read(gitDirPathProvider).valueOrNull;
-      if (gitDirPath?.$1 != null && (ref.read(listRemotesProvider).valueOrNull ?? []).isEmpty) {
-        final provider = ref.read(gitProviderProvider).valueOrNull ?? GitProvider.GITHUB;
-        if (provider.isOAuthProvider) {
-          await offerCreateRemoteForExistingRepo(context, gitDirPath!.$1);
-          await reloadAll();
+      final gitDirPath = await uiSettingsManager.getGitDirPath();
+      if (gitDirPath?.$1 != null) {
+        final remotes = await GitManager.listRemotes(null, 3);
+        if (remotes.isEmpty) {
+          final provider = await uiSettingsManager.getGitProvider();
+          if (provider.isOAuthProvider) {
+            await offerCreateRemoteForExistingRepo(context, gitDirPath!.$1);
+            await reloadAll();
+          }
         }
       }
-      if ((ref.read(authorEmailProvider).valueOrNull ?? "").isEmpty || (ref.read(authorNameProvider).valueOrNull ?? "").isEmpty) {
+      if ((await uiSettingsManager.getAuthorEmail()).isEmpty || (await uiSettingsManager.getAuthorName()).isEmpty) {
         await AuthorDetailsPromptDialog.showDialog(
           context,
           () async {
