@@ -2468,6 +2468,16 @@ fn pull_changes_priv(
             LogType::PullFromRepo,
             "Pulling changes".to_string(),
         );
+        if !get_staged_file_paths_priv(&repo, &log_callback)?.is_empty()
+            || !get_uncommitted_file_paths_priv(&repo, false, &log_callback)?.is_empty()
+        {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::PullFromRepo,
+                "Uncommitted changes exist, skipping normal merge".to_string(),
+            );
+            return Ok(Some(false));
+        }
         let head_commit = swl!(repo.reference_to_annotated_commit(&repo.head()?))?;
         _log(
             Arc::clone(&log_callback),
