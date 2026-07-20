@@ -1696,15 +1696,21 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           context,
           () async {
             await _openSettingsMain(showcaseAuthorDetails: true);
-            await showCloneRepoPage();
+            if (gitDirPath?.$1 == null) {
+              await showCloneRepoPage();
+            }
           },
           () async {
-            await showCloneRepoPage();
+            if (gitDirPath?.$1 == null) {
+              await showCloneRepoPage();
+            }
           },
         );
         return;
       }
-      await showCloneRepoPage();
+      if (gitDirPath?.$1 == null) {
+        await showCloneRepoPage();
+      }
     });
   }
 
