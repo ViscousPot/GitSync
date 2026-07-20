@@ -809,8 +809,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   final PageController _pageController = PageController(initialPage: 1);
   final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>();
   final ValueNotifier<bool> _homeCanPop = ValueNotifier(false);
+  late final _NestedNavigatorObserver _homeNavigatorObserver = _NestedNavigatorObserver(_homeCanPop);
   final GlobalKey<NavigatorState> _filesNavigatorKey = GlobalKey<NavigatorState>();
   final ValueNotifier<bool> _filesCanPop = ValueNotifier(false);
+  late final _NestedNavigatorObserver _filesNavigatorObserver = _NestedNavigatorObserver(_filesCanPop);
   final GlobalKey<FileExplorerState> _fileExplorerKey = GlobalKey<FileExplorerState>();
   late ValueNotifier<List<String>> queueValue = ValueNotifier([]);
   Timer? queueTimer;
@@ -1792,7 +1794,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           ),
           child: Navigator(
             key: _filesNavigatorKey,
-            observers: [_NestedNavigatorObserver(_filesCanPop)],
+            observers: [_filesNavigatorObserver],
             onGenerateRoute: (_) => MaterialPageRoute(
               builder: (context) => Consumer(
                 builder: (context, ref, _) {
@@ -2189,7 +2191,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                       ),
                       child: Navigator(
                         key: _homeNavigatorKey,
-                        observers: [_NestedNavigatorObserver(_homeCanPop)],
+                        observers: [_homeNavigatorObserver],
                         onGenerateRoute: (_) => MaterialPageRoute(
                           builder: (context) => BetterOrientationBuilder(
                             builder: (context, orientation) => SingleChildScrollView(
@@ -4369,9 +4371,7 @@ class _NestedNavigatorObserver extends NavigatorObserver {
   _NestedNavigatorObserver(this.canPop);
 
   void _update() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      canPop.value = navigator?.canPop() ?? false;
-    });
+    canPop.value = navigator?.canPop() ?? false;
   }
 
   @override
