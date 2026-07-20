@@ -1,8 +1,6 @@
-import 'dart:async';
-
+import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
-import '../../../api/helper.dart';
 import '../../../constant/dimens.dart';
 
 class ItemSetting extends StatefulWidget {
@@ -33,11 +31,20 @@ class ItemSetting extends StatefulWidget {
 
 class _ItemSetting extends State<ItemSetting> {
   final controller = TextEditingController();
+  bool _isLoading = true;
 
   @override
   void initState() {
-    initAsync(() async => controller.text = await widget.getFn());
+    _loadInitialValue();
     super.initState();
+  }
+
+  Future<void> _loadInitialValue() async {
+    try {
+      final value = await widget.getFn();
+      controller.text = value;
+    } catch (_) {}
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -67,21 +74,26 @@ class _ItemSetting extends State<ItemSetting> {
               ),
         SizedBox(height: widget.description == null && widget.title == null ? 0 : spaceSM),
         widget.isTextArea
-            ? Container(
+            ? AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                decoration: BoxDecoration(
+                  color: _isLoading ? colours.tertiaryDark.withAlpha(80) : colours.tertiaryDark,
+                  borderRadius: BorderRadius.all(cornerRadiusMD),
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: double.maxFinite),
                     child: TextField(
+                      enabled: !_isLoading,
                       contextMenuBuilder: globalContextMenuBuilder,
                       controller: controller,
                       maxLines: widget.maxLines != null && widget.maxLines! < 1 ? null : widget.maxLines,
                       minLines: widget.minLines != null && widget.minLines! < 1 ? 4 : widget.minLines,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: _isLoading ? colours.primaryLight.withAlpha(80) : colours.primaryLight,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         decorationThickness: 0,
@@ -90,7 +102,8 @@ class _ItemSetting extends State<ItemSetting> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(borderSide: BorderSide.none),
                         isCollapsed: true,
-                        hintText: widget.hint,
+                        hintText: _isLoading ? "Loading\u2026" : widget.hint,
+                        hintStyle: TextStyle(color: colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
                         contentPadding: const EdgeInsets.all(0),
                         isDense: true,
                       ),
@@ -100,24 +113,25 @@ class _ItemSetting extends State<ItemSetting> {
                 ),
               )
             : TextField(
+                enabled: !_isLoading,
                 controller: controller,
                 contextMenuBuilder: globalContextMenuBuilder,
-                // controller: TextEditingController()..text = ',
                 maxLines: widget.maxLines != null && widget.maxLines! < 1 ? (widget.isTextArea ? null : 1) : widget.maxLines,
                 minLines: widget.minLines != null && widget.minLines! < 1 ? (widget.isTextArea ? 4 : 1) : widget.minLines,
                 style: TextStyle(
-                  color: colours.primaryLight,
+                  color: _isLoading ? colours.primaryLight.withAlpha(80) : colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: colours.tertiaryDark,
+                  fillColor: _isLoading ? colours.tertiaryDark.withAlpha(80) : colours.tertiaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                   isCollapsed: true,
-                  hintText: widget.hint,
+                  hintText: _isLoading ? "Loading\u2026" : widget.hint,
+                  hintStyle: TextStyle(color: colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                   isDense: true,
