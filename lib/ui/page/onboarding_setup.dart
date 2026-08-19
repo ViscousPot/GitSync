@@ -3535,67 +3535,71 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
-                      Text(
-                        t.onboardingSyncSettingsTitle,
-                        style: TextStyle(
-                          color: colours.primaryLight,
-                          fontSize: textMD * 2,
-                          fontFamily: "AtkinsonHyperlegible",
-                          fontWeight: FontWeight.bold,
-                          shadows: _bgTextShadow,
-                        ),
-                      ),
-                      SizedBox(height: spaceXS),
-                      Text(
-                        t.onboardingSyncSettingsSubtitle,
-                        style: TextStyle(
-                          color: colours.tertiaryLight,
-                          fontSize: textSM,
-                          fontFamily: "AtkinsonHyperlegible",
-                          fontWeight: FontWeight.bold,
-                          shadows: _bgTextShadow,
-                        ),
-                      ),
-                      SizedBox(height: MediaQuery.of(context).viewInsets.bottom != 0 ? spaceLG : spaceLG * 3.5),
-                      Expanded(
-                        child: ValueListenableBuilder<int>(
-                          valueListenable: _syncSettingsPage,
-                          builder: (context, currentPage, _) => Column(
-                            children: [
-                              Expanded(
-                                child: PageView(
-                                  controller: _syncPageController,
-                                  onPageChanged: (index) {
-                                    _syncSettingsPage.value = index;
-                                    _expandedSyncCard.value = -1;
-                                  },
-                                  children: syncCards,
-                                ),
-                              ),
-                              SizedBox(height: spaceSM),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(syncCards.length, (index) {
-                                  final isActive = currentPage == index;
-                                  return AnimatedContainer(
-                                    duration: animFast,
-                                    margin: EdgeInsets.symmetric(horizontal: spaceXXXS),
-                                    width: spaceXS,
-                                    height: spaceXS,
-                                    decoration: BoxDecoration(
-                                      color: isActive ? colours.tertiaryInfo : colours.tertiaryInfo.withValues(alpha: 0.3),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ],
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
+                          Text(
+                            t.onboardingSyncSettingsTitle,
+                            style: TextStyle(
+                              color: colours.primaryLight,
+                              fontSize: textMD * 2,
+                              fontFamily: "AtkinsonHyperlegible",
+                              fontWeight: FontWeight.bold,
+                              shadows: _bgTextShadow,
+                            ),
                           ),
+                          SizedBox(height: spaceXS),
+                          Text(
+                            t.onboardingSyncSettingsSubtitle,
+                            style: TextStyle(
+                              color: colours.tertiaryLight,
+                              fontSize: textSM,
+                              fontFamily: "AtkinsonHyperlegible",
+                              fontWeight: FontWeight.bold,
+                              shadows: _bgTextShadow,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ValueListenableBuilder<int>(
+                        valueListenable: _syncSettingsPage,
+                        builder: (context, currentPage, _) => Column(
+                          children: [
+                            ConstrainedBox(
+                              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2),
+                              child: PageView(
+                                controller: _syncPageController,
+                                onPageChanged: (index) {
+                                  _syncSettingsPage.value = index;
+                                  _expandedSyncCard.value = -1;
+                                },
+                                children: syncCards,
+                              ),
+                            ),
+                            SizedBox(height: spaceSM),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(syncCards.length, (index) {
+                                final isActive = currentPage == index;
+                                return AnimatedContainer(
+                                  duration: animFast,
+                                  margin: EdgeInsets.symmetric(horizontal: spaceXXXS),
+                                  width: spaceXS,
+                                  height: spaceXS,
+                                  decoration: BoxDecoration(
+                                    color: isActive ? colours.tertiaryInfo : colours.tertiaryInfo.withValues(alpha: 0.3),
+                                    shape: BoxShape.circle,
+                                  ),
+                                );
+                              }),
+                            ),
+                            SizedBox(height: spaceLG),
+                          ],
                         ),
                       ),
-                      SizedBox(height: spaceLG),
                     ],
                   ),
                 ),
