@@ -122,7 +122,7 @@ jobs:
 
       - name: Build Changelog
         id: changelog
-        uses: ardalanamini/auto-changelog@v4
+        uses: ardalanamini/auto-changelog@v5
         with:
           mention-authors: false
           mention-new-contributors: false
