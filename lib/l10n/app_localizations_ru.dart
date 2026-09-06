@@ -1474,16 +1474,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get openFileDescription => 'Предпросмотр/редактирование содержимого';
 
   @override
+  String get openInAppEditor => 'Открыть в приложении';
+
+  @override
+  String get openInAppEditorDescription => 'Просмотр/редактирование в GitSync';
+
+  @override
+  String get defaultEditor => 'Редактор по умолчанию';
+
+  @override
+  String get inAppEditor => 'В приложении';
+
+  @override
+  String get editorNotInstalled => '%s не установлен';
+
+  @override
   String get viewGitLog => 'просмотреть git лог';
 
   @override
   String get viewGitLogDescription => 'Просмотреть полную историю git';
 
   @override
-  String get openInTextastic => 'Open in Textastic';
+  String get openInTextastic => 'Открыть в Textastic';
 
   @override
-  String get openInTextasticDescription => 'Open file in Textastic app';
+  String get openInTextasticDescription => 'Открыть файл в приложении Textastic';
 
   @override
   String get ignoreUntrack => '.gitignore + Снять с отслеживания';

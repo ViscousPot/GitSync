@@ -1464,16 +1464,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openFileDescription => '预览/编辑文件内容';
 
   @override
+  String get openInAppEditor => '在应用内打开';
+
+  @override
+  String get openInAppEditorDescription => '在 GitSync 中预览/编辑';
+
+  @override
+  String get defaultEditor => '默认编辑器';
+
+  @override
+  String get inAppEditor => '应用内';
+
+  @override
+  String get editorNotInstalled => '%s 未安装';
+
+  @override
   String get viewGitLog => '查看 git 日志';
 
   @override
   String get viewGitLogDescription => '查看完整的 git 日志历史';
 
   @override
-  String get openInTextastic => 'Open in Textastic';
+  String get openInTextastic => '在 Textastic 中打开';
 
   @override
-  String get openInTextasticDescription => 'Open file in Textastic app';
+  String get openInTextasticDescription => '在 Textastic 应用中打开文件';
 
   @override
   String get ignoreUntrack => '.gitignore + 取消追踪';
@@ -3834,10 +3849,31 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get openFileDescription => '預覽/編輯文件內容';
 
   @override
+  String get openInAppEditor => '在應用程式內開啟';
+
+  @override
+  String get openInAppEditorDescription => '在 GitSync 中預覽/編輯';
+
+  @override
+  String get defaultEditor => '預設編輯器';
+
+  @override
+  String get inAppEditor => '應用程式內';
+
+  @override
+  String get editorNotInstalled => '%s 未安裝';
+
+  @override
   String get viewGitLog => '查看 git 日誌';
 
   @override
   String get viewGitLogDescription => '查看完整的 git 日誌歷史';
+
+  @override
+  String get openInTextastic => '在 Textastic 中開啟';
+
+  @override
+  String get openInTextasticDescription => '在 Textastic 應用程式中開啟檔案';
 
   @override
   String get ignoreUntrack => '.gitignore + 取消追蹤';

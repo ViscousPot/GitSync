@@ -28,7 +28,10 @@ import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
 import 'package:ios_document_picker/ios_document_picker.dart';
 import 'package:ios_document_picker/types.dart';
+import 'package:GitSync/type/default_editor.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:GitSync/providers/riverpod_providers.dart';
@@ -686,11 +689,39 @@ Future<http.Response> httpDelete(Uri url, {Map<String, String>? headers, Object?
     );
 
 const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".wbmp"];
-bool viewOrEditFile(BuildContext context, String path, [check = false]) {
+Future<DefaultEditor> getDefaultEditor() async {
+  final editor = DefaultEditor.fromValue(await repoManager.getString(StorageKey.repoman_defaultEditor));
+  return editor.isSupported ? editor : DefaultEditor.INTERNAL;
+}
+
+Future<bool> openInTextastic(String path, {String? rootPath}) async {
+  try {
+    final uri = Uri.parse(sprintf(textasticOpenUrl, [Uri.encodeComponent(path), Uri.encodeComponent(rootPath ?? p.dirname(path))]));
+    if (await canLaunchUrl(uri)) return await launchUrl(uri);
+  } catch (e, st) {
+    Logger.logError(LogType.OpenExternalEditor, e, st);
+  }
+  return false;
+}
+
+Future<bool> openInDefaultEditor(String path, {String? rootPath}) async {
+  final editor = await getDefaultEditor();
+  switch (editor) {
+    case DefaultEditor.INTERNAL:
+      return false;
+    case DefaultEditor.TEXTASTIC:
+      if (await openInTextastic(path, rootPath: rootPath)) return true;
+      Fluttertoast.showToast(msg: sprintf(t.editorNotInstalled, [editor.label]), toastLength: Toast.LENGTH_LONG, gravity: null);
+      return false;
+  }
+}
+
+bool viewOrEditFile(BuildContext context, String path, {bool check = false, String? rootPath}) {
   try {
     if (check) return true;
     File(path).readAsStringSync();
     initAsync(() async {
+      if (await openInDefaultEditor(path, rootPath: rootPath)) return;
       await Navigator.of(context).push(createCodeEditorRoute([path]));
     });
   } catch (e) {

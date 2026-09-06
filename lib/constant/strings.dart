@@ -114,6 +114,12 @@ const String defaultSyncMessage = "Last Sync: %s (Mobile)";
 const String defaultSyncMessageTimeFormat = "yyyy-MM-dd HH:mm";
 const String defaultPostFooter = '\n<sub>CREATED WITH <a href="https://github.com/ViscousPot/GitSync">GITSYNC</a></sub>';
 
+// Default Editor
+const String editorInternal = "internal";
+const String editorTextastic = "textastic";
+const String textasticName = "Textastic";
+const String textasticOpenUrl = "textastic://x-callback-url/open?location=fullPath&path=%s&suggestedExternalFolderPath=%s";
+
 const String apiBaseUrl = "https://api.gitsync.viscouspotenti.al";
 
 const String documentationLink = "https://gitsync.viscouspotenti.al/wiki/";

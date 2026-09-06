@@ -7,6 +7,7 @@ import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/src/rust/api/git_manager.dart' as GitManagerRs;
+import 'package:GitSync/type/default_editor.dart';
 import 'package:GitSync/ui/dialog/create_folder.dart' as CreateFolderDialog;
 import 'package:GitSync/ui/dialog/create_file.dart' as CreateFileDialog;
 import 'package:GitSync/ui/dialog/diff_view.dart' as DiffViewDialog;
@@ -18,7 +19,7 @@ import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:sprintf/sprintf.dart';
 import '../../../constant/strings.dart';
 import 'package:path/path.dart' as p;
 
@@ -52,6 +53,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   final ValueNotifier<List<String>> entityPathsNotifier = ValueNotifier([]);
   final ValueNotifier<String?> openFilePathNotifier = ValueNotifier(null);
   int _editorReloadVersion = 0;
+  DefaultEditor defaultEditor = DefaultEditor.INTERNAL;
 
   void reloadOpenFile() {
     if (openFilePathNotifier.value == null) return;
@@ -109,8 +111,8 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                         if (FileManager.isDirectory(entities[index])) {
                           controller.openDirectory(entities[index]);
                         } else {
-                          if (widget.embedded && _tryOpenInline(path)) return;
-                          viewOrEditFile(context, path);
+                          if (widget.embedded && (await getDefaultEditor()) == DefaultEditor.INTERNAL && _tryOpenInline(path)) return;
+                          viewOrEditFile(context, path, rootPath: widget.path);
                         }
                       },
                       onLongPress: () {
@@ -221,7 +223,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
         });
       },
     ),
-    if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
+    if (viewOrEditFile(context, selectedPathsNotifier.value[0], check: true))
       (
         (t.openFile, t.openFileDescription),
         (List<String> selectedPaths) async {
@@ -229,40 +231,37 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
           final path = selectedPathsNotifier.value[0];
           selectedPathsNotifier.value = [];
           initAsync(() async {
-            if (widget.embedded && _tryOpenInline(path)) return;
-            viewOrEditFile(context, path);
+            if (widget.embedded && (await getDefaultEditor()) == DefaultEditor.INTERNAL && _tryOpenInline(path)) return;
+            viewOrEditFile(context, path, rootPath: widget.path);
           });
           loadingMoreNotifier.value = false;
         },
       ),
-    if (Platform.isIOS && FileSystemEntity.typeSync(selectedPathsNotifier.value[0]) == FileSystemEntityType.file)
+    if (defaultEditor != DefaultEditor.INTERNAL && viewOrEditFile(context, selectedPathsNotifier.value[0], check: true))
+      (
+        (t.openInAppEditor, t.openInAppEditorDescription),
+        (List<String> selectedPaths) async {
+          final path = selectedPathsNotifier.value[0];
+          selectedPathsNotifier.value = [];
+          initAsync(() async {
+            if (widget.embedded && _tryOpenInline(path)) return;
+            await Navigator.of(context).push(createCodeEditorRoute([path]));
+          });
+        },
+      ),
+    if (DefaultEditor.TEXTASTIC.isSupported && FileSystemEntity.typeSync(selectedPathsNotifier.value[0]) == FileSystemEntityType.file)
       (
         (t.openInTextastic, t.openInTextasticDescription),
         (List<String> selectedPaths) async {
-          final filePath = selectedPathsNotifier.value[0];
-          final encodedFullPath = Uri.encodeComponent(filePath);
-          final textasticUrl = 'textastic://x-callback-url/open?location=fullPath&path=$encodedFullPath';
-
+          final path = selectedPathsNotifier.value[0];
           selectedPathsNotifier.value = [];
 
-          try {
-            final uri = Uri.parse(textasticUrl);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri);
-            } else {
-              Fluttertoast.showToast(
-                msg: "Textastic app not installed",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: null,
-              );
-            }
-          } catch (e) {
-            Fluttertoast.showToast(
-              msg: "Failed to open in Textastic: $e",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: null,
-            );
-          }
+          if (await openInTextastic(path, rootPath: widget.path)) return;
+          Fluttertoast.showToast(
+            msg: sprintf(t.editorNotInstalled, [DefaultEditor.TEXTASTIC.label]),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: null,
+          );
         },
       ),
     (
@@ -380,6 +379,14 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     controller.setCurrentPath = widget.path;
+    initAsync(reloadDefaultEditor);
+  }
+
+  Future<void> reloadDefaultEditor() async {
+    final editor = await getDefaultEditor();
+    if (editor == defaultEditor || !mounted) return;
+    setState(() => defaultEditor = editor);
+    await WidgetsBinding.instance.endOfFrame;
   }
 
   @override
@@ -405,6 +412,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       reload();
+      await reloadDefaultEditor();
     }
   }
 
@@ -581,6 +589,8 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                                       return;
                                                     });
                                                   }
+
+                                                  await reloadDefaultEditor();
 
                                                   searchForGestureDetector(moreOptionsDropdownKey.currentContext);
 

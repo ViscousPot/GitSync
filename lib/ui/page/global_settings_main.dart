@@ -14,6 +14,7 @@ import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
 import 'package:GitSync/ui/page/file_explorer.dart';
+import 'package:GitSync/type/default_editor.dart';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -420,6 +421,51 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         ),
                       ),
                     ),
+                    if (DefaultEditor.supportedValues.length > 1) ...[
+                      SizedBox(height: spaceMD),
+                      FutureBuilder(
+                        future: getDefaultEditor(),
+                        builder: (context, defaultEditorSnapshot) => Container(
+                          padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                          decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  t.defaultEditor.toUpperCase(),
+                                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              SizedBox(width: spaceSM),
+                              DropdownButton(
+                                isDense: true,
+                                padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
+                                value: defaultEditorSnapshot.data ?? DefaultEditor.INTERNAL,
+                                borderRadius: BorderRadius.all(cornerRadiusSM),
+                                underline: const SizedBox.shrink(),
+                                dropdownColor: colours.primaryDark,
+                                onChanged: (value) async {
+                                  if (value == null) return;
+                                  await repoManager.setString(StorageKey.repoman_defaultEditor, value.value);
+                                  if (mounted) setState(() {});
+                                },
+                                items: DefaultEditor.supportedValues
+                                    .map(
+                                      (editor) => DropdownMenuItem(
+                                        value: editor,
+                                        child: Text(
+                                          editor.label,
+                                          style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                     SizedBox(height: spaceMD),
                     Builder(
                       builder: (context) {

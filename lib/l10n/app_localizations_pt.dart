@@ -1478,16 +1478,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get openFileDescription => 'Visualizar/editar conteúdo do arquivo';
 
   @override
+  String get openInAppEditor => 'Abrir no app';
+
+  @override
+  String get openInAppEditorDescription => 'Pré-visualizar/editar no GitSync';
+
+  @override
+  String get defaultEditor => 'Editor Padrão';
+
+  @override
+  String get inAppEditor => 'No app';
+
+  @override
+  String get editorNotInstalled => '%s não instalado';
+
+  @override
   String get viewGitLog => 'ver git log';
 
   @override
   String get viewGitLogDescription => 'Ver o histórico completo do git log';
 
   @override
-  String get openInTextastic => 'Open in Textastic';
+  String get openInTextastic => 'Abrir no Textastic';
 
   @override
-  String get openInTextasticDescription => 'Open file in Textastic app';
+  String get openInTextasticDescription => 'Abrir arquivo no app Textastic';
 
   @override
   String get ignoreUntrack => '.gitignore + Remover Rastreamento';

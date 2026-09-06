@@ -1472,6 +1472,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openFileDescription => 'Preview/edit file contents';
 
   @override
+  String get openInAppEditor => 'Open in App';
+
+  @override
+  String get openInAppEditorDescription => 'Preview/edit in GitSync';
+
+  @override
+  String get defaultEditor => 'Default Editor';
+
+  @override
+  String get inAppEditor => 'In-App';
+
+  @override
+  String get editorNotInstalled => '%s not installed';
+
+  @override
   String get viewGitLog => 'view git log';
 
   @override

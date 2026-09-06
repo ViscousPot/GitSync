@@ -1465,16 +1465,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get openFileDescription => 'معاينة/تحرير المحتوى';
 
   @override
+  String get openInAppEditor => 'فتح داخل التطبيق';
+
+  @override
+  String get openInAppEditorDescription => 'معاينة/تحرير في GitSync';
+
+  @override
+  String get defaultEditor => 'المحرر الافتراضي';
+
+  @override
+  String get inAppEditor => 'داخل التطبيق';
+
+  @override
+  String get editorNotInstalled => '%s غير مثبت';
+
+  @override
   String get viewGitLog => 'عرض سجل Git';
 
   @override
   String get viewGitLogDescription => 'عرض سجل Git الكامل';
 
   @override
-  String get openInTextastic => 'Open in Textastic';
+  String get openInTextastic => 'فتح في Textastic';
 
   @override
-  String get openInTextasticDescription => 'Open file in Textastic app';
+  String get openInTextasticDescription => 'فتح الملف في تطبيق Textastic';
 
   @override
   String get ignoreUntrack => '.gitignore + إلغاء تتبع';

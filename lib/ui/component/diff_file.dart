@@ -370,6 +370,7 @@ class _DiffFileState extends ConsumerState<DiffFile> {
                       await viewOrEditFile(
                         context,
                         "${ref.read(gitDirPathProvider).valueOrNull?.$2}/${widget.entry.key.contains(conflictSeparator) ? widget.filePath : widget.entry.key}",
+                        rootPath: ref.read(gitDirPathProvider).valueOrNull?.$2,
                       );
                     },
                     style: ButtonStyle(

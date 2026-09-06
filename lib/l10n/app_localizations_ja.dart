@@ -1470,16 +1470,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get openFileDescription => 'ファイル内容のプレビュー/編集';
 
   @override
+  String get openInAppEditor => 'アプリ内で開く';
+
+  @override
+  String get openInAppEditorDescription => 'GitSync でプレビュー/編集';
+
+  @override
+  String get defaultEditor => 'デフォルトエディタ';
+
+  @override
+  String get inAppEditor => 'アプリ内';
+
+  @override
+  String get editorNotInstalled => '%s がインストールされていません';
+
+  @override
   String get viewGitLog => 'Gitログを表示';
 
   @override
   String get viewGitLogDescription => 'Gitの完全なログ履歴を表示';
 
   @override
-  String get openInTextastic => 'Open in Textastic';
+  String get openInTextastic => 'Textastic で開く';
 
   @override
-  String get openInTextasticDescription => 'Open file in Textastic app';
+  String get openInTextasticDescription => 'Textastic アプリでファイルを開く';
 
   @override
   String get ignoreUntrack => '.gitignore + 追跡解除';

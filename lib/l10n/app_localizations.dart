@@ -3020,6 +3020,36 @@ abstract class AppLocalizations {
   /// **'Preview/edit file contents'**
   String get openFileDescription;
 
+  /// No description provided for @openInAppEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in App'**
+  String get openInAppEditor;
+
+  /// No description provided for @openInAppEditorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview/edit in GitSync'**
+  String get openInAppEditorDescription;
+
+  /// No description provided for @defaultEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Editor'**
+  String get defaultEditor;
+
+  /// No description provided for @inAppEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'In-App'**
+  String get inAppEditor;
+
+  /// No description provided for @editorNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'%s not installed'**
+  String get editorNotInstalled;
+
   /// No description provided for @viewGitLog.
   ///
   /// In en, this message translates to:
