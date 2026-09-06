@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get dismiss;
 
+  /// No description provided for @dontShowAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t Show Again'**
+  String get dontShowAgain;
+
   /// No description provided for @skip.
   ///
   /// In en, this message translates to:

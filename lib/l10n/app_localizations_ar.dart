@@ -12,6 +12,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dismiss => 'تجاهل';
 
   @override
+  String get dontShowAgain => 'لا تظهر مجددًا';
+
+  @override
   String get skip => 'تخطي';
 
   @override

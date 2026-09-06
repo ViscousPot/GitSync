@@ -12,6 +12,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dismiss => '忽略';
 
   @override
+  String get dontShowAgain => '不再显示';
+
+  @override
   String get skip => '跳过';
 
   @override
@@ -2377,6 +2380,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get dismiss => '忽略';
+
+  @override
+  String get dontShowAgain => '不再顯示';
 
   @override
   String get skip => '跳過';

@@ -538,6 +538,20 @@ class AiFeaturesEnabledNotifier extends AsyncNotifier<bool> {
 
 final aiFeaturesEnabledProvider = AsyncNotifierProvider<AiFeaturesEnabledNotifier, bool>(AiFeaturesEnabledNotifier.new);
 
+class ShowEditorExperimentalNoticeNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() => repoManager.getBool(StorageKey.repoman_showEditorExperimentalNotice);
+
+  void set(bool value) {
+    state = AsyncData(value);
+    repoManager.setBool(StorageKey.repoman_showEditorExperimentalNotice, value);
+  }
+}
+
+final showEditorExperimentalNoticeProvider = AsyncNotifierProvider<ShowEditorExperimentalNoticeNotifier, bool>(
+  ShowEditorExperimentalNoticeNotifier.new,
+);
+
 final aiKeyConfiguredProvider = StateProvider<bool>((ref) => false);
 
 class PremiumStatusNotifier extends Notifier<bool?> {

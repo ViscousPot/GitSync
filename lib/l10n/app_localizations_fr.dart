@@ -12,6 +12,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dismiss => 'Ignorer';
 
   @override
+  String get dontShowAgain => 'Ne plus afficher';
+
+  @override
   String get skip => 'Passer';
 
   @override

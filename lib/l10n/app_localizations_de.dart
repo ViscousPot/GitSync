@@ -12,6 +12,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dismiss => 'Schließen';
 
   @override
+  String get dontShowAgain => 'Nicht mehr anzeigen';
+
+  @override
   String get skip => 'Überspringen';
 
   @override

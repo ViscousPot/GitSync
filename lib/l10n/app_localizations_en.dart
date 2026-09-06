@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dismiss => 'Dismiss';
 
   @override
+  String get dontShowAgain => 'Don\'t Show Again';
+
+  @override
   String get skip => 'Skip';
 
   @override

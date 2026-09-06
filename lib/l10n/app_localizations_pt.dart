@@ -12,6 +12,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dismiss => 'Dispensar';
 
   @override
+  String get dontShowAgain => 'Não mostrar novamente';
+
+  @override
   String get skip => 'Pular';
 
   @override

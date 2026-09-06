@@ -144,6 +144,7 @@ Future<void> main() async {
       await container.read(gitDirPathProvider.future);
       await container.read(pinnedShowcaseFeaturesProvider.future);
       await container.read(aiFeaturesEnabledProvider.future);
+      await container.read(showEditorExperimentalNoticeProvider.future);
 
       runApp(ProviderScope(parent: container, child: const MyApp()));
     },
