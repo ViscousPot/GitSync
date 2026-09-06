@@ -12,6 +12,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dismiss => '閉じる';
 
   @override
+  String get dontShowAgain => '今後表示しない';
+
+  @override
   String get skip => 'スキップ';
 
   @override

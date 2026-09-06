@@ -12,6 +12,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dismiss => 'Закрыть';
 
   @override
+  String get dontShowAgain => 'Больше не показывать';
+
+  @override
   String get skip => 'Пропустить';
 
   @override

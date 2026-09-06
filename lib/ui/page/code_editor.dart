@@ -8,12 +8,14 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/values.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/code_line_number_render_object.dart';
 import 'package:GitSync/ui/dialog/info_dialog.dart' as InfoDialog;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mmap2/mmap2.dart';
 import 'package:mmap2_flutter/mmap2_flutter.dart';
@@ -345,7 +347,7 @@ class _CodeEditor extends State<CodeEditor> {
   }
 }
 
-class Editor extends StatefulWidget {
+class Editor extends ConsumerStatefulWidget {
   const Editor({super.key, this.verticalScrollController, this.text, this.path, this.type = EditorType.DEFAULT});
 
   final String? text;
@@ -354,10 +356,10 @@ class Editor extends StatefulWidget {
   final ScrollController? verticalScrollController;
 
   @override
-  State<Editor> createState() => _EditorState();
+  ConsumerState<Editor> createState() => _EditorState();
 }
 
-class _EditorState extends State<Editor> with WidgetsBindingObserver {
+class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
   final fileSaving = ValueNotifier(false);
   final ReEditor.CodeLineEditingController controller = ReEditor.CodeLineEditingController();
   final ScrollController horizontalController = ScrollController();
@@ -549,6 +551,19 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
               await Logger.reportIssue(context, From.CODE_EDITOR);
             },
           ),
+          SizedBox(height: spaceSM),
+          Builder(
+            builder: (dialogContext) => ButtonSetting(
+              text: t.dontShowAgain,
+              icon: FontAwesomeIcons.eyeSlash,
+              textColor: colours.secondaryLight,
+              iconColor: colours.secondaryLight,
+              onPressed: () async {
+                ref.read(showEditorExperimentalNoticeProvider.notifier).set(false);
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -556,6 +571,8 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final showExperimentalNotice = ref.watch(showEditorExperimentalNoticeProvider).valueOrNull ?? true;
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -697,7 +714,7 @@ class _EditorState extends State<Editor> with WidgetsBindingObserver {
                   },
                 ),
         ),
-        if (widget.type == EditorType.DEFAULT)
+        if (widget.type == EditorType.DEFAULT && showExperimentalNotice)
           Positioned(
             bottom: spaceXXL,
             child: GestureDetector(
