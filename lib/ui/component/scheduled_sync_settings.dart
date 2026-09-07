@@ -20,13 +20,45 @@ class ScheduledSyncSettings extends StatefulWidget {
   State<ScheduledSyncSettings> createState() => _ScheduledSyncSettingsState();
 }
 
-class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
+class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with WidgetsBindingObserver {
   final recurFrequency = ["never", "min", "hour", "day", "week"];
 
   String? _customFrequency;
   int? _customRate;
   bool _customError = false;
   ValueNotifier<bool> updating = ValueNotifier(false);
+
+  final FocusNode _customRateFocusNode = FocusNode();
+  final GlobalKey _customRateKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _customRateFocusNode.addListener(_revealCustomRate);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _customRateFocusNode.removeListener(_revealCustomRate);
+    _customRateFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    _revealCustomRate();
+  }
+
+  void _revealCustomRate() {
+    if (!_customRateFocusNode.hasFocus) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fieldContext = _customRateKey.currentContext;
+      if (fieldContext == null || !_customRateFocusNode.hasFocus) return;
+      Scrollable.ensureVisible(fieldContext, alignment: 0.5, duration: animFast, curve: Curves.easeOut);
+    });
+  }
 
   static const List<(String, String, int)> _presets = [
     ('interval30min', 'min', 30),
@@ -318,6 +350,8 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> {
               border: Border.all(color: _customError ? colours.tertiaryNegative : Colors.transparent, width: 1.5),
             ),
             child: TextField(
+              key: _customRateKey,
+              focusNode: _customRateFocusNode,
               contextMenuBuilder: globalContextMenuBuilder,
               maxLines: 1,
               controller: TextEditingController(text: customRate.toString()),
