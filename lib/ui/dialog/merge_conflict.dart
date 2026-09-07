@@ -77,6 +77,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
 
   final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
   final syncMessage = await uiSettingsManager.getSyncMessage();
+  final editorLineWrap = await repoManager.getBool(StorageKey.repoman_editorLineWrap);
+  Widget lineContent(Widget child) => editorLineWrap ? Expanded(child: child) : child;
   final scrollController = AnchorScrollController();
   final commitMessageController = TextEditingController();
 
@@ -558,9 +560,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                       ? Center(
                                           child: CircularProgressIndicator(color: colours.primaryLight, padding: EdgeInsets.all(spaceXS)),
                                         )
-                                      : SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: SizedBox(
+                                      : (editorLineWrap ? (Widget child) => child : (Widget child) => SingleChildScrollView(scrollDirection: Axis.horizontal, child: child))(
+                                          SizedBox(
                                             height: expanded ? double.infinity : MediaQuery.sizeOf(context).height / 3,
                                             width: double.maxFinite,
                                             child: AnimatedListView(
@@ -797,13 +798,15 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                     ),
                                                                   ),
                                                                   SizedBox(width: spaceSM),
-                                                                  Text(
-                                                                    line.$2.trim(),
-                                                                    style: TextStyle(
-                                                                      color: colours.tertiaryInfo,
-                                                                      fontSize: textMD,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      fontFamily: "RobotoMono",
+                                                                  lineContent(
+                                                                    Text(
+                                                                      line.$2.trim(),
+                                                                      style: TextStyle(
+                                                                        color: colours.tertiaryInfo,
+                                                                        fontSize: textMD,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        fontFamily: "RobotoMono",
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ],
@@ -831,13 +834,15 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                     ),
                                                                   ),
                                                                   SizedBox(width: spaceSM),
-                                                                  Text(
-                                                                    line.$2.trim(),
-                                                                    style: TextStyle(
-                                                                      color: colours.tertiaryWarning,
-                                                                      fontSize: textMD,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      fontFamily: "RobotoMono",
+                                                                  lineContent(
+                                                                    Text(
+                                                                      line.$2.trim(),
+                                                                      style: TextStyle(
+                                                                        color: colours.tertiaryWarning,
+                                                                        fontSize: textMD,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        fontFamily: "RobotoMono",
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ],
@@ -867,13 +872,15 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                         ),
                                                       ),
                                                       SizedBox(width: spaceSM),
-                                                      Text(
-                                                        item.$2.trim(),
-                                                        style: TextStyle(
-                                                          color: colours.secondaryLight,
-                                                          fontSize: textMD,
-                                                          fontWeight: FontWeight.bold,
-                                                          fontFamily: "RobotoMono",
+                                                      lineContent(
+                                                        Text(
+                                                          item.$2.trim(),
+                                                          style: TextStyle(
+                                                            color: colours.secondaryLight,
+                                                            fontSize: textMD,
+                                                            fontWeight: FontWeight.bold,
+                                                            fontFamily: "RobotoMono",
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
