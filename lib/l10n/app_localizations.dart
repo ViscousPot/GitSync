@@ -4861,6 +4861,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure an AI provider to use this feature. Go to AI settings?'**
   String get aiSetupMsg;
+
+  /// No description provided for @aiStopGeneratingMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the current response. Any partial output will be kept.'**
+  String get aiStopGeneratingMsg;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

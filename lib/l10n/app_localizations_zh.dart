@@ -2391,6 +2391,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiSetupMsg => '请配置AI提供商以使用此功能。前往AI设置？';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

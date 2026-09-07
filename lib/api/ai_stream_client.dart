@@ -54,7 +54,7 @@ Stream<StreamEvent> streamCompletion({
   required String apiKey,
   required String model,
   String? endpoint,
-  bool Function()? isCancelled,
+  Future<void>? cancelSignal,
 }) async* {
   final Uri url;
   final Map<String, String> headers;
@@ -140,12 +140,27 @@ Stream<StreamEvent> streamCompletion({
     final anthropicBlockIds = <int, String>{};
     final openaiToolIds = <int, String>{};
 
+    final chunks = StreamController<String>();
+    final chunkSub = response.stream
+        .transform(utf8.decoder)
+        .listen(chunks.add, onError: chunks.addError, onDone: chunks.close, cancelOnError: true);
+    var aborted = false;
+    var cancelled = false;
+    void abort() {
+      if (aborted) return;
+      aborted = true;
+      chunkSub.cancel();
+      if (!chunks.isClosed) chunks.close();
+    }
+
+    cancelSignal?.whenComplete(() {
+      cancelled = true;
+      abort();
+    });
+
     final lineBuffer = StringBuffer();
-    await for (final chunk in response.stream.transform(utf8.decoder)) {
-      if (isCancelled?.call() == true) {
-        client.close();
-        return;
-      }
+    await for (final chunk in chunks.stream) {
+      if (cancelled) break;
       lineBuffer.write(chunk);
       final raw = lineBuffer.toString();
       final lines = raw.split('\n');
@@ -173,6 +188,9 @@ Stream<StreamEvent> streamCompletion({
         }
       }
     }
+
+    abort();
+    if (cancelled) return;
 
     final remaining = lineBuffer.toString().trim();
     if (remaining.isNotEmpty && remaining.startsWith('data: ') && remaining != 'data: [DONE]') {

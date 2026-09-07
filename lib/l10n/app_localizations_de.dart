@@ -2417,4 +2417,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'Konfigurieren Sie einen KI-Anbieter, um diese Funktion zu nutzen. Zu den KI-Einstellungen gehen?';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

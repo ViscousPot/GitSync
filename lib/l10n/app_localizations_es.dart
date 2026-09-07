@@ -2411,4 +2411,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'Configura un proveedor de IA para usar esta función. ¿Ir a ajustes de IA?';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

@@ -2400,4 +2400,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'この機能を使用するにはAIプロバイダを設定してください。AI設定に移動しますか？';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

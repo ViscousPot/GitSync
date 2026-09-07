@@ -2392,4 +2392,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'قم بتهيئة مزود خدمة ذكاء اصطناعي لاستخدام هذه الميزة. هل تذهب للإعدادات؟';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

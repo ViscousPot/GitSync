@@ -937,7 +937,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               ),
               SizedBox(height: spaceXS),
               Text(
-                "This will cancel the current response. Any partial output will be kept.",
+                t.aiStopGeneratingMsg,
                 style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
                 textAlign: TextAlign.center,
               ),

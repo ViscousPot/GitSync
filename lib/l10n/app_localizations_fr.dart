@@ -2418,4 +2418,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'Configurez un fournisseur d\'IA pour utiliser cette fonctionnalité. Aller dans les paramètres IA ?';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

@@ -2411,4 +2411,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiSetupMsg => 'Настройте поставщика ИИ для использования этой функции. Перейти в настройки ИИ?';
+
+  @override
+  String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }

@@ -31,7 +31,15 @@ class _RepoConversation {
   bool isStreaming = false;
   String streamingText = '';
   String? error;
-  bool cancelled = false;
+  Completer<void> cancelToken = Completer<void>();
+
+  void cancel() {
+    if (!cancelToken.isCompleted) cancelToken.complete();
+  }
+
+  void resetCancel() {
+    if (cancelToken.isCompleted) cancelToken = Completer<void>();
+  }
 
   String nextId() => 'msg_${messageCounter++}_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -118,14 +126,18 @@ class AiChatService {
 
   Future<void> clearConversation() async {
     final conv = _conv();
-    conv.cancelled = true;
+    conv.cancel();
     _conversations.remove(_activeRepoIndex);
     await _deleteDiskFile(_activeRepoIndex);
     _syncNotifiers();
   }
 
   void stop() {
-    _conv().cancelled = true;
+    final conv = _conv();
+    conv.cancel();
+    conv.isStreaming = false;
+    conv.streamingText = '';
+    _syncNotifiers();
   }
 
   Future<void> sendMessage(String text) async {
@@ -135,7 +147,7 @@ class AiChatService {
     final repoIndex = _activeRepoIndex;
     final conv = _convFor(repoIndex);
 
-    conv.cancelled = false;
+    conv.resetCancel();
     conv.error = null;
 
     final userMsg = ChatMessage(id: conv.nextId(), role: ChatRole.user, content: [TextBlock(text)]);
@@ -221,6 +233,7 @@ class AiChatService {
     String chatSystemPrompt,
   ) async {
     final conv = _convFor(repoIndex);
+    final cancelToken = conv.cancelToken;
     conv.isStreaming = true;
     _syncIfActive(repoIndex);
 
@@ -229,7 +242,7 @@ class AiChatService {
 
     try {
       for (var round = 0; round < _maxToolRounds; round++) {
-        if (conv.cancelled) break;
+        if (cancelToken.isCompleted) break;
 
         var roundResult = await _streamRound(
           repoIndex: repoIndex,
@@ -241,9 +254,13 @@ class AiChatService {
           hasOAuth: hasOAuth,
           activatedTools: conv.activatedTools,
           includeTools: true,
+          cancelToken: cancelToken,
         );
 
-        if (conv.cancelled) break;
+        if (cancelToken.isCompleted) {
+          _appendPartialTurn(repoIndex, conv, roundResult.contentBlocks, roundResult.usage);
+          break;
+        }
 
         final hadToolCalls = roundResult.contentBlocks.any((b) => b is ToolUseBlock);
 
@@ -264,9 +281,15 @@ class AiChatService {
             hasOAuth: hasOAuth,
             activatedTools: conv.activatedTools,
             includeTools: false,
+            cancelToken: cancelToken,
           );
 
-          if (conv.cancelled) break;
+          if (cancelToken.isCompleted) {
+            final partialUsage = roundResult.usage + chatResult.usage;
+            final chatHasPartial = chatResult.contentBlocks.any((b) => b is TextBlock && b.text.isNotEmpty);
+            _appendPartialTurn(repoIndex, conv, chatHasPartial ? chatResult.contentBlocks : roundResult.contentBlocks, partialUsage);
+            break;
+          }
 
           final combinedUsage = TokenUsage(
             roundResult.usage.inputTokens + chatResult.usage.inputTokens,
@@ -292,10 +315,10 @@ class AiChatService {
         _saveToDisk(repoIndex);
 
         final toolCalls = assistantMsg.toolCalls;
-        if (toolCalls.isEmpty || conv.cancelled) break;
+        if (toolCalls.isEmpty || cancelToken.isCompleted) break;
 
         for (final toolCall in toolCalls) {
-          if (conv.cancelled) break;
+          if (cancelToken.isCompleted) break;
 
           final tool = _toolRegistry.get(toolCall.toolName);
           if (tool != null && tool.tier == ToolTier.advanced) {
@@ -317,11 +340,27 @@ class AiChatService {
       e('AiChatService._runAgenticLoop: $err\n$st');
       _syncIfActive(repoIndex);
     } finally {
-      conv.isStreaming = false;
-      conv.streamingText = '';
-      _syncIfActive(repoIndex);
+      if (identical(conv.cancelToken, cancelToken)) {
+        conv.isStreaming = false;
+        conv.streamingText = '';
+        _syncIfActive(repoIndex);
+      }
       _saveToDisk(repoIndex);
     }
+  }
+
+  void _appendPartialTurn(int repoIndex, _RepoConversation conv, List<ContentBlock> blocks, TokenUsage usage) {
+    final textBlocks = blocks.whereType<TextBlock>().where((b) => b.text.isNotEmpty).cast<ContentBlock>().toList();
+    if (textBlocks.isEmpty) return;
+
+    conv.lastTurnUsage = usage;
+    conv.sessionUsage = conv.sessionUsage + usage;
+
+    final assistantMsg = ChatMessage(id: conv.nextId(), role: ChatRole.assistant, content: textBlocks, usage: usage);
+    conv.messages = [...conv.messages, assistantMsg];
+    conv.streamingText = '';
+    _syncIfActive(repoIndex);
+    _saveToDisk(repoIndex);
   }
 
   Future<({List<ContentBlock> contentBlocks, TokenUsage usage})> _streamRound({
@@ -334,6 +373,7 @@ class AiChatService {
     required bool hasOAuth,
     required Set<String> activatedTools,
     required bool includeTools,
+    required Completer<void> cancelToken,
   }) async {
     final conv = _convFor(repoIndex);
     final apiMessages = _buildApiMessages(provider, conv.messages);
@@ -360,9 +400,9 @@ class AiChatService {
       apiKey: apiKey,
       model: model,
       endpoint: endpoint,
-      isCancelled: () => conv.cancelled,
+      cancelSignal: cancelToken.future,
     )) {
-      if (conv.cancelled) break;
+      if (cancelToken.isCompleted) break;
 
       switch (event) {
         case TextDelta(:final text):
