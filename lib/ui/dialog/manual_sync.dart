@@ -31,6 +31,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
   final selectedFiles = <String>[];
   final lineSelections = <String, Set<int>>{};
   final pageController = PageController();
+  final pageViewKey = GlobalKey();
   final diffCache = <String, Future<Map<String, dynamic>?>>{};
 
   final clientModeEnabled = await uiSettingsManager.getClientModeEnabled();
@@ -310,6 +311,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                       ),
                                     )
                                   : PageView(
+                                      key: pageViewKey,
                                       controller: pageController,
                                       physics: NeverScrollableScrollPhysics(),
                                       children: [
