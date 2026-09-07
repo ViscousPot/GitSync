@@ -51,6 +51,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
   final _landscapeScrollControllerLeft = ScrollController();
   final _landscapeScrollControllerRight = ScrollController();
   bool atTop = true;
+  bool _blockTouches = false;
   late final _uiSetupGuideKey = GlobalKey();
 
   @override
@@ -75,9 +76,11 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
     });
 
     if (widget.onboarding) {
+      _blockTouches = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _controller.animateTo(_controller.position.maxScrollExtent / 2, duration: animSlow, curve: Curves.easeInOut);
         await Future.delayed(Duration(milliseconds: 200));
+        if (mounted) setState(() => _blockTouches = false);
         ShowCaseWidget.of(context).startShowCase([_uiSetupGuideKey]);
         while (!ShowCaseWidget.of(context).isShowCaseCompleted) {
           await Future.delayed(Duration(milliseconds: 100));
@@ -88,7 +91,9 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AbsorbPointer(absorbing: _blockTouches, child: _buildContent(context));
+
+  Widget _buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: colours.primaryDark,
       appBar: AppBar(
