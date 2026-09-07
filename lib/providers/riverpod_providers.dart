@@ -40,10 +40,20 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
 
   SettingsManager? _scopedManager;
 
+  bool cacheOnly = false;
+
   Future<bool> _isCurrentIndex(int buildIndex) async => await repoManager.getInt(StorageKey.repoman_repoIndex) == buildIndex;
+
+  Future<SettingsManager> _scope() async {
+    final manager = await SettingsManager.scoped(await repoManager.getInt(StorageKey.repoman_repoIndex));
+    _scopedManager = manager;
+    return manager;
+  }
 
   @override
   Future<T> build() async {
+    if (cacheOnly) return readCache(await _scope());
+
     var cancelled = false;
     ref.onDispose(() => cancelled = true);
 
@@ -97,6 +107,12 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
   }
 
   Future<T?> refresh() async {
+    if (cacheOnly) {
+      final cached = await readCache(await _scope());
+      state = AsyncData(cached);
+      return cached;
+    }
+
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final manager = await SettingsManager.scoped(repoIndex);
     _scopedManager = manager;
@@ -314,6 +330,8 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
     final manager = await SettingsManager.scoped(repoIndex);
     _scopedManager = manager;
 
+    if (cacheOnly) return readCache(manager);
+
     var cancelled = false;
     ref.onDispose(() {
       cancelled = true;
@@ -357,7 +375,7 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
   }
 
   Future<void> loadMore() async {
-    if (!_hasMoreCommits || ref.read(isLoadingCommitsProvider)) return;
+    if (cacheOnly || !_hasMoreCommits || ref.read(isLoadingCommitsProvider)) return;
     final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
     final manager = await SettingsManager.scoped(repoIndex);
     final current = state.valueOrNull ?? [];
