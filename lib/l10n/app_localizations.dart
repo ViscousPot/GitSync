@@ -2804,6 +2804,42 @@ abstract class AppLocalizations {
   /// **'Request A Feature'**
   String get requestAFeature;
 
+  /// No description provided for @sponsorCheckFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsor Check Failed'**
+  String get sponsorCheckFailedTitle;
+
+  /// No description provided for @sponsorCheckFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not reach GitHub to check your sponsorship. Check your connection and try again.'**
+  String get sponsorCheckFailedMessage;
+
+  /// No description provided for @sponsorCheckRejectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub rejected the linked account. Please sign in again.'**
+  String get sponsorCheckRejectedMessage;
+
+  /// No description provided for @sponsorNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Sponsorship Found'**
+  String get sponsorNotFoundTitle;
+
+  /// No description provided for @sponsorNotFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This GitHub account is not in the sponsor list. A new sponsorship can take up to a day to become active in the app.'**
+  String get sponsorNotFoundMessage;
+
+  /// No description provided for @becomeASponsor.
+  ///
+  /// In en, this message translates to:
+  /// **'Become A Sponsor'**
+  String get becomeASponsor;
+
   /// No description provided for @contributeTitle.
   ///
   /// In en, this message translates to:

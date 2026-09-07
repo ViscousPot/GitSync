@@ -1,5 +1,11 @@
 {
   "ar": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -12,6 +18,12 @@
   ],
 
   "de": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -24,6 +36,12 @@
   ],
 
   "es": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -36,6 +54,12 @@
   ],
 
   "fr": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -48,6 +72,12 @@
   ],
 
   "ja": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -60,6 +90,12 @@
   ],
 
   "pt": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -72,6 +108,12 @@
   ],
 
   "ru": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -84,6 +126,12 @@
   ],
 
   "zh": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
@@ -96,6 +144,12 @@
   ],
 
   "zh_Hant": [
+    "sponsorCheckFailedTitle",
+    "sponsorCheckFailedMessage",
+    "sponsorCheckRejectedMessage",
+    "sponsorNotFoundTitle",
+    "sponsorNotFoundMessage",
+    "becomeASponsor",
     "openInTextastic",
     "openInTextasticDescription",
     "issueDuplicateTitle",
