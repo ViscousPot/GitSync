@@ -4072,6 +4072,7 @@ fn get_uncommitted_file_paths_priv(
 ) -> Result<Vec<(String, i32)>, git2::Error> {
     let mut opts = StatusOptions::new();
     opts.include_untracked(include_untracked);
+    opts.recurse_untracked_dirs(include_untracked);
     opts.include_ignored(false);
     opts.update_index(true);
     opts.show(git2::StatusShow::Workdir);
