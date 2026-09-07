@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,8 +17,11 @@ import 'package:GitSync/providers/riverpod_providers.dart';
 import 'package:GitSync/type/ai_chat.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const _mono = TextStyle(fontFamily: "monospace", height: 1.6);
+
+final _urlRegex = RegExp(r'(?:https?://|www\.)[^\s<>"]+', caseSensitive: false);
 
 class AiFeaturesPage extends ConsumerStatefulWidget {
   const AiFeaturesPage({super.key});
@@ -365,7 +369,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               await Clipboard.setData(ClipboardData(text: text));
               Fluttertoast.showToast(msg: "Copied to clipboard", toastLength: Toast.LENGTH_SHORT);
             },
-            child: Text(
+            child: _LinkifiedText(
               text,
               style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
             ),
@@ -1869,5 +1873,66 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
         ),
       ],
     );
+  }
+}
+
+void _openLink(String url) {
+  final uri = Uri.tryParse(url.startsWith(RegExp(r'[a-z][a-z0-9+.-]*:', caseSensitive: false)) ? url : 'https://$url');
+  if (uri == null) return;
+  launchUrl(uri, mode: LaunchMode.externalApplication);
+}
+
+class _LinkifiedText extends StatefulWidget {
+  const _LinkifiedText(this.text, {required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  State<_LinkifiedText> createState() => _LinkifiedTextState();
+}
+
+class _LinkifiedTextState extends State<_LinkifiedText> {
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  void _clearRecognizers() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    _recognizers.clear();
+  }
+
+  @override
+  void dispose() {
+    _clearRecognizers();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _clearRecognizers();
+
+    final linkStyle = widget.style.merge(TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline));
+    final spans = <InlineSpan>[];
+    var cursor = 0;
+
+    for (final match in _urlRegex.allMatches(widget.text)) {
+      var url = match.group(0)!;
+      while (url.isNotEmpty && '.,;:!?\')]}'.contains(url[url.length - 1])) {
+        url = url.substring(0, url.length - 1);
+      }
+      if (url.isEmpty) continue;
+
+      if (match.start > cursor) spans.add(TextSpan(text: widget.text.substring(cursor, match.start)));
+
+      final recognizer = TapGestureRecognizer()..onTap = () => _openLink(url);
+      _recognizers.add(recognizer);
+      spans.add(TextSpan(text: url, style: linkStyle, recognizer: recognizer));
+      cursor = match.start + url.length;
+    }
+
+    if (cursor < widget.text.length) spans.add(TextSpan(text: widget.text.substring(cursor)));
+
+    return Text.rich(TextSpan(children: spans), style: widget.style);
   }
 }
