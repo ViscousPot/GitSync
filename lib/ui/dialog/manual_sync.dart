@@ -873,6 +873,8 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                       color: lineBackground(),
                                                                       padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
                                                                       child: Row(
+                                                                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                                                                        textBaseline: TextBaseline.alphabetic,
                                                                         children: [
                                                                           SizedBox(
                                                                             width: textMD + spaceXXXS,
