@@ -2371,6 +2371,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                   children: [
                                                                     Hero(
                                                                       tag: hero_commits_list,
+                                                                      placeholderBuilder: (context, size, child) =>
+                                                                          SizedBox(width: size.width, height: size.height),
                                                                       child: SizedBox(
                                                                         height: orientation == Orientation.portrait ? 220 : double.infinity,
                                                                         child: AnimatedBuilder(
