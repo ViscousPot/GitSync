@@ -26,6 +26,34 @@ Widget outlineCircleMinus({required double size, required Color color}) => Stack
   ],
 );
 
+const double diffLineGutterWidth = spaceXXS * 3 + textMD + spaceXXXS * 3 + spaceLG * 2 + textSM;
+const TextStyle diffLineTextStyle = TextStyle(fontFamily: "monospace", fontSize: textSM);
+
+Widget diffLineHorizontalScroll({required bool enabled, required Iterable<String> contents, required Widget child}) {
+  if (!enabled) return child;
+
+  var longest = "";
+  for (final content in contents) {
+    if (content.length > longest.length) longest = content;
+  }
+
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final painter = TextPainter(
+        text: TextSpan(text: longest, style: DefaultTextStyle.of(context).style.merge(diffLineTextStyle)),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+      )..layout();
+      final contentWidth = diffLineGutterWidth + painter.width + spaceXS;
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(width: contentWidth > constraints.maxWidth ? contentWidth : constraints.maxWidth, child: child),
+      );
+    },
+  );
+}
+
 Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
   final syncMessageController = TextEditingController();
   final selectedFiles = <String>[];
@@ -780,139 +808,139 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                 ),
                                                               ),
                                                             )
-                                                          : ListView.builder(
-                                                              itemCount: diffLines.length,
-                                                              itemBuilder: (context, index) {
-                                                                final line = diffLines[index];
+                                                          : diffLineHorizontalScroll(
+                                                              enabled: !editorLineWrap,
+                                                              contents: diffLines.map((l) => l.content),
+                                                              child: ListView.builder(
+                                                                itemCount: diffLines.length,
+                                                                itemBuilder: (context, index) {
+                                                                  final line = diffLines[index];
 
-                                                                if (line.origin == "H") {
-                                                                  return Container(
-                                                                    color: colours.tertiaryDark,
-                                                                    padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                                                                    child: Text(
-                                                                      line.content,
-                                                                      style: TextStyle(
-                                                                        color: colours.tertiaryLight,
-                                                                        fontSize: textSM,
-                                                                        fontFamily: "monospace",
-                                                                        fontWeight: FontWeight.bold,
+                                                                  if (line.origin == "H") {
+                                                                    return Container(
+                                                                      color: colours.tertiaryDark,
+                                                                      padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
+                                                                      child: Text(
+                                                                        line.content,
+                                                                        style: TextStyle(
+                                                                          color: colours.tertiaryLight,
+                                                                          fontSize: textSM,
+                                                                          fontFamily: "monospace",
+                                                                          fontWeight: FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  final isChangedLine = line.origin == "+" || line.origin == "-";
+                                                                  final isSelected = selections.contains(line.lineIndex);
+
+                                                                  Color lineBackground() {
+                                                                    if (line.origin == "+") {
+                                                                      return isSelected
+                                                                          ? colours.tertiaryPositive.withAlpha(60)
+                                                                          : colours.tertiaryPositive.withAlpha(20);
+                                                                    }
+                                                                    if (line.origin == "-") {
+                                                                      return isSelected
+                                                                          ? colours.tertiaryNegative.withAlpha(60)
+                                                                          : colours.tertiaryNegative.withAlpha(20);
+                                                                    }
+                                                                    return Colors.transparent;
+                                                                  }
+
+                                                                  return GestureDetector(
+                                                                    onTap: isChangedLine
+                                                                        ? () {
+                                                                            if (isSelected) {
+                                                                              selections.remove(line.lineIndex);
+                                                                            } else {
+                                                                              selections.add(line.lineIndex);
+                                                                            }
+                                                                            selectedFiles.remove(currentDiffFile);
+                                                                            if (context.mounted) setState(() {});
+
+                                                                            debounce("lineStage_$currentDiffFile", 1000, () {
+                                                                              flushLineStage(
+                                                                                currentDiffFile!,
+                                                                                Set<int>.from(selections),
+                                                                                isUnstaging: isSelected,
+                                                                              );
+                                                                            });
+                                                                          }
+                                                                        : null,
+                                                                    child: Container(
+                                                                      color: lineBackground(),
+                                                                      padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
+                                                                      child: Row(
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            width: textMD + spaceXXXS,
+                                                                            child: isChangedLine && isSelected
+                                                                                ? FaIcon(
+                                                                                    FontAwesomeIcons.check,
+                                                                                    size: textSM,
+                                                                                    color: colours.primaryInfo,
+                                                                                  )
+                                                                                : SizedBox.shrink(),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width: spaceLG,
+                                                                            child: Text(
+                                                                              line.oldLineno > 0 ? "${line.oldLineno}" : "",
+                                                                              textAlign: TextAlign.right,
+                                                                              style: TextStyle(
+                                                                                color: colours.tertiaryLight,
+                                                                                fontSize: textXS,
+                                                                                fontFamily: "monospace",
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(width: spaceXXXS),
+                                                                          SizedBox(
+                                                                            width: spaceLG,
+                                                                            child: Text(
+                                                                              line.newLineno > 0 ? "${line.newLineno}" : "",
+                                                                              textAlign: TextAlign.right,
+                                                                              style: TextStyle(
+                                                                                color: colours.tertiaryLight,
+                                                                                fontSize: textXS,
+                                                                                fontFamily: "monospace",
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(width: spaceXXS),
+                                                                          SizedBox(
+                                                                            width: textSM,
+                                                                            child: Text(
+                                                                              line.origin,
+                                                                              style: TextStyle(
+                                                                                color: line.origin == "+"
+                                                                                    ? colours.tertiaryPositive
+                                                                                    : line.origin == "-"
+                                                                                    ? colours.tertiaryNegative
+                                                                                    : colours.tertiaryLight,
+                                                                                fontFamily: "monospace",
+                                                                                fontSize: textSM,
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(width: spaceXXXS),
+                                                                          Expanded(
+                                                                            child: Text(
+                                                                              line.content,
+                                                                              style: diffLineTextStyle.copyWith(color: colours.primaryLight),
+                                                                              maxLines: editorLineWrap ? null : 1,
+                                                                              overflow: editorLineWrap ? null : TextOverflow.ellipsis,
+                                                                            ),
+                                                                          ),
+                                                                        ],
                                                                       ),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                final isChangedLine = line.origin == "+" || line.origin == "-";
-                                                                final isSelected = selections.contains(line.lineIndex);
-
-                                                                Color lineBackground() {
-                                                                  if (line.origin == "+") {
-                                                                    return isSelected
-                                                                        ? colours.tertiaryPositive.withAlpha(60)
-                                                                        : colours.tertiaryPositive.withAlpha(20);
-                                                                  }
-                                                                  if (line.origin == "-") {
-                                                                    return isSelected
-                                                                        ? colours.tertiaryNegative.withAlpha(60)
-                                                                        : colours.tertiaryNegative.withAlpha(20);
-                                                                  }
-                                                                  return Colors.transparent;
-                                                                }
-
-                                                                return GestureDetector(
-                                                                  onTap: isChangedLine
-                                                                      ? () {
-                                                                          if (isSelected) {
-                                                                            selections.remove(line.lineIndex);
-                                                                          } else {
-                                                                            selections.add(line.lineIndex);
-                                                                          }
-                                                                          selectedFiles.remove(currentDiffFile);
-                                                                          if (context.mounted) setState(() {});
-
-                                                                          debounce("lineStage_$currentDiffFile", 1000, () {
-                                                                            flushLineStage(
-                                                                              currentDiffFile!,
-                                                                              Set<int>.from(selections),
-                                                                              isUnstaging: isSelected,
-                                                                            );
-                                                                          });
-                                                                        }
-                                                                      : null,
-                                                                  child: Container(
-                                                                    color: lineBackground(),
-                                                                    padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                                                                    child: Row(
-                                                                      children: [
-                                                                        SizedBox(
-                                                                          width: textMD + spaceXXXS,
-                                                                          child: isChangedLine && isSelected
-                                                                              ? FaIcon(
-                                                                                  FontAwesomeIcons.check,
-                                                                                  size: textSM,
-                                                                                  color: colours.primaryInfo,
-                                                                                )
-                                                                              : SizedBox.shrink(),
-                                                                        ),
-                                                                        SizedBox(
-                                                                          width: spaceLG,
-                                                                          child: Text(
-                                                                            line.oldLineno > 0 ? "${line.oldLineno}" : "",
-                                                                            textAlign: TextAlign.right,
-                                                                            style: TextStyle(
-                                                                              color: colours.tertiaryLight,
-                                                                              fontSize: textXS,
-                                                                              fontFamily: "monospace",
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(width: spaceXXXS),
-                                                                        SizedBox(
-                                                                          width: spaceLG,
-                                                                          child: Text(
-                                                                            line.newLineno > 0 ? "${line.newLineno}" : "",
-                                                                            textAlign: TextAlign.right,
-                                                                            style: TextStyle(
-                                                                              color: colours.tertiaryLight,
-                                                                              fontSize: textXS,
-                                                                              fontFamily: "monospace",
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(width: spaceXXS),
-                                                                        SizedBox(
-                                                                          width: textSM,
-                                                                          child: Text(
-                                                                            line.origin,
-                                                                            style: TextStyle(
-                                                                              color: line.origin == "+"
-                                                                                  ? colours.tertiaryPositive
-                                                                                  : line.origin == "-"
-                                                                                  ? colours.tertiaryNegative
-                                                                                  : colours.tertiaryLight,
-                                                                              fontFamily: "monospace",
-                                                                              fontSize: textSM,
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        SizedBox(width: spaceXXXS),
-                                                                        Expanded(
-                                                                          child: Text(
-                                                                            line.content,
-                                                                            style: TextStyle(
-                                                                              color: colours.primaryLight,
-                                                                              fontFamily: "monospace",
-                                                                              fontSize: textSM,
-                                                                            ),
-                                                                            maxLines: editorLineWrap ? null : 1,
-                                                                            overflow: editorLineWrap ? null : TextOverflow.ellipsis,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
+                                                                },
+                                                              ),
                                                             ),
                                                     ),
                                                   ],
