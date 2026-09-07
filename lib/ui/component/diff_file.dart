@@ -31,7 +31,7 @@ class DiffFile extends ConsumerStatefulWidget {
   ConsumerState<DiffFile> createState() => _DiffFileState();
 }
 
-class _DiffFileState extends ConsumerState<DiffFile> {
+class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClientMixin {
   bool expanded = false;
   int insertions = 0;
   int deletions = 0;
@@ -101,7 +101,11 @@ class _DiffFileState extends ConsumerState<DiffFile> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       margin: EdgeInsets.only(left: spaceSM * 2, right: spaceSM * 2, bottom: spaceSM),
       decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
