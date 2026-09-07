@@ -39,24 +39,25 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
     var cancelled = false;
     ref.onDispose(() => cancelled = true);
 
+    final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
+    final manager = await SettingsManager.scoped(repoIndex);
+    _scopedManager = manager;
+
     bool cacheValid = true;
     late T cached;
     try {
-      cached = await readCache(uiSettingsManager);
+      cached = await readCache(manager);
     } catch (e, s) {
       cacheValid = false;
       Logger.logError(LogType.Global, e, s);
     }
 
     if (cacheValid) {
-      final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
       final hasCache = cached != null && (cached is! List || cached.isNotEmpty) && (cached is! Map || cached.isNotEmpty);
       if (hasCache) {
         state = AsyncData(cached);
         () async {
           try {
-            final manager = await SettingsManager.scoped(repoIndex);
-            _scopedManager = manager;
             final live = await fetchLive();
             if (!cancelled && await _isCurrentIndex(repoIndex)) {
               state = AsyncData(live);
@@ -74,10 +75,6 @@ abstract class CachedGitNotifier<T> extends AsyncNotifier<T> {
         return cached;
       }
     }
-
-    final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
-    final manager = await SettingsManager.scoped(repoIndex);
-    _scopedManager = manager;
 
     final live = await fetchLive();
     if (!cancelled && await _isCurrentIndex(repoIndex)) {
