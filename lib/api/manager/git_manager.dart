@@ -100,6 +100,7 @@ class GitManager {
     "PEM preamble contains invalid data": () async => pemPreambleError,
     "cannot push non-fastforwardable reference": () async => cannotPushNonFastforwardableError,
     "error loading known_hosts": () async => errorLoadingKnownHostsError,
+    httpNotFound: () async => httpNotFoundError,
   };
 
   static final List<String> resyncStrings = ["uncommitted changes exist in index", "unstaged changes exist in workdir"];
@@ -318,6 +319,8 @@ class GitManager {
       return uncommittedChangeOverwrittenError;
     }
     if (error.contains(failedToReadIndex)) return failedToReadIndexError;
+    if (error.toLowerCase().contains(noRouteToHost)) return noRouteToHostError;
+    if (error.toLowerCase().contains(failedHostLookup)) return failedHostLookupError;
     return message;
   }
 
