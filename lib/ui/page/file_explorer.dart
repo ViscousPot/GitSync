@@ -370,9 +370,14 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   }
 
   void reload() {
-    final normalised = controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '');
-    controller.setCurrentPath = normalised;
+    final root = widget.path.replaceFirst(RegExp(r'/$'), '');
+    var normalised = controller.getCurrentPath.replaceFirst(RegExp(r'/$'), '');
+    if (!normalised.startsWith(root)) normalised = root;
+    while (normalised.length > root.length && !Directory(normalised).existsSync()) {
+      normalised = p.dirname(normalised);
+    }
     controller.setCurrentPath = "$normalised/";
+    controller.setCurrentPath = normalised;
   }
 
   @override

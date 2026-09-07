@@ -2192,6 +2192,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   if (page == homeIndex) reloadAll();
                   final filesIndex = aiEnabled ? 2 : 1;
                   if (page == filesIndex) {
+                    _fileExplorerKey.currentState?.reload();
                     _fileExplorerKey.currentState?.reloadOpenFile();
                   }
                 },
