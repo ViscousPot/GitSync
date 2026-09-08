@@ -52,6 +52,7 @@ class GitLogTool extends AiTool {
   Future<String> execute(Map<String, dynamic> input, ToolContext? context) async {
     final count = (input['count'] as int?) ?? 10;
     final commits = await GitManager.getRecentCommits(repoIndex: context?.repoIndex);
+    if (commits == null) return err('Could not read the commit log');
     final limited = commits.take(count.clamp(1, 50)).toList();
     return ok(
       limited.map((c) {
@@ -1215,6 +1216,7 @@ class GitMoreCommitsTool extends AiTool {
     final skip = optInt(input, 'skip');
     if (skip == null) return err('Missing required parameter: skip');
     final commits = await GitManager.getMoreRecentCommits(skip, repoIndex: context?.repoIndex);
+    if (commits == null) return err('Could not read the commit log');
     return ok(
       commits
           .map(

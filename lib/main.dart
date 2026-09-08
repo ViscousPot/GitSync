@@ -459,6 +459,7 @@ void onServiceStart(ServiceInstance service) async {
 
   _onGitOp(service, LogType.RecentCommits, (event) async {
     final result = await GitManager.getRecentCommits();
+    if (result == null) throw OperationNotExecuted();
     return {"result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList()};
   });
 

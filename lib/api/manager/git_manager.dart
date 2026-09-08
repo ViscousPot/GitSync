@@ -684,7 +684,7 @@ class GitManager {
     )).map((item) => CommitJson.fromJson(jsonDecode(stringToBase64.decode(item)))).toList();
   }
 
-  static Future<List<GitManagerRs.Commit>> getRecentCommits({int priority = 1, int? repoIndex}) async {
+  static Future<List<GitManagerRs.Commit>?> getRecentCommits({int priority = 1, int? repoIndex}) async {
     final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
     final cachedCommits = await getInitialRecentCommits();
@@ -700,14 +700,14 @@ class GitManager {
         );
       } catch (e, stackTrace) {
         Logger.logError(LogType.RecentCommits, e, stackTrace);
-        return <GitManagerRs.Commit>[];
+        return null;
       }
     });
 
-    return result ?? <GitManagerRs.Commit>[];
+    return result;
   }
 
-  static Future<List<GitManagerRs.Commit>> getMoreRecentCommits(int skip, {int priority = 1, int? repoIndex}) async {
+  static Future<List<GitManagerRs.Commit>?> getMoreRecentCommits(int skip, {int priority = 1, int? repoIndex}) async {
     final setman = await _resolveSettingsManager(repoIndex);
     final cachedCommits = await getInitialRecentCommits();
     final cachedDiffStats = <String, (int, int)>{for (final c in cachedCommits) c.reference: (c.additions, c.deletions)};
@@ -727,11 +727,11 @@ class GitManager {
           );
         } catch (e, stackTrace) {
           Logger.logError(LogType.RecentCommits, e, stackTrace);
-          return <GitManagerRs.Commit>[];
+          return null;
         }
       },
     );
-    return result ?? <GitManagerRs.Commit>[];
+    return result;
   }
 
   static Future<Map<String, (int, int)>> getCommitDiffStats(List<String> references, {int priority = 1, int? repoIndex}) async {

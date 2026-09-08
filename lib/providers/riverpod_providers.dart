@@ -343,11 +343,16 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
     final cached = await readCache(manager);
 
     if (cached.isEmpty) {
-      ref.read(isLoadingCommitsProvider.notifier).state = true;
-      final live = await fetchLive();
-      await writeCache(manager, live);
-      ref.read(isLoadingCommitsProvider.notifier).state = false;
-      return live;
+      try {
+        ref.read(isLoadingCommitsProvider.notifier).state = true;
+        final live = await fetchLive();
+        await writeCache(manager, live);
+        return live;
+      } on OperationNotExecuted {
+        return cached;
+      } finally {
+        if (!cancelled) ref.read(isLoadingCommitsProvider.notifier).state = false;
+      }
     }
 
     () async {
@@ -380,15 +385,19 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
     final manager = await SettingsManager.scoped(repoIndex);
     final current = state.valueOrNull ?? [];
     ref.read(isLoadingCommitsProvider.notifier).state = true;
-    final moreCommits = await GitManager.getMoreRecentCommits(current.length);
-    if (moreCommits.isEmpty) {
-      _hasMoreCommits = false;
-    } else if (await _isCurrentIndex(repoIndex)) {
-      final updated = [...current, ...moreCommits];
-      state = AsyncData(updated);
-      await writeCache(manager, updated);
+    try {
+      final moreCommits = await GitManager.getMoreRecentCommits(current.length);
+      if (moreCommits == null) return;
+      if (moreCommits.isEmpty) {
+        _hasMoreCommits = false;
+      } else if (await _isCurrentIndex(repoIndex)) {
+        final updated = [...current, ...moreCommits];
+        state = AsyncData(updated);
+        await writeCache(manager, updated);
+      }
+    } finally {
+      ref.read(isLoadingCommitsProvider.notifier).state = false;
     }
-    ref.read(isLoadingCommitsProvider.notifier).state = false;
   }
 }
 
