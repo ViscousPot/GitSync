@@ -88,12 +88,30 @@ class ListIssuesTool extends AiTool {
     final label = input['label'] as String?;
     final author = input['author'] as String?;
 
-    final completer = Completer<List<Issue>>();
-    await ctx.manager.getIssues(ctx.accessToken, ctx.owner, ctx.repo, state, author, label, null, search, null, null, null, (issues) {
-      if (!completer.isCompleted) completer.complete(issues);
-    }, (_) {});
+    final completer = Completer<List<Issue>?>();
+    await ctx.manager.getIssues(
+      ctx.accessToken,
+      ctx.owner,
+      ctx.repo,
+      state,
+      author,
+      label,
+      null,
+      search,
+      null,
+      null,
+      null,
+      (issues) {
+        if (!completer.isCompleted) completer.complete(issues);
+      },
+      (_) {},
+      onError: () {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
 
-    final issues = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => []);
+    final issues = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => null);
+    if (issues == null) return err('Could not load issues');
     return ok(
       issues
           .take(30)
@@ -350,12 +368,30 @@ class ListPullRequestsTool extends AiTool {
     final author = input['author'] as String?;
     final label = input['label'] as String?;
 
-    final completer = Completer<List<PullRequest>>();
-    await ctx.manager.getPullRequests(ctx.accessToken, ctx.owner, ctx.repo, state, author, label, null, search, null, null, null, (prs) {
-      if (!completer.isCompleted) completer.complete(prs);
-    }, (_) {});
+    final completer = Completer<List<PullRequest>?>();
+    await ctx.manager.getPullRequests(
+      ctx.accessToken,
+      ctx.owner,
+      ctx.repo,
+      state,
+      author,
+      label,
+      null,
+      search,
+      null,
+      null,
+      null,
+      (prs) {
+        if (!completer.isCompleted) completer.complete(prs);
+      },
+      (_) {},
+      onError: () {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
 
-    final prs = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => []);
+    final prs = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => null);
+    if (prs == null) return err('Could not load pull requests');
     return ok(
       prs
           .take(30)
@@ -556,11 +592,21 @@ class ListTagsTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final completer = Completer<List<Tag>>();
-    await ctx.manager.getTags(ctx.accessToken, ctx.owner, ctx.repo, (tags) {
-      if (!completer.isCompleted) completer.complete(tags);
-    }, (_) {});
-    final tags = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => []);
+    final completer = Completer<List<Tag>?>();
+    await ctx.manager.getTags(
+      ctx.accessToken,
+      ctx.owner,
+      ctx.repo,
+      (tags) {
+        if (!completer.isCompleted) completer.complete(tags);
+      },
+      (_) {},
+      onError: () {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
+    final tags = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => null);
+    if (tags == null) return err('Could not load tags');
     return ok(
       tags
           .take(50)
@@ -594,11 +640,21 @@ class ListReleasesTool extends AiTool {
     final ctx = await _getContext(context);
     if (ctx == null) return err('OAuth not configured for this repository');
 
-    final completer = Completer<List<Release>>();
-    await ctx.manager.getReleases(ctx.accessToken, ctx.owner, ctx.repo, (releases) {
-      if (!completer.isCompleted) completer.complete(releases);
-    }, (_) {});
-    final releases = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => []);
+    final completer = Completer<List<Release>?>();
+    await ctx.manager.getReleases(
+      ctx.accessToken,
+      ctx.owner,
+      ctx.repo,
+      (releases) {
+        if (!completer.isCompleted) completer.complete(releases);
+      },
+      (_) {},
+      onError: () {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
+    final releases = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => null);
+    if (releases == null) return err('Could not load releases');
     return ok(
       releases
           .take(20)
@@ -642,11 +698,22 @@ class ListActionRunsTool extends AiTool {
     if (ctx == null) return err('OAuth not configured for this repository');
 
     final state = (input['state'] as String?) ?? '';
-    final completer = Completer<List<ActionRun>>();
-    await ctx.manager.getActionRuns(ctx.accessToken, ctx.owner, ctx.repo, state, (runs) {
-      if (!completer.isCompleted) completer.complete(runs);
-    }, (_) {});
-    final runs = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => []);
+    final completer = Completer<List<ActionRun>?>();
+    await ctx.manager.getActionRuns(
+      ctx.accessToken,
+      ctx.owner,
+      ctx.repo,
+      state,
+      (runs) {
+        if (!completer.isCompleted) completer.complete(runs);
+      },
+      (_) {},
+      onError: () {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
+    final runs = await completer.future.timeout(const Duration(seconds: 30), onTimeout: () => null);
+    if (runs == null) return err('Could not load action runs');
     return ok(
       runs
           .take(20)

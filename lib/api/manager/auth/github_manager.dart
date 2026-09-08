@@ -214,8 +214,9 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     String? milestoneFilter,
     String? projectFilter,
     Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final useSearch = (searchFilter != null && searchFilter.isNotEmpty) || (projectFilter != null && projectFilter.isNotEmpty);
     if (useSearch) {
       await _searchIssues(
@@ -232,6 +233,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         projectFilter,
         updateCallback,
         nextPageCallback,
+        onError: onError,
       );
       return;
     }
@@ -250,7 +252,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
       if (filterBy.isNotEmpty) "filterBy": filterBy,
     };
 
-    await _getIssuesGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+    await _getIssuesGraphQL(accessToken, variables, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _searchIssues(
@@ -268,6 +270,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     Function(List<Issue>) updateCallback,
     Function(Function()?) nextPageCallback, {
     int page = 1,
+    void Function()? onError,
   }) async {
     try {
       var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:issue" : "repo:$owner/$repo+type:issue";
@@ -333,18 +336,19 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
               updateCallback,
               nextPageCallback,
               page: page + 1,
+              onError: onError,
             ),
           );
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -398,8 +402,9 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
     String accessToken,
     Map<String, dynamic> variables,
     Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
@@ -415,7 +420,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         }
         final issuesData = jsonData["data"]?["repository"]?["issues"];
         if (issuesData == null) {
-          updateCallback([]);
+          onError?.call();
           nextPageCallback(null);
           return;
         }
@@ -449,17 +454,17 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         if (pageInfo?["hasNextPage"] == true) {
           final nextVars = Map<String, dynamic>.from(variables);
           nextVars["after"] = pageInfo["endCursor"];
-          nextPageCallback(() => _getIssuesGraphQL(accessToken, nextVars, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getIssuesGraphQL(accessToken, nextVars, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -637,8 +642,9 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     String? reviewerFilter,
     String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final useSearch =
         (searchFilter != null && searchFilter.isNotEmpty) ||
         (authorFilter != null && authorFilter.isNotEmpty) ||
@@ -660,6 +666,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         milestoneFilter,
         updateCallback,
         nextPageCallback,
+        onError: onError,
       );
       return;
     }
@@ -673,7 +680,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
       if (labelFilter != null && labelFilter.isNotEmpty) "labels": labelFilter.split(",").map((l) => l.trim()).toList(),
     };
 
-    await _getPullRequestsGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+    await _getPullRequestsGraphQL(accessToken, variables, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _searchPullRequests(
@@ -691,6 +698,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     Function(List<PullRequest>) updateCallback,
     Function(Function()?) nextPageCallback, {
     int page = 1,
+    void Function()? onError,
   }) async {
     try {
       var q = search.isNotEmpty ? "${Uri.encodeComponent(search)}+repo:$owner/$repo+type:pr" : "repo:$owner/$repo+type:pr";
@@ -766,18 +774,19 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
               updateCallback,
               nextPageCallback,
               page: page + 1,
+              onError: onError,
             ),
           );
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -838,8 +847,9 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
     String accessToken,
     Map<String, dynamic> variables,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
@@ -855,7 +865,7 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         }
         final prsData = jsonData["data"]?["repository"]?["pullRequests"];
         if (prsData == null) {
-          updateCallback([]);
+          onError?.call();
           nextPageCallback(null);
           return;
         }
@@ -896,17 +906,17 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         if (pageInfo?["hasNextPage"] == true) {
           final nextVars = Map<String, dynamic>.from(variables);
           nextVars["after"] = pageInfo["endCursor"];
-          nextPageCallback(() => _getPullRequestsGraphQL(accessToken, nextVars, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getPullRequestsGraphQL(accessToken, nextVars, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -941,18 +951,20 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
     String owner,
     String repo,
     Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final Map<String, dynamic> variables = {"owner": owner, "repo": repo};
-    await _getTagsGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+    await _getTagsGraphQL(accessToken, variables, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getTagsGraphQL(
     String accessToken,
     Map<String, dynamic> variables,
     Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
@@ -964,7 +976,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         final refsData = jsonData["data"]?["repository"]?["refs"];
         if (refsData == null) {
-          updateCallback([]);
+          onError?.call();
           nextPageCallback(null);
           return;
         }
@@ -995,17 +1007,17 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         if (pageInfo?["hasNextPage"] == true) {
           final nextVars = Map<String, dynamic>.from(variables);
           nextVars["after"] = pageInfo["endCursor"];
-          nextPageCallback(() => _getTagsGraphQL(accessToken, nextVars, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getTagsGraphQL(accessToken, nextVars, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetTags, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -1034,18 +1046,20 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
     String owner,
     String repo,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final Map<String, dynamic> variables = {"owner": owner, "repo": repo};
-    await _getReleasesGraphQL(accessToken, variables, updateCallback, nextPageCallback);
+    await _getReleasesGraphQL(accessToken, variables, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getReleasesGraphQL(
     String accessToken,
     Map<String, dynamic> variables,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpPost(
         Uri.parse("https://api.$_domain/graphql"),
@@ -1057,7 +1071,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         final Map<String, dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         final releasesData = jsonData["data"]?["repository"]?["releases"];
         if (releasesData == null) {
-          updateCallback([]);
+          onError?.call();
           nextPageCallback(null);
           return;
         }
@@ -1095,17 +1109,17 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
         if (pageInfo?["hasNextPage"] == true) {
           final nextVars = Map<String, dynamic>.from(variables);
           nextVars["after"] = pageInfo["endCursor"];
-          nextPageCallback(() => _getReleasesGraphQL(accessToken, nextVars, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getReleasesGraphQL(accessToken, nextVars, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetReleases, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -1117,20 +1131,22 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
     String repo,
     String state,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     var url = "https://api.$_domain/repos/$owner/$repo/actions/runs?per_page=30";
     if (state == "success") url += "&status=success";
     if (state == "failed") url += "&status=failure";
-    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getActionRunsRequest(
     String accessToken,
     String url,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -1176,7 +1192,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getActionRunsRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getActionRunsRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -1184,12 +1200,12 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetActionRuns, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }

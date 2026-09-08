@@ -134,8 +134,9 @@ class GitlabManager extends GitProviderManager {
     String? milestoneFilter,
     String? projectFilter,
     Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final gitlabState = state == "open" ? "opened" : state;
     var url = "https://$_domain/api/v4/projects/$owner%2F$repo/issues?state=$gitlabState&per_page=30";
 
@@ -153,7 +154,7 @@ class GitlabManager extends GitProviderManager {
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assignee_username=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
     if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestone=${Uri.encodeComponent(milestoneFilter)}";
-    await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   @override
@@ -208,7 +209,13 @@ class GitlabManager extends GitProviderManager {
     return [];
   }
 
-  Future<void> _getIssuesRequest(String accessToken, String url, Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback) async {
+  Future<void> _getIssuesRequest(
+    String accessToken,
+    String url,
+    Function(List<Issue>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
@@ -233,17 +240,17 @@ class GitlabManager extends GitProviderManager {
         final String? nextLink = response.headers["x-next-page"];
         if (nextLink != null && nextLink.isNotEmpty) {
           final nextUrl = Uri.parse(url).replace(queryParameters: {...Uri.parse(url).queryParameters, "page": nextLink}).toString();
-          nextPageCallback(() => _getIssuesRequest(accessToken, nextUrl, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getIssuesRequest(accessToken, nextUrl, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -262,8 +269,9 @@ class GitlabManager extends GitProviderManager {
     String? reviewerFilter,
     String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final gitlabState = state == "open" ? "opened" : state;
     var url = "https://$_domain/api/v4/projects/$owner%2F$repo/merge_requests?state=$gitlabState&per_page=30";
 
@@ -282,15 +290,16 @@ class GitlabManager extends GitProviderManager {
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&search=${Uri.encodeComponent(searchFilter)}";
     if (reviewerFilter != null && reviewerFilter.isNotEmpty) url += "&reviewer_username=$reviewerFilter";
     if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestone=${Uri.encodeComponent(milestoneFilter)}";
-    await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getPullRequestsRequest(
     String accessToken,
     String url,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
@@ -320,17 +329,17 @@ class GitlabManager extends GitProviderManager {
         final String? nextLink = response.headers["x-next-page"];
         if (nextLink != null && nextLink.isNotEmpty) {
           final nextUrl = Uri.parse(url).replace(queryParameters: {...Uri.parse(url).queryParameters, "page": nextLink}).toString();
-          nextPageCallback(() => _getPullRequestsRequest(accessToken, nextUrl, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getPullRequestsRequest(accessToken, nextUrl, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -341,13 +350,20 @@ class GitlabManager extends GitProviderManager {
     String owner,
     String repo,
     Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final url = "https://$_domain/api/v4/projects/$owner%2F$repo/repository/tags?per_page=30";
-    await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
-  Future<void> _getTagsRequest(String accessToken, String url, Function(List<Tag>) updateCallback, Function(Function()?) nextPageCallback) async {
+  Future<void> _getTagsRequest(
+    String accessToken,
+    String url,
+    Function(List<Tag>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
@@ -369,17 +385,17 @@ class GitlabManager extends GitProviderManager {
         final String? nextLink = response.headers["x-next-page"];
         if (nextLink != null && nextLink.isNotEmpty) {
           final nextUrl = Uri.parse(url).replace(queryParameters: {...Uri.parse(url).queryParameters, "page": nextLink}).toString();
-          nextPageCallback(() => _getTagsRequest(accessToken, nextUrl, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getTagsRequest(accessToken, nextUrl, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetTags, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -390,18 +406,20 @@ class GitlabManager extends GitProviderManager {
     String owner,
     String repo,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final url = "https://$_domain/api/v4/projects/$owner%2F$repo/releases?per_page=20";
-    await _getReleasesRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getReleasesRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getReleasesRequest(
     String accessToken,
     String url,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
@@ -434,17 +452,17 @@ class GitlabManager extends GitProviderManager {
         final String? nextLink = response.headers["x-next-page"];
         if (nextLink != null && nextLink.isNotEmpty) {
           final nextUrl = Uri.parse(url).replace(queryParameters: {...Uri.parse(url).queryParameters, "page": nextLink}).toString();
-          nextPageCallback(() => _getReleasesRequest(accessToken, nextUrl, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getReleasesRequest(accessToken, nextUrl, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetReleases, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -456,20 +474,22 @@ class GitlabManager extends GitProviderManager {
     String repo,
     String state,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     var url = "https://$_domain/api/v4/projects/$owner%2F$repo/pipelines?per_page=30";
     if (state == "success") url += "&status=success";
     if (state == "failed") url += "&status=failed";
-    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getActionRunsRequest(
     String accessToken,
     String url,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Authorization": "Bearer $accessToken"});
 
@@ -507,17 +527,17 @@ class GitlabManager extends GitProviderManager {
         final String? nextLink = response.headers["x-next-page"];
         if (nextLink != null && nextLink.isNotEmpty) {
           final nextUrl = Uri.parse(url).replace(queryParameters: {...Uri.parse(url).queryParameters, "page": nextLink}).toString();
-          nextPageCallback(() => _getActionRunsRequest(accessToken, nextUrl, updateCallback, nextPageCallback));
+          nextPageCallback(() => _getActionRunsRequest(accessToken, nextUrl, updateCallback, nextPageCallback, onError: onError));
         } else {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetActionRuns, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }

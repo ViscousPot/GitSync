@@ -147,8 +147,9 @@ class GiteaManager extends GitProviderManager {
     String? milestoneFilter,
     String? projectFilter,
     Function(List<Issue>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     var url = "https://$domain/api/v1/repos/$owner/$repo/issues?state=$state&type=issues&limit=30";
 
     final giteaSort = switch (sortOption) {
@@ -164,7 +165,7 @@ class GiteaManager extends GitProviderManager {
     if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
     if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
     if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestones=${Uri.encodeComponent(milestoneFilter)}";
-    await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getIssuesRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   @override
@@ -219,7 +220,13 @@ class GiteaManager extends GitProviderManager {
     return [];
   }
 
-  Future<void> _getIssuesRequest(String accessToken, String url, Function(List<Issue>) updateCallback, Function(Function()?) nextPageCallback) async {
+  Future<void> _getIssuesRequest(
+    String accessToken,
+    String url,
+    Function(List<Issue>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -246,7 +253,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getIssuesRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getIssuesRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -254,12 +261,12 @@ class GiteaManager extends GitProviderManager {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetIssues, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -278,8 +285,9 @@ class GiteaManager extends GitProviderManager {
     String? reviewerFilter,
     String? milestoneFilter,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     var url = "https://$domain/api/v1/repos/$owner/$repo/pulls?state=$state&limit=30";
 
     final giteaSort = switch (sortOption) {
@@ -290,15 +298,16 @@ class GiteaManager extends GitProviderManager {
     url += "&sort=$giteaSort";
 
     if (authorFilter != null && authorFilter.isNotEmpty) url += "&poster=${Uri.encodeComponent(authorFilter)}";
-    await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getPullRequestsRequest(
     String accessToken,
     String url,
     Function(List<PullRequest>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -368,7 +377,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getPullRequestsRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getPullRequestsRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -376,12 +385,12 @@ class GiteaManager extends GitProviderManager {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetPullRequests, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -392,13 +401,20 @@ class GiteaManager extends GitProviderManager {
     String owner,
     String repo,
     Function(List<Tag>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final url = "https://$domain/api/v1/repos/$owner/$repo/tags?limit=30";
-    await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getTagsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
-  Future<void> _getTagsRequest(String accessToken, String url, Function(List<Tag>) updateCallback, Function(Function()?) nextPageCallback) async {
+  Future<void> _getTagsRequest(
+    String accessToken,
+    String url,
+    Function(List<Tag>) updateCallback,
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -422,7 +438,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getTagsRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getTagsRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -430,12 +446,12 @@ class GiteaManager extends GitProviderManager {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetTags, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -446,18 +462,20 @@ class GiteaManager extends GitProviderManager {
     String owner,
     String repo,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     final url = "https://$domain/api/v1/repos/$owner/$repo/releases?limit=20";
-    await _getReleasesRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getReleasesRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getReleasesRequest(
     String accessToken,
     String url,
     Function(List<Release>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -499,7 +517,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getReleasesRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getReleasesRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -507,12 +525,12 @@ class GiteaManager extends GitProviderManager {
           nextPageCallback(null);
         }
       } else {
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetReleases, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
@@ -524,20 +542,22 @@ class GiteaManager extends GitProviderManager {
     String repo,
     String state,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     var url = "https://$domain/api/v1/repos/$owner/$repo/actions/runs?limit=30";
     if (state == "success") url += "&status=success";
     if (state == "failed") url += "&status=failure";
-    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback);
+    await _getActionRunsRequest(accessToken, url, updateCallback, nextPageCallback, onError: onError);
   }
 
   Future<void> _getActionRunsRequest(
     String accessToken,
     String url,
     Function(List<ActionRun>) updateCallback,
-    Function(Function()?) nextPageCallback,
-  ) async {
+    Function(Function()?) nextPageCallback, {
+    void Function()? onError,
+  }) async {
     try {
       final response = await httpGet(Uri.parse(url), headers: {"Accept": "application/json", "Authorization": "token $accessToken"});
 
@@ -583,7 +603,7 @@ class GiteaManager extends GitProviderManager {
           final match = RegExp(r'<([^>]+)>; rel="next"').firstMatch(linkHeader);
           final String? nextLink = match?.group(1);
           if (nextLink != null) {
-            nextPageCallback(() => _getActionRunsRequest(accessToken, nextLink, updateCallback, nextPageCallback));
+            nextPageCallback(() => _getActionRunsRequest(accessToken, nextLink, updateCallback, nextPageCallback, onError: onError));
           } else {
             nextPageCallback(null);
           }
@@ -592,12 +612,12 @@ class GiteaManager extends GitProviderManager {
         }
       } else {
         // Graceful fallback: older Gitea (pre-1.19) returns 404
-        updateCallback([]);
+        onError?.call();
         nextPageCallback(null);
       }
     } catch (e, st) {
       Logger.logError(LogType.GetActionRuns, e, st);
-      updateCallback([]);
+      onError?.call();
       nextPageCallback(null);
     }
   }
