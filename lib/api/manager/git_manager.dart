@@ -9,6 +9,7 @@ import 'package:GitSync/api/helper.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import '../logger.dart';
+import '../remote_censor.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import '../manager/settings_manager.dart';
 import '../../constant/strings.dart';
@@ -1155,7 +1156,7 @@ class GitManager {
 
         final configContent = await configFile.readAsString();
 
-        print(configContent);
+        print(censorRemotesIn(configContent));
 
         print(remoteName);
 
@@ -1168,12 +1169,12 @@ class GitManager {
 
         String remoteUrl = match.group(1)!.trim();
 
-        print(remoteUrl);
-        print(_convertToWebUrl(remoteUrl));
+        print(censorRemote(remoteUrl));
+        print(censorRemote(_convertToWebUrl(remoteUrl)));
 
         return (remoteUrl, _convertToWebUrl(remoteUrl));
       } catch (e) {
-        print('Error getting Git remote URL: $e');
+        print(censorRemotesIn('Error getting Git remote URL: $e'));
         return null;
       }
     });
