@@ -18,7 +18,7 @@ Map<List<String>, (String?, Future<void> Function([int? repomanRepoindex])?)> _a
   [corruptedLooseFetchHead]: (null, ([_]) async => await runGitOperation(LogType.DiscardFetchHead, (event) => event)),
   [corruptedLooseObjectError]: (null, ([_]) async => await runGitOperation(LogType.PruneCorruptedObjects, (event) => event)),
   [failedToReadIndexError]: (null, ([_]) async => await runGitOperation(LogType.RecreateGitIndex, (event) => event)),
-  [theIndexIsLocked]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
+  [theIndexIsLockedError]: (null, ([_]) async => await runGitOperation(LogType.DiscardGitIndex, (event) => event)),
   [androidInvalidCharacterInFilenamePrefix, androidInvalidCharacterInFilenameSuffix]: (
     context.t.androidLimitedFilepathCharacters,
     ([int? repomanRepoindex]) async {

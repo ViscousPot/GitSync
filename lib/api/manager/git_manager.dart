@@ -321,6 +321,8 @@ class GitManager {
     if (error.contains(failedToReadIndex)) return failedToReadIndexError;
     if (error.toLowerCase().contains(noRouteToHost)) return noRouteToHostError;
     if (error.toLowerCase().contains(failedHostLookup)) return failedHostLookupError;
+    if (message.contains(theIndexIsLocked)) return theIndexIsLockedError;
+    if (message.contains(failedToLockFile)) return failedToLockFileError;
     return message;
   }
 
