@@ -3063,13 +3063,24 @@ pub async fn get_recommended_action(
         remote.disconnect().unwrap();
     }
 
-    if has_local_changes_priv(&repo, &log_callback) {
-        _log(
-            Arc::clone(&log_callback),
-            LogType::RecommendedAction,
-            "Recommending action 2: Staged or uncommitted files exist".to_string(),
-        );
-        return Ok(Some(2));
+    match has_local_changes_priv(&repo, &log_callback) {
+        None => {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::RecommendedAction,
+                "Recommending no action: local changes could not be determined".to_string(),
+            );
+            return Ok(None);
+        }
+        Some(true) => {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::RecommendedAction,
+                "Recommending action 2: Staged or uncommitted files exist".to_string(),
+            );
+            return Ok(Some(2));
+        }
+        Some(false) => {}
     }
 
     if let Ok(head) = repo.head() {
@@ -4171,7 +4182,7 @@ fn get_uncommitted_file_paths_priv(
 fn has_local_changes_priv(
     repo: &Repository,
     log_callback: &Arc<impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static>,
-) -> bool {
+) -> Option<bool> {
     _log(
         Arc::clone(&log_callback),
         LogType::RecommendedAction,
@@ -4184,7 +4195,14 @@ fn has_local_changes_priv(
     opts.update_index(true);
     let statuses = match repo.statuses(Some(&mut opts)) {
         Ok(s) => s,
-        Err(_) => return false,
+        Err(e) => {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::RecommendedAction,
+                format!("Could not read status: {}", e.message()),
+            );
+            return None;
+        }
     };
 
     let index_flags = Status::INDEX_NEW | Status::INDEX_MODIFIED | Status::INDEX_DELETED;
@@ -4205,17 +4223,17 @@ fn has_local_changes_priv(
             let workdir_oid = submodule.workdir_id();
 
             if head_oid != index_oid || head_oid != workdir_oid {
-                return true;
+                return Some(true);
             }
             continue;
         }
 
         if entry.status().intersects(relevant_flags) {
-            return true;
+            return Some(true);
         }
     }
 
-    false
+    Some(false)
 }
 
 pub async fn abort_merge(

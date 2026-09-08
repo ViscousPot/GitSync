@@ -293,10 +293,11 @@ class GitsyncService {
 
         final optimisedSyncFlag = await settingsManager.getBool(StorageKey.setman_optimisedSyncExperimental);
         int? recommendedAction = await GitManager.getRecommendedAction(priority: 3, repoIndex: repomanRepoindex);
+        bool optimised = optimisedSyncFlag && recommendedAction != null;
 
-        if (optimisedSyncFlag && recommendedAction == -1) return;
+        if (optimised && recommendedAction == -1) return;
 
-        if (!optimisedSyncFlag || [0, 1, 2, 3].contains(recommendedAction)) {
+        if (!optimised || [0, 1, 2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Pull Repo");
           pullResult = await GitManager.backgroundDownloadChanges(repomanRepoindex, settingsManager, () async {
             synced = true;
@@ -328,9 +329,10 @@ class GitsyncService {
         }
 
         recommendedAction = await GitManager.getRecommendedAction(priority: 3, repoIndex: repomanRepoindex);
-        if (optimisedSyncFlag && recommendedAction == -1) return;
+        optimised = optimisedSyncFlag && recommendedAction != null;
+        if (optimised && recommendedAction == -1) return;
 
-        if (!optimisedSyncFlag || [2, 3].contains(recommendedAction)) {
+        if (!optimised || [2, 3].contains(recommendedAction)) {
           Logger.gmLog(type: LogType.Sync, "Start Push Repo");
           pushResult = await GitManager.backgroundUploadChanges(
             repomanRepoindex,
