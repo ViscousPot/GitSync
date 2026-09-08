@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:markdown/markdown.dart' as m;
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/constant/dimens.dart';
@@ -79,7 +80,17 @@ MarkdownConfig buildMarkdownConfig(BuildContext context) => MarkdownConfig(
         );
       },
     ),
+    CheckBoxConfig(builder: (checked) => _checkBoxBuilder(context, checked)),
   ],
+);
+
+Widget _checkBoxBuilder(BuildContext context, bool checked) => Padding(
+  padding: EdgeInsets.only(top: spaceXXXXS, right: spaceXXXS),
+  child: FaIcon(
+    checked ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
+    color: checked ? context.colours.primaryPositive : context.colours.tertiaryLight,
+    size: textSM,
+  ),
 );
 
 MarkdownConfig buildFooterMarkdownConfig(BuildContext context) => MarkdownConfig(
@@ -91,6 +102,7 @@ MarkdownConfig buildFooterMarkdownConfig(BuildContext context) => MarkdownConfig
       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, decoration: TextDecoration.underline),
       onTap: (_) {},
     ),
+    CheckBoxConfig(builder: (checked) => _checkBoxBuilder(context, checked)),
   ],
 );
 
