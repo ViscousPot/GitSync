@@ -78,7 +78,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
     if (frequency == "never") {
       updating.value = false;
       setState(() {});
-      await Workmanager().cancelAll();
+      await Workmanager().cancelByUniqueName("$scheduledSyncKey$repoIndex");
       return;
     }
 
