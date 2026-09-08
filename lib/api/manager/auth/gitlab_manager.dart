@@ -495,6 +495,7 @@ class GitlabManager extends GitProviderManager {
             createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
             duration: duration,
             branch: item["ref"] as String?,
+            url: item["web_url"] as String?,
           );
         }).toList();
 

@@ -9,6 +9,7 @@ import 'package:GitSync/type/action_run.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/showcase_feature.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:url_launcher/url_launcher.dart';
 
 class ActionsPage extends StatefulWidget {
   final GitProvider gitProvider;
@@ -199,7 +200,10 @@ class _ActionsPageState extends State<ActionsPage> {
                           }
                           return Padding(
                             padding: EdgeInsets.only(bottom: spaceXS),
-                            child: _ItemActionRun(run: _runs[index]),
+                            child: _ItemActionRun(
+                              run: _runs[index],
+                              onTap: _runs[index].url == null ? null : () => launchUrl(Uri.parse(_runs[index].url!)),
+                            ),
                           );
                         },
                       ),
@@ -268,129 +272,133 @@ String _formatDuration(Duration d) {
 
 class _ItemActionRun extends StatelessWidget {
   final ActionRun run;
+  final VoidCallback? onTap;
 
-  const _ItemActionRun({required this.run});
+  const _ItemActionRun({required this.run, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final relativeTime = timeago.format(run.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
     final (icon, color) = _statusIconAndColor(context, run.status);
 
-    return Container(
-      padding: EdgeInsets.all(spaceSM),
-      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Row 1: Status icon + workflow name
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: spaceXXXXS),
-                child: FaIcon(icon, size: textMD, color: color),
-              ),
-              SizedBox(width: spaceXS),
-              Expanded(
-                child: Text(
-                  run.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: spaceXXS),
-
-          // Row 2: #number, author, relative time, duration
-          Padding(
-            padding: EdgeInsets.only(left: textMD + spaceXS),
-            child: Row(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(spaceSM),
+        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row 1: Status icon + workflow name
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '#${run.number}',
-                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
+                Padding(
+                  padding: EdgeInsets.only(top: spaceXXXXS),
+                  child: FaIcon(icon, size: textMD, color: color),
                 ),
-                Text(
-                  ' $bullet ',
-                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
-                ),
-                Flexible(
+                SizedBox(width: spaceXS),
+                Expanded(
                   child: Text(
-                    run.authorUsername,
+                    run.name,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(
-                  ' $bullet ',
-                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
-                ),
-                Text(
-                  relativeTime,
-                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
-                ),
-                if (run.duration != null) ...[
+              ],
+            ),
+            SizedBox(height: spaceXXS),
+
+            // Row 2: #number, author, relative time, duration
+            Padding(
+              padding: EdgeInsets.only(left: textMD + spaceXS),
+              child: Row(
+                children: [
+                  Text(
+                    '#${run.number}',
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
+                  ),
+                  Text(
+                    ' $bullet ',
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
+                  ),
+                  Flexible(
+                    child: Text(
+                      run.authorUsername,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
+                    ),
+                  ),
                   Text(
                     ' $bullet ',
                     style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
-                    _formatDuration(run.duration!),
+                    relativeTime,
                     style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
-                ],
-              ],
-            ),
-          ),
-
-          // Row 3: Branch and PR chips
-          if (run.branch != null || run.prNumber != null) ...[
-            SizedBox(height: spaceXXS),
-            Padding(
-              padding: EdgeInsets.only(left: textMD + spaceXS),
-              child: Wrap(
-                spacing: spaceXXXS,
-                runSpacing: spaceXXXS,
-                children: [
-                  if (run.branch != null)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FaIcon(FontAwesomeIcons.codeBranch, size: textXXS, color: context.colours.tertiaryLight),
-                          SizedBox(width: spaceXXXXS),
-                          Text(
-                            run.branch!,
-                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                  if (run.duration != null) ...[
+                    Text(
+                      ' $bullet ',
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
-                  if (run.prNumber != null)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FaIcon(FontAwesomeIcons.codePullRequest, size: textXXS, color: context.colours.tertiaryLight),
-                          SizedBox(width: spaceXXXXS),
-                          Text(
-                            '#${run.prNumber}',
-                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      _formatDuration(run.duration!),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
+                  ],
                 ],
               ),
             ),
+
+            // Row 3: Branch and PR chips
+            if (run.branch != null || run.prNumber != null) ...[
+              SizedBox(height: spaceXXS),
+              Padding(
+                padding: EdgeInsets.only(left: textMD + spaceXS),
+                child: Wrap(
+                  spacing: spaceXXXS,
+                  runSpacing: spaceXXXS,
+                  children: [
+                    if (run.branch != null)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
+                        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FaIcon(FontAwesomeIcons.codeBranch, size: textXXS, color: context.colours.tertiaryLight),
+                            SizedBox(width: spaceXXXXS),
+                            Text(
+                              run.branch!,
+                              style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (run.prNumber != null)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
+                        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FaIcon(FontAwesomeIcons.codePullRequest, size: textXXS, color: context.colours.tertiaryLight),
+                            SizedBox(width: spaceXXXXS),
+                            Text(
+                              '#${run.prNumber}',
+                              style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

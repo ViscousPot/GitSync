@@ -10,6 +10,7 @@ class ActionRun {
   final DateTime createdAt;
   final Duration? duration;
   final String? branch;
+  final String? url;
 
   const ActionRun({
     required this.name,
@@ -21,5 +22,6 @@ class ActionRun {
     required this.createdAt,
     this.duration,
     this.branch,
+    this.url,
   });
 }

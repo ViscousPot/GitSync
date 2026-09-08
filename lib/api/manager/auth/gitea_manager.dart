@@ -567,6 +567,7 @@ class GiteaManager extends GitProviderManager {
             createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
             duration: duration,
             branch: item["head_branch"] as String?,
+            url: item["html_url"] as String?,
           );
         }).toList();
 
