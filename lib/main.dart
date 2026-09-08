@@ -1028,14 +1028,18 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     await reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
-    ref.read(branchNameProvider.notifier).refresh();
-    ref.read(remoteUrlLinkProvider.notifier).refresh();
-    ref.read(listRemotesProvider.notifier).refresh();
-    ref.read(branchNamesProvider.notifier).refresh();
-    ref.read(conflictingFilesProvider.notifier).refresh();
-    await ref.read(recentCommitsProvider.notifier).refresh();
-    await ref.read(recommendedActionProvider.notifier).refresh();
-    await ref.read(recentCommitsProvider.notifier).loadDiffStats();
+    final hasGitDirPath = (await uiSettingsManager.getString(StorageKey.setman_gitDirPath)).isNotEmpty;
+    if (token != _reloadToken) return;
+    if (hasGitDirPath) {
+      ref.read(branchNameProvider.notifier).refresh();
+      ref.read(remoteUrlLinkProvider.notifier).refresh();
+      ref.read(listRemotesProvider.notifier).refresh();
+      ref.read(branchNamesProvider.notifier).refresh();
+      ref.read(conflictingFilesProvider.notifier).refresh();
+      await ref.read(recentCommitsProvider.notifier).refresh();
+      await ref.read(recommendedActionProvider.notifier).refresh();
+      await ref.read(recentCommitsProvider.notifier).loadDiffStats();
+    }
     ref.invalidate(syncMessageEnabledProvider);
     ref.invalidate(lastSyncMethodProvider);
     ref.invalidate(clientModeEnabledProvider);
@@ -1051,7 +1055,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.invalidate(featureCountsProvider);
     ref.invalidate(gitDirPathProvider);
     ref.invalidate(remoteNameProvider);
-    ref.read(submodulePathsProvider.notifier).refresh();
+    if (hasGitDirPath) ref.read(submodulePathsProvider.notifier).refresh();
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
   }
