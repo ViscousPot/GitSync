@@ -293,6 +293,8 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         final items = data["items"] as List<dynamic>? ?? [];
         final totalCount = data["total_count"] as int? ?? 0;
 
+        final linkedPrNumbers = await _fetchLinkedPrNumbers(accessToken, owner, repo, items.map((item) => item["number"] as int? ?? 0).toList());
+
         final issues = items
             .map(
               (item) => Issue(
@@ -302,6 +304,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
                 authorUsername: item["user"]?["login"] ?? "",
                 createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
                 commentCount: item["comments"] ?? 0,
+                linkedPrNumbers: linkedPrNumbers[item["number"]] ?? const [],
                 labels:
                     (item["labels"] as List<dynamic>?)
                         ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', '')))
@@ -343,6 +346,51 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
       Logger.logError(LogType.GetIssues, e, st);
       updateCallback([]);
       nextPageCallback(null);
+    }
+  }
+
+  Future<Map<int, List<int>>> _fetchLinkedPrNumbers(String accessToken, String owner, String repo, List<int> numbers) async {
+    final valid = numbers.where((n) => n > 0).toSet().toList();
+    if (valid.isEmpty) return {};
+    try {
+      final fields = valid
+          .map(
+            (n) =>
+                'n$n: issue(number: $n) { number timelineItems(itemTypes: [CROSS_REFERENCED_EVENT], first: 50) { nodes { ... on CrossReferencedEvent { source { ... on PullRequest { number } } } } } }',
+          )
+          .join("\n");
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/graphql"),
+        headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({
+          "query": "query(\$owner: String!, \$repo: String!) { repository(owner: \$owner, name: \$repo) { $fields } }",
+          "variables": {"owner": owner, "repo": repo},
+        }),
+      );
+
+      if (response.statusCode != 200) return {};
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+      final repository = jsonData["data"]?["repository"] as Map<String, dynamic>?;
+      if (repository == null) return {};
+
+      final Map<int, List<int>> linkedPrNumbers = {};
+      for (final entry in repository.values) {
+        if (entry is! Map) continue;
+        final number = entry["number"] as int?;
+        if (number == null) continue;
+        final timelineNodes = entry["timelineItems"]?["nodes"] as List<dynamic>? ?? [];
+        linkedPrNumbers[number] = timelineNodes
+            .map((node) => node["source"])
+            .whereType<Map>()
+            .map((source) => source["number"])
+            .whereType<int>()
+            .toSet()
+            .toList();
+      }
+      return linkedPrNumbers;
+    } catch (e, st) {
+      Logger.logError(LogType.GetIssues, e, st);
+      return {};
     }
   }
 
@@ -674,10 +722,13 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
         final items = data["items"] as List<dynamic>? ?? [];
         final totalCount = data["total_count"] as int? ?? 0;
 
+        final rowDetails = await _fetchPrRowDetails(accessToken, owner, repo, items.map((item) => item["number"] as int? ?? 0).toList());
+
         final prs = items.map((item) {
           final stateStr = item["state"] ?? "";
           final merged = item["pull_request"]?["merged_at"] != null;
           final PrState prState = merged ? PrState.merged : (stateStr == "open" ? PrState.open : PrState.closed);
+          final details = rowDetails[item["number"]];
 
           return PullRequest(
             title: item["title"] ?? "",
@@ -686,8 +737,8 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
             authorUsername: item["user"]?["login"] ?? "",
             createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
             commentCount: item["comments"] ?? 0,
-            linkedIssueCount: 0,
-            checkStatus: CheckStatus.none,
+            linkedIssueCount: details?.linkedIssueCount ?? 0,
+            checkStatus: details?.checkStatus ?? CheckStatus.none,
             labels:
                 (item["labels"] as List<dynamic>?)
                     ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', '')))
@@ -728,6 +779,58 @@ query(\$owner: String!, \$repo: String!, \$states: [PullRequestState!], \$after:
       Logger.logError(LogType.GetPullRequests, e, st);
       updateCallback([]);
       nextPageCallback(null);
+    }
+  }
+
+  Future<Map<int, ({int linkedIssueCount, CheckStatus checkStatus})>> _fetchPrRowDetails(
+    String accessToken,
+    String owner,
+    String repo,
+    List<int> numbers,
+  ) async {
+    final valid = numbers.where((n) => n > 0).toSet().toList();
+    if (valid.isEmpty) return {};
+    try {
+      final fields = valid
+          .map(
+            (n) =>
+                'n$n: pullRequest(number: $n) { number closingIssuesReferences { totalCount } commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } }',
+          )
+          .join("\n");
+      final response = await httpPost(
+        Uri.parse("https://api.$_domain/graphql"),
+        headers: {"Authorization": "bearer $accessToken", "Content-Type": "application/json"},
+        body: json.encode({
+          "query": "query(\$owner: String!, \$repo: String!) { repository(owner: \$owner, name: \$repo) { $fields } }",
+          "variables": {"owner": owner, "repo": repo},
+        }),
+      );
+
+      if (response.statusCode != 200) return {};
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+      final repository = jsonData["data"]?["repository"] as Map<String, dynamic>?;
+      if (repository == null) return {};
+
+      final Map<int, ({int linkedIssueCount, CheckStatus checkStatus})> details = {};
+      for (final entry in repository.values) {
+        if (entry is! Map) continue;
+        final number = entry["number"] as int?;
+        if (number == null) continue;
+        final rollupState = (entry["commits"]?["nodes"] as List<dynamic>?)?.firstOrNull?["commit"]?["statusCheckRollup"]?["state"] as String?;
+        details[number] = (
+          linkedIssueCount: entry["closingIssuesReferences"]?["totalCount"] as int? ?? 0,
+          checkStatus: switch (rollupState) {
+            "SUCCESS" => CheckStatus.success,
+            "FAILURE" || "ERROR" => CheckStatus.failure,
+            "PENDING" || "EXPECTED" => CheckStatus.pending,
+            _ => CheckStatus.none,
+          },
+        );
+      }
+      return details;
+    } catch (e, st) {
+      Logger.logError(LogType.GetPullRequests, e, st);
+      return {};
     }
   }
 
