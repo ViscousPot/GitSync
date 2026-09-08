@@ -73,7 +73,7 @@ class SettingsManager extends Storage {
   Future<void> clearAll() async {
     final all = await storage.readAll();
     for (var entry in all.entries) {
-      if (entry.key.startsWith(keyNamespace)) {
+      if (entry.key.startsWith("$keyNamespace::")) {
         await storage.delete(key: entry.key);
       }
     }
@@ -84,7 +84,7 @@ class SettingsManager extends Storage {
     final all = await storage.readAll();
 
     for (var entry in all.entries) {
-      if (entry.key.startsWith(keyNamespace)) {
+      if (entry.key.startsWith("$keyNamespace::")) {
         final suffix = entry.key.substring(keyNamespace.length + 2);
         final newKey = "$newNamespace::$suffix";
         await storage.write(key: newKey, value: entry.value);
