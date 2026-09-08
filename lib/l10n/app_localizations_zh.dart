@@ -2095,6 +2095,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issueCommentFailedMsg => 'Your message couldn’t be sent. Please check your connection and try again.';
 
   @override
+  String get issueReportFailedMsg => 'Your report couldn’t be sent. Please check your connection and try again.';
+
+  @override
   String get createNewRepository => '创建新仓库';
 
   @override

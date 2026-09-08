@@ -798,6 +798,7 @@
     "issueCommentSuccessTitle": "Message Sent",
     "issueCommentSuccessMsg": "Your report has been added to the existing issue. Bookmark this page to track progress and respond to messages. \n\nIssues with no activity for 7 days are automatically closed.",
     "issueCommentFailedMsg": "Your message couldn’t be sent. Please check your connection and try again.",
+    "issueReportFailedMsg": "Your report couldn’t be sent. Please check your connection and try again.",
     "createNewRepository": "Create New Repository",
     "noGitRepoFoundMsg": "No git repository was found in the selected folder. Would you like to create a new one here?",
     "remoteSetupLaterMsg": "This creates a local repository.\nAuthenticate and add a remote to enable sync.",
