@@ -678,8 +678,8 @@ class GitManager {
     return false;
   }
 
-  static Future<List<GitManagerRs.Commit>> getInitialRecentCommits() async {
-    return (await uiSettingsManager.getStringList(
+  static Future<List<GitManagerRs.Commit>> getInitialRecentCommits([SettingsManager? setman]) async {
+    return (await (setman ?? uiSettingsManager).getStringList(
       StorageKey.setman_recentCommits,
     )).map((item) => CommitJson.fromJson(jsonDecode(stringToBase64.decode(item)))).toList();
   }
@@ -687,7 +687,7 @@ class GitManager {
   static Future<List<GitManagerRs.Commit>?> getRecentCommits({int priority = 1, int? repoIndex}) async {
     final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
-    final cachedCommits = await getInitialRecentCommits();
+    final cachedCommits = await getInitialRecentCommits(await SettingsManager.scoped(resolvedIndex));
     final cachedDiffStats = <String, (int, int)>{for (final c in cachedCommits) c.reference: (c.additions, c.deletions)};
     final result = await _runWithLock(priority: priority, GitManagerRs.commitListRunWithLock, resolvedIndex, LogType.RecentCommits, (dirPath) async {
       try {
@@ -708,13 +708,14 @@ class GitManager {
   }
 
   static Future<List<GitManagerRs.Commit>?> getMoreRecentCommits(int skip, {int priority = 1, int? repoIndex}) async {
+    final resolvedIndex = await _resolveRepoIndex(repoIndex);
     final setman = await _resolveSettingsManager(repoIndex);
-    final cachedCommits = await getInitialRecentCommits();
+    final cachedCommits = await getInitialRecentCommits(await SettingsManager.scoped(resolvedIndex));
     final cachedDiffStats = <String, (int, int)>{for (final c in cachedCommits) c.reference: (c.additions, c.deletions)};
     final result = await _runWithLock(
       priority: priority,
       GitManagerRs.commitListRunWithLock,
-      await _resolveRepoIndex(repoIndex),
+      resolvedIndex,
       LogType.RecentCommits,
       (dirPath) async {
         try {
