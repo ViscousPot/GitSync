@@ -876,6 +876,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                             ref.read(aiKeyConfiguredProvider.notifier).state = false;
                             aiChatService.clearConversation();
                             Navigator.pop(context, true);
+                            _checkStoredApiKey();
                           },
                           style: ButtonStyle(
                             backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
