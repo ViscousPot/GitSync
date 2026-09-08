@@ -1432,6 +1432,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get directory => '目录';
 
   @override
+  String get confirmFileDirDeleteTitle => 'Confirm Deletion';
+
+  @override
   String get confirmFileDirDeleteMsg => '确定要删除 %s \"%s\" %s吗？';
 
   @override

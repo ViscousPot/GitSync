@@ -720,7 +720,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
 
                                                   try {
                                                     if (entity == FileSystemEntityType.directory) {
-                                                      await Directory(path).delete();
+                                                      await Directory(path).delete(recursive: true);
                                                     } else {
                                                       await File(path).delete();
                                                     }

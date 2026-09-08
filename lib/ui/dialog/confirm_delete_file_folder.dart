@@ -26,7 +26,7 @@ Future<void> showDialog(BuildContext context, List<String> selectedPaths, Future
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          text,
+          t.confirmFileDirDeleteTitle,
           style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),

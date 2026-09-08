@@ -1433,6 +1433,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get directory => 'مجلد';
 
   @override
+  String get confirmFileDirDeleteTitle => 'Confirm Deletion';
+
+  @override
   String get confirmFileDirDeleteMsg => 'هل أنت متأكد من حذف %s \"%s\" %s؟';
 
   @override
