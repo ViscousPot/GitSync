@@ -745,6 +745,8 @@
     "actionFilterAll": "All",
     "actionFilterSuccess": "Success",
     "actionFilterFailed": "Failed",
+    "fetchFailed": "Could not load…",
+    "retry": "Retry",
     "mergeRequests": "Merge Requests",
     "jobs": "Jobs",
     "comment": "Comment",

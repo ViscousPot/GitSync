@@ -7,6 +7,7 @@ import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/fetch_error_state.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/ui/page/issue_detail_page.dart';
@@ -31,6 +32,7 @@ class _IssuesPageState extends State<IssuesPage> {
   final ScrollController _scrollController = ScrollController();
   final List<Issue> _issues = [];
   bool _loading = true;
+  bool _error = false;
   Function()? _loadNextPage;
   String _stateFilter = "open";
   int _fetchGeneration = 0;
@@ -90,6 +92,7 @@ class _IssuesPageState extends State<IssuesPage> {
     setState(() {
       _issues.clear();
       _loading = true;
+      _error = false;
       _loadNextPage = null;
     });
 
@@ -134,6 +137,13 @@ class _IssuesPageState extends State<IssuesPage> {
             }
           });
         }
+      },
+      onError: () {
+        if (!mounted || generation != _fetchGeneration) return;
+        setState(() {
+          _error = true;
+          _loading = false;
+        });
       },
     );
   }
@@ -765,10 +775,12 @@ class _IssuesPageState extends State<IssuesPage> {
                           child: SizedBox(
                             height: constraints.maxHeight,
                             child: Center(
-                              child: Text(
-                                context.t.issuesNotFound.toUpperCase(),
-                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
-                              ),
+                              child: _error
+                                  ? FetchErrorState(onRetry: _fetchIssues)
+                                  : Text(
+                                      context.t.issuesNotFound.toUpperCase(),
+                                      style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                    ),
                             ),
                           ),
                         ),

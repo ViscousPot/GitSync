@@ -1970,6 +1970,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actionFilterFailed => 'Échec';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

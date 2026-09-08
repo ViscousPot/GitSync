@@ -1965,6 +1965,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get actionFilterFailed => 'Fallidas';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

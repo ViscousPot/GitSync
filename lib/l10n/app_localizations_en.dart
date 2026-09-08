@@ -1961,6 +1961,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionFilterFailed => 'Failed';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

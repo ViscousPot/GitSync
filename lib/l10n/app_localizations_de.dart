@@ -1968,6 +1968,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get actionFilterFailed => 'Fehlgeschlagen';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

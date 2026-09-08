@@ -8,6 +8,7 @@ import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/fetch_error_state.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/tag.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -29,6 +30,7 @@ class _TagsPageState extends State<TagsPage> {
   final ScrollController _scrollController = ScrollController();
   final List<Tag> _tags = [];
   bool _loading = true;
+  bool _error = false;
   Function()? _loadNextPage;
   int _fetchGeneration = 0;
 
@@ -55,6 +57,7 @@ class _TagsPageState extends State<TagsPage> {
     setState(() {
       _tags.clear();
       _loading = true;
+      _error = false;
       _loadNextPage = null;
     });
 
@@ -91,6 +94,13 @@ class _TagsPageState extends State<TagsPage> {
             }
           });
         }
+      },
+      onError: () {
+        if (!mounted || generation != _fetchGeneration) return;
+        setState(() {
+          _error = true;
+          _loading = false;
+        });
       },
     );
   }
@@ -143,10 +153,12 @@ class _TagsPageState extends State<TagsPage> {
                           child: SizedBox(
                             height: constraints.maxHeight,
                             child: Center(
-                              child: Text(
-                                context.t.tagsNotFound.toUpperCase(),
-                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
-                              ),
+                              child: _error
+                                  ? FetchErrorState(onRetry: _fetchTags)
+                                  : Text(
+                                      context.t.tagsNotFound.toUpperCase(),
+                                      style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                    ),
                             ),
                           ),
                         ),

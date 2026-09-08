@@ -7,6 +7,7 @@ import 'package:GitSync/api/manager/auth/git_provider_manager.dart';
 import 'package:GitSync/constant/dimens.dart';
 import 'package:GitSync/constant/strings.dart';
 import 'package:GitSync/global.dart';
+import 'package:GitSync/ui/component/fetch_error_state.dart';
 import 'package:GitSync/type/git_provider.dart';
 import 'package:GitSync/type/issue.dart';
 import 'package:GitSync/type/pull_request.dart';
@@ -31,6 +32,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   final ScrollController _scrollController = ScrollController();
   final List<PullRequest> _pullRequests = [];
   bool _loading = true;
+  bool _error = false;
   Function()? _loadNextPage;
   String _stateFilter = "open";
   int _fetchGeneration = 0;
@@ -104,6 +106,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     setState(() {
       _pullRequests.clear();
       _loading = true;
+      _error = false;
       _loadNextPage = null;
     });
 
@@ -148,6 +151,13 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
             }
           });
         }
+      },
+      onError: () {
+        if (!mounted || generation != _fetchGeneration) return;
+        setState(() {
+          _error = true;
+          _loading = false;
+        });
       },
     );
   }
@@ -575,10 +585,12 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                           child: SizedBox(
                             height: constraints.maxHeight,
                             child: Center(
-                              child: Text(
-                                context.t.pullRequestsNotFound.toUpperCase(),
-                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
-                              ),
+                              child: _error
+                                  ? FetchErrorState(onRetry: _fetchPullRequests)
+                                  : Text(
+                                      context.t.pullRequestsNotFound.toUpperCase(),
+                                      style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                    ),
                             ),
                           ),
                         ),

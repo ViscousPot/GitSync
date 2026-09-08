@@ -1951,6 +1951,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionFilterFailed => '失败';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

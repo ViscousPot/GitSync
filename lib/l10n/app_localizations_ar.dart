@@ -1952,6 +1952,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get actionFilterFailed => 'فاشل';
 
   @override
+  String get fetchFailed => 'Could not load…';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get mergeRequests => 'Merge Requests';
 
   @override

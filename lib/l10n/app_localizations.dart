@@ -3992,6 +3992,18 @@ abstract class AppLocalizations {
   /// **'Failed'**
   String get actionFilterFailed;
 
+  /// No description provided for @fetchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load…'**
+  String get fetchFailed;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @mergeRequests.
   ///
   /// In en, this message translates to:
