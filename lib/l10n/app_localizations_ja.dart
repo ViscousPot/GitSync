@@ -821,6 +821,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get commitsNotFound => 'コミットが見つかりません…';
 
   @override
+  String get filesNotFound => 'No files found…';
+
+  @override
   String get repoNotFound => 'リポジトリが見つかりません…';
 
   @override

@@ -825,6 +825,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get commitsNotFound => 'Keine Commits gefunden…';
 
   @override
+  String get filesNotFound => 'No files found…';
+
+  @override
   String get repoNotFound => 'Repository nicht gefunden…';
 
   @override

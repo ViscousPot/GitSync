@@ -324,6 +324,7 @@
     "detachedHead": "Detached Head",
     "unbornBranch": "Unborn Branch",
     "commitsNotFound": "No commits found…",
+    "filesNotFound": "No files found…",
     "repoNotFound": "No repo found…",
     "committed": "committed",
     "additions": "%s ++",

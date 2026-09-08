@@ -1730,6 +1730,12 @@ abstract class AppLocalizations {
   /// **'No commits found…'**
   String get commitsNotFound;
 
+  /// No description provided for @filesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No files found…'**
+  String get filesNotFound;
+
   /// No description provided for @repoNotFound.
   ///
   /// In en, this message translates to:

@@ -823,6 +823,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commitsNotFound => 'Коммиты не найдены…';
 
   @override
+  String get filesNotFound => 'No files found…';
+
+  @override
   String get repoNotFound => 'Репозиторий не найден…';
 
   @override

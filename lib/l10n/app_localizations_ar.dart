@@ -819,6 +819,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commitsNotFound => 'لا توجد إرسالات...';
 
   @override
+  String get filesNotFound => 'No files found…';
+
+  @override
   String get repoNotFound => 'لا يوجد مستودع...';
 
   @override

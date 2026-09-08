@@ -819,6 +819,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commitsNotFound => '未找到提交…';
 
   @override
+  String get filesNotFound => 'No files found…';
+
+  @override
   String get repoNotFound => '未找到仓库…';
 
   @override
