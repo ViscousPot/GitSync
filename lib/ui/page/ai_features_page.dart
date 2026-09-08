@@ -231,8 +231,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                       ),
                     ),
                     GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () => aiChatService.error.value = null,
-                      child: FaIcon(FontAwesomeIcons.xmark, color: colours.primaryNegative, size: textSM),
+                      child: Container(
+                        constraints: BoxConstraints(minWidth: spaceXL, minHeight: spaceXL),
+                        alignment: Alignment.center,
+                        child: FaIcon(FontAwesomeIcons.xmark, color: colours.primaryNegative, size: textMD),
+                      ),
                     ),
                   ],
                 ),
