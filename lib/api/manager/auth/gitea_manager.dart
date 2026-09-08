@@ -24,6 +24,12 @@ class GiteaManager extends GitProviderManager {
 
   @override
   bool get supportsReviewerFilter => false;
+  @override
+  bool get supportsPrLabelFilter => false;
+  @override
+  bool get supportsPrAssigneeFilter => false;
+  @override
+  bool get supportsPrMilestoneFilter => false;
 
   @override
   get clientId => giteaClientId;
@@ -283,11 +289,7 @@ class GiteaManager extends GitProviderManager {
     };
     url += "&sort=$giteaSort";
 
-    if (authorFilter != null && authorFilter.isNotEmpty) url += "&created_by=$authorFilter";
-    if (labelFilter != null && labelFilter.isNotEmpty) url += "&labels=$labelFilter";
-    if (assigneeFilter != null && assigneeFilter.isNotEmpty) url += "&assigned_by=$assigneeFilter";
-    if (searchFilter != null && searchFilter.isNotEmpty) url += "&q=${Uri.encodeComponent(searchFilter)}";
-    if (milestoneFilter != null && milestoneFilter.isNotEmpty) url += "&milestones=${Uri.encodeComponent(milestoneFilter)}";
+    if (authorFilter != null && authorFilter.isNotEmpty) url += "&poster=${Uri.encodeComponent(authorFilter)}";
     await _getPullRequestsRequest(accessToken, url, updateCallback, nextPageCallback);
   }
 

@@ -57,6 +57,9 @@ class GitProviderManager {
 
   bool get supportsMostCommentedIssueSort => true;
   bool get supportsReviewerFilter => true;
+  bool get supportsPrLabelFilter => true;
+  bool get supportsPrAssigneeFilter => true;
+  bool get supportsPrMilestoneFilter => true;
 
   String get clientId => "";
   String? get clientSecret => null;

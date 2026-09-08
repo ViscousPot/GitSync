@@ -53,11 +53,18 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   List<String>? _repoCollaborators;
   List<String>? _repoMilestones;
   bool _supportsReviewerFilter = true;
+  bool _supportsLabelFilter = true;
+  bool _supportsAssigneeFilter = true;
+  bool _supportsMilestoneFilter = true;
 
   @override
   void initState() {
     super.initState();
-    _supportsReviewerFilter = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth)?.supportsReviewerFilter ?? true;
+    final manager = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth);
+    _supportsReviewerFilter = manager?.supportsReviewerFilter ?? true;
+    _supportsLabelFilter = manager?.supportsPrLabelFilter ?? true;
+    _supportsAssigneeFilter = manager?.supportsPrAssigneeFilter ?? true;
+    _supportsMilestoneFilter = manager?.supportsPrMilestoneFilter ?? true;
     _scrollController.addListener(_onScroll);
     _fetchPullRequests();
   }
@@ -353,16 +360,20 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
-                  SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_labelsController, _labelsFocusNode, context.t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
-                  SizedBox(height: spaceSM),
-                  _buildAutocompleteField(
-                    _assigneeController,
-                    _assigneeFocusNode,
-                    context.t.filterAssignee.toUpperCase(),
-                    _ensureCollaborators,
-                    _repoCollaborators,
-                  ),
+                  if (_supportsLabelFilter) ...[
+                    SizedBox(height: spaceSM),
+                    _buildAutocompleteField(_labelsController, _labelsFocusNode, context.t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
+                  ],
+                  if (_supportsAssigneeFilter) ...[
+                    SizedBox(height: spaceSM),
+                    _buildAutocompleteField(
+                      _assigneeController,
+                      _assigneeFocusNode,
+                      context.t.filterAssignee.toUpperCase(),
+                      _ensureCollaborators,
+                      _repoCollaborators,
+                    ),
+                  ],
                   if (_supportsReviewerFilter) ...[
                     SizedBox(height: spaceSM),
                     _buildAutocompleteField(
@@ -373,14 +384,16 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                       _repoCollaborators,
                     ),
                   ],
-                  SizedBox(height: spaceSM),
-                  _buildAutocompleteField(
-                    _milestoneController,
-                    _milestoneFocusNode,
-                    context.t.filterMilestone.toUpperCase(),
-                    _ensureMilestones,
-                    _repoMilestones,
-                  ),
+                  if (_supportsMilestoneFilter) ...[
+                    SizedBox(height: spaceSM),
+                    _buildAutocompleteField(
+                      _milestoneController,
+                      _milestoneFocusNode,
+                      context.t.filterMilestone.toUpperCase(),
+                      _ensureMilestones,
+                      _repoMilestones,
+                    ),
+                  ],
                 ],
               ),
             ),
