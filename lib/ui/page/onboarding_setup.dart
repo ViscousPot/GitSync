@@ -900,8 +900,9 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       );
       Logger.log(res.body, type: LogType.TEST);
     } catch (e) {
-      _isSubmitting = false;
       Logger.log(e, type: LogType.TEST);
+    } finally {
+      _isSubmitting = false;
     }
   }
 
