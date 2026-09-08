@@ -4244,6 +4244,8 @@ pub async fn abort_merge(
 
     let repo = Repository::open(path_string)?;
     let merge_head_path = repo.path().join("MERGE_HEAD");
+    let revert_head_path = repo.path().join("REVERT_HEAD");
+    let cherry_pick_head_path = repo.path().join("CHERRY_PICK_HEAD");
 
     _log(
         Arc::clone(&log_callback),
@@ -4251,7 +4253,10 @@ pub async fn abort_merge(
         format!("path: {}", merge_head_path.to_string_lossy()),
     );
 
-    if Path::new(&merge_head_path).exists() {
+    if Path::new(&merge_head_path).exists()
+        || Path::new(&revert_head_path).exists()
+        || Path::new(&cherry_pick_head_path).exists()
+    {
         _log(
             Arc::clone(&log_callback),
             LogType::Global,
