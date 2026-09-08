@@ -2113,6 +2113,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get issueCommentFailedMsg => 'Your message couldn’t be sent. Please check your connection and try again.';
 
   @override
+  String get issueReportFailedMsg => 'Your report couldn’t be sent. Please check your connection and try again.';
+
+  @override
   String get createNewRepository => 'Crear nuevo repositorio';
 
   @override

@@ -4274,6 +4274,12 @@ abstract class AppLocalizations {
   /// **'Your message couldn’t be sent. Please check your connection and try again.'**
   String get issueCommentFailedMsg;
 
+  /// No description provided for @issueReportFailedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report couldn’t be sent. Please check your connection and try again.'**
+  String get issueReportFailedMsg;
+
   /// No description provided for @createNewRepository.
   ///
   /// In en, this message translates to:
