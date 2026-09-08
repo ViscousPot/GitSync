@@ -4880,6 +4880,12 @@ abstract class AppLocalizations {
   /// **'Configure an AI provider to use this feature. Go to AI settings?'**
   String get aiSetupMsg;
 
+  /// No description provided for @aiRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.'**
+  String get aiRateLimited;
+
   /// No description provided for @aiStopGeneratingMsg.
   ///
   /// In en, this message translates to:

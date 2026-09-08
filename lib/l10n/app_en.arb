@@ -915,5 +915,6 @@
     "hideAiFeaturesConfirmMsg": "This will remove the AI tab and all AI buttons throughout the app. You can re-enable AI features anytime from Global Settings.",
     "aiSetupTitle": "Set Up AI",
     "aiSetupMsg": "Configure an AI provider to use this feature. Go to AI settings?",
+    "aiRateLimited": "Rate limited. Your chat is saved. Wait a moment, then send again to carry on.",
     "aiStopGeneratingMsg": "This will cancel the current response. Any partial output will be kept."
 }

@@ -2428,5 +2428,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get aiSetupMsg => 'Configure um provedor de IA para usar este recurso. Ir para configurações de IA?';
 
   @override
+  String get aiRateLimited => 'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.';
+
+  @override
   String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }
