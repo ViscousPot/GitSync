@@ -2175,8 +2175,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                   if (text.isEmpty) return;
 
                                                   final repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+                                                  final repomanRepoindex = await repoManager.getInt(StorageKey.repoman_repoIndex);
+
+                                                  if (repomanReponames[repomanRepoindex] != text && repomanReponames.contains(text)) {
+                                                    text = "${text}_alt";
+                                                  }
+
                                                   await uiSettingsManager.renameNamespace(text);
-                                                  repomanReponames[await repoManager.getInt(StorageKey.repoman_repoIndex)] = text;
+                                                  repomanReponames[repomanRepoindex] = text;
 
                                                   await repoManager.setStringList(StorageKey.repoman_repoNames, repomanReponames);
 
