@@ -576,8 +576,10 @@ class _IssuesPageState extends State<IssuesPage> {
                   ),
                   SizedBox(height: spaceSM),
                   _buildSelectorField(context.t.filterMilestone.toUpperCase(), _milestoneFilter, _showMilestoneSheet),
-                  SizedBox(height: spaceSM),
-                  _buildSelectorField(context.t.filterProject.toUpperCase(), _projectFilter, _showProjectSheet),
+                  if (_projects?.isNotEmpty == true) ...[
+                    SizedBox(height: spaceSM),
+                    _buildSelectorField(context.t.filterProject.toUpperCase(), _projectFilter, _showProjectSheet),
+                  ],
                 ],
               ),
             ),
@@ -594,7 +596,11 @@ class _IssuesPageState extends State<IssuesPage> {
       backgroundColor: context.colours.primaryDark,
       endDrawer: _buildFilterDrawer(),
       onEndDrawerChanged: (isOpened) {
-        if (!isOpened) _fetchIssues();
+        if (isOpened) {
+          _ensureProjects();
+        } else {
+          _fetchIssues();
+        }
       },
       body: SafeArea(
         child: Column(
