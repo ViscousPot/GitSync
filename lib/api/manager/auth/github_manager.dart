@@ -1017,6 +1017,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
       nodes {
         name tagName description isPrerelease isDraft createdAt
         author { login }
+        tagCommit { oid }
         releaseAssets(first: 20) {
           nodes { name downloadUrl size downloadCount }
         }
@@ -1081,7 +1082,7 @@ query(\$owner: String!, \$repo: String!, \$after: String) {
             description: item["description"] ?? "",
             authorUsername: item["author"]?["login"] ?? "",
             createdAt: DateTime.tryParse(item["createdAt"] ?? "") ?? DateTime.now(),
-            commitSha: null,
+            commitSha: item["tagCommit"]?["oid"] as String?,
             isPrerelease: item["isPrerelease"] == true,
             isDraft: item["isDraft"] == true,
             assets: assets,
