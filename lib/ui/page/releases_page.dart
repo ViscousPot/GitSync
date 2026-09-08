@@ -214,21 +214,21 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
   };
 
   Future<void> _downloadAsset(ReleaseAsset asset) async {
-    Fluttertoast.showToast(msg: 'Downloading...', toastLength: Toast.LENGTH_SHORT, gravity: null);
+    Fluttertoast.showToast(msg: t.downloading, toastLength: Toast.LENGTH_SHORT, gravity: null);
 
     try {
       final response = await http.get(Uri.parse(asset.downloadUrl), headers: _authHeaders).timeout(const Duration(seconds: 60));
 
       if (response.statusCode != 200) {
-        Fluttertoast.showToast(msg: 'Download failed', toastLength: Toast.LENGTH_LONG, gravity: null);
+        Fluttertoast.showToast(msg: t.downloadFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
         return;
       }
 
-      final result = await FilePicker.platform.saveFile(dialogTitle: 'Save asset', fileName: asset.name, bytes: response.bodyBytes);
+      final result = await FilePicker.platform.saveFile(dialogTitle: t.saveAsset, fileName: asset.name, bytes: response.bodyBytes);
       if (result == null) return;
-      Fluttertoast.showToast(msg: 'Saved to ${asset.name}', toastLength: Toast.LENGTH_LONG, gravity: null);
+      Fluttertoast.showToast(msg: t.savedTo(asset.name), toastLength: Toast.LENGTH_LONG, gravity: null);
     } catch (_) {
-      Fluttertoast.showToast(msg: 'Download failed', toastLength: Toast.LENGTH_LONG, gravity: null);
+      Fluttertoast.showToast(msg: t.downloadFailed, toastLength: Toast.LENGTH_LONG, gravity: null);
     }
   }
 

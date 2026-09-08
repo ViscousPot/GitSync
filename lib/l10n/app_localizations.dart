@@ -3986,6 +3986,60 @@ abstract class AppLocalizations {
   /// **'Failed'**
   String get actionFilterFailed;
 
+  /// No description provided for @mergeRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge Requests'**
+  String get mergeRequests;
+
+  /// No description provided for @jobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get jobs;
+
+  /// No description provided for @comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get comment;
+
+  /// No description provided for @downloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get downloading;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get downloadFailed;
+
+  /// No description provided for @savedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to {name}'**
+  String savedTo(Object name);
+
+  /// No description provided for @saveArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Save archive'**
+  String get saveArchive;
+
+  /// No description provided for @saveAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Save asset'**
+  String get saveAsset;
+
+  /// No description provided for @useOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Offline'**
+  String get useOffline;
+
   /// No description provided for @attemptAutoFix.
   ///
   /// In en, this message translates to:

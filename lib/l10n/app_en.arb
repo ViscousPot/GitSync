@@ -744,6 +744,15 @@
     "actionFilterAll": "All",
     "actionFilterSuccess": "Success",
     "actionFilterFailed": "Failed",
+    "mergeRequests": "Merge Requests",
+    "jobs": "Jobs",
+    "comment": "Comment",
+    "downloading": "Downloading…",
+    "downloadFailed": "Download failed",
+    "savedTo": "Saved to {name}",
+    "saveArchive": "Save archive",
+    "saveAsset": "Save asset",
+    "useOffline": "Use Offline",
 
 
     "@@x-ERRORS": "",

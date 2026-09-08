@@ -3224,7 +3224,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              "Use Offline".toUpperCase(),
+                              t.useOffline.toUpperCase(),
                               style: TextStyle(
                                 color: colours.primaryDark,
                                 fontWeight: FontWeight.bold,
