@@ -229,7 +229,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   bool hasSkipped = false;
 
   final expandedProtocol = ValueNotifier<GitProvider?>(null);
-  final _oauthLoading = ValueNotifier<bool>(false);
+  final _authLoading = ValueNotifier<bool>(false);
   final _syncSettingsPage = ValueNotifier<int>(0);
   final _syncPageController = PageController();
   final _expandedSyncCard = ValueNotifier<int>(-1); // -1 = none expanded
@@ -342,7 +342,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
     _syncSettingsPage.dispose();
     _syncPageController.dispose();
     _expandedSyncCard.dispose();
-    _oauthLoading.dispose();
+    _authLoading.dispose();
     otherTextController.dispose();
     showOtherField.dispose();
     super.dispose();
@@ -2828,7 +2828,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            _oauthLoading.value = true;
+                                            _authLoading.value = true;
                                             try {
                                               final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.CODEBERG, false);
                                               if (gitProviderManager == null) return;
@@ -2836,7 +2836,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                               if (result == null) return;
                                               await _completeOAuthAuth(result, GitProvider.CODEBERG);
                                             } finally {
-                                              _oauthLoading.value = false;
+                                              _authLoading.value = false;
                                             }
                                           },
                                           style: ButtonStyle(
@@ -2865,7 +2865,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            _oauthLoading.value = true;
+                                            _authLoading.value = true;
                                             try {
                                               ref.read(githubScopedOauthProvider.notifier).set(false);
 
@@ -2877,7 +2877,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
 
                                               await _completeOAuthAuth(result, GitProvider.GITHUB);
                                             } finally {
-                                              _oauthLoading.value = false;
+                                              _authLoading.value = false;
                                             }
                                           },
                                           style: ButtonStyle(
@@ -2910,7 +2910,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            _oauthLoading.value = true;
+                                            _authLoading.value = true;
                                             try {
                                               ref.read(githubScopedOauthProvider.notifier).set(true);
 
@@ -2940,7 +2940,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
 
                                               await _completeOAuthAuth(result, GitProvider.GITHUB);
                                             } finally {
-                                              _oauthLoading.value = false;
+                                              _authLoading.value = false;
                                             }
                                           },
                                           style: ButtonStyle(
@@ -2973,7 +2973,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            _oauthLoading.value = true;
+                                            _authLoading.value = true;
                                             try {
                                               final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITLAB, false);
                                               if (gitProviderManager == null) return;
@@ -2981,7 +2981,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                               if (result == null) return;
                                               await _completeOAuthAuth(result, GitProvider.GITLAB);
                                             } finally {
-                                              _oauthLoading.value = false;
+                                              _authLoading.value = false;
                                             }
                                           },
                                           style: ButtonStyle(
@@ -3014,7 +3014,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         width: double.infinity,
                                         child: TextButton.icon(
                                           onPressed: () async {
-                                            _oauthLoading.value = true;
+                                            _authLoading.value = true;
                                             try {
                                               final gitProviderManager = GitProviderManager.getGitProviderManager(GitProvider.GITEA, false);
                                               if (gitProviderManager == null) return;
@@ -3022,7 +3022,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                               if (result == null) return;
                                               await _completeOAuthAuth(result, GitProvider.GITEA);
                                             } finally {
-                                              _oauthLoading.value = false;
+                                              _authLoading.value = false;
                                             }
                                           },
                                           style: ButtonStyle(
@@ -3156,9 +3156,14 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                   children: [
                                     HttpsAuthForm(
                                       onAuthenticated: (username, token) async {
-                                        await uiSettingsManager.setGitHttpAuthCredentials(username, "", token);
-                                        ref.read(gitProviderProvider.notifier).set(GitProvider.HTTPS);
-                                        await _afterAuth();
+                                        _authLoading.value = true;
+                                        try {
+                                          await uiSettingsManager.setGitHttpAuthCredentials(username, "", token);
+                                          ref.read(gitProviderProvider.notifier).set(GitProvider.HTTPS);
+                                          await _afterAuth();
+                                        } finally {
+                                          _authLoading.value = false;
+                                        }
                                       },
                                     ),
                                   ],
@@ -3170,9 +3175,14 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     SshAuthForm(
                                       parentContext: context,
                                       onAuthenticated: (passphrase, privateKey) async {
-                                        uiSettingsManager.setGitSshAuthCredentials(passphrase, privateKey);
-                                        ref.read(gitProviderProvider.notifier).set(GitProvider.SSH);
-                                        await _afterAuth();
+                                        _authLoading.value = true;
+                                        try {
+                                          uiSettingsManager.setGitSshAuthCredentials(passphrase, privateKey);
+                                          ref.read(gitProviderProvider.notifier).set(GitProvider.SSH);
+                                          await _afterAuth();
+                                        } finally {
+                                          _authLoading.value = false;
+                                        }
                                       },
                                     ),
                                   ],
@@ -3259,7 +3269,12 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           TextButton(
                             onPressed: () async {
-                              await _afterAuth();
+                              _authLoading.value = true;
+                              try {
+                                await _afterAuth();
+                              } finally {
+                                _authLoading.value = false;
+                              }
                             },
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -3289,16 +3304,6 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
             },
           ),
         ),
-      ),
-      ValueListenableBuilder<bool>(
-        valueListenable: _oauthLoading,
-        builder: (context, loading, _) {
-          if (!loading) return SizedBox.shrink();
-          return Container(
-            color: context.colours.secondaryDark.withValues(alpha: 0.7),
-            child: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
-          );
-        },
       ),
     ],
   );
@@ -3800,6 +3805,18 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         ),
                       ),
                     ),
+                  ),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _authLoading,
+                    builder: (context, loading, _) {
+                      if (!loading) return SizedBox.shrink();
+                      return Positioned.fill(
+                        child: Container(
+                          color: context.colours.primaryDark.withValues(alpha: 0.85),
+                          child: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

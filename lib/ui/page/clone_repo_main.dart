@@ -98,7 +98,10 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
     setLoadingRepos(true);
     final accessToken = (await uiSettingsManager.getGitHttpAuthCredentials()).$2;
 
-    gitProviderManager.getRepos(accessToken, searchString, addRepos, (callback) => loadNextRepos = callback);
+    await gitProviderManager.getRepos(accessToken, searchString, addRepos, (callback) => loadNextRepos = callback);
+
+    if (!mounted) return;
+    setLoadingRepos(false);
   }
 
   void addRepos(List<(String, String)> repos) {
@@ -211,6 +214,21 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
     });
   }
 
+  Widget _withLoader(BuildContext context, Widget child) {
+    if (hasList || !loadingRepos) return child;
+    return Stack(
+      children: [
+        child,
+        Positioned.fill(
+          child: Container(
+            color: context.colours.primaryDark.withValues(alpha: 0.85),
+            child: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,463 +246,474 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                 style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
               ),
             ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spaceLG),
-          child: Column(
-            children: [
-              if (widget.onboarding) SizedBox(height: spaceSM * 2 + spaceLG),
-              if (widget.onboarding)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AnimatedContainer(
-                      duration: animSlow,
-                      curve: Curves.easeInOut,
-                      width: spaceXXL,
-                      height: spaceXXL,
-                      child: Image.asset(
-                        'assets/app_icon.png',
-                        fit: BoxFit.cover,
-                        color: context.colours.darkMode ? null : context.colours.primaryLight,
+      body: _withLoader(
+        context,
+        GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: spaceLG),
+            child: Column(
+              children: [
+                if (widget.onboarding) SizedBox(height: spaceSM * 2 + spaceLG),
+                if (widget.onboarding)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedContainer(
+                        duration: animSlow,
+                        curve: Curves.easeInOut,
+                        width: spaceXXL,
+                        height: spaceXXL,
+                        child: Image.asset(
+                          'assets/app_icon.png',
+                          fit: BoxFit.cover,
+                          color: context.colours.darkMode ? null : context.colours.primaryLight,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: spaceMD),
-                    Text(
-                      context.t.cloneRepo,
-                      style: TextStyle(
-                        color: context.colours.primaryLight,
-                        fontSize: textMD * 2,
-                        fontFamily: "AtkinsonHyperlegible",
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: spaceMD),
+                      Text(
+                        context.t.cloneRepo,
+                        style: TextStyle(
+                          color: context.colours.primaryLight,
+                          fontSize: textMD * 2,
+                          fontFamily: "AtkinsonHyperlegible",
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: spaceXS),
-                    Text(
-                      "Initialise your workspace",
-                      style: TextStyle(
-                        color: context.colours.secondaryLight,
-                        fontSize: textSM,
-                        fontFamily: "AtkinsonHyperlegible",
-                        fontWeight: FontWeight.bold,
+                      SizedBox(height: spaceXS),
+                      Text(
+                        "Initialise your workspace",
+                        style: TextStyle(
+                          color: context.colours.secondaryLight,
+                          fontSize: textSM,
+                          fontFamily: "AtkinsonHyperlegible",
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              SizedBox(height: spaceSM),
-              // Advanced Options
-              Container(
-                decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                child: Column(
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => setState(() => _advancedExpanded = !_advancedExpanded),
-                      iconAlignment: IconAlignment.end,
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS)),
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-                      ),
-                      icon: FaIcon(
-                        _advancedExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
-                        color: context.colours.tertiaryLight,
-                        size: textSM,
-                      ),
-                      label: SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          context.t.advancedOptions.toUpperCase(),
-                          style: TextStyle(
-                            fontFeatures: [FontFeature.enable('smcp')],
-                            color: context.colours.tertiaryLight,
-                            fontSize: textSM,
-                            fontWeight: FontWeight.bold,
+                    ],
+                  ),
+                SizedBox(height: spaceSM),
+                // Advanced Options
+                Container(
+                  decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                  child: Column(
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => setState(() => _advancedExpanded = !_advancedExpanded),
+                        iconAlignment: IconAlignment.end,
+                        style: ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS)),
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                          ),
+                        ),
+                        icon: FaIcon(
+                          _advancedExpanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
+                          color: context.colours.tertiaryLight,
+                          size: textSM,
+                        ),
+                        label: SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            context.t.advancedOptions.toUpperCase(),
+                            style: TextStyle(
+                              fontFeatures: [FontFeature.enable('smcp')],
+                              color: context.colours.tertiaryLight,
+                              fontSize: textSM,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    AnimatedSize(
-                      duration: animFast,
-                      child: _advancedExpanded
-                          ? Padding(
-                              padding: EdgeInsets.only(left: spaceXS, right: spaceXS, bottom: spaceXS),
-                              child: Column(
-                                children: [
-                                  // Clone depth row
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            context.t.shallowClone,
-                                            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 72,
-                                          child: TextField(
-                                            controller: _depthController,
-                                            keyboardType: TextInputType.number,
-                                            textAlign: TextAlign.center,
-                                            maxLines: 1,
-                                            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-                                            decoration: InputDecoration(
-                                              hintText: context.t.cloneDepthPlaceholder,
-                                              hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
-                                              filled: true,
-                                              fillColor: context.colours.secondaryDark,
-                                              contentPadding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
-                                              border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                                              isDense: true,
+                      AnimatedSize(
+                        duration: animFast,
+                        child: _advancedExpanded
+                            ? Padding(
+                                padding: EdgeInsets.only(left: spaceXS, right: spaceXS, bottom: spaceXS),
+                                child: Column(
+                                  children: [
+                                    // Clone depth row
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              context.t.shallowClone,
+                                              style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                                             ),
-                                            onChanged: (v) {
-                                              final parsed = int.tryParse(v);
-                                              setState(() => _cloneDepth = (parsed != null && parsed > 0) ? parsed : null);
-                                            },
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: spaceXS),
-                                  // Bare clone row
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            context.t.bareClone,
-                                            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: spaceLG,
-                                          child: FittedBox(
-                                            fit: BoxFit.fill,
-                                            child: Switch(
-                                              value: _bareClone,
-                                              onChanged: (value) => setState(() => _bareClone = value),
-                                              padding: EdgeInsets.zero,
-                                              thumbColor: WidgetStatePropertyAll(
-                                                _bareClone ? context.colours.primaryPositive : context.colours.tertiaryDark,
+                                          SizedBox(
+                                            width: 72,
+                                            child: TextField(
+                                              controller: _depthController,
+                                              keyboardType: TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              maxLines: 1,
+                                              style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                              decoration: InputDecoration(
+                                                hintText: context.t.cloneDepthPlaceholder,
+                                                hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
+                                                filled: true,
+                                                fillColor: context.colours.secondaryDark,
+                                                contentPadding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXS),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.all(cornerRadiusSM),
+                                                  borderSide: BorderSide.none,
+                                                ),
+                                                isDense: true,
                                               ),
-                                              trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
-                                              activeThumbColor: context.colours.primaryPositive,
-                                              inactiveTrackColor: context.colours.tertiaryLight,
-                                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              onChanged: (v) {
+                                                final parsed = int.tryParse(v);
+                                                setState(() => _cloneDepth = (parsed != null && parsed > 0) ? parsed : null);
+                                              },
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: spaceSM),
-              Expanded(
-                child: Builder(
-                  builder: (context) {
-                    final contentColumn = Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        if (hasList)
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: spaceLG),
-                              decoration: BoxDecoration(
-                                color: context.colours.secondaryDark,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: cornerRadiusMD,
-                                  bottomLeft: cornerRadiusSM,
-                                  topRight: cornerRadiusMD,
-                                  bottomRight: cornerRadiusSM,
+                                    SizedBox(height: spaceXS),
+                                    // Bare clone row
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              context.t.bareClone,
+                                              style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: spaceLG,
+                                            child: FittedBox(
+                                              fit: BoxFit.fill,
+                                              child: Switch(
+                                                value: _bareClone,
+                                                onChanged: (value) => setState(() => _bareClone = value),
+                                                padding: EdgeInsets.zero,
+                                                thumbColor: WidgetStatePropertyAll(
+                                                  _bareClone ? context.colours.primaryPositive : context.colours.tertiaryDark,
+                                                ),
+                                                trackOutlineColor: WidgetStatePropertyAll(Colors.transparent),
+                                                activeThumbColor: context.colours.primaryPositive,
+                                                inactiveTrackColor: context.colours.tertiaryLight,
+                                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  TextField(
-                                    contextMenuBuilder: globalContextMenuBuilder,
-                                    controller: searchController,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: context.colours.primaryLight,
-                                      decoration: TextDecoration.none,
-                                      decorationThickness: 0,
-                                      fontSize: textMD,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: context.t.searchEllipsis,
-                                      hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
-                                      fillColor: context.colours.tertiaryDark,
-                                      filled: true,
-                                      prefixIcon: Padding(
-                                        padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
-                                        child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textMD, color: context.colours.secondaryLight),
-                                      ),
-                                      prefixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
-                                      border: const OutlineInputBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: cornerRadiusMD,
-                                          topRight: cornerRadiusMD,
-                                          bottomLeft: cornerRadiusXS,
-                                          bottomRight: cornerRadiusXS,
-                                        ),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      suffixIcon: IconButton(
-                                        padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                        style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                        constraints: BoxConstraints(),
-                                        onPressed: () async {
-                                          await InfoDialog.showDialog(context, context.t.repoSearchLimits, context.t.repoSearchLimitsDescription);
-                                        },
-                                        visualDensity: VisualDensity.compact,
-                                        icon: FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
-                                      ),
-                                      suffixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
-                                      isCollapsed: true,
-                                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-                                      isDense: true,
-                                    ),
-                                    onChanged: (text) async {
-                                      debounce("clone_repo_search_string", 500, () async {
-                                        await searchRepos(text);
-                                      });
-                                    },
+                              )
+                            : SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: spaceSM),
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      final contentColumn = Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          if (hasList)
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: spaceLG),
+                                decoration: BoxDecoration(
+                                  color: context.colours.secondaryDark,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: cornerRadiusMD,
+                                    bottomLeft: cornerRadiusSM,
+                                    topRight: cornerRadiusMD,
+                                    bottomRight: cornerRadiusSM,
                                   ),
-                                  SizedBox(height: spaceMD),
-                                  Expanded(
-                                    child: ShaderMask(
-                                      shaderCallback: (Rect rect) {
-                                        return LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            atTop ? Colors.transparent : Colors.black,
-                                            Colors.transparent,
-                                            Colors.transparent,
-                                            atBottom ? Colors.transparent : Colors.black,
-                                          ],
-                                          stops: [0.0, 0.1, 0.9, 1.0],
-                                        ).createShader(rect);
-                                      },
-                                      blendMode: BlendMode.dstOut,
-                                      child: AnimatedListView(
-                                        items: repoMap.entries.toList(),
-                                        padding: EdgeInsets.only(bottom: spaceMD, left: spaceMD, right: spaceMD),
-                                        controller: _controller,
-                                        isSameItem: (a, b) => a.value == b.value,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          final repo = repoMap.entries.toList()[index];
-                                          return Container(
-                                            key: Key("${searchController.text} ${repo.key}"),
-                                            width: double.infinity,
-                                            margin: EdgeInsets.only(bottom: spaceMD),
-                                            child: TextButton.icon(
-                                              onPressed: () => cloneRepository(repo.value),
-                                              style: ButtonStyle(
-                                                alignment: Alignment.centerLeft,
-                                                backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
-                                                padding: WidgetStatePropertyAll(
-                                                  EdgeInsets.only(right: spaceMD, top: spaceSM, bottom: spaceSM, left: spaceXS),
-                                                ),
-                                                shape: WidgetStatePropertyAll(
-                                                  RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                                ),
-                                              ),
-                                              iconAlignment: IconAlignment.end,
-                                              icon: FaIcon(FontAwesomeIcons.solidCircleDown, color: context.colours.primaryPositive, size: textXL),
-                                              label: Container(
-                                                width: double.infinity,
-                                                padding: EdgeInsets.only(left: spaceXS),
-                                                child: Text(
-                                                  repo.key,
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    overflow: TextOverflow.ellipsis,
-                                                    color: context.colours.primaryLight,
-                                                    fontSize: textLG,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        Column(
-                          children: [
-                            SizedBox(height: spaceLG),
-                            IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: TextField(
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    TextField(
                                       contextMenuBuilder: globalContextMenuBuilder,
-                                      controller: cloneUrlController,
-                                      focusNode: _urlFocusNode,
+                                      controller: searchController,
                                       maxLines: 1,
                                       style: TextStyle(
                                         color: context.colours.primaryLight,
                                         decoration: TextDecoration.none,
                                         decorationThickness: 0,
-                                        fontSize: textLG,
+                                        fontSize: textMD,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                       decoration: InputDecoration(
-                                        hintText: context.t.gitRepoUrlHint,
-                                        hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textLG),
-                                        fillColor: context.colours.secondaryDark,
+                                        hintText: context.t.searchEllipsis,
+                                        hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                        fillColor: context.colours.tertiaryDark,
                                         filled: true,
-                                        border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
+                                        prefixIcon: Padding(
+                                          padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
+                                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textMD, color: context.colours.secondaryLight),
+                                        ),
+                                        prefixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
+                                        border: const OutlineInputBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: cornerRadiusMD,
+                                            topRight: cornerRadiusMD,
+                                            bottomLeft: cornerRadiusXS,
+                                            bottomRight: cornerRadiusXS,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          padding: EdgeInsets.symmetric(horizontal: spaceSM),
+                                          style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                          constraints: BoxConstraints(),
+                                          onPressed: () async {
+                                            await InfoDialog.showDialog(context, context.t.repoSearchLimits, context.t.repoSearchLimitsDescription);
+                                          },
+                                          visualDensity: VisualDensity.compact,
+                                          icon: FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
+                                        ),
+                                        suffixIconConstraints: BoxConstraints(minWidth: textMD, minHeight: textMD),
                                         isCollapsed: true,
                                         floatingLabelBehavior: FloatingLabelBehavior.always,
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                                         isDense: true,
                                       ),
-                                      onChanged: (_) => setState(() {}),
+                                      onChanged: (text) async {
+                                        debounce("clone_repo_search_string", 500, () async {
+                                          await searchRepos(text);
+                                        });
+                                      },
                                     ),
-                                  ),
-                                  SizedBox(width: spaceMD),
-                                  TextButton.icon(
-                                    onPressed: cloneUrlController.text.isEmpty
-                                        ? null
-                                        : () async {
-                                            final isValid = validateGitRepoUrl(
-                                              await uiSettingsManager.getGitProvider() == GitProvider.SSH,
-                                              cloneUrlController.text,
+                                    SizedBox(height: spaceMD),
+                                    Expanded(
+                                      child: ShaderMask(
+                                        shaderCallback: (Rect rect) {
+                                          return LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              atTop ? Colors.transparent : Colors.black,
+                                              Colors.transparent,
+                                              Colors.transparent,
+                                              atBottom ? Colors.transparent : Colors.black,
+                                            ],
+                                            stops: [0.0, 0.1, 0.9, 1.0],
+                                          ).createShader(rect);
+                                        },
+                                        blendMode: BlendMode.dstOut,
+                                        child: AnimatedListView(
+                                          items: repoMap.entries.toList(),
+                                          padding: EdgeInsets.only(bottom: spaceMD, left: spaceMD, right: spaceMD),
+                                          controller: _controller,
+                                          isSameItem: (a, b) => a.value == b.value,
+                                          itemBuilder: (BuildContext context, int index) {
+                                            final repo = repoMap.entries.toList()[index];
+                                            return Container(
+                                              key: Key("${searchController.text} ${repo.key}"),
+                                              width: double.infinity,
+                                              margin: EdgeInsets.only(bottom: spaceMD),
+                                              child: TextButton.icon(
+                                                onPressed: () => cloneRepository(repo.value),
+                                                style: ButtonStyle(
+                                                  alignment: Alignment.centerLeft,
+                                                  backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
+                                                  padding: WidgetStatePropertyAll(
+                                                    EdgeInsets.only(right: spaceMD, top: spaceSM, bottom: spaceSM, left: spaceXS),
+                                                  ),
+                                                  shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                                  ),
+                                                ),
+                                                iconAlignment: IconAlignment.end,
+                                                icon: FaIcon(FontAwesomeIcons.solidCircleDown, color: context.colours.primaryPositive, size: textXL),
+                                                label: Container(
+                                                  width: double.infinity,
+                                                  padding: EdgeInsets.only(left: spaceXS),
+                                                  child: Text(
+                                                    repo.key,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      overflow: TextOverflow.ellipsis,
+                                                      color: context.colours.primaryLight,
+                                                      fontSize: textLG,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             );
-                                            if (isValid) {
-                                              cloneRepository(cloneUrlController.text);
-                                            } else {
-                                              RepoUrlInvalid.showDialog(context, () => cloneRepository(cloneUrlController.text));
-                                            }
                                           },
-                                    style: ButtonStyle(
-                                      alignment: Alignment.center,
-                                      backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
-                                      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: 0)),
-                                      shape: WidgetStatePropertyAll(
-                                        RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
-                                      ),
-                                    ),
-                                    icon: FaIcon(
-                                      FontAwesomeIcons.solidCircleDown,
-                                      color: cloneUrlController.text.isEmpty ? context.colours.secondaryPositive : context.colours.primaryPositive,
-                                      size: textLG,
-                                    ),
-                                    label: Padding(
-                                      padding: EdgeInsets.only(left: spaceXS),
-                                      child: Text(
-                                        context.t.clone.toUpperCase(),
-                                        style: TextStyle(
-                                          color: cloneUrlController.text.isEmpty ? context.colours.tertiaryLight : context.colours.primaryLight,
-                                          fontSize: textMD,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                            SizedBox(height: spaceXXL),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Container(height: 2, color: context.colours.secondaryDark),
-                            SizedBox(height: spaceXXL),
-                            IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: TextButton.icon(
-                                      iconAlignment: IconAlignment.end,
-                                      onPressed: () async {
-                                        String? selectedDirectory;
-                                        if (await requestStoragePerm()) {
-                                          selectedDirectory = await pickDirectory();
-                                        }
-                                        if (selectedDirectory == null) return;
-
-                                        if (!mounted) return;
-                                        final isRepo = await validateOrInitGitDir(context, selectedDirectory);
-                                        if (!isRepo) return;
-
-                                        if (!mounted) return;
-                                        await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
-                                        await repoManager.setOnboardingStep(4);
-                                        setState(() {});
-
-                                        Navigator.of(context).canPop() ? Navigator.pop(context) : null;
-                                        if (mounted) setState(() {});
-                                      },
+                          Column(
+                            children: [
+                              SizedBox(height: spaceLG),
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        contextMenuBuilder: globalContextMenuBuilder,
+                                        controller: cloneUrlController,
+                                        focusNode: _urlFocusNode,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          color: context.colours.primaryLight,
+                                          decoration: TextDecoration.none,
+                                          decorationThickness: 0,
+                                          fontSize: textLG,
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: context.t.gitRepoUrlHint,
+                                          hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textLG),
+                                          fillColor: context.colours.secondaryDark,
+                                          filled: true,
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(cornerRadiusMD),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          isCollapsed: true,
+                                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
+                                          isDense: true,
+                                        ),
+                                        onChanged: (_) => setState(() {}),
+                                      ),
+                                    ),
+                                    SizedBox(width: spaceMD),
+                                    TextButton.icon(
+                                      onPressed: cloneUrlController.text.isEmpty
+                                          ? null
+                                          : () async {
+                                              final isValid = validateGitRepoUrl(
+                                                await uiSettingsManager.getGitProvider() == GitProvider.SSH,
+                                                cloneUrlController.text,
+                                              );
+                                              if (isValid) {
+                                                cloneRepository(cloneUrlController.text);
+                                              } else {
+                                                RepoUrlInvalid.showDialog(context, () => cloneRepository(cloneUrlController.text));
+                                              }
+                                            },
                                       style: ButtonStyle(
                                         alignment: Alignment.center,
                                         backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
-                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
+                                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: 0)),
                                         shape: WidgetStatePropertyAll(
                                           RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                         ),
                                       ),
-                                      icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.primaryLight, size: textMD),
-                                      label: Container(
-                                        width: double.infinity,
+                                      icon: FaIcon(
+                                        FontAwesomeIcons.solidCircleDown,
+                                        color: cloneUrlController.text.isEmpty ? context.colours.secondaryPositive : context.colours.primaryPositive,
+                                        size: textLG,
+                                      ),
+                                      label: Padding(
                                         padding: EdgeInsets.only(left: spaceXS),
                                         child: Text(
-                                          context.t.iHaveALocalRepository.toUpperCase(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
+                                          context.t.clone.toUpperCase(),
+                                          style: TextStyle(
+                                            color: cloneUrlController.text.isEmpty ? context.colours.tertiaryLight : context.colours.primaryLight,
+                                            fontSize: textMD,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            SizedBox(height: spaceXXL),
-                          ],
-                        ),
-                      ],
-                    );
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          child: SizedBox(
-                            height: constraints.maxHeight < spaceXXL * 2 * 5 ? spaceXXL * 2 * 5 : constraints.maxHeight,
-                            child: contentColumn,
+                              SizedBox(height: spaceXXL),
+                            ],
                           ),
-                        );
-                      },
-                    );
-                  },
+                          Column(
+                            children: [
+                              Container(height: 2, color: context.colours.secondaryDark),
+                              SizedBox(height: spaceXXL),
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: TextButton.icon(
+                                        iconAlignment: IconAlignment.end,
+                                        onPressed: () async {
+                                          String? selectedDirectory;
+                                          if (await requestStoragePerm()) {
+                                            selectedDirectory = await pickDirectory();
+                                          }
+                                          if (selectedDirectory == null) return;
+
+                                          if (!mounted) return;
+                                          final isRepo = await validateOrInitGitDir(context, selectedDirectory);
+                                          if (!isRepo) return;
+
+                                          if (!mounted) return;
+                                          await setGitDirPathGetSubmodules(context, selectedDirectory, ref);
+                                          await repoManager.setOnboardingStep(4);
+                                          setState(() {});
+
+                                          Navigator.of(context).canPop() ? Navigator.pop(context) : null;
+                                          if (mounted) setState(() {});
+                                        },
+                                        style: ButtonStyle(
+                                          alignment: Alignment.center,
+                                          backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
+                                          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD)),
+                                          shape: WidgetStatePropertyAll(
+                                            RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
+                                          ),
+                                        ),
+                                        icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.primaryLight, size: textMD),
+                                        label: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.only(left: spaceXS),
+                                          child: Text(
+                                            context.t.iHaveALocalRepository.toUpperCase(),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: spaceXXL),
+                            ],
+                          ),
+                        ],
+                      );
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            child: SizedBox(
+                              height: constraints.maxHeight < spaceXXL * 2 * 5 ? spaceXXL * 2 * 5 : constraints.maxHeight,
+                              child: contentColumn,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
