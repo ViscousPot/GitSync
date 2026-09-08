@@ -654,6 +654,8 @@ class GitManager {
     if (_indexCorruptionPatterns.any((p) => errorStr.contains(p))) {
       final indexFile = File('$dirPath/$gitIndexPath');
       if (await indexFile.exists()) await indexFile.delete();
+      final lockFile = File('$dirPath/$gitLockPath');
+      if (await lockFile.exists()) await lockFile.delete();
       try {
         await GitManagerRs.recreateDeletedIndex(pathString: dirPath);
       } catch (e, stackTrace) {
@@ -1236,6 +1238,10 @@ class GitManager {
       if (await file.exists()) {
         await file.delete();
       }
+      final lockFile = File("$dirPath/$gitLockPath");
+      if (await lockFile.exists()) {
+        await lockFile.delete();
+      }
     });
   }
 
@@ -1243,6 +1249,8 @@ class GitManager {
     return await _runWithLock(GitManagerRs.voidRunWithLock, await _resolveRepoIndex(repoIndex), LogType.RecreateGitIndex, (dirPath) async {
       final file = File("$dirPath/$gitIndexPath");
       if (await file.exists()) await file.delete();
+      final lockFile = File("$dirPath/$gitLockPath");
+      if (await lockFile.exists()) await lockFile.delete();
       await GitManagerRs.recreateDeletedIndex(pathString: dirPath);
     });
   }
