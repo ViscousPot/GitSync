@@ -20,7 +20,8 @@ import 'github_scoped_guide.dart' as github_scoped_guide;
 late final GlobalKey authDialogKey = GlobalKey();
 
 Future<void> showDialog(BuildContext parentContext, Function() callback) async {
-  List<String> repoNames = [...await repoManager.getStringList(StorageKey.repoman_repoNames)];
+  List<String> repomanReponames = await repoManager.getStringList(StorageKey.repoman_repoNames);
+  List<String> repoNames = [...repomanReponames];
   await repoNames.removeAt(await repoManager.getInt(StorageKey.repoman_repoIndex));
   GitProvider selectedGitProvider = await uiSettingsManager.getGitProvider();
 
@@ -328,7 +329,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                             value: repo,
                                             onTap: () async {
                                               final tempSettingsManager = SettingsManager();
-                                              await tempSettingsManager.reinit(repoIndex: repoNames.indexOf(repo));
+                                              await tempSettingsManager.reinit(repoIndex: repomanReponames.indexOf(repo));
 
                                               final gitProvider = await tempSettingsManager.getGitProvider();
                                               final sshAuthCreds = await tempSettingsManager.getGitSshAuthCredentials();
