@@ -55,6 +55,9 @@ class GitProviderManager {
     };
   }
 
+  bool get supportsMostCommentedIssueSort => true;
+  bool get supportsReviewerFilter => true;
+
   String get clientId => "";
   String? get clientSecret => null;
   List<String>? get scopes => null;

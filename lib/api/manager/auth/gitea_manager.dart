@@ -23,6 +23,9 @@ class GiteaManager extends GitProviderManager {
   bool get oAuthSupport => true;
 
   @override
+  bool get supportsReviewerFilter => false;
+
+  @override
   get clientId => giteaClientId;
   @override
   get scopes => null;

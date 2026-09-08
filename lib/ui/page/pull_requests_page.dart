@@ -52,10 +52,12 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   List<String>? _repoLabels;
   List<String>? _repoCollaborators;
   List<String>? _repoMilestones;
+  bool _supportsReviewerFilter = true;
 
   @override
   void initState() {
     super.initState();
+    _supportsReviewerFilter = GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth)?.supportsReviewerFilter ?? true;
     _scrollController.addListener(_onScroll);
     _fetchPullRequests();
   }
@@ -361,14 +363,16 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
-                  SizedBox(height: spaceSM),
-                  _buildAutocompleteField(
-                    _reviewerController,
-                    _reviewerFocusNode,
-                    context.t.filterReviewer.toUpperCase(),
-                    _ensureCollaborators,
-                    _repoCollaborators,
-                  ),
+                  if (_supportsReviewerFilter) ...[
+                    SizedBox(height: spaceSM),
+                    _buildAutocompleteField(
+                      _reviewerController,
+                      _reviewerFocusNode,
+                      context.t.filterReviewer.toUpperCase(),
+                      _ensureCollaborators,
+                      _repoCollaborators,
+                    ),
+                  ],
                   SizedBox(height: spaceSM),
                   _buildAutocompleteField(
                     _milestoneController,

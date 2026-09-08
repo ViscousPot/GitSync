@@ -198,6 +198,9 @@ class _IssuesPageState extends State<IssuesPage> {
     if (mounted) setState(() => _projects = projects);
   }
 
+  bool get _supportsMostCommentedSort =>
+      GitProviderManager.getGitProviderManager(widget.gitProvider, widget.githubAppOauth)?.supportsMostCommentedIssueSort ?? true;
+
   void _showSortMenu() {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -228,15 +231,16 @@ class _IssuesPageState extends State<IssuesPage> {
             style: TextStyle(color: _sortOption == IssueSortOption.oldest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
-        PopupMenuItem(
-          value: IssueSortOption.mostCommented,
-          child: Text(
-            context.t.sortMostCommented,
-            style: TextStyle(
-              color: _sortOption == IssueSortOption.mostCommented ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
+        if (_supportsMostCommentedSort)
+          PopupMenuItem(
+            value: IssueSortOption.mostCommented,
+            child: Text(
+              context.t.sortMostCommented,
+              style: TextStyle(
+                color: _sortOption == IssueSortOption.mostCommented ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
+              ),
             ),
           ),
-        ),
         PopupMenuItem(
           value: IssueSortOption.recentlyUpdated,
           child: Text(

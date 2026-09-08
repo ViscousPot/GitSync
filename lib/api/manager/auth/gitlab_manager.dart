@@ -24,6 +24,9 @@ class GitlabManager extends GitProviderManager {
   bool get oAuthSupport => true;
 
   @override
+  bool get supportsMostCommentedIssueSort => false;
+
+  @override
   get clientId => gitlabClientId;
   @override
   get scopes => ["read_user", "api", "write_repository"];
