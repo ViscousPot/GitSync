@@ -20,6 +20,32 @@ class ScheduledSyncSettings extends StatefulWidget {
   State<ScheduledSyncSettings> createState() => _ScheduledSyncSettingsState();
 }
 
+Future<void> registerScheduledSync(int repoIndex, String schedule) async {
+  final parts = schedule.split("|");
+  final frequency = parts.first;
+  final rate = int.tryParse(parts.length > 1 ? parts[1] : "") ?? 0;
+
+  await Workmanager().cancelByUniqueName("$scheduledSyncKey$repoIndex");
+  if (frequency == "never" || rate <= 0) return;
+
+  int multiplier = 1;
+  switch (frequency) {
+    case "hour":
+      multiplier = 60;
+    case "day":
+      multiplier = 1440;
+    case "week":
+      multiplier = 10080;
+  }
+
+  await Workmanager().registerPeriodicTask(
+    "$scheduledSyncKey$repoIndex",
+    scheduledSyncSetDebounceReference,
+    inputData: {"repoIndex": repoIndex},
+    frequency: Duration(minutes: multiplier * rate),
+  );
+}
+
 class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with WidgetsBindingObserver {
   final recurFrequency = ["never", "min", "hour", "day", "week"];
 

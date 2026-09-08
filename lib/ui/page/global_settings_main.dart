@@ -12,6 +12,7 @@ import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/ui/component/button_setting.dart';
 import 'package:GitSync/ui/component/custom_showcase.dart';
 import 'package:GitSync/ui/component/item_setting.dart';
+import 'package:GitSync/ui/component/scheduled_sync_settings.dart';
 import 'package:GitSync/ui/component/sync_client_mode_toggle.dart';
 import 'package:GitSync/ui/page/file_explorer.dart';
 import 'package:archive/archive_io.dart';
@@ -595,6 +596,10 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                 if (await Permission.notification.request().isGranted) {
                                   await settingsManager.setBool(StorageKey.setman_syncMessageEnabled, true);
                                 }
+                              }
+
+                              if (Platform.isAndroid) {
+                                await registerScheduledSync(i, await settingsManager.getString(StorageKey.setman_schedule));
                               }
                             }
 
