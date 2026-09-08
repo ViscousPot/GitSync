@@ -809,7 +809,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                           child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
                         )
                       : Text(
-                          "Comment".toUpperCase(),
+                          t.comment.toUpperCase(),
                           style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                 ),

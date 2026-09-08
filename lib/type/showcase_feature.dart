@@ -1,19 +1,27 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
 
 enum ShowcaseFeature {
-  issues(icon: FontAwesomeIcons.solidCircleDot, label: 'ISSUES', storageKey: 'issues'),
-  pullRequests(icon: FontAwesomeIcons.codePullRequest, label: 'PULL REQUESTS', storageKey: 'pull_requests'),
-  tags(icon: FontAwesomeIcons.tag, label: 'TAGS', storageKey: 'tags'),
-  releases(icon: FontAwesomeIcons.rocket, label: 'RELEASES', storageKey: 'releases'),
-  actions(icon: FontAwesomeIcons.bolt, label: 'ACTIONS', storageKey: 'actions');
+  issues(icon: FontAwesomeIcons.solidCircleDot, storageKey: 'issues'),
+  pullRequests(icon: FontAwesomeIcons.codePullRequest, storageKey: 'pull_requests'),
+  tags(icon: FontAwesomeIcons.tag, storageKey: 'tags'),
+  releases(icon: FontAwesomeIcons.rocket, storageKey: 'releases'),
+  actions(icon: FontAwesomeIcons.bolt, storageKey: 'actions');
   // snippets(icon: FontAwesomeIcons.code, label: 'SNIPPETS', storageKey: 'snippets');
 
-  const ShowcaseFeature({required this.icon, required this.label, required this.storageKey});
+  const ShowcaseFeature({required this.icon, required this.storageKey});
 
   final FaIconData icon;
-  final String label;
   final String storageKey;
+
+  String get label => switch (this) {
+    ShowcaseFeature.issues => t.issues,
+    ShowcaseFeature.pullRequests => t.pullRequests,
+    ShowcaseFeature.tags => t.tags,
+    ShowcaseFeature.releases => t.releases,
+    ShowcaseFeature.actions => t.actions,
+  };
 
   static const defaultPinned = [ShowcaseFeature.issues, ShowcaseFeature.pullRequests];
 
@@ -38,9 +46,9 @@ enum ShowcaseFeature {
   }
 
   String labelForProvider(GitProvider? provider) => switch ((this, provider)) {
-    (ShowcaseFeature.pullRequests, GitProvider.GITLAB) => 'MERGE REQUESTS',
+    (ShowcaseFeature.pullRequests, GitProvider.GITLAB) => t.mergeRequests,
     // (ShowcaseFeature.snippets, GitProvider.GITHUB) => 'GISTS',
-    (ShowcaseFeature.actions, GitProvider.GITLAB) => 'JOBS',
+    (ShowcaseFeature.actions, GitProvider.GITLAB) => t.jobs,
     _ => label,
   };
 
