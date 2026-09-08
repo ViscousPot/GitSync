@@ -225,6 +225,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get premiumHookDetectPrivateKey => 'detect-private-key';
 
   @override
+  String get premiumIndieDevTitle => 'Built by one developer';
+
+  @override
+  String get premiumIndieDevSubtitle => 'GitSync is an independent project, not a company. Buying Premium pays for the time that goes into it.';
+
+  @override
   String get switchToClientMode => '切换到客户端模式…';
 
   @override

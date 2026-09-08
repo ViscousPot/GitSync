@@ -1,5 +1,7 @@
 {
   "ar": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -19,6 +21,8 @@
   ],
 
   "de": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -38,6 +42,8 @@
   ],
 
   "es": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -57,6 +63,8 @@
   ],
 
   "fr": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -76,6 +84,8 @@
   ],
 
   "ja": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -95,6 +105,8 @@
   ],
 
   "pt": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -114,6 +126,8 @@
   ],
 
   "ru": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -133,6 +147,8 @@
   ],
 
   "zh": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -152,6 +168,8 @@
   ],
 
   "zh_Hant": [
+    "premiumIndieDevTitle",
+    "premiumIndieDevSubtitle",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",

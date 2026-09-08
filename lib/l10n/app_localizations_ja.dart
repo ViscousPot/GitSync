@@ -225,6 +225,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premiumHookDetectPrivateKey => '秘密鍵の検出';
 
   @override
+  String get premiumIndieDevTitle => 'Built by one developer';
+
+  @override
+  String get premiumIndieDevSubtitle => 'GitSync is an independent project, not a company. Buying Premium pays for the time that goes into it.';
+
+  @override
   String get switchToClientMode => 'クライアントモードに切り替え…';
 
   @override

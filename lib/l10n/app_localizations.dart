@@ -542,6 +542,18 @@ abstract class AppLocalizations {
   /// **'detect-private-key'**
   String get premiumHookDetectPrivateKey;
 
+  /// No description provided for @premiumIndieDevTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built by one developer'**
+  String get premiumIndieDevTitle;
+
+  /// No description provided for @premiumIndieDevSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GitSync is an independent project, not a company. Buying Premium pays for the time that goes into it.'**
+  String get premiumIndieDevSubtitle;
+
   /// No description provided for @switchToClientMode.
   ///
   /// In en, this message translates to:
