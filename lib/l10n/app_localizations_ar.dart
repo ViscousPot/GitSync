@@ -2403,5 +2403,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiSetupMsg => 'قم بتهيئة مزود خدمة ذكاء اصطناعي لاستخدام هذه الميزة. هل تذهب للإعدادات؟';
 
   @override
+  String get aiRateLimited => 'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.';
+
+  @override
   String get aiStopGeneratingMsg => 'This will cancel the current response. Any partial output will be kept.';
 }
