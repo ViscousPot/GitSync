@@ -2,6 +2,7 @@
   "ar": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -35,6 +36,7 @@
   "de": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -68,6 +70,7 @@
   "es": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -101,6 +104,7 @@
   "fr": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -134,6 +138,7 @@
   "ja": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -166,6 +171,7 @@
   "pt": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -199,6 +205,7 @@
   "ru": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -232,6 +239,7 @@
   "zh": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",
@@ -265,6 +273,7 @@
   "zh_Hant": [
     "premiumIndieDevTitle",
     "premiumIndieDevSubtitle",
+    "filesNotFound",
     "sponsorCheckFailedTitle",
     "sponsorCheckFailedMessage",
     "sponsorCheckRejectedMessage",

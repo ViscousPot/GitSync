@@ -65,6 +65,12 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
     controller: controller,
     hideHiddenEntity: false,
     loadingScreen: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
+    emptyFolder: Center(
+      child: Text(
+        t.filesNotFound.toUpperCase(),
+        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+      ),
+    ),
     builder: (context, snapshot) {
       final List<FileSystemEntity> entities = snapshot;
       WidgetsBinding.instance.addPostFrameCallback((_) {
