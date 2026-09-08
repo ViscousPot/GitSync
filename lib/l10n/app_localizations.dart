@@ -2954,6 +2954,12 @@ abstract class AppLocalizations {
   /// **'Directory'**
   String get directory;
 
+  /// No description provided for @confirmFileDirDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get confirmFileDirDeleteTitle;
+
   /// No description provided for @confirmFileDirDeleteMsg.
   ///
   /// In en, this message translates to:

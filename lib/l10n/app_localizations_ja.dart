@@ -1437,6 +1437,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get directory => 'ディレクトリ';
 
   @override
+  String get confirmFileDirDeleteTitle => '%s の削除確認';
+
+  @override
   String get confirmFileDirDeleteMsg => '本当に %s \"%s\" %s を削除しますか？';
 
   @override

@@ -545,6 +545,7 @@
     "file": "File",
     "folder": "Folder",
     "directory": "Directory",
+    "confirmFileDirDeleteTitle": "Confirm Deletion",
     "confirmFileDirDeleteMsg":"Are you sure you want to delete the %s \"%s\" %s?",
     "deleteMultipleSuffix": "and %s more and their contents",
     "deleteSingularSuffix": "and it's contents",
