@@ -4056,9 +4056,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                         ref.read(branchNameProvider.notifier).set(null);
                                                                                         ref.read(remoteUrlLinkProvider.notifier).set(null);
                                                                                         ref.read(listRemotesProvider.notifier).set([]);
-                                                                                        ref
-                                                                                            .read(gitProviderProvider.notifier)
-                                                                                            .set(GitProvider.GITHUB);
                                                                                         ref.read(recommendedActionProvider.notifier).set(null);
                                                                                         ref.read(branchNamesProvider.notifier).set({});
                                                                                         ref.read(hasGitFiltersProvider.notifier).set(false);
