@@ -174,7 +174,7 @@ class _ItemCommit extends ConsumerState<ItemCommit> with SingleTickerProviderSta
         item('copy-tag', context.t.menuCopyTag.toUpperCase(), context.t.menuCopyTagDesc, enabled: widget.commit.tags.isNotEmpty),
         item(
           'view',
-          sprintf(context.t.menuViewOnProvider, [widget.gitProvider!.name]).toUpperCase(),
+          sprintf(context.t.menuViewOnProvider, [(widget.gitProvider ?? GitProvider.GITHUB).name]).toUpperCase(),
           context.t.menuViewOnProviderDesc,
           enabled: widget.gitProvider?.isOAuthProvider == true && widget.remoteWebUrl != null && !widget.commit.unpushed,
         ),
