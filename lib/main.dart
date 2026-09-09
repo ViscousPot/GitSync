@@ -193,6 +193,17 @@ Future<void> backgroundCallback(Uri? data) async {
       return;
     }
 
+    if (scheme == 'gitsync' && data?.host == 'tile-sync') {
+      final repoIndex = await _resolveRepoIndex(data, StorageKey.repoman_tileSyncIndex);
+
+      if (Platform.isIOS) {
+        await gitSyncService.debouncedSync(repoIndex, true, true);
+      } else {
+        await gitSyncService.debouncedSync(repoIndex, true, true, null);
+      }
+      return;
+    }
+
     if (scheme == 'gitsync' && data?.host == 'sync-now') {
       final repoIndex = await _resolveRepoIndex(data, StorageKey.repoman_shortcutSyncIndex);
 
