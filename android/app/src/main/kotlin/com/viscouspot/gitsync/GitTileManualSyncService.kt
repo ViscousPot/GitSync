@@ -29,7 +29,8 @@ class GitTileManualSyncService: TileService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startActivityAndCollapse(pendingIntent)
         } else {
-            startActivity(manualSyncIntent)
+            @Suppress("DEPRECATION")
+            startActivityAndCollapse(manualSyncIntent)
         }
     }
 }
