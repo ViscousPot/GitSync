@@ -111,9 +111,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       child: Column(
         children: [
           Expanded(
-            child: Stack(
-              children: [
-                ValueListenableBuilder<List<ChatMessage>>(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => _focusNode.unfocus(),
+              child: Stack(
+                children: [
+                  ValueListenableBuilder<List<ChatMessage>>(
                   valueListenable: aiChatService.messages,
                   builder: (context, messages, _) {
                     return ValueListenableBuilder<String>(
@@ -203,6 +206,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 ),
               ],
             ),
+          ),
           ),
 
           ValueListenableBuilder<String?>(
