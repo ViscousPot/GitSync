@@ -371,7 +371,7 @@ class _ItemCommit extends ConsumerState<ItemCommit> {
                           children: [
                             Stack(
                               clipBehavior: Clip.none,
-                              alignment: Alignment.centerLeft,
+                              alignment: Alignment.centerRight,
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(right: widget.commit.tags.isEmpty ? 0 : widget.commit.tags.length.clamp(0, 4) * spaceSM),
@@ -393,11 +393,12 @@ class _ItemCommit extends ConsumerState<ItemCommit> {
                                   ),
                                 ),
                                 for (int i = widget.commit.tags.length.clamp(0, 4) - 1; i >= 0; i--)
-                                  Positioned(
-                                    right: i * spaceSM,
+                                  Padding(
+                                    padding: EdgeInsets.only(right: i * spaceSM),
                                     child: Opacity(
                                       opacity: (1.0 - (i * 0.3)).clamp(0.0, 1.0),
                                       child: Container(
+                                        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.4),
                                         decoration: BoxDecoration(
                                           color: widget.commit.unpulled || widget.commit.unpushed ? colours.tertiaryDark : colours.secondaryLight,
                                           borderRadius: BorderRadius.all(cornerRadiusXS),
@@ -417,14 +418,18 @@ class _ItemCommit extends ConsumerState<ItemCommit> {
                                               color: widget.commit.unpulled || widget.commit.unpushed ? colours.secondaryLight : colours.tertiaryDark,
                                             ),
                                             SizedBox(width: spaceXXXXS),
-                                            Text(
-                                              widget.commit.tags[i].toUpperCase(),
-                                              style: TextStyle(
-                                                color: widget.commit.unpulled || widget.commit.unpushed
-                                                    ? colours.secondaryLight
-                                                    : colours.tertiaryDark,
-                                                fontSize: textXS,
-                                                fontWeight: FontWeight.bold,
+                                            Flexible(
+                                              child: Text(
+                                                widget.commit.tags[i].toUpperCase(),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: widget.commit.unpulled || widget.commit.unpushed
+                                                      ? colours.secondaryLight
+                                                      : colours.tertiaryDark,
+                                                  fontSize: textXS,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ],
