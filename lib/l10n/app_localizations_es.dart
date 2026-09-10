@@ -2457,6 +2457,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get aiSetupMsg => 'Configura un proveedor de IA para usar esta función. ¿Ir a ajustes de IA?';
 
   @override
+  String get aiAlwaysAllowSession => 'Always allow this session';
+
+  @override
   String get aiRateLimited => 'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.';
 
   @override

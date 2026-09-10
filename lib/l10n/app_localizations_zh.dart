@@ -2437,6 +2437,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiSetupMsg => '请配置AI提供商以使用此功能。前往AI设置？';
 
   @override
+  String get aiAlwaysAllowSession => 'Always allow this session';
+
+  @override
   String get aiRateLimited => 'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.';
 
   @override

@@ -595,6 +595,25 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               ),
             ],
           ),
+          SizedBox(height: spaceXS),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () {
+                aiChatService.allowToolsForSession([tool.name]);
+                _confirmationCompleter?.complete(true);
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
+              ),
+              child: Text(
+                t.aiAlwaysAllowSession,
+                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -29,6 +29,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -63,6 +64,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -97,6 +99,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -131,6 +134,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -164,6 +168,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -198,6 +203,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -232,6 +238,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -266,6 +273,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ],
@@ -300,6 +308,7 @@
     "issueCommentSuccessMsg",
     "issueCommentFailedMsg",
     "issueReportFailedMsg",
+    "aiAlwaysAllowSession",
     "aiRateLimited",
     "aiStopGeneratingMsg"
   ]
