@@ -335,3 +335,5 @@ class FileSearchTool extends AiTool {
 }
 
 List<AiTool> allFileTools() => [FileReadTool(), FileWriteTool(), FileEditTool(), FileListTool(), FileSearchTool()];
+
+const List<String> editToolNames = ['file_write', 'file_edit'];

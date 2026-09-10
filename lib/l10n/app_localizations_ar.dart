@@ -2441,6 +2441,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiAlwaysAllowSession => 'Always allow this session';
 
   @override
+  String get aiAllowAllEdits => 'Allow all edits this session';
+
+  @override
   String get aiRateLimited => 'Rate limited. Your chat is saved. Wait a moment, then send again to carry on.';
 
   @override
