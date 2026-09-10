@@ -338,6 +338,16 @@ class RecommendedActionNotifier extends CachedGitNotifier<int?> {
 
   @override
   Future<void> writeCache(SettingsManager manager, int? value) => manager.setIntNullable(StorageKey.setman_recommendedAction, value);
+
+  @override
+  Future<int?> refresh() async {
+    state = const AsyncLoading<int?>().copyWithPrevious(state);
+    try {
+      return await super.refresh();
+    } finally {
+      state = AsyncData(state.valueOrNull);
+    }
+  }
 }
 
 final recommendedActionProvider = AsyncNotifierProvider<RecommendedActionNotifier, int?>(RecommendedActionNotifier.new);

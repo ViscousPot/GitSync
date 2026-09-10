@@ -2946,21 +2946,20 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           icon: Stack(
                                                                                             clipBehavior: Clip.none,
                                                                                             children: [
-                                                                                              if (clientModeEnabledValue == true)
-                                                                                                Positioned(
-                                                                                                  top: -spaceXXS,
-                                                                                                  bottom: -spaceXXS,
-                                                                                                  left: -spaceXXS,
-                                                                                                  right: -spaceXXS,
-                                                                                                  child: ProviderBuilder<int?>(
-                                                                                                    provider: recommendedActionProvider,
-                                                                                                    builder: (context, value) => value.isLoading
-                                                                                                        ? CircularProgressIndicator(
-                                                                                                            color: colours.tertiaryDark,
-                                                                                                          )
-                                                                                                        : SizedBox.shrink(),
-                                                                                                  ),
+                                                                                              Positioned(
+                                                                                                top: -spaceXXS,
+                                                                                                bottom: -spaceXXS,
+                                                                                                left: -spaceXXS,
+                                                                                                right: -spaceXXS,
+                                                                                                child: ProviderBuilder<int?>(
+                                                                                                  provider: recommendedActionProvider,
+                                                                                                  builder: (context, value) => value.isLoading
+                                                                                                      ? CircularProgressIndicator(
+                                                                                                          color: colours.tertiaryDark,
+                                                                                                        )
+                                                                                                      : SizedBox.shrink(),
                                                                                                 ),
+                                                                                              ),
                                                                                               SizedBox(
                                                                                                 height: textLG,
                                                                                                 width: textLG,
