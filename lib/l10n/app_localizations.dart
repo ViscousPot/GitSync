@@ -4946,6 +4946,12 @@ abstract class AppLocalizations {
   /// **'Configure an AI provider to use this feature. Go to AI settings?'**
   String get aiSetupMsg;
 
+  /// No description provided for @aiAlwaysAllowSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Always allow this session'**
+  String get aiAlwaysAllowSession;
+
   /// No description provided for @aiRateLimited.
   ///
   /// In en, this message translates to:

@@ -27,6 +27,7 @@ class _RepoConversation {
   TokenUsage lastTurnUsage = const TokenUsage(0, 0);
   int messageCounter = 0;
   Set<String> activatedTools = {};
+  Set<String> sessionAllowedTools = {};
 
   bool isStreaming = false;
   String streamingText = '';
@@ -88,6 +89,7 @@ class AiChatService {
     _toolExecutor = ToolExecutor(
       registry: _toolRegistry,
       onConfirmationRequired: (tool, input) async {
+        if (_conv().sessionAllowedTools.contains(tool.name)) return true;
         if (onConfirmationRequired != null) return onConfirmationRequired!(tool, input);
         return false;
       },
@@ -99,6 +101,8 @@ class AiChatService {
   }
 
   _RepoConversation _conv() => _convFor(_activeRepoIndex);
+
+  void allowToolsForSession(Iterable<String> toolNames) => _conv().sessionAllowedTools.addAll(toolNames);
 
   Future<void> switchToRepo() async {
     final index = await repoManager.getInt(StorageKey.repoman_repoIndex);
