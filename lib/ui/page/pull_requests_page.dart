@@ -403,6 +403,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
+                  getOpenInBrowserButton(widget.gitProvider.pullRequestsUrl(widget.remoteWebUrl)),
                   GestureDetector(
                     onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
                     child: Container(

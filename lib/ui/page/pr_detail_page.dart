@@ -321,6 +321,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                         ],
                       ),
                     ],
+                    getOpenInBrowserButton(widget.gitProvider.pullRequestUrl(widget.remoteWebUrl, widget.prNumber)),
                   ],
                 ),
               ),
