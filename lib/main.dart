@@ -2228,14 +2228,20 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   _KeepAlivePage(
                     child: ValueListenableBuilder(
                       valueListenable: _homeCanPop,
-                      builder: (context, canPop, child) => PopScope(
-                        canPop: !canPop,
-                        onPopInvokedWithResult: (didPop, _) {
-                          if (!didPop && (_homeNavigatorKey.currentState?.canPop() ?? false)) {
-                            _homeNavigatorKey.currentState!.pop();
-                          }
-                        },
-                        child: child!,
+                      builder: (context, canPop, child) => ValueListenableBuilder<bool>(
+                        valueListenable: _commitSelectMode,
+                        builder: (context, inCommitSelectMode, _) => PopScope(
+                          canPop: !canPop && !inCommitSelectMode,
+                          onPopInvokedWithResult: (didPop, _) {
+                            if (didPop) return;
+                            if (_homeNavigatorKey.currentState?.canPop() ?? false) {
+                              _homeNavigatorKey.currentState!.pop();
+                            } else if (_commitSelectMode.value) {
+                              _exitCommitSelectMode();
+                            }
+                          },
+                          child: child!,
+                        ),
                       ),
                       child: Navigator(
                         key: _homeNavigatorKey,
