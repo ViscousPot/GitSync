@@ -763,10 +763,6 @@ RemoteScheme detectRemoteScheme(String? url) {
   return RemoteScheme.unknown;
 }
 
-/// Returns a token describing the direction of a remote-URL/auth mismatch, or
-/// null when the pair is compatible or the URL's scheme isn't detectable.
-/// - 'httpsWithSshAuth': remote URL is http(s), provider is SSH.
-/// - 'sshWithHttpsAuth': remote URL is ssh/git@, provider is a http-based one.
 String? remoteAuthMismatch(String? url, GitProvider? provider) {
   if (provider == null) return null;
   final scheme = detectRemoteScheme(url);

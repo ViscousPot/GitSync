@@ -996,10 +996,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remoteAuthMismatchTitle => 'Auth won\'t work with this remote';
 
   @override
-  String get remoteAuthMismatchUsesSsh => 'This remote uses SSH — tap to switch';
+  String get remoteAuthMismatchUsesSsh => 'This remote uses SSH. Tap to switch';
 
   @override
-  String get remoteAuthMismatchUsesHttps => 'This remote uses HTTPS or OAuth — tap to switch';
+  String get remoteAuthMismatchUsesHttps => 'This remote uses HTTPS or OAuth. Tap to switch';
 
   @override
   String get selectYourGitProviderAndAuthenticate => 'Select your git provider and authenticate';

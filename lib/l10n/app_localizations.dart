@@ -2081,13 +2081,13 @@ abstract class AppLocalizations {
   /// No description provided for @remoteAuthMismatchUsesSsh.
   ///
   /// In en, this message translates to:
-  /// **'This remote uses SSH — tap to switch'**
+  /// **'This remote uses SSH. Tap to switch'**
   String get remoteAuthMismatchUsesSsh;
 
   /// No description provided for @remoteAuthMismatchUsesHttps.
   ///
   /// In en, this message translates to:
-  /// **'This remote uses HTTPS or OAuth — tap to switch'**
+  /// **'This remote uses HTTPS or OAuth. Tap to switch'**
   String get remoteAuthMismatchUsesHttps;
 
   /// No description provided for @selectYourGitProviderAndAuthenticate.
