@@ -1952,28 +1952,7 @@ pub async fn get_recent_commits(
             .to_string();
         let reference = format!("{}", oid);
 
-        let (additions, deletions) = if let Some(&(a, d)) = cached_diff_stats.get(&reference) {
-            (a, d)
-        } else {
-            let parent = commit.parent(0).ok();
-            let mut diff_opts = DiffOptions::new();
-            let diff = match parent {
-                Some(parent_commit) => repo.diff_tree_to_tree(
-                    Some(&swl!(parent_commit.tree())?),
-                    Some(&swl!(commit.tree())?),
-                    Some(&mut diff_opts),
-                )?,
-                None => swl!(repo.diff_tree_to_tree(
-                    None,
-                    Some(&swl!(commit.tree())?),
-                    Some(&mut diff_opts)
-                ))?,
-            };
-            match diff.stats() {
-                Ok(s) => (s.insertions() as i32, s.deletions() as i32),
-                Err(_) => (0, 0),
-            }
-        };
+        let (additions, deletions) = cached_diff_stats.get(&reference).copied().unwrap_or((-1, -1));
 
         let unpulled = unpulled_oids.contains(&oid);
         let unpushed = unpushed_oids.contains(&oid);
@@ -2001,6 +1980,57 @@ pub async fn get_recent_commits(
     );
 
     Ok(commits)
+}
+
+pub async fn get_commit_diff_stats(
+    path_string: &String,
+    references: Vec<String>,
+    log: impl Fn(LogType, String) -> DartFnFuture<()> + Send + Sync + 'static,
+) -> Result<Vec<String>, git2::Error> {
+    let log_callback = Arc::new(log);
+    let repo = swl!(Repository::open(path_string))?;
+
+    let mut result = Vec::new();
+    for reference in references {
+        let oid = match repo.revparse_single(&reference) {
+            Ok(obj) => match obj.peel_to_commit() {
+                Ok(c) => c.id(),
+                Err(_) => continue,
+            },
+            Err(_) => continue,
+        };
+        let commit = match repo.find_commit(oid) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        let parent = commit.parent(0).ok();
+        let mut diff_opts = DiffOptions::new();
+        let diff = match parent {
+            Some(parent_commit) => repo.diff_tree_to_tree(
+                Some(&swl!(parent_commit.tree())?),
+                Some(&swl!(commit.tree())?),
+                Some(&mut diff_opts),
+            )?,
+            None => swl!(repo.diff_tree_to_tree(
+                None,
+                Some(&swl!(commit.tree())?),
+                Some(&mut diff_opts)
+            ))?,
+        };
+        let (additions, deletions) = match diff.stats() {
+            Ok(s) => (s.insertions() as i32, s.deletions() as i32),
+            Err(_) => (0, 0),
+        };
+        result.push(format!("{}|{}|{}", reference, additions, deletions));
+    }
+
+    _log(
+        Arc::clone(&log_callback),
+        LogType::RecentCommits,
+        format!("Computed diff stats for {} commits", result.len()),
+    );
+
+    Ok(result)
 }
 
 fn fast_forward(

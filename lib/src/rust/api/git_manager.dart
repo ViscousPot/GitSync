@@ -260,6 +260,16 @@ Future<List<Commit>> getRecentCommits({
   log: log,
 );
 
+Future<List<String>> getCommitDiffStats({
+  required String pathString,
+  required List<String> references,
+  required FutureOr<void> Function(LogType, String) log,
+}) => RustLib.instance.api.crateApiGitManagerGetCommitDiffStats(
+  pathString: pathString,
+  references: references,
+  log: log,
+);
+
 Future<void> updateSubmodules({
   required String pathString,
   required String provider,

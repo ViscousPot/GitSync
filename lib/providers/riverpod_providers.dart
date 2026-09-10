@@ -257,6 +257,60 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
         <GitManagerRs.Commit>[],
   );
 
+  Future<void> loadDiffStats() async {
+    final repoIndex = await repoManager.getInt(StorageKey.repoman_repoIndex);
+    final manager = await SettingsManager.scoped(repoIndex);
+    _scopedManager = manager;
+
+    final current = state.valueOrNull ?? [];
+    final missing = current.where((c) => c.additions == -1 && c.deletions == -1).map((c) => c.reference).toList();
+    if (missing.isEmpty) return;
+
+    final stats = await GitManager.getCommitDiffStats(missing, repoIndex: repoIndex);
+    if (stats.isEmpty) return;
+
+    final byReference = current.map((c) {
+      final stat = stats[c.reference];
+      if (stat == null) return c;
+      return GitManagerRs.Commit(
+        timestamp: c.timestamp,
+        authorUsername: c.authorUsername,
+        authorEmail: c.authorEmail,
+        reference: c.reference,
+        commitMessage: c.commitMessage,
+        additions: stat.$1,
+        deletions: stat.$2,
+        unpulled: c.unpulled,
+        unpushed: c.unpushed,
+        tags: c.tags,
+      );
+    }).toList();
+
+    if (await _isCurrentIndex(repoIndex)) {
+      state = AsyncData(byReference);
+      await writeCache(manager, byReference);
+    }
+  }
+
+  void _scheduleDiffStats() {
+    () async {
+      try {
+        await ref.read(recommendedActionProvider.future);
+      } catch (_) {}
+      await loadDiffStats();
+    }();
+  }
+
+  @override
+  Future<List<GitManagerRs.Commit>?> refresh() async {
+    final result = await super.refresh();
+    try {
+      await ref.read(recommendedActionProvider.future);
+    } catch (_) {}
+    await loadDiffStats();
+    return result;
+  }
+
   @override
   Future<void> writeCache(SettingsManager manager, List<GitManagerRs.Commit> value) =>
       manager.setStringList(StorageKey.setman_recentCommits, value.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList());
@@ -284,6 +338,7 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
       final live = await fetchLive();
       await writeCache(manager, live);
       ref.read(isLoadingCommitsProvider.notifier).state = false;
+      _scheduleDiffStats();
       return live;
     }
 
@@ -302,7 +357,10 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
         }
         Logger.logError(LogType.Global, e, s);
       } finally {
-        if (!cancelled) ref.read(isLoadingCommitsProvider.notifier).state = false;
+        if (!cancelled) {
+          ref.read(isLoadingCommitsProvider.notifier).state = false;
+          _scheduleDiffStats();
+        }
       }
     }();
 

@@ -461,6 +461,13 @@ void onServiceStart(ServiceInstance service) async {
     return {"result": result.map((item) => utf8.fuse(base64).encode(jsonEncode(item.toJson()))).toList()};
   });
 
+  _onGitOp(service, LogType.CommitDiffStats, (event) async {
+    final result = await GitManager.getCommitDiffStats(event?["references"]?.cast<String>() ?? const []);
+    return {
+      "result": result.entries.map((entry) => [entry.key, entry.value.$1, entry.value.$2]).toList(),
+    };
+  });
+
   _onGitOp(service, LogType.ConflictingFiles, (event) async {
     final result = await GitManager.getConflicting();
     return {
