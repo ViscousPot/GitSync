@@ -25,7 +25,7 @@ class Issue {
   final String authorUsername;
   final DateTime createdAt;
   final int commentCount;
-  final int linkedPrCount;
+  final List<int> linkedPrNumbers;
   final List<IssueLabel> labels;
 
   const Issue({
@@ -35,7 +35,9 @@ class Issue {
     required this.authorUsername,
     required this.createdAt,
     required this.commentCount,
-    this.linkedPrCount = 0,
+    this.linkedPrNumbers = const [],
     required this.labels,
   });
+
+  int get linkedPrCount => linkedPrNumbers.length;
 }

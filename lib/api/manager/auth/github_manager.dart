@@ -302,7 +302,6 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
                 authorUsername: item["user"]?["login"] ?? "",
                 createdAt: DateTime.tryParse(item["created_at"] ?? "") ?? DateTime.now(),
                 commentCount: item["comments"] ?? 0,
-                linkedPrCount: 0,
                 labels:
                     (item["labels"] as List<dynamic>?)
                         ?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"]?.toString().replaceAll('#', '')))
@@ -376,10 +375,13 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
         final nodes = issuesData["nodes"] as List<dynamic>? ?? [];
         final List<Issue> issues = nodes.map((item) {
           final timelineNodes = item["timelineItems"]?["nodes"] as List<dynamic>? ?? [];
-          final linkedPrCount = timelineNodes.where((node) {
-            final source = node["source"];
-            return source is Map && source.containsKey("number");
-          }).length;
+          final linkedPrNumbers = timelineNodes
+              .map((node) => node["source"])
+              .whereType<Map>()
+              .map((source) => source["number"])
+              .whereType<int>()
+              .toSet()
+              .toList();
 
           return Issue(
             title: item["title"] ?? "",
@@ -388,7 +390,7 @@ query(\$owner: String!, \$repo: String!, \$states: [IssueState!], \$after: Strin
             authorUsername: item["author"]?["login"] ?? "",
             createdAt: DateTime.tryParse(item["createdAt"] ?? "") ?? DateTime.now(),
             commentCount: item["comments"]?["totalCount"] ?? 0,
-            linkedPrCount: linkedPrCount,
+            linkedPrNumbers: linkedPrNumbers,
             labels: (item["labels"]?["nodes"] as List<dynamic>?)?.map((l) => IssueLabel(name: l["name"] ?? "", color: l["color"])).toList() ?? [],
           );
         }).toList();
