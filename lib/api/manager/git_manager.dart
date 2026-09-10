@@ -793,7 +793,7 @@ class GitManager {
     }
 
     final result =
-        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.UncommittedFiles, (
+        await _runWithLock(priority: 4, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repomanRepoindex), LogType.UncommittedFiles, (
           dirPath,
         ) async {
           return (await GitManagerRs.getUncommittedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
@@ -814,7 +814,7 @@ class GitManager {
     }
 
     final result =
-        await _runWithLock(priority: 2, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repoIndex), LogType.StagedFiles, (
+        await _runWithLock(priority: 4, GitManagerRs.stringIntListRunWithLock, await _resolveRepoIndex(repoIndex), LogType.StagedFiles, (
           dirPath,
         ) async {
           return (await GitManagerRs.getStagedFilePaths(pathString: dirPath, log: _logWrapper)).toSet().toList();
@@ -874,7 +874,7 @@ class GitManager {
     });
   }
 
-  static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 1]) async {
+  static Future<List<String>> listRemotes([int? repomanRepoindex, int priority = 4]) async {
     return await _runWithLock(
           priority: priority,
           GitManagerRs.stringListRunWithLock,
