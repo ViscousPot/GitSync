@@ -359,8 +359,9 @@ class Editor extends ConsumerStatefulWidget {
   ConsumerState<Editor> createState() => _EditorState();
 }
 
-class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
+class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final fileSaving = ValueNotifier(false);
+  late final AnimationController thumbAnimationController;
   final ReEditor.CodeLineEditingController controller = ReEditor.CodeLineEditingController();
   final ScrollController horizontalController = ScrollController();
   ScrollController verticalController = ScrollController();
@@ -374,6 +375,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    thumbAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
     MmapFlutter.initialize();
 
     initAsync(() async {
@@ -507,6 +509,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    thumbAnimationController.dispose();
     controller.removeListener(_onTextChanged);
     writeMmap?.sync();
     writeMmap?.close();
@@ -590,6 +593,36 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
                   controller: controller,
                   scrollController: ReEditor.CodeScrollController(verticalScroller: verticalController, horizontalScroller: horizontalController),
                   wordWrap: editorLineWrap,
+                  scrollbarBuilder: (context, child, details) {
+                    if (details.direction != AxisDirection.down) {
+                      return Scrollbar(controller: details.controller, scrollbarOrientation: ScrollbarOrientation.bottom, child: child);
+                    }
+                    return AnimatedBuilder(
+                      animation: thumbAnimationController,
+                      builder: (context, _) {
+                        final double t = Curves.easeOut.transform(thumbAnimationController.value);
+                        return _ThumbAwareScrollbar(
+                          onThumbPressChanged: (pressed) {
+                            if (pressed) {
+                              thumbAnimationController.forward();
+                            } else {
+                              thumbAnimationController.reverse();
+                            }
+                          },
+                          controller: details.controller,
+                          scrollbarOrientation: ScrollbarOrientation.right,
+                          thumbVisibility: true,
+                          interactive: true,
+                          thickness: spaceXS + (spaceMD - spaceXS) * t,
+                          radius: cornerRadiusXS,
+                          minThumbLength: spaceLG,
+                          thumbColor: Color.lerp(colours.secondaryLight, colours.primaryInfo, t),
+                          child: child,
+                        );
+                      },
+                      child: child,
+                    );
+                  },
                   chunkAnalyzer: widget.type == EditorType.LOGS ? LogsChunkAnalyzer() : ReEditor.DefaultCodeChunkAnalyzer(),
                   style: ReEditor.CodeEditorStyle(
                     textColor: colours.tertiaryLight,
@@ -770,6 +803,40 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver {
             : SizedBox.shrink(),
       ],
     );
+  }
+}
+
+class _ThumbAwareScrollbar extends RawScrollbar {
+  const _ThumbAwareScrollbar({
+    required super.controller,
+    required super.child,
+    super.scrollbarOrientation,
+    super.thumbVisibility,
+    super.interactive,
+    super.thickness,
+    super.radius,
+    super.minThumbLength,
+    super.thumbColor,
+    required this.onThumbPressChanged,
+  });
+
+  final ValueChanged<bool> onThumbPressChanged;
+
+  @override
+  RawScrollbarState<_ThumbAwareScrollbar> createState() => _ThumbAwareScrollbarState();
+}
+
+class _ThumbAwareScrollbarState extends RawScrollbarState<_ThumbAwareScrollbar> {
+  @override
+  void handleThumbPressStart(Offset localPosition) {
+    widget.onThumbPressChanged(true);
+    super.handleThumbPressStart(localPosition);
+  }
+
+  @override
+  void handleThumbPressEnd(Offset localPosition, Velocity velocity) {
+    widget.onThumbPressChanged(false);
+    super.handleThumbPressEnd(localPosition, velocity);
   }
 }
 
