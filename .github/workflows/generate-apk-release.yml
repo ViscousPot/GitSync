@@ -32,6 +32,8 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'rust/.cargo/config.toml') }}
 
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: 1.88.0
@@ -124,9 +126,10 @@ jobs:
         id: changelog
         uses: ardalanamini/auto-changelog@v4
         with:
+          preferred-api: Git
           mention-authors: false
           mention-new-contributors: false
-          include-compare: false
+          include-compare-link: false
           semver: false
 
       - name: Find and Replace
@@ -155,8 +158,10 @@ jobs:
 
       - name: Get Previous Tag
         id: previous_tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          PREVIOUS_TAG=$(git tag --list 'v*.*.*' --sort=-version:refname | sed -n '2p')
+          PREVIOUS_TAG=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
           echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
