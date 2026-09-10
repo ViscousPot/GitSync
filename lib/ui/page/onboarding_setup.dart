@@ -246,7 +246,9 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       if (step == 4) {
         screenIndex.value = Screen.SyncSettings;
       } else {
-        Navigator.of(context).pop();
+        await repoManager.setOnboardingStep(2);
+        if (!mounted) return;
+        screenIndex.value = Screen.Authenticate;
       }
     },
   );
