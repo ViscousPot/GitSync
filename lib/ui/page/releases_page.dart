@@ -125,6 +125,8 @@ class _ReleasesPageState extends State<ReleasesPage> {
                     t.releases.toUpperCase(),
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
+                  const Spacer(),
+                  getOpenInBrowserButton(widget.gitProvider.releasesUrl(widget.remoteWebUrl)),
                 ],
               ),
             ),

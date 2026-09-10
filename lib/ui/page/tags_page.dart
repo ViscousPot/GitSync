@@ -123,6 +123,8 @@ class _TagsPageState extends State<TagsPage> {
                     t.tags.toUpperCase(),
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
+                  const Spacer(),
+                  getOpenInBrowserButton(widget.gitProvider.tagsUrl(widget.remoteWebUrl)),
                 ],
               ),
             ),

@@ -93,6 +93,13 @@ Widget getBackButton(BuildContext context, Function() onPressed) => IconButton(
   icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
 );
 
+Widget getOpenInBrowserButton(String? url) => url == null
+    ? const SizedBox.shrink()
+    : IconButton(
+        onPressed: () => launchUrl(Uri.parse(url)),
+        icon: FaIcon(FontAwesomeIcons.arrowUpRightFromSquare, color: colours.primaryLight, size: textMD, semanticLabel: t.launchInBrowser),
+      );
+
 void debounce(String index, int milliseconds, VoidCallback callback) {
   debounceTimers[index]?.cancel();
   _callbacks[index] = callback;

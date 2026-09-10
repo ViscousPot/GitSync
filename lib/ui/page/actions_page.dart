@@ -128,6 +128,8 @@ class _ActionsPageState extends State<ActionsPage> {
                     ShowcaseFeature.actions.labelForProvider(widget.gitProvider).toUpperCase(),
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
+                  const Spacer(),
+                  getOpenInBrowserButton(widget.gitProvider.actionsUrl(widget.remoteWebUrl)),
                 ],
               ),
             ),

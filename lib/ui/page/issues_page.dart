@@ -552,6 +552,7 @@ class _IssuesPageState extends State<IssuesPage> {
                     style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
+                  getOpenInBrowserButton(widget.gitProvider.issuesUrl(widget.remoteWebUrl)),
                   GestureDetector(
                     onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
                     child: Container(

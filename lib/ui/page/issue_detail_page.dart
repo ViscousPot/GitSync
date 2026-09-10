@@ -379,6 +379,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                             ],
                           ),
                         ],
+                        getOpenInBrowserButton(widget.gitProvider.issueUrl(widget.remoteWebUrl, widget.issueNumber)),
                       ],
                     ),
                   ),
