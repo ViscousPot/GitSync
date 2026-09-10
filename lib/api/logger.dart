@@ -58,6 +58,7 @@ enum LogType {
   CommitDiff,
   FileDiff,
   RecentCommits,
+  CommitDiffStats,
   ConflictingFiles,
   UncommittedFiles,
   StagedFiles,

@@ -734,6 +734,33 @@ class GitManager {
     return result ?? <GitManagerRs.Commit>[];
   }
 
+  static Future<Map<String, (int, int)>> getCommitDiffStats(List<String> references, {int priority = 1, int? repoIndex}) async {
+    if (references.isEmpty) return {};
+    final result = await _runWithLock(
+      priority: priority,
+      GitManagerRs.stringListRunWithLock,
+      await _resolveRepoIndex(repoIndex),
+      LogType.CommitDiffStats,
+      (dirPath) async {
+        try {
+          return await GitManagerRs.getCommitDiffStats(pathString: dirPath, references: references, log: _logWrapper);
+        } catch (e, stackTrace) {
+          Logger.logError(LogType.CommitDiffStats, e, stackTrace);
+          return <String>[];
+        }
+      },
+    );
+    final stats = <String, (int, int)>{};
+    for (final entry in result ?? const <String>[]) {
+      final parts = entry.split("|");
+      if (parts.length != 3) continue;
+      final additions = int.tryParse(parts[1]) ?? 0;
+      final deletions = int.tryParse(parts[2]) ?? 0;
+      stats[parts[0]] = (additions, deletions);
+    }
+    return stats;
+  }
+
   static Future<List<(String, GitManagerRs.ConflictType)>> getInitialConflicting() async {
     return (await uiSettingsManager.getStringList(StorageKey.setman_conflicting)).map((item) {
       final parts = item.split(conflictSeparator);
