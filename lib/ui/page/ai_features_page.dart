@@ -10,6 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:GitSync/api/ai_provider_validator.dart';
 import 'package:GitSync/api/ai_tools.dart';
+import 'package:GitSync/api/ai_tools_file.dart';
 import 'package:GitSync/api/manager/storage.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/constant/dimens.dart';
@@ -531,6 +532,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
   Widget _confirmationChip(AiTool tool) {
     final isDanger = tool.confirmation == ToolConfirmation.danger;
     final isConfirm = tool.confirmation == ToolConfirmation.confirm || isDanger;
+    final isEdit = editToolNames.contains(tool.name);
     final borderColor = isConfirm ? colours.primaryNegative : colours.primaryWarning;
 
     if (isDanger) return _dangerConfirmationChip(tool);
@@ -600,7 +602,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
             width: double.infinity,
             child: TextButton(
               onPressed: () {
-                aiChatService.allowToolsForSession([tool.name]);
+                aiChatService.allowToolsForSession(isEdit ? editToolNames : [tool.name]);
                 _confirmationCompleter?.complete(true);
               },
               style: ButtonStyle(
@@ -609,7 +611,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
               ),
               child: Text(
-                t.aiAlwaysAllowSession,
+                isEdit ? t.aiAllowAllEdits : t.aiAlwaysAllowSession,
                 style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),

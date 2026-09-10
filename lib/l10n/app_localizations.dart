@@ -4952,6 +4952,12 @@ abstract class AppLocalizations {
   /// **'Always allow this session'**
   String get aiAlwaysAllowSession;
 
+  /// No description provided for @aiAllowAllEdits.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow all edits this session'**
+  String get aiAllowAllEdits;
+
   /// No description provided for @aiRateLimited.
   ///
   /// In en, this message translates to:

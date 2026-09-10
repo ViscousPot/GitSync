@@ -927,6 +927,7 @@
     "aiSetupTitle": "Set Up AI",
     "aiSetupMsg": "Configure an AI provider to use this feature. Go to AI settings?",
     "aiAlwaysAllowSession": "Always allow this session",
+    "aiAllowAllEdits": "Allow all edits this session",
     "aiRateLimited": "Rate limited. Your chat is saved. Wait a moment, then send again to carry on.",
     "aiStopGeneratingMsg": "This will cancel the current response. Any partial output will be kept."
 }
