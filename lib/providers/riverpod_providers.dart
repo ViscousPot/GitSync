@@ -292,23 +292,9 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
     }
   }
 
-  void _scheduleDiffStats() {
-    () async {
-      try {
-        await ref.read(recommendedActionProvider.future);
-      } catch (_) {}
-      await loadDiffStats();
-    }();
-  }
-
   @override
-  Future<List<GitManagerRs.Commit>?> refresh() async {
-    final result = await super.refresh();
-    try {
-      await ref.read(recommendedActionProvider.future);
-    } catch (_) {}
-    await loadDiffStats();
-    return result;
+  Future<List<GitManagerRs.Commit>?> refresh() {
+    return super.refresh();
   }
 
   @override
@@ -338,7 +324,6 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
       final live = await fetchLive();
       await writeCache(manager, live);
       ref.read(isLoadingCommitsProvider.notifier).state = false;
-      _scheduleDiffStats();
       return live;
     }
 
@@ -359,7 +344,6 @@ class RecentCommitsNotifier extends CachedGitNotifier<List<GitManagerRs.Commit>>
       } finally {
         if (!cancelled) {
           ref.read(isLoadingCommitsProvider.notifier).state = false;
-          _scheduleDiffStats();
         }
       }
     }();

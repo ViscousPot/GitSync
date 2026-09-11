@@ -1023,8 +1023,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ref.read(listRemotesProvider.notifier).refresh();
     ref.read(branchNamesProvider.notifier).refresh();
     ref.read(conflictingFilesProvider.notifier).refresh();
-    ref.read(recentCommitsProvider.notifier).refresh();
-    ref.read(recommendedActionProvider.notifier).refresh();
+    await ref.read(recentCommitsProvider.notifier).refresh();
+    await ref.read(recommendedActionProvider.notifier).refresh();
+    await ref.read(recentCommitsProvider.notifier).loadDiffStats();
     ref.invalidate(syncMessageEnabledProvider);
     ref.invalidate(lastSyncMethodProvider);
     ref.invalidate(clientModeEnabledProvider);
@@ -4101,10 +4102,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                               ),
                                                             ),
                                                           ],
-);
-                                                       },
-                                                     ),
-                                                   ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
 
                                                   Builder(
                                                     builder: (context) {
