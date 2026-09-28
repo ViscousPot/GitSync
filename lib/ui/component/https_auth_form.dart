@@ -33,7 +33,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
         Text(
           t.ensureTokenScope,
           textAlign: TextAlign.center,
-          style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+          style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
         ),
         SizedBox(height: spaceLG),
         Row(
@@ -45,7 +45,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
                     t.user.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(height: spaceMD),
@@ -53,7 +53,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
                     t.token.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -69,14 +69,14 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                     enableSuggestions: false,
                     autocorrect: false,
                     style: TextStyle(
-                      color: colours.primaryLight,
+                      color: context.colours.primaryLight,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.none,
                       decorationThickness: 0,
                       fontSize: textMD,
                     ),
                     decoration: InputDecoration(
-                      fillColor: colours.secondaryDark,
+                      fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                       hintText: t.exampleUser,
@@ -84,7 +84,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                         overflow: TextOverflow.ellipsis,
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                       ),
                       isCollapsed: true,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -104,14 +104,14 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                     enableSuggestions: false,
                     autocorrect: false,
                     style: TextStyle(
-                      color: colours.primaryLight,
+                      color: context.colours.primaryLight,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.none,
                       decorationThickness: 0,
                       fontSize: textMD,
                     ),
                     decoration: InputDecoration(
-                      fillColor: colours.secondaryDark,
+                      fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                       hintText: t.exampleToken,
@@ -119,7 +119,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                         overflow: TextOverflow.ellipsis,
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                       ),
                       isCollapsed: true,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -144,14 +144,14 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
               : null,
           style: ButtonStyle(
             alignment: Alignment.center,
-            backgroundColor: WidgetStatePropertyAll(canLogin ? colours.secondaryPositive : colours.secondaryPositive),
+            backgroundColor: WidgetStatePropertyAll(canLogin ? context.colours.secondaryPositive : context.colours.secondaryPositive),
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           child: Text(
             t.login.toUpperCase(),
             style: TextStyle(
-              color: canLogin ? colours.primaryPositive : colours.primaryPositive.withAlpha(70),
+              color: canLogin ? context.colours.primaryPositive : context.colours.primaryPositive.withAlpha(70),
               fontSize: textSM,
               fontWeight: FontWeight.bold,
             ),

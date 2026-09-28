@@ -67,6 +67,7 @@ import '../ui/dialog/force_push_pull.dart' as ForcePushPullDialog;
 import '../ui/dialog/manual_sync.dart' as ManualSyncDialog;
 import '../constant/dimens.dart';
 import '../global.dart';
+import 'package:GitSync/api/colour_provider.dart';
 import '../ui/component/commit_select_action_bar.dart';
 import '../ui/component/item_commit.dart';
 import '../ui/page/clone_repo_main.dart';
@@ -754,7 +755,7 @@ class _MyAppState extends State<MyApp> {
     HomeWidget.setAppGroupId('group.ForceSyncWidget');
     HomeWidget.registerInteractivityCallback(backgroundCallback);
     initAsync(() async {
-      colours.reloadTheme(context);
+      reloadTheme(context);
       setState(() {});
     });
     super.initState();
@@ -762,76 +763,85 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: appLocale,
-      builder: (context, appLocaleSnapshot) => MaterialApp(
-        restorationScopeId: "root",
-        title: appName,
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: [LocaleNamesLocalizationsDelegate(), ...AppLocalizations.localizationsDelegates],
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: appLocaleSnapshot.data == null ? null : Locale(appLocaleSnapshot.data!),
-        initialRoute: "/",
-        localeResolutionCallback: (locale, supportedLocales) {
-          for (var supportedLocale in supportedLocales) {
-            if (supportedLocale.languageCode == locale?.languageCode) {
-              return supportedLocale;
+    return ValueListenableBuilder<bool>(
+      valueListenable: themeDarkMode,
+      builder: (context, darkMode, _) => FutureBuilder(
+        future: appLocale,
+        builder: (context, appLocaleSnapshot) => MaterialApp(
+          restorationScopeId: "root",
+          title: appName,
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: [LocaleNamesLocalizationsDelegate(), ...AppLocalizations.localizationsDelegates],
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: appLocaleSnapshot.data == null ? null : Locale(appLocaleSnapshot.data!),
+          initialRoute: "/",
+          localeResolutionCallback: (locale, supportedLocales) {
+            for (var supportedLocale in supportedLocales) {
+              if (supportedLocale.languageCode == locale?.languageCode) {
+                return supportedLocale;
+              }
             }
-          }
-          return const Locale('en');
-        },
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: colours.primaryDark),
-          useMaterial3: true,
-          textSelectionTheme: TextSelectionThemeData(
-            selectionHandleColor: colours.tertiaryInfo,
-            selectionColor: colours.secondaryInfo.withAlpha(100),
-            cursorColor: colours.secondaryInfo.withAlpha(150),
-          ),
-        ),
-        builder: (context, child) => Container(
-          color: colours.primaryDark,
-          child: SafeArea(
-            top: false,
-            child: Padding(padding: EdgeInsets.zero, child: child ?? SizedBox.shrink()),
-          ),
-        ),
-        home: ShowCaseWidget(
-          blurValue: 3,
-          enableAutoScroll: true,
-          builder: (context) {
-            t = AppLocalizations.of(context);
-            FlutterBackgroundService().invoke(
-              GitsyncService.UPDATE_SERVICE_STRINGS,
-              ServiceStrings(
-                syncStartPull: t.syncStartPull,
-                syncStartPush: t.syncStartPush,
-                syncNotRequired: t.syncNotRequired,
-                syncComplete: t.syncComplete,
-                syncInProgress: t.syncInProgress,
-                syncScheduled: t.syncScheduled,
-                detectingChanges: t.detectingChanges,
-                ongoingMergeConflict: t.ongoingMergeConflict,
-                networkStallRetry: t.networkStallRetry,
-                networkUnavailableRetry: t.networkUnavailableRetry,
-                networkStallManual: t.networkStallManual,
-                networkUnavailableManual: t.networkUnavailableManual,
-                networkRetryComplete: t.networkRetryComplete,
-              ).toMap(),
-            );
-            return MyHomePage(
-              title: appName,
-              reloadLocale: () async {
-                appLocale = repoManager.getStringNullable(StorageKey.repoman_appLocale);
-                if (mounted) setState(() {});
-              },
-            );
+            return const Locale('en');
           },
+          theme: _buildTheme(const Colours(darkMode: false)),
+          darkTheme: _buildTheme(const Colours(darkMode: true)),
+          themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
+          themeAnimationDuration: Duration.zero,
+          builder: (context, child) => Container(
+            color: context.colours.primaryDark,
+            child: SafeArea(
+              top: false,
+              child: Padding(padding: EdgeInsets.zero, child: child ?? SizedBox.shrink()),
+            ),
+          ),
+          home: ShowCaseWidget(
+            blurValue: 3,
+            enableAutoScroll: true,
+            builder: (context) {
+              t = AppLocalizations.of(context);
+              FlutterBackgroundService().invoke(
+                GitsyncService.UPDATE_SERVICE_STRINGS,
+                ServiceStrings(
+                  syncStartPull: t.syncStartPull,
+                  syncStartPush: t.syncStartPush,
+                  syncNotRequired: t.syncNotRequired,
+                  syncComplete: t.syncComplete,
+                  syncInProgress: t.syncInProgress,
+                  syncScheduled: t.syncScheduled,
+                  detectingChanges: t.detectingChanges,
+                  ongoingMergeConflict: t.ongoingMergeConflict,
+                  networkStallRetry: t.networkStallRetry,
+                  networkUnavailableRetry: t.networkUnavailableRetry,
+                  networkStallManual: t.networkStallManual,
+                  networkUnavailableManual: t.networkUnavailableManual,
+                  networkRetryComplete: t.networkRetryComplete,
+                ).toMap(),
+              );
+              return MyHomePage(
+                title: appName,
+                reloadLocale: () async {
+                  appLocale = repoManager.getStringNullable(StorageKey.repoman_appLocale);
+                  if (mounted) setState(() {});
+                },
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
+
+ThemeData _buildTheme(Colours colours) => ThemeData(
+  colorScheme: ColorScheme.fromSeed(seedColor: colours.primaryDark),
+  useMaterial3: true,
+  textSelectionTheme: TextSelectionThemeData(
+    selectionHandleColor: colours.tertiaryInfo,
+    selectionColor: colours.secondaryInfo.withAlpha(100),
+    cursorColor: colours.secondaryInfo.withAlpha(150),
+  ),
+  extensions: [colours],
+);
 
 class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key, required this.title, required this.reloadLocale});
@@ -1015,7 +1025,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   Future<void> reloadAll() async {
     final token = ++_reloadToken;
     aiChatService.switchToRepo();
-    await colours.reloadTheme(context);
+    await reloadTheme(context);
     if (token != _reloadToken) return;
     if (mounted) setState(() {});
     ref.read(branchNameProvider.notifier).refresh();
@@ -1050,12 +1060,22 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     int remoteCount,
   ) => [
     (
-      (t.launchInBrowser, FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryPositive, size: textMD)),
+      (
+        t.launchInBrowser,
+        Builder(
+          builder: (context) => FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryPositive, size: textMD),
+        ),
+      ),
       (BuildContext context, (String, String)? remote) async => remote == null ? null : await launchUrl(Uri.parse(remote.$2)),
       true,
     ),
     (
-      (t.modifyRemoteUrl, FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textMD)),
+      (
+        t.modifyRemoteUrl,
+        Builder(
+          builder: (context) => FaIcon(FontAwesomeIcons.squarePen, color: context.colours.tertiaryInfo, size: textMD),
+        ),
+      ),
       (BuildContext context, (String, String)? remote) async {
         await SetRemoteUrlDialog.showDialog(
           context,
@@ -1066,7 +1086,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       true,
     ),
     (
-      (t.renameRemote, FaIcon(FontAwesomeIcons.penToSquare, color: colours.tertiaryInfo, size: textMD)),
+      (
+        t.renameRemote,
+        Builder(
+          builder: (context) => FaIcon(FontAwesomeIcons.penToSquare, color: context.colours.tertiaryInfo, size: textMD),
+        ),
+      ),
       (BuildContext context, (String, String)? remote) async {
         if (remote == null) return;
         final currentRemoteName = await uiSettingsManager.getRemote();
@@ -1078,7 +1103,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       true,
     ),
     (
-      (t.deleteRemote, FaIcon(FontAwesomeIcons.trashCan, color: remoteCount > 1 ? colours.tertiaryNegative : colours.tertiaryLight, size: textMD)),
+      (
+        t.deleteRemote,
+        Builder(
+          builder: (context) => FaIcon(
+            FontAwesomeIcons.trashCan,
+            color: remoteCount > 1 ? context.colours.tertiaryNegative : context.colours.tertiaryLight,
+            size: textMD,
+          ),
+        ),
+      ),
       (BuildContext context, (String, String)? remote) async {
         if (remote == null) return;
         final currentRemoteName = await uiSettingsManager.getRemote();
@@ -1479,9 +1513,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                     ButtonSetting(
                       text: t.reportABug,
                       icon: FontAwesomeIcons.bug,
-                      textColor: colours.primaryDark,
-                      iconColor: colours.primaryDark,
-                      buttonColor: colours.tertiaryNegative,
+                      textColor: context.colours.primaryDark,
+                      iconColor: context.colours.primaryDark,
+                      buttonColor: context.colours.tertiaryNegative,
                       onPressed: () async {
                         await Logger.reportIssue(context, From.SYNC_DURING_DETACHED_HEAD);
                       },
@@ -1775,16 +1809,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
         final path = gitDirPathAsync.valueOrNull?.$2;
         if (path == null) {
           return Container(
-            color: colours.primaryDark,
+            color: context.colours.primaryDark,
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: spaceXL),
+                  FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.secondaryLight, size: spaceXL),
                   SizedBox(height: spaceMD),
                   Text(
                     t.noRepoSetup,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textLG),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textLG),
                   ),
                   SizedBox(height: spaceLG),
                   TextButton.icon(
@@ -1802,19 +1836,19 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                       await reloadAll();
                     },
                     style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(cornerRadiusMD),
-                          side: BorderSide(color: colours.tertiaryDark),
+                          side: BorderSide(color: context.colours.tertiaryDark),
                         ),
                       ),
                     ),
-                    icon: FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryInfo, size: textMD),
+                    icon: FaIcon(FontAwesomeIcons.folderOpen, color: context.colours.tertiaryInfo, size: textMD),
                     label: Text(
                       t.selectDirLabel.toUpperCase(),
-                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -1899,7 +1933,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: colours.primaryDark,
+          backgroundColor: context.colours.primaryDark,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             foregroundColor: Colors.transparent,
@@ -1907,8 +1941,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             centerTitle: false,
             actionsPadding: EdgeInsets.only(bottom: spaceXXS),
             systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: colours.primaryDark,
-              systemNavigationBarColor: colours.primaryDark,
+              statusBarColor: context.colours.primaryDark,
+              systemNavigationBarColor: context.colours.primaryDark,
               statusBarIconBrightness: Brightness.light,
               systemNavigationBarIconBrightness: Brightness.light,
             ),
@@ -1938,7 +1972,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 child: Text(
                   widget.title,
                   textAlign: TextAlign.right,
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -1960,7 +1994,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
                   onPressed: () => _restorableGlobalSettings.present({}),
-                  icon: FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryDark, size: spaceMD + 7, semanticLabel: t.globalSettings),
+                  icon: FaIcon(FontAwesomeIcons.gear, color: context.colours.tertiaryDark, size: spaceMD + 7, semanticLabel: t.globalSettings),
                 ),
               ),
               SizedBox(width: spaceSM),
@@ -1980,10 +2014,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 ),
                 customTooltipActions: [
                   TooltipActionButton(
-                    backgroundColor: colours.secondaryInfo,
-                    textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.primaryLight),
+                    backgroundColor: context.colours.secondaryInfo,
+                    textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: context.colours.primaryLight),
                     leadIcon: ActionButtonIcon(
-                      icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.primaryLight, size: textSM),
+                      icon: FaIcon(FontAwesomeIcons.solidFileLines, color: context.colours.primaryLight, size: textSM),
                     ),
                     name: t.learnMore.toUpperCase(),
                     onTap: () => launchUrl(Uri.parse(premiumDocsLink)),
@@ -1996,7 +2030,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   provider: repoNamesProvider,
                   builder: (context, repoNamesAsync) => Container(
                     padding: EdgeInsets.zero,
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMax)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMax)),
                     child: ProviderBuilder<int>(
                       provider: repoIndexProvider,
                       builder: (context, repoIndexAsync) => repoNamesAsync.valueOrNull == null
@@ -2058,8 +2092,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                     : FontAwesomeIcons.ellipsis)
                                               : FontAwesomeIcons.solidGem,
                                           color: repoNamesAsync.valueOrNull!.length == 1 || repoSettingsExpanded
-                                              ? colours.tertiaryPositive
-                                              : colours.secondaryLight,
+                                              ? context.colours.tertiaryPositive
+                                              : context.colours.secondaryLight,
                                           size: textLG,
                                         ),
                                       ),
@@ -2069,7 +2103,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                               padding: EdgeInsets.only(left: spaceSM),
                                               child: Text(
                                                 t.addMore.toUpperCase(),
-                                                style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.w900),
+                                                style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.w900),
                                               ),
                                             ),
                                     ],
@@ -2113,7 +2147,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                 await reloadAll();
                                               });
                                             },
-                                            icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: colours.tertiaryNegative, size: textLG),
+                                            icon: FaIcon(FontAwesomeIcons.solidSquareMinus, color: context.colours.tertiaryNegative, size: textLG),
                                           ),
                                           IconButton(
                                             style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
@@ -2140,7 +2174,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                 },
                                               );
                                             },
-                                            icon: FaIcon(FontAwesomeIcons.squarePen, color: colours.tertiaryInfo, size: textLG),
+                                            icon: FaIcon(FontAwesomeIcons.squarePen, color: context.colours.tertiaryInfo, size: textLG),
                                           ),
                                         ],
                                       )
@@ -2154,13 +2188,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                           padding: EdgeInsets.zero,
                                           icon: Padding(
                                             padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                                            child: FaIcon(FontAwesomeIcons.caretDown, color: colours.secondaryLight, size: textSM),
+                                            child: FaIcon(FontAwesomeIcons.caretDown, color: context.colours.secondaryLight, size: textSM),
                                           ),
                                           value: repoIndexAsync.valueOrNull ?? 0,
-                                          style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
+                                          style: TextStyle(color: context.colours.tertiaryLight, fontWeight: FontWeight.w900, fontSize: textMD),
                                           isDense: true,
                                           underline: const SizedBox.shrink(),
-                                          dropdownColor: colours.secondaryDark,
+                                          dropdownColor: context.colours.secondaryDark,
                                           onChanged: (value) async {
                                             if (value == null) return;
                                             await repoManager.setInt(StorageKey.repoman_repoIndex, value);
@@ -2173,7 +2207,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                               constraints: BoxConstraints(maxWidth: spaceXXL + spaceLG),
                                               child: Text(
                                                 repoNamesAsync.valueOrNull![index].toUpperCase(),
-                                                style: TextStyle(fontSize: textXS, color: colours.primaryLight),
+                                                style: TextStyle(fontSize: textXS, color: context.colours.primaryLight),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
@@ -2184,7 +2218,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                               value: index,
                                               child: Text(
                                                 repoNamesAsync.valueOrNull![index].toUpperCase(),
-                                                style: TextStyle(fontSize: textXS, color: colours.primaryLight),
+                                                style: TextStyle(fontSize: textXS, color: context.colours.primaryLight),
                                               ),
                                             ),
                                           ),
@@ -2368,7 +2402,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                         flex: orientation == Orientation.portrait ? 0 : 1,
                                                         child: Container(
                                                           decoration: BoxDecoration(
-                                                            color: colours.secondaryDark,
+                                                            color: context.colours.secondaryDark,
                                                             borderRadius: orientation == Orientation.portrait
                                                                 ? BorderRadius.only(
                                                                     topLeft: cornerRadiusMD,
@@ -2419,14 +2453,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             blendMode: BlendMode.dstOut,
                                                                             child: recentCommits.isEmpty && recentCommitsAsync.isLoading
                                                                                 ? Center(
-                                                                                    child: CircularProgressIndicator(color: colours.tertiaryLight),
+                                                                                    child: CircularProgressIndicator(
+                                                                                      color: context.colours.tertiaryLight,
+                                                                                    ),
                                                                                   )
                                                                                 : (recentCommits.isEmpty && conflictingValue.isEmpty
                                                                                       ? Center(
                                                                                           child: Text(
                                                                                             t.commitsNotFound.toUpperCase(),
                                                                                             style: TextStyle(
-                                                                                              color: colours.secondaryLight,
+                                                                                              color: context.colours.secondaryLight,
                                                                                               fontWeight: FontWeight.bold,
                                                                                               fontSize: textLG,
                                                                                             ),
@@ -2524,7 +2560,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                             style: ButtonStyle(
                                                                                                               alignment: Alignment.centerLeft,
                                                                                                               backgroundColor: WidgetStatePropertyAll(
-                                                                                                                colours.tertiaryNegative,
+                                                                                                                context.colours.tertiaryNegative,
                                                                                                               ),
                                                                                                               padding: WidgetStatePropertyAll(
                                                                                                                 EdgeInsets.only(
@@ -2555,7 +2591,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                                   Text(
                                                                                                                     t.mergeConflict.toUpperCase(),
                                                                                                                     style: TextStyle(
-                                                                                                                      color: colours.primaryDark,
+                                                                                                                      color:
+                                                                                                                          context.colours.primaryDark,
                                                                                                                       fontSize: textMD,
                                                                                                                       overflow: TextOverflow.ellipsis,
                                                                                                                       fontWeight: FontWeight.bold,
@@ -2564,7 +2601,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                                   ),
                                                                                                                   FaIcon(
                                                                                                                     FontAwesomeIcons.caretDown,
-                                                                                                                    color: colours.primaryDark,
+                                                                                                                    color:
+                                                                                                                        context.colours.primaryDark,
                                                                                                                     size: textMD,
                                                                                                                   ),
                                                                                                                 ],
@@ -2592,8 +2630,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               right: 0,
                                                                               child: LinearProgressIndicator(
                                                                                 value: null,
-                                                                                backgroundColor: colours.secondaryDark,
-                                                                                color: colours.tertiaryDark,
+                                                                                backgroundColor: context.colours.secondaryDark,
+                                                                                color: context.colours.tertiaryDark,
                                                                                 borderRadius: BorderRadius.all(cornerRadiusMD),
                                                                               ),
                                                                             ),
@@ -2641,7 +2679,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 ),
                                                                                               ),
                                                                                               backgroundColor: WidgetStatePropertyAll(
-                                                                                                colours.secondaryDark.withAlpha(127),
+                                                                                                context.colours.secondaryDark.withAlpha(127),
                                                                                               ),
                                                                                             ),
                                                                                             constraints: BoxConstraints(),
@@ -2649,7 +2687,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                             icon: FaIcon(
                                                                                               icon,
                                                                                               size: textMD,
-                                                                                              color: colours.primaryLight,
+                                                                                              color: context.colours.primaryLight,
                                                                                             ),
                                                                                           );
                                                                                         },
@@ -2672,7 +2710,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       ),
                                                                                     ),
                                                                                     backgroundColor: WidgetStatePropertyAll(
-                                                                                      colours.secondaryDark.withAlpha(127),
+                                                                                      context.colours.secondaryDark.withAlpha(127),
                                                                                     ),
                                                                                   ),
                                                                                   constraints: BoxConstraints(),
@@ -2682,7 +2720,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   icon: FaIcon(
                                                                                     FontAwesomeIcons.upRightAndDownLeftFromCenter,
                                                                                     size: textMD,
-                                                                                    color: colours.primaryLight,
+                                                                                    color: context.colours.primaryLight,
                                                                                   ),
                                                                                 ),
                                                                               ),
@@ -2929,7 +2967,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           style: ButtonStyle(
                                                                                             alignment: Alignment.centerLeft,
                                                                                             backgroundColor: WidgetStatePropertyAll(
-                                                                                              colours.secondaryDark,
+                                                                                              context.colours.secondaryDark,
                                                                                             ),
                                                                                             padding: WidgetStatePropertyAll(
                                                                                               EdgeInsets.symmetric(horizontal: spaceMD),
@@ -2969,7 +3007,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                   provider: recommendedActionProvider,
                                                                                                   builder: (context, value) => value.isLoading
                                                                                                       ? CircularProgressIndicator(
-                                                                                                          color: colours.tertiaryDark,
+                                                                                                          color: context.colours.tertiaryDark,
                                                                                                         )
                                                                                                       : SizedBox.shrink(),
                                                                                                 ),
@@ -2990,8 +3028,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                                   : null) ??
                                                                                                               FontAwesomeIcons.solidCircleDown,
                                                                                                     color: gitDirPath?.$2 == null
-                                                                                                        ? colours.secondaryLight
-                                                                                                        : colours.primaryLight,
+                                                                                                        ? context.colours.secondaryLight
+                                                                                                        : context.colours.primaryLight,
                                                                                                     size: textLG,
                                                                                                   ),
                                                                                                 ),
@@ -3018,11 +3056,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                   .toUpperCase(),
                                                                                               style: TextStyle(
                                                                                                 color: gitDirPath?.$2 == null
-                                                                                                    ? colours.secondaryLight
+                                                                                                    ? context.colours.secondaryLight
                                                                                                     : (recommendedActionValue != null &&
                                                                                                               recommendedActionValue >= 0
-                                                                                                          ? colours.tertiaryInfo
-                                                                                                          : colours.primaryLight),
+                                                                                                          ? context.colours.tertiaryInfo
+                                                                                                          : context.colours.primaryLight),
                                                                                                 fontSize: textMD,
                                                                                                 fontWeight: FontWeight.bold,
                                                                                               ),
@@ -3077,7 +3115,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
                                                                                           style: ButtonStyle(
                                                                                             backgroundColor: WidgetStatePropertyAll(
-                                                                                              colours.secondaryDark,
+                                                                                              context.colours.secondaryDark,
                                                                                             ),
                                                                                             padding: WidgetStatePropertyAll(
                                                                                               EdgeInsets.symmetric(
@@ -3111,8 +3149,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           icon: FaIcon(
                                                                                             FontAwesomeIcons.ellipsis,
                                                                                             color: gitDirPath?.$2 == null
-                                                                                                ? colours.secondaryLight
-                                                                                                : colours.primaryLight,
+                                                                                                ? context.colours.secondaryLight
+                                                                                                : context.colours.primaryLight,
                                                                                             size: textLG,
                                                                                             semanticLabel: t.moreSyncOptionsLabel,
                                                                                           ),
@@ -3127,7 +3165,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     _openSettingsMain();
                                                                                   },
                                                                                   style: ButtonStyle(
-                                                                                    backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                                    backgroundColor: WidgetStatePropertyAll(
+                                                                                      context.colours.secondaryDark,
+                                                                                    ),
                                                                                     padding: WidgetStatePropertyAll(
                                                                                       EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
                                                                                     ),
@@ -3140,7 +3180,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   ),
                                                                                   icon: FaIcon(
                                                                                     FontAwesomeIcons.gear,
-                                                                                    color: colours.primaryLight,
+                                                                                    color: context.colours.primaryLight,
                                                                                     size: textLG,
                                                                                     semanticLabel: t.repositorySettingsLabel,
                                                                                   ),
@@ -3163,7 +3203,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       },
                                                                                       style: ButtonStyle(
                                                                                         backgroundColor: WidgetStatePropertyAll(
-                                                                                          colours.secondaryDark,
+                                                                                          context.colours.secondaryDark,
                                                                                         ),
                                                                                         padding: WidgetStatePropertyAll(
                                                                                           EdgeInsets.symmetric(
@@ -3203,8 +3243,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 ? FontAwesomeIcons.solidBell
                                                                                                 : FontAwesomeIcons.solidBellSlash,
                                                                                             color: demo || syncMsgEnabled == true
-                                                                                                ? colours.primaryPositive
-                                                                                                : colours.primaryLight,
+                                                                                                ? context.colours.primaryPositive
+                                                                                                : context.colours.primaryLight,
                                                                                             size: textLG - 2,
                                                                                             semanticLabel: t.syncMessagesLabel,
                                                                                           ),
@@ -3231,7 +3271,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               underline: const SizedBox.shrink(),
                                                                               menuWidth: MediaQuery.of(context).size.width - (spaceMD * 2),
                                                                               // menuWidth: null,
-                                                                              dropdownColor: colours.secondaryDark,
+                                                                              dropdownColor: context.colours.secondaryDark,
                                                                               padding: EdgeInsets.zero,
                                                                               alignment: Alignment.bottomCenter,
                                                                               onChanged: (value) {},
@@ -3268,8 +3308,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                   t.switchToClientMode,
                                                                                                   t.switchToSyncMode,
                                                                                                 ].contains(item.key)
-                                                                                                ? colours.tertiaryInfo
-                                                                                                : colours.primaryLight,
+                                                                                                ? context.colours.tertiaryInfo
+                                                                                                : context.colours.primaryLight,
                                                                                             size: textLG,
                                                                                           ),
                                                                                           SizedBox(width: spaceMD),
@@ -3285,8 +3325,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                       t.switchToClientMode,
                                                                                                       t.switchToSyncMode,
                                                                                                     ].contains(item.key)
-                                                                                                    ? colours.tertiaryInfo
-                                                                                                    : colours.primaryLight,
+                                                                                                    ? context.colours.tertiaryInfo
+                                                                                                    : context.colours.primaryLight,
                                                                                                 fontWeight: FontWeight.bold,
                                                                                                 overflow: TextOverflow.ellipsis,
                                                                                               ),
@@ -3383,7 +3423,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   children: [
                                                                                     FaIcon(
                                                                                       FontAwesomeIcons.plus,
-                                                                                      color: colours.primaryPositive,
+                                                                                      color: context.colours.primaryPositive,
                                                                                       size: textMD,
                                                                                     ),
                                                                                     SizedBox(width: spaceSM),
@@ -3391,7 +3431,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       t.addRemote.toUpperCase(),
                                                                                       style: TextStyle(
                                                                                         fontSize: textXS,
-                                                                                        color: colours.primaryLight,
+                                                                                        color: context.colours.primaryLight,
                                                                                         fontWeight: FontWeight.bold,
                                                                                       ),
                                                                                     ),
@@ -3408,7 +3448,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               name.toUpperCase(),
                                                                                               style: TextStyle(
                                                                                                 fontSize: textXS,
-                                                                                                color: colours.primaryLight,
+                                                                                                color: context.colours.primaryLight,
                                                                                                 fontWeight: FontWeight.bold,
                                                                                               ),
                                                                                             ),
@@ -3416,7 +3456,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               " · ",
                                                                                               style: TextStyle(
                                                                                                 fontSize: textXS,
-                                                                                                color: colours.tertiaryLight,
+                                                                                                color: context.colours.tertiaryLight,
                                                                                               ),
                                                                                             ),
                                                                                             Flexible(
@@ -3424,7 +3464,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 remoteUrlLinkValue.$1,
                                                                                                 style: TextStyle(
                                                                                                   fontSize: textXS,
-                                                                                                  color: colours.tertiaryLight,
+                                                                                                  color: context.colours.tertiaryLight,
                                                                                                   fontWeight: FontWeight.w400,
                                                                                                 ),
                                                                                                 overflow: TextOverflow.ellipsis,
@@ -3437,7 +3477,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           name.toUpperCase(),
                                                                                           style: TextStyle(
                                                                                             fontSize: textXS,
-                                                                                            color: colours.primaryLight,
+                                                                                            color: context.colours.primaryLight,
                                                                                             fontWeight: FontWeight.bold,
                                                                                           ),
                                                                                         ),
@@ -3498,7 +3538,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 bottom: 1,
                                                                                               ),
                                                                                               decoration: BoxDecoration(
-                                                                                                color: colours.secondaryDark,
+                                                                                                color: context.colours.secondaryDark,
                                                                                                 borderRadius: BorderRadius.all(cornerRadiusMD),
                                                                                               ),
                                                                                               child: Row(
@@ -3513,7 +3553,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                         maxLines: 1,
                                                                                                         overflow: TextOverflow.ellipsis,
                                                                                                         style: TextStyle(
-                                                                                                          color: colours.primaryLight,
+                                                                                                          color: context.colours.primaryLight,
                                                                                                           fontSize: textMD,
                                                                                                           fontWeight: FontWeight.w400,
                                                                                                         ),
@@ -3527,7 +3567,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                     ),
                                                                                                     child: FaIcon(
                                                                                                       FontAwesomeIcons.plus,
-                                                                                                      color: colours.primaryLight,
+                                                                                                      color: context.colours.primaryLight,
                                                                                                       size: textLG,
                                                                                                     ),
                                                                                                   ),
@@ -3539,7 +3579,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           Container(
                                                                                             padding: EdgeInsets.zero,
                                                                                             decoration: BoxDecoration(
-                                                                                              color: colours.secondaryDark,
+                                                                                              color: context.colours.secondaryDark,
                                                                                               borderRadius: remotesList.isEmpty
                                                                                                   ? BorderRadius.all(cornerRadiusMD)
                                                                                                   : BorderRadius.only(
@@ -3577,8 +3617,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                       ? FontAwesomeIcons.caretDown
                                                                                                       : FontAwesomeIcons.solidCircleXmark,
                                                                                                   color: remoteUrlLinkValue != null
-                                                                                                      ? colours.secondaryLight
-                                                                                                      : colours.tertiaryLight,
+                                                                                                      ? context.colours.secondaryLight
+                                                                                                      : context.colours.tertiaryLight,
                                                                                                   size: textLG,
                                                                                                 ),
                                                                                               ),
@@ -3589,13 +3629,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                   : null,
                                                                                               isExpanded: true,
                                                                                               underline: const SizedBox.shrink(),
-                                                                                              dropdownColor: colours.secondaryDark,
+                                                                                              dropdownColor: context.colours.secondaryDark,
                                                                                               hint: Text(
                                                                                                 t.repoNotFound,
                                                                                                 maxLines: 1,
                                                                                                 overflow: TextOverflow.ellipsis,
                                                                                                 style: TextStyle(
-                                                                                                  color: colours.secondaryLight,
+                                                                                                  color: context.colours.secondaryLight,
                                                                                                   fontSize: textMD,
                                                                                                   fontWeight: FontWeight.w400,
                                                                                                 ),
@@ -3648,7 +3688,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                           child: Text(
                                                                                                             "…",
                                                                                                             style: TextStyle(
-                                                                                                              color: colours.tertiaryLight,
+                                                                                                              color: context.colours.tertiaryLight,
                                                                                                               fontSize: textMD,
                                                                                                               fontWeight: FontWeight.w400,
                                                                                                             ),
@@ -3656,8 +3696,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                         ),
                                                                                                         style: TextStyle(
                                                                                                           color: remoteUrlLinkValue != null
-                                                                                                              ? colours.primaryLight
-                                                                                                              : colours.secondaryLight,
+                                                                                                              ? context.colours.primaryLight
+                                                                                                              : context.colours.secondaryLight,
                                                                                                           fontSize: textMD,
                                                                                                           fontWeight: FontWeight.w400,
                                                                                                         ),
@@ -3676,7 +3716,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                             "${t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}"
                                                                                                 .toUpperCase(),
                                                                                             style: TextStyle(
-                                                                                              color: colours.tertiaryLight,
+                                                                                              color: context.colours.tertiaryLight,
                                                                                               fontSize: textXXS,
                                                                                               fontWeight: FontWeight.w900,
                                                                                             ),
@@ -3688,7 +3728,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   if (remotesList.isNotEmpty)
                                                                                     Container(
                                                                                       decoration: BoxDecoration(
-                                                                                        color: colours.secondaryDark,
+                                                                                        color: context.colours.secondaryDark,
                                                                                         borderRadius: BorderRadius.only(
                                                                                           topRight: cornerRadiusMD,
                                                                                           bottomRight: cornerRadiusMD,
@@ -3701,11 +3741,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           padding: EdgeInsets.symmetric(horizontal: spaceXS),
                                                                                           child: FaIcon(
                                                                                             FontAwesomeIcons.ellipsisVertical,
-                                                                                            color: colours.secondaryLight,
+                                                                                            color: context.colours.secondaryLight,
                                                                                             size: textLG,
                                                                                           ),
                                                                                         ),
-                                                                                        color: colours.secondaryDark,
+                                                                                        color: context.colours.secondaryDark,
                                                                                         shape: RoundedRectangleBorder(
                                                                                           borderRadius: BorderRadius.all(cornerRadiusMD),
                                                                                         ),
@@ -3727,8 +3767,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                   style: TextStyle(
                                                                                                     fontSize: textXS,
                                                                                                     color: actions[index].$3
-                                                                                                        ? colours.primaryLight
-                                                                                                        : colours.tertiaryLight,
+                                                                                                        ? context.colours.primaryLight
+                                                                                                        : context.colours.tertiaryLight,
                                                                                                     fontWeight: FontWeight.bold,
                                                                                                   ),
                                                                                                 ),
@@ -3756,7 +3796,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           await showCloneRepoPage();
                                                                         },
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                                                                           padding: WidgetStatePropertyAll(
                                                                             EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
                                                                           ),
@@ -3765,7 +3805,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               borderRadius: BorderRadius.all(cornerRadiusMD),
                                                                               side: gitDirPath?.$2 == null
                                                                                   ? BorderSide(
-                                                                                      color: colours.tertiaryInfo.withAlpha(
+                                                                                      color: context.colours.tertiaryInfo.withAlpha(
                                                                                         isAuthenticatedAsync.valueOrNull != true
                                                                                             ? _pulseAnimation.value.toInt()
                                                                                             : 120,
@@ -3779,7 +3819,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         ),
                                                                         icon: FaIcon(
                                                                           FontAwesomeIcons.cloudArrowDown,
-                                                                          color: colours.primaryLight,
+                                                                          color: context.colours.primaryLight,
                                                                           size: textLG - 2,
                                                                         ),
                                                                         iconAlignment: IconAlignment.start,
@@ -3788,7 +3828,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           child: Text(
                                                                             t.clone.toUpperCase(),
                                                                             style: TextStyle(
-                                                                              color: colours.primaryLight,
+                                                                              color: context.colours.primaryLight,
                                                                               fontSize: textMD,
                                                                               fontWeight: FontWeight.bold,
                                                                             ),
@@ -3801,7 +3841,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                   Container(
                                                                     decoration: BoxDecoration(
                                                                       borderRadius: BorderRadius.all(cornerRadiusMD),
-                                                                      color: colours.secondaryDark,
+                                                                      color: context.colours.secondaryDark,
                                                                     ),
                                                                     child: Row(
                                                                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -3823,7 +3863,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   borderRadius: BorderRadius.all(cornerRadiusMD),
                                                                                   side: isAuthenticatedAsync.valueOrNull != true
                                                                                       ? BorderSide(
-                                                                                          color: colours.tertiaryNegative.withAlpha(
+                                                                                          color: context.colours.tertiaryNegative.withAlpha(
                                                                                             gitDirPath?.$2 == null
                                                                                                 ? _pulseAnimation.value.toInt()
                                                                                                 : 120,
@@ -3840,8 +3880,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   ? FontAwesomeIcons.solidCircleCheck
                                                                                   : FontAwesomeIcons.solidCircleXmark,
                                                                               color: isAuthenticatedAsync.valueOrNull == true
-                                                                                  ? colours.primaryPositive
-                                                                                  : colours.primaryNegative,
+                                                                                  ? context.colours.primaryPositive
+                                                                                  : context.colours.primaryNegative,
                                                                               size: textLG,
                                                                             ),
                                                                             label: Padding(
@@ -3849,7 +3889,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                               child: Text(
                                                                                 t.auth.toUpperCase(),
                                                                                 style: TextStyle(
-                                                                                  color: colours.primaryLight,
+                                                                                  color: context.colours.primaryLight,
                                                                                   fontSize: textMD,
                                                                                   fontWeight: FontWeight.bold,
                                                                                 ),
@@ -3870,7 +3910,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   ),
                                                                                   style: ButtonStyle(
                                                                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                                                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                                                    backgroundColor: WidgetStatePropertyAll(
+                                                                                      context.colours.tertiaryDark,
+                                                                                    ),
                                                                                     shape: WidgetStatePropertyAll(
                                                                                       RoundedRectangleBorder(
                                                                                         borderRadius: BorderRadiusGeometry.only(
@@ -3915,7 +3957,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                   icon: FaIcon(
                                                                                     FontAwesomeIcons.sliders,
                                                                                     size: textLG,
-                                                                                    color: colours.secondaryLight,
+                                                                                    color: context.colours.secondaryLight,
                                                                                   ),
                                                                                 ),
                                                                         ),
@@ -3936,7 +3978,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       children: [
                                                                         Container(
                                                                           decoration: BoxDecoration(
-                                                                            color: colours.secondaryDark,
+                                                                            color: context.colours.secondaryDark,
                                                                             borderRadius: BorderRadius.only(
                                                                               bottomLeft: cornerRadiusMD,
                                                                               bottomRight: cornerRadiusSM,
@@ -3971,16 +4013,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                         "…",
                                                                                         style: TextStyle(
                                                                                           color: gitDirPath?.$2 == null
-                                                                                              ? colours.secondaryLight
-                                                                                              : colours.primaryLight,
+                                                                                              ? context.colours.secondaryLight
+                                                                                              : context.colours.primaryLight,
                                                                                           fontSize: textMD,
                                                                                         ),
                                                                                       ),
                                                                                     ),
                                                                                     style: TextStyle(
                                                                                       color: gitDirPath?.$2 == null
-                                                                                          ? colours.secondaryLight
-                                                                                          : colours.primaryLight,
+                                                                                          ? context.colours.secondaryLight
+                                                                                          : context.colours.primaryLight,
                                                                                       fontSize: textMD,
                                                                                     ),
                                                                                   ),
@@ -4007,7 +4049,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       constraints: BoxConstraints(),
                                                                                       style: ButtonStyle(
                                                                                         backgroundColor: WidgetStatePropertyAll(
-                                                                                          colours.secondaryDark,
+                                                                                          context.colours.secondaryDark,
                                                                                         ),
                                                                                         padding: WidgetStatePropertyAll(EdgeInsets.all(spaceMD)),
                                                                                         visualDensity: VisualDensity.compact,
@@ -4022,7 +4064,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                       icon: FaIcon(
                                                                                         FontAwesomeIcons.solidCircleXmark,
                                                                                         size: textLG,
-                                                                                        color: colours.primaryLight,
+                                                                                        color: context.colours.primaryLight,
                                                                                         semanticLabel: t.deselectDirLabel,
                                                                                       ),
                                                                                     ),
@@ -4035,7 +4077,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           child: Text(
                                                                             t.directory.toUpperCase(),
                                                                             style: TextStyle(
-                                                                              color: colours.tertiaryLight,
+                                                                              color: context.colours.tertiaryLight,
                                                                               fontSize: textXXS,
                                                                               fontWeight: FontWeight.w900,
                                                                             ),
@@ -4064,7 +4106,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         await reloadAll();
                                                                       },
                                                                       style: ButtonStyle(
-                                                                        backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                                        backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                                                                         padding: WidgetStatePropertyAll(
                                                                           EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD),
                                                                         ),
@@ -4078,7 +4120,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             ),
                                                                             side: gitDirPath?.$2 == null
                                                                                 ? BorderSide(
-                                                                                    color: colours.tertiaryInfo.withAlpha(
+                                                                                    color: context.colours.tertiaryInfo.withAlpha(
                                                                                       isAuthenticatedAsync.valueOrNull != true
                                                                                           ? _pulseAnimation.value.toInt()
                                                                                           : 120,
@@ -4092,7 +4134,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       ),
                                                                       icon: FaIcon(
                                                                         FontAwesomeIcons.solidFolderOpen,
-                                                                        color: colours.primaryLight,
+                                                                        color: context.colours.primaryLight,
                                                                         size: textLG - 2,
                                                                         semanticLabel: t.selectDirLabel,
                                                                       ),
@@ -4125,8 +4167,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                             borderRadius: BorderRadius.all(cornerRadiusMD),
                                                             child: Container(
                                                               decoration: BoxDecoration(
-                                                                color: colours.secondaryDark,
-                                                                border: Border.all(color: colours.tertiaryWarning, width: 1.5),
+                                                                color: context.colours.secondaryDark,
+                                                                border: Border.all(color: context.colours.tertiaryWarning, width: 1.5),
                                                                 borderRadius: BorderRadius.all(cornerRadiusMD),
                                                               ),
                                                               padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -4135,7 +4177,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 children: [
                                                                   FaIcon(
                                                                     FontAwesomeIcons.triangleExclamation,
-                                                                    color: colours.tertiaryWarning,
+                                                                    color: context.colours.tertiaryWarning,
                                                                     size: textLG,
                                                                   ),
                                                                   SizedBox(width: spaceMD),
@@ -4147,7 +4189,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         Text(
                                                                           t.remoteAuthMismatchTitle.toUpperCase(),
                                                                           style: TextStyle(
-                                                                            color: colours.tertiaryWarning,
+                                                                            color: context.colours.tertiaryWarning,
                                                                             fontSize: textSM,
                                                                             fontWeight: FontWeight.bold,
                                                                           ),
@@ -4156,7 +4198,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         Text(
                                                                           subtitle,
                                                                           style: TextStyle(
-                                                                            color: colours.secondaryLight,
+                                                                            color: context.colours.secondaryLight,
                                                                             fontSize: textXS,
                                                                             fontWeight: FontWeight.w500,
                                                                           ),
@@ -4194,7 +4236,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                   side: BorderSide.none,
                                                                 ),
                                                               ),
-                                                              backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                                                              backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                                                             ),
                                                             icon: IconButton(
                                                               padding: EdgeInsets.zero,
@@ -4205,20 +4247,20 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                               },
                                                               icon: FaIcon(
                                                                 FontAwesomeIcons.circleQuestion,
-                                                                color: colours.primaryLight,
+                                                                color: context.colours.primaryLight,
                                                                 size: textLG,
                                                               ),
                                                             ),
                                                             label: Row(
                                                               children: [
-                                                                FaIcon(FontAwesomeIcons.rightLeft, color: colours.primaryLight, size: textLG),
+                                                                FaIcon(FontAwesomeIcons.rightLeft, color: context.colours.primaryLight, size: textLG),
                                                                 SizedBox(width: spaceSM),
                                                                 Expanded(
                                                                   child: Text(
                                                                     t.syncSettings,
                                                                     style: TextStyle(
                                                                       fontFeatures: [FontFeature.enable('smcp')],
-                                                                      color: colours.primaryLight,
+                                                                      color: context.colours.primaryLight,
                                                                       fontSize: textLG,
                                                                     ),
                                                                   ),
@@ -4257,16 +4299,16 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                             targetPadding: EdgeInsets.all(spaceSM),
                                                             customTooltipActions: [
                                                               TooltipActionButton(
-                                                                backgroundColor: colours.secondaryInfo,
+                                                                backgroundColor: context.colours.secondaryInfo,
                                                                 textStyle: TextStyle(
                                                                   fontWeight: FontWeight.bold,
                                                                   fontSize: textSM,
-                                                                  color: colours.primaryLight,
+                                                                  color: context.colours.primaryLight,
                                                                 ),
                                                                 leadIcon: ActionButtonIcon(
                                                                   icon: FaIcon(
                                                                     FontAwesomeIcons.solidFileLines,
-                                                                    color: colours.primaryLight,
+                                                                    color: context.colours.primaryLight,
                                                                     size: textSM,
                                                                   ),
                                                                 ),
@@ -4313,9 +4355,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                         navigationBarTheme: NavigationBarThemeData(
                           labelTextStyle: WidgetStateProperty.resolveWith((states) {
                             if (states.contains(WidgetState.selected)) {
-                              return TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold);
+                              return TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold);
                             }
-                            return TextStyle(color: colours.secondaryLight, fontSize: textXS);
+                            return TextStyle(color: context.colours.secondaryLight, fontSize: textXS);
                           }),
                         ),
                       ),
@@ -4342,26 +4384,26 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                             }
                           }
                         },
-                        backgroundColor: colours.secondaryDark,
-                        indicatorColor: colours.tertiaryDark,
+                        backgroundColor: context.colours.secondaryDark,
+                        indicatorColor: context.colours.tertiaryDark,
                         surfaceTintColor: Colors.transparent,
                         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                         height: 64,
                         destinations: [
                           if (aiEnabled)
                             NavigationDestination(
-                              icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.secondaryLight, size: textLG),
-                              selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: textLG),
+                              icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.secondaryLight, size: textLG),
+                              selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.tertiaryInfo, size: textLG),
                               label: t.tabChat,
                             ),
                           NavigationDestination(
-                            icon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.secondaryLight, size: textLG),
-                            selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textLG),
+                            icon: FaIcon(FontAwesomeIcons.codeBranch, color: context.colours.secondaryLight, size: textLG),
+                            selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: context.colours.tertiaryInfo, size: textLG),
                             label: t.tabHome,
                           ),
                           NavigationDestination(
-                            icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.secondaryLight, size: textLG),
-                            selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: colours.tertiaryInfo, size: textLG),
+                            icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.secondaryLight, size: textLG),
+                            selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.tertiaryInfo, size: textLG),
                             label: t.tabFiles,
                           ),
                         ],
@@ -4377,7 +4419,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                     : GestureDetector(
                         onTap: () => launchUrl(Uri.parse(playStoreLink)),
                         child: Container(
-                          decoration: BoxDecoration(color: colours.tertiaryInfo),
+                          decoration: BoxDecoration(color: context.colours.tertiaryInfo),
                           padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
                           child: Center(
                             child: Text.rich(
@@ -4402,7 +4444,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 builder: (context, snapshot) => snapshot.data == false
                     ? Container(
                         width: double.infinity,
-                        decoration: BoxDecoration(color: colours.tertiaryNegative),
+                        decoration: BoxDecoration(color: context.colours.tertiaryNegative),
                         padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceSM),
                         child: Text.rich(
                           textAlign: TextAlign.center,
@@ -4430,9 +4472,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 child: Center(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colours.tertiaryDark,
+                      color: context.colours.tertiaryDark,
                       borderRadius: BorderRadius.all(cornerRadiusSM),
-                      border: BoxBorder.all(color: colours.secondaryDark, width: 2),
+                      border: BoxBorder.all(color: context.colours.secondaryDark, width: 2),
                     ),
                     child: ValueListenableBuilder(
                       valueListenable: queueValue,
@@ -4450,17 +4492,17 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                   child: Text(
                                     "${parts[0]}".trim(),
                                     textAlign: TextAlign.start,
-                                    style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, decoration: TextDecoration.none),
+                                    style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD, decoration: TextDecoration.none),
                                   ),
                                 ),
                               ),
                               Text(
                                 "${parts[1]}".trim(),
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                                style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, decoration: TextDecoration.none),
                               ),
                               Text(
                                 "${parts[2]}".trim(),
-                                style: TextStyle(color: colours.secondaryLight, fontSize: textMD, decoration: TextDecoration.none),
+                                style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, decoration: TextDecoration.none),
                               ),
                             ],
                           );

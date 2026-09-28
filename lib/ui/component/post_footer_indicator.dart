@@ -24,7 +24,7 @@ class PostFooterIndicator extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: 0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: MarkdownBlock(data: footer, config: buildFooterMarkdownConfig(), generator: buildMarkdownGenerator(), selectable: false),
+              child: MarkdownBlock(data: footer, config: buildFooterMarkdownConfig(context), generator: buildMarkdownGenerator(), selectable: false),
             ),
           ),
         );

@@ -108,7 +108,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     if (!_initialized) return _UninitializedPage(onSubscribe: () => _checkStoredApiKey());
 
     return Container(
-      color: colours.primaryDark,
+      color: context.colours.primaryDark,
       child: Column(
         children: [
           Expanded(
@@ -178,24 +178,24 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                           decoration: BoxDecoration(
-                            color: colours.secondaryDark,
+                            color: context.colours.secondaryDark,
                             borderRadius: BorderRadius.all(cornerRadiusMax),
-                            border: Border.all(color: colours.tertiaryDark),
+                            border: Border.all(color: context.colours.tertiaryDark),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              FaIcon(FontAwesomeIcons.microchip, color: colours.secondaryLight, size: textXS),
+                              FaIcon(FontAwesomeIcons.microchip, color: context.colours.secondaryLight, size: textXS),
                               SizedBox(width: spaceXXS),
                               Text(
                                 _currentProvider ?? '',
-                                style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+                                style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
                               ),
                               if (_currentChatModel != null) ...[
                                 SizedBox(width: spaceXXS),
                                 Text(
                                   _currentChatModel!,
-                                  style: _mono.merge(TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold)),
+                                  style: _mono.merge(TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ],
@@ -217,7 +217,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               return Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
-                color: colours.primaryNegative.withValues(alpha: 0.15),
+                color: context.colours.primaryNegative.withValues(alpha: 0.15),
                 child: Row(
                   children: [
                     Expanded(
@@ -229,7 +229,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                         },
                         child: Text(
                           error,
-                          style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
+                          style: _mono.merge(TextStyle(color: context.colours.primaryNegative, fontSize: textXS)),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -241,7 +241,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                       child: Container(
                         constraints: BoxConstraints(minWidth: spaceXL, minHeight: spaceXL),
                         alignment: Alignment.center,
-                        child: FaIcon(FontAwesomeIcons.xmark, color: colours.primaryNegative, size: textMD),
+                        child: FaIcon(FontAwesomeIcons.xmark, color: context.colours.primaryNegative, size: textMD),
                       ),
                     ),
                   ],
@@ -265,16 +265,16 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceMD),
+            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.tertiaryInfo, size: spaceMD),
             SizedBox(height: spaceSM),
             Text(
               "GitSync AI",
-              style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceXXS),
             Text(
               "Ask anything about your repository",
-              style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
             ),
             SizedBox(height: spaceLG),
             Wrap(
@@ -305,13 +305,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
         width: double.infinity,
         padding: EdgeInsets.all(spaceSM),
         decoration: BoxDecoration(
-          color: colours.secondaryDark,
+          color: context.colours.secondaryDark,
           borderRadius: BorderRadius.all(cornerRadiusSM),
-          border: Border.all(color: colours.tertiaryDark),
+          border: Border.all(color: context.colours.tertiaryDark),
         ),
         child: Row(
           children: [
-            FaIcon(icon, color: colours.tertiaryInfo, size: textSM),
+            FaIcon(icon, color: context.colours.tertiaryInfo, size: textSM),
             SizedBox(width: spaceSM),
             Expanded(
               child: Column(
@@ -319,16 +319,16 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                   ),
                 ],
               ),
             ),
-            FaIcon(FontAwesomeIcons.chevronRight, color: colours.tertiaryDark, size: textXS),
+            FaIcon(FontAwesomeIcons.chevronRight, color: context.colours.tertiaryDark, size: textXS),
           ],
         ),
       ),
@@ -371,7 +371,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       children: [
         Text(
           "> ",
-          style: _mono.merge(TextStyle(color: colours.tertiaryInfo, fontSize: textMD, fontWeight: FontWeight.bold)),
+          style: _mono.merge(TextStyle(color: context.colours.tertiaryInfo, fontSize: textMD, fontWeight: FontWeight.bold)),
         ),
         Expanded(
           child: GestureDetector(
@@ -381,7 +381,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
             },
             child: _LinkifiedText(
               text,
-              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
+              style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold)),
             ),
           ),
         ),
@@ -390,7 +390,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
   }
 
   Widget _responseMarkdown(String text) {
-    return MarkdownBlock(data: text, config: buildMarkdownConfig(), generator: buildMarkdownGenerator());
+    return MarkdownBlock(data: text, config: buildMarkdownConfig(context), generator: buildMarkdownGenerator());
   }
 
   Widget _responseStreaming(String text) {
@@ -399,7 +399,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       children: [
         Text(
           text,
-          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
         ),
         SizedBox(height: spaceXS),
         _typingIndicator(),
@@ -421,18 +421,18 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       ToolCallStatus.failed => FontAwesomeIcons.triangleExclamation,
     };
     final statusColor = switch (block.status) {
-      ToolCallStatus.pending => colours.secondaryLight,
-      ToolCallStatus.approved || ToolCallStatus.completed => colours.primaryPositive,
-      ToolCallStatus.rejected => colours.primaryNegative,
-      ToolCallStatus.running => colours.tertiaryInfo,
-      ToolCallStatus.failed => colours.primaryNegative,
+      ToolCallStatus.pending => context.colours.secondaryLight,
+      ToolCallStatus.approved || ToolCallStatus.completed => context.colours.primaryPositive,
+      ToolCallStatus.rejected => context.colours.primaryNegative,
+      ToolCallStatus.running => context.colours.tertiaryInfo,
+      ToolCallStatus.failed => context.colours.primaryNegative,
     };
 
     final inputSummary = _summarizeToolInput(block.toolName, block.input);
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: colours.tertiaryDark),
+        border: Border.all(color: context.colours.tertiaryDark),
         borderRadius: BorderRadius.all(cornerRadiusSM),
       ),
       child: Column(
@@ -442,7 +442,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
             decoration: BoxDecoration(
-              color: colours.tertiaryDark,
+              color: context.colours.tertiaryDark,
               borderRadius: BorderRadius.vertical(top: Radius.circular(cornerRadiusSM.x)),
             ),
             child: Row(
@@ -452,7 +452,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 Expanded(
                   child: Text(
                     "${block.toolName}  $inputSummary",
-                    style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+                    style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -469,7 +469,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     if (block.error != null) {
       return Text(
         block.error!,
-        style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
+        style: _mono.merge(TextStyle(color: context.colours.primaryNegative, fontSize: textXS)),
       );
     }
 
@@ -481,13 +481,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       if (error != null) {
         return Text(
           error.toString(),
-          style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textXS)),
+          style: _mono.merge(TextStyle(color: context.colours.primaryNegative, fontSize: textXS)),
         );
       }
       if (result is String) {
         return Text(
           result,
-          style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+          style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
           maxLines: 20,
           overflow: TextOverflow.ellipsis,
         );
@@ -496,19 +496,19 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
         final formatted = const JsonEncoder.withIndent('  ').convert(result);
         return Text(
           formatted,
-          style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+          style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
           maxLines: 20,
           overflow: TextOverflow.ellipsis,
         );
       }
       return Text(
         result.toString(),
-        style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+        style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
       );
     } catch (_) {
       return Text(
         output,
-        style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textXS)),
+        style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textXS)),
         maxLines: 20,
         overflow: TextOverflow.ellipsis,
       );
@@ -533,7 +533,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     final isDanger = tool.confirmation == ToolConfirmation.danger;
     final isConfirm = tool.confirmation == ToolConfirmation.confirm || isDanger;
     final isEdit = editToolNames.contains(tool.name);
-    final borderColor = isConfirm ? colours.primaryNegative : colours.primaryWarning;
+    final borderColor = isConfirm ? context.colours.primaryNegative : context.colours.primaryWarning;
 
     if (isDanger) return _dangerConfirmationChip(tool);
 
@@ -550,12 +550,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
         children: [
           Text(
             "Allow ${tool.name}?",
-            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
+            style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold)),
           ),
           SizedBox(height: spaceXS),
           Text(
             tool.description,
-            style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+            style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
           ),
           SizedBox(height: spaceSM),
           Row(
@@ -564,13 +564,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 child: TextButton(
                   onPressed: () => _confirmationCompleter?.complete(false),
                   style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                    backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
                   ),
                   child: Text(
                     "Reject",
-                    style: TextStyle(color: colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -580,7 +580,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                   onPressed: () => _confirmationCompleter?.complete(true),
                   style: ButtonStyle(
                     backgroundColor: WidgetStatePropertyAll(
-                      isConfirm ? colours.primaryNegative.withValues(alpha: 0.15) : colours.primaryWarning.withValues(alpha: 0.15),
+                      isConfirm ? context.colours.primaryNegative.withValues(alpha: 0.15) : context.colours.primaryWarning.withValues(alpha: 0.15),
                     ),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
@@ -588,7 +588,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                   child: Text(
                     "Allow",
                     style: TextStyle(
-                      color: isConfirm ? colours.primaryNegative : colours.primaryWarning,
+                      color: isConfirm ? context.colours.primaryNegative : context.colours.primaryWarning,
                       fontSize: textSM,
                       fontWeight: FontWeight.bold,
                     ),
@@ -606,13 +606,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 _confirmationCompleter?.complete(true);
               },
               style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                 shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
               ),
               child: Text(
                 isEdit ? t.aiAllowAllEdits : t.aiAlwaysAllowSession,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -630,21 +630,21 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
           margin: EdgeInsets.only(bottom: spaceSM),
           padding: EdgeInsets.all(spaceSM),
           decoration: BoxDecoration(
-            border: Border.all(color: colours.primaryNegative, width: 2),
+            border: Border.all(color: context.colours.primaryNegative, width: 2),
             borderRadius: BorderRadius.all(cornerRadiusSM),
-            color: colours.primaryNegative.withValues(alpha: 0.12),
+            color: context.colours.primaryNegative.withValues(alpha: 0.12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  FaIcon(FontAwesomeIcons.triangleExclamation, color: colours.primaryNegative, size: textSM),
+                  FaIcon(FontAwesomeIcons.triangleExclamation, color: context.colours.primaryNegative, size: textSM),
                   SizedBox(width: spaceXS),
                   Expanded(
                     child: Text(
                       "Destructive: ${tool.name}",
-                      style: _mono.merge(TextStyle(color: colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold)),
+                      style: _mono.merge(TextStyle(color: context.colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -652,23 +652,23 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               SizedBox(height: spaceXS),
               Text(
                 tool.description,
-                style: TextStyle(color: colours.primaryLight, fontSize: textXS),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textXS),
               ),
               SizedBox(height: spaceSM),
               Text(
                 "Type CONFIRM to proceed:",
-                style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
               ),
               SizedBox(height: spaceXXS),
               TextField(
                 controller: confirmController,
                 onChanged: (_) => setChipState(() {}),
-                style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM)),
                 decoration: InputDecoration(
                   hintText: "CONFIRM",
-                  hintStyle: _mono.merge(TextStyle(color: colours.tertiaryDark, fontSize: textSM)),
+                  hintStyle: _mono.merge(TextStyle(color: context.colours.tertiaryDark, fontSize: textSM)),
                   filled: true,
-                  fillColor: colours.primaryDark,
+                  fillColor: context.colours.primaryDark,
                   border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                 ),
@@ -683,13 +683,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                         _confirmationCompleter?.complete(false);
                       },
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
                       ),
                       child: Text(
                         "Reject",
-                        style: TextStyle(color: colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -703,13 +703,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                             }
                           : null,
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(typed ? colours.primaryNegative : colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(typed ? context.colours.primaryNegative : context.colours.tertiaryDark),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
                       ),
                       child: Text(
                         "I understand, proceed",
-                        style: TextStyle(color: typed ? colours.primaryDark : colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: typed ? context.colours.primaryDark : context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -756,7 +756,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                 ),
                 SizedBox(width: spaceSM),
                 Expanded(
@@ -767,12 +767,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                             SizedBox(
                               width: textSM,
                               height: textSM,
-                              child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.secondaryLight),
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: context.colours.secondaryLight),
                             ),
                             SizedBox(width: spaceXS),
                             Text(
                               displayed,
-                              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                              style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textXS)),
                             ),
                           ],
                         )
@@ -781,14 +781,14 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                           value: availableModels.contains(selectedValue) ? selectedValue : null,
                           hint: Text(
                             displayed,
-                            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                            style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textXS)),
                           ),
                           isExpanded: true,
-                          dropdownColor: colours.secondaryDark,
+                          dropdownColor: context.colours.secondaryDark,
                           underline: SizedBox.shrink(),
                           isDense: true,
                           alignment: AlignmentDirectional.centerEnd,
-                          style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS)),
+                          style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textXS)),
                           items: availableModels
                               .map(
                                 (m) => DropdownMenuItem(
@@ -807,7 +807,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             displayed,
-                            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
+                            style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold)),
                           ),
                         ),
                 ),
@@ -816,7 +816,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
           }
 
           return Dialog(
-            backgroundColor: colours.secondaryDark,
+            backgroundColor: context.colours.secondaryDark,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
             child: Padding(
               padding: EdgeInsets.all(spaceMD),
@@ -826,11 +826,11 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 children: [
                   Row(
                     children: [
-                      FaIcon(FontAwesomeIcons.microchip, color: colours.tertiaryInfo, size: textLG),
+                      FaIcon(FontAwesomeIcons.microchip, color: context.colours.tertiaryInfo, size: textLG),
                       SizedBox(width: spaceXS),
                       Text(
                         "AI Settings",
-                        style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -839,7 +839,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(spaceSM),
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -847,12 +847,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                           children: [
                             Text(
                               "Provider",
-                              style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                             ),
                             Spacer(),
                             Text(
                               _currentProvider ?? '',
-                              style: _mono.merge(TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold)),
+                              style: _mono.merge(TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
@@ -909,13 +909,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                             _checkStoredApiKey();
                           },
                           style: ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                           ),
                           child: Text(
                             "Sign Out",
-                            style: TextStyle(color: colours.primaryNegative, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.primaryNegative, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -924,13 +924,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                         child: TextButton(
                           onPressed: () => Navigator.pop(context),
                           style: ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                           ),
                           child: Text(
                             "Done",
-                            style: TextStyle(color: colours.primaryDark, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.primaryDark, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -955,7 +955,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: colours.secondaryDark,
+        backgroundColor: context.colours.secondaryDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
         child: Padding(
           padding: EdgeInsets.all(spaceMD),
@@ -964,12 +964,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
             children: [
               Text(
                 "Stop generating?",
-                style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceXS),
               Text(
                 t.aiStopGeneratingMsg,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spaceMD),
@@ -979,13 +979,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context, false),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
                         "Continue",
-                        style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -994,13 +994,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.primaryNegative),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
                         "Stop",
-                        style: TextStyle(color: colours.primaryDark, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryDark, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -1018,7 +1018,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: colours.secondaryDark,
+        backgroundColor: context.colours.secondaryDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
         child: Padding(
           padding: EdgeInsets.all(spaceMD),
@@ -1027,12 +1027,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
             children: [
               Text(
                 "Clear chat?",
-                style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceXS),
               Text(
                 "This will delete the entire conversation history for this container.",
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spaceMD),
@@ -1042,13 +1042,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context, false),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
                         "Cancel",
-                        style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -1057,13 +1057,13 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.primaryNegative),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.primaryNegative),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
                       child: Text(
                         "Clear",
-                        style: TextStyle(color: colours.primaryDark, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryDark, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -1089,11 +1089,11 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
       valueListenable: aiChatService.isStreaming,
       builder: (context, isStreaming, _) {
         return Container(
-          decoration: BoxDecoration(color: colours.primaryDark),
+          decoration: BoxDecoration(color: context.colours.primaryDark),
           child: SafeArea(
             top: false,
             child: Container(
-              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1103,12 +1103,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                         controller: _inputController,
                         focusNode: _focusNode,
                         enabled: !isStreaming,
-                        style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                        style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM)),
                         maxLines: 4,
                         minLines: 1,
                         decoration: InputDecoration(
                           hintText: "Ask anything...",
-                          hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                          hintStyle: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textSM)),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                         ),
@@ -1123,12 +1123,12 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                           margin: EdgeInsets.all(spaceXXS),
                           padding: EdgeInsets.all(spaceSM),
                           decoration: BoxDecoration(
-                            color: isStreaming ? colours.primaryNegative : colours.tertiaryInfo,
+                            color: isStreaming ? context.colours.primaryNegative : context.colours.tertiaryInfo,
                             borderRadius: BorderRadius.all(cornerRadiusSM),
                           ),
                           child: FaIcon(
                             isStreaming ? FontAwesomeIcons.stop : FontAwesomeIcons.solidPaperPlane,
-                            color: colours.primaryDark,
+                            color: context.colours.primaryDark,
                             size: textSM,
                           ),
                         ),
@@ -1142,7 +1142,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                           valueListenable: aiChatService.sessionUsage,
                           builder: (context, usage, _) {
                             final disabled = isStreaming;
-                            final fg = disabled ? colours.secondaryLight : colours.primaryNegative;
+                            final fg = disabled ? context.colours.secondaryLight : context.colours.primaryNegative;
                             return Padding(
                               padding: EdgeInsets.all(spaceXXS),
                               child: TextButton.icon(
@@ -1230,7 +1230,7 @@ class _AnimatedDotsState extends State<_AnimatedDots> with SingleTickerProviderS
                   child: Container(
                     width: spaceXS,
                     height: spaceXS,
-                    decoration: BoxDecoration(color: colours.tertiaryInfo, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.colours.tertiaryInfo, shape: BoxShape.circle),
                   ),
                 ),
               ),
@@ -1253,22 +1253,22 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: colours.primaryDark,
+      color: context.colours.primaryDark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: spaceXL),
-            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: colours.tertiaryInfo, size: spaceXL),
+            FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.tertiaryInfo, size: spaceXL),
             SizedBox(height: spaceMD),
             Text(
               "GitSync AI",
-              style: TextStyle(color: colours.primaryLight, fontSize: textXXL, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textXXL, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceXS),
             Text(
               "Your AI-powered Git assistant",
-              style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
             ),
             SizedBox(height: spaceLG),
             Flexible(
@@ -1305,18 +1305,18 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
               child: TextButton(
                 onPressed: () => _showByokDialog(context),
                 style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                  backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    FaIcon(FontAwesomeIcons.key, color: colours.primaryDark, size: textMD),
+                    FaIcon(FontAwesomeIcons.key, color: context.colours.primaryDark, size: textMD),
                     SizedBox(width: spaceXS),
                     Text(
                       "Connect API Key",
-                      style: TextStyle(color: colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -1325,7 +1325,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
             SizedBox(height: spaceMD),
             Text(
               "AI-generated content may not always be accurate and should be reviewed before use.",
-              style: TextStyle(color: colours.secondaryLight.withValues(alpha: 0.5), fontSize: textXS),
+              style: TextStyle(color: context.colours.secondaryLight.withValues(alpha: 0.5), fontSize: textXS),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: spaceSM),
@@ -1338,7 +1338,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(cornerRadiusSM),
-                      side: BorderSide(color: colours.tertiaryDark),
+                      side: BorderSide(color: context.colours.tertiaryDark),
                     ),
                   ),
                   padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
@@ -1346,11 +1346,11 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    FaIcon(FontAwesomeIcons.eyeSlash, color: colours.secondaryLight, size: textMD),
+                    FaIcon(FontAwesomeIcons.eyeSlash, color: context.colours.secondaryLight, size: textMD),
                     SizedBox(width: spaceXS),
                     Text(
                       t.hideAiFeatures,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -1369,24 +1369,24 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
       builder: (dialogContext) => BaseAlertDialog(
         title: Text(
           t.hideAiFeaturesConfirmTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
         content: Text(
           t.hideAiFeaturesConfirmMsg,
-          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
         ),
         actions: [
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () => Navigator.pop(dialogContext, false),
           ),
           TextButton(
             child: Text(
               t.hideAiFeatures.toUpperCase(),
-              style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
+              style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
           ),
@@ -1471,7 +1471,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
               !loadingModels;
 
           return Dialog(
-            backgroundColor: colours.secondaryDark,
+            backgroundColor: context.colours.secondaryDark,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD)),
             child: Padding(
               padding: EdgeInsets.all(spaceMD),
@@ -1481,34 +1481,34 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                 children: [
                   Row(
                     children: [
-                      FaIcon(FontAwesomeIcons.key, color: colours.tertiaryInfo, size: textLG),
+                      FaIcon(FontAwesomeIcons.key, color: context.colours.tertiaryInfo, size: textLG),
                       SizedBox(width: spaceXS),
                       Text(
                         "Bring Your Own Key",
-                        style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                   SizedBox(height: spaceMD),
                   Text(
                     "Provider",
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: spaceXS),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: spaceSM),
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                     child: DropdownButton<String>(
                       value: selectedProvider,
                       isExpanded: true,
-                      dropdownColor: colours.secondaryDark,
+                      dropdownColor: context.colours.secondaryDark,
                       underline: SizedBox.shrink(),
                       hint: Text(
                         "Select a provider",
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                        style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                       ),
-                      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       items: [
                         for (final p in [
                           ("Anthropic", FontAwesomeIcons.claude),
@@ -1521,7 +1521,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                FaIcon(p.$2, color: colours.secondaryLight, size: textSM),
+                                FaIcon(p.$2, color: context.colours.secondaryLight, size: textSM),
                                 SizedBox(width: spaceXS),
                                 Text(p.$1),
                               ],
@@ -1556,17 +1556,17 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                           if (selectedProvider == "Self-hosted") ...[
                             Text(
                               "Endpoint URL",
-                              style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: spaceXS),
                             TextField(
                               controller: endpointController,
-                              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                              style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM)),
                               decoration: InputDecoration(
                                 hintText: "your-server.com/v1",
-                                hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                                hintStyle: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textSM)),
                                 filled: true,
-                                fillColor: colours.tertiaryDark,
+                                fillColor: context.colours.tertiaryDark,
                                 border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                                 contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                               ),
@@ -1575,7 +1575,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                           ],
                           Text(
                             "API Key",
-                            style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: spaceXS),
                           TextField(
@@ -1587,12 +1587,12 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                               });
                               if (availableModels.isEmpty) tryFetchModels();
                             },
-                            style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+                            style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM)),
                             decoration: InputDecoration(
                               hintText: selectedProvider == null ? "Select a provider first" : "sk-...",
-                              hintStyle: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                              hintStyle: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textSM)),
                               filled: true,
-                              fillColor: colours.tertiaryDark,
+                              fillColor: context.colours.tertiaryDark,
                               border: OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                               contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                             ),
@@ -1603,14 +1603,14 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                             children: [
                               Text(
                                 "Models",
-                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: spaceXS),
                               if (loadingModels)
                                 SizedBox(
                                   width: textSM,
                                   height: textSM,
-                                  child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.secondaryLight),
+                                  child: CircularProgressIndicator(strokeWidth: 1.5, color: context.colours.secondaryLight),
                                 ),
                             ],
                           ),
@@ -1659,10 +1659,10 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                               child: Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-                                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                                decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                                 child: Text(
                                   selectedProvider == null ? "Select a provider first" : "Tap to load models",
-                                  style: _mono.merge(TextStyle(color: colours.secondaryLight, fontSize: textSM)),
+                                  style: _mono.merge(TextStyle(color: context.colours.secondaryLight, fontSize: textSM)),
                                 ),
                               ),
                             )
@@ -1697,18 +1697,18 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                               decoration: BoxDecoration(
-                                color: colours.primaryNegative.withValues(alpha: 0.12),
+                                color: context.colours.primaryNegative.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.all(cornerRadiusSM),
-                                border: Border.all(color: colours.primaryNegative.withValues(alpha: 0.3)),
+                                border: Border.all(color: context.colours.primaryNegative.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
-                                  FaIcon(FontAwesomeIcons.circleExclamation, color: colours.primaryNegative, size: textSM),
+                                  FaIcon(FontAwesomeIcons.circleExclamation, color: context.colours.primaryNegative, size: textSM),
                                   SizedBox(width: spaceXS),
                                   Expanded(
                                     child: Text(
                                       modelFetchError!,
-                                      style: TextStyle(color: colours.primaryNegative, fontSize: textXS, height: 1.4),
+                                      style: TextStyle(color: context.colours.primaryNegative, fontSize: textXS, height: 1.4),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1723,18 +1723,18 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                               decoration: BoxDecoration(
-                                color: colours.primaryNegative.withValues(alpha: 0.12),
+                                color: context.colours.primaryNegative.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.all(cornerRadiusSM),
-                                border: Border.all(color: colours.primaryNegative.withValues(alpha: 0.3)),
+                                border: Border.all(color: context.colours.primaryNegative.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
-                                  FaIcon(FontAwesomeIcons.circleExclamation, color: colours.primaryNegative, size: textSM),
+                                  FaIcon(FontAwesomeIcons.circleExclamation, color: context.colours.primaryNegative, size: textSM),
                                   SizedBox(width: spaceXS),
                                   Expanded(
                                     child: Text(
                                       error!,
-                                      style: TextStyle(color: colours.primaryNegative, fontSize: textXS, height: 1.4),
+                                      style: TextStyle(color: context.colours.primaryNegative, fontSize: textXS, height: 1.4),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1787,7 +1787,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                             }
                           : null,
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(canConnect ? colours.tertiaryInfo : colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(canConnect ? context.colours.tertiaryInfo : context.colours.tertiaryDark),
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM)),
                       ),
@@ -1795,12 +1795,12 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                           ? SizedBox(
                               height: textMD,
                               width: textMD,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: colours.primaryDark),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: context.colours.primaryDark),
                             )
                           : Text(
                               "Connect",
                               style: TextStyle(
-                                color: canConnect ? colours.primaryDark : colours.secondaryLight,
+                                color: canConnect ? context.colours.primaryDark : context.colours.secondaryLight,
                                 fontSize: textMD,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1810,7 +1810,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                   SizedBox(height: spaceXS),
                   Text(
                     "Your API key is stored locally on this device and never sent to GitSync servers.",
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textXS, height: 1.4),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, height: 1.4),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1842,7 +1842,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
           width: spaceXL,
           child: Text(
             label,
-            style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+            style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
           ),
         ),
         SizedBox(width: spaceXS),
@@ -1850,13 +1850,13 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: spaceSM),
-            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
             child: DropdownButton<String>(
               value: selectedValue,
               isExpanded: true,
-              dropdownColor: colours.secondaryDark,
+              dropdownColor: context.colours.secondaryDark,
               underline: SizedBox.shrink(),
-              style: _mono.merge(TextStyle(color: colours.primaryLight, fontSize: textSM)),
+              style: _mono.merge(TextStyle(color: context.colours.primaryLight, fontSize: textSM)),
               items: availableModels
                   .map(
                     (m) => DropdownMenuItem(
@@ -1880,9 +1880,9 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
         Container(
           width: spaceLG,
           height: spaceLG,
-          decoration: BoxDecoration(color: colours.tertiaryInfo.withValues(alpha: 0.15), borderRadius: BorderRadius.all(cornerRadiusSM)),
+          decoration: BoxDecoration(color: context.colours.tertiaryInfo.withValues(alpha: 0.15), borderRadius: BorderRadius.all(cornerRadiusSM)),
           child: Center(
-            child: FaIcon(icon, color: colours.tertiaryInfo, size: textMD),
+            child: FaIcon(icon, color: context.colours.tertiaryInfo, size: textMD),
           ),
         ),
         SizedBox(width: spaceSM),
@@ -1892,12 +1892,12 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
             children: [
               Text(
                 title,
-                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceXXXS),
               Text(
                 description,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, height: 1.4),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, height: 1.4),
               ),
             ],
           ),
@@ -1943,7 +1943,7 @@ class _LinkifiedTextState extends State<_LinkifiedText> {
   Widget build(BuildContext context) {
     _clearRecognizers();
 
-    final linkStyle = widget.style.merge(TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline));
+    final linkStyle = widget.style.merge(TextStyle(color: context.colours.tertiaryInfo, decoration: TextDecoration.underline));
     final spans = <InlineSpan>[];
     var cursor = 0;
 

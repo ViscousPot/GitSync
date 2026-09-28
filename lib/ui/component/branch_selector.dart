@@ -74,16 +74,16 @@ class _BranchSelectorState extends State<BranchSelector> {
                               showMenu<String>(
                                 context: context,
                                 position: position,
-                                color: colours.secondaryDark,
+                                color: context.colours.secondaryDark,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
                                 constraints: BoxConstraints(maxHeight: 250, minWidth: size.width),
                                 items: otherBranches.entries.map((entry) {
                                   final item = entry.key;
                                   final branchColor = entry.value == 'local'
-                                      ? colours.tertiaryInfo
+                                      ? context.colours.tertiaryInfo
                                       : entry.value == 'remote'
-                                      ? colours.tertiaryWarning
-                                      : colours.primaryLight;
+                                      ? context.colours.tertiaryWarning
+                                      : context.colours.primaryLight;
                                   return _RawPopupMenuEntry<String>(
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
@@ -122,10 +122,10 @@ class _BranchSelectorState extends State<BranchSelector> {
                                               child: Container(
                                                 padding: EdgeInsets.all(spaceXXS),
                                                 decoration: BoxDecoration(
-                                                  color: colours.tertiaryDark,
+                                                  color: context.colours.tertiaryDark,
                                                   borderRadius: BorderRadius.all(cornerRadiusSM),
                                                 ),
-                                                child: FaIcon(FontAwesomeIcons.pen, size: textXS, color: colours.primaryLight),
+                                                child: FaIcon(FontAwesomeIcons.pen, size: textXS, color: context.colours.primaryLight),
                                               ),
                                             ),
                                             SizedBox(width: spaceXXS),
@@ -140,10 +140,10 @@ class _BranchSelectorState extends State<BranchSelector> {
                                               child: Container(
                                                 padding: EdgeInsets.all(spaceXXS),
                                                 decoration: BoxDecoration(
-                                                  color: colours.tertiaryDark,
+                                                  color: context.colours.tertiaryDark,
                                                   borderRadius: BorderRadius.all(cornerRadiusSM),
                                                 ),
-                                                child: FaIcon(FontAwesomeIcons.solidTrashCan, size: textXS, color: colours.tertiaryNegative),
+                                                child: FaIcon(FontAwesomeIcons.solidTrashCan, size: textXS, color: context.colours.tertiaryNegative),
                                               ),
                                             ),
                                           ],
@@ -171,13 +171,13 @@ class _BranchSelectorState extends State<BranchSelector> {
                                   fontWeight: FontWeight.bold,
                                   color: hasBranch
                                       ? (widget.hasConflicts
-                                            ? colours.tertiaryLight
+                                            ? context.colours.tertiaryLight
                                             : (widget.branchNames[widget.branchName] == 'local'
-                                                  ? colours.tertiaryInfo
+                                                  ? context.colours.tertiaryInfo
                                                   : widget.branchNames[widget.branchName] == 'remote'
-                                                  ? colours.tertiaryWarning
-                                                  : colours.primaryLight))
-                                      : colours.secondaryLight,
+                                                  ? context.colours.tertiaryWarning
+                                                  : context.colours.primaryLight))
+                                      : context.colours.secondaryLight,
                                 ),
                               ),
                             ),
@@ -187,8 +187,8 @@ class _BranchSelectorState extends State<BranchSelector> {
                               color: !showActions
                                   ? Colors.transparent
                                   : widget.hasConflicts
-                                  ? colours.tertiaryLight
-                                  : colours.primaryLight,
+                                  ? context.colours.tertiaryLight
+                                  : context.colours.primaryLight,
                             ),
                           ],
                         ),
@@ -200,7 +200,7 @@ class _BranchSelectorState extends State<BranchSelector> {
                         left: spaceXS,
                         child: Text(
                           t.currentBranch.toUpperCase(),
-                          style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                          style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                         ),
                       ),
                   ],
@@ -218,7 +218,7 @@ class _BranchSelectorState extends State<BranchSelector> {
               constraints: BoxConstraints(),
               icon: FaIcon(
                 FontAwesomeIcons.solidSquarePlus,
-                color: widget.onCreateBranch != null ? colours.primaryLight : colours.secondaryLight,
+                color: widget.onCreateBranch != null ? context.colours.primaryLight : context.colours.secondaryLight,
                 size: textXL,
                 semanticLabel: t.addBranchLabel,
               ),

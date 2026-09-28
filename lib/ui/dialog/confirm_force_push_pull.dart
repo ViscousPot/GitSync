@@ -12,7 +12,7 @@ Future<void> showDialog(BuildContext context, Function() callback, {push = false
         width: MediaQuery.of(context).size.width,
         child: Text(
           push ? t.confirmForcePush : t.confirmForcePull,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -20,12 +20,12 @@ Future<void> showDialog(BuildContext context, Function() callback, {push = false
           children: [
             Text(
               push ? t.confirmForcePushMsg : t.confirmForcePullMsg,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceSM),
             Text(
               t.localHistoryOverwriteWarning,
-              style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -34,7 +34,7 @@ Future<void> showDialog(BuildContext context, Function() callback, {push = false
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -43,7 +43,7 @@ Future<void> showDialog(BuildContext context, Function() callback, {push = false
         TextButton(
           child: Text(
             (push ? t.forcePush : t.forcePull).toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

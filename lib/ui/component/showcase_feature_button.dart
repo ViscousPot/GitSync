@@ -44,9 +44,9 @@ class ShowcaseFeatureButton extends StatelessWidget {
           onTap: onPressed,
           child: Container(
             decoration: BoxDecoration(
-              color: colours.showcaseBg,
+              color: context.colours.showcaseBg,
               borderRadius: BorderRadius.all(cornerRadiusSM),
-              border: Border.all(color: colours.showcaseBorder, width: spaceXXXXS),
+              border: Border.all(color: context.colours.showcaseBorder, width: spaceXXXXS),
             ),
             clipBehavior: Clip.antiAlias,
             child: IntrinsicHeight(
@@ -56,7 +56,7 @@ class ShowcaseFeatureButton extends StatelessWidget {
                   SizedBox(width: spaceSM),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: spaceSM),
-                    child: FaIcon(feature.icon, color: colours.showcaseFeatureIcon, size: textMD),
+                    child: FaIcon(feature.icon, color: context.colours.showcaseFeatureIcon, size: textMD),
                   ),
                   SizedBox(width: spaceXXS),
                   Expanded(
@@ -66,7 +66,7 @@ class ShowcaseFeatureButton extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           feature.labelForProvider(gitProvider).toUpperCase(),
-                          style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.showcaseFeatureIcon, fontSize: textSM, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -78,7 +78,7 @@ class ShowcaseFeatureButton extends StatelessWidget {
                       child: SizedBox(
                         width: textXXS,
                         height: textXXS,
-                        child: CircularProgressIndicator(strokeWidth: 1.5, color: colours.showcaseFeatureIcon),
+                        child: CircularProgressIndicator(strokeWidth: 1.5, color: context.colours.showcaseFeatureIcon),
                       ),
                     ),
                   ] else if (count != null && count! > 0) ...[
@@ -86,10 +86,10 @@ class ShowcaseFeatureButton extends StatelessWidget {
                     Center(
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: spaceXXXS + 1, vertical: 1),
-                        decoration: BoxDecoration(color: colours.showcaseBorder, borderRadius: BorderRadius.all(cornerRadiusMax)),
+                        decoration: BoxDecoration(color: context.colours.showcaseBorder, borderRadius: BorderRadius.all(cornerRadiusMax)),
                         child: Text(
                           count! > 99 ? '99+' : '$count',
-                          style: TextStyle(color: colours.showcaseFeatureIcon, fontSize: textXXS, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.showcaseFeatureIcon, fontSize: textXXS, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -101,13 +101,13 @@ class ShowcaseFeatureButton extends StatelessWidget {
                       child: TextButton(
                         onPressed: onAdd,
                         style: TextButton.styleFrom(
-                          backgroundColor: colours.showcaseBorder,
+                          backgroundColor: context.colours.showcaseBorder,
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: const RoundedRectangleBorder(),
                         ),
-                        child: FaIcon(FontAwesomeIcons.plus, color: colours.showcaseFeatureIcon, size: textSM),
+                        child: FaIcon(FontAwesomeIcons.plus, color: context.colours.showcaseFeatureIcon, size: textSM),
                       ),
                     ),
                 ],
@@ -124,11 +124,15 @@ class ShowcaseFeatureButton extends StatelessWidget {
               child: Container(
                 width: spaceMD,
                 height: spaceMD,
-                decoration: BoxDecoration(color: isPinned ? colours.primaryLight : colours.tertiaryDark, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: isPinned ? context.colours.primaryLight : context.colours.tertiaryDark, shape: BoxShape.circle),
                 child: Center(
                   child: Transform.rotate(
                     angle: 0.785398,
-                    child: FaIcon(FontAwesomeIcons.thumbtack, color: isPinned ? colours.primaryDark : colours.tertiaryLight, size: textXXS),
+                    child: FaIcon(
+                      FontAwesomeIcons.thumbtack,
+                      color: isPinned ? context.colours.primaryDark : context.colours.tertiaryLight,
+                      size: textXXS,
+                    ),
                   ),
                 ),
               ),

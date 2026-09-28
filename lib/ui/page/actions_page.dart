@@ -114,7 +114,7 @@ class _ActionsPageState extends State<ActionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       body: SafeArea(
         child: Column(
           children: [
@@ -126,7 +126,7 @@ class _ActionsPageState extends State<ActionsPage> {
                   SizedBox(width: spaceXS),
                   Text(
                     ShowcaseFeature.actions.labelForProvider(widget.gitProvider).toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   getOpenInBrowserButton(widget.gitProvider.actionsUrl(widget.remoteWebUrl)),
@@ -159,7 +159,7 @@ class _ActionsPageState extends State<ActionsPage> {
 
             Expanded(
               child: RefreshIndicator(
-                color: colours.tertiaryDark,
+                color: context.colours.tertiaryDark,
                 onRefresh: () async {
                   _fetchActionRuns();
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -173,7 +173,7 @@ class _ActionsPageState extends State<ActionsPage> {
                             child: Center(
                               child: Text(
                                 t.actionsNotFound.toUpperCase(),
-                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
                           ),
@@ -189,7 +189,7 @@ class _ActionsPageState extends State<ActionsPage> {
                             return Padding(
                               padding: EdgeInsets.all(spaceMD),
                               child: Center(
-                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                               ),
                             );
                           }
@@ -223,14 +223,18 @@ class _FilterChip extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
           decoration: BoxDecoration(
-            color: selected ? colours.showcaseBg : colours.tertiaryDark,
+            color: selected ? context.colours.showcaseBg : context.colours.tertiaryDark,
             borderRadius: BorderRadius.all(cornerRadiusSM),
-            border: Border.all(color: selected ? colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
+            border: Border.all(color: selected ? context.colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: selected ? context.colours.showcaseFeatureIcon : context.colours.secondaryLight,
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -247,14 +251,14 @@ String _formatDuration(Duration d) {
   return '${seconds}s';
 }
 
-(FaIconData, Color) _statusIconAndColor(ActionRunStatus status) {
+(FaIconData, Color) _statusIconAndColor(BuildContext context, ActionRunStatus status) {
   return switch (status) {
-    ActionRunStatus.success => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive),
-    ActionRunStatus.failure => (FontAwesomeIcons.solidCircleXmark, colours.primaryNegative),
-    ActionRunStatus.pending => (FontAwesomeIcons.solidClock, colours.tertiaryWarning),
-    ActionRunStatus.inProgress => (FontAwesomeIcons.solidCirclePlay, colours.tertiaryInfo),
-    ActionRunStatus.cancelled => (FontAwesomeIcons.solidCircleStop, colours.secondaryLight),
-    ActionRunStatus.skipped => (FontAwesomeIcons.circleMinus, colours.secondaryLight),
+    ActionRunStatus.success => (FontAwesomeIcons.solidCircleCheck, context.colours.tertiaryPositive),
+    ActionRunStatus.failure => (FontAwesomeIcons.solidCircleXmark, context.colours.primaryNegative),
+    ActionRunStatus.pending => (FontAwesomeIcons.solidClock, context.colours.tertiaryWarning),
+    ActionRunStatus.inProgress => (FontAwesomeIcons.solidCirclePlay, context.colours.tertiaryInfo),
+    ActionRunStatus.cancelled => (FontAwesomeIcons.solidCircleStop, context.colours.secondaryLight),
+    ActionRunStatus.skipped => (FontAwesomeIcons.circleMinus, context.colours.secondaryLight),
   };
 }
 
@@ -266,11 +270,11 @@ class _ItemActionRun extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final relativeTime = timeago.format(run.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
-    final (icon, color) = _statusIconAndColor(run.status);
+    final (icon, color) = _statusIconAndColor(context, run.status);
 
     return Container(
       padding: EdgeInsets.all(spaceSM),
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,7 +292,7 @@ class _ItemActionRun extends StatelessWidget {
                   run.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -302,35 +306,35 @@ class _ItemActionRun extends StatelessWidget {
               children: [
                 Text(
                   '#${run.number}',
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 Text(
                   ' $bullet ',
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 Flexible(
                   child: Text(
                     run.authorUsername,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                   ),
                 ),
                 Text(
                   ' $bullet ',
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 Text(
                   relativeTime,
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 if (run.duration != null) ...[
                   Text(
                     ' $bullet ',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
                     _formatDuration(run.duration!),
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                 ],
               ],
@@ -349,15 +353,15 @@ class _ItemActionRun extends StatelessWidget {
                   if (run.branch != null)
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          FaIcon(FontAwesomeIcons.codeBranch, size: textXXS, color: colours.tertiaryLight),
+                          FaIcon(FontAwesomeIcons.codeBranch, size: textXXS, color: context.colours.tertiaryLight),
                           SizedBox(width: spaceXXXXS),
                           Text(
                             run.branch!,
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -365,15 +369,15 @@ class _ItemActionRun extends StatelessWidget {
                   if (run.prNumber != null)
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          FaIcon(FontAwesomeIcons.codePullRequest, size: textXXS, color: colours.tertiaryLight),
+                          FaIcon(FontAwesomeIcons.codePullRequest, size: textXXS, color: context.colours.tertiaryLight),
                           SizedBox(width: spaceXXXXS),
                           Text(
                             '#${run.prNumber}',
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),

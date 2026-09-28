@@ -109,7 +109,7 @@ class _TagsPageState extends State<TagsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       body: SafeArea(
         child: Column(
           children: [
@@ -121,7 +121,7 @@ class _TagsPageState extends State<TagsPage> {
                   SizedBox(width: spaceXS),
                   Text(
                     t.tags.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   getOpenInBrowserButton(widget.gitProvider.tagsUrl(widget.remoteWebUrl)),
@@ -131,7 +131,7 @@ class _TagsPageState extends State<TagsPage> {
 
             Expanded(
               child: RefreshIndicator(
-                color: colours.tertiaryDark,
+                color: context.colours.tertiaryDark,
                 onRefresh: () async {
                   _fetchTags();
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -145,7 +145,7 @@ class _TagsPageState extends State<TagsPage> {
                             child: Center(
                               child: Text(
                                 t.tagsNotFound.toUpperCase(),
-                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
                           ),
@@ -161,7 +161,7 @@ class _TagsPageState extends State<TagsPage> {
                             return Padding(
                               padding: EdgeInsets.all(spaceMD),
                               child: Center(
-                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                               ),
                             );
                           }
@@ -245,7 +245,7 @@ class _ItemTag extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.all(spaceSM),
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Row(
         children: [
           Expanded(
@@ -257,7 +257,7 @@ class _ItemTag extends StatelessWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(top: spaceXXXXS),
-                      child: FaIcon(FontAwesomeIcons.tag, size: textMD, color: colours.tertiaryInfo),
+                      child: FaIcon(FontAwesomeIcons.tag, size: textMD, color: context.colours.tertiaryInfo),
                     ),
                     SizedBox(width: spaceXS),
                     Expanded(
@@ -265,7 +265,7 @@ class _ItemTag extends StatelessWidget {
                         tag.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -282,16 +282,16 @@ class _ItemTag extends StatelessWidget {
                         },
                         child: Text(
                           tag.sha.length >= 7 ? tag.sha.substring(0, 7) : tag.sha,
-                          style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontFamily: 'monospace'),
+                          style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontFamily: 'monospace'),
                         ),
                       ),
                       Text(
                         ' $bullet ',
-                        style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                        style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                       ),
                       Text(
                         relativeTime,
-                        style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                        style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                       ),
                     ],
                   ),
@@ -305,7 +305,7 @@ class _ItemTag extends StatelessWidget {
                       tag.message!,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                     ),
                   ),
                 ],
@@ -326,23 +326,23 @@ class _ItemTag extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             onSelected: _downloadArchive,
-            color: colours.secondaryDark,
+            color: context.colours.secondaryDark,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
-            icon: FaIcon(FontAwesomeIcons.download, size: textMD, color: colours.secondaryLight),
+            icon: FaIcon(FontAwesomeIcons.download, size: textMD, color: context.colours.secondaryLight),
             padding: EdgeInsets.zero,
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'zip',
                 child: Text(
                   'ZIP',
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                 ),
               ),
               PopupMenuItem(
                 value: 'tar.gz',
                 child: Text(
                   'TAR.GZ',
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -362,10 +362,10 @@ class _ArchiveChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
       child: Text(
         label,
-        style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+        style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
       ),
     );
   }

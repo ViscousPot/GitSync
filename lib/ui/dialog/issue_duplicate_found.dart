@@ -15,7 +15,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.issueDuplicateTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -23,16 +23,16 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
           children: [
             Text(
               t.issueDuplicateMsg,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceMD),
             Text(
               '#${duplicate.number}',
-              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             Text(
               duplicate.title,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -41,7 +41,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
         TextButton(
           child: Text(
             t.viewIssue.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context, false) : null;
@@ -52,7 +52,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
         TextButton(
           child: Text(
             t.sendMessage.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () => Navigator.of(context).canPop() ? Navigator.pop(context, true) : null,
         ),

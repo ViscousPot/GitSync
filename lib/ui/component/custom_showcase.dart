@@ -34,17 +34,17 @@ class CustomShowcase extends StatelessWidget {
   final bool first;
   final bool last;
 
-  List<TooltipActionButton> _buildTooltipActions() => [
+  List<TooltipActionButton> _buildTooltipActions(BuildContext context) => [
     ...customTooltipActions ?? [],
     ...!first
         ? [
             TooltipActionButton(
               type: TooltipDefaultActionType.previous,
-              backgroundColor: colours.showcaseBtnSecondary,
+              backgroundColor: context.colours.showcaseBtnSecondary,
               textStyle: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: textSM,
-                color: colours.showcaseFeatureIcon,
+                color: context.colours.showcaseFeatureIcon,
                 fontFamily: 'AtkinsonHyperlegible',
               ),
               name: t.previous.toUpperCase(),
@@ -57,8 +57,13 @@ class CustomShowcase extends StatelessWidget {
         ? [
             TooltipActionButton(
               type: TooltipDefaultActionType.next,
-              backgroundColor: colours.showcaseBtnPrimary,
-              textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.showcaseBtnText, fontFamily: 'AtkinsonHyperlegible'),
+              backgroundColor: context.colours.showcaseBtnPrimary,
+              textStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: textSM,
+                color: context.colours.showcaseBtnText,
+                fontFamily: 'AtkinsonHyperlegible',
+              ),
               name: t.next.toUpperCase(),
               borderRadius: BorderRadius.all(cornerRadiusMD),
               padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
@@ -67,8 +72,13 @@ class CustomShowcase extends StatelessWidget {
         : [
             TooltipActionButton(
               type: TooltipDefaultActionType.next,
-              backgroundColor: colours.showcaseBtnPrimary,
-              textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: textSM, color: colours.showcaseBtnText, fontFamily: 'AtkinsonHyperlegible'),
+              backgroundColor: context.colours.showcaseBtnPrimary,
+              textStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: textSM,
+                color: context.colours.showcaseBtnText,
+                fontFamily: 'AtkinsonHyperlegible',
+              ),
               name: t.finish.toUpperCase(),
               borderRadius: BorderRadius.all(cornerRadiusMD),
               padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
@@ -85,7 +95,7 @@ class CustomShowcase extends StatelessWidget {
         targetPadding: targetPadding ?? EdgeInsets.all(spaceSM),
         overlayOpacity: 0.85,
         tooltipActionConfig: TooltipActionConfig(alignment: MainAxisAlignment.end, actionGap: spaceXS, gapBetweenContentAndAction: spaceMD),
-        tooltipActions: _buildTooltipActions(),
+        tooltipActions: _buildTooltipActions(context),
         height: richContentHeight ?? 280,
         width: richContentWidth ?? MediaQuery.of(context).size.width - (spaceLG * 2),
         container: richContent!,
@@ -97,17 +107,27 @@ class CustomShowcase extends StatelessWidget {
       key: globalKey,
       targetBorderRadius: cornerRadius == null ? null : BorderRadius.all(cornerRadius!),
       title: title,
-      titleTextStyle: TextStyle(fontSize: textXL, fontWeight: FontWeight.bold, color: colours.showcaseTitle, fontFamily: 'AtkinsonHyperlegible'),
+      titleTextStyle: TextStyle(
+        fontSize: textXL,
+        fontWeight: FontWeight.bold,
+        color: context.colours.showcaseTitle,
+        fontFamily: 'AtkinsonHyperlegible',
+      ),
       description: description,
-      descTextStyle: TextStyle(fontSize: textSM, fontWeight: FontWeight.bold, color: colours.showcaseDesc, fontFamily: 'AtkinsonHyperlegible'),
+      descTextStyle: TextStyle(
+        fontSize: textSM,
+        fontWeight: FontWeight.bold,
+        color: context.colours.showcaseDesc,
+        fontFamily: 'AtkinsonHyperlegible',
+      ),
       targetPadding: targetPadding ?? EdgeInsets.all(spaceSM),
-      tooltipBackgroundColor: colours.showcaseBg,
-      textColor: colours.showcaseTitle,
+      tooltipBackgroundColor: context.colours.showcaseBg,
+      textColor: context.colours.showcaseTitle,
       tooltipBorderRadius: BorderRadius.all(cornerRadiusMD),
       tooltipPadding: EdgeInsets.all(spaceMD),
       overlayOpacity: 0.85,
       tooltipActionConfig: TooltipActionConfig(alignment: MainAxisAlignment.end, actionGap: spaceXS, gapBetweenContentAndAction: spaceMD),
-      tooltipActions: _buildTooltipActions(),
+      tooltipActions: _buildTooltipActions(context),
       child: child,
     );
   }
@@ -127,8 +147,8 @@ class ShowcaseTooltipContent extends StatelessWidget {
       Container(
         margin: EdgeInsets.zero,
         decoration: BoxDecoration(
-          color: colours.showcaseBg,
-          border: Border.all(color: colours.showcaseBorder),
+          color: context.colours.showcaseBg,
+          border: Border.all(color: context.colours.showcaseBorder),
           borderRadius: BorderRadius.all(cornerRadiusMD),
         ),
         padding: EdgeInsets.all(spaceMD),
@@ -138,13 +158,23 @@ class ShowcaseTooltipContent extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: textXL, fontWeight: FontWeight.bold, color: colours.showcaseTitle, fontFamily: 'AtkinsonHyperlegible'),
+              style: TextStyle(
+                fontSize: textXL,
+                fontWeight: FontWeight.bold,
+                color: context.colours.showcaseTitle,
+                fontFamily: 'AtkinsonHyperlegible',
+              ),
             ),
             if (subtitle != null) ...[
               SizedBox(height: spaceXS),
               Text(
                 subtitle!,
-                style: TextStyle(fontSize: textSM, fontWeight: FontWeight.bold, color: colours.showcaseDesc, fontFamily: 'AtkinsonHyperlegible'),
+                style: TextStyle(
+                  fontSize: textSM,
+                  fontWeight: FontWeight.bold,
+                  color: context.colours.showcaseDesc,
+                  fontFamily: 'AtkinsonHyperlegible',
+                ),
               ),
             ],
             SizedBox(height: spaceMD),
@@ -168,12 +198,12 @@ class ShowcaseFeatureRow extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FaIcon(icon, color: colours.showcaseFeatureIcon, size: textSM),
+        FaIcon(icon, color: context.colours.showcaseFeatureIcon, size: textSM),
         SizedBox(width: spaceSM),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(color: colours.showcaseTitle, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: 'AtkinsonHyperlegible'),
+            style: TextStyle(color: context.colours.showcaseTitle, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: 'AtkinsonHyperlegible'),
           ),
         ),
       ],

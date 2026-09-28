@@ -23,7 +23,7 @@ Future<void> showDialog(
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.cherryPickCommit,
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -31,12 +31,12 @@ Future<void> showDialog(
             children: [
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
                     TextSpan(text: "${t.cherryPickCommitMsg} "),
                     TextSpan(
                       text: "[${commitSha.substring(0, 7).toUpperCase()}]",
-                      style: TextStyle(color: colours.tertiaryInfo),
+                      style: TextStyle(color: context.colours.tertiaryInfo),
                     ),
                     TextSpan(text: "."),
                   ],
@@ -47,7 +47,7 @@ Future<void> showDialog(
                 commitMessage,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
               ),
               SizedBox(height: spaceMD),
               Stack(
@@ -55,14 +55,14 @@ Future<void> showDialog(
                 children: [
                   Container(
                     width: double.infinity,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: context.colours.secondaryDark),
                     child: DropdownButton<String>(
                       isDense: true,
                       isExpanded: true,
                       padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                       value: branchNames.contains(selectedBranch) ? selectedBranch : null,
                       menuMaxHeight: 250,
-                      dropdownColor: colours.secondaryDark,
+                      dropdownColor: context.colours.secondaryDark,
                       borderRadius: BorderRadius.all(cornerRadiusSM),
                       selectedItemBuilder: (context) => branchNames
                           .map(
@@ -71,7 +71,7 @@ Future<void> showDialog(
                               children: [
                                 Text(
                                   name.toUpperCase(),
-                                  style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: colours.primaryLight),
+                                  style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: context.colours.primaryLight),
                                 ),
                               ],
                             ),
@@ -90,7 +90,7 @@ Future<void> showDialog(
                                 item.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: textSM,
-                                  color: colours.primaryLight,
+                                  color: context.colours.primaryLight,
                                   fontWeight: FontWeight.bold,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -105,7 +105,7 @@ Future<void> showDialog(
                     left: spaceMD,
                     child: Text(
                       t.cherryPickTargetBranch.toUpperCase(),
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -113,7 +113,7 @@ Future<void> showDialog(
               SizedBox(height: spaceSM),
               Text(
                 t.cherryPickCommitWarning,
-                style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -122,7 +122,7 @@ Future<void> showDialog(
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -132,7 +132,7 @@ Future<void> showDialog(
             label: Text(
               t.cherryPick.toUpperCase(),
               style: TextStyle(
-                color: selectedBranch != null ? colours.primaryPositive : colours.secondaryPositive,
+                color: selectedBranch != null ? context.colours.primaryPositive : context.colours.secondaryPositive,
                 fontSize: textMD,
                 fontWeight: FontWeight.bold,
               ),
@@ -142,7 +142,7 @@ Future<void> showDialog(
                 ? SizedBox(
                     height: spaceMD,
                     width: spaceMD,
-                    child: CircularProgressIndicator(color: colours.primaryPositive),
+                    child: CircularProgressIndicator(color: context.colours.primaryPositive),
                   )
                 : SizedBox.shrink(),
             onPressed: selectedBranch != null

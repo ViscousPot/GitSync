@@ -27,7 +27,7 @@ Future<void> showDialog(
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.squashCommits,
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -35,7 +35,7 @@ Future<void> showDialog(
             children: [
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
                     TextSpan(text: sprintf(t.squashCommitsMsg, [selectedCommits.length])),
                   ],
@@ -48,11 +48,11 @@ Future<void> showDialog(
                   child: Row(
                     children: [
                       Container(
-                        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                         padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
                         child: Text(
                           commit.reference.substring(0, 7).toUpperCase(),
-                          style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                       ),
                       SizedBox(width: spaceXS),
@@ -61,7 +61,7 @@ Future<void> showDialog(
                           commit.commitMessage,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                          style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                         ),
                       ),
                     ],
@@ -99,13 +99,13 @@ Future<void> showDialog(
                     },
                     child: Container(
                       width: double.infinity,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: context.colours.secondaryDark),
                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                       child: TextField(
                         controller: messageController,
                         maxLines: 5,
                         minLines: 3,
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                         decoration: InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                       ),
                     ),
@@ -115,7 +115,7 @@ Future<void> showDialog(
                     left: spaceMD,
                     child: Text(
                       t.squashCommitMessage.toUpperCase(),
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -123,7 +123,11 @@ Future<void> showDialog(
               SizedBox(height: spaceSM),
               Text(
                 t.squashCommitsWarning,
-                style: TextStyle(color: hasPushed ? colours.primaryNegative : colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(
+                  color: hasPushed ? context.colours.primaryNegative : context.colours.tertiaryWarning,
+                  fontWeight: FontWeight.bold,
+                  fontSize: textSM,
+                ),
               ),
             ],
           ),
@@ -132,7 +136,7 @@ Future<void> showDialog(
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -141,14 +145,14 @@ Future<void> showDialog(
           TextButton.icon(
             label: Text(
               t.squash.toUpperCase(),
-              style: TextStyle(color: colours.primaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             iconAlignment: IconAlignment.end,
             icon: loading
                 ? SizedBox(
                     height: spaceMD,
                     width: spaceMD,
-                    child: CircularProgressIndicator(color: colours.primaryPositive),
+                    child: CircularProgressIndicator(color: context.colours.primaryPositive),
                   )
                 : SizedBox.shrink(),
             onPressed: () async {

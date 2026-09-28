@@ -59,7 +59,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
                     t.passphrase.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(height: spaceMD),
@@ -67,7 +67,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
                     t.privKey.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(height: spaceMD),
@@ -75,7 +75,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
                     t.pubKey.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -93,14 +93,14 @@ class _SshAuthFormState extends State<SshAuthForm> {
                     enableSuggestions: false,
                     autocorrect: false,
                     style: TextStyle(
-                      color: colours.primaryLight,
+                      color: context.colours.primaryLight,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.none,
                       decorationThickness: 0,
                       fontSize: textMD,
                     ),
                     decoration: InputDecoration(
-                      fillColor: colours.secondaryDark,
+                      fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                       hintText: t.optionalLabel.toUpperCase(),
@@ -108,7 +108,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                         overflow: TextOverflow.ellipsis,
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                       ),
                       isCollapsed: true,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -130,21 +130,23 @@ class _SshAuthFormState extends State<SshAuthForm> {
                           },
                     style: ButtonStyle(
                       alignment: Alignment.center,
-                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
                     iconAlignment: IconAlignment.end,
                     icon: FaIcon(
                       privKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                      color: keyPair == null ? colours.tertiaryLight : (privKeyCopied ? colours.primaryPositive : colours.primaryLight),
+                      color: keyPair == null
+                          ? context.colours.tertiaryLight
+                          : (privKeyCopied ? context.colours.primaryPositive : context.colours.primaryLight),
                       size: textMD,
                     ),
                     label: Text(
                       keyPair == null ? t.sshPrivKeyExample : keyPair!.$1,
                       maxLines: 1,
                       style: TextStyle(
-                        color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
+                        color: keyPair == null ? context.colours.tertiaryLight : context.colours.primaryLight,
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                         overflow: TextOverflow.ellipsis,
@@ -163,21 +165,23 @@ class _SshAuthFormState extends State<SshAuthForm> {
                           },
                     style: ButtonStyle(
                       alignment: Alignment.center,
-                      backgroundColor: WidgetStatePropertyAll(colours.secondaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
                     iconAlignment: IconAlignment.end,
                     icon: FaIcon(
                       pubKeyCopied ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
-                      color: keyPair == null ? colours.tertiaryLight : (pubKeyCopied ? colours.primaryPositive : colours.primaryLight),
+                      color: keyPair == null
+                          ? context.colours.tertiaryLight
+                          : (pubKeyCopied ? context.colours.primaryPositive : context.colours.primaryLight),
                       size: textMD,
                     ),
                     label: Text(
                       keyPair == null ? t.sshPubKeyExample : keyPair!.$2,
                       maxLines: 1,
                       style: TextStyle(
-                        color: keyPair == null ? colours.tertiaryLight : colours.primaryLight,
+                        color: keyPair == null ? context.colours.tertiaryLight : context.colours.primaryLight,
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                         overflow: TextOverflow.ellipsis,
@@ -214,14 +218,14 @@ class _SshAuthFormState extends State<SshAuthForm> {
                             : null),
                   style: ButtonStyle(
                     alignment: Alignment.center,
-                    backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
+                    backgroundColor: WidgetStatePropertyAll(context.colours.secondaryPositive),
                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                   ),
                   child: Text(
                     (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
                     style: TextStyle(
-                      color: (keyPair != null && !pubKeyCopied) ? colours.primaryPositive.withAlpha(70) : colours.primaryPositive,
+                      color: (keyPair != null && !pubKeyCopied) ? context.colours.primaryPositive.withAlpha(70) : context.colours.primaryPositive,
                       fontSize: textSM,
                       fontWeight: FontWeight.bold,
                     ),
@@ -239,13 +243,13 @@ class _SshAuthFormState extends State<SshAuthForm> {
                         },
                         style: ButtonStyle(
                           alignment: Alignment.center,
-                          backgroundColor: WidgetStatePropertyAll(colours.secondaryPositive),
+                          backgroundColor: WidgetStatePropertyAll(context.colours.secondaryPositive),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                           ),
                         ),
-                        icon: FaIcon(FontAwesomeIcons.key, color: colours.primaryPositive, size: textSM),
+                        icon: FaIcon(FontAwesomeIcons.key, color: context.colours.primaryPositive, size: textSM),
                       ),
                     )
                   : SizedBox.shrink(),

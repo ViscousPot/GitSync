@@ -145,7 +145,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   void _showAddReactionSheet(String targetId, bool isComment) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) => Padding(
         padding: EdgeInsets.all(spaceMD),
@@ -155,7 +155,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           children: [
             Text(
               t.issueAddReaction.toUpperCase(),
-              style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceSM),
             Wrap(
@@ -169,7 +169,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   },
                   child: Container(
                     padding: EdgeInsets.all(spaceXS),
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                     child: Text(entry.value, style: TextStyle(fontSize: textXL)),
                   ),
                 );
@@ -182,13 +182,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     );
   }
 
-  MarkdownConfig get _markdownConfig => buildMarkdownConfig();
+  MarkdownConfig get _markdownConfig => buildMarkdownConfig(context);
   MarkdownGenerator get _markdownGenerator => buildMarkdownGenerator();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       body: SafeArea(
         child: Column(
           children: [
@@ -196,7 +196,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             if (_loading)
               Expanded(
                 child: Center(
-                  child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                  child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                 ),
               )
             else if (_detail == null)
@@ -204,7 +204,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                 child: Center(
                   child: Text(
                     t.prNotFound.toUpperCase(),
-                    style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                    style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                   ),
                 ),
               )
@@ -226,11 +226,11 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   Widget _buildHeader() {
     final (FaIconData icon, Color color) = _detail != null
         ? switch (_detail!.state) {
-            PrState.open => (FontAwesomeIcons.codePullRequest, colours.tertiaryPositive),
-            PrState.merged => (FontAwesomeIcons.codeMerge, colours.secondaryInfo),
-            PrState.closed => (FontAwesomeIcons.codePullRequest, colours.tertiaryNegative),
+            PrState.open => (FontAwesomeIcons.codePullRequest, context.colours.tertiaryPositive),
+            PrState.merged => (FontAwesomeIcons.codeMerge, context.colours.secondaryInfo),
+            PrState.closed => (FontAwesomeIcons.codePullRequest, context.colours.tertiaryNegative),
           }
-        : (FontAwesomeIcons.codePullRequest, colours.secondaryLight);
+        : (FontAwesomeIcons.codePullRequest, context.colours.secondaryLight);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXS),
@@ -257,7 +257,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                       scrollDirection: Axis.horizontal,
                       child: Text(
                         _detail?.title ?? widget.prTitle,
-                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
                     ),
                     if (_detail != null) ...[
@@ -266,26 +266,26 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                         children: [
                           Text(
                             '#${_detail!.number}',
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                           ),
                           Text(
                             ' $bullet ',
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                           ),
                           Flexible(
                             child: Text(
                               _detail!.authorUsername,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                             ),
                           ),
                           Text(
                             ' $bullet ',
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                           ),
                           Text(
                             timeago.format(_detail!.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (m) => m.group(0)!.toLowerCase()),
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                           ),
                         ],
                       ),
@@ -295,26 +295,26 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                           Flexible(
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                               child: Text(
                                 '${_parseOwnerRepo().$1}:${_detail!.baseBranch}',
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: colours.tertiaryInfo, fontSize: textXXS, fontFamily: 'RobotoMono'),
+                                style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXXS, fontFamily: 'RobotoMono'),
                               ),
                             ),
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: spaceXXXS),
-                            child: FaIcon(FontAwesomeIcons.arrowLeft, size: textXXS, color: colours.tertiaryLight),
+                            child: FaIcon(FontAwesomeIcons.arrowLeft, size: textXXS, color: context.colours.tertiaryLight),
                           ),
                           Flexible(
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
-                              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                               child: Text(
                                 '${_detail!.headRepoOwner}:${_detail!.headBranch}',
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: colours.tertiaryInfo, fontSize: textXXS, fontFamily: 'RobotoMono'),
+                                style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXXS, fontFamily: 'RobotoMono'),
                               ),
                             ),
                           ),
@@ -337,16 +337,16 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: colours.tertiaryDark, width: spaceXXXXS),
+          bottom: BorderSide(color: context.colours.tertiaryDark, width: spaceXXXXS),
         ),
       ),
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        labelColor: colours.primaryLight,
-        unselectedLabelColor: colours.secondaryLight,
-        indicatorColor: colours.tertiaryInfo,
+        labelColor: context.colours.primaryLight,
+        unselectedLabelColor: context.colours.secondaryLight,
+        indicatorColor: context.colours.tertiaryInfo,
         indicatorSize: TabBarIndicatorSize.label,
         labelStyle: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
         unselectedLabelStyle: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
@@ -417,7 +417,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             spacing: spaceXXXS,
             runSpacing: spaceXXXS,
             children: detail.labels.map((label) {
-              final bgColor = label.color != null ? _parseHexColor(label.color!) : colours.tertiaryDark;
+              final bgColor = label.color != null ? _parseHexColor(label.color!) : context.colours.tertiaryDark;
               final textColor = bgColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
@@ -435,13 +435,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         // Description
         Text(
           t.prDescription.toUpperCase(),
-          style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXXS),
         if (detail.body.isEmpty)
           Text(
             t.prNoDescription,
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
           MarkdownBlock(data: detail.body, config: _markdownConfig, generator: _markdownGenerator),
@@ -455,14 +455,14 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         // Activity
         Text(
           '${t.prActivity.toUpperCase()} ($comments)',
-          style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXS),
 
         if (detail.timelineItems.isEmpty)
           Text(
             t.prNoActivity,
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
           ...detail.timelineItems.map((item) {
@@ -492,15 +492,15 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         if (!detail.canComment) ...[
           Container(
             padding: EdgeInsets.all(spaceSM),
-            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FaIcon(FontAwesomeIcons.lock, size: textXS, color: colours.tertiaryLight),
+                FaIcon(FontAwesomeIcons.lock, size: textXS, color: context.colours.tertiaryLight),
                 SizedBox(width: spaceXS),
                 Text(
                   t.issueWriteDisabled,
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                 ),
               ],
             ),
@@ -518,14 +518,14 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       padding: EdgeInsets.only(bottom: spaceXS),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Row(
           children: [
-            FaIcon(FontAwesomeIcons.codeBranch, size: textXS, color: colours.tertiaryLight),
+            FaIcon(FontAwesomeIcons.codeBranch, size: textXS, color: context.colours.tertiaryLight),
             SizedBox(width: spaceXS),
             Text(
               commit.shortSha,
-              style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+              style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
             ),
             SizedBox(width: spaceXS),
             Expanded(
@@ -533,13 +533,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                 commit.message.split('\n').first,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: colours.primaryLight, fontSize: textXS),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textXS),
               ),
             ),
             SizedBox(width: spaceXS),
             Text(
               relativeTime,
-              style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+              style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS),
             ),
           ],
         ),
@@ -558,10 +558,10 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       padding: EdgeInsets.only(bottom: spaceXS),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Row(
           children: [
-            FaIcon(icon, size: textXS, color: colours.tertiaryLight),
+            FaIcon(icon, size: textXS, color: context.colours.tertiaryLight),
             SizedBox(width: spaceXS),
             Expanded(
               child: Text.rich(
@@ -569,20 +569,20 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   children: [
                     TextSpan(
                       text: ref.actorUsername,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                       text: ' $mentionText ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     TextSpan(
                       text: refLabel,
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
                     ),
                     if (ref.sourceTitle.isNotEmpty)
                       TextSpan(
                         text: ' ${ref.sourceTitle}',
-                        style: TextStyle(color: colours.primaryLight, fontSize: textXS),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textXS),
                       ),
                   ],
                 ),
@@ -593,7 +593,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             SizedBox(width: spaceXS),
             Text(
               relativeTime,
-              style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+              style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS),
             ),
           ],
         ),
@@ -608,10 +608,10 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       padding: EdgeInsets.only(bottom: spaceXS),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
-        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Row(
           children: [
-            FaIcon(FontAwesomeIcons.bolt, size: textXS, color: colours.tertiaryLight),
+            FaIcon(FontAwesomeIcons.bolt, size: textXS, color: context.colours.tertiaryLight),
             SizedBox(width: spaceXS),
             Expanded(
               child: Text.rich(
@@ -619,23 +619,23 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   children: [
                     TextSpan(
                       text: fp.actorUsername,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                       text: ' force-pushed from ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     TextSpan(
                       text: fp.beforeSha,
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+                      style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
                     ),
                     TextSpan(
                       text: ' to ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     TextSpan(
                       text: fp.afterSha,
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+                      style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
                     ),
                   ],
                 ),
@@ -646,7 +646,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             SizedBox(width: spaceXS),
             Text(
               relativeTime,
-              style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+              style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS),
             ),
           ],
         ),
@@ -657,19 +657,19 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   Widget _buildChecksSummaryStamp() {
     final detail = _detail!;
     final (FaIconData icon, Color color, String text) = switch (detail.overallCheckStatus) {
-      CheckStatus.success => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive, t.prAllChecksPassed),
+      CheckStatus.success => (FontAwesomeIcons.solidCircleCheck, context.colours.tertiaryPositive, t.prAllChecksPassed),
       CheckStatus.failure => (
         FontAwesomeIcons.solidCircleXmark,
-        colours.tertiaryNegative,
+        context.colours.tertiaryNegative,
         t.prChecksFailed(detail.checkRuns.where((c) => c.conclusion == "failure").length),
       ),
-      CheckStatus.pending => (FontAwesomeIcons.solidClock, colours.tertiaryWarning, t.prChecksPending),
-      CheckStatus.none => (FontAwesomeIcons.circleMinus, colours.tertiaryLight, t.prChecksNotFound),
+      CheckStatus.pending => (FontAwesomeIcons.solidClock, context.colours.tertiaryWarning, t.prChecksPending),
+      CheckStatus.none => (FontAwesomeIcons.circleMinus, context.colours.tertiaryLight, t.prChecksNotFound),
     };
 
     return Container(
       padding: EdgeInsets.all(spaceSM),
-      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Row(
         children: [
           FaIcon(icon, size: textSM, color: color),
@@ -698,18 +698,18 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       children: latestReviews.values.map((review) {
         final (Color bgColor, Color borderColor, Color textColor, String label) = switch (review.state) {
           PrReviewState.approved => (
-            colours.tertiaryPositive.withValues(alpha: 0.15),
-            colours.tertiaryPositive.withValues(alpha: 0.3),
-            colours.tertiaryPositive,
+            context.colours.tertiaryPositive.withValues(alpha: 0.15),
+            context.colours.tertiaryPositive.withValues(alpha: 0.3),
+            context.colours.tertiaryPositive,
             t.prApproved,
           ),
           PrReviewState.changesRequested => (
-            colours.tertiaryNegative.withValues(alpha: 0.15),
-            colours.tertiaryNegative.withValues(alpha: 0.3),
-            colours.tertiaryNegative,
+            context.colours.tertiaryNegative.withValues(alpha: 0.15),
+            context.colours.tertiaryNegative.withValues(alpha: 0.3),
+            context.colours.tertiaryNegative,
             t.prChangesRequested,
           ),
-          _ => (colours.tertiaryDark, Colors.transparent, colours.secondaryLight, t.prCommented),
+          _ => (context.colours.tertiaryDark, Colors.transparent, context.colours.secondaryLight, t.prCommented),
         };
 
         return Container(
@@ -745,7 +745,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       padding: EdgeInsets.only(bottom: spaceXS),
       child: Container(
         padding: EdgeInsets.all(spaceSM),
-        decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -755,16 +755,16 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   child: Text(
                     comment.authorUsername,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Text(
                   ' $bullet ',
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 Text(
                   relativeTime,
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
               ],
             ),
@@ -789,9 +789,9 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
             decoration: BoxDecoration(
-              color: reaction.viewerHasReacted ? colours.showcaseBg : colours.tertiaryDark,
+              color: reaction.viewerHasReacted ? context.colours.showcaseBg : context.colours.tertiaryDark,
               borderRadius: BorderRadius.all(cornerRadiusXS),
-              border: Border.all(color: reaction.viewerHasReacted ? colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
+              border: Border.all(color: reaction.viewerHasReacted ? context.colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -800,7 +800,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                 SizedBox(width: spaceXXXXS),
                 Text(
                   '${reaction.count}',
-                  style: TextStyle(color: colours.primaryLight, fontSize: textXXS),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textXXS),
                 ),
               ],
             ),
@@ -817,15 +817,15 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         onTap: () => _showAddReactionSheet(targetId, isComment),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-          decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+          decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: colours.tertiaryLight),
+              FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: context.colours.tertiaryLight),
               SizedBox(width: spaceXXXS),
               Text(
                 '+',
-                style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -836,7 +836,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
 
   Widget _buildCommentInput() {
     return Container(
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         children: [
           Padding(
@@ -848,13 +848,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: _writeMode ? colours.tertiaryDark : Colors.transparent,
+                      color: _writeMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issueWrite.toUpperCase(),
                       style: TextStyle(
-                        color: _writeMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: _writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -867,13 +867,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: !_writeMode ? colours.tertiaryDark : Colors.transparent,
+                      color: !_writeMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issuePreview.toUpperCase(),
                       style: TextStyle(
-                        color: !_writeMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: !_writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -925,14 +925,14 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   controller: _commentController,
                   maxLines: 5,
                   minLines: 3,
-                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
                   decoration: InputDecoration(
-                    fillColor: colours.tertiaryDark,
+                    fillColor: context.colours.tertiaryDark,
                     filled: true,
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                     isCollapsed: true,
                     hintText: t.issueAddComment,
-                    hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                    hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                     contentPadding: EdgeInsets.all(spaceSM),
                   ),
                 ),
@@ -944,11 +944,11 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               constraints: BoxConstraints(minHeight: spaceLG * 2),
               padding: EdgeInsets.all(spaceSM),
               margin: EdgeInsets.symmetric(horizontal: spaceSM),
-              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _commentController.text.isEmpty
                   ? Text(
                       t.issueAddComment,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _commentController.text, config: _markdownConfig, generator: _markdownGenerator),
             ),
@@ -962,18 +962,18 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                   decoration: BoxDecoration(
-                    color: _submittingComment ? colours.tertiaryDark : colours.tertiaryInfo.withValues(alpha: 0.15),
+                    color: _submittingComment ? context.colours.tertiaryDark : context.colours.tertiaryInfo.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.all(cornerRadiusSM),
                   ),
                   child: _submittingComment
                       ? SizedBox(
                           height: textMD,
                           width: textMD,
-                          child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                          child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                         )
                       : Text(
                           t.comment.toUpperCase(),
-                          style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
@@ -993,7 +993,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       return Center(
         child: Text(
           t.prCommitsNotFound.toUpperCase(),
-          style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+          style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
     }
@@ -1009,7 +1009,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           padding: EdgeInsets.only(bottom: spaceXS),
           child: Container(
             padding: EdgeInsets.all(spaceSM),
-            decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1017,26 +1017,26 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   children: [
                     Text(
                       commit.shortSha,
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+                      style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
                     ),
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     Flexible(
                       child: Text(
                         commit.authorUsername,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                        style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                       ),
                     ),
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     Text(
                       relativeTime,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                   ],
                 ),
@@ -1045,7 +1045,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   commit.message.trim(),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                 ),
               ],
             ),
@@ -1064,7 +1064,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       return Center(
         child: Text(
           t.prChecksNotFound.toUpperCase(),
-          style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+          style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
     }
@@ -1079,13 +1079,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         // Individual check runs
         ...detail.checkRuns.map((check) {
           final (FaIconData icon, Color color) = switch (check.conclusion) {
-            "success" => (FontAwesomeIcons.solidCircleCheck, colours.tertiaryPositive),
-            "failure" => (FontAwesomeIcons.solidCircleXmark, colours.tertiaryNegative),
-            "cancelled" || "skipped" => (FontAwesomeIcons.circleMinus, colours.tertiaryLight),
+            "success" => (FontAwesomeIcons.solidCircleCheck, context.colours.tertiaryPositive),
+            "failure" => (FontAwesomeIcons.solidCircleXmark, context.colours.tertiaryNegative),
+            "cancelled" || "skipped" => (FontAwesomeIcons.circleMinus, context.colours.tertiaryLight),
             _ =>
               check.status == CheckRunStatus.inProgress
-                  ? (FontAwesomeIcons.solidCircle, colours.tertiaryWarning)
-                  : (FontAwesomeIcons.solidClock, colours.tertiaryLight),
+                  ? (FontAwesomeIcons.solidCircle, context.colours.tertiaryWarning)
+                  : (FontAwesomeIcons.solidClock, context.colours.tertiaryLight),
           };
 
           String? durationStr;
@@ -1102,7 +1102,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             padding: EdgeInsets.only(bottom: spaceXS),
             child: Container(
               padding: EdgeInsets.all(spaceSM),
-              decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: Row(
                 children: [
                   FaIcon(icon, size: textSM, color: color),
@@ -1111,13 +1111,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                     child: Text(
                       check.name,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                     ),
                   ),
                   if (durationStr != null)
                     Text(
                       durationStr,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                 ],
               ),
@@ -1164,7 +1164,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
       return Center(
         child: Text(
           t.prFilesChangedNotFound.toUpperCase(),
-          style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+          style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
     }
@@ -1175,22 +1175,22 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
         // Summary bar
         Container(
           padding: EdgeInsets.all(spaceSM),
-          decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+          decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
           child: Row(
             children: [
               Text(
                 '${detail.changedFileCount} ${t.prFilesChanged.toLowerCase()}',
-                style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Text(
                 '+${detail.additions}',
-                style: TextStyle(color: colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
               SizedBox(width: spaceXS),
               Text(
                 '-${detail.deletions}',
-                style: TextStyle(color: colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -1205,16 +1205,16 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           final hasPatch = file.patch != null && file.patch!.isNotEmpty;
 
           final (FaIconData icon, Color color) = switch (file.status) {
-            "added" => (FontAwesomeIcons.plus, colours.tertiaryPositive),
-            "removed" => (FontAwesomeIcons.minus, colours.tertiaryNegative),
-            "renamed" => (FontAwesomeIcons.arrowRight, colours.tertiaryWarning),
-            _ => (FontAwesomeIcons.pen, colours.tertiaryInfo),
+            "added" => (FontAwesomeIcons.plus, context.colours.tertiaryPositive),
+            "removed" => (FontAwesomeIcons.minus, context.colours.tertiaryNegative),
+            "renamed" => (FontAwesomeIcons.arrowRight, context.colours.tertiaryWarning),
+            _ => (FontAwesomeIcons.pen, context.colours.tertiaryInfo),
           };
 
           return Padding(
             padding: EdgeInsets.only(bottom: spaceXS),
             child: Container(
-              decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: Column(
                 children: [
                   GestureDetector(
@@ -1237,7 +1237,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                             child: Text(
                               file.filename,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                              style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                             ),
                           ),
                           if (file.additions > 0)
@@ -1245,7 +1245,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                               padding: EdgeInsets.only(left: spaceXS),
                               child: Text(
                                 '+${file.additions}',
-                                style: TextStyle(color: colours.tertiaryPositive, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textXS),
                               ),
                             ),
                           if (file.deletions > 0)
@@ -1253,12 +1253,16 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                               padding: EdgeInsets.only(left: spaceXXXS),
                               child: Text(
                                 '-${file.deletions}',
-                                style: TextStyle(color: colours.tertiaryNegative, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textXS),
                               ),
                             ),
                           if (hasPatch) ...[
                             SizedBox(width: spaceXS),
-                            FaIcon(expanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown, size: textXS, color: colours.tertiaryLight),
+                            FaIcon(
+                              expanded ? FontAwesomeIcons.chevronUp : FontAwesomeIcons.chevronDown,
+                              size: textXS,
+                              color: context.colours.tertiaryLight,
+                            ),
                           ],
                         ],
                       ),
@@ -1287,7 +1291,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     if (cleaned.length == 6) {
       return Color(int.parse('FF$cleaned', radix: 16));
     }
-    return colours.tertiaryDark;
+    return context.colours.tertiaryDark;
   }
 }
 

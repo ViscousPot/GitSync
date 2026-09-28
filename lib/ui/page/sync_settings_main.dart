@@ -42,7 +42,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
@@ -51,7 +51,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
         centerTitle: true,
         title: Text(
           t.syncSettings.toUpperCase(),
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(

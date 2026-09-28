@@ -297,7 +297,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
               child: Text(
                 t.mergeConflict.toUpperCase(),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
               ),
             ),
             contentBuilder: (expanded) =>
@@ -307,7 +307,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                   Text(
                     t.mergeDialogMessage,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                    style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   ),
                   SizedBox(height: spaceMD + spaceSM),
                   AiWandField(
@@ -344,21 +344,21 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                       controller: commitMessageController,
                       maxLines: null,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         decorationThickness: 0,
                         fontSize: textMD,
                       ),
                       decoration: InputDecoration(
-                        fillColor: colours.secondaryDark,
+                        fillColor: context.colours.secondaryDark,
                         filled: true,
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                         hintText: syncMessage,
                         isCollapsed: true,
                         label: Text(
                           t.commitMessage.toUpperCase(),
-                          style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -372,7 +372,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                   SizedBox(height: spaceMD),
                   (expanded ? (Widget child) => Expanded(child: child) : (child) => child)(
                     Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: colours.secondaryDark),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusSM), color: context.colours.secondaryDark),
                       padding: EdgeInsets.only(left: spaceXXS, right: spaceXXS, bottom: spaceXXS, top: spaceXXXS),
                       child: Column(
                         children: [
@@ -389,12 +389,12 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                       RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                     ),
                                   ),
-                                  icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: colours.primaryLight, size: textMD),
+                                  icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryLight, size: textMD),
                                   label: Text(
                                     conflictingPaths.isEmpty ? "-" : conflictingPaths[conflictIndex].$1.split("/").last.toUpperCase(),
                                     maxLines: 1,
                                     textAlign: TextAlign.start,
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -421,15 +421,15 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         : null,
                                     icon: FaIcon(FontAwesomeIcons.caretLeft),
                                     style: ButtonStyle(
-                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       ),
                                     ),
-                                    color: colours.primaryLight,
-                                    disabledColor: colours.tertiaryLight,
+                                    color: context.colours.primaryLight,
+                                    disabledColor: context.colours.tertiaryLight,
                                     iconSize: textSM,
                                   ),
                                   SizedBox(width: spaceXS),
@@ -458,15 +458,15 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         : null,
                                     icon: FaIcon(FontAwesomeIcons.caretRight),
                                     style: ButtonStyle(
-                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       ),
                                     ),
-                                    color: colours.primaryLight,
-                                    disabledColor: colours.tertiaryLight,
+                                    color: context.colours.primaryLight,
+                                    disabledColor: context.colours.tertiaryLight,
                                     iconSize: textSM,
                                   ),
                                 ],
@@ -480,7 +480,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                 children: [
                                   Text(
                                     t.resolveAll.toUpperCase(),
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: spaceXS),
                                   Expanded(
@@ -494,13 +494,13 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         shape: WidgetStatePropertyAll(
                                           RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(cornerRadiusSM),
-                                            side: BorderSide(color: colours.tertiaryInfo, width: 2),
+                                            side: BorderSide(color: context.colours.tertiaryInfo, width: 2),
                                           ),
                                         ),
                                       ),
                                       child: Text(
                                         t.allCurrent.toUpperCase(),
-                                        style: TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
+                                        style: TextStyle(color: context.colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
                                   ),
@@ -516,13 +516,13 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         shape: WidgetStatePropertyAll(
                                           RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(cornerRadiusSM),
-                                            side: BorderSide(color: colours.tertiaryLight, width: 2),
+                                            side: BorderSide(color: context.colours.tertiaryLight, width: 2),
                                           ),
                                         ),
                                       ),
                                       child: Text(
                                         t.both.toUpperCase(),
-                                        style: TextStyle(color: colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textXS),
+                                        style: TextStyle(color: context.colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
                                   ),
@@ -538,13 +538,13 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         shape: WidgetStatePropertyAll(
                                           RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(cornerRadiusSM),
-                                            side: BorderSide(color: colours.tertiaryWarning, width: 2),
+                                            side: BorderSide(color: context.colours.tertiaryWarning, width: 2),
                                           ),
                                         ),
                                       ),
                                       child: Text(
                                         t.allIncoming.toUpperCase(),
-                                        style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
+                                        style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
                                   ),
@@ -558,7 +558,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                   padding: EdgeInsets.all(spaceXS),
                                   child: conflictSections.isEmpty
                                       ? Center(
-                                          child: CircularProgressIndicator(color: colours.primaryLight, padding: EdgeInsets.all(spaceXS)),
+                                          child: CircularProgressIndicator(color: context.colours.primaryLight, padding: EdgeInsets.all(spaceXS)),
                                         )
                                       : (editorLineWrap ? (Widget child) => child : (Widget child) => SingleChildScrollView(scrollDirection: Axis.horizontal, child: child))(
                                           SizedBox(
@@ -592,7 +592,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                           child: Text(
                                                             t.keepChanges.toUpperCase(),
                                                             style: TextStyle(
-                                                              color: colours.primaryLight,
+                                                              color: context.colours.primaryLight,
                                                               fontSize: textSM,
                                                               fontWeight: FontWeight.bold,
                                                             ),
@@ -612,7 +612,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                             ? null
                                                                             : () => clearSelection(item.$1, setState),
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                           visualDensity: VisualDensity.compact,
                                                                           padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -625,7 +625,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                         ),
                                                                         child: Text(
                                                                           t.clearSelection.toUpperCase(),
-                                                                          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+                                                                          style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -657,7 +657,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                                 setState(() {});
                                                                               },
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                                                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                           visualDensity: VisualDensity.compact,
                                                                           padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -670,7 +670,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                         ),
                                                                         child: Text(
                                                                           t.keepSelected.toUpperCase(),
-                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                          style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -692,7 +692,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                                 setState(() {});
                                                                               },
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                                                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                           visualDensity: VisualDensity.compact,
                                                                           padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -705,7 +705,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                         ),
                                                                         child: Text(
                                                                            t.current.toUpperCase(),
-                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                          style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -725,7 +725,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                                 setState(() {});
                                                                               },
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryLight),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryLight),
                                                                           visualDensity: VisualDensity.compact,
                                                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                           padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -738,7 +738,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                         ),
                                                                         child: Text(
                                                                           t.both.toUpperCase(),
-                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                          style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -757,7 +757,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                                 setState(() {});
                                                                               },
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryWarning),
+                                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryWarning),
                                                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                                           visualDensity: VisualDensity.compact,
                                                                           padding: WidgetStatePropertyAll(EdgeInsets.zero),
@@ -770,7 +770,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                         ),
                                                                         child: Text(
                                                                            t.incoming.toUpperCase(),
-                                                                          style: TextStyle(color: colours.secondaryDark, fontWeight: FontWeight.bold),
+                                                                          style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -783,7 +783,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                             onTap: () => toggleLineSelection(item.$1, true, line.$1, setState),
                                                             child: Container(
                                                               color: isLineSelected(item.$1, true, line.$1)
-                                                                  ? colours.tertiaryInfo.withValues(alpha: 0.25)
+                                                                  ? context.colours.tertiaryInfo.withValues(alpha: 0.25)
                                                                   : Colors.transparent,
                                                               child: Row(
                                                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -791,7 +791,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                   Text(
                                                                     padNumber(item.$1 + line.$1 + 1),
                                                                     style: TextStyle(
-                                                                      color: colours.tertiaryInfo,
+                                                                      color: context.colours.tertiaryInfo,
                                                                       fontSize: textMD,
                                                                       fontWeight: FontWeight.bold,
                                                                       fontFamily: "Roboto",
@@ -802,7 +802,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                     Text(
                                                                       line.$2.trim(),
                                                                       style: TextStyle(
-                                                                        color: colours.tertiaryInfo,
+                                                                        color: context.colours.tertiaryInfo,
                                                                         fontSize: textMD,
                                                                         fontWeight: FontWeight.bold,
                                                                         fontFamily: "RobotoMono",
@@ -819,7 +819,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                             onTap: () => toggleLineSelection(item.$1, false, line.$1, setState),
                                                             child: Container(
                                                               color: isLineSelected(item.$1, false, line.$1)
-                                                                  ? colours.tertiaryWarning.withValues(alpha: 0.25)
+                                                                  ? context.colours.tertiaryWarning.withValues(alpha: 0.25)
                                                                   : Colors.transparent,
                                                               child: Row(
                                                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -827,7 +827,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                   Text(
                                                                     padNumber(item.$1 + line.$1 + 1),
                                                                     style: TextStyle(
-                                                                      color: colours.tertiaryWarning,
+                                                                      color: context.colours.tertiaryWarning,
                                                                       fontSize: textMD,
                                                                       fontWeight: FontWeight.bold,
                                                                       fontFamily: "Roboto",
@@ -838,7 +838,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                     Text(
                                                                       line.$2.trim(),
                                                                       style: TextStyle(
-                                                                        color: colours.tertiaryWarning,
+                                                                        color: context.colours.tertiaryWarning,
                                                                         fontSize: textMD,
                                                                         fontWeight: FontWeight.bold,
                                                                         fontFamily: "RobotoMono",
@@ -865,7 +865,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                       Text(
                                                         padNumber(item.$1 + 1),
                                                         style: TextStyle(
-                                                          color: colours.tertiaryLight,
+                                                          color: context.colours.tertiaryLight,
                                                           fontSize: textMD,
                                                           fontWeight: FontWeight.bold,
                                                           fontFamily: "Roboto",
@@ -876,7 +876,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                         Text(
                                                           item.$2.trim(),
                                                           style: TextStyle(
-                                                            color: colours.secondaryLight,
+                                                            color: context.colours.secondaryLight,
                                                             fontSize: textMD,
                                                             fontWeight: FontWeight.bold,
                                                             fontFamily: "RobotoMono",
@@ -894,8 +894,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                 if (isResolvingConflict)
                                   Positioned.fill(
                                     child: Container(
-                                      color: colours.secondaryDark.withValues(alpha: 0.7),
-                                      child: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
+                                      color: context.colours.secondaryDark.withValues(alpha: 0.7),
+                                      child: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
                                     ),
                                   ),
                               ],
@@ -926,7 +926,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                     },
                     style: ButtonStyle(
                       alignment: Alignment.center,
-                      backgroundColor: WidgetStatePropertyAll(colours.secondaryNegative),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.secondaryNegative),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                     ),
@@ -935,12 +935,12 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                             height: textSM,
                             width: textSM,
                             margin: EdgeInsets.only(right: spaceXXXS),
-                            child: CircularProgressIndicator(color: colours.primaryLight),
+                            child: CircularProgressIndicator(color: context.colours.primaryLight),
                           )
                         : null,
                     label: Text(
                       (clientModeEnabled ? t.abortMerge : t.resolveLater).toUpperCase(),
-                      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
                   TextButton.icon(
@@ -970,8 +970,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                       alignment: Alignment.center,
                       backgroundColor: WidgetStatePropertyAll(
                         !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1
-                            ? colours.primaryPositive
-                            : colours.tertiaryDark,
+                            ? context.colours.primaryPositive
+                            : context.colours.tertiaryDark,
                       ),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
@@ -981,7 +981,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                             height: textSM,
                             width: textSM,
                             margin: EdgeInsets.only(right: spaceXXXS),
-                            child: CircularProgressIndicator(color: colours.tertiaryDark),
+                            child: CircularProgressIndicator(color: context.colours.tertiaryDark),
                           )
                         : null,
                     label: Text(
@@ -993,8 +993,8 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                           .toUpperCase(),
                       style: TextStyle(
                         color: !demo && conflictSections.indexWhere((section) => section.$2.contains("\n")) == -1
-                            ? colours.tertiaryDark
-                            : colours.tertiaryLight,
+                            ? context.colours.tertiaryDark
+                            : context.colours.tertiaryLight,
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
                       ),

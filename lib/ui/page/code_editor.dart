@@ -165,7 +165,7 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
               toolbarBuilder: (context, child) => Material(
                 borderRadius: const BorderRadius.all(cornerRadiusMax),
                 clipBehavior: Clip.antiAlias,
-                color: colours.primaryDark,
+                color: context.colours.primaryDark,
                 elevation: 1.0,
                 type: MaterialType.card,
                 child: child,
@@ -183,7 +183,7 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
                   },
                   child: Text(
                     entry.value.label,
-                    style: TextStyle(fontSize: textMD, color: colours.primaryLight, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: textMD, color: context.colours.primaryLight, fontWeight: FontWeight.w500),
                   ),
                 );
               }).toList(),
@@ -223,14 +223,14 @@ class _CodeEditor extends State<CodeEditor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.primaryDark,
-          systemNavigationBarColor: colours.primaryDark,
+          statusBarColor: context.colours.primaryDark,
+          systemNavigationBarColor: context.colours.primaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
@@ -243,7 +243,7 @@ class _CodeEditor extends State<CodeEditor> {
               Expanded(
                 child: Text(
                   p.basename(widget.paths[index]),
-                  style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: textLG, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                 ),
               ),
               if (widget.paths.length > 1)
@@ -264,13 +264,13 @@ class _CodeEditor extends State<CodeEditor> {
                           : null,
                       icon: FaIcon(FontAwesomeIcons.caretLeft),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                       ),
-                      color: colours.primaryLight,
-                      disabledColor: colours.tertiaryLight,
+                      color: context.colours.primaryLight,
+                      disabledColor: context.colours.tertiaryLight,
                       iconSize: textSM,
                     ),
                     SizedBox(width: spaceXS),
@@ -288,13 +288,13 @@ class _CodeEditor extends State<CodeEditor> {
                           : null,
                       icon: FaIcon(FontAwesomeIcons.caretRight),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                        backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none)),
                       ),
-                      color: colours.primaryLight,
-                      disabledColor: colours.tertiaryLight,
+                      color: context.colours.primaryLight,
+                      disabledColor: context.colours.tertiaryLight,
                       iconSize: textSM,
                     ),
                   ],
@@ -309,7 +309,7 @@ class _CodeEditor extends State<CodeEditor> {
             Container(
               margin: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceSM),
               padding: EdgeInsets.all(spaceSM),
-              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -322,11 +322,11 @@ class _CodeEditor extends State<CodeEditor> {
                               children: [
                                 TextSpan(
                                   text: '${entry.$1}: ',
-                                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                 ),
                                 TextSpan(
                                   text: entry.$2,
-                                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                                 ),
                               ],
                             ),
@@ -547,9 +547,9 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
           ButtonSetting(
             text: t.reportABug,
             icon: FontAwesomeIcons.bug,
-            textColor: colours.primaryDark,
-            iconColor: colours.primaryDark,
-            buttonColor: colours.tertiaryNegative,
+            textColor: context.colours.primaryDark,
+            iconColor: context.colours.primaryDark,
+            buttonColor: context.colours.tertiaryNegative,
             onPressed: () async {
               await Logger.reportIssue(context, From.CODE_EDITOR);
             },
@@ -559,8 +559,8 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
             builder: (dialogContext) => ButtonSetting(
               text: t.dontShowAgain,
               icon: FontAwesomeIcons.eyeSlash,
-              textColor: colours.secondaryLight,
-              iconColor: colours.secondaryLight,
+              textColor: context.colours.secondaryLight,
+              iconColor: context.colours.secondaryLight,
               onPressed: () async {
                 ref.read(showEditorExperimentalNoticeProvider.notifier).set(false);
                 Navigator.of(dialogContext).pop();
@@ -582,13 +582,13 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(cornerRadiusMD),
-            color: widget.type == EditorType.DIFF ? Colors.transparent : colours.tertiaryDark,
+            color: widget.type == EditorType.DIFF ? Colors.transparent : context.colours.tertiaryDark,
           ),
           margin: widget.type == EditorType.DIFF ? EdgeInsets.zero : EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceLG),
           padding: widget.type == EditorType.DIFF ? EdgeInsets.zero : EdgeInsets.only(right: spaceXS, top: spaceXXXXS),
           clipBehavior: Clip.hardEdge,
           child: widget.type == EditorType.LOGS && !logsCollapsed
-              ? Center(child: CircularProgressIndicator(color: colours.primaryLight))
+              ? Center(child: CircularProgressIndicator(color: context.colours.primaryLight))
               : ReEditor.CodeEditor(
                   controller: controller,
                   scrollController: ReEditor.CodeScrollController(verticalScroller: verticalController, horizontalScroller: horizontalController),
@@ -616,7 +616,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                           thickness: spaceXS + (spaceMD - spaceXS) * t,
                           radius: cornerRadiusXS,
                           minThumbLength: spaceLG,
-                          thumbColor: Color.lerp(colours.secondaryLight, colours.primaryInfo, t),
+                          thumbColor: Color.lerp(context.colours.secondaryLight, context.colours.primaryInfo, t),
                           child: child,
                         );
                       },
@@ -625,65 +625,65 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                   },
                   chunkAnalyzer: widget.type == EditorType.LOGS ? LogsChunkAnalyzer() : ReEditor.DefaultCodeChunkAnalyzer(),
                   style: ReEditor.CodeEditorStyle(
-                    textColor: colours.tertiaryLight,
+                    textColor: context.colours.tertiaryLight,
                     fontSize: textMD,
                     fontFamily: "RobotoMono",
                     codeTheme: ReEditor.CodeHighlightTheme(
                       languages: languages,
                       theme: {
-                        'root': TextStyle(color: colours.primaryLight),
-                        'comment': TextStyle(color: colours.secondaryLight),
-                        'quote': TextStyle(color: colours.tertiaryInfo),
-                        'variable': TextStyle(color: colours.secondaryWarning),
-                        'template-variable': TextStyle(color: colours.secondaryWarning),
-                        'tag': TextStyle(color: colours.secondaryWarning),
-                        'name': TextStyle(color: colours.secondaryWarning),
-                        'selector-id': TextStyle(color: colours.secondaryWarning),
-                        'selector-class': TextStyle(color: colours.secondaryWarning),
-                        'regexp': TextStyle(color: colours.secondaryWarning),
-                        'number': TextStyle(color: colours.primaryWarning),
-                        'built_in': TextStyle(color: colours.primaryWarning),
-                        'builtin-name': TextStyle(color: colours.primaryWarning),
-                        'literal': TextStyle(color: colours.primaryWarning),
-                        'type': TextStyle(color: colours.primaryWarning),
-                        'params': TextStyle(color: colours.primaryWarning),
-                        'meta': TextStyle(color: colours.primaryWarning),
-                        'link': TextStyle(color: colours.primaryWarning),
-                        'attribute': TextStyle(color: colours.tertiaryInfo),
-                        'string': TextStyle(color: colours.primaryPositive),
-                        'symbol': TextStyle(color: colours.primaryPositive),
-                        'bullet': TextStyle(color: colours.primaryPositive),
-                        'title': TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.w500),
-                        'section': TextStyle(color: colours.tertiaryInfo, fontWeight: FontWeight.w500),
-                        'keyword': TextStyle(color: colours.tertiaryNegative),
-                        'selector-tag': TextStyle(color: colours.tertiaryNegative),
+                        'root': TextStyle(color: context.colours.primaryLight),
+                        'comment': TextStyle(color: context.colours.secondaryLight),
+                        'quote': TextStyle(color: context.colours.tertiaryInfo),
+                        'variable': TextStyle(color: context.colours.secondaryWarning),
+                        'template-variable': TextStyle(color: context.colours.secondaryWarning),
+                        'tag': TextStyle(color: context.colours.secondaryWarning),
+                        'name': TextStyle(color: context.colours.secondaryWarning),
+                        'selector-id': TextStyle(color: context.colours.secondaryWarning),
+                        'selector-class': TextStyle(color: context.colours.secondaryWarning),
+                        'regexp': TextStyle(color: context.colours.secondaryWarning),
+                        'number': TextStyle(color: context.colours.primaryWarning),
+                        'built_in': TextStyle(color: context.colours.primaryWarning),
+                        'builtin-name': TextStyle(color: context.colours.primaryWarning),
+                        'literal': TextStyle(color: context.colours.primaryWarning),
+                        'type': TextStyle(color: context.colours.primaryWarning),
+                        'params': TextStyle(color: context.colours.primaryWarning),
+                        'meta': TextStyle(color: context.colours.primaryWarning),
+                        'link': TextStyle(color: context.colours.primaryWarning),
+                        'attribute': TextStyle(color: context.colours.tertiaryInfo),
+                        'string': TextStyle(color: context.colours.primaryPositive),
+                        'symbol': TextStyle(color: context.colours.primaryPositive),
+                        'bullet': TextStyle(color: context.colours.primaryPositive),
+                        'title': TextStyle(color: context.colours.tertiaryInfo, fontWeight: FontWeight.w500),
+                        'section': TextStyle(color: context.colours.tertiaryInfo, fontWeight: FontWeight.w500),
+                        'keyword': TextStyle(color: context.colours.tertiaryNegative),
+                        'selector-tag': TextStyle(color: context.colours.tertiaryNegative),
                         'emphasis': TextStyle(fontStyle: FontStyle.italic),
                         'strong': TextStyle(fontWeight: FontWeight.bold),
 
-                        'logRoot': TextStyle(color: colours.primaryLight, fontFamily: "Roboto"),
-                        'logComment': TextStyle(color: colours.secondaryLight, fontFamily: "Roboto"),
-                        'logDate': TextStyle(color: colours.tertiaryInfo.withAlpha(170), fontFamily: "Roboto"),
-                        'logTime': TextStyle(color: colours.tertiaryInfo, fontFamily: "Roboto"),
-                        'logLevel': TextStyle(color: colours.tertiaryPositive, fontFamily: "Roboto"),
-                        'logComponent': TextStyle(color: colours.primaryPositive, fontFamily: "Roboto"),
-                        'logError': TextStyle(color: colours.tertiaryNegative, fontFamily: "Roboto"),
+                        'logRoot': TextStyle(color: context.colours.primaryLight, fontFamily: "Roboto"),
+                        'logComment': TextStyle(color: context.colours.secondaryLight, fontFamily: "Roboto"),
+                        'logDate': TextStyle(color: context.colours.tertiaryInfo.withAlpha(170), fontFamily: "Roboto"),
+                        'logTime': TextStyle(color: context.colours.tertiaryInfo, fontFamily: "Roboto"),
+                        'logLevel': TextStyle(color: context.colours.tertiaryPositive, fontFamily: "Roboto"),
+                        'logComponent': TextStyle(color: context.colours.primaryPositive, fontFamily: "Roboto"),
+                        'logError': TextStyle(color: context.colours.tertiaryNegative, fontFamily: "Roboto"),
 
-                        'diffRoot': TextStyle(color: colours.tertiaryLight),
+                        'diffRoot': TextStyle(color: context.colours.tertiaryLight),
                         'diffHunkHeader': TextStyle(
-                          backgroundColor: colours.tertiaryDark,
-                          color: colours.tertiaryLight,
+                          backgroundColor: context.colours.tertiaryDark,
+                          color: context.colours.tertiaryLight,
                           fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
                         ),
                         'eof': TextStyle(
-                          backgroundColor: colours.tertiaryDark,
-                          color: colours.tertiaryLight,
+                          backgroundColor: context.colours.tertiaryDark,
+                          color: context.colours.tertiaryLight,
                           fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
                         ),
                         'diffHide': TextStyle(wordSpacing: 0, fontSize: 0, fontFamily: "Roboto"),
-                        'addition': TextStyle(color: colours.tertiaryPositive, fontWeight: FontWeight.w400),
-                        'deletion': TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.w400),
+                        'addition': TextStyle(color: context.colours.tertiaryPositive, fontWeight: FontWeight.w400),
+                        'deletion': TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.w400),
                       },
                     ),
                   ),
@@ -700,13 +700,13 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                             child: CodeLineNumber(
                               controller: editingController,
                               notifier: notifier,
-                              focusedTextStyle: TextStyle(color: colours.secondaryLight, fontSize: textMD),
+                              focusedTextStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
                               customLineIndex2TextStyle: (lineIndex) {
                                 return TextStyle(
                                   fontFamily: "RobotoMono",
                                   color: deletionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "-"
-                                      ? colours.tertiaryNegative
-                                      : colours.tertiaryLight,
+                                      ? context.colours.tertiaryNegative
+                                      : context.colours.tertiaryLight,
                                   fontSize: textMD,
                                 );
                               },
@@ -725,13 +725,13 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                             child: CodeLineNumber(
                               controller: editingController,
                               notifier: notifier,
-                              focusedTextStyle: TextStyle(color: colours.secondaryLight, fontSize: textMD),
+                              focusedTextStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
                               customLineIndex2TextStyle: (lineIndex) {
                                 return TextStyle(
                                   fontFamily: "RobotoMono",
                                   color: insertionDiffLineNumbers[lineIndex].split(conflictSeparator).first == "+"
-                                      ? colours.tertiaryPositive
-                                      : colours.tertiaryLight,
+                                      ? context.colours.tertiaryPositive
+                                      : context.colours.tertiaryLight,
                                   fontSize: textMD,
                                 );
                               },
@@ -754,7 +754,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
               behavior: HitTestBehavior.opaque,
               onTap: _showExperimentalInfoDialog,
               child: Container(
-                decoration: BoxDecoration(color: colours.primaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                decoration: BoxDecoration(color: context.colours.primaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                 padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXS),
                 child: Column(
                   children: [
@@ -766,11 +766,11 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                           constraints: BoxConstraints(),
                           onPressed: _showExperimentalInfoDialog,
                           visualDensity: VisualDensity.compact,
-                          icon: FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
+                          icon: FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
                         ),
                         Text(
                           t.experimental.toUpperCase(),
-                          style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceXS),
                       ],
@@ -778,7 +778,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                     SizedBox(height: spaceXXXS),
                     Text(
                       t.experimentalMsg,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                     ),
                   ],
                 ),
@@ -795,7 +795,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                       ? Container(
                           height: spaceMD + spaceXXS,
                           width: spaceMD + spaceXXS,
-                          child: CircularProgressIndicator(color: colours.primaryLight),
+                          child: CircularProgressIndicator(color: context.colours.primaryLight),
                         )
                       : SizedBox.shrink(),
                 ),

@@ -194,7 +194,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
         }
       },
       child: Scaffold(
-        backgroundColor: colours.primaryDark,
+        backgroundColor: context.colours.primaryDark,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(spaceMD),
@@ -213,7 +213,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                     return Column(
                       children: [
                         Container(
-                          decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                          decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                           padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
                           child: Stack(
                             clipBehavior: Clip.none,
@@ -237,7 +237,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                         ? Center(
                                             child: Text(
                                               t.commitsNotFound.toUpperCase(),
-                                              style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                              style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                                             ),
                                           )
                                         : ListView.builder(
@@ -290,11 +290,11 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                           shape: WidgetStatePropertyAll(
                                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM).copyWith(topLeft: cornerRadiusMD)),
                                           ),
-                                          backgroundColor: WidgetStatePropertyAll(colours.secondaryDark.withAlpha(127)),
+                                          backgroundColor: WidgetStatePropertyAll(context.colours.secondaryDark.withAlpha(127)),
                                         ),
                                         constraints: BoxConstraints(),
                                         onPressed: () => Navigator.of(context).pop(_scrollController.hasClients ? _scrollController.offset : null),
-                                        icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: colours.primaryLight),
+                                        icon: FaIcon(FontAwesomeIcons.downLeftAndUpRightToCenter, size: textMD, color: context.colours.primaryLight),
                                       ),
                                     ),
                                     CommitSelectActionBar(
@@ -315,7 +315,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                 child: Center(
                                   child: Text(
                                     t.recentCommits.toUpperCase(),
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                   ),
                                 ),
                               ),
@@ -332,7 +332,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                               clipBehavior: Clip.none,
                               children: [
                                 Container(
-                                  decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                  decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                   padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
                                   child: Column(
                                     children: [
@@ -344,7 +344,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                           hasConflicts: hasConflictsAsync.valueOrNull ?? false,
                                           showLabel: false,
                                           dropdownDecoration: BoxDecoration(
-                                            color: colours.tertiaryDark,
+                                            color: context.colours.tertiaryDark,
                                             borderRadius: BorderRadius.all(cornerRadiusSM),
                                           ),
                                           onCheckoutBranch: (item) async => await widget.onBranchChanged(item),
@@ -359,15 +359,15 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       //     Expanded(
                                       //       child: TextButton.icon(
                                       //         onPressed: () {},
-                                      //         icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: colours.primaryLight, size: textMD),
+                                      //         icon: FaIcon(FontAwesomeIcons.arrowsRotate, color: context.colours.primaryLight, size: textMD),
                                       //         label: Text(
                                       //           'UPDATE FROM MAIN',
                                       //           maxLines: 1,
                                       //           overflow: TextOverflow.ellipsis,
-                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       //         ),
                                       //         style: TextButton.styleFrom(
-                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           backgroundColor: context.colours.tertiaryDark,
                                       //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                       //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       //         ),
@@ -377,15 +377,15 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       //     Expanded(
                                       //       child: TextButton.icon(
                                       //         onPressed: () {},
-                                      //         icon: FaIcon(FontAwesomeIcons.codeCompare, color: colours.primaryLight, size: textMD),
+                                      //         icon: FaIcon(FontAwesomeIcons.codeCompare, color: context.colours.primaryLight, size: textMD),
                                       //         label: Text(
                                       //           'COMPARE TO BRANCH',
                                       //           maxLines: 1,
                                       //           overflow: TextOverflow.ellipsis,
-                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       //         ),
                                       //         style: TextButton.styleFrom(
-                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           backgroundColor: context.colours.tertiaryDark,
                                       //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                       //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       //         ),
@@ -398,15 +398,15 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       //     Expanded(
                                       //       child: TextButton.icon(
                                       //         onPressed: () {},
-                                      //         icon: FaIcon(FontAwesomeIcons.codeMerge, color: colours.primaryLight, size: textMD),
+                                      //         icon: FaIcon(FontAwesomeIcons.codeMerge, color: context.colours.primaryLight, size: textMD),
                                       //         label: Text(
                                       //           'MERGE INTO BRANCH',
                                       //           maxLines: 1,
                                       //           overflow: TextOverflow.ellipsis,
-                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       //         ),
                                       //         style: TextButton.styleFrom(
-                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           backgroundColor: context.colours.tertiaryDark,
                                       //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                       //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       //         ),
@@ -416,15 +416,15 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       //     Expanded(
                                       //       child: TextButton.icon(
                                       //         onPressed: () {},
-                                      //         icon: FaIcon(FontAwesomeIcons.layerGroup, color: colours.primaryLight, size: textMD),
+                                      //         icon: FaIcon(FontAwesomeIcons.layerGroup, color: context.colours.primaryLight, size: textMD),
                                       //         label: Text(
                                       //           'SQUASH & MERGE',
                                       //           maxLines: 1,
                                       //           overflow: TextOverflow.ellipsis,
-                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       //         ),
                                       //         style: TextButton.styleFrom(
-                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           backgroundColor: context.colours.tertiaryDark,
                                       //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                       //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       //         ),
@@ -437,15 +437,15 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                       //     Expanded(
                                       //       child: TextButton.icon(
                                       //         onPressed: () {},
-                                      //         icon: FaIcon(FontAwesomeIcons.diagramNext, color: colours.primaryLight, size: textMD),
+                                      //         icon: FaIcon(FontAwesomeIcons.diagramNext, color: context.colours.primaryLight, size: textMD),
                                       //         label: Text(
                                       //           'REBASE',
                                       //           maxLines: 1,
                                       //           overflow: TextOverflow.ellipsis,
-                                      //           style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                      //           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       //         ),
                                       //         style: TextButton.styleFrom(
-                                      //           backgroundColor: colours.tertiaryDark,
+                                      //           backgroundColor: context.colours.tertiaryDark,
                                       //           padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                                       //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM), side: BorderSide.none),
                                       //         ),
@@ -463,7 +463,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                   child: Center(
                                     child: Text(
                                       t.branchManagement.toUpperCase(),
-                                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                     ),
                                   ),
                                 ),
@@ -477,7 +477,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                             clipBehavior: Clip.none,
                             children: [
                               Container(
-                                decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                 padding: EdgeInsets.only(left: spaceSM, bottom: spaceXS, right: spaceSM, top: spaceXS),
                                 child: ValueListenableBuilder<Map<ShowcaseFeature, int?>>(
                                   valueListenable: _featureCounts,
@@ -561,7 +561,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                 child: Center(
                                   child: Text(
                                     t.providerTools.toUpperCase(),
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
+                                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                   ),
                                 ),
                               ),

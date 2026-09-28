@@ -12,7 +12,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.invalidRepositoryUrlTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -20,7 +20,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
           children: [
             Text(
               t.invalidRepositoryUrlMessage,
-              style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -29,7 +29,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         TextButton(
           child: Text(
             t.cloneAnyway.toUpperCase(),
-            style: TextStyle(color: colours.secondaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -39,7 +39,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

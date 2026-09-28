@@ -212,34 +212,38 @@ class _IssuesPageState extends State<IssuesPage> {
     showMenu<IssueSortOption>(
       context: context,
       position: position,
-      color: colours.secondaryDark,
+      color: context.colours.secondaryDark,
       items: [
         PopupMenuItem(
           value: IssueSortOption.newest,
           child: Text(
             t.sortNewest,
-            style: TextStyle(color: _sortOption == IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight),
+            style: TextStyle(color: _sortOption == IssueSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: IssueSortOption.oldest,
           child: Text(
             t.sortOldest,
-            style: TextStyle(color: _sortOption == IssueSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight),
+            style: TextStyle(color: _sortOption == IssueSortOption.oldest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: IssueSortOption.mostCommented,
           child: Text(
             t.sortMostCommented,
-            style: TextStyle(color: _sortOption == IssueSortOption.mostCommented ? colours.showcaseFeatureIcon : colours.primaryLight),
+            style: TextStyle(
+              color: _sortOption == IssueSortOption.mostCommented ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
+            ),
           ),
         ),
         PopupMenuItem(
           value: IssueSortOption.recentlyUpdated,
           child: Text(
             t.sortRecentlyUpdated,
-            style: TextStyle(color: _sortOption == IssueSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight),
+            style: TextStyle(
+              color: _sortOption == IssueSortOption.recentlyUpdated ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
+            ),
           ),
         ),
       ],
@@ -258,7 +262,7 @@ class _IssuesPageState extends State<IssuesPage> {
     final milestones = _milestones ?? [];
     showModalBottomSheet(
       context: context,
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: cornerRadiusMD)),
       builder: (context) {
         return SafeArea(
@@ -269,7 +273,7 @@ class _IssuesPageState extends State<IssuesPage> {
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
                   t.filterMilestone.toUpperCase(),
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
               if (milestones.isEmpty)
@@ -277,7 +281,7 @@ class _IssuesPageState extends State<IssuesPage> {
                   padding: EdgeInsets.all(spaceMD),
                   child: Text(
                     t.filterMilestonesEmpty,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                   ),
                 )
               else ...[
@@ -307,7 +311,7 @@ class _IssuesPageState extends State<IssuesPage> {
     final projects = _projects ?? [];
     showModalBottomSheet(
       context: context,
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: cornerRadiusMD)),
       builder: (context) {
         return SafeArea(
@@ -318,7 +322,7 @@ class _IssuesPageState extends State<IssuesPage> {
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
                   t.filterProject.toUpperCase(),
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
               if (projects.isEmpty)
@@ -326,7 +330,7 @@ class _IssuesPageState extends State<IssuesPage> {
                   padding: EdgeInsets.all(spaceMD),
                   child: Text(
                     t.filterProjectsEmpty,
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                   ),
                 )
               else ...[
@@ -353,9 +357,9 @@ class _IssuesPageState extends State<IssuesPage> {
     return ListTile(
       title: Text(
         title,
-        style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.primaryLight, fontSize: textSM),
+        style: TextStyle(color: selected ? context.colours.showcaseFeatureIcon : context.colours.primaryLight, fontSize: textSM),
       ),
-      trailing: selected ? FaIcon(FontAwesomeIcons.check, size: textSM, color: colours.showcaseFeatureIcon) : null,
+      trailing: selected ? FaIcon(FontAwesomeIcons.check, size: textSM, color: context.colours.showcaseFeatureIcon) : null,
       onTap: onTap,
     );
   }
@@ -381,7 +385,7 @@ class _IssuesPageState extends State<IssuesPage> {
     }
     showModalBottomSheet(
       context: context,
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: cornerRadiusMD)),
       builder: (context) {
         return SafeArea(
@@ -392,7 +396,7 @@ class _IssuesPageState extends State<IssuesPage> {
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
                   t.pullRequests.toUpperCase(),
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
               ...numbers.map(
@@ -432,20 +436,20 @@ class _IssuesPageState extends State<IssuesPage> {
           focusNode: focusNode,
           maxLines: 1,
           style: TextStyle(
-            color: colours.primaryLight,
+            color: context.colours.primaryLight,
             fontWeight: FontWeight.bold,
             decoration: TextDecoration.none,
             decorationThickness: 0,
             fontSize: textMD,
           ),
           decoration: InputDecoration(
-            fillColor: colours.tertiaryDark,
+            fillColor: context.colours.tertiaryDark,
             filled: true,
             border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
             isCollapsed: true,
             label: Text(
               label,
-              style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
             ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -459,7 +463,7 @@ class _IssuesPageState extends State<IssuesPage> {
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4,
-            color: colours.tertiaryDark,
+            color: context.colours.tertiaryDark,
             borderRadius: BorderRadius.all(cornerRadiusSM),
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: 200, maxWidth: 300),
@@ -473,7 +477,7 @@ class _IssuesPageState extends State<IssuesPage> {
                     dense: true,
                     title: Text(
                       option,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                     ),
                     onTap: () => onSelected(option),
                   );
@@ -492,13 +496,13 @@ class _IssuesPageState extends State<IssuesPage> {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-        decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceXXXS),
             Row(
@@ -507,13 +511,13 @@ class _IssuesPageState extends State<IssuesPage> {
                   child: Text(
                     value ?? t.filterNone,
                     style: TextStyle(
-                      color: value != null ? colours.primaryLight : colours.tertiaryLight,
+                      color: value != null ? context.colours.primaryLight : context.colours.tertiaryLight,
                       fontWeight: FontWeight.bold,
                       fontSize: textMD,
                     ),
                   ),
                 ),
-                FaIcon(FontAwesomeIcons.chevronDown, size: textXS, color: colours.secondaryLight),
+                FaIcon(FontAwesomeIcons.chevronDown, size: textXS, color: context.colours.secondaryLight),
               ],
             ),
           ],
@@ -524,7 +528,7 @@ class _IssuesPageState extends State<IssuesPage> {
 
   Widget _buildFilterDrawer() {
     return Drawer(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,12 +539,12 @@ class _IssuesPageState extends State<IssuesPage> {
                 children: [
                   Text(
                     t.filterSidebar.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.primaryLight),
+                    child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: context.colours.primaryLight),
                   ),
                 ],
               ),
@@ -583,7 +587,7 @@ class _IssuesPageState extends State<IssuesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       endDrawer: _buildFilterDrawer(),
       onEndDrawerChanged: (isOpened) {
         if (!isOpened) _fetchIssues();
@@ -599,7 +603,7 @@ class _IssuesPageState extends State<IssuesPage> {
                   SizedBox(width: spaceXS),
                   Text(
                     t.issues.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   getOpenInBrowserButton(widget.gitProvider.issuesUrl(widget.remoteWebUrl)),
@@ -610,7 +614,7 @@ class _IssuesPageState extends State<IssuesPage> {
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          FaIcon(FontAwesomeIcons.filter, size: textMD, color: colours.primaryLight),
+                          FaIcon(FontAwesomeIcons.filter, size: textMD, color: context.colours.primaryLight),
                           if (_hasActiveFilters)
                             Positioned(
                               right: -spaceXXXS,
@@ -618,7 +622,7 @@ class _IssuesPageState extends State<IssuesPage> {
                               child: Container(
                                 width: spaceXS,
                                 height: spaceXS,
-                                decoration: BoxDecoration(color: colours.showcaseFeatureIcon, shape: BoxShape.circle),
+                                decoration: BoxDecoration(color: context.colours.showcaseFeatureIcon, shape: BoxShape.circle),
                               ),
                             ),
                         ],
@@ -639,7 +643,7 @@ class _IssuesPageState extends State<IssuesPage> {
                     },
                     child: Container(
                       padding: EdgeInsets.all(spaceXS),
-                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: colours.primaryLight),
+                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: context.colours.primaryLight),
                     ),
                   ),
                 ],
@@ -655,17 +659,22 @@ class _IssuesPageState extends State<IssuesPage> {
                       contextMenuBuilder: globalContextMenuBuilder,
                       controller: _searchController,
                       maxLines: 1,
-                      style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
+                      style: TextStyle(
+                        color: context.colours.primaryLight,
+                        decoration: TextDecoration.none,
+                        decorationThickness: 0,
+                        fontSize: textSM,
+                      ),
                       decoration: InputDecoration(
-                        fillColor: colours.secondaryDark,
+                        fillColor: context.colours.secondaryDark,
                         filled: true,
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                         isCollapsed: true,
                         hintText: t.searchEllipsis,
-                        hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                        hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
-                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: context.colours.tertiaryLight),
                         ),
                         prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
                         suffixIcon: _searchController.text.isNotEmpty
@@ -676,7 +685,7 @@ class _IssuesPageState extends State<IssuesPage> {
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.only(right: spaceSM),
-                                  child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
+                                  child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: context.colours.tertiaryLight),
                                 ),
                               )
                             : null,
@@ -695,7 +704,7 @@ class _IssuesPageState extends State<IssuesPage> {
                       child: FaIcon(
                         FontAwesomeIcons.arrowDownWideShort,
                         size: textMD,
-                        color: _sortOption != IssueSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight,
+                        color: _sortOption != IssueSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
                       ),
                     ),
                   ),
@@ -726,7 +735,7 @@ class _IssuesPageState extends State<IssuesPage> {
 
             Expanded(
               child: RefreshIndicator(
-                color: colours.tertiaryDark,
+                color: context.colours.tertiaryDark,
                 onRefresh: () async {
                   _fetchIssues();
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -740,7 +749,7 @@ class _IssuesPageState extends State<IssuesPage> {
                             child: Center(
                               child: Text(
                                 t.issuesNotFound.toUpperCase(),
-                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
                           ),
@@ -756,7 +765,7 @@ class _IssuesPageState extends State<IssuesPage> {
                             return Padding(
                               padding: EdgeInsets.all(spaceMD),
                               child: Center(
-                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                               ),
                             );
                           }
@@ -821,14 +830,18 @@ class _FilterChip extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
           decoration: BoxDecoration(
-            color: selected ? colours.showcaseBg : colours.tertiaryDark,
+            color: selected ? context.colours.showcaseBg : context.colours.tertiaryDark,
             borderRadius: BorderRadius.all(cornerRadiusSM),
-            border: Border.all(color: selected ? colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
+            border: Border.all(color: selected ? context.colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: selected ? context.colours.showcaseFeatureIcon : context.colours.secondaryLight,
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -853,7 +866,7 @@ class _ItemIssue extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(spaceSM),
-        decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -865,7 +878,7 @@ class _ItemIssue extends StatelessWidget {
                   child: FaIcon(
                     issue.isOpen ? FontAwesomeIcons.solidCircleDot : FontAwesomeIcons.solidCircleCheck,
                     size: textMD,
-                    color: issue.isOpen ? colours.tertiaryPositive : colours.primaryNegative,
+                    color: issue.isOpen ? context.colours.tertiaryPositive : context.colours.primaryNegative,
                   ),
                 ),
                 SizedBox(width: spaceXS),
@@ -874,7 +887,7 @@ class _ItemIssue extends StatelessWidget {
                     issue.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -887,31 +900,31 @@ class _ItemIssue extends StatelessWidget {
                 children: [
                   Text(
                     '#${issue.number}',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
                     ' $bullet ',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Flexible(
                     child: Text(
                       issue.authorUsername,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                     ),
                   ),
                   Text(
                     ' $bullet ',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
                     relativeTime,
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   if (issue.linkedPrCount > 0) ...[
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
@@ -921,11 +934,11 @@ class _ItemIssue extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            FaIcon(FontAwesomeIcons.codePullRequest, size: textXS, color: colours.tertiaryInfo),
+                            FaIcon(FontAwesomeIcons.codePullRequest, size: textXS, color: context.colours.tertiaryInfo),
                             SizedBox(width: spaceXXXXS),
                             Text(
                               '${issue.linkedPrCount}',
-                              style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS),
+                              style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS),
                             ),
                           ],
                         ),
@@ -935,13 +948,13 @@ class _ItemIssue extends StatelessWidget {
                   if (issue.commentCount > 0) ...[
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
-                    FaIcon(FontAwesomeIcons.solidMessage, size: textXS, color: colours.tertiaryLight),
+                    FaIcon(FontAwesomeIcons.solidMessage, size: textXS, color: context.colours.tertiaryLight),
                     SizedBox(width: spaceXXXXS),
                     Text(
                       '${issue.commentCount}',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                   ],
                 ],
@@ -973,7 +986,7 @@ class _LabelChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = label.color != null ? _parseHexColor(label.color!) : colours.tertiaryDark;
+    final bgColor = label.color != null ? _parseHexColor(context, label.color!) : context.colours.tertiaryDark;
     final textColor = bgColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
     return Container(
@@ -986,12 +999,12 @@ class _LabelChip extends StatelessWidget {
     );
   }
 
-  Color _parseHexColor(String hex) {
+  Color _parseHexColor(BuildContext context, String hex) {
     final cleaned = hex.replaceAll('#', '');
     if (cleaned.length == 6) {
       return Color(int.parse('FF$cleaned', radix: 16));
     }
-    return colours.tertiaryDark;
+    return context.colours.tertiaryDark;
   }
 }
 

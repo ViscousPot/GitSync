@@ -60,7 +60,7 @@ class _ItemSetting extends State<ItemSetting> {
                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                 child: Text(
                   widget.title!.toUpperCase(),
-                  style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                 ),
               ),
         widget.description == null
@@ -69,7 +69,7 @@ class _ItemSetting extends State<ItemSetting> {
                 padding: EdgeInsets.symmetric(horizontal: spaceMD),
                 child: Text(
                   widget.description ?? "",
-                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
               ),
         SizedBox(height: widget.description == null && widget.title == null ? 0 : spaceSM),
@@ -79,7 +79,7 @@ class _ItemSetting extends State<ItemSetting> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                 decoration: BoxDecoration(
-                  color: _isLoading ? colours.tertiaryDark.withAlpha(80) : colours.tertiaryDark,
+                  color: _isLoading ? context.colours.tertiaryDark.withAlpha(80) : context.colours.tertiaryDark,
                   borderRadius: BorderRadius.all(cornerRadiusMD),
                 ),
                 child: SingleChildScrollView(
@@ -93,7 +93,7 @@ class _ItemSetting extends State<ItemSetting> {
                       maxLines: widget.maxLines != null && widget.maxLines! < 1 ? null : widget.maxLines,
                       minLines: widget.minLines != null && widget.minLines! < 1 ? 4 : widget.minLines,
                       style: TextStyle(
-                        color: _isLoading ? colours.primaryLight.withAlpha(80) : colours.primaryLight,
+                        color: _isLoading ? context.colours.primaryLight.withAlpha(80) : context.colours.primaryLight,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         decorationThickness: 0,
@@ -103,7 +103,7 @@ class _ItemSetting extends State<ItemSetting> {
                         border: const OutlineInputBorder(borderSide: BorderSide.none),
                         isCollapsed: true,
                         hintText: _isLoading ? "Loading\u2026" : widget.hint,
-                        hintStyle: TextStyle(color: colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
+                        hintStyle: TextStyle(color: context.colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
                         contentPadding: const EdgeInsets.all(0),
                         isDense: true,
                       ),
@@ -119,19 +119,19 @@ class _ItemSetting extends State<ItemSetting> {
                 maxLines: widget.maxLines != null && widget.maxLines! < 1 ? (widget.isTextArea ? null : 1) : widget.maxLines,
                 minLines: widget.minLines != null && widget.minLines! < 1 ? (widget.isTextArea ? 4 : 1) : widget.minLines,
                 style: TextStyle(
-                  color: _isLoading ? colours.primaryLight.withAlpha(80) : colours.primaryLight,
+                  color: _isLoading ? context.colours.primaryLight.withAlpha(80) : context.colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: _isLoading ? colours.tertiaryDark.withAlpha(80) : colours.tertiaryDark,
+                  fillColor: _isLoading ? context.colours.tertiaryDark.withAlpha(80) : context.colours.tertiaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                   isCollapsed: true,
                   hintText: _isLoading ? "Loading\u2026" : widget.hint,
-                  hintStyle: TextStyle(color: colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
+                  hintStyle: TextStyle(color: context.colours.secondaryLight.withAlpha(_isLoading ? 80 : 255)),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                   isDense: true,

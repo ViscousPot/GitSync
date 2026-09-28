@@ -23,67 +23,72 @@ class _H3 extends H3Config {
   HeadingDivider? get divider => null;
 }
 
-MarkdownConfig buildMarkdownConfig() => MarkdownConfig(
+MarkdownConfig buildMarkdownConfig(BuildContext context) => MarkdownConfig(
   configs: [
     PConfig(
-      textStyle: TextStyle(color: colours.primaryLight, fontSize: textSM),
+      textStyle: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
     ),
     _H1(
-      style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
     ),
     _H2(
-      style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
     ),
     _H3(
-      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
     ),
     H4Config(
-      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
     ),
     H5Config(
-      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
     ),
     H6Config(
-      style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
     ),
     CodeConfig(
-      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono', backgroundColor: colours.tertiaryDark),
+      style: TextStyle(
+        color: context.colours.tertiaryInfo,
+        fontSize: textXS,
+        fontFamily: 'RobotoMono',
+        backgroundColor: context.colours.tertiaryDark,
+      ),
     ),
     PreConfig(
-      textStyle: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
-      styleNotMatched: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
-      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+      textStyle: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+      styleNotMatched: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontFamily: 'RobotoMono'),
+      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
       padding: EdgeInsets.all(spaceXS),
       theme: {},
     ),
     LinkConfig(
-      style: TextStyle(color: colours.tertiaryInfo, decoration: TextDecoration.underline),
+      style: TextStyle(color: context.colours.tertiaryInfo, decoration: TextDecoration.underline),
     ),
-    BlockquoteConfig(sideColor: colours.tertiaryInfo, sideWith: spaceXXXXS, textColor: colours.primaryLight),
+    BlockquoteConfig(sideColor: context.colours.tertiaryInfo, sideWith: spaceXXXXS, textColor: context.colours.primaryLight),
     TableConfig(
-      border: TableBorder.all(color: colours.tertiaryDark),
-      headerStyle: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
-      bodyStyle: TextStyle(color: colours.primaryLight, fontSize: textSM),
+      border: TableBorder.all(color: context.colours.tertiaryDark),
+      headerStyle: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+      bodyStyle: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
     ),
-    HrConfig(color: colours.tertiaryDark),
+    HrConfig(color: context.colours.tertiaryDark),
     ListConfig(
       marker: (isOrdered, depth, index) {
         return Text(
           isOrdered ? '${index + 1}.' : '•',
-          style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
         );
       },
     ),
   ],
 );
 
-MarkdownConfig buildFooterMarkdownConfig() => MarkdownConfig(
+MarkdownConfig buildFooterMarkdownConfig(BuildContext context) => MarkdownConfig(
   configs: [
     PConfig(
-      textStyle: TextStyle(color: colours.tertiaryLight, fontSize: textXXS),
+      textStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS),
     ),
     LinkConfig(
-      style: TextStyle(color: colours.tertiaryLight, fontSize: textXXS, decoration: TextDecoration.underline),
+      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, decoration: TextDecoration.underline),
       onTap: (_) {},
     ),
   ],

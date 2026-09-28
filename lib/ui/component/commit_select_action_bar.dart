@@ -109,7 +109,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                 axis: Axis.horizontal,
                 axisAlignment: -1,
                 child: Container(
-                  decoration: BoxDecoration(color: colours.secondaryDark.withAlpha(127)),
+                  decoration: BoxDecoration(color: context.colours.secondaryDark.withAlpha(127)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -122,7 +122,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                         ),
                         constraints: BoxConstraints(),
                         onPressed: widget.onExitSelectMode,
-                        icon: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.primaryLight),
+                        icon: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: context.colours.primaryLight),
                       ),
                       SizedBox(width: spaceXS),
                       FadeTransition(
@@ -131,7 +131,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                           position: _itemAnimations[0].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
                           child: Text(
                             sprintf(t.selectedCount, [shas.length]).toUpperCase(),
-                            style: TextStyle(color: colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -162,12 +162,12 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                             icon: FaIcon(
                               FontAwesomeIcons.codeBranch,
                               size: textXS,
-                              color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark,
+                              color: cherryPickEnabled ? context.colours.primaryInfo : context.colours.tertiaryDark,
                             ),
                             label: Text(
                               t.cherryPick.toUpperCase(),
                               style: TextStyle(
-                                color: cherryPickEnabled ? colours.primaryInfo : colours.tertiaryDark,
+                                color: cherryPickEnabled ? context.colours.primaryInfo : context.colours.tertiaryDark,
                                 fontSize: textXS,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -204,12 +204,12 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                             icon: FaIcon(
                               FontAwesomeIcons.layerGroup,
                               size: textXS,
-                              color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark,
+                              color: squashEnabled ? context.colours.tertiaryWarning : context.colours.tertiaryDark,
                             ),
                             label: Text(
                               t.squash.toUpperCase(),
                               style: TextStyle(
-                                color: squashEnabled ? colours.tertiaryWarning : colours.tertiaryDark,
+                                color: squashEnabled ? context.colours.tertiaryWarning : context.colours.tertiaryDark,
                                 fontSize: textXS,
                                 fontWeight: FontWeight.bold,
                               ),

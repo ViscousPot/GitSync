@@ -1,12 +1,12 @@
-import 'package:GitSync/api/manager/storage.dart';
-import 'package:GitSync/global.dart';
 import 'package:flutter/material.dart';
 
-class Colours {
+class Colours extends ThemeExtension<Colours> {
+  const Colours({required this.darkMode});
+
   // system = null
   // dark   = true
   // light  = false
-  bool darkMode = true;
+  final bool darkMode;
 
   Color get primaryLight => darkMode ? Color(0xFFFFFFFF) : Color(0xFF141414);
   Color get secondaryLight => darkMode ? Color(0xFFAAAAAA) : Color(0xFF1C1C1C);
@@ -53,8 +53,9 @@ class Colours {
   Color get giteaGreen => Color(0xFF609926);
   Color get codebergBlue => Color(0xFF2185D0);
 
-  Future<void> reloadTheme(BuildContext context) async {
-    final newDarkMode = await repoManager.getBoolNullable(StorageKey.repoman_themeMode);
-    darkMode = newDarkMode ?? MediaQuery.of(context).platformBrightness == Brightness.dark;
-  }
+  @override
+  Colours copyWith({bool? darkMode}) => Colours(darkMode: darkMode ?? this.darkMode);
+
+  @override
+  Colours lerp(covariant ThemeExtension<Colours>? other, double t) => other is Colours ? other : this;
 }

@@ -10,15 +10,15 @@ Future<void> showDialog(BuildContext context, String title, String info, [Widget
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       title: Row(
         children: [
-          FaIcon(FontAwesomeIcons.circleInfo, color: colours.secondaryLight, size: textMD),
+          FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
           SizedBox(width: spaceXS),
           Text(
             title,
             style: TextStyle(
-              color: colours.secondaryLight,
+              color: context.colours.secondaryLight,
               fontFeatures: [FontFeature.enable('smcp')],
               fontSize: textMD,
               fontWeight: FontWeight.bold,
@@ -31,7 +31,7 @@ Future<void> showDialog(BuildContext context, String title, String info, [Widget
           children: [
             Text(
               info,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             extra ?? SizedBox.shrink(),
           ],

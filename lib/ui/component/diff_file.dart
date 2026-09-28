@@ -108,12 +108,12 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
     super.build(context);
     return Container(
       margin: EdgeInsets.only(left: spaceSM * 2, right: spaceSM * 2, bottom: spaceSM),
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: expanded ? colours.tertiaryDark : Colors.transparent)),
+              border: Border(bottom: BorderSide(color: expanded ? context.colours.tertiaryDark : Colors.transparent)),
             ),
             child: TextButton.icon(
               onPressed: () async {
@@ -142,8 +142,8 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    FaIcon(FontAwesomeIcons.chevronRight, color: expanded ? Colors.transparent : colours.primaryLight, size: textSM),
-                    FaIcon(FontAwesomeIcons.chevronDown, color: expanded ? colours.secondaryLight : Colors.transparent, size: textSM),
+                    FaIcon(FontAwesomeIcons.chevronRight, color: expanded ? Colors.transparent : context.colours.primaryLight, size: textSM),
+                    FaIcon(FontAwesomeIcons.chevronDown, color: expanded ? context.colours.secondaryLight : Colors.transparent, size: textSM),
                   ],
                 ),
               ),
@@ -164,11 +164,11 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                               children: [
                                 if (widget.orientation == Orientation.portrait && widget.entry.key.contains(conflictSeparator) && !expanded) ...[
                                   Container(
-                                    decoration: BoxDecoration(color: colours.secondaryLight, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                                    decoration: BoxDecoration(color: context.colours.secondaryLight, borderRadius: BorderRadius.all(cornerRadiusXS)),
                                     padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
                                     child: Text(
                                       widget.entry.key.split(conflictSeparator)[1].substring(0, 7).toUpperCase(),
-                                      style: TextStyle(color: colours.tertiaryDark, fontSize: textXXS, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: context.colours.tertiaryDark, fontSize: textXXS, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   SizedBox(width: spaceXS),
@@ -184,10 +184,10 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                                       position: TextOverflowPosition.middle,
                                       child: Text(
                                         "…",
-                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+                                        style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                                       ),
                                     ),
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+                                    style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                                   ),
                                 ),
                               ],
@@ -212,13 +212,13 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                                           : (List<Widget> i) => i.reversed.toList())([
                                             Container(
                                               decoration: BoxDecoration(
-                                                color: colours.secondaryLight,
+                                                color: context.colours.secondaryLight,
                                                 borderRadius: BorderRadius.all(cornerRadiusXS),
                                               ),
                                               padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
                                               child: Text(
                                                 widget.entry.key.split(conflictSeparator)[1].substring(0, 7).toUpperCase(),
-                                                style: TextStyle(color: colours.tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
+                                                style: TextStyle(color: context.colours.tertiaryDark, fontSize: textXS, fontWeight: FontWeight.bold),
                                               ),
                                             ),
                                             SizedBox(width: spaceMD),
@@ -239,13 +239,17 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                                                   child: Text(
                                                     "…",
                                                     style: TextStyle(
-                                                      color: colours.secondaryLight,
+                                                      color: context.colours.secondaryLight,
                                                       fontSize: textSM,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ),
-                                                style: TextStyle(color: colours.secondaryLight, fontSize: textSM, overflow: TextOverflow.ellipsis),
+                                                style: TextStyle(
+                                                  color: context.colours.secondaryLight,
+                                                  fontSize: textSM,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
                                               ),
                                             ),
                                           ]),
@@ -259,13 +263,13 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                                         Text(
                                           sprintf(t.additions, [insertions]),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                         SizedBox(width: spaceMD, height: spaceXXS),
                                         Text(
                                           sprintf(t.deletions, [deletions]),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                         // SizedBox(width: spaceSM),
                                       ],
@@ -286,13 +290,13 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                         Text(
                           sprintf(t.additions, [insertions]),
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceMD, height: spaceXXS),
                         Text(
                           sprintf(t.deletions, [deletions]),
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceSM),
                       ],
@@ -352,18 +356,23 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                     style: ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                       visualDensity: VisualDensity.compact,
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     ),
                     icon: FaIcon(
                       widget.entry.key.contains(conflictSeparator) ? FontAwesomeIcons.codeCommit : FontAwesomeIcons.scroll,
-                      color: colours.tertiaryInfo,
+                      color: context.colours.tertiaryInfo,
                       size: textXS,
                     ),
                     label: Text(
                       "${t.open} ${widget.entry.key.contains(conflictSeparator) ? t.commit : t.fileDiff}".toUpperCase(),
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: context.colours.tertiaryInfo,
+                        fontSize: textXS,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
@@ -379,14 +388,19 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                     style: ButtonStyle(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                       visualDensity: VisualDensity.compact,
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM))),
                     ),
-                    icon: FaIcon(FontAwesomeIcons.filePen, color: colours.tertiaryInfo, size: textXS),
+                    icon: FaIcon(FontAwesomeIcons.filePen, color: context.colours.tertiaryInfo, size: textXS),
                     label: Text(
                       t.openEditFile.toUpperCase(),
-                      style: TextStyle(color: colours.tertiaryInfo, fontSize: textXS, overflow: TextOverflow.ellipsis, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: context.colours.tertiaryInfo,
+                        fontSize: textXS,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),

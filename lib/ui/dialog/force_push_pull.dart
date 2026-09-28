@@ -15,15 +15,15 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
           children: [
             Text(
               push ? t.forcePushing : t.forcePulling,
-              style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
             ),
             SizedBox(
               height: textXL,
               width: textXL,
               child: Center(
                 child: CircularProgressIndicator(
-                  backgroundColor: colours.secondaryLight,
-                  color: colours.primaryPositive,
+                  backgroundColor: context.colours.secondaryLight,
+                  color: context.colours.primaryPositive,
                   semanticsLabel: push ? t.forcePushProgressLabel : t.forcePullProgressLabel,
                 ),
               ),
@@ -35,7 +35,7 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
             children: [
               Text(
                 t.forcePushPullMessage,
-                style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceMD),
             ],

@@ -166,7 +166,7 @@ Future<void> showDialog(
                                   icon: FaIcon(
                                     copiedStartCommitReference ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
                                     size: copiedStartCommitReference ? textMD : textSM,
-                                    color: copiedStartCommitReference ? colours.primaryPositive : colours.tertiaryLight,
+                                    color: copiedStartCommitReference ? context.colours.primaryPositive : context.colours.tertiaryLight,
                                   ),
                                 ),
                               ),
@@ -181,11 +181,11 @@ Future<void> showDialog(
                                   position: TextOverflowPosition.start,
                                   child: Text(
                                     "…",
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textXL),
+                                    style: TextStyle(color: context.colours.primaryLight, fontSize: textXL),
                                   ),
                                 ),
                                 style: TextStyle(
-                                  color: copiedStartCommitReference ? colours.tertiaryPositive : colours.primaryLight,
+                                  color: copiedStartCommitReference ? context.colours.tertiaryPositive : context.colours.primaryLight,
                                   fontSize: textXL,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -196,7 +196,7 @@ Future<void> showDialog(
                       ),
                       if (data != null) ...[
                         SizedBox(width: spaceXS),
-                        FaIcon(FontAwesomeIcons.rightLeft, color: colours.tertiaryLight, size: textMD),
+                        FaIcon(FontAwesomeIcons.rightLeft, color: context.colours.tertiaryLight, size: textMD),
                         SizedBox(width: spaceXS),
                         GestureDetector(
                           onTap: data.$2 == null
@@ -210,7 +210,7 @@ Future<void> showDialog(
                                 (data.$2?.reference.substring(0, 7) ?? "EMPTY").toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: copiedEndCommitReference ? colours.tertiaryPositive : colours.secondaryLight,
+                                  color: copiedEndCommitReference ? context.colours.tertiaryPositive : context.colours.secondaryLight,
                                   fontSize: textXL,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -228,7 +228,7 @@ Future<void> showDialog(
                                         icon: FaIcon(
                                           copiedEndCommitReference ? FontAwesomeIcons.clipboardCheck : FontAwesomeIcons.solidCopy,
                                           size: copiedEndCommitReference ? textMD : textSM,
-                                          color: copiedEndCommitReference ? colours.primaryPositive : colours.tertiaryLight,
+                                          color: copiedEndCommitReference ? context.colours.primaryPositive : context.colours.tertiaryLight,
                                         ),
                                       ),
                               ),
@@ -271,7 +271,7 @@ Future<void> showDialog(
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.left,
                                         softWrap: true,
-                                        style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ),
                                   ),
@@ -300,11 +300,11 @@ Future<void> showDialog(
                         ),
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: spaceXXXS, vertical: spaceXXXXS),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusXS), color: colours.secondaryDark),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.all(cornerRadiusXS), color: context.colours.secondaryDark),
                           child: Text(
                             "${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(data.$1.timestamp * 1000))}",
                             maxLines: 1,
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
@@ -320,7 +320,7 @@ Future<void> showDialog(
                             "${data.$1.authorUsername}",
                             textAlign: TextAlign.left,
                             maxLines: 1,
-                            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(width: spaceSM),
                           Expanded(
@@ -330,21 +330,21 @@ Future<void> showDialog(
                                   "\<",
                                   textAlign: TextAlign.left,
                                   maxLines: 1,
-                                  style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                 ),
                                 Flexible(
                                   child: Text(
                                     "${data.$1.authorEmail}",
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 Text(
                                   "\>",
                                   textAlign: TextAlign.left,
                                   maxLines: 1,
-                                  style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -366,16 +366,16 @@ Future<void> showDialog(
                                 (tag) => Padding(
                                   padding: EdgeInsets.only(left: spaceXXS),
                                   child: Container(
-                                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                                     padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        FaIcon(FontAwesomeIcons.tag, size: textXXS, color: colours.tertiaryLight),
+                                        FaIcon(FontAwesomeIcons.tag, size: textXXS, color: context.colours.tertiaryLight),
                                         SizedBox(width: spaceXXXXS),
                                         Text(
                                           tag.toUpperCase(),
-                                          style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                       ],
                                     ),
@@ -393,8 +393,8 @@ Future<void> showDialog(
                     builder: (context, snapshot, child) => Center(
                       child: LinearProgressIndicator(
                         value: null,
-                        backgroundColor: snapshot ? colours.secondaryDark : Colors.transparent,
-                        color: snapshot ? colours.tertiaryDark : Colors.transparent,
+                        backgroundColor: snapshot ? context.colours.secondaryDark : Colors.transparent,
+                        color: snapshot ? context.colours.tertiaryDark : Colors.transparent,
                         borderRadius: BorderRadius.all(cornerRadiusMD),
                       ),
                     ),
@@ -403,8 +403,8 @@ Future<void> showDialog(
                       ? Center(
                           child: LinearProgressIndicator(
                             value: null,
-                            backgroundColor: colours.secondaryDark,
-                            color: colours.tertiaryDark,
+                            backgroundColor: context.colours.secondaryDark,
+                            color: context.colours.tertiaryDark,
                             borderRadius: BorderRadius.all(cornerRadiusMD),
                           ),
                         )
@@ -416,21 +416,21 @@ Future<void> showDialog(
                               Text(
                                 "${diffSnapshot.diffParts.keys.length} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
                                 textAlign: TextAlign.center,
-                                // style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                // style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                               ),
                               Row(
                                 children: [
                                   Text(
                                     sprintf(t.additions, [diffSnapshot.insertions]),
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: spaceMD),
                                   Text(
                                     sprintf(t.deletions, [diffSnapshot.deletions]),
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -446,7 +446,7 @@ Future<void> showDialog(
                     ? Center(
                         child: SizedBox.square(
                           dimension: spaceXL,
-                          child: CircularProgressIndicator(color: colours.primaryLight),
+                          child: CircularProgressIndicator(color: context.colours.primaryLight),
                         ),
                       )
                     : SizedBox(

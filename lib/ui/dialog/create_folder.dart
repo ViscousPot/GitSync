@@ -10,12 +10,12 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.createADir,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -27,19 +27,19 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
               controller: textController,
               maxLines: 1,
               style: TextStyle(
-                color: colours.primaryLight,
+                color: context.colours.primaryLight,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
                 decorationThickness: 0,
                 fontSize: textMD,
               ),
               decoration: InputDecoration(
-                fillColor: colours.tertiaryDark,
+                fillColor: context.colours.tertiaryDark,
                 filled: true,
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 label: Text(
                   t.dirName.toUpperCase(),
-                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 isCollapsed: true,
@@ -54,7 +54,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -63,7 +63,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         TextButton(
           child: Text(
             t.create.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             callback(textController.text);

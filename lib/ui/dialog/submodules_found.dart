@@ -12,7 +12,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.submodulesFoundTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -20,7 +20,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
           children: [
             Text(
               t.submodulesFoundMessage,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -29,7 +29,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -38,7 +38,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         TextButton(
           child: Text(
             t.submodulesFoundAction.toUpperCase(),
-            style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             await callback();

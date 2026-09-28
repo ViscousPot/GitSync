@@ -12,7 +12,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.clearDataConfirmTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -20,12 +20,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           children: [
             Text(
               t.clearDataConfirmMsg,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceSM),
             Text(
               t.confirmCloneOverwriteWarning,
-              style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -34,7 +34,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
         TextButton.icon(
           label: Text(
             t.iosClearDataAction.toUpperCase(),
-            style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
+            style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
           ),
           iconAlignment: IconAlignment.start,
           onPressed: () async {
@@ -45,7 +45,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

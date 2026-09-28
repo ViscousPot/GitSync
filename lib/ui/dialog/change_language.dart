@@ -20,18 +20,18 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String local
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(FontAwesomeIcons.language, color: colours.primaryLight, size: textLG),
+            FaIcon(FontAwesomeIcons.language, color: context.colours.primaryLight, size: textLG),
             SizedBox(width: spaceSM),
             Text(
               t.language.toUpperCase(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
             ),
             SizedBox(width: spaceLG),
           ],
@@ -53,14 +53,14 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String local
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceLG, vertical: spaceMD)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
-                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                     ),
                     label: SizedBox(
                       width: double.infinity,
                       child: Text(
                         locale.value!,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: colours.primaryLight, fontSize: textLG),
+                        style: TextStyle(fontFeatures: [FontFeature.enable('smcp')], color: context.colours.primaryLight, fontSize: textLG),
                       ),
                     ),
                   ),

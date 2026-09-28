@@ -11,12 +11,12 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
           sprintf(t.enterPassword, [(backupRestore ? t.backup : t.restore)]),
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -30,14 +30,14 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
               enableSuggestions: false,
               autocorrect: false,
               style: TextStyle(
-                color: colours.primaryLight,
+                color: context.colours.primaryLight,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
                 decorationThickness: 0,
                 fontSize: textMD,
               ),
               decoration: InputDecoration(
-                fillColor: colours.tertiaryDark,
+                fillColor: context.colours.tertiaryDark,
                 filled: true,
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
@@ -52,7 +52,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -71,7 +71,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
                     },
               child: Text(
                 (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
-                style: TextStyle(color: disabled ? colours.tertiaryLight : colours.primaryPositive, fontSize: textMD),
+                style: TextStyle(color: disabled ? context.colours.tertiaryLight : context.colours.primaryPositive, fontSize: textMD),
               ),
             );
           },

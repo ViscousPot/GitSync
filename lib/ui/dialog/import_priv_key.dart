@@ -16,7 +16,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.importPrivateKey,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -24,7 +24,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
           children: [
             Text(
               t.importPrivateKeyMsg,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceLG),
             Row(
@@ -35,7 +35,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.passphrase.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: spaceMD),
@@ -43,7 +43,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
                         t.privKey.toUpperCase(),
-                        style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -61,14 +61,14 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                         enableSuggestions: false,
                         autocorrect: false,
                         style: TextStyle(
-                          color: colours.primaryLight,
+                          color: context.colours.primaryLight,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.none,
                           decorationThickness: 0,
                           fontSize: textMD,
                         ),
                         decoration: InputDecoration(
-                          fillColor: colours.secondaryDark,
+                          fillColor: context.colours.secondaryDark,
                           filled: true,
                           border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                           hintText: t.optionalLabel.toUpperCase(),
@@ -76,7 +76,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                             fontSize: textSM,
                             fontWeight: FontWeight.bold,
                             overflow: TextOverflow.ellipsis,
-                            color: colours.tertiaryLight,
+                            color: context.colours.tertiaryLight,
                           ),
                           isCollapsed: true,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -87,7 +87,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                       SizedBox(height: spaceSM),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                        decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                         height: textMD * 1.5 + (spaceSM * 2),
                         child: SingleChildScrollView(
                           child: TextField(
@@ -97,7 +97,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                             enableSuggestions: false,
                             autocorrect: false,
                             style: TextStyle(
-                              color: colours.primaryLight,
+                              color: context.colours.primaryLight,
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.none,
                               decorationThickness: 0,
@@ -111,7 +111,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                                 fontSize: textSM,
                                 fontWeight: FontWeight.bold,
                                 overflow: TextOverflow.ellipsis,
-                                color: colours.tertiaryLight,
+                                color: context.colours.tertiaryLight,
                               ),
                               isCollapsed: true,
                               floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -132,7 +132,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -141,7 +141,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
         TextButton(
           child: Text(
             t.importKey.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             callback((passphraseController.text, keyController.text));

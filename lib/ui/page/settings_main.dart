@@ -111,14 +111,14 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.secondaryDark,
-          systemNavigationBarColor: colours.secondaryDark,
+          statusBarColor: context.colours.secondaryDark,
+          systemNavigationBarColor: context.colours.secondaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
@@ -126,7 +126,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
         centerTitle: true,
         title: Text(
           t.settings.toUpperCase(),
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: BetterOrientationBuilder(
@@ -197,14 +197,14 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                   padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                   child: Text(
                                     t.signedCommitsLabel.toUpperCase(),
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                   child: Text(
                                     t.signedCommitsDescription,
-                                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 SizedBox(height: spaceSM),
@@ -212,7 +212,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                   future: uiSettingsManager.getStringNullable(StorageKey.setman_gitCommitSigningKey),
                                   builder: (context, gitCommitSigningKeySnapshot) => Container(
                                     width: double.infinity,
-                                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                     child: FutureBuilder(
                                       future: uiSettingsManager.getGitProvider(),
                                       builder: (context, snapshot) => Column(
@@ -239,7 +239,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                         },
                                                         style: ButtonStyle(
                                                           alignment: Alignment.centerLeft,
-                                                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                                           padding: WidgetStatePropertyAll(
                                                             EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                                                           ),
@@ -255,8 +255,8 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                         icon: FaIcon(
                                                           FontAwesomeIcons.key,
                                                           color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                              ? colours.primaryPositive
-                                                              : colours.primaryLight,
+                                                              ? context.colours.primaryPositive
+                                                              : context.colours.primaryLight,
                                                         ),
                                                         label: Padding(
                                                           padding: EdgeInsets.only(left: spaceXS),
@@ -267,8 +267,8 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                                 .toUpperCase(),
                                                             style: TextStyle(
                                                               color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                                  ? colours.primaryPositive
-                                                                  : colours.primaryLight,
+                                                                  ? context.colours.primaryPositive
+                                                                  : context.colours.primaryLight,
                                                               fontSize: textMD,
                                                               fontWeight: FontWeight.bold,
                                                             ),
@@ -297,7 +297,11 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                               await uiSettingsManager.setStringNullable(StorageKey.setman_gitCommitSigningKey, null);
                                                               if (mounted) setState(() {});
                                                             },
-                                                            icon: FaIcon(FontAwesomeIcons.trash, color: colours.tertiaryNegative, size: textMD),
+                                                            icon: FaIcon(
+                                                              FontAwesomeIcons.trash,
+                                                              color: context.colours.tertiaryNegative,
+                                                              size: textMD,
+                                                            ),
                                                           )
                                                         : SizedBox.shrink(),
                                                   ],
@@ -314,7 +318,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                   },
                                                   style: ButtonStyle(
                                                     alignment: Alignment.centerLeft,
-                                                    backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                                    backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                                                     shape: WidgetStatePropertyAll(
                                                       RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -327,14 +331,18 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                     gitCommitSigningKeySnapshot.data != null
                                                         ? FontAwesomeIcons.solidSquareCheck
                                                         : FontAwesomeIcons.squareCheck,
-                                                    color: colours.primaryPositive,
+                                                    color: context.colours.primaryPositive,
                                                     size: textLG,
                                                   ),
                                                   label: SizedBox(
                                                     width: double.infinity,
                                                     child: Text(
                                                       t.useSshKey.toUpperCase(),
-                                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                                      style: TextStyle(
+                                                        color: context.colours.primaryLight,
+                                                        fontSize: textMD,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
                                                     ),
                                                   ),
                                                 )
@@ -369,10 +377,10 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                     Showcase(
                       key: _authorDetailsKey,
                       description: t.authorDetailsShowcasePrompt,
-                      tooltipBackgroundColor: colours.tertiaryInfo,
-                      textColor: colours.secondaryDark,
+                      tooltipBackgroundColor: context.colours.tertiaryInfo,
+                      textColor: context.colours.secondaryDark,
                       targetBorderRadius: BorderRadius.all(cornerRadiusMD),
-                      descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: colours.primaryDark),
+                      descTextStyle: TextStyle(fontSize: textMD, fontWeight: FontWeight.w500, color: context.colours.primaryDark),
                       targetPadding: EdgeInsets.all(spaceSM),
                       child: Column(
                         children: [
@@ -448,7 +456,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                               },
                               style: ButtonStyle(
                                 alignment: Alignment.center,
-                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                                 animationDuration: duration,
                                 shape: WidgetStatePropertyAll(
@@ -456,8 +464,8 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                     borderRadius: BorderRadius.all(cornerRadiusMD),
                                     side: ignoreChanged || unstaging
                                         ? (_borderVisible
-                                              ? BorderSide(color: colours.secondaryLight, width: spaceXXXS)
-                                              : BorderSide(color: colours.secondaryLight.withAlpha(150), width: spaceXXXS - 2))
+                                              ? BorderSide(color: context.colours.secondaryLight, width: spaceXXXS)
+                                              : BorderSide(color: context.colours.secondaryLight.withAlpha(150), width: spaceXXXS - 2))
                                         : BorderSide.none,
                                   ),
                                 ),
@@ -468,14 +476,14 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                   SizedBox(
                                     height: textMD,
                                     width: textMD,
-                                    child: CircularProgressIndicator(color: !unstaging ? Colors.transparent : colours.primaryLight),
+                                    child: CircularProgressIndicator(color: !unstaging ? Colors.transparent : context.colours.primaryLight),
                                   ),
                                   SizedBox(width: spaceSM),
                                   Padding(
                                     padding: EdgeInsets.only(left: spaceXS),
                                     child: Text(
                                       t.untrackAll.toUpperCase(),
-                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   SizedBox(width: textMD + spaceSM),
@@ -523,11 +531,11 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                     children: [
                                       Text(
                                         t.disableSsl.toUpperCase(),
-                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         t.disableSslDescription,
-                                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -535,7 +543,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                 iconAlignment: IconAlignment.end,
                                 icon: FaIcon(
                                   snapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                                  color: colours.primaryPositive,
+                                  color: context.colours.primaryPositive,
                                   size: textLG,
                                 ),
                               ),
@@ -561,11 +569,11 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                     children: [
                                       Text(
                                         "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})".toUpperCase(),
-                                        style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         t.optimisedSyncDescription,
-                                        style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                                        style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -573,7 +581,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                 iconAlignment: IconAlignment.end,
                                 icon: FaIcon(
                                   optimisedSyncSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                                  color: colours.primaryPositive,
+                                  color: context.colours.primaryPositive,
                                   size: textLG,
                                 ),
                               ),

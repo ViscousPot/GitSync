@@ -12,12 +12,12 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
   return mat.showDialog(
     context: context,
     builder: (BuildContext context) => BaseAlertDialog(
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
           sprintf(t.renameFileDir, [fileDir ? t.folder : t.file]),
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -29,20 +29,20 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
               controller: textController,
               maxLines: 1,
               style: TextStyle(
-                color: colours.primaryLight,
+                color: context.colours.primaryLight,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
                 decorationThickness: 0,
                 fontSize: textMD,
               ),
               decoration: InputDecoration(
-                fillColor: colours.tertiaryDark,
+                fillColor: context.colours.tertiaryDark,
                 filled: true,
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
                   t.fileName.toUpperCase(),
-                  style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -56,7 +56,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -65,7 +65,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
         TextButton(
           child: Text(
             t.rename.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             callback(textController.text);

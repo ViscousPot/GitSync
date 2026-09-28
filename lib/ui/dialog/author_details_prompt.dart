@@ -12,7 +12,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.authorDetailsPromptTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -20,7 +20,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
           children: [
             Text(
               t.authorDetailsPromptMessage,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -29,7 +29,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
         TextButton(
           child: Text(
             t.dismiss.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -39,7 +39,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
         TextButton(
           child: Text(
             t.goToSettings.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

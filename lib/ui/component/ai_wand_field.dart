@@ -49,24 +49,24 @@ class _AiWandFieldState extends ConsumerState<AiWandField> {
                         builder: (dialogContext) => BaseAlertDialog(
                           title: Text(
                             t.aiSetupTitle,
-                            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                           ),
                           content: Text(
                             t.aiSetupMsg,
-                            style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                           ),
                           actions: [
                             TextButton(
                               child: Text(
                                 t.cancel.toUpperCase(),
-                                style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+                                style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                               ),
                               onPressed: () => Navigator.pop(dialogContext, false),
                             ),
                             TextButton(
                               child: Text(
                                 t.ok.toUpperCase(),
-                                style: TextStyle(color: colours.tertiaryPositive, fontSize: textMD),
+                                style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD),
                               ),
                               onPressed: () => Navigator.pop(dialogContext, true),
                             ),
@@ -94,9 +94,13 @@ class _AiWandFieldState extends ConsumerState<AiWandField> {
                 ? SizedBox(
                     width: textMD,
                     height: textMD,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: colours.tertiaryPositive),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: context.colours.tertiaryPositive),
                   )
-                : FaIcon(FontAwesomeIcons.wandMagicSparkles, size: textMD, color: widget.enabled ? colours.tertiaryPositive : colours.tertiaryDark),
+                : FaIcon(
+                    FontAwesomeIcons.wandMagicSparkles,
+                    size: textMD,
+                    color: widget.enabled ? context.colours.tertiaryPositive : context.colours.tertiaryDark,
+                  ),
           ),
         ),
       ],

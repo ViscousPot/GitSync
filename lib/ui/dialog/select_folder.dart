@@ -16,7 +16,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.selectCloneDirectory,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: Column(
@@ -25,7 +25,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
           Text(
             t.chooseHowToClone,
             style: TextStyle(
-              color: colours.primaryLight,
+              color: context.colours.primaryLight,
               fontWeight: FontWeight.bold,
               decoration: TextDecoration.none,
               decorationThickness: 0,
@@ -35,7 +35,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
           SizedBox(height: spaceXS),
           Text(
             "${bullet} ${t.directCloningMsg}\n${bullet} ${t.nestedCloningMsg}",
-            style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
           ),
           SizedBox(height: spaceMD + spaceSM),
           StatefulBuilder(
@@ -51,7 +51,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         bottomLeft: cornerRadiusMD,
                         bottomRight: Radius.zero,
                       ),
-                      color: directClone == true ? colours.tertiaryInfo : colours.tertiaryDark,
+                      color: directClone == true ? context.colours.tertiaryInfo : context.colours.tertiaryDark,
                     ),
                     child: TextButton.icon(
                       onPressed: () async {
@@ -71,13 +71,13 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                               bottomRight: Radius.zero,
                             ),
 
-                            side: directClone == true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
+                            side: directClone == true ? BorderSide.none : BorderSide(width: 3, color: context.colours.tertiaryInfo),
                           ),
                         ),
                       ),
                       icon: FaIcon(
                         FontAwesomeIcons.solidFolderOpen,
-                        color: directClone == true ? colours.tertiaryDark : colours.primaryLight,
+                        color: directClone == true ? context.colours.tertiaryDark : context.colours.primaryLight,
                         size: textMD,
                       ),
                       label: SizedBox(
@@ -89,7 +89,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                           style: TextStyle(
-                            color: directClone == true ? colours.tertiaryDark : colours.primaryLight,
+                            color: directClone == true ? context.colours.tertiaryDark : context.colours.primaryLight,
                             fontSize: textMD,
                             fontWeight: FontWeight.bold,
                           ),
@@ -109,7 +109,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         bottomLeft: Radius.zero,
                         bottomRight: cornerRadiusMD,
                       ),
-                      color: directClone != true ? colours.tertiaryInfo : colours.tertiaryDark,
+                      color: directClone != true ? context.colours.tertiaryInfo : context.colours.tertiaryDark,
                     ),
                     child: TextButton.icon(
                       onPressed: () async {
@@ -128,14 +128,14 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                               bottomLeft: Radius.zero,
                               bottomRight: cornerRadiusMD,
                             ),
-                            side: directClone != true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryInfo),
+                            side: directClone != true ? BorderSide.none : BorderSide(width: 3, color: context.colours.tertiaryInfo),
                           ),
                         ),
                       ),
                       iconAlignment: IconAlignment.end,
                       icon: FaIcon(
                         FontAwesomeIcons.folderTree,
-                        color: directClone != true ? colours.tertiaryDark : colours.primaryLight,
+                        color: directClone != true ? context.colours.tertiaryDark : context.colours.primaryLight,
                         size: textMD,
                       ),
                       label: SizedBox(
@@ -147,7 +147,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                           style: TextStyle(
-                            color: directClone != true ? colours.tertiaryDark : colours.primaryLight,
+                            color: directClone != true ? context.colours.tertiaryDark : context.colours.primaryLight,
                             fontSize: textMD,
                             fontWeight: FontWeight.bold,
                           ),
@@ -166,7 +166,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -175,7 +175,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
         TextButton(
           child: Text(
             t.select.toUpperCase(),
-            style: TextStyle(color: colours.primaryPositive, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {
             callback(directClone);

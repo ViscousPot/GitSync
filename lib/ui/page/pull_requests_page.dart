@@ -208,21 +208,27 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
     showMenu<PrSortOption>(
       context: context,
       position: position,
-      color: colours.secondaryDark,
+      color: context.colours.secondaryDark,
       items: [
         PopupMenuItem(
           value: PrSortOption.newest,
-          child: Text(t.sortNewest, style: TextStyle(color: _sortOption == PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight)),
+          child: Text(
+            t.sortNewest,
+            style: TextStyle(color: _sortOption == PrSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
+          ),
         ),
         PopupMenuItem(
           value: PrSortOption.oldest,
-          child: Text(t.sortOldest, style: TextStyle(color: _sortOption == PrSortOption.oldest ? colours.showcaseFeatureIcon : colours.primaryLight)),
+          child: Text(
+            t.sortOldest,
+            style: TextStyle(color: _sortOption == PrSortOption.oldest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
+          ),
         ),
         PopupMenuItem(
           value: PrSortOption.recentlyUpdated,
           child: Text(
             t.sortRecentlyUpdated,
-            style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? colours.showcaseFeatureIcon : colours.primaryLight),
+            style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
       ],
@@ -257,20 +263,20 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
           focusNode: focusNode,
           maxLines: 1,
           style: TextStyle(
-            color: colours.primaryLight,
+            color: context.colours.primaryLight,
             fontWeight: FontWeight.bold,
             decoration: TextDecoration.none,
             decorationThickness: 0,
             fontSize: textMD,
           ),
           decoration: InputDecoration(
-            fillColor: colours.tertiaryDark,
+            fillColor: context.colours.tertiaryDark,
             filled: true,
             border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
             isCollapsed: true,
             label: Text(
               label,
-              style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
             ),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -284,7 +290,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4,
-            color: colours.tertiaryDark,
+            color: context.colours.tertiaryDark,
             borderRadius: BorderRadius.all(cornerRadiusSM),
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: 200, maxWidth: 300),
@@ -298,7 +304,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     dense: true,
                     title: Text(
                       option,
-                      style: TextStyle(color: colours.primaryLight, fontSize: textSM),
+                      style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                     ),
                     onTap: () => onSelected(option),
                   );
@@ -313,7 +319,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
 
   Widget _buildFilterDrawer() {
     return Drawer(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,12 +330,12 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                 children: [
                   Text(
                     t.filterSidebar.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.primaryLight),
+                    child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: context.colours.primaryLight),
                   ),
                 ],
               ),
@@ -384,7 +390,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       endDrawer: _buildFilterDrawer(),
       onEndDrawerChanged: (isOpened) {
         if (!isOpened) _fetchPullRequests();
@@ -400,7 +406,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   SizedBox(width: spaceXS),
                   Text(
                     t.pullRequests.toUpperCase(),
-                    style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   getOpenInBrowserButton(widget.gitProvider.pullRequestsUrl(widget.remoteWebUrl)),
@@ -411,7 +417,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          FaIcon(FontAwesomeIcons.filter, size: textMD, color: colours.primaryLight),
+                          FaIcon(FontAwesomeIcons.filter, size: textMD, color: context.colours.primaryLight),
                           if (_hasActiveFilters)
                             Positioned(
                               right: -spaceXXXS,
@@ -419,7 +425,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                               child: Container(
                                 width: spaceXS,
                                 height: spaceXS,
-                                decoration: BoxDecoration(color: colours.showcaseFeatureIcon, shape: BoxShape.circle),
+                                decoration: BoxDecoration(color: context.colours.showcaseFeatureIcon, shape: BoxShape.circle),
                               ),
                             ),
                         ],
@@ -440,7 +446,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                     },
                     child: Container(
                       padding: EdgeInsets.all(spaceXS),
-                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: colours.primaryLight),
+                      child: FaIcon(FontAwesomeIcons.plus, size: textMD, color: context.colours.primaryLight),
                     ),
                   ),
                 ],
@@ -456,17 +462,22 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                       contextMenuBuilder: globalContextMenuBuilder,
                       controller: _searchController,
                       maxLines: 1,
-                      style: TextStyle(color: colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textSM),
+                      style: TextStyle(
+                        color: context.colours.primaryLight,
+                        decoration: TextDecoration.none,
+                        decorationThickness: 0,
+                        fontSize: textSM,
+                      ),
                       decoration: InputDecoration(
-                        fillColor: colours.secondaryDark,
+                        fillColor: context.colours.secondaryDark,
                         filled: true,
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                         isCollapsed: true,
                         hintText: t.searchEllipsis,
-                        hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                        hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
-                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: colours.tertiaryLight),
+                          child: FaIcon(FontAwesomeIcons.magnifyingGlass, size: textXS, color: context.colours.tertiaryLight),
                         ),
                         prefixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
                         suffixIcon: _searchController.text.isNotEmpty
@@ -477,7 +488,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.only(right: spaceSM),
-                                  child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: colours.tertiaryLight),
+                                  child: FaIcon(FontAwesomeIcons.xmark, size: textXS, color: context.colours.tertiaryLight),
                                 ),
                               )
                             : null,
@@ -496,7 +507,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                       child: FaIcon(
                         FontAwesomeIcons.arrowDownWideShort,
                         size: textMD,
-                        color: _sortOption != PrSortOption.newest ? colours.showcaseFeatureIcon : colours.primaryLight,
+                        color: _sortOption != PrSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
                       ),
                     ),
                   ),
@@ -527,7 +538,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
 
             Expanded(
               child: RefreshIndicator(
-                color: colours.tertiaryDark,
+                color: context.colours.tertiaryDark,
                 onRefresh: () async {
                   _fetchPullRequests();
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -541,7 +552,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                             child: Center(
                               child: Text(
                                 t.pullRequestsNotFound.toUpperCase(),
-                                style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                                style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
                           ),
@@ -557,7 +568,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                             return Padding(
                               padding: EdgeInsets.all(spaceMD),
                               child: Center(
-                                child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                               ),
                             );
                           }
@@ -606,14 +617,18 @@ class _FilterChip extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
           decoration: BoxDecoration(
-            color: selected ? colours.showcaseBg : colours.tertiaryDark,
+            color: selected ? context.colours.showcaseBg : context.colours.tertiaryDark,
             borderRadius: BorderRadius.all(cornerRadiusSM),
-            border: Border.all(color: selected ? colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
+            border: Border.all(color: selected ? context.colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(color: selected ? colours.showcaseFeatureIcon : colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: selected ? context.colours.showcaseFeatureIcon : context.colours.secondaryLight,
+              fontSize: textSM,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -632,16 +647,16 @@ class _ItemPullRequest extends StatelessWidget {
     final relativeTime = timeago.format(pr.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase());
 
     final (FaIconData icon, Color color) = switch (pr.state) {
-      PrState.open => (FontAwesomeIcons.codePullRequest, colours.tertiaryPositive),
-      PrState.merged => (FontAwesomeIcons.codeMerge, colours.secondaryInfo),
-      PrState.closed => (FontAwesomeIcons.codePullRequest, colours.tertiaryNegative),
+      PrState.open => (FontAwesomeIcons.codePullRequest, context.colours.tertiaryPositive),
+      PrState.merged => (FontAwesomeIcons.codeMerge, context.colours.secondaryInfo),
+      PrState.closed => (FontAwesomeIcons.codePullRequest, context.colours.tertiaryNegative),
     };
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(spaceSM),
-        decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -658,7 +673,7 @@ class _ItemPullRequest extends StatelessWidget {
                     pr.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                   ),
                 ),
                 if (pr.checkStatus != CheckStatus.none) ...[
@@ -673,10 +688,10 @@ class _ItemPullRequest extends StatelessWidget {
                           : FontAwesomeIcons.solidClock,
                       size: textSM,
                       color: pr.checkStatus == CheckStatus.success
-                          ? colours.tertiaryPositive
+                          ? context.colours.tertiaryPositive
                           : pr.checkStatus == CheckStatus.failure
-                          ? colours.tertiaryNegative
-                          : colours.tertiaryWarning,
+                          ? context.colours.tertiaryNegative
+                          : context.colours.tertiaryWarning,
                     ),
                   ),
                 ],
@@ -690,49 +705,49 @@ class _ItemPullRequest extends StatelessWidget {
                 children: [
                   Text(
                     '#${pr.number}',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
                     ' $bullet ',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Flexible(
                     child: Text(
                       pr.authorUsername,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                     ),
                   ),
                   Text(
                     ' $bullet ',
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   Text(
                     relativeTime,
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                   ),
                   if (pr.linkedIssueCount > 0) ...[
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
-                    FaIcon(FontAwesomeIcons.solidCircleDot, size: textXS, color: colours.tertiaryLight),
+                    FaIcon(FontAwesomeIcons.solidCircleDot, size: textXS, color: context.colours.tertiaryLight),
                     SizedBox(width: spaceXXXXS),
                     Text(
                       '${pr.linkedIssueCount}',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                   ],
                   if (pr.commentCount > 0) ...[
                     Text(
                       ' $bullet ',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
-                    FaIcon(FontAwesomeIcons.solidMessage, size: textXS, color: colours.tertiaryLight),
+                    FaIcon(FontAwesomeIcons.solidMessage, size: textXS, color: context.colours.tertiaryLight),
                     SizedBox(width: spaceXXXXS),
                     Text(
                       '${pr.commentCount}',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                   ],
                 ],
@@ -764,7 +779,7 @@ class _LabelChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = label.color != null ? _parseHexColor(label.color!) : colours.tertiaryDark;
+    final bgColor = label.color != null ? _parseHexColor(context, label.color!) : context.colours.tertiaryDark;
     final textColor = bgColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
     return Container(
@@ -777,12 +792,12 @@ class _LabelChip extends StatelessWidget {
     );
   }
 
-  Color _parseHexColor(String hex) {
+  Color _parseHexColor(BuildContext context, String hex) {
     final cleaned = hex.replaceAll('#', '');
     if (cleaned.length == 6) {
       return Color(int.parse('FF$cleaned', radix: 16));
     }
-    return colours.tertiaryDark;
+    return context.colours.tertiaryDark;
   }
 }
 

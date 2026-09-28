@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, String remoteName, Future<void> Fu
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.deleteRemote,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -23,12 +23,12 @@ Future<void> showDialog(BuildContext context, String remoteName, Future<void> Fu
           children: [
             Text(
               text,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceMD),
             Text(
               t.thisActionCannotBeUndone,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -37,7 +37,7 @@ Future<void> showDialog(BuildContext context, String remoteName, Future<void> Fu
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -46,7 +46,7 @@ Future<void> showDialog(BuildContext context, String remoteName, Future<void> Fu
         TextButton(
           child: Text(
             t.delete.toUpperCase(),
-            style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
+            style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
           ),
           onPressed: () async {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;

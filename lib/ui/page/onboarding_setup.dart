@@ -37,9 +37,10 @@ import 'package:GitSync/ui/page/unlock_premium.dart';
 class RightAngleLinePainter extends CustomPainter {
   final double animationValue;
   final Color colour;
+  final Color shadowColour;
   final double curveDimen;
 
-  RightAngleLinePainter(this.animationValue, this.colour, [this.curveDimen = 200]);
+  RightAngleLinePainter(this.animationValue, this.colour, this.shadowColour, [this.curveDimen = 200]);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -49,7 +50,7 @@ class RightAngleLinePainter extends CustomPainter {
       ..strokeWidth = spaceLG;
 
     final shadowPaint = Paint()
-      ..color = colours.tertiaryDark.withValues(alpha: 0.5)
+      ..color = shadowColour.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = spaceLG + 2
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.0);
@@ -69,16 +70,17 @@ class RightAngleLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant RightAngleLinePainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour;
+    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour || oldDelegate.shadowColour != shadowColour;
   }
 }
 
 class ParallelBendLinePainter extends CustomPainter {
   final double animationValue;
   final Color colour;
+  final Color shadowColour;
   final double curveDimen;
 
-  ParallelBendLinePainter(this.animationValue, this.colour, [this.curveDimen = 400]);
+  ParallelBendLinePainter(this.animationValue, this.colour, this.shadowColour, [this.curveDimen = 400]);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -88,7 +90,7 @@ class ParallelBendLinePainter extends CustomPainter {
       ..strokeWidth = spaceLG;
 
     final shadowPaint = Paint()
-      ..color = colours.tertiaryDark.withValues(alpha: 0.5)
+      ..color = shadowColour.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = spaceLG + 2
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.0);
@@ -122,16 +124,17 @@ class ParallelBendLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ParallelBendLinePainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour;
+    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour || oldDelegate.shadowColour != shadowColour;
   }
 }
 
 class GentleArchLinePainter extends CustomPainter {
   final double animationValue;
   final Color colour;
+  final Color shadowColour;
   final double curveDimen;
 
-  GentleArchLinePainter(this.animationValue, this.colour, [this.curveDimen = 200]);
+  GentleArchLinePainter(this.animationValue, this.colour, this.shadowColour, [this.curveDimen = 200]);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -141,7 +144,7 @@ class GentleArchLinePainter extends CustomPainter {
       ..strokeWidth = spaceLG;
 
     final shadowPaint = Paint()
-      ..color = colours.tertiaryDark.withValues(alpha: 0.5)
+      ..color = shadowColour.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = spaceLG + 2
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.0);
@@ -159,7 +162,7 @@ class GentleArchLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant GentleArchLinePainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour;
+    return oldDelegate.animationValue != animationValue || oldDelegate.colour != colour || oldDelegate.shadowColour != shadowColour;
   }
 }
 
@@ -431,7 +434,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
     }
   }
 
-  List<Shadow> get _bgTextShadow => [Shadow(blurRadius: 10.0, color: colours.primaryDark, offset: Offset.zero)];
+  List<Shadow> get _bgTextShadow => [Shadow(blurRadius: 10.0, color: context.colours.primaryDark, offset: Offset.zero)];
 
   Widget get legacyAppUser => Stack(
     children: [
@@ -450,7 +453,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: RightAngleLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                    painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -473,7 +476,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: RightAngleLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                    painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -496,7 +499,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: RightAngleLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                    painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -521,7 +524,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     child: Text(
                       t.legacyAppUserDialogTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -540,7 +543,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       t.legacyAppUserDialogMessagePart1,
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontWeight: FontWeight.bold,
                         fontSize: textXS * 2,
                         fontFamily: "AtkinsonHyperlegible",
@@ -552,7 +555,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Text(
                     t.legacyAppUserDialogMessagePart2,
                     style: TextStyle(
-                      color: colours.secondaryLight,
+                      color: context.colours.secondaryLight,
                       fontWeight: FontWeight.bold,
                       fontSize: textMD,
                       fontFamily: "AtkinsonHyperlegible",
@@ -563,7 +566,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Text(
                     t.legacyAppUserDialogMessagePart3,
                     style: TextStyle(
-                      color: colours.secondaryLight,
+                      color: context.colours.secondaryLight,
                       fontWeight: FontWeight.bold,
                       fontSize: textMD,
                       fontFamily: "AtkinsonHyperlegible",
@@ -581,18 +584,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.all(cornerRadiusMD),
-                                side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                side: BorderSide(
+                                  width: spaceXXXS,
+                                  color: context.colours.secondaryPositive,
+                                  strokeAlign: BorderSide.strokeAlignCenter,
+                                ),
                               ),
                             ),
                           ),
                           child: Text(
                             t.setUp.toUpperCase(),
                             style: TextStyle(
-                              color: colours.secondaryDark,
+                              color: context.colours.secondaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -663,7 +670,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width / 9 * 5, MediaQuery.of(context).size.height / 2),
-                  painter: RightAngleLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                  painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -682,7 +689,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width / 9 * 5, MediaQuery.of(context).size.height / 2),
-                  painter: RightAngleLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                  painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -701,7 +708,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width / 9 * 5, MediaQuery.of(context).size.height / 2),
-                  painter: RightAngleLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                  painter: RightAngleLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -725,7 +732,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         t.onboardingWelcomeTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: colours.primaryLight,
+                          color: context.colours.primaryLight,
                           fontSize: textXXL,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
@@ -740,16 +747,21 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   width: double.infinity,
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(color: colours.primaryLight, fontSize: textXS * 2, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
+                      style: TextStyle(
+                        color: context.colours.primaryLight,
+                        fontSize: textXS * 2,
+                        fontFamily: "AtkinsonHyperlegible",
+                        shadows: _bgTextShadow,
+                      ),
                       children: [
                         TextSpan(
                           text: t.onboardingWelcomeDescWorks,
-                          style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+                          style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
                         TextSpan(text: t.onboardingWelcomeDescBackground),
                         TextSpan(
                           text: t.onboardingWelcomeDescYourWork,
-                          style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+                          style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
                         TextSpan(text: t.onboardingWelcomeDescFocus),
                       ],
@@ -777,14 +789,14 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         opacity: 1 * animation,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: colours.tertiaryDark,
+                            color: context.colours.tertiaryDark,
                             borderRadius: BorderRadius.all(cornerRadiusMax),
-                            border: BoxBorder.all(width: 2, color: colours.primaryLight),
+                            border: BoxBorder.all(width: 2, color: context.colours.primaryLight),
                             boxShadow: [
                               BoxShadow(
                                 blurRadius: 100,
                                 blurStyle: BlurStyle.normal,
-                                color: colours.primaryDark,
+                                color: context.colours.primaryDark,
                                 offset: Offset.zero,
                                 spreadRadius: 3,
                               ),
@@ -796,7 +808,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: textSM,
-                              color: colours.primaryLight,
+                              color: context.colours.primaryLight,
                               fontWeight: FontWeight.bold,
                               fontFamily: "AtkinsonHyperlegible",
                             ),
@@ -815,18 +827,18 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.primaryLight),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.primaryLight),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
+                                  side: BorderSide(width: spaceXXXS, color: context.colours.tertiaryDark, strokeAlign: BorderSide.strokeAlignCenter),
                                 ),
                               ),
                             ),
                             child: Text(
                               t.welcomeNegative.toUpperCase(),
                               style: TextStyle(
-                                color: colours.tertiaryDark,
+                                color: context.colours.tertiaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -846,18 +858,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                  side: BorderSide(
+                                    width: spaceXXXS,
+                                    color: context.colours.secondaryPositive,
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                  ),
                                 ),
                               ),
                             ),
                             child: Text(
                               t.welcomePositive.toUpperCase(),
                               style: TextStyle(
-                                color: colours.secondaryDark,
+                                color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -920,7 +936,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.primaryLight, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -942,7 +958,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -964,7 +980,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -988,7 +1004,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingHowYouFoundUsTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -999,7 +1015,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingHowYouFoundUsSubtitle,
                       style: TextStyle(
-                        color: colours.secondaryLight,
+                        color: context.colours.secondaryLight,
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -1021,21 +1037,25 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                   padding: EdgeInsets.only(top: spaceSM, left: spaceMD + spaceSM + spaceSM),
                                   child: TextField(
                                     controller: otherTextController,
-                                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
+                                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
                                     decoration: InputDecoration(
                                       hintText: t.sourceOtherHint,
-                                      hintStyle: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
+                                      hintStyle: TextStyle(
+                                        color: context.colours.secondaryLight,
+                                        fontSize: textSM,
+                                        fontFamily: "AtkinsonHyperlegible",
+                                      ),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.all(cornerRadiusMD),
-                                        borderSide: BorderSide(color: colours.tertiaryLight),
+                                        borderSide: BorderSide(color: context.colours.tertiaryLight),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.all(cornerRadiusMD),
-                                        borderSide: BorderSide(color: colours.tertiaryLight),
+                                        borderSide: BorderSide(color: context.colours.tertiaryLight),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.all(cornerRadiusMD),
-                                        borderSide: BorderSide(color: colours.tertiaryInfo, width: 2),
+                                        borderSide: BorderSide(color: context.colours.tertiaryInfo, width: 2),
                                       ),
                                       contentPadding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                     ),
@@ -1067,16 +1087,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                             ),
                           ),
-                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
                             t.backLabel.toUpperCase(),
                             style: TextStyle(
-                              color: colours.primaryDark,
+                              color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -1096,21 +1116,25 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
                               backgroundColor: WidgetStatePropertyAll(
-                                disabled ? colours.tertiaryDark.withValues(alpha: 0.5) : colours.tertiaryPositive,
+                                disabled ? context.colours.tertiaryDark.withValues(alpha: 0.5) : context.colours.tertiaryPositive,
                               ),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(cornerRadiusMD),
                                   side: disabled
                                       ? BorderSide.none
-                                      : BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                      : BorderSide(
+                                          width: spaceXXXS,
+                                          color: context.colours.secondaryPositive,
+                                          strokeAlign: BorderSide.strokeAlignCenter,
+                                        ),
                                 ),
                               ),
                             ),
                             child: Text(
                               (isContinue ? t.continueLabel : t.skip).toUpperCase(),
                               style: TextStyle(
-                                color: disabled ? colours.secondaryLight : colours.secondaryDark,
+                                color: disabled ? context.colours.secondaryLight : context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -1159,23 +1183,23 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
           style: ButtonStyle(
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-            backgroundColor: WidgetStatePropertyAll(checked ? colours.tertiaryDark.withValues(alpha: 0.8) : colours.tertiaryDark),
+            backgroundColor: WidgetStatePropertyAll(checked ? context.colours.tertiaryDark.withValues(alpha: 0.8) : context.colours.tertiaryDark),
             alignment: Alignment.centerLeft,
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(cornerRadiusMD),
-                side: checked ? BorderSide(width: 2, color: colours.tertiaryPositive) : BorderSide.none,
+                side: checked ? BorderSide(width: 2, color: context.colours.tertiaryPositive) : BorderSide.none,
               ),
             ),
           ),
           icon: FaIcon(
             checked ? FontAwesomeIcons.solidCircleCheck : FontAwesomeIcons.circle,
-            color: checked ? colours.tertiaryPositive : colours.secondaryLight,
+            color: checked ? context.colours.tertiaryPositive : context.colours.secondaryLight,
             size: textSM,
           ),
           label: Text(
             label,
-            style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -1199,7 +1223,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: ParallelBendLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                  painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -1220,7 +1244,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                  painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -1241,7 +1265,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                  painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                 ),
               );
             },
@@ -1266,7 +1290,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       Text(
                         t.onboardingChooseYourFocus,
                         style: TextStyle(
-                          color: colours.primaryLight,
+                          color: context.colours.primaryLight,
                           fontSize: textMD * 2,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
@@ -1277,7 +1301,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       Text(
                         t.onboardingChangeLaterInSettings,
                         style: TextStyle(
-                          color: colours.secondaryLight,
+                          color: context.colours.secondaryLight,
                           fontSize: textSM,
                           fontFamily: "AtkinsonHyperlegible",
                           fontWeight: FontWeight.bold,
@@ -1322,7 +1346,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
+                                                color: isClientMode ? context.colours.tertiaryDark : context.colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -1331,7 +1355,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                   AnimatedDefaultTextStyle(
                                                     duration: animFast,
                                                     style: TextStyle(
-                                                      color: isClientMode ? colours.tertiaryInfo : colours.primaryLight,
+                                                      color: isClientMode ? context.colours.tertiaryInfo : context.colours.primaryLight,
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
@@ -1341,7 +1365,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                   SizedBox(width: spaceSM),
                                                   FaIcon(
                                                     FontAwesomeIcons.codeCompare,
-                                                    color: isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
+                                                    color: isClientMode ? context.colours.tertiaryInfo : context.colours.secondaryLight,
                                                     size: textXL,
                                                   ),
                                                 ],
@@ -1356,13 +1380,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
+                                                color: isClientMode ? context.colours.tertiaryDark : context.colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
                                                 duration: animFast,
                                                 style: TextStyle(
-                                                  color: isClientMode ? colours.primaryLight : colours.secondaryLight,
+                                                  color: isClientMode ? context.colours.primaryLight : context.colours.secondaryLight,
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
@@ -1418,7 +1442,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 top: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
+                                                color: !isClientMode ? context.colours.tertiaryDark : context.colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                               ),
                                               child: Row(
@@ -1426,14 +1450,14 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 children: [
                                                   FaIcon(
                                                     FontAwesomeIcons.arrowsRotate,
-                                                    color: !isClientMode ? colours.tertiaryInfo : colours.secondaryLight,
+                                                    color: !isClientMode ? context.colours.tertiaryInfo : context.colours.secondaryLight,
                                                     size: textXL,
                                                   ),
                                                   SizedBox(width: spaceSM),
                                                   AnimatedDefaultTextStyle(
                                                     duration: animFast,
                                                     style: TextStyle(
-                                                      color: !isClientMode ? colours.tertiaryInfo : colours.primaryLight,
+                                                      color: !isClientMode ? context.colours.tertiaryInfo : context.colours.primaryLight,
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
@@ -1452,13 +1476,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 bottom: spaceXS + spaceXXXS,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: !isClientMode ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
+                                                color: !isClientMode ? context.colours.tertiaryDark : context.colours.tertiaryDark.withAlpha(204),
                                                 borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
                                               ),
                                               child: AnimatedDefaultTextStyle(
                                                 duration: animFast,
                                                 style: TextStyle(
-                                                  color: !isClientMode ? colours.primaryLight : colours.secondaryLight,
+                                                  color: !isClientMode ? context.colours.primaryLight : context.colours.secondaryLight,
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
@@ -1514,16 +1538,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                               ),
                             ),
-                            icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                            icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                             label: Text(
                               t.backLabel.toUpperCase(),
                               style: TextStyle(
-                                color: colours.primaryDark,
+                                color: context.colours.primaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -1537,18 +1561,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                  side: BorderSide(
+                                    width: spaceXXXS,
+                                    color: context.colours.secondaryPositive,
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                  ),
                                 ),
                               ),
                             ),
                             child: Text(
                               t.next.toUpperCase(),
                               style: TextStyle(
-                                color: colours.secondaryDark,
+                                color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -1595,7 +1623,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: ParallelBendLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                    painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -1619,7 +1647,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                    painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -1643,7 +1671,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                    painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                   ),
                 );
               },
@@ -1667,7 +1695,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingBrowseEditTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -1678,7 +1706,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingBrowseEditSubtitle,
                       style: TextStyle(
-                        color: colours.secondaryLight,
+                        color: context.colours.secondaryLight,
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -1704,23 +1732,23 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       Container(
                                         padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
                                         decoration: BoxDecoration(
-                                          color: colours.tertiaryDark,
+                                          color: context.colours.tertiaryDark,
                                           borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                           border: BoxBorder.all(
                                             width: spaceXS,
-                                            color: colours.tertiaryDark,
+                                            color: context.colours.tertiaryDark,
                                             strokeAlign: BorderSide.strokeAlignOutside,
                                           ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            FaIcon(FontAwesomeIcons.folderOpen, color: colours.tertiaryPositive, size: textXL),
+                                            FaIcon(FontAwesomeIcons.folderOpen, color: context.colours.tertiaryPositive, size: textXL),
                                             SizedBox(width: spaceSM),
                                             Text(
                                               t.onboardingFileExplorer,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: textXL,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -1732,11 +1760,11 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       Container(
                                         padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
                                         decoration: BoxDecoration(
-                                          color: colours.tertiaryDark,
+                                          color: context.colours.tertiaryDark,
                                           borderRadius: BorderRadius.only(topRight: cornerRadiusSM, bottomRight: cornerRadiusSM),
                                           border: BoxBorder.all(
                                             width: spaceXS,
-                                            color: colours.tertiaryDark,
+                                            color: context.colours.tertiaryDark,
                                             strokeAlign: BorderSide.strokeAlignOutside,
                                           ),
                                         ),
@@ -1767,11 +1795,11 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                             Container(
                                               padding: EdgeInsets.only(left: spaceSM, right: spaceSM, bottom: spaceXXXS, top: spaceXS),
                                               decoration: BoxDecoration(
-                                                color: colours.tertiaryDark,
+                                                color: context.colours.tertiaryDark,
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, topRight: cornerRadiusSM),
                                                 border: BoxBorder.all(
                                                   width: spaceXS,
-                                                  color: colours.tertiaryDark,
+                                                  color: context.colours.tertiaryDark,
                                                   strokeAlign: BorderSide.strokeAlignOutside,
                                                 ),
                                               ),
@@ -1781,25 +1809,25 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                   Text(
                                                     t.onboardingCodeEditor,
                                                     style: TextStyle(
-                                                      color: colours.primaryLight,
+                                                      color: context.colours.primaryLight,
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
                                                     ),
                                                   ),
                                                   SizedBox(width: spaceSM),
-                                                  FaIcon(FontAwesomeIcons.code, color: colours.tertiaryNegative, size: textXL),
+                                                  FaIcon(FontAwesomeIcons.code, color: context.colours.tertiaryNegative, size: textXL),
                                                 ],
                                               ),
                                             ),
                                             Container(
                                               padding: EdgeInsets.only(left: spaceSM, right: spaceSM, top: spaceXS, bottom: spaceSM),
                                               decoration: BoxDecoration(
-                                                color: colours.tertiaryDark,
+                                                color: context.colours.tertiaryDark,
                                                 borderRadius: BorderRadius.only(topLeft: cornerRadiusSM, bottomLeft: cornerRadiusSM),
                                                 border: BoxBorder.all(
                                                   width: spaceXS,
-                                                  color: colours.tertiaryDark,
+                                                  color: context.colours.tertiaryDark,
                                                   strokeAlign: BorderSide.strokeAlignOutside,
                                                 ),
                                               ),
@@ -1842,16 +1870,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                             ),
                           ),
-                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
                             t.backLabel.toUpperCase(),
                             style: TextStyle(
-                              color: colours.primaryDark,
+                              color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -1863,11 +1891,11 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         style: ButtonStyle(
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceSM)),
-                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(cornerRadiusMD),
-                              side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                              side: BorderSide(width: spaceXXXS, color: context.colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
                             ),
                           ),
                         ),
@@ -1877,7 +1905,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             return Text(
                               (hasPremium == true ? t.continueLabel : t.onboardingPremiumFeatures).toUpperCase(),
                               style: TextStyle(
-                                color: colours.secondaryDark,
+                                color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -1912,7 +1940,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       duration: animFast,
       padding: EdgeInsets.symmetric(horizontal: spaceSM + spaceXS, vertical: spaceXS + spaceXXXS),
       decoration: BoxDecoration(
-        color: isSelected ? colours.tertiaryDark : colours.tertiaryDark.withAlpha(204),
+        color: isSelected ? context.colours.tertiaryDark : context.colours.tertiaryDark.withAlpha(204),
         borderRadius: BorderRadius.only(
           topLeft: !right ? cornerRadiusSM : Radius.zero,
           bottomLeft: right && last || !right ? cornerRadiusSM : Radius.zero,
@@ -1923,12 +1951,12 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, color: isSelected ? colours.tertiaryInfo : colours.tertiaryLight, size: textSM),
+          FaIcon(icon, color: isSelected ? context.colours.tertiaryInfo : context.colours.tertiaryLight, size: textSM),
           SizedBox(width: spaceSM),
           Text(
             text,
             style: TextStyle(
-              color: isSelected ? colours.primaryLight : colours.secondaryLight,
+              color: isSelected ? context.colours.primaryLight : context.colours.secondaryLight,
               fontSize: textSM,
               fontWeight: FontWeight.bold,
               fontFamily: "AtkinsonHyperlegible",
@@ -1945,11 +1973,11 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(icon, color: colours.tertiaryInfo, size: textSM),
+          FaIcon(icon, color: context.colours.tertiaryInfo, size: textSM),
           SizedBox(width: spaceSM),
           Text(
             text,
-            style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
           ),
         ],
       ),
@@ -1965,7 +1993,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
           Text(
             "\u2022",
             style: TextStyle(
-              color: colours.tertiaryLight,
+              color: context.colours.tertiaryLight,
               fontSize: textSM,
               fontWeight: FontWeight.bold,
               fontFamily: "AtkinsonHyperlegible",
@@ -1976,7 +2004,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
           Text(
             text,
             style: TextStyle(
-              color: colours.tertiaryLight,
+              color: context.colours.tertiaryLight,
               fontSize: textSM,
               fontWeight: FontWeight.bold,
               fontFamily: "AtkinsonHyperlegible",
@@ -1992,15 +2020,15 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   //   return Container(
   //     width: double.infinity,
   //     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
-  //     decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+  //     decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
   //     child: Row(
   //       children: [
-  //         FaIcon(icon, color: colours.tertiaryInfo, size: textSM),
+  //         FaIcon(icon, color: context.colours.tertiaryInfo, size: textSM),
   //         SizedBox(width: spaceSM),
   //         Expanded(
   //           child: Text(
   //             text,
-  //             style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
+  //             style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
   //           ),
   //         ),
   //       ],
@@ -2023,7 +2051,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: GentleArchLinePainter(_curvedAnimation.value, colours.primaryLight, 200),
+                  painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 200),
                 ),
               );
             },
@@ -2043,7 +2071,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 200),
+                  painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 200),
                 ),
               );
             },
@@ -2063,7 +2091,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
               return RepaintBoundary(
                 child: CustomPaint(
                   size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                  painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 200),
+                  painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 200),
                 ),
               );
             },
@@ -2085,7 +2113,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.notificationDialogTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2096,7 +2124,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingNotificationDescription,
                       style: TextStyle(
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2118,7 +2146,12 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     SizedBox(height: spaceSM),
                     Text(
                       t.onboardingNotificationDefault,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible", shadows: _bgTextShadow),
+                      style: TextStyle(
+                        color: context.colours.tertiaryLight,
+                        fontSize: textSM,
+                        fontFamily: "AtkinsonHyperlegible",
+                        shadows: _bgTextShadow,
+                      ),
                     ),
                   ],
                 ),
@@ -2143,7 +2176,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       icon: FaIcon(
                         semanticLabel: "tap to grant notifications",
                         FontAwesomeIcons.solidBell,
-                        color: colours.tertiaryPositive,
+                        color: context.colours.tertiaryPositive,
                         size: spaceXXL,
                       ),
                     ),
@@ -2162,7 +2195,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         style: ButtonStyle(
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                           ),
@@ -2170,7 +2203,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         child: Text(
                           t.skip.toUpperCase(),
                           style: TextStyle(
-                            color: colours.primaryDark,
+                            color: context.colours.primaryDark,
                             fontWeight: FontWeight.bold,
                             fontSize: textMD,
                             fontFamily: "AtkinsonHyperlegible",
@@ -2206,7 +2239,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.primaryLight, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -2229,7 +2262,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -2252,7 +2285,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 return RepaintBoundary(
                   child: CustomPaint(
                     size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                    painter: GentleArchLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 200),
+                    painter: GentleArchLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 200),
                   ),
                 );
               },
@@ -2276,7 +2309,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.allFilesAccessDialogTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2287,7 +2320,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingFileAccessDescription,
                       style: TextStyle(
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2328,7 +2361,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       icon: FaIcon(
                         FontAwesomeIcons.folderOpen,
                         semanticLabel: "tap to grant file access",
-                        color: colours.tertiaryPositive,
+                        color: context.colours.tertiaryPositive,
                         size: spaceXXL,
                       ),
                     ),
@@ -2362,7 +2395,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -2389,7 +2422,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -2416,7 +2449,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -2441,7 +2474,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingAlmostThereTitle,
                       style: TextStyle(
-                        color: colours.primaryLight,
+                        color: context.colours.primaryLight,
                         fontSize: textMD * 2,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2452,7 +2485,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     Text(
                       t.onboardingAlmostThereSubtitle,
                       style: TextStyle(
-                        color: colours.tertiaryLight,
+                        color: context.colours.tertiaryLight,
                         fontSize: textSM,
                         fontFamily: "AtkinsonHyperlegible",
                         fontWeight: FontWeight.bold,
@@ -2475,16 +2508,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                       margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
-                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                       child: Row(
                                         children: [
-                                          FaIcon(FontAwesomeIcons.rightToBracket, color: colours.tertiaryInfo, size: textSM),
+                                          FaIcon(FontAwesomeIcons.rightToBracket, color: context.colours.tertiaryInfo, size: textSM),
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
                                               t.onboardingStepAuthenticate,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -2499,16 +2532,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                       margin: EdgeInsets.only(left: MediaQuery.of(context).size.width / 3),
-                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                       child: Row(
                                         children: [
-                                          FaIcon(FontAwesomeIcons.codeBranch, color: colours.tertiaryInfo, size: textSM),
+                                          FaIcon(FontAwesomeIcons.codeBranch, color: context.colours.tertiaryInfo, size: textSM),
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
                                               t.onboardingStepClone,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -2528,16 +2561,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                       margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                       child: Row(
                                         children: [
-                                          FaIcon(FontAwesomeIcons.gear, color: colours.tertiaryInfo, size: textSM),
+                                          FaIcon(FontAwesomeIcons.gear, color: context.colours.tertiaryInfo, size: textSM),
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
                                               t.onboardingStepSyncSettings,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -2552,16 +2585,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                       margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                       child: Row(
                                         children: [
-                                          FaIcon(FontAwesomeIcons.solidFileLines, color: colours.tertiaryInfo, size: textSM),
+                                          FaIcon(FontAwesomeIcons.solidFileLines, color: context.colours.tertiaryInfo, size: textSM),
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
                                               t.onboardingStepWiki,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -2576,16 +2609,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceSM),
                                       margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3),
-                                      decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
+                                      decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
                                       child: Row(
                                         children: [
-                                          FaIcon(FontAwesomeIcons.solidCircleCheck, color: colours.tertiaryInfo, size: textSM),
+                                          FaIcon(FontAwesomeIcons.solidCircleCheck, color: context.colours.tertiaryInfo, size: textSM),
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
                                               t.onboardingStepAllSet,
                                               style: TextStyle(
-                                                color: colours.primaryLight,
+                                                color: context.colours.primaryLight,
                                                 fontSize: textMD,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "AtkinsonHyperlegible",
@@ -2621,16 +2654,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                             ),
                           ),
-                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                          icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
                             t.backLabel.toUpperCase(),
                             style: TextStyle(
-                              color: colours.primaryDark,
+                              color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -2649,23 +2682,23 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               style: ButtonStyle(
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                                backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                                 shape: WidgetStatePropertyAll(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(cornerRadiusMD),
                                     side: BorderSide(
                                       width: spaceXXXS,
-                                      color: HSLColor.fromColor(colours.secondaryInfo).withLightness(0.35).toColor(),
+                                      color: HSLColor.fromColor(context.colours.secondaryInfo).withLightness(0.35).toColor(),
                                       strokeAlign: BorderSide.strokeAlignCenter,
                                     ),
                                   ),
                                 ),
                               ),
-                              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: colours.secondaryDark, size: textSM),
+                              icon: FaIcon(FontAwesomeIcons.solidFileLines, color: context.colours.secondaryDark, size: textSM),
                               label: Text(
                                 t.documentation.toUpperCase(),
                                 style: TextStyle(
-                                  color: colours.primaryDark,
+                                  color: context.colours.primaryDark,
                                   fontWeight: FontWeight.bold,
                                   fontSize: textMD,
                                   fontFamily: "AtkinsonHyperlegible",
@@ -2678,18 +2711,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(cornerRadiusMD),
-                                  side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                  side: BorderSide(
+                                    width: spaceXXXS,
+                                    color: context.colours.secondaryPositive,
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                  ),
                                 ),
                               ),
                             ),
                             child: Text(
                               "setup".toUpperCase(),
                               style: TextStyle(
-                                color: colours.secondaryDark,
+                                color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -2732,7 +2769,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Text(
                     t.onboardingAuthTitle,
                     style: TextStyle(
-                      color: colours.primaryLight,
+                      color: context.colours.primaryLight,
                       fontSize: textMD * 2,
                       fontFamily: "AtkinsonHyperlegible",
                       fontWeight: FontWeight.bold,
@@ -2743,7 +2780,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Text(
                     t.onboardingAuthSubtitle,
                     style: TextStyle(
-                      color: colours.tertiaryLight,
+                      color: context.colours.tertiaryLight,
                       fontSize: textSM,
                       fontFamily: "AtkinsonHyperlegible",
                       fontWeight: FontWeight.bold,
@@ -2770,7 +2807,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       Text(
                                         t.oauthProviders.toUpperCase(),
                                         style: TextStyle(
-                                          color: colours.secondaryLight,
+                                          color: context.colours.secondaryLight,
                                           fontSize: textSM,
                                           fontFamily: "AtkinsonHyperlegible",
                                           fontWeight: FontWeight.bold,
@@ -2796,17 +2833,17 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                             alignment: Alignment.centerLeft,
                                             shape: WidgetStatePropertyAll(
                                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                             ),
                                           ),
-                                          icon: FaIcon(codeberg_logo, size: textSM, color: colours.codebergBlue),
+                                          icon: FaIcon(codeberg_logo, size: textSM, color: context.colours.codebergBlue),
                                           label: Text(
                                             "CODEBERG",
                                             style: TextStyle(
-                                              color: colours.primaryLight,
+                                              color: context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontFamily: "AtkinsonHyperlegible",
                                               fontWeight: FontWeight.bold,
@@ -2837,7 +2874,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                             alignment: Alignment.centerLeft,
                                             shape: WidgetStatePropertyAll(
                                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -2845,13 +2882,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           ),
                                           icon: FaIcon(
                                             Platform.isIOS ? FontAwesomeIcons.gitAlt : FontAwesomeIcons.github,
-                                            color: colours.primaryLight,
+                                            color: context.colours.primaryLight,
                                             size: textSM,
                                           ),
                                           label: Text(
                                             "GITHUB (ALL REPOS)",
                                             style: TextStyle(
-                                              color: colours.primaryLight,
+                                              color: context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontFamily: "AtkinsonHyperlegible",
                                               fontWeight: FontWeight.bold,
@@ -2900,7 +2937,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                             alignment: Alignment.centerLeft,
                                             shape: WidgetStatePropertyAll(
                                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -2908,13 +2945,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           ),
                                           icon: FaIcon(
                                             Platform.isIOS ? FontAwesomeIcons.gitAlt : FontAwesomeIcons.github,
-                                            color: colours.primaryLight,
+                                            color: context.colours.primaryLight,
                                             size: textSM,
                                           ),
                                           label: Text(
                                             "GITHUB (SCOPED)",
                                             style: TextStyle(
-                                              color: colours.primaryLight,
+                                              color: context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontFamily: "AtkinsonHyperlegible",
                                               fontWeight: FontWeight.bold,
@@ -2941,7 +2978,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                             alignment: Alignment.centerLeft,
                                             shape: WidgetStatePropertyAll(
                                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -2949,13 +2986,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           ),
                                           icon: FaIcon(
                                             Platform.isIOS ? FontAwesomeIcons.gitAlt : gitlab_logo,
-                                            color: Platform.isIOS ? colours.primaryLight : colours.gitlabOrange,
+                                            color: Platform.isIOS ? context.colours.primaryLight : context.colours.gitlabOrange,
                                             size: textSM,
                                           ),
                                           label: Text(
                                             "GITLAB",
                                             style: TextStyle(
-                                              color: colours.primaryLight,
+                                              color: context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontFamily: "AtkinsonHyperlegible",
                                               fontWeight: FontWeight.bold,
@@ -2982,7 +3019,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           style: ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                             alignment: Alignment.centerLeft,
                                             shape: WidgetStatePropertyAll(
                                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -2990,13 +3027,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           ),
                                           icon: FaIcon(
                                             Platform.isIOS ? FontAwesomeIcons.gitAlt : gitea_logo,
-                                            color: Platform.isIOS ? colours.primaryLight : colours.giteaGreen,
+                                            color: Platform.isIOS ? context.colours.primaryLight : context.colours.giteaGreen,
                                             size: textSM,
                                           ),
                                           label: Text(
                                             "GITEA",
                                             style: TextStyle(
-                                              color: colours.primaryLight,
+                                              color: context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontFamily: "AtkinsonHyperlegible",
                                               fontWeight: FontWeight.bold,
@@ -3009,13 +3046,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       Container(
                                         height: 2,
                                         margin: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                                        color: colours.tertiaryDark,
+                                        color: context.colours.tertiaryDark,
                                       ),
                                       SizedBox(height: spaceSM),
                                       Text(
                                         t.gitProtocols.toUpperCase(),
                                         style: TextStyle(
-                                          color: colours.secondaryLight,
+                                          color: context.colours.secondaryLight,
                                           fontSize: textSM,
                                           fontFamily: "AtkinsonHyperlegible",
                                           fontWeight: FontWeight.bold,
@@ -3039,7 +3076,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     style: ButtonStyle(
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                       alignment: Alignment.centerLeft,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -3047,13 +3084,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     ),
                                     icon: FaIcon(
                                       FontAwesomeIcons.lock,
-                                      color: colours.primaryLight,
+                                      color: context.colours.primaryLight,
                                       size: expanded == null || expanded == GitProvider.HTTPS ? textSM : 0,
                                     ),
                                     label: Text(
                                       "HTTPS",
                                       style: TextStyle(
-                                        color: colours.primaryLight,
+                                        color: context.colours.primaryLight,
                                         fontSize: textMD,
                                         fontFamily: "AtkinsonHyperlegible",
                                         fontWeight: FontWeight.bold,
@@ -3076,7 +3113,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     style: ButtonStyle(
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
-                                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                                       alignment: Alignment.centerLeft,
                                       shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -3084,13 +3121,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     ),
                                     icon: FaIcon(
                                       FontAwesomeIcons.terminal,
-                                      color: colours.primaryLight,
+                                      color: context.colours.primaryLight,
                                       size: expanded == null || expanded == GitProvider.SSH ? textSM : 0,
                                     ),
                                     label: Text(
                                       "SSH",
                                       style: TextStyle(
-                                        color: colours.primaryLight,
+                                        color: context.colours.primaryLight,
                                         fontSize: textMD,
                                         fontFamily: "AtkinsonHyperlegible",
                                         fontWeight: FontWeight.bold,
@@ -3194,16 +3231,16 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               style: ButtonStyle(
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                                backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                                backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                                 shape: WidgetStatePropertyAll(
                                   RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                                 ),
                               ),
-                              icon: FaIcon(FontAwesomeIcons.arrowLeft, color: colours.secondaryDark, size: textSM),
+                              icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                               label: Text(
                                 t.backLabel.toUpperCase(),
                                 style: TextStyle(
-                                  color: colours.primaryDark,
+                                  color: context.colours.primaryDark,
                                   fontWeight: FontWeight.bold,
                                   fontSize: textMD,
                                   fontFamily: "AtkinsonHyperlegible",
@@ -3218,7 +3255,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             style: ButtonStyle(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                              backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                              backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                               ),
@@ -3226,7 +3263,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             child: Text(
                               t.useOffline.toUpperCase(),
                               style: TextStyle(
-                                color: colours.primaryDark,
+                                color: context.colours.primaryDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: textMD,
                                 fontFamily: "AtkinsonHyperlegible",
@@ -3249,8 +3286,8 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
         builder: (context, loading, _) {
           if (!loading) return SizedBox.shrink();
           return Container(
-            color: colours.secondaryDark.withValues(alpha: 0.7),
-            child: Center(child: CircularProgressIndicator(color: colours.primaryLight)),
+            color: context.colours.secondaryDark.withValues(alpha: 0.7),
+            child: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
           );
         },
       ),
@@ -3287,30 +3324,35 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
             margin: EdgeInsets.symmetric(horizontal: spaceXS),
             padding: EdgeInsets.all(spaceMD),
             decoration: BoxDecoration(
-              color: colours.secondaryDark,
+              color: context.colours.secondaryDark,
               borderRadius: BorderRadius.all(cornerRadiusMD),
-              border: Border.all(color: colours.tertiaryDark, width: spaceXXXS),
+              border: Border.all(color: context.colours.tertiaryDark, width: spaceXXXS),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                FaIcon(icon, color: colours.tertiaryInfo, size: textMD * 2),
+                FaIcon(icon, color: context.colours.tertiaryInfo, size: textMD * 2),
                 SizedBox(height: spaceSM),
                 Text(
                   title,
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD, fontFamily: 'AtkinsonHyperlegible'),
+                  style: TextStyle(
+                    color: context.colours.primaryLight,
+                    fontWeight: FontWeight.bold,
+                    fontSize: textMD,
+                    fontFamily: 'AtkinsonHyperlegible',
+                  ),
                 ),
                 SizedBox(height: spaceXXXS),
                 if (subtitle.isNotEmpty)
                   Text(
                     subtitle,
-                    style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontFamily: 'AtkinsonHyperlegible'),
+                    style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontFamily: 'AtkinsonHyperlegible'),
                   ),
                 SizedBox(height: spaceSM),
                 Container(
                   height: spaceXXXS,
-                  decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
+                  decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                 ),
                 SizedBox(height: spaceSM),
                 Expanded(
@@ -3327,13 +3369,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                 padding: EdgeInsets.symmetric(vertical: spaceXXXS),
                                 child: Row(
                                   children: [
-                                    FaIcon(f.$1, color: colours.tertiaryInfo, size: textSM),
+                                    FaIcon(f.$1, color: context.colours.tertiaryInfo, size: textSM),
                                     SizedBox(width: spaceSM),
                                     Expanded(
                                       child: Text(
                                         f.$2,
                                         style: TextStyle(
-                                          color: colours.primaryLight,
+                                          color: context.colours.primaryLight,
                                           fontSize: textSM,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'AtkinsonHyperlegible',
@@ -3358,21 +3400,21 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              decoration: BoxDecoration(color: colours.tertiaryInfo, borderRadius: BorderRadius.all(cornerRadiusMax)),
+                              decoration: BoxDecoration(color: context.colours.tertiaryInfo, borderRadius: BorderRadius.all(cornerRadiusMax)),
                               padding: EdgeInsets.symmetric(vertical: spaceXXS, horizontal: spaceXS),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FaIcon(
                                     settingsBody != null ? FontAwesomeIcons.chevronDown : FontAwesomeIcons.squareArrowUpRight,
-                                    color: colours.tertiaryLight,
+                                    color: context.colours.tertiaryLight,
                                     size: textXS,
                                   ),
                                   SizedBox(width: spaceXXS),
                                   Text(
                                     settingsBody != null ? t.onboardingTapToConfigure : t.onboardingLaunchWiki,
                                     style: TextStyle(
-                                      color: colours.tertiaryLight,
+                                      color: context.colours.tertiaryLight,
                                       fontWeight: FontWeight.bold,
                                       fontSize: textXS,
                                       fontFamily: 'AtkinsonHyperlegible',
@@ -3471,7 +3513,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.primaryLight, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.primaryLight, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -3494,7 +3536,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryNegative, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryNegative, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -3517,7 +3559,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   return RepaintBoundary(
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2),
-                      painter: ParallelBendLinePainter(_curvedAnimation.value, colours.tertiaryPositive, 100),
+                      painter: ParallelBendLinePainter(_curvedAnimation.value, context.colours.tertiaryPositive, context.colours.tertiaryDark, 100),
                     ),
                   );
                 },
@@ -3545,7 +3587,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           Text(
                             t.onboardingSyncSettingsTitle,
                             style: TextStyle(
-                              color: colours.primaryLight,
+                              color: context.colours.primaryLight,
                               fontSize: textMD * 2,
                               fontFamily: "AtkinsonHyperlegible",
                               fontWeight: FontWeight.bold,
@@ -3556,7 +3598,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           Text(
                             t.onboardingSyncSettingsSubtitle,
                             style: TextStyle(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               fontSize: textSM,
                               fontFamily: "AtkinsonHyperlegible",
                               fontWeight: FontWeight.bold,
@@ -3591,7 +3633,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                   width: spaceXS,
                                   height: spaceXS,
                                   decoration: BoxDecoration(
-                                    color: isActive ? colours.tertiaryInfo : colours.tertiaryInfo.withValues(alpha: 0.3),
+                                    color: isActive ? context.colours.tertiaryInfo : context.colours.tertiaryInfo.withValues(alpha: 0.3),
                                     shape: BoxShape.circle,
                                   ),
                                 );
@@ -3613,7 +3655,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
                             ),
@@ -3621,7 +3663,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           child: Text(
                             t.skip.toUpperCase(),
                             style: TextStyle(
-                              color: colours.primaryDark,
+                              color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -3636,18 +3678,22 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           style: ButtonStyle(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceXS)),
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryPositive),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryPositive),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.all(cornerRadiusMD),
-                                side: BorderSide(width: spaceXXXS, color: colours.secondaryPositive, strokeAlign: BorderSide.strokeAlignCenter),
+                                side: BorderSide(
+                                  width: spaceXXXS,
+                                  color: context.colours.secondaryPositive,
+                                  strokeAlign: BorderSide.strokeAlignCenter,
+                                ),
                               ),
                             ),
                           ),
                           child: Text(
                             t.done.toUpperCase(),
                             style: TextStyle(
-                              color: colours.secondaryDark,
+                              color: context.colours.secondaryDark,
                               fontWeight: FontWeight.bold,
                               fontSize: textMD,
                               fontFamily: "AtkinsonHyperlegible",
@@ -3706,11 +3752,11 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
             if (!didPop) _handleSystemBack();
           },
           child: Scaffold(
-            backgroundColor: colours.primaryDark,
+            backgroundColor: context.colours.primaryDark,
             body: AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle.light.copyWith(
-                statusBarColor: colours.primaryDark,
-                systemNavigationBarColor: colours.primaryDark,
+                statusBarColor: context.colours.primaryDark,
+                systemNavigationBarColor: context.colours.primaryDark,
                 statusBarIconBrightness: Brightness.light,
                 systemNavigationBarIconBrightness: Brightness.light,
               ),
@@ -3732,9 +3778,13 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(blurRadius: 0.0, color: colours.primaryDark, spreadRadius: 0.0)],
+                            boxShadow: [BoxShadow(blurRadius: 0.0, color: context.colours.primaryDark, spreadRadius: 0.0)],
                           ),
-                          child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, color: colours.darkMode ? null : colours.primaryLight),
+                          child: Image.asset(
+                            'assets/app_icon.png',
+                            fit: BoxFit.cover,
+                            color: context.colours.darkMode ? null : context.colours.primaryLight,
+                          ),
                         ),
                       ),
                     ),

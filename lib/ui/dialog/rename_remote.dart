@@ -13,12 +13,12 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
     builder: (BuildContext context) => StatefulBuilder(
       builder: (context, setState) => BaseAlertDialog(
         expandable: false,
-        backgroundColor: colours.secondaryDark,
+        backgroundColor: context.colours.secondaryDark,
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.renameRemote.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -30,20 +30,20 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
                 controller: nameController,
                 maxLines: 1,
                 style: TextStyle(
-                  color: colours.primaryLight,
+                  color: context.colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: colours.tertiaryDark,
+                  fillColor: context.colours.tertiaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
                     t.remoteName.toUpperCase(),
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -58,7 +58,7 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -75,8 +75,8 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
               t.rename.toUpperCase(),
               style: TextStyle(
                 color: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName)
-                    ? colours.primaryPositive
-                    : colours.secondaryPositive,
+                    ? context.colours.primaryPositive
+                    : context.colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

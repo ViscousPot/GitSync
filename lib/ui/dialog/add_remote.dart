@@ -23,7 +23,7 @@ Future<void> showDialog(
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.addRemote,
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -38,28 +38,28 @@ Future<void> showDialog(
                       await onCreateRemote();
                     },
                     style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(colours.tertiaryInfo),
+                      backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryInfo),
                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
                     ),
                     child: Text(
                       sprintf(t.createOnProvider, [oauthProviderName.toUpperCase()]).toUpperCase(),
-                      style: TextStyle(color: colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
                 SizedBox(height: spaceMD),
                 Row(
                   children: [
-                    Expanded(child: Container(height: 1, color: colours.tertiaryDark)),
+                    Expanded(child: Container(height: 1, color: context.colours.tertiaryDark)),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spaceSM),
                       child: Text(
                         t.orEnterManually.toUpperCase(),
-                        style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Expanded(child: Container(height: 1, color: colours.tertiaryDark)),
+                    Expanded(child: Container(height: 1, color: context.colours.tertiaryDark)),
                   ],
                 ),
               ],
@@ -69,20 +69,20 @@ Future<void> showDialog(
                 controller: nameController,
                 maxLines: 1,
                 style: TextStyle(
-                  color: colours.primaryLight,
+                  color: context.colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: colours.secondaryDark,
+                  fillColor: context.colours.secondaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
                     t.remoteName.toUpperCase(),
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -96,20 +96,20 @@ Future<void> showDialog(
                 controller: urlController,
                 maxLines: 1,
                 style: TextStyle(
-                  color: colours.primaryLight,
+                  color: context.colours.primaryLight,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
                   decorationThickness: 0,
                   fontSize: textMD,
                 ),
                 decoration: InputDecoration(
-                  fillColor: colours.secondaryDark,
+                  fillColor: context.colours.secondaryDark,
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
                     t.remoteUrl.toUpperCase(),
-                    style: TextStyle(color: colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
@@ -124,7 +124,7 @@ Future<void> showDialog(
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -141,8 +141,8 @@ Future<void> showDialog(
               t.add.toUpperCase(),
               style: TextStyle(
                 color: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty)
-                    ? colours.primaryPositive
-                    : colours.secondaryPositive,
+                    ? context.colours.primaryPositive
+                    : context.colours.secondaryPositive,
                 fontSize: textMD,
               ),
             ),

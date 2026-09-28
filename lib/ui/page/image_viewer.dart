@@ -16,21 +16,21 @@ class ImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.primaryDark,
-          systemNavigationBarColor: colours.primaryDark,
+          statusBarColor: context.colours.primaryDark,
+          systemNavigationBarColor: context.colours.primaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         title: Text(
           p.basename(path),
-          style: TextStyle(fontSize: textLG, color: colours.primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: textLG, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: Center(

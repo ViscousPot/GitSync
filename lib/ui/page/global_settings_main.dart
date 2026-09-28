@@ -95,14 +95,14 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
 
   Widget _buildContent(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colours.primaryDark,
-          systemNavigationBarColor: colours.primaryDark,
+          statusBarColor: context.colours.primaryDark,
+          systemNavigationBarColor: context.colours.primaryDark,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
@@ -110,7 +110,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
         centerTitle: true,
         title: Text(
           t.globalSettings.toUpperCase(),
-          style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
       body: BetterOrientationBuilder(
@@ -180,19 +180,19 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                     bottomLeft: cornerRadiusMD,
                                     bottomRight: Radius.zero,
                                   ),
-                                  color: themeModeSnapshot.data == false ? colours.tertiaryLight : colours.tertiaryDark,
+                                  color: themeModeSnapshot.data == false ? context.colours.tertiaryLight : context.colours.tertiaryDark,
                                 ),
                                 child: TextButton.icon(
                                   onPressed: () async {
                                     await repoManager.setBoolNullable(StorageKey.repoman_themeMode, false);
-                                    colours.reloadTheme(context);
+                                    reloadTheme(context);
                                     setState(() {});
                                   },
                                   style: ButtonStyle(
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
                                     backgroundColor: WidgetStatePropertyAll(
-                                      themeModeSnapshot.data == false ? colours.tertiaryLight : colours.tertiaryDark,
+                                      themeModeSnapshot.data == false ? context.colours.tertiaryLight : context.colours.tertiaryDark,
                                     ),
                                     shape: WidgetStatePropertyAll(
                                       RoundedRectangleBorder(
@@ -203,13 +203,15 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                           bottomRight: Radius.zero,
                                         ),
 
-                                        side: themeModeSnapshot.data == false ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryLight),
+                                        side: themeModeSnapshot.data == false
+                                            ? BorderSide.none
+                                            : BorderSide(width: 3, color: context.colours.tertiaryLight),
                                       ),
                                     ),
                                   ),
                                   icon: FaIcon(
                                     FontAwesomeIcons.solidSun,
-                                    color: themeModeSnapshot.data == false ? colours.primaryDark : colours.primaryLight,
+                                    color: themeModeSnapshot.data == false ? context.colours.primaryDark : context.colours.primaryLight,
                                     size: textMD,
                                   ),
                                   label: SizedBox(
@@ -225,7 +227,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                           ),
                                           style: TextStyle(
-                                            color: themeModeSnapshot.data == false ? colours.primaryDark : colours.primaryLight,
+                                            color: themeModeSnapshot.data == false ? context.colours.primaryDark : context.colours.primaryLight,
                                             fontSize: textMD,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -240,20 +242,20 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             Expanded(
                               child: AnimatedContainer(
                                 duration: animFast,
-                                decoration: BoxDecoration(borderRadius: BorderRadius.zero, color: colours.tertiaryLight),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.zero, color: context.colours.tertiaryLight),
                                 padding: EdgeInsets.symmetric(vertical: 3),
                                 child: Container(
                                   child: TextButton.icon(
                                     onPressed: () async {
                                       await repoManager.setBoolNullable(StorageKey.repoman_themeMode, null);
-                                      colours.reloadTheme(context);
+                                      reloadTheme(context);
                                       setState(() {});
                                     },
                                     style: ButtonStyle(
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM - 3, horizontal: spaceMD)),
                                       backgroundColor: WidgetStatePropertyAll(
-                                        themeModeSnapshot.data == null ? colours.tertiaryLight : colours.tertiaryDark,
+                                        themeModeSnapshot.data == null ? context.colours.tertiaryLight : context.colours.tertiaryDark,
                                       ),
                                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: BorderSide.none)),
                                     ),
@@ -270,7 +272,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                               style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                             ),
                                             style: TextStyle(
-                                              color: themeModeSnapshot.data == null ? colours.primaryDark : colours.primaryLight,
+                                              color: themeModeSnapshot.data == null ? context.colours.primaryDark : context.colours.primaryLight,
                                               fontSize: textMD,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -281,7 +283,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                             flipX: true,
                                             child: FaIcon(
                                               FontAwesomeIcons.circleHalfStroke,
-                                              color: themeModeSnapshot.data == null ? colours.primaryDark : colours.primaryLight,
+                                              color: themeModeSnapshot.data == null ? context.colours.primaryDark : context.colours.primaryLight,
                                               size: textMD,
                                             ),
                                           ),
@@ -302,19 +304,19 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                     bottomLeft: Radius.zero,
                                     bottomRight: cornerRadiusMD,
                                   ),
-                                  color: themeModeSnapshot.data == true ? colours.tertiaryLight : colours.tertiaryDark,
+                                  color: themeModeSnapshot.data == true ? context.colours.tertiaryLight : context.colours.tertiaryDark,
                                 ),
                                 child: TextButton.icon(
                                   onPressed: () async {
                                     await repoManager.setBoolNullable(StorageKey.repoman_themeMode, true);
-                                    colours.reloadTheme(context);
+                                    reloadTheme(context);
                                     setState(() {});
                                   },
                                   style: ButtonStyle(
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceSM, horizontal: spaceMD)),
                                     backgroundColor: WidgetStatePropertyAll(
-                                      themeModeSnapshot.data == true ? colours.tertiaryLight : colours.tertiaryDark,
+                                      themeModeSnapshot.data == true ? context.colours.tertiaryLight : context.colours.tertiaryDark,
                                     ),
                                     shape: WidgetStatePropertyAll(
                                       RoundedRectangleBorder(
@@ -324,14 +326,16 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                           bottomLeft: Radius.zero,
                                           bottomRight: cornerRadiusMD,
                                         ),
-                                        side: themeModeSnapshot.data == true ? BorderSide.none : BorderSide(width: 3, color: colours.tertiaryLight),
+                                        side: themeModeSnapshot.data == true
+                                            ? BorderSide.none
+                                            : BorderSide(width: 3, color: context.colours.tertiaryLight),
                                       ),
                                     ),
                                   ),
                                   iconAlignment: IconAlignment.end,
                                   icon: FaIcon(
                                     FontAwesomeIcons.solidMoon,
-                                    color: themeModeSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
+                                    color: themeModeSnapshot.data == true ? context.colours.primaryDark : context.colours.primaryLight,
                                     size: textMD,
                                   ),
                                   label: SizedBox(
@@ -347,7 +351,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                           ),
                                           style: TextStyle(
-                                            color: themeModeSnapshot.data == true ? colours.primaryDark : colours.primaryLight,
+                                            color: themeModeSnapshot.data == true ? context.colours.primaryDark : context.colours.primaryLight,
                                             fontSize: textMD,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -402,7 +406,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         },
                         style: ButtonStyle(
                           alignment: Alignment.centerLeft,
-                          backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                          backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -413,14 +417,14 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         iconAlignment: IconAlignment.end,
                         icon: FaIcon(
                           editorLineWrapSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                          color: colours.primaryPositive,
+                          color: context.colours.primaryPositive,
                           size: textLG,
                         ),
                         label: SizedBox(
                           width: double.infinity,
                           child: Text(
                             t.enableLineWrap.toUpperCase(),
-                            style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -435,7 +439,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           },
                           style: ButtonStyle(
                             alignment: Alignment.centerLeft,
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -446,14 +450,14 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           iconAlignment: IconAlignment.end,
                           icon: FaIcon(
                             aiEnabled ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                            color: colours.primaryPositive,
+                            color: context.colours.primaryPositive,
                             size: textLG,
                           ),
                           label: SizedBox(
                             width: double.infinity,
                             child: Text(
                               t.enableAiFeatures.toUpperCase(),
-                              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                             ),
                           ),
                         );
@@ -470,7 +474,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           },
                           style: ButtonStyle(
                             alignment: Alignment.centerLeft,
-                            backgroundColor: WidgetStatePropertyAll(colours.tertiaryDark),
+                            backgroundColor: WidgetStatePropertyAll(context.colours.tertiaryDark),
                             padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceMD)),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none),
@@ -481,14 +485,14 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           iconAlignment: IconAlignment.end,
                           icon: FaIcon(
                             excludedFromRecentsSnapshot.data == true ? FontAwesomeIcons.solidSquareCheck : FontAwesomeIcons.squareCheck,
-                            color: colours.primaryPositive,
+                            color: context.colours.primaryPositive,
                             size: textLG,
                           ),
                           label: SizedBox(
                             width: double.infinity,
                             child: Text(
                               t.excludeFromRecents.toUpperCase(),
-                              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -501,18 +505,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.backupRestoreTitle.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -618,18 +622,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.community.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -641,9 +645,9 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ButtonSetting(
                       text: t.reportABug,
                       icon: FontAwesomeIcons.bug,
-                      textColor: colours.primaryDark,
-                      iconColor: colours.primaryDark,
-                      buttonColor: colours.tertiaryNegative,
+                      textColor: context.colours.primaryDark,
+                      iconColor: context.colours.primaryDark,
+                      buttonColor: context.colours.tertiaryNegative,
                       onPressed: () async {
                         await Logger.reportIssue(context, From.GLOBAL_SETTINGS);
                       },
@@ -653,9 +657,9 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       ButtonSetting(
                         text: 'FAKE ERROR',
                         icon: FontAwesomeIcons.explosion,
-                        textColor: colours.primaryDark,
-                        iconColor: colours.primaryDark,
-                        buttonColor: colours.tertiaryWarning,
+                        textColor: context.colours.primaryDark,
+                        iconColor: context.colours.primaryDark,
+                        buttonColor: context.colours.tertiaryWarning,
                         onPressed: () async {
                           Logger.logError(
                             LogType.Sync,
@@ -760,18 +764,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.guides.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -859,18 +863,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.repositoryDefaults.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -933,18 +937,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.miscellaneous.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.primaryLight, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryLight,
+                              color: context.colours.tertiaryLight,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -959,7 +963,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         return ButtonSetting(
                           text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
                           icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
-                          iconColor: colours.tertiaryPositive,
+                          iconColor: context.colours.tertiaryPositive,
                           onPressed: () async {
                             if (hasPremium == true) {
                               await launchUrl(Uri.parse(contributeLink));
@@ -1002,18 +1006,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         children: [
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryNegative,
+                              color: context.colours.tertiaryNegative,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(right: spaceSM),
                             ),
                           ),
                           Text(
                             t.dangerZone.toUpperCase(),
-                            style: TextStyle(fontSize: textSM, color: colours.tertiaryNegative, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: textSM, color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
                             child: Container(
-                              color: colours.tertiaryNegative,
+                              color: context.colours.tertiaryNegative,
                               height: spaceXXXXS,
                               margin: EdgeInsets.only(left: spaceSM),
                             ),
@@ -1035,7 +1039,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                         });
                       },
-                      buttonColor: colours.secondaryNegative,
+                      buttonColor: context.colours.secondaryNegative,
                     ),
                     SizedBox(height: spaceLG),
                   ]),

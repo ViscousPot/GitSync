@@ -13,7 +13,7 @@ Future<void> showDialog(BuildContext context, String containerName, Future<void>
         width: MediaQuery.of(context).size.width,
         child: Text(
           t.confirmRepositoryDeleteTitle,
-          style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
       content: SingleChildScrollView(
@@ -21,12 +21,12 @@ Future<void> showDialog(BuildContext context, String containerName, Future<void>
           children: [
             Text(
               sprintf(t.confirmRepositoryDeleteMessage, [containerName]),
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceMD),
             Text(
               t.thisActionCannotBeUndone,
-              style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+              style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
         ),
@@ -35,7 +35,7 @@ Future<void> showDialog(BuildContext context, String containerName, Future<void>
         TextButton(
           child: Text(
             t.cancel.toUpperCase(),
-            style: TextStyle(color: colours.primaryLight, fontSize: textMD),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
             Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -44,7 +44,7 @@ Future<void> showDialog(BuildContext context, String containerName, Future<void>
         TextButton(
           child: Text(
             t.delete.toUpperCase(),
-            style: TextStyle(color: colours.tertiaryNegative, fontSize: textMD),
+            style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
           ),
           onPressed: () async {
             await callback();

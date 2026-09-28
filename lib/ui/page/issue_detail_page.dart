@@ -194,7 +194,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   void _showAddReactionSheet(String targetId, bool isComment) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: colours.secondaryDark,
+      backgroundColor: context.colours.secondaryDark,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) => Padding(
         padding: EdgeInsets.all(spaceMD),
@@ -204,7 +204,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
           children: [
             Text(
               t.issueAddReaction.toUpperCase(),
-              style: TextStyle(color: colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceSM),
             Wrap(
@@ -218,7 +218,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   },
                   child: Container(
                     padding: EdgeInsets.all(spaceXS),
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                     child: Text(entry.value, style: TextStyle(fontSize: textXL)),
                   ),
                 );
@@ -231,13 +231,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
     );
   }
 
-  MarkdownConfig get _markdownConfig => buildMarkdownConfig();
+  MarkdownConfig get _markdownConfig => buildMarkdownConfig(context);
   MarkdownGenerator get _markdownGenerator => buildMarkdownGenerator();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colours.primaryDark,
+      backgroundColor: context.colours.primaryDark,
       body: SafeArea(
         child: Column(
           children: [
@@ -255,7 +255,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                       child: FaIcon(
                         _detail!.isOpen ? FontAwesomeIcons.solidCircleDot : FontAwesomeIcons.solidCircleCheck,
                         size: textMD,
-                        color: _detail!.isOpen ? colours.tertiaryPositive : colours.primaryNegative,
+                        color: _detail!.isOpen ? context.colours.tertiaryPositive : context.colours.primaryNegative,
                       ),
                     ),
                     SizedBox(width: spaceXS),
@@ -274,14 +274,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                                   autofocus: true,
                                   maxLines: 2,
                                   style: TextStyle(
-                                    color: colours.primaryLight,
+                                    color: context.colours.primaryLight,
                                     fontSize: textMD,
                                     fontWeight: FontWeight.bold,
                                     decoration: TextDecoration.none,
                                     decorationThickness: 0,
                                   ),
                                   decoration: InputDecoration(
-                                    fillColor: colours.secondaryDark,
+                                    fillColor: context.colours.secondaryDark,
                                     filled: true,
                                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                                     isCollapsed: true,
@@ -306,14 +306,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                                     ? SizedBox(
                                         height: textMD,
                                         width: textMD,
-                                        child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                                        child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                                       )
-                                    : FaIcon(FontAwesomeIcons.check, size: textMD, color: colours.tertiaryPositive),
+                                    : FaIcon(FontAwesomeIcons.check, size: textMD, color: context.colours.tertiaryPositive),
                               ),
                               SizedBox(width: spaceXXS),
                               GestureDetector(
                                 onTap: () => setState(() => _editingTitle = false),
-                                child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: colours.tertiaryLight),
+                                child: FaIcon(FontAwesomeIcons.xmark, size: textMD, color: context.colours.tertiaryLight),
                               ),
                             ],
                           )
@@ -333,7 +333,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                                     scrollDirection: Axis.horizontal,
                                     child: Text(
                                       _detail?.title ?? widget.issueTitle,
-                                      style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
@@ -341,7 +341,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                                   SizedBox(width: spaceXXS),
                                   Padding(
                                     padding: EdgeInsets.only(top: spaceXXXXS),
-                                    child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXS, color: colours.tertiaryLight),
+                                    child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXS, color: context.colours.tertiaryLight),
                                   ),
                                 ],
                               ],
@@ -353,28 +353,28 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                             children: [
                               Text(
                                 '#${_detail!.number}',
-                                style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                               ),
                               Text(
                                 ' $bullet ',
-                                style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                               ),
                               Flexible(
                                 child: Text(
                                   _detail!.authorUsername,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: colours.secondaryLight, fontSize: textXS),
+                                  style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS),
                                 ),
                               ),
                               Text(
                                 ' $bullet ',
-                                style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                               ),
                               Text(
                                 timeago
                                     .format(_detail!.createdAt, locale: 'en')
                                     .replaceFirstMapped(RegExp(r'^[A-Z]'), (match) => match.group(0)!.toLowerCase()),
-                                style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                                style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                               ),
                             ],
                           ),
@@ -391,13 +391,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
             Expanded(
               child: _loading
                   ? Center(
-                      child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                      child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                     )
                   : _detail == null
                   ? Center(
                       child: Text(
                         t.issuesNotFound.toUpperCase(),
-                        style: TextStyle(color: colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
+                        style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                       ),
                     )
                   : _buildContent(),
@@ -420,7 +420,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
             spacing: spaceXXXS,
             runSpacing: spaceXXXS,
             children: detail.labels.map((label) {
-              final bgColor = label.color != null ? _parseHexColor(label.color!) : colours.tertiaryDark;
+              final bgColor = label.color != null ? _parseHexColor(label.color!) : context.colours.tertiaryDark;
               final textColor = bgColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
@@ -440,7 +440,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
           children: [
             Text(
               t.issueDescription.toUpperCase(),
-              style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
             ),
             if (detail.canWrite && !_editingBody) ...[
               SizedBox(width: spaceXXS),
@@ -452,7 +452,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                     _bodyWriteMode = true;
                   });
                 },
-                child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXXS, color: colours.tertiaryLight),
+                child: FaIcon(FontAwesomeIcons.solidPenToSquare, size: textXXS, color: context.colours.tertiaryLight),
               ),
             ],
           ],
@@ -463,7 +463,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
         else if (detail.body.isEmpty)
           Text(
             t.issueNoDescription,
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
           MarkdownBlock(data: detail.body, config: _markdownConfig, generator: _markdownGenerator),
@@ -479,15 +479,15 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
               onTap: () => _showAddReactionSheet(detail.id, false),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: colours.tertiaryLight),
+                    FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: context.colours.tertiaryLight),
                     SizedBox(width: spaceXXXS),
                     Text(
                       '+',
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -501,14 +501,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
         // Comments section
         Text(
           '${t.issueComments.toUpperCase()} (${detail.comments.length})',
-          style: TextStyle(color: colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXS),
 
         if (detail.comments.isEmpty)
           Text(
             t.issueNoComments,
-            style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+            style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
           ...detail.comments.map((comment) => _buildCommentCard(comment)),
@@ -528,17 +528,17 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                 padding: EdgeInsets.symmetric(vertical: spaceSM),
                 decoration: BoxDecoration(
                   color: _togglingState
-                      ? colours.tertiaryDark
+                      ? context.colours.tertiaryDark
                       : detail.isOpen
-                      ? colours.primaryNegative.withValues(alpha: 0.15)
-                      : colours.tertiaryPositive.withValues(alpha: 0.15),
+                      ? context.colours.primaryNegative.withValues(alpha: 0.15)
+                      : context.colours.tertiaryPositive.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.all(cornerRadiusSM),
                   border: Border.all(
                     color: _togglingState
                         ? Colors.transparent
                         : detail.isOpen
-                        ? colours.primaryNegative.withValues(alpha: 0.3)
-                        : colours.tertiaryPositive.withValues(alpha: 0.3),
+                        ? context.colours.primaryNegative.withValues(alpha: 0.3)
+                        : context.colours.tertiaryPositive.withValues(alpha: 0.3),
                     width: spaceXXXXS,
                   ),
                 ),
@@ -547,14 +547,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                         child: SizedBox(
                           height: textMD,
                           width: textMD,
-                          child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                          child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                         ),
                       )
                     : Text(
                         detail.isOpen ? t.issueCloseIssue : t.issueReopenIssue,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: detail.isOpen ? colours.primaryNegative : colours.tertiaryPositive,
+                          color: detail.isOpen ? context.colours.primaryNegative : context.colours.tertiaryPositive,
                           fontSize: textMD,
                           fontWeight: FontWeight.bold,
                         ),
@@ -567,15 +567,15 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
         if (!detail.canComment) ...[
           Container(
             padding: EdgeInsets.all(spaceSM),
-            decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+            decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FaIcon(FontAwesomeIcons.lock, size: textXS, color: colours.tertiaryLight),
+                FaIcon(FontAwesomeIcons.lock, size: textXS, color: context.colours.tertiaryLight),
                 SizedBox(width: spaceXS),
                 Text(
                   t.issueWriteDisabled,
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                 ),
               ],
             ),
@@ -598,9 +598,9 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
             decoration: BoxDecoration(
-              color: reaction.viewerHasReacted ? colours.showcaseBg : colours.tertiaryDark,
+              color: reaction.viewerHasReacted ? context.colours.showcaseBg : context.colours.tertiaryDark,
               borderRadius: BorderRadius.all(cornerRadiusXS),
-              border: Border.all(color: reaction.viewerHasReacted ? colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
+              border: Border.all(color: reaction.viewerHasReacted ? context.colours.showcaseBorder : Colors.transparent, width: spaceXXXXS),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -609,7 +609,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                 SizedBox(width: spaceXXXXS),
                 Text(
                   '${reaction.count}',
-                  style: TextStyle(color: colours.primaryLight, fontSize: textXXS),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textXXS),
                 ),
               ],
             ),
@@ -628,7 +628,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
       padding: EdgeInsets.only(bottom: spaceXS),
       child: Container(
         padding: EdgeInsets.all(spaceSM),
-        decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+        decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -638,16 +638,16 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Text(
                     comment.authorUsername,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Text(
                   ' $bullet ',
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
                 Text(
                   relativeTime,
-                  style: TextStyle(color: colours.tertiaryLight, fontSize: textXS),
+                  style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                 ),
               ],
             ),
@@ -662,15 +662,15 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   onTap: () => _showAddReactionSheet(comment.id, true),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceXS, vertical: spaceXXXS),
-                    decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+                    decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: colours.tertiaryLight),
+                        FaIcon(FontAwesomeIcons.faceSmile, size: textXS, color: context.colours.tertiaryLight),
                         SizedBox(width: spaceXXXS),
                         Text(
                           '+',
-                          style: TextStyle(color: colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -686,7 +686,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
 
   Widget _buildCommentInput() {
     return Container(
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         children: [
           // Write/Preview toggle
@@ -699,13 +699,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: _writeMode ? colours.tertiaryDark : Colors.transparent,
+                      color: _writeMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issueWrite.toUpperCase(),
                       style: TextStyle(
-                        color: _writeMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: _writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -718,13 +718,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: !_writeMode ? colours.tertiaryDark : Colors.transparent,
+                      color: !_writeMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issuePreview.toUpperCase(),
                       style: TextStyle(
-                        color: !_writeMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: !_writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -760,14 +760,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   controller: _commentController,
                   maxLines: 5,
                   minLines: 3,
-                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
                   decoration: InputDecoration(
-                    fillColor: colours.tertiaryDark,
+                    fillColor: context.colours.tertiaryDark,
                     filled: true,
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                     isCollapsed: true,
                     hintText: t.issueAddComment,
-                    hintStyle: TextStyle(color: colours.tertiaryLight, fontSize: textSM),
+                    hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                     contentPadding: EdgeInsets.all(spaceSM),
                   ),
                 ),
@@ -779,11 +779,11 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
               constraints: BoxConstraints(minHeight: spaceLG * 2),
               padding: EdgeInsets.all(spaceSM),
               margin: EdgeInsets.symmetric(horizontal: spaceSM),
-              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _commentController.text.isEmpty
                   ? Text(
                       t.issueAddComment,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _commentController.text, config: _markdownConfig, generator: _markdownGenerator),
             ),
@@ -800,18 +800,18 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                   decoration: BoxDecoration(
-                    color: _submittingComment ? colours.tertiaryDark : colours.tertiaryInfo.withValues(alpha: 0.15),
+                    color: _submittingComment ? context.colours.tertiaryDark : context.colours.tertiaryInfo.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.all(cornerRadiusSM),
                   ),
                   child: _submittingComment
                       ? SizedBox(
                           height: textMD,
                           width: textMD,
-                          child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                          child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                         )
                       : Text(
                           t.comment.toUpperCase(),
-                          style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
@@ -824,7 +824,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
 
   Widget _buildBodyEditor() {
     return Container(
-      decoration: BoxDecoration(color: colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+      decoration: BoxDecoration(color: context.colours.secondaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
       child: Column(
         children: [
           Padding(
@@ -836,13 +836,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: _bodyWriteMode ? colours.tertiaryDark : Colors.transparent,
+                      color: _bodyWriteMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issueWrite.toUpperCase(),
                       style: TextStyle(
-                        color: _bodyWriteMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: _bodyWriteMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -855,13 +855,13 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                     decoration: BoxDecoration(
-                      color: !_bodyWriteMode ? colours.tertiaryDark : Colors.transparent,
+                      color: !_bodyWriteMode ? context.colours.tertiaryDark : Colors.transparent,
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
                       t.issuePreview.toUpperCase(),
                       style: TextStyle(
-                        color: !_bodyWriteMode ? colours.primaryLight : colours.tertiaryLight,
+                        color: !_bodyWriteMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
                         fontWeight: FontWeight.bold,
                       ),
@@ -898,9 +898,9 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   controller: _bodyEditController,
                   maxLines: 10,
                   minLines: 5,
-                  style: TextStyle(color: colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
+                  style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, decoration: TextDecoration.none, decorationThickness: 0),
                   decoration: InputDecoration(
-                    fillColor: colours.tertiaryDark,
+                    fillColor: context.colours.tertiaryDark,
                     filled: true,
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                     isCollapsed: true,
@@ -915,11 +915,11 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
               constraints: BoxConstraints(minHeight: spaceLG * 2),
               padding: EdgeInsets.all(spaceSM),
               margin: EdgeInsets.symmetric(horizontal: spaceSM),
-              decoration: BoxDecoration(color: colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
+              decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _bodyEditController.text.isEmpty
                   ? Text(
                       t.issueNoDescription,
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _bodyEditController.text, config: _markdownConfig, generator: _markdownGenerator),
             ),
@@ -934,7 +934,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                     padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                     child: Text(
                       t.cancel.toUpperCase(),
-                      style: TextStyle(color: colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -944,18 +944,18 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                     decoration: BoxDecoration(
-                      color: _submittingEdit ? colours.tertiaryDark : colours.tertiaryInfo.withValues(alpha: 0.15),
+                      color: _submittingEdit ? context.colours.tertiaryDark : context.colours.tertiaryInfo.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.all(cornerRadiusSM),
                     ),
                     child: _submittingEdit
                         ? SizedBox(
                             height: textMD,
                             width: textMD,
-                            child: CircularProgressIndicator(color: colours.secondaryLight, strokeWidth: spaceXXXXS),
+                            child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                           )
                         : Text(
                             t.done.toUpperCase(),
-                            style: TextStyle(color: colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
@@ -972,7 +972,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
     if (cleaned.length == 6) {
       return Color(int.parse('FF$cleaned', radix: 16));
     }
-    return colours.tertiaryDark;
+    return context.colours.tertiaryDark;
   }
 }
 

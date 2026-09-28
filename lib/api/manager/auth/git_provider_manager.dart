@@ -27,21 +27,21 @@ import '../../../type/git_provider.dart';
 
 class GitProviderManager {
   // ignore: non_constant_identifier_names
-  static Map<GitProvider, Widget> get GitProviderIconsMap => {
+  static Map<GitProvider, Widget> GitProviderIconsMap(BuildContext context) => {
     GitProvider.CODEBERG: Platform.isIOS
-        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
-        : FaIcon(codeberg_logo, size: textMD, color: colours.codebergBlue),
+        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: context.colours.primaryLight)
+        : FaIcon(codeberg_logo, size: textMD, color: context.colours.codebergBlue),
     GitProvider.GITHUB: Platform.isIOS
-        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
-        : FaIcon(FontAwesomeIcons.github, size: textMD, color: colours.primaryLight),
+        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: context.colours.primaryLight)
+        : FaIcon(FontAwesomeIcons.github, size: textMD, color: context.colours.primaryLight),
     GitProvider.GITEA: Platform.isIOS
-        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
-        : FaIcon(gitea_logo, size: textMD, color: colours.giteaGreen),
+        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: context.colours.primaryLight)
+        : FaIcon(gitea_logo, size: textMD, color: context.colours.giteaGreen),
     GitProvider.GITLAB: Platform.isIOS
-        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: colours.primaryLight)
-        : FaIcon(gitlab_logo, size: textMD, color: colours.gitlabOrange),
-    GitProvider.HTTPS: FaIcon(FontAwesomeIcons.lock, size: textMD, color: colours.primaryLight),
-    GitProvider.SSH: FaIcon(FontAwesomeIcons.terminal, size: textMD, color: colours.primaryLight),
+        ? FaIcon(FontAwesomeIcons.gitAlt, size: textLG, color: context.colours.primaryLight)
+        : FaIcon(gitlab_logo, size: textMD, color: context.colours.gitlabOrange),
+    GitProvider.HTTPS: FaIcon(FontAwesomeIcons.lock, size: textMD, color: context.colours.primaryLight),
+    GitProvider.SSH: FaIcon(FontAwesomeIcons.terminal, size: textMD, color: context.colours.primaryLight),
   };
 
   static GitProviderManager? getGitProviderManager(GitProvider provider, bool githubAppOauth) {

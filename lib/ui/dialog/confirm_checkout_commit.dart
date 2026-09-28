@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
           width: MediaQuery.of(context).size.width,
           child: Text(
             t.checkoutCommit,
-            style: TextStyle(color: colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
+            style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
         content: SingleChildScrollView(
@@ -23,12 +23,12 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
             children: [
               RichText(
                 text: TextSpan(
-                  style: TextStyle(color: colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
+                  style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
                     TextSpan(text: "${t.checkoutCommitMsg} "),
                     TextSpan(
                       text: "[${commitSha.substring(0, 7).toUpperCase()}]",
-                      style: TextStyle(color: colours.tertiaryInfo),
+                      style: TextStyle(color: context.colours.tertiaryInfo),
                     ),
                     TextSpan(text: "."),
                   ],
@@ -39,17 +39,17 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                 commitMessage,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: colours.secondaryLight, fontSize: textSM),
+                style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
               ),
               SizedBox(height: spaceSM),
               Text(
                 t.checkoutCommitDetachedWarning,
-                style: TextStyle(color: colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceXS),
               Text(
                 t.unsavedChangesMayBeLost,
-                style: TextStyle(color: colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
+                style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
           ),
@@ -58,7 +58,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
           TextButton(
             child: Text(
               t.cancel.toUpperCase(),
-              style: TextStyle(color: colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
               Navigator.of(context).canPop() ? Navigator.pop(context) : null;
@@ -67,14 +67,14 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
           TextButton.icon(
             label: Text(
               t.checkout.toUpperCase(),
-              style: TextStyle(color: colours.primaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
+              style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             iconAlignment: IconAlignment.end,
             icon: loading
                 ? SizedBox(
                     height: spaceMD,
                     width: spaceMD,
-                    child: CircularProgressIndicator(color: colours.primaryPositive),
+                    child: CircularProgressIndicator(color: context.colours.primaryPositive),
                   )
                 : SizedBox.shrink(),
             onPressed: () async {
