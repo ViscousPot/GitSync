@@ -798,23 +798,22 @@ class _MyAppState extends State<MyApp> {
             blurValue: 3,
             enableAutoScroll: true,
             builder: (context) {
-              t = AppLocalizations.of(context);
               FlutterBackgroundService().invoke(
                 GitsyncService.UPDATE_SERVICE_STRINGS,
                 ServiceStrings(
-                  syncStartPull: t.syncStartPull,
-                  syncStartPush: t.syncStartPush,
-                  syncNotRequired: t.syncNotRequired,
-                  syncComplete: t.syncComplete,
-                  syncInProgress: t.syncInProgress,
-                  syncScheduled: t.syncScheduled,
-                  detectingChanges: t.detectingChanges,
-                  ongoingMergeConflict: t.ongoingMergeConflict,
-                  networkStallRetry: t.networkStallRetry,
-                  networkUnavailableRetry: t.networkUnavailableRetry,
-                  networkStallManual: t.networkStallManual,
-                  networkUnavailableManual: t.networkUnavailableManual,
-                  networkRetryComplete: t.networkRetryComplete,
+                  syncStartPull: context.t.syncStartPull,
+                  syncStartPush: context.t.syncStartPush,
+                  syncNotRequired: context.t.syncNotRequired,
+                  syncComplete: context.t.syncComplete,
+                  syncInProgress: context.t.syncInProgress,
+                  syncScheduled: context.t.syncScheduled,
+                  detectingChanges: context.t.detectingChanges,
+                  ongoingMergeConflict: context.t.ongoingMergeConflict,
+                  networkStallRetry: context.t.networkStallRetry,
+                  networkUnavailableRetry: context.t.networkUnavailableRetry,
+                  networkStallManual: context.t.networkStallManual,
+                  networkUnavailableManual: context.t.networkUnavailableManual,
+                  networkRetryComplete: context.t.networkRetryComplete,
                 ).toMap(),
               );
               return MyHomePage(
@@ -1057,11 +1056,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   }
 
   static List<((String, Widget), Future<void> Function(BuildContext context, (String, String)? remote), bool enabled)> remoteEllipsisActions(
+    BuildContext context,
     int remoteCount,
   ) => [
     (
       (
-        t.launchInBrowser,
+        context.t.launchInBrowser,
         Builder(
           builder: (context) => FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryPositive, size: textMD),
         ),
@@ -1071,7 +1071,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ),
     (
       (
-        t.modifyRemoteUrl,
+        context.t.modifyRemoteUrl,
         Builder(
           builder: (context) => FaIcon(FontAwesomeIcons.squarePen, color: context.colours.tertiaryInfo, size: textMD),
         ),
@@ -1087,7 +1087,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ),
     (
       (
-        t.renameRemote,
+        context.t.renameRemote,
         Builder(
           builder: (context) => FaIcon(FontAwesomeIcons.penToSquare, color: context.colours.tertiaryInfo, size: textMD),
         ),
@@ -1104,7 +1104,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     ),
     (
       (
-        t.deleteRemote,
+        context.t.deleteRemote,
         Builder(
           builder: (context) => FaIcon(
             FontAwesomeIcons.trashCan,
@@ -1251,8 +1251,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     });
 
     quickActions.setShortcutItems(<ShortcutItem>[
-      ShortcutItem(type: GitsyncService.FORCE_SYNC, localizedTitle: t.syncNow, icon: "sync_now"),
-      ShortcutItem(type: GitsyncService.MANUAL_SYNC, localizedTitle: t.manualSync, icon: "manual_sync"),
+      ShortcutItem(type: GitsyncService.FORCE_SYNC, localizedTitle: context.t.syncNow, icon: "sync_now"),
+      ShortcutItem(type: GitsyncService.MANUAL_SYNC, localizedTitle: context.t.manualSync, icon: "manual_sync"),
     ]);
 
     initAsync(() async {
@@ -1422,13 +1422,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     if (recommendedActionValue != null && recommendedActionValue >= 0) {
       if (ref.read(clientModeEnabledProvider).valueOrNull ?? false) {
         return [
-          sprintf(t.fetchRemote, [ref.read(remoteNameProvider).valueOrNull ?? "origin"]),
-          t.pullChanges,
-          t.stageAndCommit,
-          t.pushChanges,
+          sprintf(context.t.fetchRemote, [ref.read(remoteNameProvider).valueOrNull ?? "origin"]),
+          context.t.pullChanges,
+          context.t.stageAndCommit,
+          context.t.pushChanges,
         ][recommendedActionValue];
       }
-      return t.syncNow;
+      return context.t.syncNow;
     }
     return ref.read(lastSyncMethodProvider).valueOrNull ?? "";
   }
@@ -1445,7 +1445,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
     if (hasConflicts) {
       return {
         if (!noRemotes && clientModeEnabled)
-          t.forcePush: (
+          context.t.forcePush: (
             FontAwesomeIcons.anglesUp,
             () async {
               ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
@@ -1457,7 +1457,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             },
           ),
         if (!noRemotes && clientModeEnabled)
-          t.forcePull: (
+          context.t.forcePull: (
             FontAwesomeIcons.anglesDown,
             () async {
               ConfirmForcePushPullDialog.showDialog(context, () async {
@@ -1469,7 +1469,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             },
           ),
         if (!noRemotes && !clientModeEnabled)
-          t.uploadAndOverwrite: (
+          context.t.uploadAndOverwrite: (
             FontAwesomeIcons.anglesUp,
             () async {
               ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
@@ -1481,7 +1481,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
             },
           ),
         if (!noRemotes && !clientModeEnabled)
-          t.downloadAndOverwrite: (
+          context.t.downloadAndOverwrite: (
             FontAwesomeIcons.anglesDown,
             () async {
               ConfirmForcePushPullDialog.showDialog(context, () async {
@@ -1497,7 +1497,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
     return {
       if (!noRemotes)
-        clientModeEnabled ? t.syncAllChanges : t.syncNow: (
+        clientModeEnabled ? context.t.syncAllChanges : context.t.syncNow: (
           FontAwesomeIcons.solidCircleDown,
           () async {
             final currentBranch = ref.read(branchNameProvider).valueOrNull;
@@ -1511,7 +1511,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   children: [
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.reportABug,
+                      text: context.t.reportABug,
                       icon: FontAwesomeIcons.bug,
                       textColor: context.colours.primaryDark,
                       iconColor: context.colours.primaryDark,
@@ -1529,7 +1529,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!clientModeEnabled)
-        t.manualSync: (
+        context.t.manualSync: (
           FontAwesomeIcons.barsStaggered,
           () async {
             await ManualSyncDialog.showDialog(context, hasRemotes: (ref.read(listRemotesProvider).valueOrNull ?? []).isNotEmpty);
@@ -1537,7 +1537,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && dirPath != null && clientModeEnabled && submodulePaths.isNotEmpty)
-        t.updateSubmodules: (
+        context.t.updateSubmodules: (
           FontAwesomeIcons.solidSquareCaretDown,
           () async {
             await runGitOperation(LogType.UpdateSubmodules, (event) => event);
@@ -1545,7 +1545,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        sprintf(t.fetchRemote, [remoteName]): (
+        sprintf(context.t.fetchRemote, [remoteName]): (
           FontAwesomeIcons.caretDown,
           () async {
             await runGitOperation(LogType.FetchRemote, (event) => event);
@@ -1556,9 +1556,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && !clientModeEnabled)
-        t.downloadChanges: (
+        context.t.downloadChanges: (
           FontAwesomeIcons.angleDown,
           () async {
+            final t = context.t;
             final result = await runGitOperation(LogType.DownloadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
             FlutterBackgroundService().on("downloadChanges-syncCallback").first.then((_) async {
               if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
@@ -1586,7 +1587,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        t.pullChanges: (
+        context.t.pullChanges: (
           FontAwesomeIcons.angleDown,
           () async {
             await runGitOperation(LogType.PullFromRepo, (event) => event);
@@ -1597,7 +1598,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (clientModeEnabled)
-        t.stageAndCommit: (
+        context.t.stageAndCommit: (
           FontAwesomeIcons.barsStaggered,
           () async {
             final committed = await ManualSyncDialog.showDialog(context, hasRemotes: (ref.read(listRemotesProvider).valueOrNull ?? []).isNotEmpty);
@@ -1608,9 +1609,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && !clientModeEnabled)
-        t.uploadChanges: (
+        context.t.uploadChanges: (
           FontAwesomeIcons.angleUp,
           () async {
+            final t = context.t;
             final result = await runGitOperation(LogType.UploadChanges, (event) => event, {"repomanRepoindex": repomanRepoindex});
             FlutterBackgroundService().on("uploadChanges-syncCallback").first.then((_) async {
               if (ref.read(syncMessageEnabledProvider).valueOrNull ?? false) {
@@ -1631,7 +1633,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        t.pushChanges: (
+        context.t.pushChanges: (
           FontAwesomeIcons.angleUp,
           () async {
             await runGitOperation(LogType.PushToRepo, (event) => event);
@@ -1642,7 +1644,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && !clientModeEnabled)
-        t.uploadAndOverwrite: (
+        context.t.uploadAndOverwrite: (
           FontAwesomeIcons.anglesUp,
           () async {
             ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
@@ -1654,7 +1656,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && !clientModeEnabled)
-        t.downloadAndOverwrite: (
+        context.t.downloadAndOverwrite: (
           FontAwesomeIcons.anglesDown,
           () async {
             ConfirmForcePushPullDialog.showDialog(context, () async {
@@ -1666,7 +1668,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        t.forcePush: (
+        context.t.forcePush: (
           FontAwesomeIcons.anglesUp,
           () async {
             ConfirmForcePushPullDialog.showDialog(context, push: true, () async {
@@ -1678,7 +1680,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
           },
         ),
       if (!noRemotes && clientModeEnabled)
-        t.forcePull: (
+        context.t.forcePull: (
           FontAwesomeIcons.anglesDown,
           () async {
             ConfirmForcePushPullDialog.showDialog(context, () async {
@@ -1817,7 +1819,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.secondaryLight, size: spaceXL),
                   SizedBox(height: spaceMD),
                   Text(
-                    t.noRepoSetup,
+                    context.t.noRepoSetup,
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textLG),
                   ),
                   SizedBox(height: spaceLG),
@@ -1847,7 +1849,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                     ),
                     icon: FaIcon(FontAwesomeIcons.folderOpen, color: context.colours.tertiaryInfo, size: textMD),
                     label: Text(
-                      t.selectDirLabel.toUpperCase(),
+                      context.t.selectDirLabel.toUpperCase(),
                       style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -1981,12 +1983,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 globalKey: _globalSettingsKey,
                 cornerRadius: cornerRadiusMax,
                 richContent: ShowcaseTooltipContent(
-                  title: t.showcaseGlobalSettingsTitle,
-                  subtitle: t.showcaseGlobalSettingsSubtitle,
+                  title: context.t.showcaseGlobalSettingsTitle,
+                  subtitle: context.t.showcaseGlobalSettingsSubtitle,
                   featureRows: [
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.sliders, text: t.showcaseGlobalSettingsFeatureTheme),
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFloppyDisk, text: t.showcaseGlobalSettingsFeatureBackup),
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseGlobalSettingsFeatureSetup),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.sliders, text: context.t.showcaseGlobalSettingsFeatureTheme),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFloppyDisk, text: context.t.showcaseGlobalSettingsFeatureBackup),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: context.t.showcaseGlobalSettingsFeatureSetup),
                   ],
                 ),
                 child: IconButton(
@@ -1994,7 +1996,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                   style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                   constraints: BoxConstraints(),
                   onPressed: () => _restorableGlobalSettings.present({}),
-                  icon: FaIcon(FontAwesomeIcons.gear, color: context.colours.tertiaryDark, size: spaceMD + 7, semanticLabel: t.globalSettings),
+                  icon: FaIcon(
+                    FontAwesomeIcons.gear,
+                    color: context.colours.tertiaryDark,
+                    size: spaceMD + 7,
+                    semanticLabel: context.t.globalSettings,
+                  ),
                 ),
               ),
               SizedBox(width: spaceSM),
@@ -2004,12 +2011,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                 globalKey: _addMoreKey,
                 cornerRadius: cornerRadiusMax,
                 richContent: ShowcaseTooltipContent(
-                  title: t.showcaseAddMoreTitle,
-                  subtitle: t.showcaseAddMoreSubtitle,
+                  title: context.t.showcaseAddMoreTitle,
+                  subtitle: context.t.showcaseAddMoreSubtitle,
                   featureRows: [
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFolderOpen, text: t.showcaseAddMoreFeatureSwitch),
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.squarePen, text: t.showcaseAddMoreFeatureManage),
-                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: t.showcaseAddMoreFeaturePremium),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidFolderOpen, text: context.t.showcaseAddMoreFeatureSwitch),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.squarePen, text: context.t.showcaseAddMoreFeatureManage),
+                    ShowcaseFeatureRow(icon: FontAwesomeIcons.solidGem, text: context.t.showcaseAddMoreFeaturePremium),
                   ],
                 ),
                 customTooltipActions: [
@@ -2019,7 +2026,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                     leadIcon: ActionButtonIcon(
                       icon: FaIcon(FontAwesomeIcons.solidFileLines, color: context.colours.primaryLight, size: textSM),
                     ),
-                    name: t.learnMore.toUpperCase(),
+                    name: context.t.learnMore.toUpperCase(),
                     onTap: () => launchUrl(Uri.parse(premiumDocsLink)),
                     type: null,
                     borderRadius: BorderRadius.all(cornerRadiusMD),
@@ -2102,7 +2109,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                           : Padding(
                                               padding: EdgeInsets.only(left: spaceSM),
                                               child: Text(
-                                                t.addMore.toUpperCase(),
+                                                context.t.addMore.toUpperCase(),
                                                 style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.w900),
                                               ),
                                             ),
@@ -2325,13 +2332,22 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                             globalKey: _controlKey,
                                             cornerRadius: cornerRadiusMD,
                                             richContent: ShowcaseTooltipContent(
-                                              title: t.showcaseControlTitle,
-                                              subtitle: t.showcaseControlSubtitle,
+                                              title: context.t.showcaseControlTitle,
+                                              subtitle: context.t.showcaseControlSubtitle,
                                               featureRows: [
-                                                ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseControlFeatureSync),
-                                                ShowcaseFeatureRow(icon: FontAwesomeIcons.clockRotateLeft, text: t.showcaseControlFeatureHistory),
-                                                ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleXmark, text: t.showcaseControlFeatureConflicts),
-                                                ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: t.showcaseControlFeatureMore),
+                                                ShowcaseFeatureRow(
+                                                  icon: FontAwesomeIcons.solidCircleDown,
+                                                  text: context.t.showcaseControlFeatureSync,
+                                                ),
+                                                ShowcaseFeatureRow(
+                                                  icon: FontAwesomeIcons.clockRotateLeft,
+                                                  text: context.t.showcaseControlFeatureHistory,
+                                                ),
+                                                ShowcaseFeatureRow(
+                                                  icon: FontAwesomeIcons.solidCircleXmark,
+                                                  text: context.t.showcaseControlFeatureConflicts,
+                                                ),
+                                                ShowcaseFeatureRow(icon: FontAwesomeIcons.ellipsis, text: context.t.showcaseControlFeatureMore),
                                               ],
                                             ),
                                             child: ProviderBuilder<List<GitManagerRs.Commit>>(
@@ -2460,7 +2476,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                 : (recentCommits.isEmpty && conflictingValue.isEmpty
                                                                                       ? Center(
                                                                                           child: Text(
-                                                                                            t.commitsNotFound.toUpperCase(),
+                                                                                            context.t.commitsNotFound.toUpperCase(),
                                                                                             style: TextStyle(
                                                                                               color: context.colours.secondaryLight,
                                                                                               fontWeight: FontWeight.bold,
@@ -2589,7 +2605,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                                 mainAxisSize: MainAxisSize.max,
                                                                                                                 children: [
                                                                                                                   Text(
-                                                                                                                    t.mergeConflict.toUpperCase(),
+                                                                                                                    context.t.mergeConflict
+                                                                                                                        .toUpperCase(),
                                                                                                                     style: TextStyle(
                                                                                                                       color:
                                                                                                                           context.colours.primaryDark,
@@ -3041,8 +3058,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                             child: Text(
                                                                                               (gitDirPath?.$2 == null
                                                                                                       ? (clientModeEnabledValue == true
-                                                                                                            ? t.syncAllChanges
-                                                                                                            : t.syncNow)
+                                                                                                            ? context.t.syncAllChanges
+                                                                                                            : context.t.syncNow)
                                                                                                       : ((syncOptionsSnapshot.containsKey(
                                                                                                                   lastSyncMethod,
                                                                                                                 ) ==
@@ -3051,8 +3068,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                             : (syncOptionsSnapshot.keys.isNotEmpty
                                                                                                                   ? syncOptionsSnapshot.keys.first
                                                                                                                   : (clientModeEnabledValue == true
-                                                                                                                        ? t.syncAllChanges
-                                                                                                                        : t.syncNow)))))
+                                                                                                                        ? context.t.syncAllChanges
+                                                                                                                        : context.t.syncNow)))))
                                                                                                   .toUpperCase(),
                                                                                               style: TextStyle(
                                                                                                 color: gitDirPath?.$2 == null
@@ -3152,7 +3169,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 ? context.colours.secondaryLight
                                                                                                 : context.colours.primaryLight,
                                                                                             size: textLG,
-                                                                                            semanticLabel: t.moreSyncOptionsLabel,
+                                                                                            semanticLabel: context.t.moreSyncOptionsLabel,
                                                                                           ),
                                                                                         ),
                                                                                       ),
@@ -3182,7 +3199,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     FontAwesomeIcons.gear,
                                                                                     color: context.colours.primaryLight,
                                                                                     size: textLG,
-                                                                                    semanticLabel: t.repositorySettingsLabel,
+                                                                                    semanticLabel: context.t.repositorySettingsLabel,
                                                                                   ),
                                                                                 ),
                                                                                 SizedBox(width: spaceSM),
@@ -3246,7 +3263,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 ? context.colours.primaryPositive
                                                                                                 : context.colours.primaryLight,
                                                                                             size: textLG - 2,
-                                                                                            semanticLabel: t.syncMessagesLabel,
+                                                                                            semanticLabel: context.t.syncMessagesLabel,
                                                                                           ),
                                                                                         ],
                                                                                       ),
@@ -3289,8 +3306,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     (item) => DropdownMenuItem(
                                                                                       onTap: () async {
                                                                                         if (![
-                                                                                          t.switchToClientMode,
-                                                                                          t.switchToSyncMode,
+                                                                                          context.t.switchToClientMode,
+                                                                                          context.t.switchToSyncMode,
                                                                                         ].contains(item.key)) {
                                                                                           ref.read(lastSyncMethodProvider.notifier).set(item.key);
                                                                                         }
@@ -3305,8 +3322,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                             item.value.$1,
                                                                                             color:
                                                                                                 [
-                                                                                                  t.switchToClientMode,
-                                                                                                  t.switchToSyncMode,
+                                                                                                  context.t.switchToClientMode,
+                                                                                                  context.t.switchToSyncMode,
                                                                                                 ].contains(item.key)
                                                                                                 ? context.colours.tertiaryInfo
                                                                                                 : context.colours.primaryLight,
@@ -3322,8 +3339,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                 fontSize: textMD,
                                                                                                 color:
                                                                                                     [
-                                                                                                      t.switchToClientMode,
-                                                                                                      t.switchToSyncMode,
+                                                                                                      context.t.switchToClientMode,
+                                                                                                      context.t.switchToSyncMode,
                                                                                                     ].contains(item.key)
                                                                                                     ? context.colours.tertiaryInfo
                                                                                                     : context.colours.primaryLight,
@@ -3382,13 +3399,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                     globalKey: _configKey,
                                                     first: true,
                                                     richContent: ShowcaseTooltipContent(
-                                                      title: t.showcaseRepoTitle,
-                                                      subtitle: t.showcaseRepoSubtitle,
+                                                      title: context.t.showcaseRepoTitle,
+                                                      subtitle: context.t.showcaseRepoSubtitle,
                                                       featureRows: [
-                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: t.showcaseRepoFeatureAuth),
-                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: t.showcaseRepoFeatureDir),
-                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.filePen, text: t.showcaseRepoFeatureBrowse),
-                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: t.showcaseRepoFeatureRemote),
+                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.key, text: context.t.showcaseRepoFeatureAuth),
+                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.folderOpen, text: context.t.showcaseRepoFeatureDir),
+                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.filePen, text: context.t.showcaseRepoFeatureBrowse),
+                                                        ShowcaseFeatureRow(icon: FontAwesomeIcons.link, text: context.t.showcaseRepoFeatureRemote),
                                                       ],
                                                     ),
                                                     child: ProviderBuilder<(String, String)?>(
@@ -3408,7 +3425,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       builder: (context, remotesAsync) {
                                                                         final remoteUrlLinkValue = remoteUrlLinkAsync.valueOrNull;
                                                                         final remotesList = remotesAsync.valueOrNull ?? [];
-                                                                        final actions = remoteEllipsisActions(remotesList.length);
+                                                                        final actions = remoteEllipsisActions(context, remotesList.length);
                                                                         return ProviderBuilder<String>(
                                                                           provider: remoteNameProvider,
                                                                           builder: (context, currentRemoteNameAsync) {
@@ -3428,7 +3445,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                     ),
                                                                                     SizedBox(width: spaceSM),
                                                                                     Text(
-                                                                                      t.addRemote.toUpperCase(),
+                                                                                      context.t.addRemote.toUpperCase(),
                                                                                       style: TextStyle(
                                                                                         fontSize: textXS,
                                                                                         color: context.colours.primaryLight,
@@ -3549,7 +3566,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                         vertical: spaceSM + spaceXXXS,
                                                                                                       ),
                                                                                                       child: Text(
-                                                                                                        t.addRemote,
+                                                                                                        context.t.addRemote,
                                                                                                         maxLines: 1,
                                                                                                         overflow: TextOverflow.ellipsis,
                                                                                                         style: TextStyle(
@@ -3631,7 +3648,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               underline: const SizedBox.shrink(),
                                                                                               dropdownColor: context.colours.secondaryDark,
                                                                                               hint: Text(
-                                                                                                t.repoNotFound,
+                                                                                                context.t.repoNotFound,
                                                                                                 maxLines: 1,
                                                                                                 overflow: TextOverflow.ellipsis,
                                                                                                 style: TextStyle(
@@ -3678,7 +3695,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                                         demo
                                                                                                             ? "https://github.com/ViscousTests/TestObsidianVault.git"
                                                                                                             : (remoteUrlLinkValue == null
-                                                                                                                  ? t.repoNotFound
+                                                                                                                  ? context.t.repoNotFound
                                                                                                                   : remoteUrlLinkValue.$1),
                                                                                                         maxLines: 1,
                                                                                                         textAlign: TextAlign.left,
@@ -3713,7 +3730,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                           top: spaceXXXXS / 2,
                                                                                           left: spaceSM,
                                                                                           child: Text(
-                                                                                            "${t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}"
+                                                                                            "${context.t.remote}${currentRemoteName != null ? " · $currentRemoteName" : ""}"
                                                                                                 .toUpperCase(),
                                                                                             style: TextStyle(
                                                                                               color: context.colours.tertiaryLight,
@@ -3826,7 +3843,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         label: Padding(
                                                                           padding: EdgeInsets.only(left: spaceXS),
                                                                           child: Text(
-                                                                            t.clone.toUpperCase(),
+                                                                            context.t.clone.toUpperCase(),
                                                                             style: TextStyle(
                                                                               color: context.colours.primaryLight,
                                                                               fontSize: textMD,
@@ -3887,7 +3904,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                             label: Padding(
                                                                               padding: EdgeInsets.only(left: spaceXS),
                                                                               child: Text(
-                                                                                t.auth.toUpperCase(),
+                                                                                context.t.auth.toUpperCase(),
                                                                                 style: TextStyle(
                                                                                   color: context.colours.primaryLight,
                                                                                   fontSize: textMD,
@@ -3999,7 +4016,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                               ? "TestObsidianVault"
                                                                                               : "/storage/emulated/0/github/ViscousTests/TestObsidianVault")
                                                                                         : (gitDirPath?.$2 == null
-                                                                                              ? t.repoNotFound
+                                                                                              ? context.t.repoNotFound
                                                                                               : (Platform.isIOS
                                                                                                         ? gitDirPath?.$2.split("/").last
                                                                                                         : gitDirPath?.$2) ??
@@ -4065,7 +4082,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                                         FontAwesomeIcons.solidCircleXmark,
                                                                                         size: textLG,
                                                                                         color: context.colours.primaryLight,
-                                                                                        semanticLabel: t.deselectDirLabel,
+                                                                                        semanticLabel: context.t.deselectDirLabel,
                                                                                       ),
                                                                                     ),
                                                                             ],
@@ -4075,7 +4092,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                           top: spaceXXXXS / 2,
                                                                           left: spaceSM,
                                                                           child: Text(
-                                                                            t.directory.toUpperCase(),
+                                                                            context.t.directory.toUpperCase(),
                                                                             style: TextStyle(
                                                                               color: context.colours.tertiaryLight,
                                                                               fontSize: textXXS,
@@ -4136,7 +4153,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                         FontAwesomeIcons.solidFolderOpen,
                                                                         color: context.colours.primaryLight,
                                                                         size: textLG - 2,
-                                                                        semanticLabel: t.selectDirLabel,
+                                                                        semanticLabel: context.t.selectDirLabel,
                                                                       ),
                                                                     ),
                                                                   ),
@@ -4156,8 +4173,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                       final mismatch = remoteAuthMismatch(urlSnap?.$1, providerSnap);
                                                       if (mismatch == null) return const SizedBox.shrink();
                                                       final subtitle = mismatch == 'httpsWithSshAuth'
-                                                          ? t.remoteAuthMismatchUsesHttps
-                                                          : t.remoteAuthMismatchUsesSsh;
+                                                          ? context.t.remoteAuthMismatchUsesHttps
+                                                          : context.t.remoteAuthMismatchUsesSsh;
                                                       return Padding(
                                                         padding: EdgeInsets.only(top: spaceSM),
                                                         child: Material(
@@ -4187,7 +4204,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                       mainAxisSize: MainAxisSize.min,
                                                                       children: [
                                                                         Text(
-                                                                          t.remoteAuthMismatchTitle.toUpperCase(),
+                                                                          context.t.remoteAuthMismatchTitle.toUpperCase(),
                                                                           style: TextStyle(
                                                                             color: context.colours.tertiaryWarning,
                                                                             fontSize: textSM,
@@ -4257,7 +4274,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                 SizedBox(width: spaceSM),
                                                                 Expanded(
                                                                   child: Text(
-                                                                    t.syncSettings,
+                                                                    context.t.syncSettings,
                                                                     style: TextStyle(
                                                                       fontFeatures: [FontFeature.enable('smcp')],
                                                                       color: context.colours.primaryLight,
@@ -4275,24 +4292,24 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                             globalKey: _autoSyncOptionsKey,
                                                             cornerRadius: cornerRadiusMD,
                                                             richContent: ShowcaseTooltipContent(
-                                                              title: t.showcaseAutoSyncTitle,
-                                                              subtitle: t.showcaseAutoSyncSubtitle,
+                                                              title: context.t.showcaseAutoSyncTitle,
+                                                              subtitle: context.t.showcaseAutoSyncSubtitle,
                                                               featureRows: [
                                                                 ShowcaseFeatureRow(
                                                                   icon: FontAwesomeIcons.solidBell,
-                                                                  text: t.showcaseAutoSyncFeatureApp,
+                                                                  text: context.t.showcaseAutoSyncFeatureApp,
                                                                 ),
                                                                 ShowcaseFeatureRow(
                                                                   icon: FontAwesomeIcons.clockRotateLeft,
-                                                                  text: t.showcaseAutoSyncFeatureSchedule,
+                                                                  text: context.t.showcaseAutoSyncFeatureSchedule,
                                                                 ),
                                                                 ShowcaseFeatureRow(
                                                                   icon: FontAwesomeIcons.barsStaggered,
-                                                                  text: t.showcaseAutoSyncFeatureQuick,
+                                                                  text: context.t.showcaseAutoSyncFeatureQuick,
                                                                 ),
                                                                 ShowcaseFeatureRow(
                                                                   icon: FontAwesomeIcons.solidGem,
-                                                                  text: t.showcaseAutoSyncFeaturePremium,
+                                                                  text: context.t.showcaseAutoSyncFeaturePremium,
                                                                 ),
                                                               ],
                                                             ),
@@ -4312,7 +4329,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                                                                     size: textSM,
                                                                   ),
                                                                 ),
-                                                                name: t.learnMore.toUpperCase(),
+                                                                name: context.t.learnMore.toUpperCase(),
                                                                 onTap: () => launchUrl(Uri.parse(syncOptionsBGDocsLink)),
                                                                 type: null,
                                                                 borderRadius: BorderRadius.all(cornerRadiusMD),
@@ -4394,17 +4411,17 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                             NavigationDestination(
                               icon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.secondaryLight, size: textLG),
                               selectedIcon: FaIcon(FontAwesomeIcons.wandMagicSparkles, color: context.colours.tertiaryInfo, size: textLG),
-                              label: t.tabChat,
+                              label: context.t.tabChat,
                             ),
                           NavigationDestination(
                             icon: FaIcon(FontAwesomeIcons.codeBranch, color: context.colours.secondaryLight, size: textLG),
                             selectedIcon: FaIcon(FontAwesomeIcons.codeBranch, color: context.colours.tertiaryInfo, size: textLG),
-                            label: t.tabHome,
+                            label: context.t.tabHome,
                           ),
                           NavigationDestination(
                             icon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.secondaryLight, size: textLG),
                             selectedIcon: FaIcon(FontAwesomeIcons.solidFolderOpen, color: context.colours.tertiaryInfo, size: textLG),
-                            label: t.tabFiles,
+                            label: context.t.tabFiles,
                           ),
                         ],
                       ),
@@ -4427,11 +4444,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: t.unsupportedGitAttributes,
+                                    text: context.t.unsupportedGitAttributes,
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   TextSpan(text: " "),
-                                  TextSpan(text: t.tapToOpenPlayStore),
+                                  TextSpan(text: context.t.tapToOpenPlayStore),
                                 ],
                               ),
                             ),
@@ -4451,11 +4468,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: t.youreOffline,
+                                text: context.t.youreOffline,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               TextSpan(text: " "),
-                              TextSpan(text: t.someFeaturesMayNotWork),
+                              TextSpan(text: context.t.someFeaturesMayNotWork),
                             ],
                           ),
                         ),

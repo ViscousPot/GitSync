@@ -13,7 +13,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.renameRepository,
+          context.t.renameRepository,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -21,7 +21,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
         child: ListBody(
           children: [
             Text(
-              t.renameRepositoryMsg,
+              context.t.renameRepositoryMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceMD + spaceSM),
@@ -42,7 +42,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
-                  t.defaultContainerName.toUpperCase(),
+                  context.t.defaultContainerName.toUpperCase(),
                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -56,7 +56,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -65,7 +65,7 @@ Future<void> showDialog(BuildContext context, String currentName, Function(Strin
         ),
         TextButton(
           child: Text(
-            t.rename.toUpperCase(),
+            context.t.rename.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

@@ -20,7 +20,6 @@ final gitSyncService = GitsyncService();
 final premiumManager = PremiumManager();
 final ValueNotifier<bool> themeDarkMode = ValueNotifier(true);
 final aiChatService = AiChatService();
-late AppLocalizations t;
 
 final ValueNotifier<bool> aiKeyConfigured = ValueNotifier(false);
 VoidCallback? switchToAiTab;
@@ -32,4 +31,8 @@ Future<void> reloadTheme(BuildContext context) async {
 
 extension ColoursContext on BuildContext {
   Colours get colours => (mounted ? Theme.of(this).extension<Colours>() : null) ?? Colours(darkMode: themeDarkMode.value);
+}
+
+extension L10nContext on BuildContext {
+  AppLocalizations get t => AppLocalizations.of(this);
 }

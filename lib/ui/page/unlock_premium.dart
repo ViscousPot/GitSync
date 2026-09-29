@@ -221,6 +221,7 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
   }
 
   Future<void> _verifyGhSponsor() async {
+    final t = context.t;
     final result = await GithubManager().launchOAuthFlow(["read:user", "user:email"]);
     if (result == null) return;
 
@@ -275,13 +276,13 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
           FaIcon(FontAwesomeIcons.solidSquareMinus, color: context.colours.tertiaryNegative, size: textSM),
           FaIcon(FontAwesomeIcons.squarePen, color: context.colours.tertiaryInfo, size: textSM),
         ],
-        badgeLabel: t.addMore,
-        title: t.premiumMultiRepoTitle,
-        subtitle: t.premiumMultiRepoSubtitle,
+        badgeLabel: context.t.addMore,
+        title: context.t.premiumMultiRepoTitle,
+        subtitle: context.t.premiumMultiRepoSubtitle,
         featureRows: [
-          _featureRow(FontAwesomeIcons.solidCircleCheck, t.premiumUnlimitedContainers),
-          _featureRow(FontAwesomeIcons.key, t.premiumIndependentAuth),
-          _featureRow(FontAwesomeIcons.folderTree, t.premiumAutoAddSubmodules),
+          _featureRow(FontAwesomeIcons.solidCircleCheck, context.t.premiumUnlimitedContainers),
+          _featureRow(FontAwesomeIcons.key, context.t.premiumIndependentAuth),
+          _featureRow(FontAwesomeIcons.folderTree, context.t.premiumAutoAddSubmodules),
         ],
       ),
 
@@ -294,13 +295,13 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
           ],
           badgeLabel: "ESS",
           tag: "ios-only",
-          title: t.enhancedScheduledSync,
-          subtitle: t.premiumEnhancedSyncSubtitle,
+          title: context.t.enhancedScheduledSync,
+          subtitle: context.t.premiumEnhancedSyncSubtitle,
           featureRows: [
-            _featureRow(FontAwesomeIcons.arrowsRotate, t.premiumSyncPerMinute),
-            _featureRow(FontAwesomeIcons.server, t.premiumServerTriggered),
-            _featureRow(FontAwesomeIcons.batteryFull, t.premiumWorksAppClosed),
-            _featureRow(FontAwesomeIcons.solidClock, t.premiumReliableDelivery),
+            _featureRow(FontAwesomeIcons.arrowsRotate, context.t.premiumSyncPerMinute),
+            _featureRow(FontAwesomeIcons.server, context.t.premiumServerTriggered),
+            _featureRow(FontAwesomeIcons.batteryFull, context.t.premiumWorksAppClosed),
+            _featureRow(FontAwesomeIcons.solidClock, context.t.premiumReliableDelivery),
           ],
         ),
 
@@ -311,13 +312,13 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
           FaIcon(FontAwesomeIcons.fileArrowDown, color: context.colours.tertiaryInfo, size: textSM),
         ],
         badgeLabel: "LARGE FILES",
-        title: t.premiumGitLfsTitle,
-        subtitle: t.premiumGitLfsSubtitle,
+        title: context.t.premiumGitLfsTitle,
+        subtitle: context.t.premiumGitLfsSubtitle,
         featureRows: [
-          _featureRow(FontAwesomeIcons.solidCircleCheck, t.premiumFullLfsSupport),
-          _featureRow(FontAwesomeIcons.fileCirclePlus, t.premiumTrackLargeFiles),
+          _featureRow(FontAwesomeIcons.solidCircleCheck, context.t.premiumFullLfsSupport),
+          _featureRow(FontAwesomeIcons.fileCirclePlus, context.t.premiumTrackLargeFiles),
 
-          _featureRow(FontAwesomeIcons.download, t.premiumAutoLfsPullPush),
+          _featureRow(FontAwesomeIcons.download, context.t.premiumAutoLfsPullPush),
         ],
       ),
 
@@ -325,12 +326,12 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
         showStoreBanner: true,
         badgeIcons: [FaIcon(FontAwesomeIcons.filter, color: context.colours.premiumAccent, size: textSM)],
         badgeLabel: "FILTERS",
-        title: t.premiumGitFiltersTitle,
-        subtitle: t.premiumGitFiltersSubtitle,
+        title: context.t.premiumGitFiltersTitle,
+        subtitle: context.t.premiumGitFiltersSubtitle,
         featureRows: [
-          _featureRow(FontAwesomeIcons.solidCircleCheck, t.premiumGitLfsFilter),
-          _featureRow(FontAwesomeIcons.lock, t.premiumGitCryptFilter),
-          _featureRow(FontAwesomeIcons.wandMagicSparkles, t.premiumMoreFiltersSoon),
+          _featureRow(FontAwesomeIcons.solidCircleCheck, context.t.premiumGitLfsFilter),
+          _featureRow(FontAwesomeIcons.lock, context.t.premiumGitCryptFilter),
+          _featureRow(FontAwesomeIcons.wandMagicSparkles, context.t.premiumMoreFiltersSoon),
         ],
       ),
 
@@ -481,14 +482,14 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
                                       FaIcon(FontAwesomeIcons.solidHeart, color: context.colours.premiumAccent, size: textXS),
                                       SizedBox(width: spaceXS),
                                       Text(
-                                        t.premiumIndieDevTitle.toUpperCase(),
+                                        context.t.premiumIndieDevTitle.toUpperCase(),
                                         style: TextStyle(color: context.colours.premiumAccent, fontSize: textXS, fontWeight: FontWeight.w900),
                                       ),
                                     ],
                                   ),
                                   SizedBox(height: spaceXS),
                                   Text(
-                                    t.premiumIndieDevSubtitle,
+                                    context.t.premiumIndieDevSubtitle,
                                     style: TextStyle(
                                       color: context.colours.premiumTextSecondary,
                                       fontSize: textXS,
@@ -554,7 +555,7 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
                                                   ),
                                                 )
                                               : Text(
-                                                  t.restorePurchase.toUpperCase(),
+                                                  context.t.restorePurchase.toUpperCase(),
                                                   style: TextStyle(
                                                     color: context.colours.premiumTextSecondary,
                                                     fontWeight: FontWeight.bold,
@@ -662,7 +663,7 @@ class _UnlockPremiumState extends ConsumerState<UnlockPremium> {
                                         ),
                                       ),
                                       child: Text(
-                                        t.skip.toUpperCase(),
+                                        context.t.skip.toUpperCase(),
                                         style: TextStyle(color: context.colours.premiumTextSecondary, fontWeight: FontWeight.bold, fontSize: textMD),
                                       ),
                                       onPressed: () => Navigator.pop(context),

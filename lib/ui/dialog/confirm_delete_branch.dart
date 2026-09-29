@@ -6,7 +6,7 @@ import '../../../constant/dimens.dart';
 import '../../../ui/dialog/base_alert_dialog.dart';
 
 Future<void> showDialog(BuildContext context, String branchName, Future<void> Function() callback) {
-  String text = sprintf(t.confirmDeleteBranchMsg, [branchName]);
+  String text = sprintf(context.t.confirmDeleteBranchMsg, [branchName]);
 
   return mat.showDialog(
     context: context,
@@ -14,7 +14,7 @@ Future<void> showDialog(BuildContext context, String branchName, Future<void> Fu
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.deleteBranch,
+          context.t.deleteBranch,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -27,7 +27,7 @@ Future<void> showDialog(BuildContext context, String branchName, Future<void> Fu
             ),
             SizedBox(height: spaceMD),
             Text(
-              t.thisActionCannotBeUndone,
+              context.t.thisActionCannotBeUndone,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -36,7 +36,7 @@ Future<void> showDialog(BuildContext context, String branchName, Future<void> Fu
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -45,7 +45,7 @@ Future<void> showDialog(BuildContext context, String branchName, Future<void> Fu
         ),
         TextButton(
           child: Text(
-            t.delete.toUpperCase(),
+            context.t.delete.toUpperCase(),
             style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
           ),
           onPressed: () async {

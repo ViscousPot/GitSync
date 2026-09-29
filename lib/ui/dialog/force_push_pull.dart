@@ -14,7 +14,7 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
           mainAxisAlignment: mat.MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              push ? t.forcePushing : t.forcePulling,
+              push ? context.t.forcePushing : context.t.forcePulling,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -24,7 +24,7 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
                 child: CircularProgressIndicator(
                   backgroundColor: context.colours.secondaryLight,
                   color: context.colours.primaryPositive,
-                  semanticsLabel: push ? t.forcePushProgressLabel : t.forcePullProgressLabel,
+                  semanticsLabel: push ? context.t.forcePushProgressLabel : context.t.forcePullProgressLabel,
                 ),
               ),
             ),
@@ -34,7 +34,7 @@ Future<void> showDialog(BuildContext context, {push = false}) async {
           child: ListBody(
             children: [
               Text(
-                t.forcePushPullMessage,
+                context.t.forcePushPullMessage,
                 style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: spaceMD),

@@ -26,7 +26,7 @@ Future<void> showDialog(BuildContext parentContext, Set<String>? prevSelectedApp
     builder: (BuildContext context) => BaseAlertDialog(
       title: Center(
         child: Text(
-          t.selectApplication.toUpperCase(),
+          context.t.selectApplication.toUpperCase(),
           textAlign: TextAlign.center,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
@@ -61,7 +61,7 @@ Future<void> showDialog(BuildContext parentContext, Set<String>? prevSelectedApp
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusMD), borderSide: BorderSide.none),
                     isCollapsed: true,
                     label: Text(
-                      t.search.toUpperCase(),
+                      context.t.search.toUpperCase(),
                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -202,7 +202,7 @@ Future<void> showDialog(BuildContext parentContext, Set<String>? prevSelectedApp
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -211,7 +211,7 @@ Future<void> showDialog(BuildContext parentContext, Set<String>? prevSelectedApp
         ),
         TextButton(
           child: Text(
-            t.saveApplication.toUpperCase(),
+            context.t.saveApplication.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

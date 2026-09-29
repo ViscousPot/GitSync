@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GitSync/global.dart';
 import 'package:GitSync/type/git_provider.dart';
@@ -15,12 +16,12 @@ enum ShowcaseFeature {
   final FaIconData icon;
   final String storageKey;
 
-  String get label => switch (this) {
-    ShowcaseFeature.issues => t.issues,
-    ShowcaseFeature.pullRequests => t.pullRequests,
-    ShowcaseFeature.tags => t.tags,
-    ShowcaseFeature.releases => t.releases,
-    ShowcaseFeature.actions => t.actions,
+  String label(BuildContext context) => switch (this) {
+    ShowcaseFeature.issues => context.t.issues,
+    ShowcaseFeature.pullRequests => context.t.pullRequests,
+    ShowcaseFeature.tags => context.t.tags,
+    ShowcaseFeature.releases => context.t.releases,
+    ShowcaseFeature.actions => context.t.actions,
   };
 
   static const defaultPinned = [ShowcaseFeature.issues, ShowcaseFeature.pullRequests];
@@ -45,11 +46,11 @@ enum ShowcaseFeature {
     return features.map((f) => f.storageKey).toList();
   }
 
-  String labelForProvider(GitProvider? provider) => switch ((this, provider)) {
-    (ShowcaseFeature.pullRequests, GitProvider.GITLAB) => t.mergeRequests,
+  String labelForProvider(BuildContext context, GitProvider? provider) => switch ((this, provider)) {
+    (ShowcaseFeature.pullRequests, GitProvider.GITLAB) => context.t.mergeRequests,
     // (ShowcaseFeature.snippets, GitProvider.GITHUB) => 'GISTS',
-    (ShowcaseFeature.actions, GitProvider.GITLAB) => t.jobs,
-    _ => label,
+    (ShowcaseFeature.actions, GitProvider.GITLAB) => context.t.jobs,
+    _ => label(context),
   };
 
   static List<ShowcaseFeature> availableFor(GitProvider? provider) => switch (provider) {

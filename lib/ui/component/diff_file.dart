@@ -261,13 +261,13 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                                       children: [
                                         SizedBox(width: spaceMD),
                                         Text(
-                                          sprintf(t.additions, [insertions]),
+                                          sprintf(context.t.additions, [insertions]),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
                                         SizedBox(width: spaceMD, height: spaceXXS),
                                         Text(
-                                          sprintf(t.deletions, [deletions]),
+                                          sprintf(context.t.deletions, [deletions]),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                                         ),
@@ -288,13 +288,13 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                       children: [
                         SizedBox(width: spaceMD),
                         Text(
-                          sprintf(t.additions, [insertions]),
+                          sprintf(context.t.additions, [insertions]),
                           textAlign: TextAlign.center,
                           style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceMD, height: spaceXXS),
                         Text(
-                          sprintf(t.deletions, [deletions]),
+                          sprintf(context.t.deletions, [deletions]),
                           textAlign: TextAlign.center,
                           style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
@@ -366,7 +366,7 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                       size: textXS,
                     ),
                     label: Text(
-                      "${t.open} ${widget.entry.key.contains(conflictSeparator) ? t.commit : t.fileDiff}".toUpperCase(),
+                      "${context.t.open} ${widget.entry.key.contains(conflictSeparator) ? context.t.commit : context.t.fileDiff}".toUpperCase(),
                       style: TextStyle(
                         color: context.colours.tertiaryInfo,
                         fontSize: textXS,
@@ -394,7 +394,7 @@ class _DiffFileState extends ConsumerState<DiffFile> with AutomaticKeepAliveClie
                     ),
                     icon: FaIcon(FontAwesomeIcons.filePen, color: context.colours.tertiaryInfo, size: textXS),
                     label: Text(
-                      t.openEditFile.toUpperCase(),
+                      context.t.openEditFile.toUpperCase(),
                       style: TextStyle(
                         color: context.colours.tertiaryInfo,
                         fontSize: textXS,

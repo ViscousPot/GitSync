@@ -108,17 +108,17 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
   String _presetLabel(String key) {
     switch (key) {
       case 'interval30min':
-        return t.interval30min;
+        return context.t.interval30min;
       case 'interval1hour':
-        return t.interval1hour;
+        return context.t.interval1hour;
       case 'interval6hours':
-        return t.interval6hours;
+        return context.t.interval6hours;
       case 'interval12hours':
-        return t.interval12hours;
+        return context.t.interval12hours;
       case 'interval1day':
-        return t.interval1day;
+        return context.t.interval1day;
       case 'interval1week':
-        return t.interval1week;
+        return context.t.interval1week;
       default:
         return key;
     }
@@ -127,13 +127,13 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
   String _frequencyLabel(String freq) {
     switch (freq) {
       case 'min':
-        return t.minutes;
+        return context.t.minutes;
       case 'hour':
-        return t.hours;
+        return context.t.hours;
       case 'day':
-        return t.days;
+        return context.t.days;
       case 'week':
-        return t.weeks;
+        return context.t.weeks;
       default:
         return freq;
     }
@@ -195,7 +195,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
           ),
         ),
         label: Text(
-          t.scheduledSync,
+          context.t.scheduledSync,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
         ),
       ),
@@ -241,7 +241,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
             spacing: spaceSM,
             children: [
               Text(
-                "${t.every} $rate $frequency".toUpperCase(),
+                "${context.t.every} $rate $frequency".toUpperCase(),
                 style: TextStyle(fontSize: textMD, color: context.colours.tertiaryLight, fontWeight: FontWeight.bold),
               ),
               ValueListenableBuilder(
@@ -300,7 +300,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
                     AnimatedSize(duration: animFast, child: isCustomSelected ? _buildCustomInputs(frequency, rate) : SizedBox.shrink()),
                     Expanded(
                       child: _buildChip(
-                        isCustomSelected ? t.confirm : t.custom,
+                        isCustomSelected ? context.t.confirm : context.t.custom,
                         isCustomSelected,
                         isCustomSelected
                             ? () async {
@@ -462,7 +462,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
                                 ? EdgeInsets.only(bottom: spaceSM)
                                 : EdgeInsets.only(left: spaceLG + spaceXS, right: spaceMD + spaceXS, bottom: spaceSM),
                             child: Text(
-                              t.iosDefaultSyncRate.toUpperCase(),
+                              context.t.iosDefaultSyncRate.toUpperCase(),
                               style: TextStyle(fontSize: textMD, color: context.colours.tertiaryLight, fontWeight: FontWeight.bold),
                             ),
                           )
@@ -523,7 +523,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                t.scheduledSyncSettings,
+                                context.t.scheduledSyncSettings,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -536,7 +536,7 @@ class _ScheduledSyncSettingsState extends State<ScheduledSyncSettings> with Widg
                               if (snapshot.data == true) ...[
                                 SizedBox(height: spaceXXXXS),
                                 Text(
-                                  t.scheduledSyncDescription,
+                                  context.t.scheduledSyncDescription,
                                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
                                 ),
                               ],

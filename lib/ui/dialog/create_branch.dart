@@ -21,7 +21,7 @@ Future<void> showDialog(
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.createBranch,
+            context.t.createBranch,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -46,7 +46,7 @@ Future<void> showDialog(
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
-                    t.createBranchName.toUpperCase(),
+                    context.t.createBranchName.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -66,7 +66,7 @@ Future<void> showDialog(
                       isDense: true,
                       isExpanded: true,
                       hint: Text(
-                        t.detachedHead.toUpperCase(),
+                        context.t.detachedHead.toUpperCase(),
                         style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold, color: context.colours.secondaryLight),
                       ),
                       padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
@@ -113,7 +113,7 @@ Future<void> showDialog(
                     top: -spaceXS,
                     left: spaceMD,
                     child: Text(
-                      t.createBranchBasedOn.toUpperCase(),
+                      context.t.createBranchBasedOn.toUpperCase(),
                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -125,7 +125,7 @@ Future<void> showDialog(
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
@@ -140,7 +140,7 @@ Future<void> showDialog(
                   }
                 : null,
             child: Text(
-              t.add.toUpperCase(),
+              context.t.add.toUpperCase(),
               style: TextStyle(
                 color: (textController.text.trim().isNotEmpty && basedOnBranchName != null)
                     ? context.colours.primaryPositive

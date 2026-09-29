@@ -295,7 +295,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
             title: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Text(
-                t.mergeConflict.toUpperCase(),
+                context.t.mergeConflict.toUpperCase(),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
               ),
@@ -305,7 +305,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                 ? (List<Widget> children) => Column(children: children)
                 : (List<Widget> children) => SingleChildScrollView(child: ListBody(children: children)))(<Widget>[
                   Text(
-                    t.mergeDialogMessage,
+                    context.t.mergeDialogMessage,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   ),
@@ -357,7 +357,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                         hintText: syncMessage,
                         isCollapsed: true,
                         label: Text(
-                          t.commitMessage.toUpperCase(),
+                          context.t.commitMessage.toUpperCase(),
                           style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -479,7 +479,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                               child: Row(
                                 children: [
                                   Text(
-                                    t.resolveAll.toUpperCase(),
+                                    context.t.resolveAll.toUpperCase(),
                                     style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: spaceXS),
@@ -499,7 +499,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         ),
                                       ),
                                       child: Text(
-                                        t.allCurrent.toUpperCase(),
+                                        context.t.allCurrent.toUpperCase(),
                                         style: TextStyle(color: context.colours.tertiaryInfo, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
@@ -521,7 +521,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         ),
                                       ),
                                       child: Text(
-                                        t.both.toUpperCase(),
+                                        context.t.both.toUpperCase(),
                                         style: TextStyle(color: context.colours.tertiaryLight, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
@@ -543,7 +543,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                         ),
                                       ),
                                       child: Text(
-                                        t.allIncoming.toUpperCase(),
+                                        context.t.allIncoming.toUpperCase(),
                                         style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textXS),
                                       ),
                                     ),
@@ -590,7 +590,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                         Padding(
                                                           padding: EdgeInsets.only(left: spaceSM, top: spaceSM),
                                                           child: Text(
-                                                            t.keepChanges.toUpperCase(),
+                                                            context.t.keepChanges.toUpperCase(),
                                                             style: TextStyle(
                                                               color: context.colours.primaryLight,
                                                               fontSize: textSM,
@@ -624,7 +624,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                          t.clearSelection.toUpperCase(),
+                                                                          context.t.clearSelection.toUpperCase(),
                                                                           style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -669,7 +669,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                          t.keepSelected.toUpperCase(),
+                                                                          context.t.keepSelected.toUpperCase(),
                                                                           style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -704,7 +704,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                           t.current.toUpperCase(),
+                                                                           context.t.current.toUpperCase(),
                                                                           style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -737,7 +737,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                          t.both.toUpperCase(),
+                                                                          context.t.both.toUpperCase(),
                                                                           style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -769,7 +769,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                                                                           ),
                                                                         ),
                                                                         child: Text(
-                                                                           t.incoming.toUpperCase(),
+                                                                           context.t.incoming.toUpperCase(),
                                                                           style: TextStyle(color: context.colours.secondaryDark, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
@@ -939,7 +939,7 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                           )
                         : null,
                     label: Text(
-                      (clientModeEnabled ? t.abortMerge : t.resolveLater).toUpperCase(),
+                      (clientModeEnabled ? context.t.abortMerge : context.t.resolveLater).toUpperCase(),
                       style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -986,9 +986,9 @@ Future<void> showDialog(BuildContext parentContext, List<(String, GitManagerRs.C
                         : null,
                     label: Text(
                       (isMerging
-                              ? (clientModeEnabled ? t.merging : t.resolving)
+                              ? (clientModeEnabled ? context.t.merging : context.t.resolving)
                               : (conflictIndex == conflictingPaths.length - 1 || conflictingPaths.length <= 1
-                                    ? (clientModeEnabled ? t.merge : t.resolve)
+                                    ? (clientModeEnabled ? context.t.merge : context.t.resolve)
                                     : "next"))
                           .toUpperCase(),
                       style: TextStyle(

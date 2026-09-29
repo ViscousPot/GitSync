@@ -149,10 +149,10 @@ class ContextMenuControllerImpl implements ReEditor.SelectionToolbarController {
             final isAllSelected = controller.isAllSelected;
             final hasSelected = controller.selectedText.isNotEmpty;
             List<PopupMenuItemData> menus = [
-              if (isNotEmpty) PopupMenuItemData(label: t.copy, onPressed: controller.copy),
-              if (!readonly) PopupMenuItemData(label: t.paste, onPressed: controller.paste),
-              if (isNotEmpty && !readonly) PopupMenuItemData(label: t.cut, onPressed: controller.cut),
-              if (hasSelected && !isAllSelected) PopupMenuItemData(label: t.selectAll, onPressed: controller.selectAll),
+              if (isNotEmpty) PopupMenuItemData(label: context.t.copy, onPressed: controller.copy),
+              if (!readonly) PopupMenuItemData(label: context.t.paste, onPressed: controller.paste),
+              if (isNotEmpty && !readonly) PopupMenuItemData(label: context.t.cut, onPressed: controller.cut),
+              if (hasSelected && !isAllSelected) PopupMenuItemData(label: context.t.selectAll, onPressed: controller.selectAll),
             ];
             if (_isFirstRender) {
               _isFirstRender = false;
@@ -528,14 +528,14 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
   Future<void> _showExperimentalInfoDialog() async {
     await InfoDialog.showDialog(
       context,
-      t.codeEditorLimits,
-      t.codeEditorLimitsDescription,
+      context.t.codeEditorLimits,
+      context.t.codeEditorLimitsDescription,
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: spaceMD),
           ButtonSetting(
-            text: t.requestAFeature,
+            text: context.t.requestAFeature,
             icon: FontAwesomeIcons.solidHandPointUp,
             onPressed: () async {
               if (await canLaunchUrl(Uri.parse(githubFeatureTemplate))) {
@@ -545,7 +545,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
           ),
           SizedBox(height: spaceSM),
           ButtonSetting(
-            text: t.reportABug,
+            text: context.t.reportABug,
             icon: FontAwesomeIcons.bug,
             textColor: context.colours.primaryDark,
             iconColor: context.colours.primaryDark,
@@ -557,7 +557,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
           SizedBox(height: spaceSM),
           Builder(
             builder: (dialogContext) => ButtonSetting(
-              text: t.dontShowAgain,
+              text: context.t.dontShowAgain,
               icon: FontAwesomeIcons.eyeSlash,
               textColor: context.colours.secondaryLight,
               iconColor: context.colours.secondaryLight,
@@ -769,7 +769,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                           icon: FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
                         ),
                         Text(
-                          t.experimental.toUpperCase(),
+                          context.t.experimental.toUpperCase(),
                           style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: spaceXS),
@@ -777,7 +777,7 @@ class _EditorState extends ConsumerState<Editor> with WidgetsBindingObserver, Si
                     ),
                     SizedBox(height: spaceXXXS),
                     Text(
-                      t.experimentalMsg,
+                      context.t.experimentalMsg,
                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                     ),
                   ],

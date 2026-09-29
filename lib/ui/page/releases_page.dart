@@ -122,7 +122,7 @@ class _ReleasesPageState extends State<ReleasesPage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.releases.toUpperCase(),
+                    context.t.releases.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -145,7 +145,7 @@ class _ReleasesPageState extends State<ReleasesPage> {
                             height: constraints.maxHeight,
                             child: Center(
                               child: Text(
-                                t.releasesNotFound.toUpperCase(),
+                                context.t.releasesNotFound.toUpperCase(),
                                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
@@ -216,6 +216,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
   };
 
   Future<void> _downloadAsset(ReleaseAsset asset) async {
+    final t = context.t;
     Fluttertoast.showToast(msg: t.downloading, toastLength: Toast.LENGTH_SHORT, gravity: null);
 
     try {
@@ -340,7 +341,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                             borderRadius: BorderRadius.all(cornerRadiusXS),
                           ),
                           child: Text(
-                            t.preRelease,
+                            context.t.preRelease,
                             style: TextStyle(color: context.colours.tertiaryWarning, fontSize: textXXS, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -350,7 +351,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                           padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXXS),
                           decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusXS)),
                           child: Text(
-                            t.draft,
+                            context.t.draft,
                             style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -399,7 +400,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                 Padding(
                   padding: EdgeInsets.only(left: textMD + spaceXS),
                   child: Text(
-                    t.releaseAssets.toUpperCase(),
+                    context.t.releaseAssets.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -408,7 +409,7 @@ class _ItemReleaseState extends State<_ItemRelease> with SingleTickerProviderSta
                   Padding(
                     padding: EdgeInsets.only(left: textMD + spaceXS),
                     child: Text(
-                      t.noAssets,
+                      context.t.noAssets,
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                     ),
                   )

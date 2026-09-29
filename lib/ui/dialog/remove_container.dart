@@ -19,7 +19,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.confirmRepositoryDelete,
+          context.t.confirmRepositoryDelete,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -27,7 +27,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
         child: ListBody(
           children: [
             Text(
-              sprintf(t.confirmRepositoryDeleteMsg, [containerName]),
+              sprintf(context.t.confirmRepositoryDeleteMsg, [containerName]),
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceSM),
@@ -41,7 +41,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
                 label: Padding(
                   padding: EdgeInsets.only(left: spaceSM),
                   child: Text(
-                    t.deleteRepoDirectoryCheckbox,
+                    context.t.deleteRepoDirectoryCheckbox,
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -55,7 +55,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
             ),
             SizedBox(height: spaceSM),
             Text(
-              t.thisActionCannotBeUndone,
+              context.t.thisActionCannotBeUndone,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -64,7 +64,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.confirm.toUpperCase(),
+            context.t.confirm.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
@@ -82,7 +82,7 @@ Future<void> showDialog(BuildContext context, Function(bool deleteContents) call
         ),
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

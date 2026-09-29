@@ -13,7 +13,7 @@ Future<void> showDialog(BuildContext context, String issueUrl, {String? title, S
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          title ?? t.issueReportSuccessTitle,
+          title ?? context.t.issueReportSuccessTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -21,7 +21,7 @@ Future<void> showDialog(BuildContext context, String issueUrl, {String? title, S
         child: ListBody(
           children: [
             Text(
-              message ?? t.issueReportSuccessMsg,
+              message ?? context.t.issueReportSuccessMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -30,7 +30,7 @@ Future<void> showDialog(BuildContext context, String issueUrl, {String? title, S
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.trackIssue.toUpperCase(),
+            context.t.trackIssue.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

@@ -213,21 +213,21 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
         PopupMenuItem(
           value: PrSortOption.newest,
           child: Text(
-            t.sortNewest,
+            context.t.sortNewest,
             style: TextStyle(color: _sortOption == PrSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: PrSortOption.oldest,
           child: Text(
-            t.sortOldest,
+            context.t.sortOldest,
             style: TextStyle(color: _sortOption == PrSortOption.oldest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: PrSortOption.recentlyUpdated,
           child: Text(
-            t.sortRecentlyUpdated,
+            context.t.sortRecentlyUpdated,
             style: TextStyle(color: _sortOption == PrSortOption.recentlyUpdated ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
@@ -329,7 +329,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
               child: Row(
                 children: [
                   Text(
-                    t.filterSidebar.toUpperCase(),
+                    context.t.filterSidebar.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -347,17 +347,17 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   _buildAutocompleteField(
                     _authorController,
                     _authorFocusNode,
-                    t.filterAuthor.toUpperCase(),
+                    context.t.filterAuthor.toUpperCase(),
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_labelsController, _labelsFocusNode, t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
+                  _buildAutocompleteField(_labelsController, _labelsFocusNode, context.t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
                   SizedBox(height: spaceSM),
                   _buildAutocompleteField(
                     _assigneeController,
                     _assigneeFocusNode,
-                    t.filterAssignee.toUpperCase(),
+                    context.t.filterAssignee.toUpperCase(),
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
@@ -365,7 +365,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   _buildAutocompleteField(
                     _reviewerController,
                     _reviewerFocusNode,
-                    t.filterReviewer.toUpperCase(),
+                    context.t.filterReviewer.toUpperCase(),
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
@@ -373,7 +373,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   _buildAutocompleteField(
                     _milestoneController,
                     _milestoneFocusNode,
-                    t.filterMilestone.toUpperCase(),
+                    context.t.filterMilestone.toUpperCase(),
                     _ensureMilestones,
                     _repoMilestones,
                   ),
@@ -405,7 +405,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.pullRequests.toUpperCase(),
+                    context.t.pullRequests.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -473,7 +473,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                         filled: true,
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                         isCollapsed: true,
-                        hintText: t.searchEllipsis,
+                        hintText: context.t.searchEllipsis,
                         hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
@@ -521,15 +521,23 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
               padding: EdgeInsets.symmetric(horizontal: spaceMD),
               child: Row(
                 children: [
-                  _FilterChip(label: t.issueFilterOpen.toUpperCase(), selected: _stateFilter == "open", onTap: () => _onStateFilterChanged("open")),
+                  _FilterChip(
+                    label: context.t.issueFilterOpen.toUpperCase(),
+                    selected: _stateFilter == "open",
+                    onTap: () => _onStateFilterChanged("open"),
+                  ),
                   SizedBox(width: spaceXS),
                   _FilterChip(
-                    label: t.issueFilterClosed.toUpperCase(),
+                    label: context.t.issueFilterClosed.toUpperCase(),
                     selected: _stateFilter == "closed",
                     onTap: () => _onStateFilterChanged("closed"),
                   ),
                   SizedBox(width: spaceXS),
-                  _FilterChip(label: t.issueFilterAll.toUpperCase(), selected: _stateFilter == "all", onTap: () => _onStateFilterChanged("all")),
+                  _FilterChip(
+                    label: context.t.issueFilterAll.toUpperCase(),
+                    selected: _stateFilter == "all",
+                    onTap: () => _onStateFilterChanged("all"),
+                  ),
                 ],
               ),
             ),
@@ -551,7 +559,7 @@ class _PullRequestsPageState extends State<PullRequestsPage> {
                             height: constraints.maxHeight,
                             child: Center(
                               child: Text(
-                                t.pullRequestsNotFound.toUpperCase(),
+                                context.t.pullRequestsNotFound.toUpperCase(),
                                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),

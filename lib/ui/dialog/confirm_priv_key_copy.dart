@@ -11,7 +11,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.confirmPrivKeyCopy,
+          context.t.confirmPrivKeyCopy,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -19,7 +19,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         child: ListBody(
           children: [
             Text(
-              t.confirmPrivKeyCopyMsg,
+              context.t.confirmPrivKeyCopyMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -28,7 +28,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -37,7 +37,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         ),
         TextButton(
           child: Text(
-            t.understood.toUpperCase(),
+            context.t.understood.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

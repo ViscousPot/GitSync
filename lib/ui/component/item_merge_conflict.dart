@@ -54,7 +54,7 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Text(
-                    t.mergeConflict.toUpperCase(),
+                    context.t.mergeConflict.toUpperCase(),
                     style: TextStyle(
                       color: context.colours.primaryDark,
                       fontSize: textMD,
@@ -63,7 +63,7 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
                     ),
                   ),
                   Text(
-                    t.mergeConflictItemMessage,
+                    context.t.mergeConflictItemMessage,
                     style: TextStyle(color: context.colours.secondaryDark, fontSize: textSM, overflow: TextOverflow.ellipsis),
                   ),
                 ],
@@ -97,7 +97,7 @@ class _ItemMergeConflict extends State<ItemMergeConflict> {
                       child: CircularProgressIndicator(color: context.colours.tertiaryNegative),
                     )
                   : Text(
-                      ((widget.clientModeEnabled ? t.abortMerge : t.resolveLater).split(" ").join("\n")).toUpperCase(),
+                      ((widget.clientModeEnabled ? context.t.abortMerge : context.t.resolveLater).split(" ").join("\n")).toUpperCase(),
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         color: context.colours.tertiaryNegative,

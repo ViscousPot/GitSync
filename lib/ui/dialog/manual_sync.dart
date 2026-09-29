@@ -186,7 +186,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                   title: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Text(
-                      (clientModeEnabled ? t.stageAndCommit : t.manualSync).toUpperCase(),
+                      (clientModeEnabled ? context.t.stageAndCommit : context.t.manualSync).toUpperCase(),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                     ),
@@ -196,7 +196,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                       ? (List<Widget> children) => Column(children: children)
                       : (List<Widget> children) => SingleChildScrollView(child: ListBody(children: children)))(<Widget>[
                         Text(
-                          t.manualSyncMsg,
+                          context.t.manualSyncMsg,
                           textAlign: TextAlign.center,
                           style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                         ),
@@ -257,7 +257,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                       hintText: syncMessage,
                                       isCollapsed: true,
                                       label: Text(
-                                        t.commitMessage.toUpperCase(),
+                                        context.t.commitMessage.toUpperCase(),
                                         style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -306,7 +306,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                         )
                                       : null,
                                   label: Text(
-                                    t.commit.toUpperCase(),
+                                    context.t.commit.toUpperCase(),
                                     style: TextStyle(
                                       color: (stagedFilePathsSnapshot.data ?? []).isNotEmpty ? context.colours.tertiaryDark : context.colours.tertiaryLight,
                                       fontSize: textSM,
@@ -334,7 +334,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                   : filePaths.isEmpty
                                   ? Center(
                                       child: Text(
-                                        t.noUncommittedChanges.toUpperCase(),
+                                        context.t.noUncommittedChanges.toUpperCase(),
                                         style: TextStyle(fontWeight: FontWeight.bold, color: context.colours.primaryLight, fontSize: textMD),
                                       ),
                                     )
@@ -393,7 +393,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                 size: textMD,
                                                               ),
                                                         label: Text(
-                                                          (hasExplicitSelection ? t.deselectAll : t.selectAll).toUpperCase(),
+                                                          (hasExplicitSelection ? context.t.deselectAll : context.t.selectAll).toUpperCase(),
                                                           style: TextStyle(fontWeight: FontWeight.bold, color: context.colours.primaryLight),
                                                         ),
                                                       ),
@@ -759,7 +759,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                                 ? FaIcon(FontAwesomeIcons.circleCheck, color: context.colours.tertiaryInfo, size: textSM)
                                                                 : outlineCircleMinus(size: textSM, color: context.colours.secondaryInfo),
                                                             label: Text(
-                                                              (selections.isNotEmpty ? t.deselectAll : t.selectAll).toUpperCase(),
+                                                              (selections.isNotEmpty ? context.t.deselectAll : context.t.selectAll).toUpperCase(),
                                                               style: TextStyle(
                                                                 fontWeight: FontWeight.bold,
                                                                 color: context.colours.primaryLight,
@@ -800,7 +800,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                                           : diffLines.isEmpty
                                                           ? Center(
                                                               child: Text(
-                                                                t.noUncommittedChanges.toUpperCase(),
+                                                                context.t.noUncommittedChanges.toUpperCase(),
                                                                 style: TextStyle(
                                                                   color: context.colours.tertiaryLight,
                                                                   fontSize: textMD,
@@ -1048,7 +1048,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                           )
                                         : null,
                                     label: Text(
-                                      t.unstage.toUpperCase(),
+                                      context.t.unstage.toUpperCase(),
                                       style: TextStyle(
                                         color:
                                             !onLinesPage &&
@@ -1125,7 +1125,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                           )
                                         : null,
                                     label: Text(
-                                      t.stage.toUpperCase(),
+                                      context.t.stage.toUpperCase(),
                                       style: TextStyle(
                                         color:
                                             !onLinesPage &&
@@ -1199,7 +1199,7 @@ Future<bool> showDialog(BuildContext context, {bool? hasRemotes}) async {
                                       )
                                     : null,
                                 label: Text(
-                                  (uploading ? t.syncStartPull : t.syncNow).toUpperCase(),
+                                  (uploading ? context.t.syncStartPull : context.t.syncNow).toUpperCase(),
                                   style: TextStyle(
                                     color: selectedFiles.isNotEmpty || lineSelections.isNotEmpty ? context.colours.tertiaryDark : context.colours.tertiaryLight,
                                     fontSize: textSM,

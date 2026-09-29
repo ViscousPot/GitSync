@@ -17,7 +17,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           title: SizedBox(
             width: MediaQuery.of(context).size.width,
             child: Text(
-              t.confirmCloneOverwriteTitle,
+              context.t.confirmCloneOverwriteTitle,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
             ),
           ),
@@ -25,12 +25,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
             child: ListBody(
               children: [
                 Text(
-                  t.confirmCloneOverwriteMsg,
+                  context.t.confirmCloneOverwriteMsg,
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                 ),
                 SizedBox(height: spaceSM),
                 Text(
-                  t.confirmCloneOverwriteWarning,
+                  context.t.confirmCloneOverwriteWarning,
                   style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
                 ),
               ],
@@ -39,7 +39,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           actions: <Widget>[
             TextButton.icon(
               label: Text(
-                t.confirmCloneOverwriteAction.toUpperCase(),
+                context.t.confirmCloneOverwriteAction.toUpperCase(),
                 style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
               ),
               iconAlignment: IconAlignment.start,
@@ -63,7 +63,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
             ),
             TextButton(
               child: Text(
-                t.cancel.toUpperCase(),
+                context.t.cancel.toUpperCase(),
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
               ),
               onPressed: overwriting

@@ -58,7 +58,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
-                    t.passphrase.toUpperCase(),
+                    context.t.passphrase.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -66,7 +66,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
-                    t.privKey.toUpperCase(),
+                    context.t.privKey.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -74,7 +74,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
-                    t.pubKey.toUpperCase(),
+                    context.t.pubKey.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -103,7 +103,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                       fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                      hintText: t.optionalLabel.toUpperCase(),
+                      hintText: context.t.optionalLabel.toUpperCase(),
                       hintStyle: TextStyle(
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                       size: textMD,
                     ),
                     label: Text(
-                      keyPair == null ? t.sshPrivKeyExample : keyPair!.$1,
+                      keyPair == null ? context.t.sshPrivKeyExample : keyPair!.$1,
                       maxLines: 1,
                       style: TextStyle(
                         color: keyPair == null ? context.colours.tertiaryLight : context.colours.primaryLight,
@@ -178,7 +178,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                       size: textMD,
                     ),
                     label: Text(
-                      keyPair == null ? t.sshPubKeyExample : keyPair!.$2,
+                      keyPair == null ? context.t.sshPubKeyExample : keyPair!.$2,
                       maxLines: 1,
                       style: TextStyle(
                         color: keyPair == null ? context.colours.tertiaryLight : context.colours.primaryLight,
@@ -223,7 +223,7 @@ class _SshAuthFormState extends State<SshAuthForm> {
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
                   ),
                   child: Text(
-                    (keyPair == null ? t.generateKeys : t.confirmKeySaved).toUpperCase(),
+                    (keyPair == null ? context.t.generateKeys : context.t.confirmKeySaved).toUpperCase(),
                     style: TextStyle(
                       color: (keyPair != null && !pubKeyCopied) ? context.colours.primaryPositive.withAlpha(70) : context.colours.primaryPositive,
                       fontSize: textSM,

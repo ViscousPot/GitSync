@@ -120,7 +120,7 @@ class _TagsPageState extends State<TagsPage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.tags.toUpperCase(),
+                    context.t.tags.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -144,7 +144,7 @@ class _TagsPageState extends State<TagsPage> {
                             height: constraints.maxHeight,
                             child: Center(
                               child: Text(
-                                t.tagsNotFound.toUpperCase(),
+                                context.t.tagsNotFound.toUpperCase(),
                                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),
@@ -217,7 +217,8 @@ class _ItemTag extends StatelessWidget {
     _ => {'Authorization': 'token $accessToken'},
   };
 
-  Future<void> _downloadArchive(String ext) async {
+  Future<void> _downloadArchive(BuildContext context, String ext) async {
+    final t = context.t;
     final url = _archiveUrl(ext);
     final filename = '$_repoName-${tag.name}.$ext';
 
@@ -325,7 +326,7 @@ class _ItemTag extends StatelessWidget {
             ),
           ),
           PopupMenuButton<String>(
-            onSelected: _downloadArchive,
+            onSelected: (ext) => _downloadArchive(context, ext),
             color: context.colours.secondaryDark,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
             icon: FaIcon(FontAwesomeIcons.download, size: textMD, color: context.colours.secondaryLight),

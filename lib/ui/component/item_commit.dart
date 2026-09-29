@@ -155,27 +155,27 @@ class _ItemCommit extends ConsumerState<ItemCommit> with SingleTickerProviderSta
       color: context.colours.secondaryDark,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusSM)),
       items: [
-        item('select', t.menuSelectCommits.toUpperCase(), t.menuSelectCommitsDesc),
+        item('select', context.t.menuSelectCommits.toUpperCase(), context.t.menuSelectCommitsDesc),
         if (widget.recentCommits.isNotEmpty && widget.commit.reference == widget.recentCommits.first.reference) ...[
-          item('amend-commit', t.menuAmendCommit.toUpperCase(), t.menuAmendCommitDesc),
-          if (widget.commit.unpushed) item('undo-commit', t.menuUndoCommit.toUpperCase(), t.menuUndoCommitDesc),
+          item('amend-commit', context.t.menuAmendCommit.toUpperCase(), context.t.menuAmendCommitDesc),
+          if (widget.commit.unpushed) item('undo-commit', context.t.menuUndoCommit.toUpperCase(), context.t.menuUndoCommitDesc),
         ],
         separator(),
-        item('reset-commit', t.menuResetToCommit.toUpperCase(), t.menuResetToCommitDesc),
-        item('checkout', t.menuCheckoutCommit.toUpperCase(), t.menuCheckoutCommitDesc),
+        item('reset-commit', context.t.menuResetToCommit.toUpperCase(), context.t.menuResetToCommitDesc),
+        item('checkout', context.t.menuCheckoutCommit.toUpperCase(), context.t.menuCheckoutCommitDesc),
         // item('reorder-commit', 'REORDER COMMIT', 'Move this commit to a different position in history'),
-        item('revert', t.menuRevertCommit.toUpperCase(), t.menuRevertCommitDesc),
+        item('revert', context.t.menuRevertCommit.toUpperCase(), context.t.menuRevertCommitDesc),
         separator(),
-        item('create-branch', t.menuCreateBranch.toUpperCase(), t.menuCreateBranchDesc),
-        item('create-tag', t.menuCreateTag.toUpperCase(), t.menuCreateTagDesc),
-        item('cherry-pick', t.menuCherryPick.toUpperCase(), t.menuCherryPickDesc),
+        item('create-branch', context.t.menuCreateBranch.toUpperCase(), context.t.menuCreateBranchDesc),
+        item('create-tag', context.t.menuCreateTag.toUpperCase(), context.t.menuCreateTagDesc),
+        item('cherry-pick', context.t.menuCherryPick.toUpperCase(), context.t.menuCherryPickDesc),
         separator(),
-        item('copy-sha', t.menuCopySha.toUpperCase(), t.menuCopyShaDesc),
-        item('copy-tag', t.menuCopyTag.toUpperCase(), t.menuCopyTagDesc, enabled: widget.commit.tags.isNotEmpty),
+        item('copy-sha', context.t.menuCopySha.toUpperCase(), context.t.menuCopyShaDesc),
+        item('copy-tag', context.t.menuCopyTag.toUpperCase(), context.t.menuCopyTagDesc, enabled: widget.commit.tags.isNotEmpty),
         item(
           'view',
-          sprintf(t.menuViewOnProvider, [widget.gitProvider!.name]).toUpperCase(),
-          t.menuViewOnProviderDesc,
+          sprintf(context.t.menuViewOnProvider, [widget.gitProvider!.name]).toUpperCase(),
+          context.t.menuViewOnProviderDesc,
           enabled: widget.gitProvider?.isOAuthProvider == true && widget.remoteWebUrl != null && !widget.commit.unpushed,
         ),
       ],
@@ -358,7 +358,7 @@ class _ItemCommit extends ConsumerState<ItemCommit> with SingleTickerProviderSta
                                 ),
                               ),
                               Text(
-                                "${demo ? "ViscousTests" : widget.commit.authorUsername} ${t.committed} $_relativeCommitDate",
+                                "${demo ? "ViscousTests" : widget.commit.authorUsername} ${context.t.committed} $_relativeCommitDate",
                                 style: TextStyle(
                                   color: widget.commit.unpulled || widget.commit.unpushed ? context.colours.tertiaryDark : context.colours.secondaryLight,
                                   fontSize: textSM,
@@ -487,7 +487,7 @@ class _ItemCommit extends ConsumerState<ItemCommit> with SingleTickerProviderSta
                                       child: Row(
                                         children: [
                                           Text(
-                                            sprintf(t.additions, [widget.commit.additions]),
+                                            sprintf(context.t.additions, [widget.commit.additions]),
                                             style: TextStyle(
                                               color: widget.commit.unpulled || widget.commit.unpushed ? context.colours.secondaryPositive : context.colours.tertiaryPositive,
                                               fontSize: textXS,
@@ -496,7 +496,7 @@ class _ItemCommit extends ConsumerState<ItemCommit> with SingleTickerProviderSta
                                           ),
                                           SizedBox(width: spaceSM),
                                           Text(
-                                            sprintf(t.deletions, [widget.commit.deletions]),
+                                            sprintf(context.t.deletions, [widget.commit.deletions]),
                                             style: TextStyle(
                                               color: widget.commit.unpulled || widget.commit.unpushed ? context.colours.primaryNegative : context.colours.tertiaryNegative,
                                               fontSize: textXS,

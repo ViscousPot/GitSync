@@ -23,7 +23,7 @@ Future<void> showDialog(
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.cherryPickCommits,
+            context.t.cherryPickCommits,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -34,7 +34,7 @@ Future<void> showDialog(
                 text: TextSpan(
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
-                    TextSpan(text: "${sprintf(t.cherryPickCommitsMsg, [selectedCommits.length])} "),
+                    TextSpan(text: "${sprintf(context.t.cherryPickCommitsMsg, [selectedCommits.length])} "),
                   ],
                 ),
               ),
@@ -120,7 +120,7 @@ Future<void> showDialog(
                     top: -spaceXS,
                     left: spaceMD,
                     child: Text(
-                      t.cherryPickTargetBranch.toUpperCase(),
+                      context.t.cherryPickTargetBranch.toUpperCase(),
                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -128,7 +128,7 @@ Future<void> showDialog(
               ),
               SizedBox(height: spaceSM),
               Text(
-                t.cherryPickCommitsWarning,
+                context.t.cherryPickCommitsWarning,
                 style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
@@ -137,7 +137,7 @@ Future<void> showDialog(
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
@@ -146,7 +146,7 @@ Future<void> showDialog(
           ),
           TextButton.icon(
             label: Text(
-              t.cherryPick.toUpperCase(),
+              context.t.cherryPick.toUpperCase(),
               style: TextStyle(
                 color: selectedBranch != null ? context.colours.primaryPositive : context.colours.secondaryPositive,
                 fontSize: textMD,

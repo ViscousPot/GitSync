@@ -130,7 +130,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                         child: SlideTransition(
                           position: _itemAnimations[0].drive(Tween(begin: Offset(-0.5, 0), end: Offset.zero)),
                           child: Text(
-                            sprintf(t.selectedCount, [shas.length]).toUpperCase(),
+                            sprintf(context.t.selectedCount, [shas.length]).toUpperCase(),
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -165,7 +165,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                               color: cherryPickEnabled ? context.colours.primaryInfo : context.colours.tertiaryDark,
                             ),
                             label: Text(
-                              t.cherryPick.toUpperCase(),
+                              context.t.cherryPick.toUpperCase(),
                               style: TextStyle(
                                 color: cherryPickEnabled ? context.colours.primaryInfo : context.colours.tertiaryDark,
                                 fontSize: textXS,
@@ -207,7 +207,7 @@ class _CommitSelectActionBarState extends ConsumerState<CommitSelectActionBar> w
                               color: squashEnabled ? context.colours.tertiaryWarning : context.colours.tertiaryDark,
                             ),
                             label: Text(
-                              t.squash.toUpperCase(),
+                              context.t.squash.toUpperCase(),
                               style: TextStyle(
                                 color: squashEnabled ? context.colours.tertiaryWarning : context.colours.tertiaryDark,
                                 fontSize: textXS,

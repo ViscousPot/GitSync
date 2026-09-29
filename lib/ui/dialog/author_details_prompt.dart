@@ -11,7 +11,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.authorDetailsPromptTitle,
+          context.t.authorDetailsPromptTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -19,7 +19,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
         child: ListBody(
           children: [
             Text(
-              t.authorDetailsPromptMessage,
+              context.t.authorDetailsPromptMessage,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -28,7 +28,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.dismiss.toUpperCase(),
+            context.t.dismiss.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
@@ -38,7 +38,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() successCal
         ),
         TextButton(
           child: Text(
-            t.goToSettings.toUpperCase(),
+            context.t.goToSettings.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:GitSync/api/ai_provider_validator.dart';
 import 'package:GitSync/api/ai_tools.dart';
-import 'package:GitSync/global.dart';
 import 'package:GitSync/type/ai_chat.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,6 +40,8 @@ class StreamComplete extends StreamEvent {
   final String? stopReason;
   StreamComplete(this.stopReason);
 }
+
+const aiRateLimitedError = 'ai_rate_limited';
 
 class StreamError extends StreamEvent {
   final String message;
@@ -135,7 +136,7 @@ Stream<StreamEvent> streamCompletion({
       // without having to chase the banner UI on-device.
       print('[AI Stream] $provider HTTP ${response.statusCode} body=$errorBody');
       if (response.statusCode == 429) {
-        yield StreamError(t.aiRateLimited);
+        yield StreamError(aiRateLimitedError);
         return;
       }
       yield StreamError('API error ${response.statusCode}: $errorBody');

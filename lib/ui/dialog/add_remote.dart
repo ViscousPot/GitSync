@@ -22,7 +22,7 @@ Future<void> showDialog(
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.addRemote,
+            context.t.addRemote,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -43,7 +43,7 @@ Future<void> showDialog(
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD))),
                     ),
                     child: Text(
-                      sprintf(t.createOnProvider, [oauthProviderName.toUpperCase()]).toUpperCase(),
+                      sprintf(context.t.createOnProvider, [oauthProviderName.toUpperCase()]).toUpperCase(),
                       style: TextStyle(color: context.colours.primaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -55,7 +55,7 @@ Future<void> showDialog(
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spaceSM),
                       child: Text(
-                        t.orEnterManually.toUpperCase(),
+                        context.t.orEnterManually.toUpperCase(),
                         style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -81,7 +81,7 @@ Future<void> showDialog(
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
-                    t.remoteName.toUpperCase(),
+                    context.t.remoteName.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -108,7 +108,7 @@ Future<void> showDialog(
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
-                    t.remoteUrl.toUpperCase(),
+                    context.t.remoteUrl.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -123,7 +123,7 @@ Future<void> showDialog(
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
@@ -138,7 +138,7 @@ Future<void> showDialog(
                   }
                 : null,
             child: Text(
-              t.add.toUpperCase(),
+              context.t.add.toUpperCase(),
               style: TextStyle(
                 color: (nameController.text.trim().isNotEmpty && urlController.text.trim().isNotEmpty)
                     ? context.colours.primaryPositive

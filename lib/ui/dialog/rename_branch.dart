@@ -17,7 +17,7 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.renameBranch.toUpperCase(),
+            context.t.renameBranch.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -42,7 +42,7 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
-                    t.createBranchName.toUpperCase(),
+                    context.t.createBranchName.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -57,7 +57,7 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
@@ -72,7 +72,7 @@ Future<void> showDialog(BuildContext context, String currentName, Future<void> F
                   }
                 : null,
             child: Text(
-              t.rename.toUpperCase(),
+              context.t.rename.toUpperCase(),
               style: TextStyle(
                 color: (nameController.text.trim().isNotEmpty && nameController.text.trim() != currentName)
                     ? context.colours.primaryPositive

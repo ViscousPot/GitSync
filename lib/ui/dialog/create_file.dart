@@ -14,7 +14,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.createAFile,
+          context.t.createAFile,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -39,7 +39,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
-                  t.fileName.toUpperCase(),
+                  context.t.fileName.toUpperCase(),
                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -53,7 +53,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -62,7 +62,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         ),
         TextButton(
           child: Text(
-            t.create.toUpperCase(),
+            context.t.create.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

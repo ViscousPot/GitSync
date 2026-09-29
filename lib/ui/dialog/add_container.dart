@@ -13,7 +13,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.addRepository,
+          context.t.addRepository,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -21,7 +21,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         child: ListBody(
           children: [
             Text(
-              t.addRepositoryMsg,
+              context.t.addRepositoryMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceLG),
@@ -42,7 +42,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
-                  t.defaultContainerName.toUpperCase(),
+                  context.t.defaultContainerName.toUpperCase(),
                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -56,7 +56,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -65,7 +65,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         ),
         TextButton(
           child: Text(
-            t.add.toUpperCase(),
+            context.t.add.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

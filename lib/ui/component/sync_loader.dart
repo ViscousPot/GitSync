@@ -232,12 +232,12 @@ class _SyncLoaderState extends State<SyncLoader> with TickerProviderStateMixin {
               globalKey: widget.syncProgressKey,
               cornerRadius: cornerRadiusMax,
               richContent: ShowcaseTooltipContent(
-                title: t.showcaseSyncProgressTitle,
-                subtitle: t.showcaseSyncProgressSubtitle,
+                title: context.t.showcaseSyncProgressTitle,
+                subtitle: context.t.showcaseSyncProgressSubtitle,
                 featureRows: [
-                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: t.showcaseSyncProgressFeatureWatch),
-                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleCheck, text: t.showcaseSyncProgressFeatureConfirm),
-                  ShowcaseFeatureRow(icon: FontAwesomeIcons.bug, text: t.showcaseSyncProgressFeatureErrors),
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleDown, text: context.t.showcaseSyncProgressFeatureWatch),
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.solidCircleCheck, text: context.t.showcaseSyncProgressFeatureConfirm),
+                  ShowcaseFeatureRow(icon: FontAwesomeIcons.bug, text: context.t.showcaseSyncProgressFeatureErrors),
                 ],
               ),
               child: Container(

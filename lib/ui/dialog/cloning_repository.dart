@@ -46,7 +46,7 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.cloningRepository,
+            context.t.cloningRepository,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -57,11 +57,11 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
               child: ListBody(
                 children: [
                   Text(
-                    t.cloneMessagePart1,
+                    context.t.cloneMessagePart1,
                     style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textMD),
                   ),
                   Text(
-                    t.cloneMessagePart2,
+                    context.t.cloneMessagePart2,
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                   ),
                   SizedBox(height: spaceMD),
@@ -75,7 +75,7 @@ Future<void> showDialog(BuildContext context, String repoUrl, String dir, Functi
                     value: progress,
                     backgroundColor: context.colours.secondaryLight,
                     color: context.colours.primaryPositive,
-                    semanticsLabel: t.cloneProgressLabel,
+                    semanticsLabel: context.t.cloneProgressLabel,
                   ),
                 ],
               ),

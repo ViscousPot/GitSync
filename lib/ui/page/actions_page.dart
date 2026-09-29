@@ -125,7 +125,7 @@ class _ActionsPageState extends State<ActionsPage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    ShowcaseFeature.actions.labelForProvider(widget.gitProvider).toUpperCase(),
+                    ShowcaseFeature.actions.labelForProvider(context, widget.gitProvider).toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -138,16 +138,20 @@ class _ActionsPageState extends State<ActionsPage> {
               padding: EdgeInsets.symmetric(horizontal: spaceMD),
               child: Row(
                 children: [
-                  _FilterChip(label: t.actionFilterAll.toUpperCase(), selected: _stateFilter == "all", onTap: () => _onStateFilterChanged("all")),
+                  _FilterChip(
+                    label: context.t.actionFilterAll.toUpperCase(),
+                    selected: _stateFilter == "all",
+                    onTap: () => _onStateFilterChanged("all"),
+                  ),
                   SizedBox(width: spaceXS),
                   _FilterChip(
-                    label: t.actionFilterSuccess.toUpperCase(),
+                    label: context.t.actionFilterSuccess.toUpperCase(),
                     selected: _stateFilter == "success",
                     onTap: () => _onStateFilterChanged("success"),
                   ),
                   SizedBox(width: spaceXS),
                   _FilterChip(
-                    label: t.actionFilterFailed.toUpperCase(),
+                    label: context.t.actionFilterFailed.toUpperCase(),
                     selected: _stateFilter == "failed",
                     onTap: () => _onStateFilterChanged("failed"),
                   ),
@@ -172,7 +176,7 @@ class _ActionsPageState extends State<ActionsPage> {
                             height: constraints.maxHeight,
                             child: Center(
                               child: Text(
-                                t.actionsNotFound.toUpperCase(),
+                                context.t.actionsNotFound.toUpperCase(),
                                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),

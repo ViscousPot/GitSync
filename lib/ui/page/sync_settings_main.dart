@@ -50,7 +50,7 @@ class _SyncSettingsMain extends State<SyncSettingsMain> with WidgetsBindingObser
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         centerTitle: true,
         title: Text(
-          t.syncSettings.toUpperCase(),
+          context.t.syncSettings.toUpperCase(),
           style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),

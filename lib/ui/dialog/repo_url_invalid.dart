@@ -11,7 +11,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.invalidRepositoryUrlTitle,
+          context.t.invalidRepositoryUrlTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -19,7 +19,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         child: ListBody(
           children: [
             Text(
-              t.invalidRepositoryUrlMessage,
+              context.t.invalidRepositoryUrlMessage,
               style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -28,7 +28,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cloneAnyway.toUpperCase(),
+            context.t.cloneAnyway.toUpperCase(),
             style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -38,7 +38,7 @@ Future<void> showDialog(BuildContext context, Function() callback) {
         ),
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

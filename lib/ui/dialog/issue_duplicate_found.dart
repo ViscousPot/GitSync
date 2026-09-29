@@ -14,7 +14,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.issueDuplicateTitle,
+          context.t.issueDuplicateTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -22,7 +22,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
         child: ListBody(
           children: [
             Text(
-              t.issueDuplicateMsg,
+              context.t.issueDuplicateMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceMD),
@@ -40,7 +40,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.viewIssue.toUpperCase(),
+            context.t.viewIssue.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
@@ -51,7 +51,7 @@ Future<bool> showDialog(BuildContext context, DuplicateIssue duplicate) async {
 
         TextButton(
           child: Text(
-            t.sendMessage.toUpperCase(),
+            context.t.sendMessage.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () => Navigator.of(context).canPop() ? Navigator.pop(context, true) : null,

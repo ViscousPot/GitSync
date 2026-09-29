@@ -236,7 +236,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                     child: items.isEmpty
                                         ? Center(
                                             child: Text(
-                                              t.commitsNotFound.toUpperCase(),
+                                              context.t.commitsNotFound.toUpperCase(),
                                               style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                                             ),
                                           )
@@ -314,7 +314,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                 right: 0,
                                 child: Center(
                                   child: Text(
-                                    t.recentCommits.toUpperCase(),
+                                    context.t.recentCommits.toUpperCase(),
                                     style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                   ),
                                 ),
@@ -462,7 +462,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                   right: 0,
                                   child: Center(
                                     child: Text(
-                                      t.branchManagement.toUpperCase(),
+                                      context.t.branchManagement.toUpperCase(),
                                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                     ),
                                   ),
@@ -560,7 +560,7 @@ class _ExpandedCommitsState extends ConsumerState<ExpandedCommits> {
                                 right: 0,
                                 child: Center(
                                   child: Text(
-                                    t.providerTools.toUpperCase(),
+                                    context.t.providerTools.toUpperCase(),
                                     style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                                   ),
                                 ),

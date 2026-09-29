@@ -115,9 +115,9 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
 
   void setLoadingRepos(bool loading) {
     if (loading && loadNextRepos != null) {
-      repoMap[t.loadingElipsis] = t.loadingElipsis;
+      repoMap[context.t.loadingElipsis] = context.t.loadingElipsis;
     } else {
-      repoMap.removeWhere((key, value) => key == t.loadingElipsis);
+      repoMap.removeWhere((key, value) => key == context.t.loadingElipsis);
     }
     loadingRepos = loading;
 
@@ -224,7 +224,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
               centerTitle: true,
               leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
               title: Text(
-                t.cloneRepo,
+                context.t.cloneRepo,
                 style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
               ),
             ),
@@ -253,7 +253,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                     ),
                     SizedBox(height: spaceMD),
                     Text(
-                      t.cloneRepo,
+                      context.t.cloneRepo,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -295,7 +295,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                       label: SizedBox(
                         width: double.infinity,
                         child: Text(
-                          t.advancedOptions.toUpperCase(),
+                          context.t.advancedOptions.toUpperCase(),
                           style: TextStyle(
                             fontFeatures: [FontFeature.enable('smcp')],
                             color: context.colours.tertiaryLight,
@@ -320,7 +320,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            t.shallowClone,
+                                            context.t.shallowClone,
                                             style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                                           ),
                                         ),
@@ -333,7 +333,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                             maxLines: 1,
                                             style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                             decoration: InputDecoration(
-                                              hintText: t.cloneDepthPlaceholder,
+                                              hintText: context.t.cloneDepthPlaceholder,
                                               hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS),
                                               filled: true,
                                               fillColor: context.colours.secondaryDark,
@@ -359,7 +359,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            t.bareClone,
+                                            context.t.bareClone,
                                             style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                                           ),
                                         ),
@@ -429,7 +429,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                       fontWeight: FontWeight.bold,
                                     ),
                                     decoration: InputDecoration(
-                                      hintText: t.searchEllipsis,
+                                      hintText: context.t.searchEllipsis,
                                       hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       fillColor: context.colours.tertiaryDark,
                                       filled: true,
@@ -452,7 +452,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                         style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                                         constraints: BoxConstraints(),
                                         onPressed: () async {
-                                          await InfoDialog.showDialog(context, t.repoSearchLimits, t.repoSearchLimitsDescription);
+                                          await InfoDialog.showDialog(context, context.t.repoSearchLimits, context.t.repoSearchLimitsDescription);
                                         },
                                         visualDensity: VisualDensity.compact,
                                         icon: FaIcon(FontAwesomeIcons.circleInfo, color: context.colours.secondaryLight, size: textMD),
@@ -555,7 +555,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                         fontSize: textLG,
                                       ),
                                       decoration: InputDecoration(
-                                        hintText: t.gitRepoUrlHint,
+                                        hintText: context.t.gitRepoUrlHint,
                                         hintStyle: TextStyle(color: context.colours.secondaryLight, fontSize: textLG),
                                         fillColor: context.colours.secondaryDark,
                                         filled: true,
@@ -599,7 +599,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                     label: Padding(
                                       padding: EdgeInsets.only(left: spaceXS),
                                       child: Text(
-                                        t.clone.toUpperCase(),
+                                        context.t.clone.toUpperCase(),
                                         style: TextStyle(
                                           color: cloneUrlController.text.isEmpty ? context.colours.tertiaryLight : context.colours.primaryLight,
                                           fontSize: textMD,
@@ -656,7 +656,7 @@ class _CloneRepoMain extends ConsumerState<CloneRepoMain> with WidgetsBindingObs
                                         width: double.infinity,
                                         padding: EdgeInsets.only(left: spaceXS),
                                         child: Text(
-                                          t.iHaveALocalRepository.toUpperCase(),
+                                          context.t.iHaveALocalRepository.toUpperCase(),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                                         ),

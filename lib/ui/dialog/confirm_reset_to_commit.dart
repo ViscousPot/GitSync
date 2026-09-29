@@ -14,7 +14,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.resetToCommit,
+            context.t.resetToCommit,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -25,7 +25,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
                 text: TextSpan(
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
-                    TextSpan(text: "${t.resetToCommitMsg} "),
+                    TextSpan(text: "${context.t.resetToCommitMsg} "),
                     TextSpan(
                       text: "[${commitSha.substring(0, 7).toUpperCase()}]",
                       style: TextStyle(color: context.colours.tertiaryInfo),
@@ -43,7 +43,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
               ),
               SizedBox(height: spaceSM),
               Text(
-                t.resetToCommitWarning,
+                context.t.resetToCommitWarning,
                 style: TextStyle(color: context.colours.primaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
@@ -52,7 +52,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
@@ -61,7 +61,7 @@ Future<void> showDialog(BuildContext context, String commitSha, String commitMes
           ),
           TextButton.icon(
             label: Text(
-              t.reset.toUpperCase(),
+              context.t.reset.toUpperCase(),
               style: TextStyle(color: context.colours.primaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             iconAlignment: IconAlignment.end,

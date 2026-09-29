@@ -14,7 +14,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.enterPAT,
+          context.t.enterPAT,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -50,7 +50,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -59,7 +59,7 @@ Future<void> showDialog(BuildContext context, Function(String text) callback) {
         ),
         TextButton(
           child: Text(
-            t.confirm.toUpperCase(),
+            context.t.confirm.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

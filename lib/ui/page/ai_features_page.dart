@@ -19,6 +19,7 @@ import 'package:GitSync/type/ai_chat.dart';
 import 'package:GitSync/ui/component/markdown_config.dart';
 import 'package:GitSync/ui/dialog/base_alert_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:GitSync/api/ai_stream_client.dart';
 
 const _mono = TextStyle(fontFamily: "monospace", height: 1.6);
 
@@ -212,8 +213,9 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
 
           ValueListenableBuilder<String?>(
             valueListenable: aiChatService.error,
-            builder: (context, error, _) {
-              if (error == null) return const SizedBox.shrink();
+            builder: (context, rawError, _) {
+              if (rawError == null) return const SizedBox.shrink();
+              final error = rawError == aiRateLimitedError ? context.t.aiRateLimited : rawError;
               return Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
@@ -611,7 +613,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
                 padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: spaceXS)),
               ),
               child: Text(
-                isEdit ? t.aiAllowAllEdits : t.aiAlwaysAllowSession,
+                isEdit ? context.t.aiAllowAllEdits : context.t.aiAlwaysAllowSession,
                 style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
@@ -968,7 +970,7 @@ class _AiFeaturesPageState extends ConsumerState<AiFeaturesPage> {
               ),
               SizedBox(height: spaceXS),
               Text(
-                t.aiStopGeneratingMsg,
+                context.t.aiStopGeneratingMsg,
                 style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                 textAlign: TextAlign.center,
               ),
@@ -1349,7 +1351,7 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
                     FaIcon(FontAwesomeIcons.eyeSlash, color: context.colours.secondaryLight, size: textMD),
                     SizedBox(width: spaceXS),
                     Text(
-                      t.hideAiFeatures,
+                      context.t.hideAiFeatures,
                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -1368,24 +1370,24 @@ class _UninitializedPageState extends ConsumerState<_UninitializedPage> {
       context: context,
       builder: (dialogContext) => BaseAlertDialog(
         title: Text(
-          t.hideAiFeaturesConfirmTitle,
+          context.t.hideAiFeaturesConfirmTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
         content: Text(
-          t.hideAiFeaturesConfirmMsg,
+          context.t.hideAiFeaturesConfirmMsg,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
         ),
         actions: [
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () => Navigator.pop(dialogContext, false),
           ),
           TextButton(
             child: Text(
-              t.hideAiFeatures.toUpperCase(),
+              context.t.hideAiFeatures.toUpperCase(),
               style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
             ),
             onPressed: () => Navigator.pop(dialogContext, true),

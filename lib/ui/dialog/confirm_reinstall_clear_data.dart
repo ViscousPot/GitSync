@@ -16,7 +16,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.iosClearDataTitle,
+            context.t.iosClearDataTitle,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -24,12 +24,12 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           child: ListBody(
             children: [
               Text(
-                t.iosClearDataMsg,
+                context.t.iosClearDataMsg,
                 style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceSM),
               Text(
-                t.confirmCloneOverwriteWarning,
+                context.t.confirmCloneOverwriteWarning,
                 style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
@@ -39,7 +39,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           StatefulBuilder(
             builder: (context, setState) => TextButton.icon(
               label: Text(
-                t.iosClearDataAction.toUpperCase(),
+                context.t.iosClearDataAction.toUpperCase(),
                 style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD),
               ),
               iconAlignment: IconAlignment.start,
@@ -65,7 +65,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() deleteCont
           ),
           TextButton(
             child: Text(
-              t.skip.toUpperCase(),
+              context.t.skip.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {

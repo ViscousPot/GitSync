@@ -109,7 +109,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         centerTitle: true,
         title: Text(
-          t.globalSettings.toUpperCase(),
+          context.t.globalSettings.toUpperCase(),
           style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
@@ -222,7 +222,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                       children: [
                                         AnimatedDefaultTextStyle(
                                           child: Text(
-                                            t.lightMode,
+                                            context.t.lightMode,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                           ),
@@ -267,7 +267,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                         children: [
                                           AnimatedDefaultTextStyle(
                                             child: Text(
-                                              t.system,
+                                              context.t.system,
                                               textAlign: TextAlign.center,
                                               style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                             ),
@@ -346,7 +346,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                                       children: [
                                         AnimatedDefaultTextStyle(
                                           child: Text(
-                                            t.darkMode,
+                                            context.t.darkMode,
                                             textAlign: TextAlign.center,
                                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                                           ),
@@ -369,7 +369,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.language,
+                      text: context.t.language,
                       icon: FontAwesomeIcons.earthOceania,
                       onPressed: () async {
                         await ChangeLanguageDialog.showDialog(context, (locale) async {
@@ -382,7 +382,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.browseEditDir,
+                      text: context.t.browseEditDir,
                       icon: FontAwesomeIcons.folderTree,
                       onPressed: () async {
                         String? selectedDirectory;
@@ -423,7 +423,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         label: SizedBox(
                           width: double.infinity,
                           child: Text(
-                            t.enableLineWrap.toUpperCase(),
+                            context.t.enableLineWrap.toUpperCase(),
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -456,7 +456,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           label: SizedBox(
                             width: double.infinity,
                             child: Text(
-                              t.enableAiFeatures.toUpperCase(),
+                              context.t.enableAiFeatures.toUpperCase(),
                               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -491,7 +491,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           label: SizedBox(
                             width: double.infinity,
                             child: Text(
-                              t.excludeFromRecents.toUpperCase(),
+                              context.t.excludeFromRecents.toUpperCase(),
                               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -511,7 +511,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.backupRestoreTitle.toUpperCase(),
+                            context.t.backupRestoreTitle.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -526,10 +526,11 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceSM),
                     ButtonSetting(
-                      text: t.encryptedBackup,
+                      text: context.t.encryptedBackup,
                       icon: FontAwesomeIcons.solidFloppyDisk,
                       onPressed: () async {
                         await EnterBackupRestorePasswordDialog.showDialog(context, true, (text) async {
+                          final t = context.t;
                           final repoManagerSettings = await repoManager.getAll();
                           final repoCount = (await repoManager.getStringList(StorageKey.repoman_repoNames)).length;
                           final settingsManagerSettings = <Map<String, String>>[];
@@ -552,7 +553,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.encryptedRestore,
+                      text: context.t.encryptedRestore,
                       icon: FontAwesomeIcons.arrowRotateLeft,
                       onPressed: () async {
                         if (!await requestStoragePerm(false) && !await requestStoragePerm()) return;
@@ -562,6 +563,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                         File file = File(result.files.single.path!);
 
                         await EnterBackupRestorePasswordDialog.showDialog(context, false, (text) async {
+                          final t = context.t;
                           Map<String, dynamic> settingsMap = {};
                           try {
                             settingsMap = await decryptMap(file.readAsStringSync(), text);
@@ -628,7 +630,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.community.toUpperCase(),
+                            context.t.community.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -643,7 +645,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceSM),
                     ButtonSetting(
-                      text: t.reportABug,
+                      text: context.t.reportABug,
                       icon: FontAwesomeIcons.bug,
                       textColor: context.colours.primaryDark,
                       iconColor: context.colours.primaryDark,
@@ -672,10 +674,11 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ],
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.shareLogs,
+                      text: context.t.shareLogs,
                       icon: FontAwesomeIcons.envelopeOpenText,
                       loads: true,
                       onPressed: () async {
+                        final t = context.t;
                         final dir = await getTemporaryDirectory();
                         final logsDir = Directory('${dir.path}/logs');
                         final files = !logsDir.existsSync()
@@ -727,7 +730,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.requestAFeature,
+                      text: context.t.requestAFeature,
                       icon: FontAwesomeIcons.solidHandPointUp,
                       onPressed: () async {
                         if (await canLaunchUrl(Uri.parse(githubFeatureTemplate))) {
@@ -737,7 +740,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.improveTranslations,
+                      text: context.t.improveTranslations,
                       icon: FontAwesomeIcons.language,
                       onPressed: () async {
                         if (await canLaunchUrl(Uri.parse(githubImproveTranslationsDocs))) {
@@ -747,7 +750,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.joinTheDiscussion,
+                      text: context.t.joinTheDiscussion,
                       icon: FontAwesomeIcons.discord,
                       onPressed: () async {
                         if (await canLaunchUrl(Uri.parse(discordLink))) {
@@ -770,7 +773,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.guides.toUpperCase(),
+                            context.t.guides.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -785,7 +788,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceSM),
                     ButtonSetting(
-                      text: t.viewDocumentation,
+                      text: context.t.viewDocumentation,
                       icon: FontAwesomeIcons.solidFileLines,
                       onPressed: () async {
                         launchUrl(Uri.parse(documentationLink));
@@ -798,18 +801,18 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       first: true,
                       last: true,
                       richContent: ShowcaseTooltipContent(
-                        title: t.showcaseSetupGuideTitle,
-                        subtitle: t.showcaseSetupGuideSubtitle,
+                        title: context.t.showcaseSetupGuideTitle,
+                        subtitle: context.t.showcaseSetupGuideSubtitle,
                         featureRows: [
-                          ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: t.showcaseSetupGuideFeatureSetup),
-                          ShowcaseFeatureRow(icon: FontAwesomeIcons.route, text: t.showcaseSetupGuideFeatureTour),
+                          ShowcaseFeatureRow(icon: FontAwesomeIcons.chalkboardUser, text: context.t.showcaseSetupGuideFeatureSetup),
+                          ShowcaseFeatureRow(icon: FontAwesomeIcons.route, text: context.t.showcaseSetupGuideFeatureTour),
                         ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ButtonSetting(
-                            text: t.guidedSetup,
+                            text: context.t.guidedSetup,
                             icon: FontAwesomeIcons.chalkboardUser,
                             onPressed: () async {
                               await repoManager.setInt(StorageKey.repoman_onboardingStep, 0);
@@ -818,7 +821,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                           ),
                           SizedBox(height: spaceMD),
                           ButtonSetting(
-                            text: t.uiGuide,
+                            text: context.t.uiGuide,
                             icon: FontAwesomeIcons.route,
                             onPressed: () async {
                               await repoManager.setInt(StorageKey.repoman_onboardingStep, 4);
@@ -869,7 +872,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.repositoryDefaults.toUpperCase(),
+                            context.t.repositoryDefaults.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -888,8 +891,8 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultSyncMessage, value),
                       getFn: () => repoManager.getString(StorageKey.repoman_defaultSyncMessage),
-                      title: t.defaultSyncMessageLabel,
-                      description: t.syncMessageDescription,
+                      title: context.t.defaultSyncMessageLabel,
+                      description: context.t.syncMessageDescription,
                       hint: defaultSyncMessage,
                       maxLines: null,
                       minLines: null,
@@ -898,32 +901,32 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultSyncMessageTimeFormat, value),
                       getFn: () => repoManager.getString(StorageKey.repoman_defaultSyncMessageTimeFormat),
-                      title: t.defaultSyncMessageTimeFormatLabel,
-                      description: t.syncMessageTimeFormatDescription,
+                      title: context.t.defaultSyncMessageTimeFormatLabel,
+                      description: context.t.syncMessageTimeFormatDescription,
                       hint: defaultSyncMessageTimeFormat,
                     ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorName, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorName),
-                      title: t.defaultAuthorNameLabel,
-                      description: t.authorNameDescription,
-                      hint: t.authorName,
+                      title: context.t.defaultAuthorNameLabel,
+                      description: context.t.authorNameDescription,
+                      hint: context.t.authorName,
                     ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultAuthorEmail, value.trim()),
                       getFn: demo ? () async => "" : () => repoManager.getString(StorageKey.repoman_defaultAuthorEmail),
-                      title: t.defaultAuthorEmailLabel,
-                      description: t.authorEmailDescription,
-                      hint: t.authorEmail,
+                      title: context.t.defaultAuthorEmailLabel,
+                      description: context.t.authorEmailDescription,
+                      hint: context.t.authorEmail,
                     ),
                     SizedBox(height: spaceMD),
                     ItemSetting(
                       setFn: (value) => repoManager.setString(StorageKey.repoman_defaultPostFooter, value),
                       getFn: () => repoManager.getString(StorageKey.repoman_defaultPostFooter),
-                      title: t.postFooterLabel,
-                      description: t.postFooterDescription,
+                      title: context.t.postFooterLabel,
+                      description: context.t.postFooterDescription,
                       hint: defaultPostFooter,
                       maxLines: null,
                       minLines: null,
@@ -943,7 +946,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.miscellaneous.toUpperCase(),
+                            context.t.miscellaneous.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -961,7 +964,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                       builder: (context) {
                         final hasPremium = ref.watch(premiumStatusProvider);
                         return ButtonSetting(
-                          text: (hasPremium == true ? t.contributeTitle : t.premiumDialogTitle).toUpperCase(),
+                          text: (hasPremium == true ? context.t.contributeTitle : context.t.premiumDialogTitle).toUpperCase(),
                           icon: hasPremium == true ? FontAwesomeIcons.circleDollarToSlot : FontAwesomeIcons.solidGem,
                           iconColor: context.colours.tertiaryPositive,
                           onPressed: () async {
@@ -977,7 +980,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.viewPrivacyPolicy,
+                      text: context.t.viewPrivacyPolicy,
                       icon: FontAwesomeIcons.userShield,
                       onPressed: () async {
                         launchUrl(Uri.parse(privacyPolicyLink));
@@ -985,7 +988,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.viewEula,
+                      text: context.t.viewEula,
                       icon: FontAwesomeIcons.fileContract,
                       onPressed: () async {
                         launchUrl(Uri.parse(eulaLink));
@@ -1012,7 +1015,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                             ),
                           ),
                           Text(
-                            t.dangerZone.toUpperCase(),
+                            context.t.dangerZone.toUpperCase(),
                             style: TextStyle(fontSize: textSM, color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold),
                           ),
                           Expanded(
@@ -1027,7 +1030,7 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
                     ),
                     SizedBox(height: spaceSM),
                     ButtonSetting(
-                      text: t.iosClearDataAction,
+                      text: context.t.iosClearDataAction,
                       icon: FontAwesomeIcons.dumpsterFire,
                       onPressed: () async {
                         await ConfirmClearDataDialog.showDialog(context, () async {

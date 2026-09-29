@@ -31,7 +31,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
       children: [
         SizedBox(height: spaceLG),
         Text(
-          t.ensureTokenScope,
+          context.t.ensureTokenScope,
           textAlign: TextAlign.center,
           style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
         ),
@@ -44,7 +44,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
-                    t.user.toUpperCase(),
+                    context.t.user.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -52,7 +52,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: spaceSM),
                   child: Text(
-                    t.token.toUpperCase(),
+                    context.t.token.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -79,7 +79,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                       fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                      hintText: t.exampleUser,
+                      hintText: context.t.exampleUser,
                       hintStyle: TextStyle(
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
                       fillColor: context.colours.secondaryDark,
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                      hintText: t.exampleToken,
+                      hintText: context.t.exampleToken,
                       hintStyle: TextStyle(
                         fontSize: textSM,
                         fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _HttpsAuthFormState extends State<HttpsAuthForm> {
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(cornerRadiusMD), side: BorderSide.none)),
           ),
           child: Text(
-            t.login.toUpperCase(),
+            context.t.login.toUpperCase(),
             style: TextStyle(
               color: canLogin ? context.colours.primaryPositive : context.colours.primaryPositive.withAlpha(70),
               fontSize: textSM,

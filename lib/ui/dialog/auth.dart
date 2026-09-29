@@ -66,7 +66,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               ),
               icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryPositive, size: textLG),
               label: Text(
-                t.oauthAllRepos.toUpperCase(),
+                context.t.oauthAllRepos.toUpperCase(),
                 style: TextStyle(color: context.colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
@@ -106,7 +106,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
               ),
               icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryPositive, size: textLG),
               label: Text(
-                t.oauthScoped.toUpperCase(),
+                context.t.oauthScoped.toUpperCase(),
                 style: TextStyle(color: context.colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
             ),
@@ -134,7 +134,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           ),
           icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.primaryPositive, size: textLG),
           label: Text(
-            t.oauth.toUpperCase(),
+            context.t.oauth.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
           ),
         );
@@ -155,7 +155,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           padding: EdgeInsets.only(top: spaceMD, left: spaceMD, right: spaceMD),
           child: Builder(
             builder: (context) => Text(
-              t.oauthNoAffiliation,
+              context.t.oauthNoAffiliation,
               textAlign: TextAlign.center,
               style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
@@ -191,7 +191,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 top: 24,
                 // bottom: 0,
                 child: Text(
-                  t.auth.toUpperCase(),
+                  context.t.auth.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                 ),
@@ -201,7 +201,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                 padding: EdgeInsets.symmetric(horizontal: spaceXXS, vertical: spaceXXXS),
                 margin: EdgeInsets.only(top: spaceSM, left: spaceSM, bottom: 24 - spaceSM),
                 child: Text(
-                  t.replacesExistingAuth.toUpperCase(),
+                  context.t.replacesExistingAuth.toUpperCase(),
                   style: TextStyle(color: context.colours.primaryDark, fontSize: textXXS, fontWeight: FontWeight.w900, height: 1),
                 ),
               ),
@@ -212,7 +212,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
           child: ListBody(
             children: [
               Text(
-                t.selectYourGitProviderAndAuthenticate,
+                context.t.selectYourGitProviderAndAuthenticate,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
@@ -229,7 +229,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                       FontAwesomeIcons.caretDown,
                       color: context.colours.secondaryLight,
                       size: textMD,
-                      semanticLabel: t.authDropdownLabel,
+                      semanticLabel: context.t.authDropdownLabel,
                     ),
                   ),
                   value: selectedGitProvider.name,
@@ -299,7 +299,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                         FontAwesomeIcons.caretDown,
                                         color: context.colours.secondaryLight,
                                         size: textMD,
-                                        semanticLabel: t.authDropdownLabel,
+                                        semanticLabel: context.t.authDropdownLabel,
                                       ),
                                     ),
                                     value: null,
@@ -312,7 +312,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                           FaIcon(FontAwesomeIcons.solidCopy, color: context.colours.tertiaryInfo, size: textMD),
                                           SizedBox(width: spaceSM),
                                           Text(
-                                            t.copyFromContainer.toUpperCase(),
+                                            context.t.copyFromContainer.toUpperCase(),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                                           ),
@@ -382,7 +382,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                             color: context.colours.secondaryDark,
                                             padding: EdgeInsets.all(spaceSM),
                                             child: Text(
-                                              t.or.toUpperCase(),
+                                              context.t.or.toUpperCase(),
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 color: context.colours.primaryPositive,
@@ -410,7 +410,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      t.oauthProviders.toUpperCase(),
+                                      context.t.oauthProviders.toUpperCase(),
                                       style: TextStyle(color: context.colours.primaryPositive, fontSize: textSM, fontWeight: FontWeight.bold),
                                     ),
                                     Container(
@@ -420,7 +420,7 @@ Future<void> showDialog(BuildContext parentContext, Function() callback) async {
                                       width: double.infinity,
                                     ),
                                     Text(
-                                      t.gitProtocols.toUpperCase(),
+                                      context.t.gitProtocols.toUpperCase(),
                                       style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                     ),
                                   ],

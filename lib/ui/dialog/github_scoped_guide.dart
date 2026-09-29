@@ -17,7 +17,7 @@ Future<bool> showLoginGuide(BuildContext context) async {
           SizedBox(width: spaceXS),
           Expanded(
             child: Text(
-              t.githubScopedLoginTitle,
+              context.t.githubScopedLoginTitle,
               style: TextStyle(
                 color: context.colours.secondaryLight,
                 fontFeatures: [FontFeature.enable('smcp')],
@@ -32,7 +32,7 @@ Future<bool> showLoginGuide(BuildContext context) async {
         child: ListBody(
           children: [
             Text(
-              t.githubScopedLoginMsg,
+              context.t.githubScopedLoginMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -42,7 +42,7 @@ Future<bool> showLoginGuide(BuildContext context) async {
         TextButton.icon(
           icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.secondaryDark, size: textMD),
           label: Text(
-            t.continueLabel.toUpperCase(),
+            context.t.continueLabel.toUpperCase(),
             style: TextStyle(color: context.colours.secondaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
           ),
           style: ButtonStyle(
@@ -73,7 +73,7 @@ Future<bool> showRepoSelectionGuide(BuildContext context) async {
           SizedBox(width: spaceXS),
           Expanded(
             child: Text(
-              t.githubScopedRepoTitle,
+              context.t.githubScopedRepoTitle,
               style: TextStyle(
                 color: context.colours.secondaryLight,
                 fontFeatures: [FontFeature.enable('smcp')],
@@ -88,7 +88,7 @@ Future<bool> showRepoSelectionGuide(BuildContext context) async {
         child: ListBody(
           children: [
             Text(
-              t.githubScopedRepoMsg,
+              context.t.githubScopedRepoMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -98,7 +98,7 @@ Future<bool> showRepoSelectionGuide(BuildContext context) async {
         TextButton.icon(
           icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.secondaryDark, size: textMD),
           label: Text(
-            t.continueLabel.toUpperCase(),
+            context.t.continueLabel.toUpperCase(),
             style: TextStyle(color: context.colours.secondaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
           ),
           style: ButtonStyle(

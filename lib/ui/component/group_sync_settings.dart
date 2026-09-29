@@ -36,7 +36,7 @@ class GroupSyncSettings extends StatelessWidget {
           label: SizedBox(
             width: double.infinity,
             child: Text(
-              t.otherSyncSettings,
+              context.t.otherSyncSettings,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

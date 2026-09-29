@@ -30,7 +30,7 @@ Future<CreateRepoResult?> showDialog(
           title: SizedBox(
             width: MediaQuery.of(context).size.width,
             child: Text(
-              t.createNewRepository,
+              context.t.createNewRepository,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
             ),
           ),
@@ -39,12 +39,12 @@ Future<CreateRepoResult?> showDialog(
               children: [
                 SizedBox(height: spaceMD),
                 Text(
-                  t.noGitRepoFoundMsg,
+                  context.t.noGitRepoFoundMsg,
                   style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                 ),
                 SizedBox(height: spaceMD),
                 Text(
-                  t.remoteSetupLaterMsg.toUpperCase(),
+                  context.t.remoteSetupLaterMsg.toUpperCase(),
                   style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textXS, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -53,7 +53,7 @@ Future<CreateRepoResult?> showDialog(
           actions: <Widget>[
             TextButton(
               child: Text(
-                t.cancel.toUpperCase(),
+                context.t.cancel.toUpperCase(),
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
               ),
               onPressed: () {
@@ -65,7 +65,7 @@ Future<CreateRepoResult?> showDialog(
                 Navigator.of(context).canPop() ? Navigator.pop(context, CreateRepoResult(createLocal: true, createRemote: false)) : null;
               },
               child: Text(
-                t.create.toUpperCase(),
+                context.t.create.toUpperCase(),
                 style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
               ),
             ),
@@ -115,7 +115,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          widget.repoAlreadyExists ? t.createRemoteRepo : t.createNewRepository,
+          widget.repoAlreadyExists ? context.t.createRemoteRepo : context.t.createNewRepository,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -124,12 +124,12 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
           children: [
             SizedBox(height: spaceSM),
             Text(
-              widget.repoAlreadyExists ? t.noRemoteDetectedMsg : t.noGitRepoFoundMsg,
+              widget.repoAlreadyExists ? context.t.noRemoteDetectedMsg : context.t.noGitRepoFoundMsg,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             SizedBox(height: spaceMD),
             Text(
-              t.repoName.toUpperCase(),
+              context.t.repoName.toUpperCase(),
               style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceXS),
@@ -138,7 +138,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
               onChanged: (_) => setState(() {}),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
               decoration: InputDecoration(
-                hintText: t.repoName,
+                hintText: context.t.repoName,
                 hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textMD),
                 filled: true,
                 fillColor: context.colours.secondaryDark,
@@ -171,7 +171,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
                         border: Border.all(color: _isPrivate ? context.colours.tertiaryInfo : context.colours.tertiaryDark),
                       ),
                       child: Text(
-                        t.repoPrivate.toUpperCase(),
+                        context.t.repoPrivate.toUpperCase(),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _isPrivate ? context.colours.primaryLight : context.colours.tertiaryLight,
@@ -193,7 +193,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
                         border: Border.all(color: !_isPrivate ? context.colours.tertiaryInfo : context.colours.tertiaryDark),
                       ),
                       child: Text(
-                        t.repoPublic.toUpperCase(),
+                        context.t.repoPublic.toUpperCase(),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: !_isPrivate ? context.colours.primaryLight : context.colours.tertiaryLight,
@@ -224,7 +224,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
                   ),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.initMainBranch,
+                    context.t.initMainBranch,
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                   ),
                 ],
@@ -236,7 +236,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
       actions: <Widget>[
         TextButton(
           child: Text(
-            widget.repoAlreadyExists ? t.cancel.toUpperCase() : t.createLocalOnly.toUpperCase(),
+            widget.repoAlreadyExists ? context.t.cancel.toUpperCase() : context.t.createLocalOnly.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -265,7 +265,7 @@ class _OAuthCreateRepoDialogState extends State<_OAuthCreateRepoDialog> {
                       : null;
                 },
           child: Text(
-            t.createAndLinkRemote.toUpperCase(),
+            context.t.createAndLinkRemote.toUpperCase(),
             style: TextStyle(color: repoNameEmpty ? context.colours.tertiaryLight : context.colours.primaryPositive, fontSize: textMD),
           ),
         ),

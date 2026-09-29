@@ -217,21 +217,21 @@ class _IssuesPageState extends State<IssuesPage> {
         PopupMenuItem(
           value: IssueSortOption.newest,
           child: Text(
-            t.sortNewest,
+            context.t.sortNewest,
             style: TextStyle(color: _sortOption == IssueSortOption.newest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: IssueSortOption.oldest,
           child: Text(
-            t.sortOldest,
+            context.t.sortOldest,
             style: TextStyle(color: _sortOption == IssueSortOption.oldest ? context.colours.showcaseFeatureIcon : context.colours.primaryLight),
           ),
         ),
         PopupMenuItem(
           value: IssueSortOption.mostCommented,
           child: Text(
-            t.sortMostCommented,
+            context.t.sortMostCommented,
             style: TextStyle(
               color: _sortOption == IssueSortOption.mostCommented ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
             ),
@@ -240,7 +240,7 @@ class _IssuesPageState extends State<IssuesPage> {
         PopupMenuItem(
           value: IssueSortOption.recentlyUpdated,
           child: Text(
-            t.sortRecentlyUpdated,
+            context.t.sortRecentlyUpdated,
             style: TextStyle(
               color: _sortOption == IssueSortOption.recentlyUpdated ? context.colours.showcaseFeatureIcon : context.colours.primaryLight,
             ),
@@ -272,7 +272,7 @@ class _IssuesPageState extends State<IssuesPage> {
               Padding(
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
-                  t.filterMilestone.toUpperCase(),
+                  context.t.filterMilestone.toUpperCase(),
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
@@ -280,12 +280,12 @@ class _IssuesPageState extends State<IssuesPage> {
                 Padding(
                   padding: EdgeInsets.all(spaceMD),
                   child: Text(
-                    t.filterMilestonesEmpty,
+                    context.t.filterMilestonesEmpty,
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                   ),
                 )
               else ...[
-                _buildSheetOption(t.filterNone, _milestoneFilter == null, () {
+                _buildSheetOption(context.t.filterNone, _milestoneFilter == null, () {
                   setState(() => _milestoneFilter = null);
                   Navigator.pop(context);
                 }),
@@ -321,7 +321,7 @@ class _IssuesPageState extends State<IssuesPage> {
               Padding(
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
-                  t.filterProject.toUpperCase(),
+                  context.t.filterProject.toUpperCase(),
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
@@ -329,12 +329,12 @@ class _IssuesPageState extends State<IssuesPage> {
                 Padding(
                   padding: EdgeInsets.all(spaceMD),
                   child: Text(
-                    t.filterProjectsEmpty,
+                    context.t.filterProjectsEmpty,
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM),
                   ),
                 )
               else ...[
-                _buildSheetOption(t.filterNone, _projectFilter == null, () {
+                _buildSheetOption(context.t.filterNone, _projectFilter == null, () {
                   setState(() => _projectFilter = null);
                   Navigator.pop(context);
                 }),
@@ -395,7 +395,7 @@ class _IssuesPageState extends State<IssuesPage> {
               Padding(
                 padding: EdgeInsets.all(spaceMD),
                 child: Text(
-                  t.pullRequests.toUpperCase(),
+                  context.t.pullRequests.toUpperCase(),
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textMD),
                 ),
               ),
@@ -509,7 +509,7 @@ class _IssuesPageState extends State<IssuesPage> {
               children: [
                 Expanded(
                   child: Text(
-                    value ?? t.filterNone,
+                    value ?? context.t.filterNone,
                     style: TextStyle(
                       color: value != null ? context.colours.primaryLight : context.colours.tertiaryLight,
                       fontWeight: FontWeight.bold,
@@ -538,7 +538,7 @@ class _IssuesPageState extends State<IssuesPage> {
               child: Row(
                 children: [
                   Text(
-                    t.filterSidebar.toUpperCase(),
+                    context.t.filterSidebar.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -556,24 +556,24 @@ class _IssuesPageState extends State<IssuesPage> {
                   _buildAutocompleteField(
                     _authorController,
                     _authorFocusNode,
-                    t.filterAuthor.toUpperCase(),
+                    context.t.filterAuthor.toUpperCase(),
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
                   SizedBox(height: spaceSM),
-                  _buildAutocompleteField(_labelsController, _labelsFocusNode, t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
+                  _buildAutocompleteField(_labelsController, _labelsFocusNode, context.t.filterLabels.toUpperCase(), _ensureLabels, _repoLabels),
                   SizedBox(height: spaceSM),
                   _buildAutocompleteField(
                     _assigneeController,
                     _assigneeFocusNode,
-                    t.filterAssignee.toUpperCase(),
+                    context.t.filterAssignee.toUpperCase(),
                     _ensureCollaborators,
                     _repoCollaborators,
                   ),
                   SizedBox(height: spaceSM),
-                  _buildSelectorField(t.filterMilestone.toUpperCase(), _milestoneFilter, _showMilestoneSheet),
+                  _buildSelectorField(context.t.filterMilestone.toUpperCase(), _milestoneFilter, _showMilestoneSheet),
                   SizedBox(height: spaceSM),
-                  _buildSelectorField(t.filterProject.toUpperCase(), _projectFilter, _showProjectSheet),
+                  _buildSelectorField(context.t.filterProject.toUpperCase(), _projectFilter, _showProjectSheet),
                 ],
               ),
             ),
@@ -602,7 +602,7 @@ class _IssuesPageState extends State<IssuesPage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.issues.toUpperCase(),
+                    context.t.issues.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
@@ -670,7 +670,7 @@ class _IssuesPageState extends State<IssuesPage> {
                         filled: true,
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                         isCollapsed: true,
-                        hintText: t.searchEllipsis,
+                        hintText: context.t.searchEllipsis,
                         hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(left: spaceSM, right: spaceXS),
@@ -718,15 +718,23 @@ class _IssuesPageState extends State<IssuesPage> {
               padding: EdgeInsets.symmetric(horizontal: spaceMD),
               child: Row(
                 children: [
-                  _FilterChip(label: t.issueFilterOpen.toUpperCase(), selected: _stateFilter == "open", onTap: () => _onStateFilterChanged("open")),
+                  _FilterChip(
+                    label: context.t.issueFilterOpen.toUpperCase(),
+                    selected: _stateFilter == "open",
+                    onTap: () => _onStateFilterChanged("open"),
+                  ),
                   SizedBox(width: spaceXS),
                   _FilterChip(
-                    label: t.issueFilterClosed.toUpperCase(),
+                    label: context.t.issueFilterClosed.toUpperCase(),
                     selected: _stateFilter == "closed",
                     onTap: () => _onStateFilterChanged("closed"),
                   ),
                   SizedBox(width: spaceXS),
-                  _FilterChip(label: t.issueFilterAll.toUpperCase(), selected: _stateFilter == "all", onTap: () => _onStateFilterChanged("all")),
+                  _FilterChip(
+                    label: context.t.issueFilterAll.toUpperCase(),
+                    selected: _stateFilter == "all",
+                    onTap: () => _onStateFilterChanged("all"),
+                  ),
                 ],
               ),
             ),
@@ -748,7 +756,7 @@ class _IssuesPageState extends State<IssuesPage> {
                             height: constraints.maxHeight,
                             child: Center(
                               child: Text(
-                                t.issuesNotFound.toUpperCase(),
+                                context.t.issuesNotFound.toUpperCase(),
                                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                               ),
                             ),

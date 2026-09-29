@@ -65,7 +65,7 @@ class ShowcaseFeatureButton extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          feature.labelForProvider(gitProvider).toUpperCase(),
+                          feature.labelForProvider(context, gitProvider).toUpperCase(),
                           style: TextStyle(color: context.colours.showcaseFeatureIcon, fontSize: textSM, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),

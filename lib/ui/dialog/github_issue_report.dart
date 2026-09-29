@@ -28,7 +28,7 @@ Future<void> showDialog(
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.reportABug.toUpperCase(),
+            context.t.reportABug.toUpperCase(),
             textAlign: TextAlign.center,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
@@ -46,14 +46,14 @@ Future<void> showDialog(
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportTitleTitle.toUpperCase(),
+                            context.t.issueReportTitleTitle.toUpperCase(),
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportTitleDesc,
+                            context.t.issueReportTitleDesc,
                             style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -77,7 +77,7 @@ Future<void> showDialog(
                             isCollapsed: true,
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
-                            errorText: titleController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                            errorText: titleController.text.isEmpty ? context.t.fieldCannotBeEmpty : null,
                             errorStyle: TextStyle(color: context.colours.tertiaryNegative),
                             isDense: true,
                           ),
@@ -93,14 +93,14 @@ Future<void> showDialog(
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportDescTitle.toUpperCase(),
+                            context.t.issueReportDescTitle.toUpperCase(),
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportDescDesc,
+                            context.t.issueReportDescDesc,
                             style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -120,7 +120,7 @@ Future<void> showDialog(
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                             border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                            errorText: descriptionController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                            errorText: descriptionController.text.isEmpty ? context.t.fieldCannotBeEmpty : null,
                             errorStyle: TextStyle(color: context.colours.tertiaryNegative),
                             isCollapsed: true,
                             fillColor: context.colours.tertiaryDark,
@@ -139,14 +139,14 @@ Future<void> showDialog(
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportMinimalReproTitle.toUpperCase(),
+                            context.t.issueReportMinimalReproTitle.toUpperCase(),
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: spaceMD),
                           child: Text(
-                            t.issueReportMinimalReproDesc,
+                            context.t.issueReportMinimalReproDesc,
                             style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -167,7 +167,7 @@ Future<void> showDialog(
                             contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
                             border: const OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(cornerRadiusMD)),
                             isCollapsed: true,
-                            errorText: minimalReproController.text.isEmpty ? t.fieldCannotBeEmpty : null,
+                            errorText: minimalReproController.text.isEmpty ? context.t.fieldCannotBeEmpty : null,
                             errorStyle: TextStyle(color: context.colours.tertiaryNegative),
                             fillColor: context.colours.tertiaryDark,
                             filled: true,
@@ -200,7 +200,7 @@ Future<void> showDialog(
                   onPressed: () async {
                     includeLogFiles = !includeLogFiles;
                     if (includeLogFiles == false) {
-                      await InfoDialog.showDialog(context, t.includeLogFiles, t.includeLogFilesDescription);
+                      await InfoDialog.showDialog(context, context.t.includeLogFiles, context.t.includeLogFilesDescription);
                     }
                     setState(() {});
                   },
@@ -215,7 +215,7 @@ Future<void> showDialog(
                     size: textSM,
                   ),
                   label: Text(
-                    t.includeLogs,
+                    context.t.includeLogs,
                     textAlign: TextAlign.end,
                     style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   ),
@@ -227,7 +227,7 @@ Future<void> showDialog(
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () async {
@@ -244,7 +244,7 @@ Future<void> showDialog(
               size: textMD,
             ),
             label: Text(
-              t.report.toUpperCase(),
+              context.t.report.toUpperCase(),
               style: TextStyle(
                 color: minimalReproController.text.isEmpty || descriptionController.text.isEmpty || titleController.text.isEmpty
                     ? context.colours.tertiaryLight

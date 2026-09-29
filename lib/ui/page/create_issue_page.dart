@@ -144,6 +144,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
   }
 
   Future<void> _submitIssue() async {
+    final t = context.t;
     if (!_canSubmit) return;
     setState(() => _submitting = true);
 
@@ -190,7 +191,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
       setState(() => _submitting = false);
       final errorMsg = result?.error;
       Fluttertoast.showToast(
-        msg: errorMsg != null ? "${t.createIssueFailed}: $errorMsg" : t.createIssueFailed,
+        msg: errorMsg != null ? "${context.t.createIssueFailed}: $errorMsg" : t.createIssueFailed,
         toastLength: Toast.LENGTH_LONG,
         gravity: null,
       );
@@ -214,7 +215,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
                   getBackButton(context, () => Navigator.of(context).pop()),
                   SizedBox(width: spaceXS),
                   Text(
-                    t.createIssue.toUpperCase(),
+                    context.t.createIssue.toUpperCase(),
                     style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -236,7 +237,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       _TemplateChip(
-                        label: t.createIssueBlankIssue.toUpperCase(),
+                        label: context.t.createIssueBlankIssue.toUpperCase(),
                         selected: _selectedTemplate == null,
                         onTap: () => _selectTemplate(null),
                       ),
@@ -315,11 +316,11 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
               border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
               isCollapsed: true,
               label: Text(
-                t.createIssueTitle.toUpperCase(),
+                context.t.createIssueTitle.toUpperCase(),
                 style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              hintText: t.createIssueTitleHint,
+              hintText: context.t.createIssueTitleHint,
               hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textMD, fontWeight: FontWeight.normal),
               contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
               isDense: true,
@@ -354,7 +355,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
                       ),
                     )
                   : Text(
-                      t.createIssueSubmit.toUpperCase(),
+                      context.t.createIssueSubmit.toUpperCase(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _canSubmit ? context.colours.tertiaryInfo : context.colours.tertiaryLight,
@@ -381,9 +382,9 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
             padding: EdgeInsets.fromLTRB(spaceSM, spaceSM, spaceSM, 0),
             child: Row(
               children: [
-                _WritePreviewTab(label: t.issueWrite.toUpperCase(), selected: _writeMode, onTap: () => setState(() => _writeMode = true)),
+                _WritePreviewTab(label: context.t.issueWrite.toUpperCase(), selected: _writeMode, onTap: () => setState(() => _writeMode = true)),
                 SizedBox(width: spaceXXS),
-                _WritePreviewTab(label: t.issuePreview.toUpperCase(), selected: !_writeMode, onTap: () => setState(() => _writeMode = false)),
+                _WritePreviewTab(label: context.t.issuePreview.toUpperCase(), selected: !_writeMode, onTap: () => setState(() => _writeMode = false)),
               ],
             ),
           ),
@@ -403,7 +404,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
                   filled: true,
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
-                  hintText: t.createIssueBodyHint,
+                  hintText: context.t.createIssueBodyHint,
                   hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                   contentPadding: EdgeInsets.all(spaceSM),
                 ),
@@ -419,7 +420,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
               decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _bodyController.text.isEmpty
                   ? Text(
-                      t.createIssueBodyHint,
+                      context.t.createIssueBodyHint,
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _bodyController.text, config: _markdownConfig, generator: _markdownGenerator),
@@ -600,7 +601,7 @@ class _CreateIssuePageState extends ConsumerState<CreateIssuePage> {
                 children: [
                   Expanded(
                     child: Text(
-                      selected ?? t.createIssueSelectTemplate,
+                      selected ?? context.t.createIssueSelectTemplate,
                       style: TextStyle(color: selected != null ? context.colours.primaryLight : context.colours.tertiaryLight, fontSize: textSM),
                     ),
                   ),

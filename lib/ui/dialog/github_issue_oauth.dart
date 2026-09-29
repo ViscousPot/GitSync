@@ -13,7 +13,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() collectOau
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.githubIssueOauthTitle,
+          context.t.githubIssueOauthTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -21,7 +21,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() collectOau
         child: ListBody(
           children: [
             Text(
-              t.githubIssueOauthMsg,
+              context.t.githubIssueOauthMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -30,7 +30,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() collectOau
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () async {
@@ -40,7 +40,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() collectOau
         TextButton.icon(
           icon: FaIcon(FontAwesomeIcons.squareArrowUpRight, color: context.colours.secondaryDark, size: textMD),
           label: Text(
-            t.oauth.toUpperCase(),
+            context.t.oauth.toUpperCase(),
             style: TextStyle(color: context.colours.secondaryDark, fontSize: textMD, fontWeight: FontWeight.bold),
           ),
           style: ButtonStyle(

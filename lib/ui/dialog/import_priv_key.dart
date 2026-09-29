@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.importPrivateKey,
+          context.t.importPrivateKey,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -23,7 +23,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
         child: ListBody(
           children: [
             Text(
-              t.importPrivateKeyMsg,
+              context.t.importPrivateKeyMsg,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
             SizedBox(height: spaceLG),
@@ -34,7 +34,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
-                        t.passphrase.toUpperCase(),
+                        context.t.passphrase.toUpperCase(),
                         style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -42,7 +42,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: spaceSM),
                       child: Text(
-                        t.privKey.toUpperCase(),
+                        context.t.privKey.toUpperCase(),
                         style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -71,7 +71,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
                           fillColor: context.colours.secondaryDark,
                           filled: true,
                           border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
-                          hintText: t.optionalLabel.toUpperCase(),
+                          hintText: context.t.optionalLabel.toUpperCase(),
                           hintStyle: TextStyle(
                             fontSize: textSM,
                             fontWeight: FontWeight.bold,
@@ -106,7 +106,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
 
                             decoration: InputDecoration(
                               border: const OutlineInputBorder(borderSide: BorderSide.none),
-                              hintText: t.sshPrivKeyExample,
+                              hintText: context.t.sshPrivKeyExample,
                               hintStyle: TextStyle(
                                 fontSize: textSM,
                                 fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -140,7 +140,7 @@ Future<void> showDialog(BuildContext context, Function((String, String) sshCrede
         ),
         TextButton(
           child: Text(
-            t.importKey.toUpperCase(),
+            context.t.importKey.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

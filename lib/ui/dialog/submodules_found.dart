@@ -11,7 +11,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.submodulesFoundTitle,
+          context.t.submodulesFoundTitle,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -19,7 +19,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         child: ListBody(
           children: [
             Text(
-              t.submodulesFoundMessage,
+              context.t.submodulesFoundMessage,
               style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
             ),
           ],
@@ -28,7 +28,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -37,7 +37,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function() callback) 
         ),
         TextButton(
           child: Text(
-            t.submodulesFoundAction.toUpperCase(),
+            context.t.submodulesFoundAction.toUpperCase(),
             style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

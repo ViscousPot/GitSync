@@ -125,7 +125,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
         leading: getBackButton(context, () => Navigator.of(context).canPop() ? Navigator.pop(context) : null),
         centerTitle: true,
         title: Text(
-          t.settings.toUpperCase(),
+          context.t.settings.toUpperCase(),
           style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold),
         ),
       ),
@@ -196,14 +196,14 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                   child: Text(
-                                    t.signedCommitsLabel.toUpperCase(),
+                                    context.t.signedCommitsLabel.toUpperCase(),
                                     style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: spaceMD),
                                   child: Text(
-                                    t.signedCommitsDescription,
+                                    context.t.signedCommitsDescription,
                                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -262,8 +262,8 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                           padding: EdgeInsets.only(left: spaceXS),
                                                           child: Text(
                                                             (gitCommitSigningKeySnapshot.data?.isNotEmpty == true
-                                                                    ? t.commitKeyImported
-                                                                    : t.importCommitKey)
+                                                                    ? context.t.commitKeyImported
+                                                                    : context.t.importCommitKey)
                                                                 .toUpperCase(),
                                                             style: TextStyle(
                                                               color: gitCommitSigningKeySnapshot.data?.isNotEmpty == true
@@ -337,7 +337,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                   label: SizedBox(
                                                     width: double.infinity,
                                                     child: Text(
-                                                      t.useSshKey.toUpperCase(),
+                                                      context.t.useSshKey.toUpperCase(),
                                                       style: TextStyle(
                                                         color: context.colours.primaryLight,
                                                         fontSize: textMD,
@@ -359,8 +359,8 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                     ItemSetting(
                       setFn: (value) => ref.read(syncMessageProvider.notifier).set(value),
                       getFn: () => ref.read(syncMessageProvider.future).catchError((_) => ""),
-                      title: t.syncMessageLabel,
-                      description: t.syncMessageDescription,
+                      title: context.t.syncMessageLabel,
+                      description: context.t.syncMessageDescription,
                       hint: defaultSyncMessage,
                       maxLines: null,
                       minLines: null,
@@ -369,14 +369,14 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                     ItemSetting(
                       setFn: (value) => uiSettingsManager.setStringNullable(StorageKey.setman_syncMessageTimeFormat, value),
                       getFn: () => uiSettingsManager.getSyncMessageTimeFormat(),
-                      title: t.syncMessageTimeFormatLabel,
-                      description: t.syncMessageTimeFormatDescription,
+                      title: context.t.syncMessageTimeFormatLabel,
+                      description: context.t.syncMessageTimeFormatDescription,
                       hint: defaultSyncMessageTimeFormat,
                     ),
                     SizedBox(height: spaceLG),
                     Showcase(
                       key: _authorDetailsKey,
-                      description: t.authorDetailsShowcasePrompt,
+                      description: context.t.authorDetailsShowcasePrompt,
                       tooltipBackgroundColor: context.colours.tertiaryInfo,
                       textColor: context.colours.secondaryDark,
                       targetBorderRadius: BorderRadius.all(cornerRadiusMD),
@@ -387,24 +387,24 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                           ItemSetting(
                             setFn: (value) => ref.read(authorNameProvider.notifier).set(value.trim()),
                             getFn: demo ? () async => "" : () => ref.read(authorNameProvider.future).catchError((_) => ""),
-                            title: t.authorNameLabel,
-                            description: t.authorNameDescription,
-                            hint: t.authorName,
+                            title: context.t.authorNameLabel,
+                            description: context.t.authorNameDescription,
+                            hint: context.t.authorName,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
                             setFn: (value) => ref.read(authorEmailProvider.notifier).set(value.trim()),
                             getFn: demo ? () async => "" : () => ref.read(authorEmailProvider.future).catchError((_) => ""),
-                            title: t.authorEmailLabel,
-                            description: t.authorEmailDescription,
-                            hint: t.authorEmail,
+                            title: context.t.authorEmailLabel,
+                            description: context.t.authorEmailDescription,
+                            hint: context.t.authorEmail,
                           ),
                           SizedBox(height: spaceMD),
                           ItemSetting(
                             setFn: (value) => ref.read(postFooterProvider.notifier).set(value),
                             getFn: () => ref.read(postFooterProvider.future).catchError((_) => ""),
-                            title: t.postFooterLabel,
-                            description: t.postFooterDescription,
+                            title: context.t.postFooterLabel,
+                            description: context.t.postFooterDescription,
                             hint: defaultPostFooter,
                             maxLines: null,
                             minLines: null,
@@ -482,7 +482,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                   Padding(
                                     padding: EdgeInsets.only(left: spaceXS),
                                     child: Text(
-                                      t.untrackAll.toUpperCase(),
+                                      context.t.untrackAll.toUpperCase(),
                                       style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -494,9 +494,9 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                             ItemSetting(
                               setFn: writeGitignore,
                               getFn: demo ? () async => "" : () => readGitignore,
-                              title: t.gitIgnore,
-                              description: t.gitIgnoreDescription,
-                              hint: t.gitIgnoreHint,
+                              title: context.t.gitIgnore,
+                              description: context.t.gitIgnoreDescription,
+                              hint: context.t.gitIgnoreHint,
                               maxLines: -1,
                               minLines: -1,
                               isTextArea: true,
@@ -505,9 +505,9 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                             ItemSetting(
                               setFn: writeGitInfoExclude,
                               getFn: demo ? () async => "" : () => readGitInfoExclude,
-                              title: t.gitInfoExclude,
-                              description: t.gitInfoExcludeDescription,
-                              hint: t.gitInfoExcludeHint,
+                              title: context.t.gitInfoExclude,
+                              description: context.t.gitInfoExcludeDescription,
+                              hint: context.t.gitInfoExcludeHint,
                               maxLines: -1,
                               minLines: -1,
                               isTextArea: true,
@@ -530,11 +530,11 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        t.disableSsl.toUpperCase(),
+                                        context.t.disableSsl.toUpperCase(),
                                         style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        t.disableSslDescription,
+                                        context.t.disableSslDescription,
                                         style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -568,11 +568,11 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${t.optimisedSync.toUpperCase()} (${t.experimental.toLowerCase()})".toUpperCase(),
+                                        "${context.t.optimisedSync.toUpperCase()} (${context.t.experimental.toLowerCase()})".toUpperCase(),
                                         style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        t.optimisedSyncDescription,
+                                        context.t.optimisedSyncDescription,
                                         style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -589,7 +589,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                           ],
                     SizedBox(height: spaceMD),
                     ButtonSetting(
-                      text: t.moreOptions,
+                      text: context.t.moreOptions,
                       icon: FontAwesomeIcons.ellipsisVertical,
                       onPressed: () async {
                         widget.openGlobalSettings?.call();

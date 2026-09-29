@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          t.selectCloneDirectory,
+          context.t.selectCloneDirectory,
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -23,7 +23,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.chooseHowToClone,
+            context.t.chooseHowToClone,
             style: TextStyle(
               color: context.colours.primaryLight,
               fontWeight: FontWeight.bold,
@@ -34,7 +34,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
           ),
           SizedBox(height: spaceXS),
           Text(
-            "${bullet} ${t.directCloningMsg}\n${bullet} ${t.nestedCloningMsg}",
+            "${bullet} ${context.t.directCloningMsg}\n${bullet} ${context.t.nestedCloningMsg}",
             style: TextStyle(color: context.colours.primaryLight, decoration: TextDecoration.none, decorationThickness: 0, fontSize: textMD),
           ),
           SizedBox(height: spaceMD + spaceSM),
@@ -84,7 +84,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         width: double.infinity,
                         child: AnimatedDefaultTextStyle(
                           child: Text(
-                            t.directClone.split(" ").join("\n"),
+                            context.t.directClone.split(" ").join("\n"),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
@@ -142,7 +142,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
                         width: double.infinity,
                         child: AnimatedDefaultTextStyle(
                           child: Text(
-                            t.nestedClone.split(" ").join("\n"),
+                            context.t.nestedClone.split(" ").join("\n"),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                           ),
@@ -165,7 +165,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -174,7 +174,7 @@ Future<void> showDialog(BuildContext context, Function(bool directClone) callbac
         ),
         TextButton(
           child: Text(
-            t.select.toUpperCase(),
+            context.t.select.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

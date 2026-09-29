@@ -163,8 +163,8 @@ class _BranchSelectorState extends State<BranchSelector> {
                                 hasBranch
                                     ? (widget.branchName ?? '').toUpperCase()
                                     : widget.branchNames.isEmpty
-                                    ? t.unbornBranch.toUpperCase()
-                                    : t.detachedHead.toUpperCase(),
+                                    ? context.t.unbornBranch.toUpperCase()
+                                    : context.t.detachedHead.toUpperCase(),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: textMD,
@@ -199,7 +199,7 @@ class _BranchSelectorState extends State<BranchSelector> {
                         top: -spaceXXXXS,
                         left: spaceXS,
                         child: Text(
-                          t.currentBranch.toUpperCase(),
+                          context.t.currentBranch.toUpperCase(),
                           style: TextStyle(color: context.colours.tertiaryLight, fontSize: textXXS, fontWeight: FontWeight.w900),
                         ),
                       ),
@@ -220,7 +220,7 @@ class _BranchSelectorState extends State<BranchSelector> {
                 FontAwesomeIcons.solidSquarePlus,
                 color: widget.onCreateBranch != null ? context.colours.primaryLight : context.colours.secondaryLight,
                 size: textXL,
-                semanticLabel: t.addBranchLabel,
+                semanticLabel: context.t.addBranchLabel,
               ),
             ),
           ],

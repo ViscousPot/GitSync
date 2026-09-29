@@ -414,7 +414,7 @@ Future<void> showDialog(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${diffSnapshot.diffParts.keys.length} ${diffReferences.$1 == null ? t.commits : t.filesChanged}",
+                                "${diffSnapshot.diffParts.keys.length} ${diffReferences.$1 == null ? context.t.commits : context.t.filesChanged}",
                                 textAlign: TextAlign.center,
                                 // style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
                                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
@@ -422,13 +422,13 @@ Future<void> showDialog(
                               Row(
                                 children: [
                                   Text(
-                                    sprintf(t.additions, [diffSnapshot.insertions]),
+                                    sprintf(context.t.additions, [diffSnapshot.insertions]),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: spaceMD),
                                   Text(
-                                    sprintf(t.deletions, [diffSnapshot.deletions]),
+                                    sprintf(context.t.deletions, [diffSnapshot.deletions]),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: context.colours.tertiaryNegative, fontSize: textMD, fontWeight: FontWeight.bold),
                                   ),

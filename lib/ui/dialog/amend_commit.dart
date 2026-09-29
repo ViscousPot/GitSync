@@ -27,7 +27,7 @@ Future<void> showDialog(
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.amendCommit,
+            context.t.amendCommit,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -38,7 +38,7 @@ Future<void> showDialog(
                 text: TextSpan(
                   style: TextStyle(color: context.colours.primaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
                   children: [
-                    TextSpan(text: "${t.amendCommitMsg} "),
+                    TextSpan(text: "${context.t.amendCommitMsg} "),
                     TextSpan(
                       text: "[${commitSha.substring(0, 7).toUpperCase()}]",
                       style: TextStyle(color: context.colours.tertiaryInfo),
@@ -119,7 +119,7 @@ Future<void> showDialog(
               ),
               SizedBox(height: spaceSM),
               Text(
-                t.amendCommitWarning,
+                context.t.amendCommitWarning,
                 style: TextStyle(color: context.colours.tertiaryWarning, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
             ],
@@ -128,7 +128,7 @@ Future<void> showDialog(
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             onPressed: () {
@@ -137,7 +137,7 @@ Future<void> showDialog(
           ),
           TextButton.icon(
             label: Text(
-              t.amend.toUpperCase(),
+              context.t.amend.toUpperCase(),
               style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD, fontWeight: FontWeight.bold),
             ),
             iconAlignment: IconAlignment.end,

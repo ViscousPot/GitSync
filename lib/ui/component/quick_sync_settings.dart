@@ -50,7 +50,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
             label: SizedBox(
               width: double.infinity,
               child: Text(
-                t.useForTileSync,
+                context.t.useForTileSync,
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
               ),
             ),
@@ -83,7 +83,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
             label: SizedBox(
               width: double.infinity,
               child: Text(
-                t.useForTileManualSync,
+                context.t.useForTileManualSync,
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
               ),
             ),
@@ -115,7 +115,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
           label: SizedBox(
             width: double.infinity,
             child: Text(
-              t.useForShortcutSync,
+              context.t.useForShortcutSync,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
           ),
@@ -147,7 +147,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
           label: SizedBox(
             width: double.infinity,
             child: Text(
-              t.useForShortcutManualSync,
+              context.t.useForShortcutManualSync,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
           ),
@@ -179,7 +179,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
           label: SizedBox(
             width: double.infinity,
             child: Text(
-              t.useForWidgetSync,
+              context.t.useForWidgetSync,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
           ),
@@ -211,7 +211,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
           label: SizedBox(
             width: double.infinity,
             child: Text(
-              t.useForWidgetManualSync,
+              context.t.useForWidgetManualSync,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
           ),
@@ -265,7 +265,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                t.quickSyncSettings,
+                                context.t.quickSyncSettings,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -278,7 +278,7 @@ class _QuickSyncSettingsState extends State<QuickSyncSettings> {
                               if (snapshot.data == true) ...[
                                 SizedBox(height: spaceXXXXS),
                                 Text(
-                                  t.quickSyncDescription,
+                                  context.t.quickSyncDescription,
                                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
                                 ),
                               ],

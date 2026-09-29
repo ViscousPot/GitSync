@@ -90,7 +90,7 @@ Future<bool> requestStoragePerm([bool request = true]) async {
 
 Widget getBackButton(BuildContext context, Function() onPressed) => IconButton(
   onPressed: onPressed,
-  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.primaryLight, size: textLG, semanticLabel: t.backLabel),
+  icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.primaryLight, size: textLG, semanticLabel: context.t.backLabel),
 );
 
 Widget getOpenInBrowserButton(String? url) => url == null
@@ -98,7 +98,7 @@ Widget getOpenInBrowserButton(String? url) => url == null
     : IconButton(
         onPressed: () => launchUrl(Uri.parse(url)),
         icon: Builder(
-          builder: (context) => FaIcon(FontAwesomeIcons.arrowUpRightFromSquare, color: context.colours.primaryLight, size: textMD, semanticLabel: t.launchInBrowser),
+          builder: (context) => FaIcon(FontAwesomeIcons.arrowUpRightFromSquare, color: context.colours.primaryLight, size: textMD, semanticLabel: context.t.launchInBrowser),
         ),
       );
 
@@ -124,6 +124,7 @@ String formatBytes(int? bytes, [int precision = 2]) {
 }
 
 Future<void> openLogViewer(BuildContext context, {List<(String, String)>? deviceInfoEntries}) async {
+  final t = context.t;
   final Directory dir = await getTemporaryDirectory();
   final logsDir = Directory("${dir.path}/logs");
 
@@ -410,6 +411,7 @@ Future<void> _performRemoteRepoCreation(
   (GitProvider, String, String, bool) oAuthInfo,
   String? dirPath,
 ) async {
+  final t = context.t;
   Fluttertoast.showToast(msg: t.creatingRemoteRepo);
 
   final manager = GitProviderManager.getGitProviderManager(oAuthInfo.$1, oAuthInfo.$4);

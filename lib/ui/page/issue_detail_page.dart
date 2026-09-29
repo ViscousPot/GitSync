@@ -91,6 +91,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   }
 
   Future<void> _submitComment() async {
+    final t = context.t;
     final body = _commentController.text.trim();
     if (body.isEmpty) return;
 
@@ -125,6 +126,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   }
 
   Future<void> _toggleIssueState() async {
+    final t = context.t;
     final detail = _detail;
     if (detail == null) return;
 
@@ -149,6 +151,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   }
 
   Future<void> _updateIssue({String? title, String? body}) async {
+    final t = context.t;
     setState(() => _submittingEdit = true);
     final (owner, repo) = _parseOwnerRepo();
     final manager = _manager;
@@ -172,6 +175,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
   }
 
   Future<void> _toggleReaction(String targetId, String reaction, bool isComment, bool hasReacted) async {
+    final t = context.t;
     final (owner, repo) = _parseOwnerRepo();
     final manager = _manager;
     if (manager == null) return;
@@ -203,7 +207,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.issueAddReaction.toUpperCase(),
+              context.t.issueAddReaction.toUpperCase(),
               style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceSM),
@@ -396,7 +400,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   : _detail == null
                   ? Center(
                       child: Text(
-                        t.issuesNotFound.toUpperCase(),
+                        context.t.issuesNotFound.toUpperCase(),
                         style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                       ),
                     )
@@ -439,7 +443,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
         Row(
           children: [
             Text(
-              t.issueDescription.toUpperCase(),
+              context.t.issueDescription.toUpperCase(),
               style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
             ),
             if (detail.canWrite && !_editingBody) ...[
@@ -462,7 +466,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
           _buildBodyEditor()
         else if (detail.body.isEmpty)
           Text(
-            t.issueNoDescription,
+            context.t.issueNoDescription,
             style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
@@ -500,14 +504,14 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
 
         // Comments section
         Text(
-          '${t.issueComments.toUpperCase()} (${detail.comments.length})',
+          '${context.t.issueComments.toUpperCase()} (${detail.comments.length})',
           style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXS),
 
         if (detail.comments.isEmpty)
           Text(
-            t.issueNoComments,
+            context.t.issueNoComments,
             style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
@@ -551,7 +555,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                         ),
                       )
                     : Text(
-                        detail.isOpen ? t.issueCloseIssue : t.issueReopenIssue,
+                        detail.isOpen ? context.t.issueCloseIssue : context.t.issueReopenIssue,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: detail.isOpen ? context.colours.primaryNegative : context.colours.tertiaryPositive,
@@ -574,7 +578,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                 FaIcon(FontAwesomeIcons.lock, size: textXS, color: context.colours.tertiaryLight),
                 SizedBox(width: spaceXS),
                 Text(
-                  t.issueWriteDisabled,
+                  context.t.issueWriteDisabled,
                   style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                 ),
               ],
@@ -703,7 +707,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issueWrite.toUpperCase(),
+                      context.t.issueWrite.toUpperCase(),
                       style: TextStyle(
                         color: _writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -722,7 +726,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issuePreview.toUpperCase(),
+                      context.t.issuePreview.toUpperCase(),
                       style: TextStyle(
                         color: !_writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -766,7 +770,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                     filled: true,
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                     isCollapsed: true,
-                    hintText: t.issueAddComment,
+                    hintText: context.t.issueAddComment,
                     hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                     contentPadding: EdgeInsets.all(spaceSM),
                   ),
@@ -782,7 +786,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
               decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _commentController.text.isEmpty
                   ? Text(
-                      t.issueAddComment,
+                      context.t.issueAddComment,
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _commentController.text, config: _markdownConfig, generator: _markdownGenerator),
@@ -810,7 +814,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                           child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                         )
                       : Text(
-                          t.comment.toUpperCase(),
+                          context.t.comment.toUpperCase(),
                           style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -840,7 +844,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issueWrite.toUpperCase(),
+                      context.t.issueWrite.toUpperCase(),
                       style: TextStyle(
                         color: _bodyWriteMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -859,7 +863,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issuePreview.toUpperCase(),
+                      context.t.issuePreview.toUpperCase(),
                       style: TextStyle(
                         color: !_bodyWriteMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -918,7 +922,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
               decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _bodyEditController.text.isEmpty
                   ? Text(
-                      t.issueNoDescription,
+                      context.t.issueNoDescription,
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _bodyEditController.text, config: _markdownConfig, generator: _markdownGenerator),
@@ -933,7 +937,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceXS),
                     child: Text(
-                      t.cancel.toUpperCase(),
+                      context.t.cancel.toUpperCase(),
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -954,7 +958,7 @@ class _IssueDetailPageState extends ConsumerState<IssueDetailPage> {
                             child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                           )
                         : Text(
-                            t.done.toUpperCase(),
+                            context.t.done.toUpperCase(),
                             style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                           ),
                   ),

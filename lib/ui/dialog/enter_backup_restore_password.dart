@@ -15,7 +15,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          sprintf(t.enterPassword, [(backupRestore ? t.backup : t.restore)]),
+          sprintf(context.t.enterPassword, [(backupRestore ? context.t.backup : context.t.restore)]),
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -51,7 +51,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -70,7 +70,7 @@ Future<void> showDialog(BuildContext context, bool backupRestore, Function(Strin
                       Navigator.of(context).canPop() ? Navigator.pop(context) : null;
                     },
               child: Text(
-                (backupRestore ? t.encryptedBackup : t.encryptedRestore).toUpperCase(),
+                (backupRestore ? context.t.encryptedBackup : context.t.encryptedRestore).toUpperCase(),
                 style: TextStyle(color: disabled ? context.colours.tertiaryLight : context.colours.primaryPositive, fontSize: textMD),
               ),
             );

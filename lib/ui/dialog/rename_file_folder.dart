@@ -16,7 +16,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
       title: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Text(
-          sprintf(t.renameFileDir, [fileDir ? t.folder : t.file]),
+          sprintf(context.t.renameFileDir, [fileDir ? context.t.folder : context.t.file]),
           style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
         ),
       ),
@@ -41,7 +41,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
                 border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                 isCollapsed: true,
                 label: Text(
-                  t.fileName.toUpperCase(),
+                  context.t.fileName.toUpperCase(),
                   style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                 ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -55,7 +55,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
       actions: <Widget>[
         TextButton(
           child: Text(
-            t.cancel.toUpperCase(),
+            context.t.cancel.toUpperCase(),
             style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
           ),
           onPressed: () {
@@ -64,7 +64,7 @@ Future<void> showDialog(BuildContext context, String originalName, bool fileDir,
         ),
         TextButton(
           child: Text(
-            t.rename.toUpperCase(),
+            context.t.rename.toUpperCase(),
             style: TextStyle(color: context.colours.primaryPositive, fontSize: textMD),
           ),
           onPressed: () async {

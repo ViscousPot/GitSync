@@ -80,7 +80,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               ),
             ),
             label: Text(
-              Platform.isIOS ? t.iosSyncOnAppOpened : t.syncOnAppOpened,
+              Platform.isIOS ? context.t.iosSyncOnAppOpened : context.t.syncOnAppOpened,
               style: TextStyle(
                 color: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty)
                     ? context.colours.tertiaryLight
@@ -138,7 +138,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               ),
             ),
             label: Text(
-              Platform.isIOS ? t.iosSyncOnAppClosed : t.syncOnAppClosed,
+              Platform.isIOS ? context.t.iosSyncOnAppClosed : context.t.syncOnAppClosed,
               style: TextStyle(
                 color: (Platform.isAndroid && (applicationPackagesSnapshot.data ?? {}).isEmpty)
                     ? context.colours.tertiaryLight
@@ -166,7 +166,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
               label: SizedBox(
                 width: double.infinity,
                 child: Text(
-                  t.iosAppSyncDocsLinkText,
+                  context.t.iosAppSyncDocsLinkText,
                   style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.normal),
                 ),
               ),
@@ -206,10 +206,10 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                         : Future.value(null),
                     builder: (context, labelSnapshot) => Text(
                       ((applicationPackagesSnapshot.data ?? {}).isEmpty
-                              ? t.applicationNotSet
+                              ? context.t.applicationNotSet
                               : ((applicationPackagesSnapshot.data ?? {}).length == 1
                                     ? (labelSnapshot.data ?? "")
-                                    : sprintf(t.multipleApplicationSelected, [(applicationPackagesSnapshot.data ?? {}).length])))
+                                    : sprintf(context.t.multipleApplicationSelected, [(applicationPackagesSnapshot.data ?? {}).length])))
                           .toUpperCase(),
                       style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                     ),
@@ -319,7 +319,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  t.enableApplicationObserver,
+                                  context.t.enableApplicationObserver,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -332,7 +332,7 @@ class _AutoSyncSettingsState extends State<AutoSyncSettings> {
                                 if (expandedSnapshot.data == true) ...[
                                   SizedBox(height: spaceXXXXS),
                                   Text(
-                                    Platform.isIOS ? t.appSyncIosDescription : t.appSyncDescription,
+                                    Platform.isIOS ? context.t.appSyncIosDescription : context.t.appSyncDescription,
                                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textMD),
                                   ),
                                 ],

@@ -245,6 +245,7 @@ class Logger {
       minimalRepro,
       includeLogFiles,
     ) async {
+      final t = context.t;
       final logs = !includeLogFiles
           ? ""
           : utf8.decode(utf8.encode((await _generateLogs()).split("\n").reversed.join("\n")).take(62 * 1024).toList(), allowMalformed: true);

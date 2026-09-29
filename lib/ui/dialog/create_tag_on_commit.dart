@@ -16,7 +16,7 @@ Future<void> showDialog(BuildContext context, String commitSha, Future<void> Fun
         title: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
-            t.createTagOnCommit,
+            context.t.createTagOnCommit,
             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
           ),
         ),
@@ -24,7 +24,7 @@ Future<void> showDialog(BuildContext context, String commitSha, Future<void> Fun
           child: ListBody(
             children: [
               Text(
-                sprintf(t.createTagOnCommitMsg, [commitSha.substring(0, 7).toUpperCase()]),
+                sprintf(context.t.createTagOnCommitMsg, [commitSha.substring(0, 7).toUpperCase()]),
                 style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textSM),
               ),
               SizedBox(height: spaceMD),
@@ -45,7 +45,7 @@ Future<void> showDialog(BuildContext context, String commitSha, Future<void> Fun
                   border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                   isCollapsed: true,
                   label: Text(
-                    t.tagName.toUpperCase(),
+                    context.t.tagName.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
                   ),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -60,7 +60,7 @@ Future<void> showDialog(BuildContext context, String commitSha, Future<void> Fun
         actions: <Widget>[
           TextButton(
             child: Text(
-              t.cancel.toUpperCase(),
+              context.t.cancel.toUpperCase(),
               style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
             ),
             onPressed: () {
@@ -75,7 +75,7 @@ Future<void> showDialog(BuildContext context, String commitSha, Future<void> Fun
                   }
                 : null,
             child: Text(
-              t.create.toUpperCase(),
+              context.t.create.toUpperCase(),
               style: TextStyle(
                 color: textController.text.isNotEmpty ? context.colours.primaryPositive : context.colours.secondaryPositive,
                 fontSize: textMD,

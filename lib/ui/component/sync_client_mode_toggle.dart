@@ -75,7 +75,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                                 ),
                                 child: AnimatedDefaultTextStyle(
                                   child: Text(
-                                    t.defaultTo.toUpperCase(),
+                                    context.t.defaultTo.toUpperCase(),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(fontSize: textSM, fontWeight: FontWeight.w800),
                                   ),
@@ -93,7 +93,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                         : [],
                     AnimatedDefaultTextStyle(
                       child: Text(
-                        t.syncMode,
+                        context.t.syncMode,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
@@ -107,7 +107,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                     SizedBox(height: spaceXXXXS),
                     AnimatedDefaultTextStyle(
                       child: Text(
-                        t.syncModeDescription,
+                        context.t.syncModeDescription,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                       ),
@@ -179,7 +179,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                                 ),
                                 child: AnimatedDefaultTextStyle(
                                   child: Text(
-                                    t.defaultTo.toUpperCase(),
+                                    context.t.defaultTo.toUpperCase(),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(fontSize: textSM, fontWeight: FontWeight.w800),
                                   ),
@@ -197,7 +197,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                         : [],
                     AnimatedDefaultTextStyle(
                       child: Text(
-                        t.clientMode,
+                        context.t.clientMode,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: textMD, fontWeight: FontWeight.bold),
                       ),
@@ -211,7 +211,7 @@ class _SyncClientModeToggleState extends ConsumerState<SyncClientModeToggle> {
                     SizedBox(height: spaceXXXXS),
                     AnimatedDefaultTextStyle(
                       child: Text(
-                        t.clientModeDescription,
+                        context.t.clientModeDescription,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: textXS, fontWeight: FontWeight.bold),
                       ),

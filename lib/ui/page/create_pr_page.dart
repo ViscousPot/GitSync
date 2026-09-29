@@ -121,6 +121,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
   }
 
   Future<void> _submitPr() async {
+    final t = context.t;
     if (!_canSubmit) return;
     setState(() => _submitting = true);
 
@@ -151,7 +152,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
       setState(() => _submitting = false);
       final errorMsg = result?.error;
       Fluttertoast.showToast(
-        msg: errorMsg != null ? "${t.createPrFailed}: $errorMsg" : t.createPrFailed,
+        msg: errorMsg != null ? "${context.t.createPrFailed}: $errorMsg" : t.createPrFailed,
         toastLength: Toast.LENGTH_LONG,
         gravity: null,
       );
@@ -176,7 +177,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                   SizedBox(width: spaceXS),
                   Expanded(
                     child: Text(
-                      t.createPr.toUpperCase(),
+                      context.t.createPr.toUpperCase(),
                       style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -193,7 +194,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       _TemplateChip(
-                        label: t.createIssueBlankIssue.toUpperCase(),
+                        label: context.t.createIssueBlankIssue.toUpperCase(),
                         selected: _selectedTemplate == null,
                         onTap: () => _selectTemplate(null),
                       ),
@@ -233,12 +234,12 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
         // Branch selectors
         Row(
           children: [
-            Expanded(child: _buildBranchSelector(t.createPrBaseBranch.toUpperCase(), _baseBranch, (b) => setState(() => _baseBranch = b))),
+            Expanded(child: _buildBranchSelector(context.t.createPrBaseBranch.toUpperCase(), _baseBranch, (b) => setState(() => _baseBranch = b))),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: spaceXS),
               child: FaIcon(FontAwesomeIcons.arrowLeft, size: textXS, color: context.colours.tertiaryLight),
             ),
-            Expanded(child: _buildBranchSelector(t.createPrHeadBranch.toUpperCase(), _headBranch, (b) => setState(() => _headBranch = b))),
+            Expanded(child: _buildBranchSelector(context.t.createPrHeadBranch.toUpperCase(), _headBranch, (b) => setState(() => _headBranch = b))),
           ],
         ),
 
@@ -289,11 +290,11 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
               border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
               isCollapsed: true,
               label: Text(
-                t.createPrTitle.toUpperCase(),
+                context.t.createPrTitle.toUpperCase(),
                 style: TextStyle(color: context.colours.secondaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              hintText: t.createPrTitleHint,
+              hintText: context.t.createPrTitleHint,
               hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textMD, fontWeight: FontWeight.normal),
               contentPadding: const EdgeInsets.symmetric(horizontal: spaceMD, vertical: spaceSM),
               isDense: true,
@@ -313,9 +314,13 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                 padding: EdgeInsets.fromLTRB(spaceSM, spaceSM, spaceSM, 0),
                 child: Row(
                   children: [
-                    _WritePreviewTab(label: t.issueWrite.toUpperCase(), selected: _writeMode, onTap: () => setState(() => _writeMode = true)),
+                    _WritePreviewTab(label: context.t.issueWrite.toUpperCase(), selected: _writeMode, onTap: () => setState(() => _writeMode = true)),
                     SizedBox(width: spaceXXS),
-                    _WritePreviewTab(label: t.issuePreview.toUpperCase(), selected: !_writeMode, onTap: () => setState(() => _writeMode = false)),
+                    _WritePreviewTab(
+                      label: context.t.issuePreview.toUpperCase(),
+                      selected: !_writeMode,
+                      onTap: () => setState(() => _writeMode = false),
+                    ),
                   ],
                 ),
               ),
@@ -334,7 +339,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                       filled: true,
                       border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                       isCollapsed: true,
-                      hintText: t.createPrBodyHint,
+                      hintText: context.t.createPrBodyHint,
                       hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                       contentPadding: EdgeInsets.all(spaceSM),
                     ),
@@ -350,7 +355,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                   decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
                   child: _bodyController.text.isEmpty
                       ? Text(
-                          t.createPrBodyHint,
+                          context.t.createPrBodyHint,
                           style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                         )
                       : MarkdownBlock(data: _bodyController.text, config: _markdownConfig, generator: _markdownGenerator),
@@ -383,7 +388,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
                       ),
                     )
                   : Text(
-                      t.createPrSubmit.toUpperCase(),
+                      context.t.createPrSubmit.toUpperCase(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _canSubmit ? context.colours.tertiaryInfo : context.colours.tertiaryLight,
@@ -419,7 +424,7 @@ class _CreatePrPageState extends ConsumerState<CreatePrPage> {
               children: [
                 Expanded(
                   child: Text(
-                    selected ?? t.createPrSelectBranch,
+                    selected ?? context.t.createPrSelectBranch,
                     style: TextStyle(color: selected != null ? context.colours.primaryLight : context.colours.tertiaryLight, fontSize: textSM),
                     overflow: TextOverflow.ellipsis,
                   ),

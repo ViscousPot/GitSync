@@ -89,6 +89,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   }
 
   Future<void> _submitComment() async {
+    final t = context.t;
     final body = _commentController.text.trim();
     if (body.isEmpty) return;
 
@@ -123,6 +124,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   }
 
   Future<void> _toggleReaction(String targetId, String reaction, bool isComment, bool hasReacted) async {
+    final t = context.t;
     final (owner, repo) = _parseOwnerRepo();
     final manager = _manager;
     if (manager == null) return;
@@ -154,7 +156,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t.issueAddReaction.toUpperCase(),
+              context.t.issueAddReaction.toUpperCase(),
               style: TextStyle(color: context.colours.secondaryLight, fontSize: textXS, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: spaceSM),
@@ -203,7 +205,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               Expanded(
                 child: Center(
                   child: Text(
-                    t.prNotFound.toUpperCase(),
+                    context.t.prNotFound.toUpperCase(),
                     style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
                   ),
                 ),
@@ -357,7 +359,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               children: [
                 FaIcon(FontAwesomeIcons.solidComments, size: textXS),
                 SizedBox(width: spaceXXS),
-                Text(t.prConversation.toUpperCase()),
+                Text(context.t.prConversation.toUpperCase()),
               ],
             ),
           ),
@@ -367,7 +369,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               children: [
                 FaIcon(FontAwesomeIcons.codeBranch, size: textXS),
                 SizedBox(width: spaceXXS),
-                Text('${t.prCommits.toUpperCase()} (${detail.commits.length})'),
+                Text('${context.t.prCommits.toUpperCase()} (${detail.commits.length})'),
               ],
             ),
           ),
@@ -380,7 +382,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                   size: textXS,
                 ),
                 SizedBox(width: spaceXXS),
-                Text('${t.prChecks.toUpperCase()} (${detail.checkRuns.length})'),
+                Text('${context.t.prChecks.toUpperCase()} (${detail.checkRuns.length})'),
               ],
             ),
           ),
@@ -390,7 +392,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               children: [
                 FaIcon(FontAwesomeIcons.solidFileLines, size: textXS),
                 SizedBox(width: spaceXXS),
-                Text('${t.prFilesChanged.toUpperCase()} (${detail.changedFileCount})'),
+                Text('${context.t.prFilesChanged.toUpperCase()} (${detail.changedFileCount})'),
               ],
             ),
           ),
@@ -434,13 +436,13 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
 
         // Description
         Text(
-          t.prDescription.toUpperCase(),
+          context.t.prDescription.toUpperCase(),
           style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXXS),
         if (detail.body.isEmpty)
           Text(
-            t.prNoDescription,
+            context.t.prNoDescription,
             style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
@@ -454,14 +456,14 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
 
         // Activity
         Text(
-          '${t.prActivity.toUpperCase()} ($comments)',
+          '${context.t.prActivity.toUpperCase()} ($comments)',
           style: TextStyle(color: context.colours.secondaryLight, fontSize: textXXS, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: spaceXS),
 
         if (detail.timelineItems.isEmpty)
           Text(
-            t.prNoActivity,
+            context.t.prNoActivity,
             style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
           )
         else
@@ -499,7 +501,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                 FaIcon(FontAwesomeIcons.lock, size: textXS, color: context.colours.tertiaryLight),
                 SizedBox(width: spaceXS),
                 Text(
-                  t.issueWriteDisabled,
+                  context.t.issueWriteDisabled,
                   style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                 ),
               ],
@@ -551,7 +553,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     final relativeTime = timeago.format(ref.createdAt, locale: 'en').replaceFirstMapped(RegExp(r'^[A-Z]'), (m) => m.group(0)!.toLowerCase());
     final isPr = ref.sourceType == "PullRequest";
     final icon = isPr ? FontAwesomeIcons.codePullRequest : FontAwesomeIcons.solidCircleDot;
-    final mentionText = isPr ? t.prMentionedInPr : t.prMentionedInIssue;
+    final mentionText = isPr ? context.t.prMentionedInPr : context.t.prMentionedInIssue;
     final refLabel = ref.isCrossRepository && ref.sourceRepoName != null ? '${ref.sourceRepoName}#${ref.sourceNumber}' : '#${ref.sourceNumber}';
 
     return Padding(
@@ -657,14 +659,14 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
   Widget _buildChecksSummaryStamp() {
     final detail = _detail!;
     final (FaIconData icon, Color color, String text) = switch (detail.overallCheckStatus) {
-      CheckStatus.success => (FontAwesomeIcons.solidCircleCheck, context.colours.tertiaryPositive, t.prAllChecksPassed),
+      CheckStatus.success => (FontAwesomeIcons.solidCircleCheck, context.colours.tertiaryPositive, context.t.prAllChecksPassed),
       CheckStatus.failure => (
         FontAwesomeIcons.solidCircleXmark,
         context.colours.tertiaryNegative,
-        t.prChecksFailed(detail.checkRuns.where((c) => c.conclusion == "failure").length),
+        context.t.prChecksFailed(detail.checkRuns.where((c) => c.conclusion == "failure").length),
       ),
-      CheckStatus.pending => (FontAwesomeIcons.solidClock, context.colours.tertiaryWarning, t.prChecksPending),
-      CheckStatus.none => (FontAwesomeIcons.circleMinus, context.colours.tertiaryLight, t.prChecksNotFound),
+      CheckStatus.pending => (FontAwesomeIcons.solidClock, context.colours.tertiaryWarning, context.t.prChecksPending),
+      CheckStatus.none => (FontAwesomeIcons.circleMinus, context.colours.tertiaryLight, context.t.prChecksNotFound),
     };
 
     return Container(
@@ -701,15 +703,15 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
             context.colours.tertiaryPositive.withValues(alpha: 0.15),
             context.colours.tertiaryPositive.withValues(alpha: 0.3),
             context.colours.tertiaryPositive,
-            t.prApproved,
+            context.t.prApproved,
           ),
           PrReviewState.changesRequested => (
             context.colours.tertiaryNegative.withValues(alpha: 0.15),
             context.colours.tertiaryNegative.withValues(alpha: 0.3),
             context.colours.tertiaryNegative,
-            t.prChangesRequested,
+            context.t.prChangesRequested,
           ),
-          _ => (context.colours.tertiaryDark, Colors.transparent, context.colours.secondaryLight, t.prCommented),
+          _ => (context.colours.tertiaryDark, Colors.transparent, context.colours.secondaryLight, context.t.prCommented),
         };
 
         return Container(
@@ -852,7 +854,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issueWrite.toUpperCase(),
+                      context.t.issueWrite.toUpperCase(),
                       style: TextStyle(
                         color: _writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -871,7 +873,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                       borderRadius: BorderRadius.all(cornerRadiusXS),
                     ),
                     child: Text(
-                      t.issuePreview.toUpperCase(),
+                      context.t.issuePreview.toUpperCase(),
                       style: TextStyle(
                         color: !_writeMode ? context.colours.primaryLight : context.colours.tertiaryLight,
                         fontSize: textXS,
@@ -931,7 +933,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                     filled: true,
                     border: const OutlineInputBorder(borderRadius: BorderRadius.all(cornerRadiusSM), borderSide: BorderSide.none),
                     isCollapsed: true,
-                    hintText: t.issueAddComment,
+                    hintText: context.t.issueAddComment,
                     hintStyle: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM),
                     contentPadding: EdgeInsets.all(spaceSM),
                   ),
@@ -947,7 +949,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
               decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusSM)),
               child: _commentController.text.isEmpty
                   ? Text(
-                      t.issueAddComment,
+                      context.t.issueAddComment,
                       style: TextStyle(color: context.colours.tertiaryLight, fontSize: textSM, fontStyle: FontStyle.italic),
                     )
                   : MarkdownBlock(data: _commentController.text, config: _markdownConfig, generator: _markdownGenerator),
@@ -972,7 +974,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
                           child: CircularProgressIndicator(color: context.colours.secondaryLight, strokeWidth: spaceXXXXS),
                         )
                       : Text(
-                          t.comment.toUpperCase(),
+                          context.t.comment.toUpperCase(),
                           style: TextStyle(color: context.colours.tertiaryInfo, fontSize: textSM, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -992,7 +994,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     if (detail.commits.isEmpty) {
       return Center(
         child: Text(
-          t.prCommitsNotFound.toUpperCase(),
+          context.t.prCommitsNotFound.toUpperCase(),
           style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
@@ -1063,7 +1065,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     if (detail.checkRuns.isEmpty) {
       return Center(
         child: Text(
-          t.prChecksNotFound.toUpperCase(),
+          context.t.prChecksNotFound.toUpperCase(),
           style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
@@ -1163,7 +1165,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
     if (detail.changedFiles.isEmpty) {
       return Center(
         child: Text(
-          t.prFilesChangedNotFound.toUpperCase(),
+          context.t.prFilesChangedNotFound.toUpperCase(),
           style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
         ),
       );
@@ -1179,7 +1181,7 @@ class _PrDetailPageState extends ConsumerState<PrDetailPage> with SingleTickerPr
           child: Row(
             children: [
               Text(
-                '${detail.changedFileCount} ${t.prFilesChanged.toLowerCase()}',
+                '${detail.changedFileCount} ${context.t.prFilesChanged.toLowerCase()}',
                 style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontWeight: FontWeight.bold),
               ),
               const Spacer(),

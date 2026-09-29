@@ -67,7 +67,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
     loadingScreen: Center(child: CircularProgressIndicator(color: context.colours.primaryLight)),
     emptyFolder: Center(
       child: Text(
-        t.filesNotFound.toUpperCase(),
+        context.t.filesNotFound.toUpperCase(),
         style: TextStyle(color: context.colours.secondaryLight, fontWeight: FontWeight.bold, fontSize: textLG),
       ),
     ),
@@ -201,7 +201,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
   );
   List<((String, String), Function(List<String>))> get singleSelectOptions => [
     (
-      (t.rename, t.renameDescription),
+      (context.t.rename, context.t.renameDescription),
       (List<String> _) async {
         final oldPath = selectedPathsNotifier.value[0];
         final entity = FileSystemEntity.typeSync(oldPath);
@@ -229,7 +229,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
     ),
     if (viewOrEditFile(context, selectedPathsNotifier.value[0], true))
       (
-        (t.openFile, t.openFileDescription),
+        (context.t.openFile, context.t.openFileDescription),
         (List<String> selectedPaths) async {
           loadingMoreNotifier.value = true;
           final path = selectedPathsNotifier.value[0];
@@ -243,7 +243,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
       ),
     if (Platform.isIOS && FileSystemEntity.typeSync(selectedPathsNotifier.value[0]) == FileSystemEntityType.file)
       (
-        (t.openInTextastic, t.openInTextasticDescription),
+        (context.t.openInTextastic, context.t.openInTextasticDescription),
         (List<String> selectedPaths) async {
           final filePath = selectedPathsNotifier.value[0];
           final encodedFullPath = Uri.encodeComponent(filePath);
@@ -272,7 +272,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
         },
       ),
     (
-      (t.viewGitLog, t.viewGitLogDescription),
+      (context.t.viewGitLog, context.t.viewGitLogDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         final path = selectedPathsNotifier.value[0];
@@ -296,13 +296,13 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
         entityPathsNotifier.value.every((p) => selectedPathsNotifier.value.contains(p));
     return allSelected
         ? (
-            (t.deselectAll, t.deselectAllDescription),
+            (context.t.deselectAll, context.t.deselectAllDescription),
             (List<String> _) {
               selectedPathsNotifier.value = [];
             },
           )
         : (
-            (t.selectAll, t.selectAllDescription),
+            (context.t.selectAll, context.t.selectAllDescription),
             (List<String> _) {
               selectedPathsNotifier.value = List.from(entityPathsNotifier.value);
             },
@@ -311,7 +311,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
 
   List<((String, String), void Function(List<String>))> get ignoreAndUntrackOptions => [
     (
-      (t.ignoreUntrack, t.ignoreUntrackDescription),
+      (context.t.ignoreUntrack, context.t.ignoreUntrackDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitIgnorePath);
@@ -321,7 +321,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
       },
     ),
     (
-      (t.excludeUntrack, t.excludeUntrackDescription),
+      (context.t.excludeUntrack, context.t.excludeUntrackDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitInfoExcludePath);
@@ -331,7 +331,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
       },
     ),
     (
-      (t.ignoreOnly, t.ignoreOnlyDescription),
+      (context.t.ignoreOnly, context.t.ignoreOnlyDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitIgnorePath);
@@ -340,7 +340,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
       },
     ),
     (
-      (t.excludeOnly, t.excludeOnlyDescription),
+      (context.t.excludeOnly, context.t.excludeOnlyDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         addToIgnore(selectedPaths, gitInfoExcludePath);
@@ -349,7 +349,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
       },
     ),
     (
-      (t.untrack, t.untrackDescription),
+      (context.t.untrack, context.t.untrackDescription),
       (List<String> selectedPaths) async {
         loadingMoreNotifier.value = true;
         await runGitOperation(LogType.UntrackAll, (event) => event, {"filePaths": selectedPaths});
@@ -508,7 +508,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                     ? (widget.onBackAtRoot != null ? context.colours.primaryLight : context.colours.secondaryLight)
                                     : context.colours.primaryLight,
                                 size: textLG,
-                                semanticLabel: t.backLabel,
+                                semanticLabel: context.t.backLabel,
                               ),
                             ),
                           );
@@ -536,7 +536,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                           valueListenable: heldPathsNotifier,
                           builder: (context, heldPaths, child) => heldPaths.isNotEmpty
                               ? Text(
-                                  "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} ${t.selected}",
+                                  "(${heldPaths.length}) file${heldPaths.length > 1 ? "s" : ""} ${context.t.selected}",
                                   style: TextStyle(fontSize: textLG, color: context.colours.primaryLight, fontWeight: FontWeight.bold),
                                 )
                               : ExtendedText(
@@ -648,7 +648,7 @@ class FileExplorerState extends State<FileExplorer> with WidgetsBindingObserver 
                                                                     ),
                                                                     SizedBox(height: spaceXXXS),
                                                                     Text(
-                                                                      t.ignoreAndUntrack.toUpperCase(),
+                                                                      context.t.ignoreAndUntrack.toUpperCase(),
                                                                       style: TextStyle(
                                                                         color: context.colours.tertiaryInfo,
                                                                         fontSize: textSM,

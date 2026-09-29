@@ -209,18 +209,18 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
   bool _isSubmitting = false;
 
   List<(String, String)> get _discoverySources => [
-    ("reddit", t.sourceReddit),
-    ("obsidian", t.sourceObsidian),
-    ("youtube", t.sourceYoutube),
-    ("discord", t.sourceDiscord),
-    ("medium", t.sourceMedium),
-    ("google", t.sourceGoogle),
-    ("ai_search", t.sourceAiSearch),
-    ("github_fdroid", t.sourceGithubFdroid),
-    ("store", t.sourceStore),
-    ("advertisements", t.sourceAdvertisements),
-    ("word_of_mouth", t.sourceWordOfMouth),
-    ("other", t.sourceOther),
+    ("reddit", context.t.sourceReddit),
+    ("obsidian", context.t.sourceObsidian),
+    ("youtube", context.t.sourceYoutube),
+    ("discord", context.t.sourceDiscord),
+    ("medium", context.t.sourceMedium),
+    ("google", context.t.sourceGoogle),
+    ("ai_search", context.t.sourceAiSearch),
+    ("github_fdroid", context.t.sourceGithubFdroid),
+    ("store", context.t.sourceStore),
+    ("advertisements", context.t.sourceAdvertisements),
+    ("word_of_mouth", context.t.sourceWordOfMouth),
+    ("other", context.t.sourceOther),
   ];
 
   final animationDuration = Duration(seconds: 2);
@@ -522,7 +522,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Padding(
                     padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 5),
                     child: Text(
-                      t.legacyAppUserDialogTitle,
+                      context.t.legacyAppUserDialogTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -540,7 +540,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   Padding(
                     padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 4),
                     child: Text(
-                      t.legacyAppUserDialogMessagePart1,
+                      context.t.legacyAppUserDialogMessagePart1,
                       textAlign: TextAlign.right,
                       style: TextStyle(
                         color: context.colours.primaryLight,
@@ -553,7 +553,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   ),
                   SizedBox(height: spaceXL),
                   Text(
-                    t.legacyAppUserDialogMessagePart2,
+                    context.t.legacyAppUserDialogMessagePart2,
                     style: TextStyle(
                       color: context.colours.secondaryLight,
                       fontWeight: FontWeight.bold,
@@ -564,7 +564,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   ),
                   SizedBox(height: spaceSM),
                   Text(
-                    t.legacyAppUserDialogMessagePart3,
+                    context.t.legacyAppUserDialogMessagePart3,
                     style: TextStyle(
                       color: context.colours.secondaryLight,
                       fontWeight: FontWeight.bold,
@@ -597,7 +597,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             ),
                           ),
                           child: Text(
-                            t.setUp.toUpperCase(),
+                            context.t.setUp.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.secondaryDark,
                               fontWeight: FontWeight.bold,
@@ -729,7 +729,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width, height: spaceXXL * 2.5),
                       Text(
-                        t.onboardingWelcomeTitle,
+                        context.t.onboardingWelcomeTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: context.colours.primaryLight,
@@ -755,15 +755,15 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       ),
                       children: [
                         TextSpan(
-                          text: t.onboardingWelcomeDescWorks,
+                          text: context.t.onboardingWelcomeDescWorks,
                           style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
-                        TextSpan(text: t.onboardingWelcomeDescBackground),
+                        TextSpan(text: context.t.onboardingWelcomeDescBackground),
                         TextSpan(
-                          text: t.onboardingWelcomeDescYourWork,
+                          text: context.t.onboardingWelcomeDescYourWork,
                           style: TextStyle(color: context.colours.tertiaryNegative, fontWeight: FontWeight.bold, fontFamily: "AtkinsonHyperlegible"),
                         ),
-                        TextSpan(text: t.onboardingWelcomeDescFocus),
+                        TextSpan(text: context.t.onboardingWelcomeDescFocus),
                       ],
                     ),
                   ),
@@ -804,7 +804,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           padding: EdgeInsets.symmetric(horizontal: spaceSM, vertical: spaceXXS),
                           child: Text(
-                            t.welcomeSetupPrompt,
+                            context.t.welcomeSetupPrompt,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: textSM,
@@ -836,7 +836,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              t.welcomeNegative.toUpperCase(),
+                              context.t.welcomeNegative.toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.tertiaryDark,
                                 fontWeight: FontWeight.bold,
@@ -871,7 +871,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              t.welcomePositive.toUpperCase(),
+                              context.t.welcomePositive.toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
@@ -1002,7 +1002,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      t.onboardingHowYouFoundUsTitle,
+                      context.t.onboardingHowYouFoundUsTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -1013,7 +1013,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      t.onboardingHowYouFoundUsSubtitle,
+                      context.t.onboardingHowYouFoundUsSubtitle,
                       style: TextStyle(
                         color: context.colours.secondaryLight,
                         fontSize: textSM,
@@ -1039,7 +1039,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                     controller: otherTextController,
                                     style: TextStyle(color: context.colours.primaryLight, fontSize: textSM, fontFamily: "AtkinsonHyperlegible"),
                                     decoration: InputDecoration(
-                                      hintText: t.sourceOtherHint,
+                                      hintText: context.t.sourceOtherHint,
                                       hintStyle: TextStyle(
                                         color: context.colours.secondaryLight,
                                         fontSize: textSM,
@@ -1094,7 +1094,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
-                            t.backLabel.toUpperCase(),
+                            context.t.backLabel.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
@@ -1132,7 +1132,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              (isContinue ? t.continueLabel : t.skip).toUpperCase(),
+                              (isContinue ? context.t.continueLabel : context.t.skip).toUpperCase(),
                               style: TextStyle(
                                 color: disabled ? context.colours.secondaryLight : context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
@@ -1288,7 +1288,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     children: [
                       SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                       Text(
-                        t.onboardingChooseYourFocus,
+                        context.t.onboardingChooseYourFocus,
                         style: TextStyle(
                           color: context.colours.primaryLight,
                           fontSize: textMD * 2,
@@ -1299,7 +1299,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       ),
                       SizedBox(height: spaceXS),
                       Text(
-                        t.onboardingChangeLaterInSettings,
+                        context.t.onboardingChangeLaterInSettings,
                         style: TextStyle(
                           color: context.colours.secondaryLight,
                           fontSize: textSM,
@@ -1360,7 +1360,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
                                                     ),
-                                                    child: Text(t.onboardingClientMode),
+                                                    child: Text(context.t.onboardingClientMode),
                                                   ),
                                                   SizedBox(width: spaceSM),
                                                   FaIcon(
@@ -1391,17 +1391,21 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
                                                 ),
-                                                child: Text(t.onboardingClientModeDescription, textAlign: TextAlign.end),
+                                                child: Text(context.t.onboardingClientModeDescription, textAlign: TextAlign.end),
                                               ),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
-                                                _modeFeatureItem(FontAwesomeIcons.codeBranch, t.onboardingClientFeatureBranch, isClientMode),
-                                                _modeFeatureItem(FontAwesomeIcons.arrowUpFromBracket, t.onboardingClientFeatureCommit, isClientMode),
+                                                _modeFeatureItem(FontAwesomeIcons.codeBranch, context.t.onboardingClientFeatureBranch, isClientMode),
+                                                _modeFeatureItem(
+                                                  FontAwesomeIcons.arrowUpFromBracket,
+                                                  context.t.onboardingClientFeatureCommit,
+                                                  isClientMode,
+                                                ),
                                                 _modeFeatureItem(
                                                   FontAwesomeIcons.codePullRequest,
-                                                  t.onboardingClientFeatureDiff,
+                                                  context.t.onboardingClientFeatureDiff,
                                                   isClientMode,
                                                   false,
                                                   true,
@@ -1462,7 +1466,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                       fontSize: textXL,
                                                       fontFamily: "AtkinsonHyperlegible",
                                                     ),
-                                                    child: Text(t.onboardingSyncMode),
+                                                    child: Text(context.t.onboardingSyncMode),
                                                   ),
                                                 ],
                                               ),
@@ -1487,7 +1491,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                   fontSize: textSM,
                                                   fontFamily: "AtkinsonHyperlegible",
                                                 ),
-                                                child: Text(t.onboardingSyncModeDescription),
+                                                child: Text(context.t.onboardingSyncModeDescription),
                                               ),
                                             ),
                                             Column(
@@ -1495,14 +1499,19 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                               children: [
                                                 _modeFeatureItem(
                                                   FontAwesomeIcons.clockRotateLeft,
-                                                  t.onboardingSyncFeatureAutoCommit,
+                                                  context.t.onboardingSyncFeatureAutoCommit,
                                                   !isClientMode,
                                                   true,
                                                 ),
-                                                _modeFeatureItem(FontAwesomeIcons.gear, t.onboardingSyncFeatureBackground, !isClientMode, true),
+                                                _modeFeatureItem(
+                                                  FontAwesomeIcons.gear,
+                                                  context.t.onboardingSyncFeatureBackground,
+                                                  !isClientMode,
+                                                  true,
+                                                ),
                                                 _modeFeatureItem(
                                                   FontAwesomeIcons.triangleExclamation,
-                                                  t.onboardingSyncFeatureConflict,
+                                                  context.t.onboardingSyncFeatureConflict,
                                                   !isClientMode,
                                                   true,
                                                   true,
@@ -1545,7 +1554,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             ),
                             icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                             label: Text(
-                              t.backLabel.toUpperCase(),
+                              context.t.backLabel.toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.primaryDark,
                                 fontWeight: FontWeight.bold,
@@ -1574,7 +1583,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              t.next.toUpperCase(),
+                              context.t.next.toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
@@ -1693,7 +1702,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      t.onboardingBrowseEditTitle,
+                      context.t.onboardingBrowseEditTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -1704,7 +1713,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      t.onboardingBrowseEditSubtitle,
+                      context.t.onboardingBrowseEditSubtitle,
                       style: TextStyle(
                         color: context.colours.secondaryLight,
                         fontSize: textSM,
@@ -1746,7 +1755,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                             FaIcon(FontAwesomeIcons.folderOpen, color: context.colours.tertiaryPositive, size: textXL),
                                             SizedBox(width: spaceSM),
                                             Text(
-                                              t.onboardingFileExplorer,
+                                              context.t.onboardingFileExplorer,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontWeight: FontWeight.bold,
@@ -1771,9 +1780,9 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, t.onboardingBrowseFeatureHidden),
-                                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, t.onboardingBrowseFeatureLog),
-                                            _browseFeatureItem(FontAwesomeIcons.ban, t.onboardingBrowseFeatureIgnore),
+                                            _browseFeatureItem(FontAwesomeIcons.eyeSlash, context.t.onboardingBrowseFeatureHidden),
+                                            _browseFeatureItem(FontAwesomeIcons.clockRotateLeft, context.t.onboardingBrowseFeatureLog),
+                                            _browseFeatureItem(FontAwesomeIcons.ban, context.t.onboardingBrowseFeatureIgnore),
                                           ],
                                         ),
                                       ),
@@ -1807,7 +1816,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
-                                                    t.onboardingCodeEditor,
+                                                    context.t.onboardingCodeEditor,
                                                     style: TextStyle(
                                                       color: context.colours.primaryLight,
                                                       fontWeight: FontWeight.bold,
@@ -1834,9 +1843,9 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  _browseFeatureItem(FontAwesomeIcons.paintbrush, t.onboardingEditFeatureSyntax),
-                                                  _browseFeatureItem(FontAwesomeIcons.floppyDisk, t.onboardingEditFeatureAutosave),
-                                                  _browseFeatureItem(FontAwesomeIcons.flask, t.onboardingEditFeatureExperimental),
+                                                  _browseFeatureItem(FontAwesomeIcons.paintbrush, context.t.onboardingEditFeatureSyntax),
+                                                  _browseFeatureItem(FontAwesomeIcons.floppyDisk, context.t.onboardingEditFeatureAutosave),
+                                                  _browseFeatureItem(FontAwesomeIcons.flask, context.t.onboardingEditFeatureExperimental),
                                                 ],
                                               ),
                                             ),
@@ -1877,7 +1886,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
-                            t.backLabel.toUpperCase(),
+                            context.t.backLabel.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
@@ -1903,7 +1912,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           builder: (context) {
                             final hasPremium = ref.watch(premiumStatusProvider);
                             return Text(
-                              (hasPremium == true ? t.continueLabel : t.onboardingPremiumFeatures).toUpperCase(),
+                              (hasPremium == true ? context.t.continueLabel : context.t.onboardingPremiumFeatures).toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.secondaryDark,
                                 fontWeight: FontWeight.bold,
@@ -2111,7 +2120,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      t.notificationDialogTitle,
+                      context.t.notificationDialogTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -2122,7 +2131,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      t.onboardingNotificationDescription,
+                      context.t.onboardingNotificationDescription,
                       style: TextStyle(
                         color: context.colours.tertiaryLight,
                         fontSize: textSM,
@@ -2137,15 +2146,15 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _notificationBulletItem(t.onboardingNotificationFeatureSync),
-                          _notificationBulletItem(t.onboardingNotificationFeatureConflict),
-                          _notificationBulletItem(t.onboardingNotificationFeatureBug),
+                          _notificationBulletItem(context.t.onboardingNotificationFeatureSync),
+                          _notificationBulletItem(context.t.onboardingNotificationFeatureConflict),
+                          _notificationBulletItem(context.t.onboardingNotificationFeatureBug),
                         ],
                       ),
                     ),
                     SizedBox(height: spaceSM),
                     Text(
-                      t.onboardingNotificationDefault,
+                      context.t.onboardingNotificationDefault,
                       style: TextStyle(
                         color: context.colours.tertiaryLight,
                         fontSize: textSM,
@@ -2201,7 +2210,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                         ),
                         child: Text(
-                          t.skip.toUpperCase(),
+                          context.t.skip.toUpperCase(),
                           style: TextStyle(
                             color: context.colours.primaryDark,
                             fontWeight: FontWeight.bold,
@@ -2307,7 +2316,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      t.allFilesAccessDialogTitle,
+                      context.t.allFilesAccessDialogTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -2318,7 +2327,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      t.onboardingFileAccessDescription,
+                      context.t.onboardingFileAccessDescription,
                       style: TextStyle(
                         color: context.colours.tertiaryLight,
                         fontSize: textSM,
@@ -2333,9 +2342,9 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _notificationBulletItem(t.onboardingFileAccessFeatureSync),
-                          _notificationBulletItem(t.onboardingFileAccessFeatureReadWrite),
-                          _notificationBulletItem(t.onboardingFileAccessFeatureDirectory),
+                          _notificationBulletItem(context.t.onboardingFileAccessFeatureSync),
+                          _notificationBulletItem(context.t.onboardingFileAccessFeatureReadWrite),
+                          _notificationBulletItem(context.t.onboardingFileAccessFeatureDirectory),
                         ],
                       ),
                     ),
@@ -2472,7 +2481,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   children: [
                     SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                     Text(
-                      t.onboardingAlmostThereTitle,
+                      context.t.onboardingAlmostThereTitle,
                       style: TextStyle(
                         color: context.colours.primaryLight,
                         fontSize: textMD * 2,
@@ -2483,7 +2492,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                     ),
                     SizedBox(height: spaceXS),
                     Text(
-                      t.onboardingAlmostThereSubtitle,
+                      context.t.onboardingAlmostThereSubtitle,
                       style: TextStyle(
                         color: context.colours.tertiaryLight,
                         fontSize: textSM,
@@ -2515,7 +2524,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              t.onboardingStepAuthenticate,
+                                              context.t.onboardingStepAuthenticate,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontSize: textMD,
@@ -2539,7 +2548,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              t.onboardingStepClone,
+                                              context.t.onboardingStepClone,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontSize: textMD,
@@ -2568,7 +2577,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              t.onboardingStepSyncSettings,
+                                              context.t.onboardingStepSyncSettings,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontSize: textMD,
@@ -2592,7 +2601,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              t.onboardingStepWiki,
+                                              context.t.onboardingStepWiki,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontSize: textMD,
@@ -2616,7 +2625,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                           SizedBox(width: spaceSM),
                                           Expanded(
                                             child: Text(
-                                              t.onboardingStepAllSet,
+                                              context.t.onboardingStepAllSet,
                                               style: TextStyle(
                                                 color: context.colours.primaryLight,
                                                 fontSize: textMD,
@@ -2661,7 +2670,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                           label: Text(
-                            t.backLabel.toUpperCase(),
+                            context.t.backLabel.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
@@ -2696,7 +2705,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                               icon: FaIcon(FontAwesomeIcons.solidFileLines, color: context.colours.secondaryDark, size: textSM),
                               label: Text(
-                                t.documentation.toUpperCase(),
+                                context.t.documentation.toUpperCase(),
                                 style: TextStyle(
                                   color: context.colours.primaryDark,
                                   fontWeight: FontWeight.bold,
@@ -2767,7 +2776,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                 children: [
                   SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                   Text(
-                    t.onboardingAuthTitle,
+                    context.t.onboardingAuthTitle,
                     style: TextStyle(
                       color: context.colours.primaryLight,
                       fontSize: textMD * 2,
@@ -2778,7 +2787,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                   ),
                   SizedBox(height: spaceXS),
                   Text(
-                    t.onboardingAuthSubtitle,
+                    context.t.onboardingAuthSubtitle,
                     style: TextStyle(
                       color: context.colours.tertiaryLight,
                       fontSize: textSM,
@@ -2805,7 +2814,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                   child: Column(
                                     children: [
                                       Text(
-                                        t.oauthProviders.toUpperCase(),
+                                        context.t.oauthProviders.toUpperCase(),
                                         style: TextStyle(
                                           color: context.colours.secondaryLight,
                                           fontSize: textSM,
@@ -3050,7 +3059,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                       ),
                                       SizedBox(height: spaceSM),
                                       Text(
-                                        t.gitProtocols.toUpperCase(),
+                                        context.t.gitProtocols.toUpperCase(),
                                         style: TextStyle(
                                           color: context.colours.secondaryLight,
                                           fontSize: textSM,
@@ -3238,7 +3247,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                               icon: FaIcon(FontAwesomeIcons.arrowLeft, color: context.colours.secondaryDark, size: textSM),
                               label: Text(
-                                t.backLabel.toUpperCase(),
+                                context.t.backLabel.toUpperCase(),
                                 style: TextStyle(
                                   color: context.colours.primaryDark,
                                   fontWeight: FontWeight.bold,
@@ -3261,7 +3270,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                               ),
                             ),
                             child: Text(
-                              t.useOffline.toUpperCase(),
+                              context.t.useOffline.toUpperCase(),
                               style: TextStyle(
                                 color: context.colours.primaryDark,
                                 fontWeight: FontWeight.bold,
@@ -3389,7 +3398,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ],
                         ),
 
-                        secondChild: SingleChildScrollView(reverse: title == t.scheduledSyncSettings, child: settingsBody),
+                        secondChild: SingleChildScrollView(reverse: title == context.t.scheduledSyncSettings, child: settingsBody),
                       ),
                       AnimatedPositioned(
                         duration: animFast,
@@ -3412,7 +3421,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                                   ),
                                   SizedBox(width: spaceXXS),
                                   Text(
-                                    settingsBody != null ? t.onboardingTapToConfigure : t.onboardingLaunchWiki,
+                                    settingsBody != null ? context.t.onboardingTapToConfigure : context.t.onboardingLaunchWiki,
                                     style: TextStyle(
                                       color: context.colours.tertiaryLight,
                                       fontWeight: FontWeight.bold,
@@ -3443,12 +3452,12 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
         _onboardingSyncCard(
           index: 0,
           icon: FontAwesomeIcons.solidBell,
-          title: t.enableApplicationObserver,
-          subtitle: t.appSyncDescription,
+          title: context.t.enableApplicationObserver,
+          subtitle: context.t.appSyncDescription,
           features: [
-            (FontAwesomeIcons.rightToBracket, t.onboardingAppSyncFeatureOpen),
-            (FontAwesomeIcons.rightFromBracket, t.onboardingAppSyncFeatureClose),
-            (FontAwesomeIcons.list, t.onboardingAppSyncFeatureSelect),
+            (FontAwesomeIcons.rightToBracket, context.t.onboardingAppSyncFeatureOpen),
+            (FontAwesomeIcons.rightFromBracket, context.t.onboardingAppSyncFeatureClose),
+            (FontAwesomeIcons.list, context.t.onboardingAppSyncFeatureSelect),
           ],
           settingsBody: AutoSyncSettings(isOnboarding: true),
           onBeforeExpand: (context) async {
@@ -3464,33 +3473,36 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
       _onboardingSyncCard(
         index: 1,
         icon: FontAwesomeIcons.clockRotateLeft,
-        title: t.scheduledSyncSettings,
-        subtitle: t.scheduledSyncDescription,
+        title: context.t.scheduledSyncSettings,
+        subtitle: context.t.scheduledSyncDescription,
         features: [
-          (FontAwesomeIcons.clock, t.onboardingScheduledSyncFeatureFreq),
-          (FontAwesomeIcons.sliders, t.onboardingScheduledSyncFeatureCustom),
-          (FontAwesomeIcons.gear, t.onboardingScheduledSyncFeatureBg),
+          (FontAwesomeIcons.clock, context.t.onboardingScheduledSyncFeatureFreq),
+          (FontAwesomeIcons.sliders, context.t.onboardingScheduledSyncFeatureCustom),
+          (FontAwesomeIcons.gear, context.t.onboardingScheduledSyncFeatureBg),
         ],
         settingsBody: ScheduledSyncSettings(isOnboarding: true),
       ),
       _onboardingSyncCard(
         index: 2,
         icon: FontAwesomeIcons.barsStaggered,
-        title: t.quickSyncSettings,
-        subtitle: t.quickSyncDescription,
+        title: context.t.quickSyncSettings,
+        subtitle: context.t.quickSyncDescription,
         features: [
-          (FontAwesomeIcons.tableCells, t.onboardingQuickSyncFeatureTile),
-          (FontAwesomeIcons.bolt, t.onboardingQuickSyncFeatureShortcut),
-          (FontAwesomeIcons.tableColumns, t.onboardingQuickSyncFeatureWidget),
+          (FontAwesomeIcons.tableCells, context.t.onboardingQuickSyncFeatureTile),
+          (FontAwesomeIcons.bolt, context.t.onboardingQuickSyncFeatureShortcut),
+          (FontAwesomeIcons.tableColumns, context.t.onboardingQuickSyncFeatureWidget),
         ],
         settingsBody: QuickSyncSettings(isOnboarding: true),
       ),
       _onboardingSyncCard(
         index: 3,
         icon: FontAwesomeIcons.ellipsis,
-        title: t.otherSyncSettings,
-        subtitle: t.onboardingOtherSyncDescription,
-        features: [(FontAwesomeIcons.android, t.onboardingOtherSyncFeatureAndroid), (FontAwesomeIcons.apple, t.onboardingOtherSyncFeatureIos)],
+        title: context.t.otherSyncSettings,
+        subtitle: context.t.onboardingOtherSyncDescription,
+        features: [
+          (FontAwesomeIcons.android, context.t.onboardingOtherSyncFeatureAndroid),
+          (FontAwesomeIcons.apple, context.t.onboardingOtherSyncFeatureIos),
+        ],
         settingsBody: null,
         onTap: () => launchUrl(Uri.parse(syncOptionsDocsLink)),
       ),
@@ -3585,7 +3597,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                         children: [
                           SizedBox(width: MediaQuery.of(context).size.width, height: spaceLG + spaceXXL + spaceMD),
                           Text(
-                            t.onboardingSyncSettingsTitle,
+                            context.t.onboardingSyncSettingsTitle,
                             style: TextStyle(
                               color: context.colours.primaryLight,
                               fontSize: textMD * 2,
@@ -3596,7 +3608,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                           ),
                           SizedBox(height: spaceXS),
                           Text(
-                            t.onboardingSyncSettingsSubtitle,
+                            context.t.onboardingSyncSettingsSubtitle,
                             style: TextStyle(
                               color: context.colours.tertiaryLight,
                               fontSize: textSM,
@@ -3661,7 +3673,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             ),
                           ),
                           child: Text(
-                            t.skip.toUpperCase(),
+                            context.t.skip.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.primaryDark,
                               fontWeight: FontWeight.bold,
@@ -3691,7 +3703,7 @@ class _OnboardingSetup extends ConsumerState<OnboardingSetup> with WidgetsBindin
                             ),
                           ),
                           child: Text(
-                            t.done.toUpperCase(),
+                            context.t.done.toUpperCase(),
                             style: TextStyle(
                               color: context.colours.secondaryDark,
                               fontWeight: FontWeight.bold,

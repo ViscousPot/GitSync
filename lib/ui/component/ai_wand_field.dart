@@ -48,24 +48,24 @@ class _AiWandFieldState extends ConsumerState<AiWandField> {
                         context: context,
                         builder: (dialogContext) => BaseAlertDialog(
                           title: Text(
-                            t.aiSetupTitle,
+                            context.t.aiSetupTitle,
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textXL, fontWeight: FontWeight.bold),
                           ),
                           content: Text(
-                            t.aiSetupMsg,
+                            context.t.aiSetupMsg,
                             style: TextStyle(color: context.colours.primaryLight, fontSize: textSM),
                           ),
                           actions: [
                             TextButton(
                               child: Text(
-                                t.cancel.toUpperCase(),
+                                context.t.cancel.toUpperCase(),
                                 style: TextStyle(color: context.colours.primaryLight, fontSize: textMD),
                               ),
                               onPressed: () => Navigator.pop(dialogContext, false),
                             ),
                             TextButton(
                               child: Text(
-                                t.ok.toUpperCase(),
+                                context.t.ok.toUpperCase(),
                                 style: TextStyle(color: context.colours.tertiaryPositive, fontSize: textMD),
                               ),
                               onPressed: () => Navigator.pop(dialogContext, true),

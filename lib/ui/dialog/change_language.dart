@@ -29,7 +29,7 @@ Future<void> showDialog(BuildContext context, Future<void> Function(String local
             FaIcon(FontAwesomeIcons.language, color: context.colours.primaryLight, size: textLG),
             SizedBox(width: spaceSM),
             Text(
-              t.language.toUpperCase(),
+              context.t.language.toUpperCase(),
               textAlign: TextAlign.center,
               style: TextStyle(color: context.colours.primaryLight, fontSize: textLG, fontWeight: FontWeight.bold),
             ),
