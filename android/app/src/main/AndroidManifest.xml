@@ -59,6 +59,7 @@
         </activity>
         <service
             android:name=".GitSyncAccessibilityService"
+            android:process=":accessibility"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:enabled="true"
             android:exported="true">
