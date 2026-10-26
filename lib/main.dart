@@ -1250,11 +1250,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
       }
     });
 
-    quickActions.setShortcutItems(<ShortcutItem>[
-      ShortcutItem(type: GitsyncService.FORCE_SYNC, localizedTitle: context.t.syncNow, icon: "sync_now"),
-      ShortcutItem(type: GitsyncService.MANUAL_SYNC, localizedTitle: context.t.manualSync, icon: "manual_sync"),
-    ]);
-
     initAsync(() async {
       final provider = await repoManager.getStringNullable(StorageKey.repoman_aiProvider);
       final apiKey = await repoManager.getStringNullable(StorageKey.repoman_aiApiKey);
@@ -1373,6 +1368,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    const QuickActions().setShortcutItems(<ShortcutItem>[
+      ShortcutItem(type: GitsyncService.FORCE_SYNC, localizedTitle: context.t.syncNow, icon: "sync_now"),
+      ShortcutItem(type: GitsyncService.MANUAL_SYNC, localizedTitle: context.t.manualSync, icon: "manual_sync"),
+    ]);
   }
 
   Future<void> completeUiGuideShowcase(bool initialClientModeEnabled) async {
