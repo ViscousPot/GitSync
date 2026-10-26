@@ -214,12 +214,12 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                   builder: (context, gitCommitSigningKeySnapshot) => Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(color: context.colours.tertiaryDark, borderRadius: BorderRadius.all(cornerRadiusMD)),
-                                    child: FutureBuilder(
-                                      future: uiSettingsManager.getGitProvider(),
+                                    child: ProviderBuilder<GitProvider>(
+                                      provider: gitProviderProvider,
                                       builder: (context, snapshot) => Column(
                                         crossAxisAlignment: CrossAxisAlignment.stretch,
                                         children: [
-                                          snapshot.data == GitProvider.SSH && gitCommitSigningKeySnapshot.data == ""
+                                          snapshot.valueOrNull == GitProvider.SSH && gitCommitSigningKeySnapshot.data == ""
                                               ? SizedBox.shrink()
                                               : Row(
                                                   children: [
@@ -307,7 +307,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
                                                         : SizedBox.shrink(),
                                                   ],
                                                 ),
-                                          snapshot.data == GitProvider.SSH &&
+                                          snapshot.valueOrNull == GitProvider.SSH &&
                                                   (gitCommitSigningKeySnapshot.data == null || gitCommitSigningKeySnapshot.data == "")
                                               ? TextButton.icon(
                                                   onPressed: () async {
