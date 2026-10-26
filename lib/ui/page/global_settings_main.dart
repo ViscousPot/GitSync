@@ -79,13 +79,15 @@ class _GlobalSettingsMain extends ConsumerState<GlobalSettingsMain> with Widgets
       _blockTouches = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _controller.animateTo(_controller.position.maxScrollExtent / 2, duration: animSlow, curve: Curves.easeInOut);
+        if (!mounted) return;
         await Future.delayed(Duration(milliseconds: 200));
-        if (mounted) setState(() => _blockTouches = false);
+        if (!mounted) return;
+        setState(() => _blockTouches = false);
         ShowCaseWidget.of(context).startShowCase([_uiSetupGuideKey]);
-        while (!ShowCaseWidget.of(context).isShowCaseCompleted) {
+        while (mounted && !ShowCaseWidget.of(context).isShowCaseCompleted) {
           await Future.delayed(Duration(milliseconds: 100));
         }
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
       });
     }
   }

@@ -76,6 +76,7 @@ class _SettingsMain extends ConsumerState<SettingsMain> with WidgetsBindingObser
 
     if (widget.showcaseAuthorDetails) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
         ShowCaseWidget.of(context).startShowCase([_authorDetailsKey]);
       });
     }
