@@ -1700,7 +1700,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> with WidgetsBindingObse
 
     mergeConflictVisible.dispose();
 
-    premiumManager.dispose();
     _pulseController.dispose();
     _commitSelectMode.dispose();
     _commitSelectedShas.dispose();
