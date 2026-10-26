@@ -783,8 +783,8 @@ class _MyAppState extends State<MyApp> {
             }
             return const Locale('en');
           },
-          theme: _buildTheme(const Colours(darkMode: false)),
-          darkTheme: _buildTheme(const Colours(darkMode: true)),
+          theme: buildTheme(const Colours(darkMode: false)),
+          darkTheme: buildTheme(const Colours(darkMode: true)),
           themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
           themeAnimationDuration: Duration.zero,
           builder: (context, child) => Container(
@@ -831,7 +831,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-ThemeData _buildTheme(Colours colours) => ThemeData(
+ThemeData buildTheme(Colours colours) => ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: colours.primaryDark),
   useMaterial3: true,
   textSelectionTheme: TextSelectionThemeData(
