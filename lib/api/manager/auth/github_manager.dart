@@ -31,7 +31,7 @@ class GithubManager extends GitProviderManager {
   @override
   get clientSecret => gitHubClientSecret;
   @override
-  get scopes => ["user", "user:email", "repo", "workflow", "read:org"];
+  get scopes => ["read:user", "user:email", "repo", "workflow", "read:org"];
   bool get supportsTokenRefresh => false;
 
   OAuth2Client get oauthClient => GitHubOAuth2Client(redirectUri: 'gitsync://auth', customUriScheme: 'gitsync');
