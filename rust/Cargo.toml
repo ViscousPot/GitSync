@@ -8,7 +8,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.12.0"
-git2 = { version = "0.20.4" }
+git2 = { version = "0.21.0" }
 ssh-key = { version = "0.6.7", features = ["crypto", "encryption"] }
 osshkeys = "0.7.0"
 regex = "1.12.3"
@@ -22,7 +22,8 @@ uuid = {version = "1.22", features = [
 
 [features]
 default = ["vendored"]
-vendored = ["git2/vendored-libgit2", "git2/vendored-openssl"]
+vendored = ["git2/vendored-libgit2", "git2/vendored-openssl", "git2/https", "git2/ssh"]
+sha256 = ["git2/unstable-sha256"]
 zlib-ng-compat = ["libssh2-sys/zlib-ng-compat"]
 
 [lints.rust]

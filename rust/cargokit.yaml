@@ -1,5 +1,5 @@
 cargo:
   debug: # Configuration of cargo execution during debug builds
-    extra_flags: ["--features", "vendored"]
+    extra_flags: ["--features", "vendored,sha256"]
   release: # Configuration of cargo execution for release builds
-    extra_flags: ["--features", "vendored"]
+    extra_flags: ["--features", "vendored,sha256"]
