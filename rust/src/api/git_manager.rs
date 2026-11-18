@@ -140,9 +140,24 @@ trait WithLine {
         Self: Sized;
 }
 
+const BACKTRACE_MARKER: &str = "\nStack backtrace:\n";
+
+fn append_backtrace(error: git2::Error, line: u32) -> git2::Error {
+    if error.message().contains(BACKTRACE_MARKER) {
+        return error;
+    }
+
+    let backtrace = std::backtrace::Backtrace::force_capture();
+    let message = error.message();
+    git2::Error::from_str(&format!(
+        "{} (at line {}){}\n{}",
+        message, line, BACKTRACE_MARKER, backtrace
+    ))
+}
+
 impl<T> WithLine for Result<T, git2::Error> {
     fn safe_wline(self, line: u32) -> Result<Self, git2::Error> {
-        Ok(self.map_err(|e| git2::Error::from_str(&format!("{} (at line {})", e.message(), line))))
+        Ok(self.map_err(|e| append_backtrace(e, line)))
     }
 }
 
