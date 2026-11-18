@@ -10,6 +10,9 @@ import android.graphics.drawable.Drawable
 import android.provider.Settings
 import android.text.TextUtils
 import android.app.ActivityManager
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.ComponentName
+import android.view.accessibility.AccessibilityManager
 import java.io.File
 import android.widget.Toast
 import io.flutter.Log
@@ -50,7 +53,9 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
             }
 
             "isAccessibilityServiceEnabled" -> {
-                val isEnabled = isAccessibilityServiceEnabled(context)
+                // Enabled in Settings but not bound means Android marked the service as crashed
+                // ("Not working"), so auto sync is not running.
+                val isEnabled = isAccessibilityServiceEnabled(context) && isAccessibilityServiceBound(context)
                 result.success(isEnabled)
             }
 
@@ -233,6 +238,22 @@ class AccessibilityServiceHelper(private val context: Context) : MethodChannel.M
         val openSettings = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         openSettings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
         context.startActivity(openSettings)
-        Toast.makeText(context, "Please enable GitSync under \"Installed apps\"", Toast.LENGTH_LONG).show()
+        val message = if (isAccessibilityServiceEnabled(context) && !isAccessibilityServiceBound(context)) {
+            "GitSync has stopped. Turn it off and on again under \"Installed apps\""
+        } else {
+            "Please enable GitSync under \"Installed apps\""
+        }
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    // Only services the system has actually bound are returned; a service the system marked as
+    // crashed stays enabled in Settings but is missing from this list until it is toggled.
+    private fun isAccessibilityServiceBound(context: Context): Boolean {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val component = ComponentName(context, GitSyncAccessibilityService::class.java)
+        return am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK).any {
+            val info = it.resolveInfo.serviceInfo
+            ComponentName(info.packageName, info.name) == component
+        }
     }
 }
