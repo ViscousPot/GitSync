@@ -164,6 +164,7 @@ Currently supported languages:
 - French (`app_fr.arb`)
 - German (`app.de.arb`)
 - Japanese (`app_ja.arb`)
+- Persian (`app_fa.arb`)
 - Russian (`app_ru.arb`)
 - Spanish (`app_es.arb`)
 
