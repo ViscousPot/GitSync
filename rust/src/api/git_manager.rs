@@ -2433,6 +2433,13 @@ fn pull_changes_priv(
     }
 
     let head = result.unwrap();
+    // On a detached HEAD the shorthand is "HEAD": the pull would track
+    // origin/HEAD and create a local branch named "HEAD".
+    if !head.is_branch() {
+        return Err(git2::Error::from_str(
+            "Cannot pull: HEAD is detached. Please check out a branch first.",
+        ));
+    }
     let resolved_head = swl!(head.resolve())?;
     let remote_branch = swl!(resolved_head
         .shorthand()
@@ -2600,6 +2607,31 @@ pub async fn download_changes(
     );
     let repo = swl!(Repository::open(path_string))?;
     set_author(&repo, &author);
+
+    // A rebase from a rejected push leaves HEAD detached. cleanup_state() only
+    // deletes the rebase metadata, so calling it here would strand HEAD on the
+    // upstream commit and leave the local commits on a branch nothing syncs.
+    if matches!(
+        repo.state(),
+        RepositoryState::Rebase | RepositoryState::RebaseMerge | RepositoryState::RebaseInteractive
+    ) {
+        if swl!(repo.index())?.has_conflicts() {
+            _log(
+                Arc::clone(&log_callback),
+                LogType::DownloadChanges,
+                "Rebase stopped on a conflict; leaving it to be resolved".to_string(),
+            );
+            return Ok(Some(false));
+        }
+        // Interrupted without a conflict (e.g. the app was killed): abort to
+        // put the branch back. The next push rebases its commits again.
+        _log(
+            Arc::clone(&log_callback),
+            LogType::DownloadChanges,
+            "Aborting interrupted rebase".to_string(),
+        );
+        swl!(swl!(repo.open_rebase(None))?.abort())?;
+    }
     swl!(repo.cleanup_state())?;
 
     swl!(fetch_remote_priv(
@@ -5280,4 +5312,217 @@ pub async fn squash_commits(
     );
 
     Ok(())
+}
+
+#[cfg(test)]
+mod detached_head_tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn noop() -> DartFnFuture<()> {
+        Box::pin(async {})
+    }
+
+    fn log(_t: LogType, _m: String) -> DartFnFuture<()> {
+        Box::pin(async {})
+    }
+
+    fn tmp(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("gitsync-test-{}-{}", name, Uuid::new_v4()));
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    fn author() -> (String, String) {
+        ("Test".to_string(), "test@example.com".to_string())
+    }
+
+    fn commit_file(repo: &Repository, file: &str, content: &str, msg: &str) {
+        let workdir = repo.workdir().unwrap();
+        fs::write(workdir.join(file), content).unwrap();
+        let mut index = repo.index().unwrap();
+        index.add_path(Path::new(file)).unwrap();
+        index.write().unwrap();
+        let tree = repo.find_tree(index.write_tree().unwrap()).unwrap();
+        let sig = git2::Signature::now("Test", "test@example.com").unwrap();
+        let parents: Vec<git2::Commit> = match repo.head() {
+            Ok(h) => vec![h.peel_to_commit().unwrap()],
+            Err(_) => vec![],
+        };
+        let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
+        repo.commit(Some("HEAD"), &sig, &sig, msg, &tree, &parent_refs).unwrap();
+    }
+
+    fn push_main(repo: &Repository) {
+        let mut remote = repo.find_remote("origin").unwrap();
+        remote.push(&["refs/heads/main:refs/heads/main"], None).unwrap();
+    }
+
+    /// A bare origin with one commit, plus two clones ("phone" and "other").
+    fn setup() -> (PathBuf, PathBuf, PathBuf) {
+        let origin = tmp("origin");
+        let opts = &mut git2::RepositoryInitOptions::new();
+        opts.bare(true).initial_head("main");
+        Repository::init_opts(&origin, opts).unwrap();
+
+        let seed_path = tmp("seed");
+        let mut seed_opts = git2::RepositoryInitOptions::new();
+        seed_opts.initial_head("main");
+        let seed = Repository::init_opts(&seed_path, &seed_opts).unwrap();
+        seed.remote("origin", origin.to_str().unwrap()).unwrap();
+        commit_file(&seed, "note.md", "base\n", "base");
+        push_main(&seed);
+
+        let phone = tmp("phone");
+        let other = tmp("other");
+        Repository::clone(origin.to_str().unwrap(), &phone).unwrap();
+        Repository::clone(origin.to_str().unwrap(), &other).unwrap();
+        (origin, phone, other)
+    }
+
+    /// One pass of GitSyncService's sync loop with optimised sync enabled
+    /// (lib/gitsync_service.dart): recommended action -> pull -> push.
+    async fn sync(path: &String) {
+        let remote = "origin".to_string();
+        let provider = "HTTPS".to_string();
+        let creds = (String::new(), String::new());
+        let action = get_recommended_action(path, &remote, &provider, &creds, log)
+            .await
+            .unwrap();
+        if action == Some(-1) {
+            return;
+        }
+        if matches!(action, Some(0..=3)) {
+            let _ = download_changes(path, &remote, &provider, &creds, None, &author(), noop, log)
+                .await;
+        }
+        if !get_conflicting_priv_for_test(path).is_empty() {
+            return;
+        }
+        let action = get_recommended_action(path, &remote, &provider, &creds, log)
+            .await
+            .unwrap();
+        if matches!(action, Some(2) | Some(3)) {
+            let _ = upload_changes(
+                path,
+                &remote,
+                &provider,
+                &creds,
+                None,
+                &author(),
+                None,
+                &"Last Sync (Mobile)".to_string(),
+                noop,
+                noop,
+                log,
+            )
+            .await;
+        }
+    }
+
+    fn get_conflicting_priv_for_test(path: &String) -> Vec<String> {
+        let repo = Repository::open(path).unwrap();
+        let index = repo.index().unwrap();
+        index
+            .conflicts()
+            .unwrap()
+            .filter_map(|c| c.ok())
+            .filter_map(|c| c.our.or(c.their).or(c.ancestor))
+            .map(|e| String::from_utf8_lossy(&e.path).to_string())
+            .collect()
+    }
+
+    fn origin_note(origin: &PathBuf) -> String {
+        let repo = Repository::open_bare(origin).unwrap();
+        let commit = repo
+            .find_reference("refs/heads/main")
+            .unwrap()
+            .peel_to_commit()
+            .unwrap();
+        let entry = commit.tree().unwrap().get_name("note.md").unwrap().id();
+        let content = repo.find_blob(entry).unwrap().content().to_vec();
+        String::from_utf8(content).unwrap()
+    }
+
+    fn assert_no_head_branch(path: &PathBuf) {
+        let repo = Repository::open(path).unwrap();
+        assert!(
+            repo.find_reference("refs/heads/HEAD").is_err(),
+            "sync created a local branch named HEAD"
+        );
+        let head = repo.find_reference("HEAD").unwrap();
+        assert_ne!(
+            head.symbolic_target().ok().flatten(),
+            Some("refs/heads/HEAD"),
+            "HEAD points at refs/heads/HEAD"
+        );
+    }
+
+    /// A push is rejected, and the rebase onto the remote stops on a conflict.
+    /// Later syncs must keep the conflict for the user to resolve, and must
+    /// never move the repository onto a branch named "HEAD".
+    #[tokio::test(flavor = "multi_thread")]
+    async fn sync_keeps_conflicting_rebase_and_branch() {
+        let (_origin, phone, other) = setup();
+        let phone_s = phone.to_str().unwrap().to_string();
+
+        let other_repo = Repository::open(&other).unwrap();
+        commit_file(&other_repo, "note.md", "from other\n", "other edit");
+        push_main(&other_repo);
+
+        fs::write(phone.join("note.md"), "from phone\n").unwrap();
+        sync(&phone_s).await;
+        assert_eq!(Repository::open(&phone).unwrap().state(), RepositoryState::RebaseMerge);
+
+        sync(&phone_s).await;
+
+        // Another device pushes again, and the phone syncs.
+        commit_file(&other_repo, "other.md", "more\n", "other edit 2");
+        push_main(&other_repo);
+        sync(&phone_s).await;
+
+        assert_no_head_branch(&phone);
+        let repo = Repository::open(&phone).unwrap();
+        assert_eq!(repo.state(), RepositoryState::RebaseMerge, "the rebase conflict was discarded");
+        assert!(!get_conflicting_priv_for_test(&phone_s).is_empty(), "the conflict was discarded");
+    }
+
+    /// The app is killed in the middle of a rebase (no conflict). The next
+    /// sync must restore the branch and still deliver the local commit.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn sync_recovers_from_interrupted_rebase() {
+        let (origin, phone, other) = setup();
+        let phone_s = phone.to_str().unwrap().to_string();
+
+        let other_repo = Repository::open(&other).unwrap();
+        commit_file(&other_repo, "other.md", "from other\n", "other edit");
+        push_main(&other_repo);
+
+        // Local commit, fetch, start a rebase onto origin/main, then "die"
+        // before any rebase step is committed.
+        {
+            let repo = Repository::open(&phone).unwrap();
+            commit_file(&repo, "note.md", "from phone\n", "phone edit");
+            repo.find_remote("origin").unwrap().fetch(&["main"], None, None).unwrap();
+            let upstream = repo
+                .reference_to_annotated_commit(
+                    &repo.find_reference("refs/remotes/origin/main").unwrap(),
+                )
+                .unwrap();
+            let mut rebase = repo.rebase(None, Some(&upstream), Some(&upstream), None).unwrap();
+            let _ = rebase.next();
+        }
+
+        sync(&phone_s).await;
+
+        assert_no_head_branch(&phone);
+        let repo = Repository::open(&phone).unwrap();
+        assert_eq!(repo.state(), RepositoryState::Clean);
+        assert_eq!(
+            repo.find_reference("HEAD").unwrap().symbolic_target().ok().flatten(),
+            Some("refs/heads/main"),
+            "the branch was not restored"
+        );
+        assert_eq!(origin_note(&origin), "from phone\n", "the local commit never reached the remote");
+    }
 }
